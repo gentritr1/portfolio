@@ -17,7 +17,7 @@ export interface Project {
   world?: WorldKey
   /** Stylized mini-screen at the row start. Its accent follows `world`; other rows use the neutral accent. */
   thumb?: ThumbKind
-  /** Real capture of the owner's own site, shown in place of `thumb`. */
+  /** Real capture from the owner's own site or a public store page, shown in place of `thumb`. */
   shot?: { src: string; alt: string }
 }
 
@@ -102,7 +102,10 @@ export const projects: Project[] = [
     stack: ['React Native', 'Redux Toolkit', 'Firebase', 'Vision Camera', 'epub.js'],
     line: 'PDF/EPUB reader, barcode scanning, gamification, about 14 releases, RN 0.63 → 0.81',
     world: 'reading',
-    thumb: 'reader-page',
+    shot: {
+      src: '/mobile/thumbs/reading.webp',
+      alt: 'Read to Feed store screenshot: My Books list with reading progress',
+    },
   },
   {
     group: 'Vianova',
@@ -112,7 +115,10 @@ export const projects: Project[] = [
     stack: ['React Native', 'Redux', 'Firebase Messaging'],
     line: 'Book shopping with push deep links, animated details and checkout; iOS and Android',
     world: 'reading',
-    thumb: 'shop-grid',
+    shot: {
+      src: '/mobile/thumbs/bookstore.webp',
+      alt: 'Dukagjini Bookstore store screenshot: foreign books list with ratings and prices',
+    },
   },
   {
     group: 'Vianova',
@@ -174,7 +180,11 @@ export const projects: Project[] = [
     role: 'Mobile',
     stack: ['React Native', 'Redux Toolkit', 'Maps', 'Firebase'],
     line: 'Online grocery orders with delivery slots, loyalty, wishlist and address search on a map',
-    thumb: 'grocery-slots',
+    world: 'reading',
+    shot: {
+      src: '/mobile/thumbs/grocery.webp',
+      alt: 'Viva Fresh store screenshot: home with product categories, Albanian interface',
+    },
   },
   {
     group: 'Vianova',
@@ -237,7 +247,10 @@ export const projects: Project[] = [
     role: 'Mobile · co-built',
     stack: ['Expo', 'React Native', 'MapLibre', 'Mapillary', 'Zustand'],
     line: 'Street-view guessing game, published on Google Play',
-    thumb: 'map-pin',
+    shot: {
+      src: '/mobile/thumbs/geoguesser.webp',
+      alt: 'Geo Guesser store screenshot: dark map with the guess and the answer joined by a dashed line',
+    },
   },
   {
     group: 'Personal',

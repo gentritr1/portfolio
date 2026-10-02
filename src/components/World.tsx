@@ -34,7 +34,7 @@ export interface WorldProps {
   layout?: WorldLayout
   /** Extra narrative content after the story, for example related projects. */
   children?: ReactNode
-  /** Content after the facts and stack: full width in stage-wide, the narrative column in split layouts. */
+  /** Full-width content after the narrative and the stage. */
   after?: ReactNode
 }
 
@@ -199,10 +199,10 @@ export function World(props: WorldProps) {
               <div className="mt-10">
                 <NarrativeFacts facts={props.facts} stack={props.stack} />
               </div>
-              {props.after && <div className="mt-12">{props.after}</div>}
             </div>
           </div>
         )}
+        {layout !== 'stage-wide' && props.after && <div className="mt-12 lg:mt-16">{props.after}</div>}
       </Container>
     </section>
   )

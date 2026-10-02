@@ -149,6 +149,7 @@ Each world lives in `src/worlds/<name>/index.tsx` (exports `<Name>World`) and `s
 | `stageAspect` / `stageAspectTablet` / `stageAspectMobile` | CSS aspect-ratio | Desktop (1024 px and up) default `4 / 3`. Tablet (640-1023 px) defaults to `stageAspect`, or `1 / 1` for `stage-wide`. Mobile (below 640 px) defaults to `stageAspect`. From 640 px up, the stage width is capped so the core stays near 82svh tall. |
 | `layout` | `'stage-end' \| 'stage-start' \| 'stage-wide'` | Split with stage right, split with stage left, or full-width stage over a two-column narrative |
 | `children` | `ReactNode?` | Extra narrative after the story |
+| `after` | `ReactNode?` | Full-width content after the narrative and the stage, for example the streaming public pages and the reading published-apps strip |
 
 Stage core: `position: relative`, `overflow: hidden`, `rounded-stage-inner`, `bg-surface`, and a size container (`@container`), so recreations use `@sm:` style variants and `cqi` units against the stage. Below 1024 px the stage renders first. On wide split layouts the stage is sticky at `top: 6rem`.
 

@@ -1,4 +1,5 @@
 import { World } from '../../components/World'
+import { PublishedApps } from './PublishedApps'
 import { Recreation } from './Recreation'
 
 const related = [
@@ -40,6 +41,7 @@ export function ReadingWorld() {
       ]}
       recreationName="Reader page"
       recreation={<Recreation />}
+      after={<PublishedApps />}
     >
       <ul className="grid gap-6">
         {related.map((item) => (

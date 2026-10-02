@@ -1,6 +1,6 @@
 # CONTENT.md — the copy and facts for every section
 
-All facts below come from git history. Do not invent numbers. Do not add product names. Keep copy in plain English, short sentences, no metaphors, no buzzwords. Every number here is safe to show.
+All facts below come from git history. Do not invent numbers. Do not add product names, except public products, which are named and linked (§4 rule). Keep copy in plain English, short sentences, no metaphors, no buzzwords. Every number here is safe to show.
 
 ---
 
@@ -101,6 +101,9 @@ All facts below come from git history. Do not invent numbers. Do not add product
 
 **Stack:** React Native, React Navigation, Redux Toolkit, Firebase Messaging, Vision Camera, react-native-pdf, epub.js, Lottie, i18next
 
+**Published apps strip:** after the narrative and the stage, full width. Title "Published apps", then one group for each app with the name the store shows: Read to Feed (4 frames), Dukagjini Bookstore (3 frames), Viva Fresh (6 frames: 3 iPhone, 3 Android). Each group has a scroll-snap row (6 columns from 1024 px) and pill links to its store pages; Read to Feed links to the Wayback captures ("App Store (archived)", "Google Play (archived)") because its listings are removed. A click on a frame opens it large in a native dialog. Files: `public/mobile/<app>-<n>.webp`, index thumbs in `public/mobile/thumbs/`.
+- Rule (owner, 2026-10-02): public products are named and linked. Screenshots come only from public store pages or public web pages, never from a running app.
+
 **Live recreation:** "Reader page". A phone-shaped frame (not an iPhone mockup, just a rounded device silhouette) showing an EPUB-style page of public-domain text (use a short passage from Alice's Adventures in Wonderland), with a font-size stepper (A- / A+) that reflows the text, a page-progress bar, a tap-to-flip page curl (simple 3D transform), and a badge toast that slides in ("Streak: 7 days") after the second flip. Beside it, a tiny barcode-scan moment: a card with a barcode SVG and a scanning line; on click it "reads" ISBN 978-0-14-143976-1 and shows a book card. Reduced motion: no scan line, no curl.
 
 ---
@@ -156,6 +159,7 @@ All facts below come from git history. Do not invent numbers. Do not add product
 - **Offday** — multi-tenant time-off app: employee requests, manager approvals, team calendar with drag-select, invite links, streaming AI assistant, dark theme. Next.js 16, SQLite, Zod, Playwright (16 security and tenant-isolation tests).
 - **Open source** — maintained forks of `epubjs-react-native` and `react-native-pdf`, used in a production reading app. GitHub: github.com/gentritr1
 - **Real screenshots** — the owner's own sites (Snaxx Tech, Offday, FJALË, Za!, Morse Trainer) show real captures from `public/personal/shots/` (alt text and sizes in `manifest.json`); the Offday card swaps to the dark capture in dark theme, and the index rows use 256 × 160 crops from `shots/thumbs/`.
+- **Geo Guesser World 3D** — the index row uses a 256 × 160 crop of a Google Play frame (`public/mobile/thumbs/geoguesser.webp`). The Games mosaic stays 2 × 2: a fifth tile would break the grid.
 
 ---
 
@@ -184,7 +188,7 @@ Render as a compact, scannable index (not cards): grouped by employer, each row 
 | Donation and good-deeds app | 2021 – 2022 | Mobile | React Native, Redux Toolkit, Stripe, Firebase | Donations and subscriptions with Stripe, badges, guided tasks and video | — |
 | Coaching app | 2022 – 2023 | Mobile | React Native, Redux Toolkit, React Navigation | Organization sign-in, a daily calendar strip, reactions, and dev, staging and release builds | — |
 | Member portal, web | 2025 | Frontend | Next.js 15, TypeScript, RTK Query, next-intl, Pusher | Member portal foundation: protected routes, external sign-in, app shell and layout | — |
-| Grocery shopping and loyalty app | 2023 | Mobile | React Native, Redux Toolkit, Maps, Firebase | Online grocery orders with delivery slots, loyalty, wishlist and address search on a map | — |
+| Grocery shopping and loyalty app | 2023 | Mobile | React Native, Redux Toolkit, Maps, Firebase | Online grocery orders with delivery slots, loyalty, wishlist and address search on a map | #reading |
 | Fuel-station loyalty app | 2026 | Mobile | React Native 0.78 | Loyalty app upkeep: arm64 simulator support, legacy architecture, shadow fixes | — |
 
 ### Incentiv (2024)

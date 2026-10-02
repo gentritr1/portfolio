@@ -19,10 +19,10 @@ Owner decision (2026-10-02): the index gets a small stylized "screen" for each m
 | Design system, React | `component-sheet` | A 3×2 grid of tiny components: a button pill, a toggle, an input, a chip, a checkbox, a swatch |
 | Design system, Vue | `tokens` | Four colour swatches in a row over three thin type-scale bars |
 | Video-learning platform, web | `player-chat` | A 16:9 dark player with a play triangle and a red LIVE pill, a narrow chat column with three bubbles |
-| Children's reading app | `reader-page` | A phone silhouette with a paper page of text bars, a progress bar, a small badge star |
-| Bookstore app | `shop-grid` | A 2×2 grid of book covers (rectangles) with a cart dot |
+| Children's reading app | store frame `mobile/thumbs/reading.webp` | |
+| Bookstore app | store frame `mobile/thumbs/bookstore.webp` | |
 | Chatbot runtime library | `chat-choices` | Two bot bubbles left, one user bubble right, two choice chips |
-| Grocery shopping and loyalty app | `grocery-slots` | A 3×2 product grid with a time-slot strip (four small boxes, one filled) |
+| Grocery shopping and loyalty app | store frame `mobile/thumbs/grocery.webp` | |
 | Donation and good-deeds app | `donation-ring` | A progress ring at 70 % with a small badge, a "donate" pill |
 | Coaching app | `calendar-strip` | A 7-day strip with one day highlighted, a prompt card with text bars and three reaction dots |
 | Member portal, web | `portal-shell` | Sidebar, top bar with avatar dot, two content cards |
@@ -30,7 +30,7 @@ Owner decision (2026-10-02): the index gets a small stylized "screen" for each m
 | Smart business dashboard with AI | `doc-chat` | A page with text bars and one highlighted bar, next to two chat bubbles |
 | Studio website | real capture `shots/thumbs/snaxx.webp` |
 | Time-off app | real capture `shots/thumbs/offday-app.webp` | |
-| Geo Guesser World 3D | `map-pin` | A map with two road lines and a pin |
+| Geo Guesser World 3D | store frame `mobile/thumbs/geoguesser.webp` | |
 | FJALË | real capture `shots/thumbs/fjale.webp` | |
 | Za! | real capture `shots/thumbs/za.webp` | |
 | Morse Trainer | real capture `shots/thumbs/morse.webp` | |

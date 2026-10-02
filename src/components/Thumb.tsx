@@ -1,4 +1,4 @@
-import { MapPinIcon, StarIcon } from '@phosphor-icons/react'
+import { StarIcon } from '@phosphor-icons/react'
 import type { HTMLAttributes, ReactNode } from 'react'
 import { cn } from '../lib/cn'
 import type { PageWorld } from '../lib/worlds'
@@ -10,16 +10,12 @@ export type ThumbKind =
   | 'component-sheet'
   | 'tokens'
   | 'player-chat'
-  | 'reader-page'
-  | 'shop-grid'
   | 'chat-choices'
-  | 'grocery-slots'
   | 'donation-ring'
   | 'calendar-strip'
   | 'portal-shell'
   | 'wallet-card'
   | 'doc-chat'
-  | 'map-pin'
   | 'track'
   | 'town'
   | 'fork'
@@ -109,27 +105,6 @@ const drawings: Record<ThumbKind, ReactNode> = {
       <rect x="68" y="32" width="16" height="7" rx="3.5" className={base} />
     </>
   ),
-  'reader-page': (
-    <>
-      <rect x="32" y="4" width="32" height="56" rx="7" className={outline} />
-      <rect x="37" y="10" width="22" height="34" rx="2" className={soft} />
-      <path d="M41 16h14M41 21h14M41 26h11M41 31h14M41 36h9" className={lineBar} />
-      <rect x="37" y="50" width="22" height="3" rx="1.5" className={base} />
-      <rect x="37" y="50" width="13" height="3" rx="1.5" className={acc} />
-      <StarIcon x={67} y={6} size={13} weight="fill" className={icon} />
-    </>
-  ),
-  'shop-grid': (
-    <>
-      {range(4).map((i) => (
-        <g key={i}>
-          <rect x={28 + (i % 2) * 20} y={7 + Math.floor(i / 2) * 27} width="16" height="23" rx="2" className={soft} />
-          <rect x={28 + (i % 2) * 20} y={7 + Math.floor(i / 2) * 27} width="3.5" height="23" rx="1.5" className={acc} />
-        </g>
-      ))}
-      <circle cx="76" cy="12" r="4.5" className={acc} />
-    </>
-  ),
   'chat-choices': (
     <>
       <rect x="8" y="7" width="46" height="10" rx="5" className={base} />
@@ -137,19 +112,6 @@ const drawings: Record<ThumbKind, ReactNode> = {
       <rect x="46" y="33" width="42" height="10" rx="5" className={acc} />
       <rect x="20" y="48" width="30" height="9" rx="4.5" className={lineAcc} />
       <rect x="54" y="48" width="30" height="9" rx="4.5" className={lineAcc} />
-    </>
-  ),
-  'grocery-slots': (
-    <>
-      {range(6).map((i) => (
-        <g key={i}>
-          <rect x={10 + (i % 3) * 27} y={7 + Math.floor(i / 3) * 18} width="22" height="15" rx="3" className={base} />
-          <circle cx={21 + (i % 3) * 27} cy={14.5 + Math.floor(i / 3) * 18} r="3" className={bar} />
-        </g>
-      ))}
-      {range(4).map((i) => (
-        <rect key={i} x={10 + i * 20} y="47" width="16" height="9" rx="2.5" className={i === 1 ? acc : outline} />
-      ))}
     </>
   ),
   'donation-ring': (
@@ -205,13 +167,6 @@ const drawings: Record<ThumbKind, ReactNode> = {
       ))}
       <rect x="62" y="14" width="26" height="10" rx="5" className={acc} />
       <rect x="56" y="30" width="32" height="14" rx="5" className={base} />
-    </>
-  ),
-  'map-pin': (
-    <>
-      <rect width="96" height="64" className={soft} />
-      <path d="M-2 44C24 40 40 52 98 30M30-2C34 20 26 40 38 66" className={lineBar} />
-      <MapPinIcon x={52} y={17} size={14} weight="fill" className={icon} />
     </>
   ),
   track: (
