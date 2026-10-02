@@ -61,7 +61,7 @@ const MESSAGES = [
   { handle: 'yusuf.a', text: 'Good evening, everyone.' },
   { handle: 'tomas_v', text: 'Could you show the chart from last week again?' },
   { handle: 'ana.lu', text: 'Notes are open in the other tab, thanks.' },
-  { handle: 'jonah_r', text: 'First time here. Glad I found this.' },
+  { handle: 'jonah_r', text: 'First time here. Glad to join.' },
   { handle: 'sena.o', text: 'Audio dropped for a second, fine now.' },
   { handle: 'devi_p', text: 'That example made it click for me.' },
   { handle: 'karim.b', text: 'Will the replay be up tonight?' },

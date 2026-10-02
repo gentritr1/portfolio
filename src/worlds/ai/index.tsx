@@ -11,11 +11,18 @@ export function AiDashboardsWorld() {
       stageAspectMobile="4 / 5"
       title="A smart business dashboard with AI features"
       meta={['AI', 'Dashboards', 'Freelance']}
-      role="Frontend developer, freelance, with backend help in Python (FastAPI)."
+      role="Frontend, freelance"
       story={[
-        'A smart dashboard for a digital-transformation client, with AI features: professional headshot generation from uploaded photos, and an AI workplace assistant that goes from PDF upload to a chat about the document. Some backend features were added in Python (FastAPI).',
+        'A smart business dashboard for a digital-transformation client. Its AI features help staff with daily work: a headshot generator for professional profile photos, and a workplace assistant that answers questions about uploaded PDF documents.',
+        'The React frontend covers the dashboard and both AI flows: photo upload to generated headshots, and PDF upload to a chat about the document. Some backend features were added in Python with FastAPI.',
       ]}
-      facts={['Headshot generation from uploaded photos', 'PDF upload to document chat', 'Python (FastAPI) backend features']}
+      facts={[
+        'Headshot generation from uploaded photos',
+        'PDF upload to document chat',
+        'AI workplace assistant',
+        'React dashboard frontend',
+        'Python (FastAPI) backend features',
+      ]}
       recreationName="Document chat"
       recreation={<Recreation />}
     />

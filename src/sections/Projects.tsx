@@ -62,7 +62,7 @@ export function Projects() {
         <SectionHeading
           id="projects-title"
           title="All projects"
-          lede="Every product I have worked on, in one list. Rows with a world link open the case study above."
+          lede="Every product so far, in one list. Rows with a world link open the case study above."
         />
         <Reveal as="p" className="tabular mt-6 font-mono text-meta text-muted">
           {projects.length} projects · {currentYear - firstYear} years

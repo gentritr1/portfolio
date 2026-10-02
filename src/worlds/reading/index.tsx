@@ -4,11 +4,11 @@ import { Recreation } from './Recreation'
 const related = [
   {
     title: 'Bookstore app, 2021 - 2022',
-    body: 'React Native shopping app for a publisher: push notifications with deep links across all app states, animated book-detail header, swipeable modals, checkout with promo codes. Shipped iOS and Android.',
+    body: 'A React Native shopping app for a publisher, on iOS and Android. It has push notifications with deep links, an animated book-detail header, swipeable modals and checkout with promo codes.',
   },
   {
     title: 'Chatbot runtime library',
-    body: 'A reusable React Native package that plays scripted conversations (text, media, choices, ratings, timers): a message-queue engine, stall and duplicate guards, natural typing delays and a keyboard-aware chat list. A web port in TypeScript followed.',
+    body: 'A reusable React Native package that plays scripted conversations with text, media, choices, ratings and timers. It has a message queue, stall and duplicate guards, natural typing delays and a web port in TypeScript.',
   },
 ]
 
@@ -22,18 +22,17 @@ export function ReadingWorld() {
       stageAspectMobile="9 / 16"
       title="A children's reading app, four years of releases"
       meta={['Mobile', 'iOS + Android', 'Reading']}
-      role="Mobile developer on a small team, 2022 – 2025."
+      role="Mobile, iOS and Android"
       story={[
-        'Children read books in the app, scan their own books by ISBN barcode, take quizzes as chatbot conversations, and earn badges and streaks. Parents verify accounts by email.',
-        'The app has a reader for PDF and EPUB, with the EPUB library forked to add progress tracking; an EAN-13 barcode scanner built on the camera; gamification with badges, streaks, confetti and coach marks; push notifications with a notification center; a custom video player; and three languages.',
-        'About 14 releases went to both stores, and the app moved through three major React Native upgrades (0.63 → 0.66 → 0.74 → 0.81).',
+        "A children's reading app for iOS and Android. Children read books, scan their own books by barcode, take quizzes as chat conversations, and earn badges and streaks. Parents verify accounts by email.",
+        'The app has a PDF and EPUB reader with progress tracking, an ISBN barcode scanner, gamification with badges, streaks and coach marks, push notifications with a notification center, and three languages. About 14 releases went to both stores, and the app moved from React Native 0.63 to 0.81 through three major upgrades.',
       ]}
       facts={[
-        'PDF + EPUB reader (forked epub.js for progress)',
+        'PDF and EPUB reader with progress tracking',
         'ISBN barcode scanning with the camera',
-        'Badges, streaks, quizzes, confetti, coach marks',
+        'Badges, streaks, quizzes, coach marks',
         'Push notifications, deep links, notification center',
-        '~14 store releases, RN 0.63 → 0.81',
+        'About 14 store releases, RN 0.63 → 0.81',
         '3 languages',
       ]}
       stack={[

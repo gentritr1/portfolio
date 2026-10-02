@@ -28,22 +28,19 @@ All facts below come from git history. Do not invent numbers. Do not add product
 
 **Eyebrow:** Healthcare · Care management · Web + backend
 **Title:** A care-management platform, rebuilt one screen at a time
-**Role:** Software developer on the core team: frontend and mobile first, full stack since 2026.
+**Role:** Frontend and mobile, full stack since 2026
 
-**Story (3 short paragraphs):**
-1. The platform helps care teams monitor patients remotely: vitals from connected devices, care plans, lab results, billing claims, calls and chat. Many client organizations run on one system, so every screen must keep each organization's data separate and respect each user's role.
-2. In 2026 the platform moved from Vue (Nuxt 2) to React, one route at a time. Each screen was inventoried from the old app, rebuilt in React, then proven with automated parity tests that run the same scenario against the old and the new app. The work is recorded in 31 architecture decision records, and CI gates check types, module boundaries, dead code, bundle size and translations on every merge.
-3. The backend (Laravel) gained program enrollment drafts, a standardized lab catalog, timezone-correct scheduling and multi-tenant security fixes. One billing report used to time out at 60 seconds; its 16 patient queries became one query plus one aggregate, so it no longer grows with the date range.
+**Story (2 paragraphs):**
+1. A care-management platform for remote patient monitoring. Care teams use it to follow vitals from connected devices, care plans, lab results, billing claims, calls and chat. Many client organizations share one multi-tenant system, so each screen keeps each organization's data separate and respects each user's role.
+2. The frontend moved from Vue (Nuxt 2) to React route by route, with parity tests that run each scenario against both apps, 31 architecture decision records and CI quality gates. The Laravel backend gained enrollment drafts, a lab catalog and multi-tenant security fixes; one billing report went from 16 queries to 2.
 
-**Facts list (chips):**
+**Facts list:**
 - Vue → React rewrite, route by route, parity-tested
-- 31 architecture decision records
-- Patient profile, care plans, labs & vitals, claims, calls
-- Multi-tenant: data separation, roles, timezone correctness
-- Laravel API: enrollment, lab catalog, 70 test files added
+- 31 architecture decision records, CI quality gates
+- Patient profile, care plans, labs and vitals, claims, calls
+- Multi-tenant: data separation, roles, timezones
+- Laravel API: enrollment drafts, lab catalog, security fixes
 - Report query 16 → 2, no more timeouts
-- AI-assisted QA scenarios + CI quality gates
-- 34-component React design system, WCAG 2.1 AA
 - 4 languages: EN, DE, ES, TR
 
 **Stack:** React 19, TypeScript, TanStack Query/Router, Zustand, Zod, Tailwind, Vitest, Playwright · Laravel 13, PHP 8.3, MySQL, Redis, Pest · Twilio, Chime, Pusher, ECharts
@@ -56,18 +53,17 @@ All facts below come from git history. Do not invent numbers. Do not add product
 
 **Eyebrow:** Streaming · Subscriptions · Web
 **Title:** A video-learning platform, rebuilt from scratch with live streams
-**Role:** Frontend developer on the core team. Second platform rewrite.
+**Role:** Frontend, core team
 
-**Story:**
-1. A video-on-demand and live-streaming platform for a learning community, with courses, playlists, learning progress, a scripture reader, and a subscription business: web and in-app plans, gifting, promo codes and lifetime plans. Its second version started in September 2023 from an empty Nuxt 3 template: localization, environment configuration and the API layer came first, then the product. The new web app replaced the earlier one and also runs inside the native mobile app.
-2. The live page has low-latency live video with a realtime comment stream, pinned comments, moderation (mute, report), RSVP and reminders, and study materials next to the stream. The on-demand player has HLS quality selection, autoplay, episode sync, viewing history and a paywall for premium content.
-3. The subscription flows cover dynamic pricing from the API, Stripe checkout, Apple and Google Play subscriptions with cancellation surveys, gift subscriptions in three steps, promo-code activation, and the English/Arabic (RTL) interface.
+**Story (2 paragraphs):**
+1. A video-learning platform for an online community: courses, playlists, learning progress, a scripture reader, on-demand video and live streams. Members pay through web and in-app subscriptions, gifts and promo codes. The same web app also runs inside the native mobile app.
+2. Its second version was a full rebuild on Nuxt 3, from an empty template. It added live streaming with realtime chat and moderation, an HLS player with a paywall for premium content, Stripe, Apple and Google subscriptions, gifting, and an English/Arabic interface with right-to-left layout. The rebuild covers 34 routes and 270+ components.
 
 **Facts list:**
-- Full rebuild on Nuxt 3, from an empty template to production
-- Live streaming with realtime chat, pinned comments and moderation
+- Full rebuild on Nuxt 3
+- Live streaming with realtime chat and moderation
 - HLS player with quality selector and premium paywall
-- Stripe + Apple + Google Play subscriptions, gifting, promo codes
+- Stripe, Apple and Google subscriptions, gifting, promo codes
 - 34 routes, 270+ components, 25 stores
 - English and Arabic, right-to-left layout
 - Same web app runs inside the native mobile app
@@ -82,23 +78,22 @@ All facts below come from git history. Do not invent numbers. Do not add product
 
 **Eyebrow:** Mobile · iOS + Android · Reading
 **Title:** A children's reading app, four years of releases
-**Role:** Mobile developer on a small team, 2022 – 2025.
+**Role:** Mobile, iOS and Android
 
-**Story:**
-1. Children read books in the app, scan their own books by ISBN barcode, take quizzes as chatbot conversations, and earn badges and streaks. Parents verify accounts by email.
-2. The app has a reader for PDF and EPUB, with the EPUB library forked to add progress tracking; an EAN-13 barcode scanner built on the camera; gamification with badges, streaks, confetti and coach marks; push notifications with a notification center; a custom video player; and three languages.
-3. About 14 releases went to both stores, and the app moved through three major React Native upgrades (0.63 → 0.66 → 0.74 → 0.81).
+**Story (2 paragraphs):**
+1. A children's reading app for iOS and Android. Children read books, scan their own books by barcode, take quizzes as chat conversations, and earn badges and streaks. Parents verify accounts by email.
+2. The app has a PDF and EPUB reader with progress tracking, an ISBN barcode scanner, gamification with badges, streaks and coach marks, push notifications with a notification center, and three languages. About 14 releases went to both stores, and the app moved from React Native 0.63 to 0.81 through three major upgrades.
 
 **Also in this world (two short cards):**
-- **Bookstore app (2021–22):** React Native shopping app for a publisher: push notifications with deep links across all app states, animated book-detail header, swipeable modals, checkout with promo codes. Shipped iOS and Android.
-- **Chatbot runtime library:** a reusable React Native package that plays scripted conversations (text, media, choices, ratings, timers). A message-queue engine, stall and duplicate guards, natural typing delays and a keyboard-aware chat list. A web port in TypeScript followed.
+- **Bookstore app, 2021 - 2022:** A React Native shopping app for a publisher, on iOS and Android. It has push notifications with deep links, an animated book-detail header, swipeable modals and checkout with promo codes.
+- **Chatbot runtime library:** A reusable React Native package that plays scripted conversations with text, media, choices, ratings and timers. It has a message queue, stall and duplicate guards, natural typing delays and a web port in TypeScript.
 
 **Facts list:**
-- PDF + EPUB reader (forked epub.js for progress)
+- PDF and EPUB reader with progress tracking
 - ISBN barcode scanning with the camera
-- Badges, streaks, quizzes, confetti, coach marks
+- Badges, streaks, quizzes, coach marks
 - Push notifications, deep links, notification center
-- ~14 store releases, RN 0.63 → 0.81
+- About 14 store releases, RN 0.63 → 0.81
 - 3 languages
 
 **Stack:** React Native, React Navigation, Redux Toolkit, Firebase Messaging, Vision Camera, react-native-pdf, epub.js, Lottie, i18next
@@ -111,18 +106,19 @@ All facts below come from git history. Do not invent numbers. Do not add product
 
 **Eyebrow:** Web3 · Smart wallet · Web
 **Title:** The frontend of a smart-wallet dashboard
-**Role:** Frontend developer, UI and app layer. The wallet and blockchain layer was built by teammates.
+**Role:** Frontend, UI layer
 
-**Story:**
-1. A dashboard where people and businesses manage an on-chain wallet and incentive programs. Users sign in with a passkey or an external wallet; the dashboard shows balances, assets, gas saved and transactions.
-2. The UI layer covers the dashboard cards (gas saved, transactions, popular tokens), the asset list with grid/table switch, the balance popup with QR address view, the animated onboarding (nickname step), the sign-in overlay, public/private route middleware, the 404 state, the shared components (table, collapse, tooltip, inputs) and the English/French translations.
+**Story (2 paragraphs):**
+1. A smart-wallet dashboard where people and businesses manage an on-chain wallet and incentive programs. Users sign in with a passkey or an external wallet, then see balances, assets, gas saved and transactions.
+2. The frontend is built on Next.js 14 with the App Router and RTK Query. It covers the passkey and wallet sign-in UI, animated onboarding, dashboard cards, an asset list, a balance popup with a QR address, route middleware and English/French translations. Teammates built the wallet and blockchain layer.
 
 **Facts list:**
 - Next.js 14 App Router, TypeScript, RTK Query
+- Passkey and wallet sign-in UI
 - Dashboard cards, asset list, balance popup with QR
-- Passkey / wallet sign-in UI and onboarding animation
-- Public/private routing middleware
-- EN / FR
+- Animated onboarding
+- Public and private route middleware
+- English and French
 
 **Stack:** Next.js 14, React 18, TypeScript, Redux Toolkit + RTK Query, next-intl, Framer Motion, Tailwind, ApexCharts
 
@@ -134,7 +130,18 @@ All facts below come from git history. Do not invent numbers. Do not add product
 
 **Eyebrow:** AI · Dashboards · Freelance
 **Title:** A smart business dashboard with AI features
-**Story (short):** A smart dashboard for a digital-transformation client, with AI features: professional headshot generation from uploaded photos, and an AI workplace assistant that goes from PDF upload to a chat about the document. Some backend features were added in Python (FastAPI).
+**Role:** Frontend, freelance
+
+**Story (2 paragraphs):**
+1. A smart business dashboard for a digital-transformation client. Its AI features help staff with daily work: a headshot generator for professional profile photos, and a workplace assistant that answers questions about uploaded PDF documents.
+2. The React frontend covers the dashboard and both AI flows: photo upload to generated headshots, and PDF upload to a chat about the document. Some backend features were added in Python with FastAPI.
+
+**Facts list:**
+- Headshot generation from uploaded photos
+- PDF upload to document chat
+- AI workplace assistant
+- React dashboard frontend
+- Python (FastAPI) backend features
 
 **Live recreation (small):** "Document chat". A compact two-pane widget: left, a PDF-like page thumbnail with a highlighted paragraph; right, a chat where a question is typed by a typewriter effect and the answer streams in word by word, citing "page 3". One canned exchange, replayable with a button.
 
@@ -151,49 +158,49 @@ All facts below come from git history. Do not invent numbers. Do not add product
 ## 7b. All projects (index section, after Personal, before Skills)
 
 **Title:** All projects
-**Lede:** Every product I have worked on, in one list. Rows with a world link open the case study above.
+**Lede:** Every product so far, in one list. Rows with a world link open the case study above.
 
 Render as a compact, scannable index (not cards): grouped by employer, each row = name · years · role · stack · one line. Mono for years and stack, sans for the rest. Rows that map to a world carry a small accent swatch and link to the section id.
 
 ### Vianova (2021 – present)
 | Project (generic name) | Years | Role | Stack | One line | World link |
 |---|---|---|---|---|---|
-| Care-management platform, React rewrite | 2026 | Frontend | React 19, TypeScript, TanStack, Zod, Vitest, Playwright | Route-by-route migration from Nuxt 2 with parity tests, 31 ADRs, CI gates | #healthcare |
-| Care-management platform, Vue app | 2023 – 2026 | Frontend | Nuxt 2, Vue 2, Vuex, ECharts, Twilio, Chime | Patient profile, care plans, claims, vitals and labs, calls, timezone fixes, 4 locales | #healthcare |
-| Care-management API | 2026 | Full stack | Laravel 13, PHP 8.3, MySQL, Redis, Pest | Enrollment drafts, lab catalog, multi-tenant fixes, report performance, 70 test files | #healthcare |
-| Design system, React | 2026 | Design system | React 19, CSS Modules, Storybook, Changesets | 34 components, WCAG 2.1 AA contrast matrix, typed package, GitHub Packages releases | — |
-| Design system, Vue | 2026 | Design system | Vue 2, Style Dictionary, Histoire, Playwright | Tokens from Figma, codemods, visual regression, health dashboard | — |
-| Design dashboard (prototype) | 2026 | Frontend | React 19, Vite, Tailwind 4 | Call-activity screen on the design system with demo data; the design oracle for the rewrite | — |
-| Video-learning platform, web | 2023 – 2026 | Frontend | Nuxt 3, Vue 3, Pinia, video.js, AWS IVS, Pusher, Stripe | Full rebuild on Nuxt 3; live streams, player, subscriptions, gifting, EN/AR | #streaming |
-| Children's reading app | 2022 – 2025 | Mobile | React Native, Redux Toolkit, Firebase, Vision Camera, epub.js | PDF/EPUB reader, barcode scanning, gamification, ~14 releases, RN 0.63 → 0.81 | #reading |
-| Bookstore app | 2021 – 2022 | Mobile | React Native, Redux, Firebase Messaging | Push notifications with deep links, animated details, checkout; iOS + Android | #reading |
-| Chatbot runtime library | 2022 – 2025 | Mobile | React Native, Redux Toolkit | Message queue, stall and duplicate guards, typing delays, media items | #reading |
-| Chatbot runtime, web port | 2025 | Frontend | React 19, TypeScript, Vite, Zustand | Library plus example app, moved to TypeScript | — |
-| EPUB reader prototype | 2022 | Mobile | React Native, epub.js | Download, render and resize an EPUB; the seed of the reading app's reader | — |
-| Donation and good-deeds app | 2021 – 2022 | Mobile | React Native, Redux Toolkit, Stripe, Firebase | Sign-up and account flows, Stripe donations and subscriptions, badges, video tasks; iOS + Android | — |
-| Coaching app | 2022 – 2023 | Mobile | React Native, Redux Toolkit, React Navigation | Project setup, login flow with an organization step, daily calendar strip, reactions, dev/staging/release builds | — |
-| Member portal, web | 2025 | Frontend | Next.js 15, TypeScript, RTK Query, next-intl, Pusher | Project foundation, route-protection middleware, external auth flow, app shell and layout | — |
-| Grocery shopping and loyalty app | 2023 | Mobile | React Native, Redux Toolkit, Maps, Firebase | Online orders with delivery time slots and a cancellation window, wishlist, purchase history, loyalty view, address search on a map | — |
-| Fuel-station loyalty app | 2026 | Mobile | React Native 0.78 | arm64 simulator support, legacy architecture, shadow fixes | — |
+| Care-management platform, React rewrite | 2026 | Frontend | React 19, TypeScript, TanStack, Zod, Vitest, Playwright | Route-by-route move from Nuxt 2 to React with parity tests, 31 ADRs, CI gates | #healthcare |
+| Care-management platform, Vue app | 2023 – 2026 | Frontend | Nuxt 2, Vue 2, Vuex, ECharts, Twilio, Chime | Remote patient care: profiles, care plans, claims, vitals and labs, calls, 4 locales | #healthcare |
+| Care-management API | 2026 | Full stack | Laravel 13, PHP 8.3, MySQL, Redis, Pest | Laravel API for enrollment drafts, a lab catalog, multi-tenant security and fast reports | #healthcare |
+| Design system, React | 2026 | Design system | React 19, CSS Modules, Storybook, Changesets | 34 accessible components (WCAG 2.1 AA) in a typed package on GitHub Packages | — |
+| Design system, Vue | 2026 | Design system | Vue 2, Style Dictionary, Histoire, Playwright | Design tokens from Figma, codemods, visual regression tests and a health dashboard | — |
+| Design dashboard (prototype) | 2026 | Frontend | React 19, Vite, Tailwind 4 | Call-activity screen on the design system with demo data, as a design reference | — |
+| Video-learning platform, web | 2023 – 2026 | Frontend | Nuxt 3, Vue 3, Pinia, video.js, AWS IVS, Pusher, Stripe | Full Nuxt 3 rebuild: live streams, HLS player, subscriptions, gifting, English/Arabic | #streaming |
+| Children's reading app | 2022 – 2025 | Mobile | React Native, Redux Toolkit, Firebase, Vision Camera, epub.js | PDF/EPUB reader, barcode scanning, gamification, about 14 releases, RN 0.63 → 0.81 | #reading |
+| Bookstore app | 2021 – 2022 | Mobile | React Native, Redux, Firebase Messaging | Book shopping with push deep links, animated details and checkout; iOS and Android | #reading |
+| Chatbot runtime library | 2022 – 2025 | Mobile | React Native, Redux Toolkit | Plays scripted chat conversations: message queue, typing delays, media, duplicate guards | #reading |
+| Chatbot runtime, web port | 2025 | Frontend | React 19, TypeScript, Vite, Zustand | TypeScript web version of the chatbot runtime, with an example app | — |
+| EPUB reader prototype | 2022 | Mobile | React Native, epub.js | Downloads, renders and resizes an EPUB; the start of the reading app's reader | — |
+| Donation and good-deeds app | 2021 – 2022 | Mobile | React Native, Redux Toolkit, Stripe, Firebase | Donations and subscriptions with Stripe, badges, guided tasks and video | — |
+| Coaching app | 2022 – 2023 | Mobile | React Native, Redux Toolkit, React Navigation | Organization sign-in, a daily calendar strip, reactions, and dev, staging and release builds | — |
+| Member portal, web | 2025 | Frontend | Next.js 15, TypeScript, RTK Query, next-intl, Pusher | Member portal foundation: protected routes, external sign-in, app shell and layout | — |
+| Grocery shopping and loyalty app | 2023 | Mobile | React Native, Redux Toolkit, Maps, Firebase | Online grocery orders with delivery slots, loyalty, wishlist and address search on a map | — |
+| Fuel-station loyalty app | 2026 | Mobile | React Native 0.78 | Loyalty app upkeep: arm64 simulator support, legacy architecture, shadow fixes | — |
 
 ### Incentiv (2024)
-| Smart-wallet dashboard | 2024 | Frontend | Next.js 14, RTK Query, next-intl, Framer Motion | Dashboard cards, balance popup with QR, onboarding, routing middleware, EN/FR | #web3 |
+| Smart-wallet dashboard | 2024 | Frontend | Next.js 14, RTK Query, next-intl, Framer Motion | Wallet dashboard with passkey sign-in, balance and QR, onboarding, EN/FR | #web3 |
 
 ### AvahiTech (freelance)
-| Smart business dashboard with AI | — | Frontend · FastAPI | React, Python/FastAPI | Headshot generation, PDF-to-chat assistant | #ai |
+| Smart business dashboard with AI | — | Frontend · FastAPI | React, Python/FastAPI | Business dashboard with AI headshot generation and a PDF-to-chat assistant | #ai |
 
 ### Personal
-| Studio website | 2026 | Owner | React 19, Vite, three.js, Tailwind | 3D hero, cinemagraph loop, strict CSP; images 972 KB → 337 KB | #personal |
-| Time-off app | 2026 | Owner | Next.js 16, SQLite, Zod, Playwright | Multi-tenant PTO with approvals, calendar, streaming assistant, 16 security tests | #personal |
-| Open-source forks | 2022 | Maintainer | React Native | epubjs-react-native, react-native-pdf, used in production | #personal |
+| Studio website | 2026 | Owner | React 19, Vite, three.js, Tailwind | 3D hero, cinemagraph loop and strict CSP; images 972 KB → 337 KB | #personal |
+| Time-off app | 2026 | Owner | Next.js 16, SQLite, Zod, Playwright | Multi-tenant time off with approvals, team calendar, AI assistant, 16 security tests | #personal |
+| Open-source forks | 2022 | Maintainer | React Native | Forks of epubjs-react-native and react-native-pdf, used in a production reading app | #personal |
 | Geo Guesser World 3D | 2026 | Mobile · co-built | Expo, React Native, MapLibre, Mapillary | Street-view guessing game, published on Google Play | — |
-| FJALË | 2026 | Owner | Vanilla JS, PWA | Daily Albanian word game, 21k-word dictionary, offline play; live | — |
+| FJALË | 2026 | Owner | Vanilla JS, PWA | Daily Albanian word game, 21k-word dictionary, archive, offline play; live on the web | — |
 | Za! | 2026 | Owner | Node, WebSocket | Multiplayer pizza card game for 2–8 players, server-authoritative with bots; live | — |
-| Morse Trainer | 2026 | Owner | JavaScript | Morse-code learning game with spaced repetition; live | — |
+| Morse Trainer | 2026 | Owner | JavaScript | Morse-code learning game with spaced repetition and Farnsworth timing; live | — |
 | Futurisma | 2026 | Owner | Three.js, TypeScript, Blender | Hover racer with seven circuits and weather, tide and day-night systems | — |
 | Secret Dictator | 2026 | Owner | Three.js, TypeScript | Single-player social-deduction game against AI opponents in a 3D town | — |
 
-Voice rule (owner, 2026-10-02): every project text is a general overview of what was built by the team, neutral voice, no "I led", no "top contributor", few "I"s. Role column uses neutral role words only.
+Voice rule (owner, 2026-10-02): every project text is an overview: what the product is, what the team built, and the skills it involved. Neutral voice: no first person, no "led", no "top contributor", no commit counts or shares of work. Keep numbers that describe the product or the result; drop numbers that describe effort. World stories have 2 paragraphs of 55 words or fewer; index lines have 14 words or fewer. Role words stay neutral.
 
 ## 8. Skills (compact)
 
