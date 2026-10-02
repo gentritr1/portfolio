@@ -1,5 +1,41 @@
+import { Showcase } from '../../components/Showcase'
 import { World } from '../../components/World'
 import { Recreation } from './Recreation'
+
+const intakePages = [
+  {
+    src: '/showcase/care/book-1.webp',
+    alt: 'Public patient intake page of a care-platform tenant: welcome and consent step with personal information fields',
+    caption: 'Welcome and consent',
+    width: 1440,
+    height: 727,
+  },
+  {
+    src: '/showcase/care/book-2.webp',
+    alt: 'Public patient intake page: address step and the start of the medical intake form',
+    caption: 'Address and medical intake',
+    width: 1440,
+    height: 727,
+  },
+  {
+    src: '/showcase/care/book-3.webp',
+    alt: 'Public patient intake page: review and consent step before submission',
+    caption: 'Review and consent',
+    width: 1440,
+    height: 727,
+  },
+]
+
+function Showcases() {
+  return (
+    <Showcase
+      title="Public intake pages"
+      aspect="web"
+      links={[{ label: 'Website', href: 'https://app.goodcannanow.com/goodcannanow/' }]}
+      items={intakePages}
+    />
+  )
+}
 
 export function HealthcareWorld() {
   return (
@@ -32,6 +68,7 @@ export function HealthcareWorld() {
       ]}
       recreationName="Vitals trend card"
       recreation={<Recreation />}
+      after={<Showcases />}
     />
   )
 }
