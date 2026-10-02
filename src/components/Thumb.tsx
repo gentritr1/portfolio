@@ -1,5 +1,5 @@
-import { MapPinIcon, SpeakerHighIcon, StarIcon } from '@phosphor-icons/react'
-import type { ReactNode } from 'react'
+import { MapPinIcon, StarIcon } from '@phosphor-icons/react'
+import type { HTMLAttributes, ReactNode } from 'react'
 import { cn } from '../lib/cn'
 import type { PageWorld } from '../lib/worlds'
 
@@ -19,12 +19,7 @@ export type ThumbKind =
   | 'portal-shell'
   | 'wallet-card'
   | 'doc-chat'
-  | 'studio-poster'
-  | 'calendar-range'
   | 'map-pin'
-  | 'word-grid'
-  | 'cards-fan'
-  | 'morse'
   | 'track'
   | 'town'
   | 'fork'
@@ -36,7 +31,6 @@ const bar = 'fill-(--thumb-bar)'
 const panel = 'fill-(--thumb-panel)'
 const onPanel = 'fill-(--thumb-on-panel)'
 const outline = 'fill-none stroke-(--thumb-bar) stroke-[1.5]'
-const knockout = 'fill-surface stroke-(--thumb-bar) stroke-[1.5]'
 const lineBar = 'fill-none stroke-(--thumb-bar) stroke-2 [stroke-linecap:round] [stroke-linejoin:round]'
 const lineAcc = 'fill-none stroke-(--thumb-accent) stroke-2 [stroke-linecap:round] [stroke-linejoin:round]'
 const tick = 'fill-none stroke-on-accent stroke-2 [stroke-linecap:round] [stroke-linejoin:round]'
@@ -46,9 +40,8 @@ const range = (n: number) => Array.from({ length: n }, (_, i) => i)
 const qr = [1, 0, 1, 0, 1, 1, 1, 1, 0]
   .flatMap((on, i) => (on ? [`M${62 + (i % 3) * 6} ${18 + Math.floor(i / 3) * 6}h5v5h-5z`] : []))
   .join('')
-const morse = ['dot', 'dash', 'dot', 'dot', 'dash'] as const
 
-const drawings: Record<Exclude<ThumbKind, 'studio-poster'>, ReactNode> = {
+const drawings: Record<ThumbKind, ReactNode> = {
   'dashboard-vitals': (
     <>
       <rect width="18" height="64" className={base} />
@@ -214,47 +207,11 @@ const drawings: Record<Exclude<ThumbKind, 'studio-poster'>, ReactNode> = {
       <rect x="56" y="30" width="32" height="14" rx="5" className={base} />
     </>
   ),
-  'calendar-range': (
-    <>
-      <rect x="11" y="7" width="22" height="4" rx="2" className={bar} />
-      {range(28).map((i) => (
-        <rect key={i} x={11 + (i % 7) * 11} y={16 + Math.floor(i / 7) * 11} width="8" height="8" rx="2" className={base} />
-      ))}
-      <rect x="33" y="27" width="41" height="8" rx="4" className={acc} />
-    </>
-  ),
   'map-pin': (
     <>
       <rect width="96" height="64" className={soft} />
       <path d="M-2 44C24 40 40 52 98 30M30-2C34 20 26 40 38 66" className={lineBar} />
       <MapPinIcon x={52} y={17} size={14} weight="fill" className={icon} />
-    </>
-  ),
-  'word-grid': (
-    <>
-      {range(15).map((i) => (
-        <rect key={i} x={12 + (i % 5) * 15} y={11 + Math.floor(i / 5) * 15} width="12" height="12" rx="2" className={i < 5 ? acc : outline} />
-      ))}
-    </>
-  ),
-  'cards-fan': (
-    <>
-      <rect x="36" y="14" width="24" height="34" rx="3" transform="rotate(-16 48 58)" className={knockout} />
-      <rect x="36" y="14" width="24" height="34" rx="3" transform="rotate(16 48 58)" className={knockout} />
-      <rect x="36" y="12" width="24" height="34" rx="3" className={acc} />
-    </>
-  ),
-  morse: (
-    <>
-      {morse.map((mark, i) => {
-        const x = 8 + morse.slice(0, i).reduce((sum, m) => sum + (m === 'dot' ? 11 : 16), 0)
-        return mark === 'dot' ? (
-          <circle key={i} cx={x + 3.5} cy="32" r="3.5" className={acc} />
-        ) : (
-          <rect key={i} x={x} y="28.5" width="12" height="7" rx="3.5" className={acc} />
-        )
-      })}
-      <SpeakerHighIcon x={75} y={25} size={14} weight="fill" className="text-(--thumb-bar)" />
     </>
   ),
   track: (
@@ -284,6 +241,16 @@ const drawings: Record<Exclude<ThumbKind, 'studio-poster'>, ReactNode> = {
   ),
 }
 
+const frame = cn(
+  'relative block h-[54px] w-20 shrink-0 overflow-hidden rounded-chip border border-line bg-surface md:h-16 md:w-24',
+  'after:pointer-events-none after:absolute after:inset-0 after:rounded-[7px] after:shadow-[inset_0_1px_0_var(--thumb-highlight)]',
+)
+
+/** The 96 × 64 (phone 80 × 54) frame at the start of an index row. Empty, it holds the text column in place. */
+export function ThumbFrame({ className, ...props }: HTMLAttributes<HTMLSpanElement>) {
+  return <span data-thumb className={cn(frame, className)} {...props} />
+}
+
 interface ThumbProps {
   kind: ThumbKind
   /** Scopes the accent tokens of the drawing. */
@@ -294,23 +261,10 @@ interface ThumbProps {
 /** A stylized mini-screen with invented content. The row text carries the meaning. */
 export function Thumb({ kind, world, className }: ThumbProps) {
   return (
-    <span
-      aria-hidden
-      data-thumb
-      data-world={world}
-      className={cn(
-        'relative block h-[54px] w-20 shrink-0 overflow-hidden rounded-chip border border-line bg-surface md:h-16 md:w-24',
-        'after:pointer-events-none after:absolute after:inset-0 after:rounded-[7px] after:shadow-[inset_0_1px_0_var(--thumb-highlight)]',
-        className,
-      )}
-    >
-      {kind === 'studio-poster' ? (
-        <img src="/personal/og-snaxx.jpg" alt="" loading="lazy" className="size-full object-cover" />
-      ) : (
-        <svg viewBox="0 0 96 64" preserveAspectRatio="xMidYMid meet" className="block size-full">
-          {drawings[kind]}
-        </svg>
-      )}
-    </span>
+    <ThumbFrame aria-hidden data-world={world} className={className}>
+      <svg viewBox="0 0 96 64" preserveAspectRatio="xMidYMid meet" className="block size-full">
+        {drawings[kind]}
+      </svg>
+    </ThumbFrame>
   )
 }

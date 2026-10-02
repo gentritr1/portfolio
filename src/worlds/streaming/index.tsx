@@ -21,8 +21,8 @@ const publicPages = [
     src: '/streaming/public-03.webp',
     width: 1272,
     height: 795,
-    alt: 'Series library page of the video-learning platform, brand covered',
-    caption: 'Series',
+    alt: 'Stories page of the video-learning platform: category tabs, a search field and a row of story courses',
+    caption: 'Stories',
   },
 ]
 

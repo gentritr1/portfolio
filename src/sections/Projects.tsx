@@ -2,28 +2,39 @@ import { ArrowUpRightIcon } from '@phosphor-icons/react'
 import { Container } from '../components/Container'
 import { Reveal, RevealGroup, RevealItem } from '../components/Reveal'
 import { SectionHeading } from '../components/SectionHeading'
-import { Thumb } from '../components/Thumb'
+import { Thumb, ThumbFrame } from '../components/Thumb'
 import { currentYear, firstYear, projectGroups, projects, type Project } from '../content/projects'
 import { cn } from '../lib/cn'
 import { stagger } from '../lib/motion'
 
 const maxStaggered = 12
 
+const thumbHover =
+  'transition-[translate,border-color] duration-150 ease-out group-hover:border-line-strong group-focus-visible:border-line-strong motion-safe:group-hover:-translate-y-px motion-safe:group-focus-visible:-translate-y-px motion-reduce:transition-none'
+
 function RowContent({ project }: { project: Project }) {
   return (
     <>
-      {project.thumb ? (
+      {project.shot ? (
+        <ThumbFrame className={thumbHover}>
+          <img
+            src={project.shot.src}
+            alt={project.shot.alt}
+            width={256}
+            height={160}
+            loading="lazy"
+            decoding="async"
+            className="block size-full object-cover object-top"
+          />
+        </ThumbFrame>
+      ) : project.thumb ? (
         <Thumb
           kind={project.thumb}
           world={!project.world || project.world === 'personal' ? 'base' : project.world}
-          className="transition-[translate,border-color] duration-150 ease-out group-hover:border-line-strong group-focus-visible:border-line-strong motion-safe:group-hover:-translate-y-px motion-safe:group-focus-visible:-translate-y-px motion-reduce:transition-none"
+          className={thumbHover}
         />
       ) : (
-        <span
-          aria-hidden
-          data-world={project.world === 'personal' ? 'base' : project.world}
-          className={cn('mt-2.5 h-1 w-2.5 shrink-0 rounded-full', project.world && 'bg-accent')}
-        />
+        <ThumbFrame aria-hidden />
       )}
       <span className="grid min-w-0 flex-1 grid-cols-1 gap-y-1.5 md:grid-cols-12 md:grid-rows-[auto_1fr] md:gap-x-4 md:gap-y-1 lg:gap-x-6">
         <span className="font-medium leading-6 text-ink md:col-span-4 md:row-start-1">{project.name}</span>
@@ -62,7 +73,7 @@ function RowContent({ project }: { project: Project }) {
   )
 }
 
-const rowClass = (project: Project) => cn('-mx-3 flex min-h-11 px-3 py-4', project.thumb ? 'gap-4 md:gap-5' : 'gap-3')
+const rowClass = '-mx-3 flex min-h-11 gap-4 px-3 py-4 md:gap-5'
 
 export function Projects() {
   return (
@@ -98,14 +109,14 @@ export function Projects() {
                       <a
                         href={`#${project.world}`}
                         className={cn(
-                          rowClass(project),
+                          rowClass,
                           'group rounded-chip transition-colors duration-200 ease-out hover:bg-surface focus-visible:bg-surface',
                         )}
                       >
                         <RowContent project={project} />
                       </a>
                     ) : (
-                      <div className={rowClass(project)}>
+                      <div className={rowClass}>
                         <RowContent project={project} />
                       </div>
                     )}

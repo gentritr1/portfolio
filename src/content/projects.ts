@@ -17,6 +17,8 @@ export interface Project {
   world?: WorldKey
   /** Stylized mini-screen at the row start. Its accent follows `world`; other rows use the neutral accent. */
   thumb?: ThumbKind
+  /** Real capture of the owner's own site, shown in place of `thumb`. */
+  shot?: { src: string; alt: string }
 }
 
 export interface ProjectGroup {
@@ -210,7 +212,10 @@ export const projects: Project[] = [
     stack: ['React 19', 'Vite', 'three.js', 'Tailwind'],
     line: '3D hero, cinemagraph loop and strict CSP; images 972 KB → 337 KB',
     world: 'personal',
-    thumb: 'studio-poster',
+    shot: {
+      src: '/personal/shots/thumbs/snaxx.webp',
+      alt: 'Snaxx Tech studio site hero, The Snaxx Almanac illustrated landscape',
+    },
   },
   {
     group: 'Personal',
@@ -220,7 +225,10 @@ export const projects: Project[] = [
     stack: ['Next.js 16', 'SQLite', 'Zod', 'Playwright'],
     line: 'Multi-tenant time off with approvals, team calendar, AI assistant, 16 security tests',
     world: 'personal',
-    thumb: 'calendar-range',
+    shot: {
+      src: '/personal/shots/thumbs/offday-app.webp',
+      alt: 'Offday team calendar with October leave bars and approval queue',
+    },
   },
   {
     group: 'Personal',
@@ -238,7 +246,10 @@ export const projects: Project[] = [
     role: 'Owner',
     stack: ['Vanilla JS', 'PWA'],
     line: 'Daily Albanian word game, 21k-word dictionary, archive, offline play; live on the web',
-    thumb: 'word-grid',
+    shot: {
+      src: '/personal/shots/thumbs/fjale.webp',
+      alt: 'FJALË word game board with Albanian keyboard',
+    },
   },
   {
     group: 'Personal',
@@ -247,7 +258,10 @@ export const projects: Project[] = [
     role: 'Owner',
     stack: ['Node', 'WebSocket'],
     line: 'Multiplayer pizza card game for 2–8 players, server-authoritative with bots; live',
-    thumb: 'cards-fan',
+    shot: {
+      src: '/personal/shots/thumbs/za.webp',
+      alt: 'Za! card game lobby with pixel logo',
+    },
   },
   {
     group: 'Personal',
@@ -256,7 +270,10 @@ export const projects: Project[] = [
     role: 'Owner',
     stack: ['JavaScript'],
     line: 'Morse-code learning game with spaced repetition and Farnsworth timing; live',
-    thumb: 'morse',
+    shot: {
+      src: '/personal/shots/thumbs/morse.webp',
+      alt: 'Morse Trainer amber terminal in Learn mode',
+    },
   },
   {
     group: 'Personal',

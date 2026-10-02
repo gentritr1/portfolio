@@ -72,7 +72,8 @@ All facts below come from git history. Do not invent numbers. Do not add product
 
 **Live recreation:** "Live room". A 16:9 player frame with a looping subtle gradient "signal" (no real video), a LIVE badge with a viewer count that ticks, a quality menu (Auto / 1080p / 720p / 480p) that opens on click, and a chat column where invented messages arrive every ~2 s, one pinned message at the top, and a mute action on hover. A "Premium" lock state can be toggled to show the paywall overlay with a plan card ("Monthly $12 · Yearly $99"). Must pause when off-screen and respect reduced motion.
 
-**Public pages strip:** three screenshots after the facts and stack (Landing page · Library · Series, files in `public/streaming/`). Rule: public pages of the live site only, captured without login, with the logo, wordmark and product name covered by a solid patch in the background colour (never a blur).
+**Public pages strip:** three screenshots after the facts and stack (Landing page · Library · Stories, files in `public/streaming/`). Rule: public pages of the live site only, captured without login, with the logo, wordmark and product name covered by a solid patch in the background colour (never a blur).
+- Stories replaces the Series page (2026-10-02): a Series card title named a presenter. `public-03.webp` is the Stories page, cropped below the nav, so it holds no logo, wordmark or person's name.
 
 ---
 
@@ -154,6 +155,7 @@ All facts below come from git history. Do not invent numbers. Do not add product
 - **Snaxx Tech studio site** — marketing site for an indie app studio: a three.js hero, a seamless cinemagraph video loop, Almanac visual theme, strict CSP on Vercel. Images 972 KB → 337 KB, deploy 28 MB → 9.5 MB. Assets: `public/personal/snaxx-hero.mp4`, `public/personal/hero-almanac-poster.jpg`, `app-*.webp`.
 - **Offday** — multi-tenant time-off app: employee requests, manager approvals, team calendar with drag-select, invite links, streaming AI assistant, dark theme. Next.js 16, SQLite, Zod, Playwright (16 security and tenant-isolation tests).
 - **Open source** — maintained forks of `epubjs-react-native` and `react-native-pdf`, used in a production reading app. GitHub: github.com/gentritr1
+- **Real screenshots** — the owner's own sites (Snaxx Tech, Offday, FJALË, Za!, Morse Trainer) show real captures from `public/personal/shots/` (alt text and sizes in `manifest.json`); the Offday card swaps to the dark capture in dark theme, and the index rows use 256 × 160 crops from `shots/thumbs/`.
 
 ---
 

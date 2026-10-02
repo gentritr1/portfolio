@@ -5,6 +5,7 @@ import { Container } from '../components/Container'
 import { Reveal, RevealGroup, RevealItem } from '../components/Reveal'
 import { SectionHeading } from '../components/SectionHeading'
 import { links } from '../content/links'
+import { cn } from '../lib/cn'
 import { usePrefersReducedMotion } from '../lib/motion'
 
 const apps = [
@@ -13,6 +14,67 @@ const apps = [
   { src: '/personal/app-fjale.webp', alt: 'Illustration for the Fjale word app' },
   { src: '/personal/app-geo-guesser.webp', alt: 'Illustration for the Geo Guesser game' },
 ]
+
+const shotFrame = 'overflow-hidden rounded-panel border border-line bg-surface'
+
+const games = [
+  {
+    src: '/personal/shots/fjale-desktop.webp',
+    width: 1440,
+    height: 900,
+    alt: 'FJALË word game board, five-letter grid with Albanian keyboard and hint panel',
+    caption: 'FJALË',
+  },
+  {
+    src: '/personal/shots/za-desktop.webp',
+    width: 1440,
+    height: 900,
+    alt: 'Za! multiplayer card game lobby, pixel logo with new-table and join-table controls',
+    caption: 'Za!',
+  },
+  {
+    src: '/personal/shots/morse-desktop.webp',
+    width: 1440,
+    height: 900,
+    alt: 'Morse Trainer amber terminal, letter list and incoming signal in Learn mode',
+    caption: 'Morse Trainer',
+  },
+  {
+    src: '/personal/shots/za-phone.webp',
+    width: 780,
+    height: 1688,
+    alt: 'Za! multiplayer card game lobby on a phone, pixel logo and table controls',
+    caption: 'Za! on a phone',
+  },
+]
+
+function GameShots() {
+  return (
+    <ul className="grid grid-cols-2 gap-x-3 gap-y-4">
+      {games.map((game) => {
+        const phone = game.height > game.width
+        return (
+          <li key={game.src}>
+            <figure>
+              <div className={cn(shotFrame, 'aspect-[16/10]', phone && 'bg-ink dark:bg-canvas')}>
+                <img
+                  src={game.src}
+                  width={game.width}
+                  height={game.height}
+                  alt={game.alt}
+                  loading="lazy"
+                  decoding="async"
+                  className={phone ? 'mx-auto block h-full w-auto' : 'block h-auto w-full'}
+                />
+              </div>
+              <figcaption className="mt-2 px-0.5 font-mono text-meta text-muted">{game.caption}</figcaption>
+            </figure>
+          </li>
+        )
+      })}
+    </ul>
+  )
+}
 
 function SnaxxVideo() {
   const video = useRef<HTMLVideoElement>(null)
@@ -91,43 +153,78 @@ export function Personal() {
         <SectionHeading id="personal-title" title="Personal projects" />
 
         <div className="mt-12 grid grid-cols-1 gap-14 lg:mt-16 lg:grid-cols-12 lg:gap-x-16">
-          <article className="lg:col-span-7">
-            <Reveal>
-              <SnaxxVideo />
-            </Reveal>
-            <RevealGroup className="mt-8">
+          <div className="flex flex-col gap-12 lg:col-span-7">
+            <article>
+              <Reveal>
+                <SnaxxVideo />
+              </Reveal>
+              <RevealGroup className="mt-8">
+                <RevealItem>
+                  <h3 className="text-h3 font-medium text-ink">Snaxx Tech studio site</h3>
+                </RevealItem>
+                <RevealItem as="p" className="mt-3 max-w-[58ch] text-muted">
+                  Marketing site for an indie app studio: a three.js hero, a seamless cinemagraph video loop, Almanac visual
+                  theme, strict CSP on Vercel.
+                </RevealItem>
+                <RevealItem className="mt-5 flex flex-wrap gap-2">
+                  <Delta label="Images" from="972 KB" to="337 KB" />
+                  <Delta label="Deploy" from="28 MB" to="9.5 MB" />
+                </RevealItem>
+              </RevealGroup>
+              <RevealGroup as="ul" gap={0.04} className="mt-8 grid grid-cols-2 gap-2 sm:grid-cols-4">
+                {apps.map((app) => (
+                  <RevealItem as="li" key={app.src}>
+                    <img
+                      src={app.src}
+                      alt={app.alt}
+                      loading="lazy"
+                      decoding="async"
+                      width={1200}
+                      height={896}
+                      className="aspect-[4/3] w-full rounded-[10px] object-cover ring-1 ring-line"
+                    />
+                  </RevealItem>
+                ))}
+              </RevealGroup>
+            </article>
+
+            <RevealGroup as="article" className="border-t border-line pt-8">
               <RevealItem>
-                <h3 className="text-h3 font-medium text-ink">Snaxx Tech studio site</h3>
+                <h3 className="text-h3 font-medium text-ink">Games</h3>
               </RevealItem>
               <RevealItem as="p" className="mt-3 max-w-[58ch] text-muted">
-                Marketing site for an indie app studio: a three.js hero, a seamless cinemagraph video loop, Almanac visual
-                theme, strict CSP on Vercel.
+                Three small games, live on the web: a daily Albanian word game, a multiplayer pizza card game with bots,
+                and a Morse-code trainer with spaced repetition.
               </RevealItem>
-              <RevealItem className="mt-5 flex flex-wrap gap-2">
-                <Delta label="Images" from="972 KB" to="337 KB" />
-                <Delta label="Deploy" from="28 MB" to="9.5 MB" />
+              <RevealItem className="mt-5">
+                <GameShots />
               </RevealItem>
             </RevealGroup>
-            <RevealGroup as="ul" gap={0.04} className="mt-8 grid grid-cols-2 gap-2 sm:grid-cols-4">
-              {apps.map((app) => (
-                <RevealItem as="li" key={app.src}>
-                  <img
-                    src={app.src}
-                    alt={app.alt}
-                    loading="lazy"
-                    decoding="async"
-                    width={1200}
-                    height={896}
-                    className="aspect-[4/3] w-full rounded-[10px] object-cover ring-1 ring-line"
-                  />
-                </RevealItem>
-              ))}
-            </RevealGroup>
-          </article>
+          </div>
 
           <div className="flex flex-col gap-12 lg:col-span-5">
             <RevealGroup as="article" className="border-t border-line pt-8">
-              <RevealItem>
+              <RevealItem className={shotFrame}>
+                <img
+                  src="/personal/shots/offday-app-desktop.webp"
+                  width={1440}
+                  height={900}
+                  alt="Offday team calendar in the demo workspace, October leave bars and approval queue"
+                  loading="lazy"
+                  decoding="async"
+                  className="block h-auto w-full dark:hidden"
+                />
+                <img
+                  src="/personal/shots/offday-dark-desktop.webp"
+                  width={1440}
+                  height={900}
+                  alt="Offday team calendar in dark theme, leave bars and approval queue"
+                  loading="lazy"
+                  decoding="async"
+                  className="hidden h-auto w-full dark:block"
+                />
+              </RevealItem>
+              <RevealItem className="mt-6">
                 <h3 className="text-h3 font-medium text-ink">Offday</h3>
               </RevealItem>
               <RevealItem as="p" className="mt-3 text-muted">

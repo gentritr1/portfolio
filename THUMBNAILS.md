@@ -5,7 +5,7 @@ Owner decision (2026-10-02): the index gets a small stylized "screen" for each m
 ## Shape and placement
 
 - Size: 96 × 64 px on `md` and up, 80 × 54 px on phones. Radius `rounded-chip` (8 px) outer, 1 px `border-line`, a 1 px inner highlight. Background `bg-surface`, drawings use the world accent (`--accent` family via `data-world` on the thumbnail or a `color-mix` of the accent) plus `--muted` and `--line` for neutral shapes. Light and dark both.
-- Placement: at the start of the index row, replacing the accent swatch; the row text block follows. Rows without a thumbnail keep the current layout (no empty slot).
+- Placement: at the start of the index row; the row text block follows. Rows without a thumbnail show the empty frame (same size, border and surface, no drawing), so every row's text starts on the same column.
 - Motion: none by default. On row hover, a 150 ms lift of 1 px and a slightly stronger border; nothing under reduced motion.
 - Implementation: one `Thumb` component with a `kind` prop (enum below), each kind a tiny deterministic drawing (inline SVG preferred; CSS boxes allowed). ≤ 40 lines per kind. Keep stroke widths ≥ 1.5 px so they survive scaling. `aria-hidden="true"`; the row text carries the meaning.
 
@@ -28,17 +28,17 @@ Owner decision (2026-10-02): the index gets a small stylized "screen" for each m
 | Member portal, web | `portal-shell` | Sidebar, top bar with avatar dot, two content cards |
 | Smart-wallet dashboard | `wallet-card` | A dark card with a balance bar, a QR square (3×3 modules), a chip row (violet) |
 | Smart business dashboard with AI | `doc-chat` | A page with text bars and one highlighted bar, next to two chat bubbles |
-| Studio website | (use the real poster `public/personal/og-snaxx.jpg`, object-cover) |
-| Time-off app | `calendar-range` | A month grid 7×4 with a 4-day range filled |
+| Studio website | real capture `shots/thumbs/snaxx.webp` |
+| Time-off app | real capture `shots/thumbs/offday-app.webp` | |
 | Geo Guesser World 3D | `map-pin` | A map with two road lines and a pin |
-| FJALË | `word-grid` | A 5×3 letter grid, one row filled in the accent |
-| Za! | `cards-fan` | Three fanned cards |
-| Morse Trainer | `morse` | Dots and dashes on one line, a small speaker |
+| FJALË | real capture `shots/thumbs/fjale.webp` | |
+| Za! | real capture `shots/thumbs/za.webp` | |
+| Morse Trainer | real capture `shots/thumbs/morse.webp` | |
 | Futurisma | `track` | A curved track line with a hover vehicle wedge |
 | Secret Dictator | `town` | Three low house shapes and a moon |
 | Open-source forks | `fork` | A branch symbol: one line splitting into two with dots |
 
-Rows not listed (Design dashboard prototype, Chatbot web port, EPUB prototype, Fuel-station app) have no thumbnail.
+Rows marked real capture use the owner's own screenshots (`shot` in `projects.ts`, object-cover, top-aligned). Rows not listed (Design dashboard prototype, Chatbot web port, EPUB prototype, Fuel-station app) show the empty frame.
 
 ## Quality floor
 
