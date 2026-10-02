@@ -8,7 +8,7 @@ The v1 site is ~20,000 px of scroll, five worlds share one template, the same fa
 
 ## Identity: the control room
 
-- **Metaphor.** The site is a control room that monitors the products Gentrit has shipped. Domains are **channels**: CH01 Healthcare · CH02 Streaming · CH03 E-reading · CH04 Web3 · CH05 AI · CH06 Games & personal. The live demos are **monitors**. The project list is the **schedule**. A project page is a channel **tuned in**.
+- **Metaphor.** The site is a control room that monitors the products Gentrit has shipped. Domains are **channels**: CH01 Healthcare · CH02 Streaming · CH03 Mobile apps · CH04 Web3 · CH05 Web apps & AI · CH06 Games & personal (labels renamed 2026-10-02). The live demos are **monitors**. The project list is the **schedule**. A project page is a channel **tuned in**.
 - **Tone.** Calm, precise, professional. Not retro kitsch, not neon cyberpunk, no fake CRT bloat. Think broadcast master-control and modern clinical monitoring: dark matte panels, hairline rules, small mono labels, one signal colour.
 - **Colour.** Dark-first. Near-black panel greys (3–4 steps), hairlines, one **on-air signal** colour (warm signal red-orange or amber; pick one and use it only for "live" states, the active channel and focus). Each channel keeps a muted **channel tint** (reuse the v1 world accents, desaturated) used for its number, its rule and its monitor bezel. A light "daylight" theme stays available via the existing toggle and must look intentional, not inverted.
 - **Type.** A characterful grotesk for display (tight, large, confident), a clean text face for body, and a mono for every label, number, time code and metadata. Not Inter, not Roboto. Labels are uppercase mono at 11–12 px with tracking; body is ≥ 16 px.

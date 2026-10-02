@@ -52,14 +52,16 @@ Daylight is not an inversion: the panels are pale console grey, the page ground 
 
 The v1 world accents, desaturated. A tint marks a channel's number, its rule and its monitor bezel ring. It never fills a large area.
 
-| Channel | Key | Token | Daylight | Dark |
-| --- | --- | --- | --- | --- |
-| CH01 Healthcare | `healthcare` | `--ch-healthcare` | `oklch(0.5 0.075 184)` | `oklch(0.77 0.07 180)` |
-| CH02 Streaming | `streaming` | `--ch-streaming` | `oklch(0.52 0.08 12)` | `oklch(0.75 0.07 10)` |
-| CH03 E-reading & mobile | `reading` | `--ch-reading` | `oklch(0.52 0.08 70)` | `oklch(0.81 0.075 78)` |
-| CH04 Web3 | `web3` | `--ch-web3` | `oklch(0.5 0.1 285)` | `oklch(0.75 0.08 285)` |
-| CH05 AI | `ai` | `--ch-ai` | `oklch(0.5 0.08 125)` | `oklch(0.84 0.08 120)` |
-| CH06 Games & personal | `personal` | `--ch-personal` | `oklch(0.48 0.04 245)` | `oklch(0.78 0.035 240)` |
+| Channel | Key | Period | Token | Daylight | Dark |
+| --- | --- | --- | --- | --- | --- |
+| CH01 Healthcare | `healthcare` | 2023–26 | `--ch-healthcare` | `oklch(0.5 0.075 184)` | `oklch(0.77 0.07 180)` |
+| CH02 Streaming | `streaming` | 2023–26 | `--ch-streaming` | `oklch(0.52 0.08 12)` | `oklch(0.75 0.07 10)` |
+| CH03 Mobile apps | `reading` | 2021–26 | `--ch-reading` | `oklch(0.52 0.08 70)` | `oklch(0.81 0.075 78)` |
+| CH04 Web3 | `web3` | 2024 | `--ch-web3` | `oklch(0.5 0.1 285)` | `oklch(0.75 0.08 285)` |
+| CH05 Web apps & AI | `ai` | 2025 | `--ch-ai` | `oklch(0.5 0.08 125)` | `oklch(0.84 0.08 120)` |
+| CH06 Games & personal | `personal` | 2022–26 | `--ch-personal` | `oklch(0.48 0.04 245)` | `oklch(0.78 0.035 240)` |
+
+A channel's period is derived in `channels.ts` from the first and last year of its projects; nobody writes it by hand. A row with no years shows a muted `·` in the schedule, never the channel period. CH01 also carries the design systems (React, Vue) and the design dashboard; the care-platform page lists them under "Also on this channel".
 
 The streaming tint is a muted rose (hue 10), so it never reads as the signal red-orange (hue 31 to 33).
 
@@ -120,14 +122,15 @@ Panels are matte: one hairline, no shadow. Only the monitor carries depth. Pills
 | `--ease-drawer` / `ease.drawer` | `cubic-bezier(0.32, 0.72, 0, 1)` | Shared elements, drawer, dialog |
 | `--dur-press` | 140 ms | Press feedback |
 | `--dur-micro` | 200 ms | Hover, toggles |
-| `--dur-ui` | 240 ms | Route cross-fade, tint change |
+| `--dur-ui` | 240 ms | Tint change |
+| `--dur-root` | 160 ms | Route cross-fade of the page (`::view-transition-old/new(root)`), short so the two pages never ghost |
 | `--dur-tune` | 260 ms | Channel switch tune (scan line, slight blur-in), 280 ms ceiling |
 | `--dur-route` | 480 ms | Shared-element morph between routes |
 | `--dur-preview` | 560 ms | Schedule hover preview, ease-out, scale 0.96 to 1 |
 
 `src/lib/motion.ts` mirrors these in seconds for `motion`.
 
-Route transitions: `TransitionLink` preloads the destination (route chunk and monitor recreation), then calls `document.startViewTransition` and commits the route with `flushSync`. `::view-transition-old/new(root)` fade for 240 ms; every named group morphs for 480 ms on the drawer curve. The masthead has `view-transition-name: masthead`, so it holds still. A case-page monitor is named `monitor-<slug>`; the home monitor wall gives its active monitor the same name, so the monitor morphs into the case page.
+Route transitions: `TransitionLink` preloads the destination (route chunk and monitor recreation), then calls `document.startViewTransition` and commits the route with `flushSync`. `::view-transition-old/new(root)` fade for 160 ms; every named group morphs for 480 ms on the drawer curve. The masthead has `view-transition-name: masthead`, so it holds still. A case-page monitor is named `monitor-<slug>`; the home monitor wall gives its active monitor the same name, so the monitor morphs into the case page.
 
 Reduced motion: `TransitionLink` navigates without a view transition, all `::view-transition-*` animations are off, CSS animations collapse to their end state, and smooth scroll is off.
 
@@ -135,15 +138,17 @@ Reduced motion: `TransitionLink` navigates without a view transition, all `::vie
 
 | Component | Props | Contract |
 | --- | --- | --- |
-| `Masthead` | none | Sticky top bar: GR monogram and name (home link), "Schedule" back link on `/work/*`, ON AIR lamp, KOS local time (Europe/Belgrade, HH:MM, updated on the minute), theme toggle, CV download. |
+| `Masthead` | none | Sticky top bar: GR monogram and name (home link), "Schedule" back link on `/work/*`, ON AIR lamp (OFF AIR with an unlit lamp on No signal), KOS local time (Europe/Belgrade, HH:MM, updated on the minute), theme toggle, CV download. Every control is 44 × 44 px or larger. |
 | `Footer` | none | Sources line, GitHub, CV, email and LinkedIn when set in `links.ts`, © line. |
 | `ChannelBadge` | `channel`, `showLabel = true`, `size = 'sm' \| 'md'`, `className` | CH number in its tint, a 1 px tint rule, the channel name. Sets `data-channel`. |
 | `SignalDot` | `tone = 'signal' \| 'tint' \| 'off'`, `className` | A steady lamp. It never pulses. |
-| `Panel` | `as`, `label`, `meta`, `className`, `bodyClassName`, `children` | Matte panel with one hairline and an optional labelled top bar. |
-| `Monitor` | `channel`, `label`, `timecode`, `live`, `aspect: {base, sm, lg}`, `world`, `viewTransitionName`, `caption`, `children` | Graphite bezel, a label bar (lamp, CH number in tint, label, time code), and a stage that is a size container scoped with `data-world`. Width is capped so the stage stays near 76 to 78 svh tall. |
+| `Monitor` | `channel`, `label`, `timecode`, `live`, `aspect: {base, sm, lg}`, `world`, `viewTransitionName`, `maxWidth`, `caption`, `actions`, `lowerThird`, `fit`, `children` | Graphite bezel, a label bar (lamp, CH number in tint, label, time code, optional `actions`), a stage that is a size container scoped with `data-world`, and an optional `lowerThird` band under the stage. Width is capped so the stage stays at 70 svh or less, and at `maxWidth`. With `fit` (the home wall) the stage has a fixed height from 640 px up (`min(62svh, 560px)`, `min(58svh, 620px)` from 1024 px) and the content keeps its own aspect, centred on bezel graphite, so a channel switch never moves the page. |
+| `LowerThird` | `project` | Case title on the monitor bezel: channel badge, kind, the page `h1` behind a 1 px tint rule, time code. |
+| `CaseFacts` | `project`, `featured` | Role, platforms and public pages, in a column right of the story (below it on phones). |
 | `MonitorTuning` | none | Stage fallback while a recreation loads; same box, no layout shift. |
 | `MonitorGallery` | `items` | Store frames side by side on a stage; the row scrolls when narrow. |
-| `Showcase` | `title`, `links`, `items`, `aspect = 'web' \| 'phone'` | Public screenshots with store and site links; a frame opens a native dialog. |
+| `Showcase` | `title`, `links`, `items`, `aspect = 'web' \| 'phone'` | Public screenshots with store and site links; a frame opens `FrameDialog`. |
+| `FrameDialog` | `items`, `index`, `onIndexChange` | The one lightbox: a native modal dialog with the frame large, a counter, previous and next (buttons and arrow keys), Escape to close, focus back to the opener. Used by `Showcase` and `MonitorGallery`. |
 | `TransitionLink` | React Router `Link` props, `to: string`, `preload?: () => Promise` | View-transition navigation with preload on hover, focus and click. |
 | `ScrollToTop` | none | Scrolls to the hash target or to the top on every route change. |
 | `ThemeToggle` | `className` | 44 px button; dark and daylight; writes `data-theme`, `theme-color` and `localStorage.theme`. |
@@ -155,9 +160,10 @@ Icons: `@phosphor-icons/react`, `weight="light"` outside recreations. No emoji, 
 
 | Path | Page | Loading |
 | --- | --- | --- |
-| `/` | `HomePage`: masthead, first viewport with the channel switcher, `#schedule`, about and contact, footer | In the main chunk |
-| `/work/:slug` | `CaseStudyPage` for the five featured slugs: channel header, monitor, story (The product / What was built / Result), galleries, facts, next channel | Lazy chunk; each recreation is its own lazy chunk |
-| `*` and non-featured slugs | `NoSignalPage`: test-card bars in the six tints, the path, a link back to the schedule | In the main chunk |
+| `/` | `HomePage`: masthead; one hero band (name, role line, claim, status strip, and the `HeaderVisual` slot at 380 × 220 from 1024 px); the channel strip; the wall monitor with "Tune in" in its label bar (at 1440 × 900 the monitor top and "Tune in" sit above the fold); the lede (70ch); `#schedule`; about and contact; footer. Number keys and ←/→ switch channels only while the wall is in view. | In the main chunk |
+| `#schedule` | A rundown. Group headers are slates: a short bar of the group's channel tints, the group name, a two-digit count, the period. The row of the project on the wall carries a 1 px signal rule at its left edge and a mono "Now" tag under its time code. Public links sit under the line, 44 px tall. | In the main chunk |
+| `/work/:slug` | `CaseStudyPage` for the five featured slugs: the monitor first, sized to its content, with the title in a `LowerThird` on its bezel (the only visible title, and the page `h1`); readouts; the line and the story (The product / What was built / Result) with `CaseFacts` on the right; galleries; "Also on this channel" where `featured.related` lists rows (they open the home drawer through `/?p=<slug>`); spec sheet; next channel | Lazy chunk; each recreation is its own lazy chunk |
+| `*` and non-featured slugs | `NoSignalPage`: test-card bars in the six tints, the path, a link back to the schedule. The route element checks the slug against `featuredProjects` before the lazy boundary, so an unknown slug never paints the lazy fallback first. | In the main chunk |
 
 `BrowserRouter` runs with `useTransitions={false}` so `flushSync` can commit a route inside a view transition. Static hosting needs a rewrite of every path to `/index.html` (`vercel.json`).
 

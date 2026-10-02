@@ -16,6 +16,8 @@ export interface RecreationEntry extends Preloadable<object> {
   /** Recreation palette that the monitor stage scopes with data-world. */
   world: WorldId
   aspect: MonitorAspect
+  /** Widest the case-page monitor grows, for content that leaves a wide stage empty. */
+  maxWidth?: string
 }
 
 export const recreations: Record<RecreationKey, RecreationEntry> = {
@@ -40,7 +42,8 @@ export const recreations: Record<RecreationKey, RecreationEntry> = {
   wallet: {
     name: 'Wallet card',
     world: 'web3',
-    aspect: { base: '3 / 4', sm: '6 / 5', lg: '21 / 9' },
+    aspect: { base: '3 / 4', sm: '6 / 5', lg: '16 / 9' },
+    maxWidth: '920px',
     ...preloadable(() => import('../worlds/web3/Recreation').then((m) => m.Recreation)),
   },
   'doc-chat': {

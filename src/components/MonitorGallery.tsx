@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { FrameDialog } from './case/FrameDialog'
+import { FrameDialog } from './FrameDialog'
 import type { ShowcaseItem } from './Showcase'
 
 /** Store frames side by side on a monitor stage. The rail scrolls when the frames are wider than the stage; a frame opens large in a dialog. */

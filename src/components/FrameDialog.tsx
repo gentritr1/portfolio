@@ -1,6 +1,6 @@
 import { CaretLeftIcon, CaretRightIcon, XIcon } from '@phosphor-icons/react'
 import { useEffect, useRef } from 'react'
-import type { ShowcaseItem } from '../Showcase'
+import type { ShowcaseItem } from './Showcase'
 
 interface FrameDialogProps {
   items: ShowcaseItem[]

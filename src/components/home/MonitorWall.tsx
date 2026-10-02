@@ -18,14 +18,11 @@ import { Container } from '../Container'
 import { Monitor, MonitorTuning } from '../Monitor'
 import { TransitionLink } from '../TransitionLink'
 
-/** One stage shape on the wall for wide screens, so a channel switch never moves the page below. */
-const wallAspect = { sm: '4 / 3', lg: '16 / 9' }
-const galleryBase = '3 / 4'
+const galleryAspect: MonitorAspect = { base: '3 / 4', sm: '4 / 3', lg: '21 / 9' }
 
 function aspectOf(project: Project): MonitorAspect {
   const monitor = project.featured?.monitor
-  const base = monitor && monitor !== 'gallery' ? recreations[monitor].aspect.base : galleryBase
-  return { base, ...wallAspect }
+  return monitor && monitor !== 'gallery' ? recreations[monitor].aspect : galleryAspect
 }
 
 function preloadMonitor(project: Project) {
@@ -131,6 +128,21 @@ export function MonitorWall({ activeSlug, onSelect }: MonitorWallProps) {
   const tabs = useRef<Array<HTMLButtonElement | null>>([])
   const [switched, setSwitched] = useState(false)
   const [announcement, setAnnouncement] = useState('')
+  const section = useRef<HTMLElement>(null)
+  const inView = useRef(false)
+
+  useEffect(() => {
+    const node = section.current
+    if (!node) return
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        inView.current = entry.isIntersecting
+      },
+      { threshold: 0.2 },
+    )
+    observer.observe(node)
+    return () => observer.disconnect()
+  }, [])
 
   const index = featuredProjects.findIndex((project) => project.slug === activeSlug)
 
@@ -144,7 +156,7 @@ export function MonitorWall({ activeSlug, onSelect }: MonitorWallProps) {
 
   useEffect(() => {
     function onKey(event: globalThis.KeyboardEvent) {
-      if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.altKey) return
+      if (!inView.current || event.defaultPrevented || event.metaKey || event.ctrlKey || event.altKey) return
       if (isTypingTarget(event.target) || document.querySelector('dialog[open]')) return
       let next: number | null = null
       if (/^[1-9]$/.test(event.key) && Number(event.key) <= featuredProjects.length) next = Number(event.key) - 1
@@ -180,7 +192,7 @@ export function MonitorWall({ activeSlug, onSelect }: MonitorWallProps) {
   const recreation = monitor && monitor !== 'gallery' ? recreations[monitor] : null
 
   return (
-    <section aria-label="Featured channels" data-channel={active.channel} className="mt-12 sm:mt-16">
+    <section ref={section} aria-label="Featured channels" data-channel={active.channel} className="mt-8 sm:mt-10">
       <Container>
         <ul
           role="tablist"
@@ -215,7 +227,7 @@ export function MonitorWall({ activeSlug, onSelect }: MonitorWallProps) {
                     selected ? 'bg-panel-1' : 'hover:bg-panel-1',
                   )}
                 >
-                  <span className="flex items-center justify-between gap-3 label">
+                  <span className="flex items-center justify-between gap-3 label whitespace-nowrap">
                     <span className="flex items-center gap-2">
                       <span className="text-tint">{channels[project.channel].number}</span>
                       <kbd
@@ -252,7 +264,7 @@ export function MonitorWall({ activeSlug, onSelect }: MonitorWallProps) {
           {announcement}
         </p>
 
-        <div id="monitor-panel" role="tabpanel" aria-labelledby={`tab-${activeSlug}`} className="mt-6 sm:mt-8">
+        <div id="monitor-panel" role="tabpanel" aria-labelledby={`tab-${activeSlug}`} className="mt-4 sm:mt-5">
           <Monitor
             channel={shown.channel}
             label={tuning ? 'Tuning' : (recreation?.name ?? 'Store frames')}
@@ -261,6 +273,23 @@ export function MonitorWall({ activeSlug, onSelect }: MonitorWallProps) {
             aspect={aspectOf(shown)}
             world={recreation?.world ?? 'base'}
             viewTransitionName={`monitor-${shown.slug}`}
+            fit
+            actions={
+              <TransitionLink
+                to={caseHref(active)}
+                preload={() => preloadCase(active.slug)}
+                className="group inline-flex min-h-11 items-center gap-2 rounded-sm bg-ink px-3.5 label-lg text-panel-0 transition-[background-color,transform] duration-150 ease-out hover:bg-ink-2 active:scale-[0.98] sm:px-4"
+              >
+                Tune in
+                <span className="sr-only">: {active.name}</span>
+                <ArrowRightIcon
+                  size={15}
+                  weight="light"
+                  aria-hidden
+                  className="transition-transform duration-200 ease-out group-hover:translate-x-0.5"
+                />
+              </TransitionLink>
+            }
           >
             <Suspense fallback={<MonitorTuning />}>
               <Tune key={shown.slug} play={switched}>
@@ -269,25 +298,9 @@ export function MonitorWall({ activeSlug, onSelect }: MonitorWallProps) {
             </Suspense>
           </Monitor>
 
-          <div className="mt-5 grid gap-x-8 gap-y-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
-            <div className="min-w-0">
-              <p className="text-lede text-ink">{active.line}</p>
-              <p className="mt-1.5 label text-ink-3">{active.stack.slice(0, 4).join(' · ')}</p>
-            </div>
-            <TransitionLink
-              to={caseHref(active)}
-              preload={() => preloadCase(active.slug)}
-              className="group inline-flex min-h-11 items-center justify-center gap-2 justify-self-start rounded-sm bg-ink px-4 label-lg text-panel-0 transition-[background-color,transform] duration-150 ease-out hover:bg-ink-2 active:scale-[0.98] sm:justify-self-end"
-            >
-              Tune in
-              <span className="sr-only">: {active.name}</span>
-              <ArrowRightIcon
-                size={15}
-                weight="light"
-                aria-hidden
-                className="transition-transform duration-200 ease-out group-hover:translate-x-0.5"
-              />
-            </TransitionLink>
+          <div className="mt-4 max-w-[70ch]">
+            <p className="text-lede text-ink sm:min-h-[2lh]">{active.line}</p>
+            <p className="mt-1.5 label text-ink-3">{active.stack.slice(0, 4).join(' · ')}</p>
           </div>
         </div>
       </Container>

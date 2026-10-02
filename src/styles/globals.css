@@ -112,6 +112,7 @@
   --dur-press: 140ms;
   --dur-micro: 200ms;
   --dur-ui: 240ms;
+  --dur-root: 160ms;
   --dur-tune: 260ms;
   --dur-route: 480ms;
   --dur-preview: 560ms;
@@ -378,7 +379,7 @@
 
 ::view-transition-old(root),
 ::view-transition-new(root) {
-  animation-duration: var(--dur-ui);
+  animation-duration: var(--dur-root);
   animation-timing-function: var(--ease-out);
 }
 

@@ -1,6 +1,5 @@
 import { ArrowRightIcon, ArrowUpRightIcon, XIcon } from '@phosphor-icons/react'
 import { Suspense, useId, useLayoutEffect, useRef, useState, type PointerEvent } from 'react'
-import { channels } from '../../content/channels'
 import { caseHref, worldOf, type Project } from '../../content/projects'
 import { cn } from '../../lib/cn'
 import { recreations } from '../../lib/recreations'
@@ -86,11 +85,14 @@ export function ProjectDrawer({ project, onClose }: ProjectDrawerProps) {
   const closing = useRef(false)
   const drag = useRef<{ y: number; t: number; dy: number } | null>(null)
   const titleId = useId()
+  const closeButton = useRef<HTMLButtonElement>(null)
 
   useLayoutEffect(() => {
     const node = dialog.current
     if (!node) return
     if (!node.open) node.showModal()
+    closeButton.current?.focus({ preventScroll: true })
+    node.scrollTop = 0
     const root = document.documentElement
     const gap = window.innerWidth - root.clientWidth
     const previous = {
@@ -193,11 +195,11 @@ export function ProjectDrawer({ project, onClose }: ProjectDrawerProps) {
         <div className="flex shrink-0 items-center justify-between gap-4 px-gutter pt-1 sm:pt-5">
           <span className="flex items-center gap-4">
             <ChannelBadge channel={project.channel} size="md" />
-            <span className="label-lg text-ink-3 tabular">{project.years ?? channels[project.channel].period}</span>
+            {project.years && <span className="label-lg text-ink-3 tabular">{project.years}</span>}
           </span>
           <button
+            ref={closeButton}
             type="button"
-            autoFocus
             onClick={dismiss}
             aria-label="Close"
             className="-mr-2.5 grid size-11 shrink-0 place-items-center rounded-sm text-ink-2 transition-[background-color,color,transform] duration-150 ease-out hover:bg-panel-2 hover:text-ink active:scale-[0.96]"

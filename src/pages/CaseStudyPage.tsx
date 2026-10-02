@@ -1,6 +1,7 @@
+import { ArrowRightIcon } from '@phosphor-icons/react'
 import { Suspense } from 'react'
 import { useParams } from 'react-router'
-import { CaseHeader } from '../components/case/CaseHeader'
+import { CaseFacts, LowerThird } from '../components/case/CaseHeader'
 import { NextChannel } from '../components/case/NextChannel'
 import { Readouts } from '../components/case/Readouts'
 import { SpecSheet } from '../components/case/SpecSheet'
@@ -10,6 +11,7 @@ import { Container } from '../components/Container'
 import { Monitor, MonitorTuning } from '../components/Monitor'
 import { MonitorGallery } from '../components/MonitorGallery'
 import { Showcase } from '../components/Showcase'
+import { TransitionLink } from '../components/TransitionLink'
 import { findProject, nextFeatured, projects, type Featured, type Gallery, type Project } from '../content/projects'
 import { recreations } from '../lib/recreations'
 import { NoSignalPage } from './NoSignalPage'
@@ -17,7 +19,11 @@ import { NoSignalPage } from './NoSignalPage'
 const galleryAspect = { base: '3 / 4', sm: '4 / 3', lg: '21 / 9' }
 
 function CaseMonitor({ project, featured }: { project: Project; featured: Featured }) {
-  const shared = { channel: project.channel, timecode: project.years ?? undefined, viewTransitionName: `monitor-${project.slug}` }
+  const shared = {
+    channel: project.channel,
+    viewTransitionName: `monitor-${project.slug}`,
+    lowerThird: <LowerThird project={project} />,
+  }
 
   if (featured.monitor === 'gallery') {
     const gallery = project.media.galleries?.[0]
@@ -31,7 +37,14 @@ function CaseMonitor({ project, featured }: { project: Project; featured: Featur
   const recreation = recreations[featured.monitor]
   const Recreation = recreation.Component
   return (
-    <Monitor {...shared} live label={recreation.name} aspect={recreation.aspect} world={recreation.world} caption="Live recreation · invented data">
+    <Monitor
+      {...shared}
+      live
+      label={recreation.name}
+      aspect={recreation.aspect}
+      world={recreation.world}
+      maxWidth={recreation.maxWidth}
+      caption="Live recreation · invented data">
       <Suspense fallback={<MonitorTuning />}>
         <Recreation />
       </Suspense>
@@ -48,6 +61,41 @@ function hostOf(href: string | undefined): string | undefined {
   return href ? new URL(href).hostname.replace(/^www\./, '') : undefined
 }
 
+function AlsoOnChannel({ slugs }: { slugs: string[] }) {
+  const rows = slugs.map((slug) => findProject(slug)).filter((project): project is Project => project !== undefined)
+  return (
+    <section aria-labelledby="also-title" className="pt-section">
+      <Container>
+        <h2 id="also-title" className="label-lg text-ink">
+          Also on this channel
+        </h2>
+        <ul className="mt-4 border-t border-hairline">
+          {rows.map((row) => (
+            <li key={row.slug} className="border-b border-hairline">
+              <TransitionLink
+                to={`/?p=${row.slug}`}
+                className="group grid min-h-11 grid-cols-[4.75rem_minmax(0,1fr)_auto] items-center gap-x-4 py-3 transition-colors duration-150 ease-out hover:bg-panel-1 sm:grid-cols-[5.5rem_minmax(0,1fr)_auto] sm:px-2"
+              >
+                <span className="label text-ink-3 tabular">{row.years}</span>
+                <span className="min-w-0">
+                  <span className="block font-display text-[1.0625rem] font-semibold text-ink [font-stretch:112%]">{row.name}</span>
+                  <span className="mt-0.5 block text-meta text-ink-2">{row.line}</span>
+                </span>
+                <ArrowRightIcon
+                  size={16}
+                  weight="light"
+                  aria-hidden
+                  className="text-tint transition-transform duration-200 ease-out group-hover:translate-x-0.5"
+                />
+              </TransitionLink>
+            </li>
+          ))}
+        </ul>
+      </Container>
+    </section>
+  )
+}
+
 function CaseStudy({ project, featured }: { project: Project; featured: Featured }) {
   useDocumentMeta(`${project.name} · Gentrit Rashiti`, project.line)
   const next = nextFeatured(project)
@@ -55,9 +103,7 @@ function CaseStudy({ project, featured }: { project: Project; featured: Featured
 
   return (
     <article data-channel={project.channel} aria-labelledby="case-title">
-      <CaseHeader project={project} featured={featured} />
-
-      <div className="mt-10 sm:mt-14">
+      <div className="pt-8 sm:pt-10">
         <Container>
           <CaseMonitor project={project} featured={featured} />
           {featured.readouts && <Readouts readouts={featured.readouts} />}
@@ -65,8 +111,16 @@ function CaseStudy({ project, featured }: { project: Project; featured: Featured
       </div>
 
       <div className="pt-section">
-        <Container>
-          <StoryBlocks story={featured.story} />
+        <Container className="grid gap-x-12 gap-y-12 lg:grid-cols-12">
+          <div className="lg:col-span-8">
+            <p className="max-w-[52ch] text-lede text-ink-2">{project.line}</p>
+            <div className="mt-10">
+              <StoryBlocks story={featured.story} />
+            </div>
+          </div>
+          <aside aria-label="Project facts" className="lg:col-span-4">
+            <CaseFacts project={project} featured={featured} />
+          </aside>
         </Container>
       </div>
 
@@ -85,7 +139,7 @@ function CaseStudy({ project, featured }: { project: Project; featured: Featured
                       <p className="mb-4 flex flex-wrap items-baseline gap-x-3 gap-y-1 label-lg">
                         <span className="text-tint">Also built:</span>
                         <span className="text-ink">
-                          {other.name} ({hostOf(other.links[0]?.href)})
+                          {other.name} ({hostOf(other.links[0]?.href)}){other.years && `, ${other.years}`}
                         </span>
                       </p>
                     )}
@@ -97,6 +151,8 @@ function CaseStudy({ project, featured }: { project: Project; featured: Featured
           </Container>
         </section>
       )}
+
+      {featured.related && <AlsoOnChannel slugs={featured.related} />}
 
       <section aria-labelledby="spec-title" className="pt-section">
         <Container>

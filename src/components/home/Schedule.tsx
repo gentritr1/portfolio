@@ -18,6 +18,15 @@ const drawer = preloadable(() => import('./ProjectDrawer').then((m) => m.Project
 const Drawer = drawer.Component
 const preloadDrawer = () => void drawer.load().catch(() => undefined)
 
+const bars: Record<ChannelKey, string> = {
+  healthcare: 'bg-ch-healthcare',
+  streaming: 'bg-ch-streaming',
+  reading: 'bg-ch-reading',
+  web3: 'bg-ch-web3',
+  ai: 'bg-ch-ai',
+  personal: 'bg-ch-personal',
+}
+
 const groupOrder: ProjectGroupName[] = ['Vianova', 'Agency work', 'Incentiv', 'AvahiTech', 'Personal']
 
 const counts = Object.fromEntries(channelOrder.map((key) => [key, projects.filter((p) => p.channel === key).length])) as Record<
@@ -34,10 +43,13 @@ const chip =
 
 function Row({
   project,
+  now,
   onOpen,
   onHover,
 }: {
   project: Project
+  /** The project on the wall monitor right now. */
+  now: boolean
   onOpen: (project: Project, opener: HTMLElement) => void
   onHover: (project: Project) => void
 }) {
@@ -48,9 +60,20 @@ function Row({
       onPointerEnter={(event) => {
         if (event.pointerType === 'mouse') onHover(project)
       }}
-      className="group relative grid grid-cols-[4.75rem_minmax(0,1fr)] gap-x-4 gap-y-1.5 border-b border-hairline py-3.5 transition-colors duration-150 ease-out hover:bg-panel-1 has-[[data-row-action]:focus-visible]:outline-2 has-[[data-row-action]:focus-visible]:-outline-offset-2 has-[[data-row-action]:focus-visible]:outline-signal sm:grid-cols-[5.5rem_minmax(0,1fr)_11.5rem] sm:px-2 lg:grid-cols-[5.5rem_minmax(0,1.5fr)_11.5rem_minmax(0,1fr)_10.5rem]"
+      className="group relative grid grid-cols-[4.75rem_minmax(0,1fr)] gap-x-4 gap-y-1.5 border-b border-hairline py-3.5 transition-colors duration-150 ease-out hover:bg-panel-1 has-[[data-row-action]:focus-visible]:outline-2 has-[[data-row-action]:focus-visible]:-outline-offset-2 has-[[data-row-action]:focus-visible]:outline-signal sm:grid-cols-[5.5rem_minmax(0,1fr)_12rem] sm:px-2 lg:grid-cols-[5.5rem_minmax(0,1.6fr)_12rem_minmax(0,1fr)]"
     >
-      <span className="label pt-1.5 text-ink-3 tabular">{project.years ?? channels[project.channel].period}</span>
+      {now && <span aria-hidden className="absolute inset-y-0 left-0 w-px bg-signal" />}
+      <span className="flex flex-col gap-1 pt-1.5 label tabular whitespace-nowrap">
+        {project.years ? (
+          <span className="text-ink-3">{project.years}</span>
+        ) : (
+          <span className="text-ink-3">
+            <span aria-hidden>·</span>
+            <span className="sr-only">No dates</span>
+          </span>
+        )}
+        {now && <span className="text-signal">Now</span>}
+      </span>
       <div className="min-w-0">
         {project.featured ? (
           <TransitionLink
@@ -88,35 +111,61 @@ function Row({
           </button>
         )}
         <p className="mt-0.5 text-meta text-ink-2">{project.line}</p>
+        {project.links.length > 0 && (
+          <ul className="relative -mb-3 flex flex-wrap gap-x-4">
+            {project.links.slice(0, 3).map((link) => (
+              <li key={link.href}>
+                <a
+                  href={link.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex min-h-11 items-center gap-1 whitespace-nowrap label text-ink-2 transition-colors duration-150 ease-out hover:text-ink"
+                >
+                  {link.label}
+                  <ArrowUpRightIcon size={12} weight="light" aria-hidden className="text-tint" />
+                  <span className="sr-only">(opens in a new tab)</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
       <ChannelBadge channel={project.channel} className="col-start-2 self-start sm:col-start-auto sm:pt-1.5" />
       <div className="hidden min-w-0 sm:col-start-3 sm:block lg:col-start-auto">
         <p className="text-meta text-ink-2">{project.role}</p>
         <p className="mt-1 truncate label text-ink-3">{project.stack.slice(0, 3).join(' · ')}</p>
       </div>
-      {project.links.length > 0 && (
-        <ul className="relative col-start-2 -my-1 flex flex-wrap gap-x-4 self-start sm:col-end-4 lg:col-start-auto lg:col-end-auto lg:-mt-2.5 lg:flex-col lg:gap-0">
-          {project.links.slice(0, 3).map((link) => (
-            <li key={link.href}>
-              <a
-                href={link.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex min-h-11 items-center gap-1 whitespace-nowrap label text-ink-2 transition-colors duration-150 ease-out hover:text-ink lg:min-h-8"
-              >
-                {link.label}
-                <ArrowUpRightIcon size={12} weight="light" aria-hidden className="text-tint" />
-                <span className="sr-only">(opens in a new tab)</span>
-              </a>
-            </li>
-          ))}
-        </ul>
-      )}
     </li>
   )
 }
 
-export function Schedule() {
+function Slate({ group, items }: { group: ProjectGroupName; items: Project[] }) {
+  const present = channelOrder.filter((key) => items.some((project) => project.channel === key))
+  const period = groupPeriods[group] ?? channels.personal.period
+  return (
+    <li className="flex items-center gap-3 pt-8 pb-2.5 label sm:px-2">
+      <span aria-hidden className="flex h-1 w-8 shrink-0 overflow-hidden rounded-xs">
+        {present.map((key) => (
+          <span key={key} className={cn('h-full flex-1', bars[key])} />
+        ))}
+      </span>
+      <span className="text-ink">{group}</span>
+      <span className="text-ink-3 tabular">
+        {String(items.length).padStart(2, '0')}
+        <span className="sr-only"> {items.length === 1 ? 'project' : 'projects'}</span>
+      </span>
+      <span aria-hidden className="h-px flex-1 bg-hairline" />
+      {period && <span className="text-ink-3 tabular">{period}</span>}
+    </li>
+  )
+}
+
+interface ScheduleProps {
+  /** The featured project on the wall monitor; its row carries the "Now" mark. */
+  nowSlug?: string
+}
+
+export function Schedule({ nowSlug }: ScheduleProps) {
   const [params, setParams] = useSearchParams()
   const raw = params.get('ch')
   const filter = isChannel(raw) ? raw : null
@@ -234,15 +283,9 @@ export function Schedule() {
           {groups.map(({ group, items }) =>
             items.length === 0 ? null : (
               <Fragment key={group}>
-                {!filter && (
-                  <li className="flex items-center gap-3 pt-7 pb-2.5 label text-ink-3 sm:px-2">
-                    <span className="text-ink-2">{group}</span>
-                    <span className="h-px flex-1 bg-hairline" />
-                    <span className="tabular">{groupPeriods[group] ?? channels.personal.period}</span>
-                  </li>
-                )}
+                {!filter && <Slate group={group} items={items} />}
                 {items.map((project) => (
-                  <Row key={project.slug} project={project} onOpen={open} onHover={setHovered} />
+                  <Row key={project.slug} project={project} now={project.slug === nowSlug} onOpen={open} onHover={setHovered} />
                 ))}
               </Fragment>
             ),

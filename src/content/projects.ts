@@ -46,6 +46,8 @@ export interface Featured {
   /** Facts as label and value rows. The case header reads the `Platforms` row. */
   facts: Fact[]
   readouts?: Readout[]
+  /** Slugs of schedule rows on the same channel, listed on the case page and opened in the drawer. */
+  related?: string[]
 }
 
 export interface Gallery {
@@ -308,6 +310,7 @@ export const projects: Project[] = [
         { value: '16', to: '2', label: 'Queries in one billing report' },
         { value: '4', label: 'Languages: EN, DE, ES, TR' },
       ],
+      related: ['design-system-react', 'design-system-vue', 'design-dashboard'],
     },
   },
   {
@@ -393,7 +396,7 @@ export const projects: Project[] = [
         built:
           'Its second version is a full rebuild on Nuxt 3, started from an empty template. It added live streaming on AWS IVS with realtime chat and moderation, an HLS player with a quality selector and a paywall for premium content, Stripe, Apple and Google subscriptions, gifting and promo codes. The interface runs in English and Arabic, with a complete right-to-left layout.',
         result:
-          'The rebuild covers 34 routes, 270+ components and 25 Pinia stores. Live sessions with chat and moderation, the on-demand library and every payment path share one codebase on the web and inside the mobile apps, in English and Arabic and in both reading directions. The public website and the store listings below show the product as members see it today.',
+          'Bayyinah TV is live at bayyinahtv.com and in the App Store and on Google Play, where the native apps run the same web app. The Nuxt 3 rebuild ships 34 routes, 270+ components and 25 Pinia stores. Live streams with realtime chat and moderation, on-demand video and Stripe, Apple and Google subscriptions run in English and Arabic, with a full right-to-left layout. The institute website, bayyinah.org, is live as well.',
       },
       facts: [
         { label: 'Role', value: 'Frontend, core team' },
@@ -419,7 +422,7 @@ export const projects: Project[] = [
     kind: 'Public website',
     channel: 'streaming',
     group: 'Agency work',
-    years: null,
+    years: '2024–25',
     role: 'Frontend',
     stack: ['Next.js', 'React'],
     line: 'One-page Next.js site: mission, support, research funding, impact and FAQ',
@@ -450,11 +453,11 @@ export const projects: Project[] = [
       monitor: 'reader',
       story: {
         product:
-          "Read to Feed is a children's reading app for iOS and Android. Children read books, scan their own books by barcode, take quizzes as chat conversations, and earn badges and streaks for reading. Parents verify accounts by email. The store listings are now removed, so the links above go to archived copies of the public App Store and Google Play pages.",
+          "Read to Feed is a children's reading app for iOS and Android. Children read books, scan their own books by barcode, take quizzes as chat conversations, and earn badges and streaks for reading. Parents verify accounts by email. The store listings are now removed, so the store links go to archived copies of the public App Store and Google Play pages.",
         built:
           'The app has a PDF and EPUB reader with progress tracking, an ISBN barcode scanner that uses the camera, and gamification with badges, streaks, quizzes and coach marks. Push notifications with deep links feed a notification center, and the interface runs in three languages with i18next. Redux Toolkit holds the app state. Maintained forks of epubjs-react-native and react-native-pdf keep the reader working on current React Native.',
         result:
-          'About 14 releases went to both stores over four years. Along the way the app moved from React Native 0.63 to 0.81 through three major upgrades. The store screenshots below come from the archived listings and show the book list with reading progress, the achievements screen, the chapter reader and a new-badge pop-up. The maintained reader forks are public on GitHub.',
+          'About 14 releases of Read to Feed went to the App Store and Google Play. Over those releases the app moved from React Native 0.63 to 0.81 through three major upgrades, and the interface ran in three languages. The store listings are now removed, so the store links open archived copies of both public pages. The maintained forks of epubjs-react-native and react-native-pdf are public on GitHub.',
       },
       facts: [
         { label: 'Role', value: 'Mobile, iOS and Android' },
@@ -501,7 +504,7 @@ export const projects: Project[] = [
         built:
           'The app is built in React Native with Redux Toolkit and Firebase. It covers online grocery orders with delivery slots, the loyalty programme, a wishlist, and address search on a map for delivery. Category pages show product grids, and the cart keeps quantities, discounts and the running total in view. One codebase ships to the App Store and Google Play.',
         result:
-          'The app is listed in the App Store and on Google Play, and both listings are linked above. The six frames on the monitor come from those public listings: three iPhone frames and three Android frames. Together they show the home screen with its product categories, the fresh-produce category with its product grid, and the cart with quantities, a discount and the checkout button.',
+          'Viva Fresh is live in the App Store and on Google Play, and both public listings are linked on this page. One React Native codebase ships the app to iPhone and Android. The released app takes online grocery orders with a delivery slot, runs the loyalty programme and the wishlist, and finds the delivery address with a search on a map.',
       },
       facts: [
         { label: 'Role', value: 'Mobile' },
@@ -640,11 +643,11 @@ export const projects: Project[] = [
       monitor: 'wallet',
       story: {
         product:
-          "Incentiv's portal is a smart-wallet dashboard where people and businesses manage an on-chain wallet and incentive programs. Users sign in with a passkey or an external wallet, such as MetaMask or WalletConnect, then see balances, assets, gas saved and transactions in dashboard cards. The public website, the docs and the portal's sign-in screen are linked above, and the screenshots below come from those public pages.",
+          "Incentiv's portal is a smart-wallet dashboard where people and businesses manage an on-chain wallet and incentive programs. Users sign in with a passkey or an external wallet, such as MetaMask or WalletConnect, then see balances, assets, gas saved and transactions in dashboard cards. The public website, the docs and the portal's sign-in screen are linked on this page, and the screenshots come from those public pages.",
         built:
           'The frontend is built on Next.js 14 with the App Router, TypeScript and RTK Query. It covers the passkey and wallet sign-in UI, animated onboarding with Framer Motion, dashboard cards, an asset list, a balance popup with a QR address, public and private route middleware, and English and French translations with next-intl. Styles use Tailwind. Teammates built the wallet and blockchain layer.',
         result:
-          'The portal is live at portal.incentiv.io, and its sign-in screen is public. The UI layer ships every screen in both English and French, keeps private routes behind sign-in through middleware, and draws the dashboard charts with ApexCharts. The live recreation above shows the balance card, the QR flip and the passkey sign-in with invented data, and no wallet is connected.',
+          'The Incentiv portal is live at portal.incentiv.io, and its sign-in screen is public. The website at incentiv.io and the docs at docs.incentiv.io are live as well. The shipped UI layer runs in English and French, signs people in with a passkey or an external wallet, and keeps private routes behind sign-in through middleware. Teammates built the wallet and blockchain layer.',
       },
       facts: [
         { label: 'Role', value: 'Frontend, UI layer' },

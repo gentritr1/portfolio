@@ -1,6 +1,7 @@
-import { ArrowUpRightIcon, XIcon } from '@phosphor-icons/react'
-import { useEffect, useId, useRef, useState } from 'react'
+import { ArrowUpRightIcon } from '@phosphor-icons/react'
+import { useId, useState } from 'react'
 import { cn } from '../lib/cn'
+import { FrameDialog } from './FrameDialog'
 
 export interface ShowcaseLink {
   label: string
@@ -37,23 +38,12 @@ const layouts = {
 
 /**
  * Screenshots of public pages and store listings, with links to the live
- * product. A frame opens the image large in a native modal dialog.
+ * product. A frame opens in the shared frame dialog, with previous and next.
  */
 export function Showcase({ title, links, items, aspect }: ShowcaseProps) {
   const headingId = useId()
-  const dialog = useRef<HTMLDialogElement>(null)
-  const opener = useRef<HTMLButtonElement | null>(null)
-  const [active, setActive] = useState<ShowcaseItem | null>(null)
+  const [open, setOpen] = useState<number | null>(null)
   const layout = layouts[aspect]
-
-  useEffect(() => {
-    const node = dialog.current
-    if (active && node && !node.open) node.showModal()
-  }, [active])
-
-  function close() {
-    dialog.current?.close()
-  }
 
   return (
     <section aria-labelledby={headingId} className="border-t border-hairline pt-5">
@@ -92,7 +82,7 @@ export function Showcase({ title, links, items, aspect }: ShowcaseProps) {
           layout.list,
         )}
       >
-        {items.map((item) => {
+        {items.map((item, index) => {
           const portrait = aspect === 'web' && item.height > item.width
           return (
             <li key={item.src} className={cn('shrink-0 snap-start lg:w-auto', layout.item)}>
@@ -100,10 +90,7 @@ export function Showcase({ title, links, items, aspect }: ShowcaseProps) {
                 <button
                   type="button"
                   aria-haspopup="dialog"
-                  onClick={(event) => {
-                    opener.current = event.currentTarget
-                    setActive(item)
-                  }}
+                  onClick={() => setOpen(index)}
                   className={cn(
                     'group block w-full cursor-zoom-in overflow-hidden rounded-panel border border-hairline transition-[border-color,transform] duration-150 ease-out hover:border-hairline-strong active:scale-[0.99]',
                     layout.frame,
@@ -130,42 +117,7 @@ export function Showcase({ title, links, items, aspect }: ShowcaseProps) {
         })}
       </ul>
 
-      <dialog
-        ref={dialog}
-        aria-label={active?.caption}
-        onClose={() => {
-          setActive(null)
-          opener.current?.focus()
-        }}
-        onClick={(event) => {
-          if (event.target === event.currentTarget) close()
-        }}
-        className="m-auto max-h-none max-w-none overflow-visible bg-transparent p-0 text-ink opacity-100 transition-[opacity,scale] duration-200 ease-out backdrop:bg-[color-mix(in_oklab,var(--panel-0)_92%,transparent)] starting:open:scale-[0.98] starting:open:opacity-0 motion-reduce:transition-none"
-      >
-        {active && (
-          <figure className="flex flex-col items-center gap-3">
-            <div className="flex w-full items-center justify-between gap-4">
-              <figcaption className="label text-ink-2">{active.caption}</figcaption>
-              <button
-                type="button"
-                autoFocus
-                onClick={close}
-                aria-label="Close"
-                className="grid size-11 shrink-0 place-items-center rounded-sm border border-hairline bg-panel-1 text-ink transition-transform duration-150 ease-out active:scale-[0.96]"
-              >
-                <XIcon size={18} weight="light" aria-hidden />
-              </button>
-            </div>
-            <img
-              src={active.src}
-              width={active.width}
-              height={active.height}
-              alt={active.alt}
-              className="block h-auto max-h-[85vh] w-auto max-w-[90vw] rounded-panel border border-hairline bg-panel-1"
-            />
-          </figure>
-        )}
-      </dialog>
+      <FrameDialog items={items} index={open} onIndexChange={setOpen} />
     </section>
   )
 }

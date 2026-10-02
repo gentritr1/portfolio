@@ -16,7 +16,7 @@ export function HomePage() {
       <title>Gentrit Rashiti, frontend and mobile developer</title>
       <Intro active={active.channel} />
       <MonitorWall activeSlug={active.slug} onSelect={setActiveSlug} />
-      <Schedule />
+      <Schedule nowSlug={active.slug} />
       <About />
     </>
   )

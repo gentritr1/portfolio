@@ -1,5 +1,7 @@
 # CONTENT.md — the copy and facts for every section
 
+Channel labels (owner, 2026-10-02): CH01 Healthcare, CH02 Streaming, CH03 Mobile apps, CH04 Web3, CH05 Web apps & AI, CH06 Games & personal.
+
 All facts below come from git history. Do not invent numbers. Do not add product names, except public products, which are named and linked (§4 rule). Keep copy in plain English, short sentences, no metaphors, no buzzwords. Every number here is safe to show.
 
 ---
@@ -71,6 +73,8 @@ All facts below come from git history. Do not invent numbers. Do not add product
 **Stack:** Nuxt 3, Vue 3, TypeScript, Pinia, video.js + HLS, AWS IVS, Pusher, Stripe, Firebase, Tailwind
 
 **Live recreation:** "Live room". A 16:9 player frame with a looping subtle gradient "signal" (no real video), a LIVE badge with a viewer count that ticks, a quality menu (Auto / 1080p / 720p / 480p) that opens on click, and a chat column where invented messages arrive every ~2 s, one pinned message at the top, and a mute action on hover. A "Premium" lock state can be toggled to show the paywall overlay with a plan card ("Monthly $12 · Yearly $99"). Must pause when off-screen and respect reduced motion.
+
+Owner confirmed (2026-10-02): built bayyinah.org, Next.js, 2024–25; repo access lost.
 
 **Showcases:** three `Showcase` blocks after the facts and stack, files in `public/showcase/bayyinah/`: Website (6 pages of https://bayyinahtv.com/), Mobile app (6 App Store frames; links https://apps.apple.com/us/app/bayyinah-tv/id1530635769 and https://play.google.com/store/apps/details?id=com.zombiesoup.bayyinah), Institute website (5 sections and 1 phone view of https://bayyinah.org/, a one-page Next.js site). Rule: public products are named and linked; screenshots come only from public pages (websites without login, store listings), never from a running app, behind a login or with user data; brands stay visible; the product is described, not called a client of the employer.
 
@@ -156,10 +160,10 @@ All facts below come from git history. Do not invent numbers. Do not add product
 
 ## 7. PERSONAL PROJECTS
 
-- **Snaxx Tech studio site** — marketing site for an indie app studio: a three.js hero, a seamless cinemagraph video loop, Almanac visual theme, strict CSP on Vercel. Images 972 KB → 337 KB, deploy 28 MB → 9.5 MB. Assets: `public/personal/snaxx-hero.mp4`, `public/personal/hero-almanac-poster.jpg`, `app-*.webp`.
+- **Snaxx Tech studio site** — marketing site for an indie app studio: a three.js hero, a seamless cinemagraph video loop, Almanac visual theme, strict CSP on Vercel. Images 972 KB → 337 KB, deploy 28 MB → 9.5 MB.
 - **Offday** — multi-tenant time-off app: employee requests, manager approvals, team calendar with drag-select, invite links, streaming AI assistant, dark theme. Next.js 16, SQLite, Zod, Playwright (16 security and tenant-isolation tests).
 - **Open source** — maintained forks of `epubjs-react-native` and `react-native-pdf`, used in a production reading app. GitHub: github.com/gentritr1
-- **Real screenshots** — the owner's own sites (Snaxx Tech, Offday, FJALË, Za!, Morse Trainer) show real captures from `public/personal/shots/` (alt text and sizes in `manifest.json`); the Offday card swaps to the dark capture in dark theme, and the index rows use 256 × 160 crops from `shots/thumbs/`.
+- **Real screenshots** — the owner's own sites (Snaxx Tech, Offday, FJALË, Za!, Morse Trainer) show real captures from `public/personal/shots/` (alt text and sizes in `src/content/projects.ts`); the Offday card swaps to the dark capture in dark theme, and the index rows use 256 × 160 crops from `shots/thumbs/`.
 - **Geo Guesser World 3D** — the index row uses a 256 × 160 crop of a Google Play frame (`public/mobile/thumbs/geoguesser.webp`). The Games mosaic stays 2 × 2: a fifth tile would break the grid.
 
 ---
