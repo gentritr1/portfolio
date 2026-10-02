@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect width="64" height="64" rx="14" fill="#1b2029"/>
+  <text x="32" y="39" text-anchor="middle" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="26" font-weight="700" letter-spacing="-1" fill="#f2f4f7">GR</text>
+  <rect x="12" y="47" width="10" height="4" rx="1" fill="#14998f"/>
+  <rect x="22" y="47" width="10" height="4" rx="1" fill="#e2552f"/>
+  <rect x="32" y="47" width="10" height="4" rx="1" fill="#d9a13a"/>
+  <rect x="42" y="47" width="10" height="4" rx="1" fill="#7b5cf0"/>
+</svg>

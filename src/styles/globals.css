@@ -1,0 +1,288 @@
+@import "tailwindcss";
+
+/*
+ * Theme: the html element carries data-theme="light" | "dark" when the
+ * visitor chose one; without it the system preference applies through
+ * color-scheme. Every colour token is a light-dark() pair, so a token
+ * resolves against the color-scheme of the element that uses it.
+ */
+@custom-variant dark {
+  &:where([data-theme="dark"], [data-theme="dark"] *) {
+    @slot;
+  }
+  @media (prefers-color-scheme: dark) {
+    &:where(:root:not([data-theme="light"]), :root:not([data-theme="light"]) *) {
+      @slot;
+    }
+  }
+}
+
+@theme inline {
+  --font-display: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Geist", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  --color-canvas: var(--world-bg);
+  --color-surface: var(--surface);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-ink: var(--accent-ink);
+  --color-on-accent: var(--on-accent);
+
+  --text-display: clamp(3rem, 1.6rem + 6vw, 6rem);
+  --text-display--line-height: 0.94;
+  --text-display--letter-spacing: -0.035em;
+  --text-h2: clamp(2rem, 1.35rem + 2.8vw, 3.5rem);
+  --text-h2--line-height: 1.02;
+  --text-h2--letter-spacing: -0.03em;
+  --text-h3: clamp(1.375rem, 1.15rem + 0.9vw, 1.75rem);
+  --text-h3--line-height: 1.15;
+  --text-h3--letter-spacing: -0.02em;
+  --text-lede: clamp(1.125rem, 1.02rem + 0.45vw, 1.375rem);
+  --text-lede--line-height: 1.5;
+  --text-meta: 0.8125rem;
+  --text-meta--line-height: 1.4;
+
+  --spacing-section: clamp(5rem, 12vw, 10rem);
+  --spacing-gutter: var(--gutter);
+
+  --radius-chip: 8px;
+  --radius-panel: 16px;
+  --radius-stage: 20px;
+  --radius-stage-inner: 14px;
+
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+
+  --shadow-float: 0 1px 1px oklch(0.2 0.02 258 / 0.04), 0 12px 32px -12px oklch(0.2 0.02 258 / 0.18);
+  --shadow-stage: 0 2px 4px oklch(0.2 0.02 258 / 0.04), 0 24px 60px -24px oklch(0.2 0.02 258 / 0.22);
+}
+
+/* Registered so the page accent and ground can cross-fade between worlds. */
+@property --accent {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #1b2029;
+}
+@property --accent-soft {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #e6e9ee;
+}
+@property --accent-ink {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #1b2029;
+}
+@property --on-accent {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #f7f8fa;
+}
+@property --world-bg {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #f3f5f8;
+}
+
+:root {
+  color-scheme: light dark;
+
+  --gutter: 16px;
+
+  --dur-press: 140ms;
+  --dur-hover: 200ms;
+  --dur-ui: 240ms;
+  --dur-world: 520ms;
+  --dur-reveal: 600ms;
+  --ease-world: cubic-bezier(0.32, 0.72, 0, 1);
+
+  --z-overlay: 40;
+  --z-nav: 50;
+  --z-skip: 60;
+
+  --canvas: light-dark(oklch(0.972 0.004 258), oklch(0.165 0.008 258));
+  --surface: light-dark(oklch(0.995 0.002 258), oklch(0.205 0.01 258));
+  --ink: light-dark(oklch(0.21 0.014 258), oklch(0.95 0.006 258));
+  --muted: light-dark(oklch(0.46 0.014 258), oklch(0.74 0.012 258));
+  --line: light-dark(oklch(0.895 0.007 258), oklch(0.29 0.012 258));
+  --line-strong: light-dark(oklch(0.8 0.01 258), oklch(0.4 0.012 258));
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+@media (min-width: 640px) {
+  :root {
+    --gutter: 24px;
+  }
+}
+@media (min-width: 1024px) {
+  :root {
+    --gutter: 32px;
+  }
+}
+
+/* ---------- Worlds ---------- */
+
+[data-world] {
+  transition:
+    --accent var(--dur-world) var(--ease-world),
+    --accent-soft var(--dur-world) var(--ease-world),
+    --accent-ink var(--dur-world) var(--ease-world),
+    --on-accent var(--dur-world) var(--ease-world),
+    --world-bg var(--dur-world) var(--ease-world);
+}
+
+:root,
+[data-world="base"] {
+  --accent: light-dark(oklch(0.24 0.02 258), oklch(0.93 0.008 258));
+  --accent-soft: light-dark(oklch(0.93 0.006 258), oklch(0.25 0.01 258));
+  --accent-ink: light-dark(oklch(0.24 0.02 258), oklch(0.93 0.008 258));
+  --on-accent: light-dark(oklch(0.98 0.004 258), oklch(0.18 0.01 258));
+  --world-bg: var(--canvas);
+}
+
+[data-world="healthcare"] {
+  --accent: light-dark(oklch(0.53 0.095 182), oklch(0.78 0.115 178));
+  --accent-soft: light-dark(oklch(0.935 0.03 182), oklch(0.27 0.045 182));
+  --accent-ink: light-dark(oklch(0.45 0.085 184), oklch(0.82 0.1 178));
+  --on-accent: light-dark(oklch(0.985 0.01 182), oklch(0.17 0.03 182));
+  --world-bg: light-dark(oklch(0.972 0.008 182), oklch(0.165 0.012 190));
+}
+
+[data-world="streaming"] {
+  --accent: light-dark(oklch(0.56 0.19 33), oklch(0.7 0.18 36));
+  --accent-soft: light-dark(oklch(0.94 0.03 38), oklch(0.27 0.06 32));
+  --accent-ink: light-dark(oklch(0.5 0.17 33), oklch(0.76 0.15 38));
+  --on-accent: light-dark(oklch(0.985 0.008 40), oklch(0.16 0.02 30));
+  --world-bg: light-dark(oklch(0.972 0.006 40), oklch(0.135 0.008 30));
+}
+
+[data-world="reading"] {
+  --accent: light-dark(oklch(0.7 0.14 72), oklch(0.8 0.13 75));
+  --accent-soft: light-dark(oklch(0.93 0.04 82), oklch(0.27 0.04 70));
+  --accent-ink: light-dark(oklch(0.48 0.1 60), oklch(0.82 0.12 78));
+  --on-accent: light-dark(oklch(0.21 0.03 60), oklch(0.21 0.03 60));
+  --world-bg: light-dark(oklch(0.968 0.016 88), oklch(0.17 0.012 70));
+}
+
+[data-world="web3"] {
+  --accent: light-dark(oklch(0.52 0.21 282), oklch(0.72 0.16 285));
+  --accent-soft: light-dark(oklch(0.94 0.03 285), oklch(0.27 0.07 280));
+  --accent-ink: light-dark(oklch(0.48 0.2 282), oklch(0.79 0.13 285));
+  --on-accent: light-dark(oklch(0.985 0.01 285), oklch(0.16 0.04 280));
+  --world-bg: light-dark(oklch(0.97 0.008 280), oklch(0.155 0.022 272));
+}
+
+[data-world="ai"] {
+  --accent: light-dark(oklch(0.72 0.16 122), oklch(0.86 0.17 118));
+  --accent-soft: light-dark(oklch(0.95 0.05 118), oklch(0.27 0.05 120));
+  --accent-ink: light-dark(oklch(0.46 0.11 128), oklch(0.85 0.16 118));
+  --on-accent: light-dark(oklch(0.2 0.04 125), oklch(0.2 0.04 125));
+  --world-bg: light-dark(oklch(0.972 0.008 115), oklch(0.16 0.01 120));
+}
+
+/* ---------- Base ---------- */
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 6rem;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    scrollbar-color: var(--line-strong) transparent;
+    scrollbar-width: thin;
+  }
+
+  body {
+    min-height: 100dvh;
+    background-color: var(--world-bg);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    overflow-x: clip;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    font-optical-sizing: auto;
+    font-weight: 600;
+    text-wrap: balance;
+  }
+
+  p,
+  li,
+  dd {
+    text-wrap: pretty;
+  }
+
+  a {
+    text-underline-offset: 0.22em;
+    text-decoration-thickness: 1px;
+  }
+
+  ::selection {
+    background-color: var(--accent);
+    color: var(--on-accent);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--accent-ink);
+    outline-offset: 3px;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--line-strong);
+    border-radius: 999px;
+    border: 3px solid var(--world-bg);
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  img,
+  video {
+    max-width: 100%;
+    height: auto;
+  }
+}
+
+@layer utilities {
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+}
