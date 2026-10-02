@@ -1,164 +1,170 @@
-# DESIGN.md: the committed visual world
+# DESIGN.md: the control room
+
+REDESIGN.md is the brief. This file records the visual system that is built. PRODUCT.md and CONTENT.md own the facts and the copy.
 
 ## Design read
 
-Reading this as: a developer portfolio for hiring managers and senior engineers, with a calm, calibrated broadcast "test card" language, leaning toward Tailwind 4 utilities, CSS custom properties, `light-dark()` tokens, and restrained `motion` choreography.
+Reading this as: a developer portfolio for hiring managers and senior engineers, with a calm broadcast master-control language (matte panels, hairlines, uppercase mono labels, one on-air signal), leaning toward Tailwind 4 tokens, `light-dark()` colour pairs, the View Transitions API and restrained `motion` inside the recreations only.
 
-The page is one calibrated system that tunes to four worlds. The hero shows four colour bars, one per world. Each world section below sets its own accent, and the page accent and ground cross-fade into that world as the visitor scrolls. The accent belongs to the active world only. Everything else stays neutral, so the work leads and the interface recedes.
+The site is a control room that monitors shipped products. Domains are channels (CH01 to CH06). Live recreations are monitors. The project list is the schedule. A case page is a channel tuned in. The interface stays still and quiet; the work on the monitors carries the motion.
 
 ## Dials
 
 | Dial | Value | Why |
 | --- | --- | --- |
-| `DESIGN_VARIANCE` | 6 | Asymmetric 7/5 splits and a gapless 7/5, 4/4/4, 5/7 grid. No chaos: the reader must find one case study in 60 seconds. |
-| `MOTION_INTENSITY` | 5 | One authored entrance (the bars draw in), once-only reveals, a 520 ms world cross-fade. No idle loops outside recreations. |
-| `VISUAL_DENSITY` | 3 | Gallery rhythm. Sections breathe at `clamp(5rem, 12vw, 10rem)`. |
+| `DESIGN_VARIANCE` | 6 | A strict 12-column grid with 8/4 and 4/8 splits. Asymmetry comes from the monitor and the label rails, not from broken layouts. |
+| `MOTION_INTENSITY` | 4 | Route cross-fade, one shared-element morph, a short tune on channel change. No scroll reveals, no idle loops outside recreations. |
+| `VISUAL_DENSITY` | 5 | Denser than a gallery: the schedule is a real index. Sections still breathe at `--spacing-section`. |
 
 ## Colour
 
-Strategy: restrained neutrals plus one accent at a time. All colour tokens are `light-dark()` pairs, so each token resolves against the `color-scheme` of the element that uses it.
+Strategy: restrained. Graphite panels, one signal colour, six muted channel tints. The signal colour marks only live states, the active channel and focus.
 
-Theme: `<html data-theme="light|dark">` when the visitor picked one (stored in `localStorage.theme`); without it, the system preference applies. `index.html` sets the attribute before first paint.
+Theme: dark is the default. `<html data-theme="light">` selects daylight. The choice lives in `localStorage.theme` (`light` or `dark`), and the script in `index.html` applies it before first paint. Every token is a `light-dark(daylight, dark)` pair on `:root`, so it resolves against the `color-scheme` of the element that uses it.
 
-### Neutrals (global, on `:root`)
+### Panels and ink
 
-| Token | Light | Dark | Use |
+| Token | Daylight | Dark | Use |
 | --- | --- | --- | --- |
-| `--canvas` | `oklch(0.972 0.004 258)` | `oklch(0.165 0.008 258)` | Base page ground |
-| `--surface` | `oklch(0.995 0.002 258)` | `oklch(0.205 0.01 258)` | Raised panels, stage core |
-| `--ink` | `oklch(0.21 0.014 258)` | `oklch(0.95 0.006 258)` | Headings, primary text |
-| `--muted` | `oklch(0.46 0.014 258)` | `oklch(0.74 0.012 258)` | Secondary text (AA on every ground) |
-| `--line` | `oklch(0.895 0.007 258)` | `oklch(0.29 0.012 258)` | Hairlines |
-| `--line-strong` | `oklch(0.8 0.01 258)` | `oklch(0.4 0.012 258)` | Outlines, scrollbar thumb |
+| `--panel-0` | `oklch(0.948 0.004 250)` | `oklch(0.15 0.004 250)` | Page ground, masthead |
+| `--panel-1` | `oklch(0.976 0.003 250)` | `oklch(0.182 0.005 250)` | Panels, hovered rows |
+| `--panel-2` | `oklch(0.918 0.005 250)` | `oklch(0.214 0.006 250)` | Control hover, gallery stage |
+| `--panel-3` | `oklch(0.885 0.006 250)` | `oklch(0.252 0.007 250)` | Pressed or strongest fill |
+| `--hairline` | `oklch(0.86 0.006 250)` | `oklch(0.27 0.006 250)` | Rules, panel borders |
+| `--hairline-strong` | `oklch(0.74 0.008 250)` | `oklch(0.37 0.008 250)` | Control outlines, underlines |
+| `--ink` | `oklch(0.2 0.01 250)` | `oklch(0.94 0.004 250)` | Headings, body |
+| `--ink-2` | `oklch(0.4 0.012 250)` | `oklch(0.76 0.008 250)` | Secondary text |
+| `--ink-3` | `oklch(0.49 0.012 250)` | `oklch(0.64 0.008 250)` | Labels (4.5:1 or more on `--panel-0`) |
 
-### World accents (scoped by `data-world`)
+Daylight is not an inversion: the panels are pale console grey, the page ground sits one step below the panels, and the monitor hardware stays graphite.
 
-Five registered properties change per world: `--accent` (fills, bars, marks), `--accent-soft` (washes), `--accent-ink` (accent-family text, AA on the ground), `--on-accent` (text on an `--accent` fill), `--world-bg` (page ground tint).
+### Signal and hardware
 
-| World | `--accent` light / dark | `--accent-ink` light / dark | `--world-bg` light / dark |
+| Token | Daylight | Dark | Use |
 | --- | --- | --- | --- |
-| `base` | `oklch(0.24 0.02 258)` / `oklch(0.93 0.008 258)` | same as accent | `--canvas` |
-| `healthcare` (clinical teal) | `oklch(0.53 0.095 182)` / `oklch(0.78 0.115 178)` | `oklch(0.45 0.085 184)` / `oklch(0.82 0.1 178)` | `oklch(0.972 0.008 182)` / `oklch(0.165 0.012 190)` |
-| `streaming` (signal red-orange) | `oklch(0.56 0.19 33)` / `oklch(0.7 0.18 36)` | `oklch(0.5 0.17 33)` / `oklch(0.76 0.15 38)` | `oklch(0.972 0.006 40)` / `oklch(0.135 0.008 30)` |
-| `reading` (paper, ink, amber) | `oklch(0.7 0.14 72)` / `oklch(0.8 0.13 75)` | `oklch(0.48 0.1 60)` / `oklch(0.82 0.12 78)` | `oklch(0.968 0.016 88)` / `oklch(0.17 0.012 70)` |
-| `web3` (electric violet on slate) | `oklch(0.52 0.21 282)` / `oklch(0.72 0.16 285)` | `oklch(0.48 0.2 282)` / `oklch(0.79 0.13 285)` | `oklch(0.97 0.008 280)` / `oklch(0.155 0.022 272)` |
-| `ai` (citron highlighter) | `oklch(0.72 0.16 122)` / `oklch(0.86 0.17 118)` | `oklch(0.46 0.11 128)` / `oklch(0.85 0.16 118)` | `oklch(0.972 0.008 115)` / `oklch(0.16 0.01 120)` |
+| `--signal` | `oklch(0.57 0.2 31)` | `oklch(0.69 0.19 33)` | ON AIR lamp, live monitors, active channel, focus ring, selection wash |
+| `--on-signal` | `oklch(0.985 0.005 30)` | `oklch(0.16 0.02 30)` | Text on a signal fill |
+| `--bezel` | `oklch(0.25 0.006 250)` | `oklch(0.205 0.006 250)` | Monitor bezel |
+| `--bezel-ink` | `oklch(0.8 0.008 250)` | same | Bezel label bar text |
+| `--bezel-line` | `oklch(0.33 0.006 250)` | same | Bezel ring |
 
-`--accent-soft` and `--on-accent` values live beside these in `src/styles/globals.css`. Reading and AI use dark `--on-accent` because their fills are light.
+### Channel tints
 
-Tailwind utilities: `bg-canvas`, `bg-surface`, `text-ink`, `text-muted`, `border-line`, `ring-line-strong`, `bg-accent`, `bg-accent-soft`, `text-accent-ink`, `text-on-accent`. Opacity modifiers work (`bg-surface/70`).
+The v1 world accents, desaturated. A tint marks a channel's number, its rule and its monitor bezel ring. It never fills a large area.
 
-Mixing rule: mix colours `in oklab`, never `in oklch`. An oklch mix between a warm accent and the cool neutral rotates through green.
+| Channel | Key | Token | Daylight | Dark |
+| --- | --- | --- | --- | --- |
+| CH01 Healthcare | `healthcare` | `--ch-healthcare` | `oklch(0.5 0.075 184)` | `oklch(0.77 0.07 180)` |
+| CH02 Streaming | `streaming` | `--ch-streaming` | `oklch(0.52 0.08 12)` | `oklch(0.75 0.07 10)` |
+| CH03 E-reading & mobile | `reading` | `--ch-reading` | `oklch(0.52 0.08 70)` | `oklch(0.81 0.075 78)` |
+| CH04 Web3 | `web3` | `--ch-web3` | `oklch(0.5 0.1 285)` | `oklch(0.75 0.08 285)` |
+| CH05 AI | `ai` | `--ch-ai` | `oklch(0.5 0.08 125)` | `oklch(0.84 0.08 120)` |
+| CH06 Games & personal | `personal` | `--ch-personal` | `oklch(0.48 0.04 245)` | `oklch(0.78 0.035 240)` |
 
-### Cross-fade
+The streaming tint is a muted rose (hue 10), so it never reads as the signal red-orange (hue 31 to 33).
 
-`src/lib/useActiveWorld.ts` watches every `[data-world-section]` with an IntersectionObserver on the viewport's middle line and writes the active world to `<html data-world>`. The five accent properties are registered with `@property` and transition on every `[data-world]` element for `--dur-world` (520 ms) on `--ease-world` (`cubic-bezier(0.32, 0.72, 0, 1)`). The body paints `--world-bg`, so the whole ground fades. Sections never paint their own background.
+### Tint by context
+
+`--tint` is registered with `@property` and set by `[data-channel="<key>"]`. Context sets it: the active channel on the home page, the page's channel on a case page (`<article data-channel>`), each row and badge in the schedule. It cross-fades for `--dur-ui` on `--ease-out`. This replaces the v1 scroll cross-fade of world accents; nothing changes colour on scroll.
+
+Utilities: `bg-panel-0..3`, `border-hairline`, `border-hairline-strong`, `text-ink`, `text-ink-2`, `text-ink-3`, `bg-signal`, `text-tint`, `bg-tint`, `bg-bezel`, `text-bezel-ink`, `bg-ch-<key>`. Opacity modifiers work (`bg-tint/15`).
+
+### Recreation palette
+
+The live recreations keep the v1 world tokens (`--accent`, `--accent-soft`, `--accent-ink`, `--on-accent`, `--world-bg`, `--surface`, `--muted`, `--line`, `--line-strong`). The monitor stage scopes them with `data-world`. `--surface`, `--muted`, `--line` and `--line-strong` alias the panel tokens. The shell never uses these tokens.
+
+Mixing rule: mix colours `in oklab`, never `in oklch`.
 
 ## Typography
 
 | Role | Face | Notes |
 | --- | --- | --- |
-| Display | Bricolage Grotesque (variable `opsz`, `wdth`, `wght`) | Weight 600 for headings, 500 for h3, tracking -0.035em to -0.01em |
-| Body | Geist | 1rem / 1.6, story text 1.0625rem / 1.7, measure 58-62ch |
-| Data | Geist Mono | Chips, metadata lines, periods, stack lines, numbers (`.tabular`) |
+| Display | Archivo, variable `wdth` 100 to 125, `wght` 500 to 700 | Set at `font-stretch: 112%`, weight 600. A wide grotesk in the tradition of station idents and lower thirds. |
+| Text | Atkinson Hyperlegible Next, `wght` 400 to 700 | Body, ledes, story text. Drawn for legibility, with clinical-signage roots. |
+| Mono | Martian Mono, `wdth` 75 to 100, `wght` 400 to 500 | Every label, channel number, time code and fact key. Set at `font-stretch: 87.5%`. |
 
-Loaded from Google Fonts with `display=swap` and preconnect.
+All three load from Google Fonts with `display=swap` and preconnect.
 
 | Token | Value | Utility |
 | --- | --- | --- |
-| `--text-display` | `clamp(3rem, 1.6rem + 6vw, 6rem)`, lh 0.94 | `text-display` (H1, Contact) |
-| `--text-h2` | `clamp(2rem, 1.35rem + 2.8vw, 3.5rem)`, lh 1.02 | `text-h2` |
-| `--text-h3` | `clamp(1.375rem, 1.15rem + 0.9vw, 1.75rem)`, lh 1.15 | `text-h3` |
-| `--text-lede` | `clamp(1.125rem, 1.02rem + 0.45vw, 1.375rem)`, lh 1.5 | `text-lede` |
-| `--text-meta` | `0.8125rem`, lh 1.4 | `text-meta` |
+| `--text-display` | `clamp(2.625rem, 1.2rem + 5.4vw, 5.5rem)`, lh 0.96, -0.03em | `text-display` (home name) |
+| `--text-h1` | `clamp(2.25rem, 1.45rem + 3.4vw, 4.25rem)`, lh 1, -0.028em | `text-h1` (case title, No signal) |
+| `--text-h2` | `clamp(1.625rem, 1.2rem + 1.8vw, 2.5rem)`, lh 1.08 | `text-h2` |
+| `--text-h3` | `1.25rem`, lh 1.25 | `text-h3` |
+| `--text-lede` | `clamp(1.125rem, 1.04rem + 0.38vw, 1.3125rem)`, lh 1.5 | `text-lede` |
+| `--text-story` | `1.0625rem`, lh 1.7 | `text-story` (case story, measure 64ch) |
+| `--text-meta` | `0.8125rem`, lh 1.45 | `text-meta` |
+| `--text-label` / `--text-label-lg` | 11 px / 12 px | `label` / `label-lg`: mono, uppercase, 0.07 to 0.08em tracking, tabular numerals |
 
-H1 "Gentrit Rashiti" holds on one or two lines from 375 px up.
+Body text is 16 px or larger. Labels sit beside or below what they describe, never as a kicker above a heading.
 
 ## Space, radius, depth, layers
 
-| Token | Value | Utility / use |
+| Token | Value | Use |
 | --- | --- | --- |
-| `--spacing-section` | `clamp(5rem, 12vw, 10rem)` | `pt-section` on every section (top only, so adjacent sections do not double up) |
-| `--gutter` | 16 / 24 / 32 px at base / 640 / 1024 | `px-gutter` (inside `Container`, max width 1200 px) |
-| `--radius-chip` | 8 px | `rounded-chip`: chips |
-| `--radius-panel` | 16 px | `rounded-panel`: panels, hero bars, capability grid, media |
-| `--radius-stage` / `--radius-stage-inner` | 20 / 14 px | Stage double bezel (outer shell, `p-1.5`, concentric core) |
-| Controls | full pill | Buttons, nav, tag links |
-| `--shadow-float` | soft, offset, ink-tinted | Nav pill, primary button |
-| `--shadow-stage` | larger soft, offset | Recreation stage |
-| `--z-overlay` / `--z-nav` / `--z-skip` | 40 / 50 / 60 | `z-(--z-nav)` etc. The menu overlay sits under the nav so the close control stays on top. |
+| `--spacing-section` | `clamp(4.5rem, 10vw, 8rem)` | `pt-section` between sections, `mt-section` above the footer |
+| `--gutter` | 16 / 24 / 32 px at base / 640 / 1024 | `px-gutter` inside `Container` (max width 1280 px) |
+| `--radius-xs` / `sm` / `md` / `lg` | 2 / 4 / 6 / 10 px | `rounded-sm` controls, `rounded-md` frames |
+| `--radius-chip` / `panel` / `stage` / `stage-inner` | 4 / 6 / 10 / 4 px | Chips, panels, monitor bezel, monitor stage |
+| `--shadow-stage` | soft, offset | The monitor bezel only |
+| `--z-overlay` / `--z-masthead` / `--z-skip` | 40 / 50 / 60 | |
 
-Elevation is declared once: a ring or a shadow, never a 1 px border under a wide shadow.
+Panels are matte: one hairline, no shadow. Only the monitor carries depth. Pills are gone; controls are 4 px rectangles with a 44 px hit area.
 
 ## Motion
 
-| Token | Value |
-| --- | --- |
-| `ease.out` / `--ease-out` | `cubic-bezier(0.23, 1, 0.32, 1)`: entrances, hovers, presses |
-| `ease.inOut` / `--ease-in-out` | `cubic-bezier(0.77, 0, 0.175, 1)`: on-screen movement |
-| `ease.drawer` / `--ease-drawer` / `--ease-world` | `cubic-bezier(0.32, 0.72, 0, 1)`: world cross-fade, drawers |
-| `duration` (s) | press 0.14, hover 0.2, ui 0.24, world 0.52, reveal 0.6, enter 0.7 |
-| `stagger` (s) | tight 0.04, base 0.05, loose 0.06 |
-| `travel` | 12 px |
+| Token | Value | Use |
+| --- | --- | --- |
+| `--ease-out` / `ease.out` | `cubic-bezier(0.23, 1, 0.32, 1)` | Hovers, presses, fades |
+| `--ease-in-out` / `ease.inOut` | `cubic-bezier(0.77, 0, 0.175, 1)` | On-screen movement |
+| `--ease-drawer` / `ease.drawer` | `cubic-bezier(0.32, 0.72, 0, 1)` | Shared elements, drawer, dialog |
+| `--dur-press` | 140 ms | Press feedback |
+| `--dur-micro` | 200 ms | Hover, toggles |
+| `--dur-ui` | 240 ms | Route cross-fade, tint change |
+| `--dur-tune` | 260 ms | Channel switch tune (scan line, slight blur-in), 280 ms ceiling |
+| `--dur-route` | 480 ms | Shared-element morph between routes |
+| `--dur-preview` | 560 ms | Schedule hover preview, ease-out, scale 0.96 to 1 |
 
-`src/lib/motion.ts` exports these plus `useRevealVariants()` (variant names `hidden` / `shown`), `staggerVariants(gap, delay)`, `viewportOnce`, and `usePrefersReducedMotion()`.
+`src/lib/motion.ts` mirrors these in seconds for `motion`.
 
-Rules:
+Route transitions: `TransitionLink` preloads the destination (route chunk and monitor recreation), then calls `document.startViewTransition` and commits the route with `flushSync`. `::view-transition-old/new(root)` fade for 240 ms; every named group morphs for 480 ms on the drawer curve. The masthead has `view-transition-name: masthead`, so it holds still. A case-page monitor is named `monitor-<slug>`; the home monitor wall gives its active monitor the same name, so the monitor morphs into the case page.
 
-- Reveals run once, 12 px rise plus fade, 0.6 s, staggered 40-60 ms. Use `Reveal`, `RevealGroup`, `RevealItem`.
-- Animate `transform`, `opacity`, `clip-path`, `filter` only. In `motion`, pass a full `transform` string, not `x` / `y`.
-- Hover and press: 150-250 ms, `active:scale-[0.98]` on pressables. Tailwind 4 already gates `hover:` to hover-capable pointers.
-- Reduced motion: reveals become a 0.2 s fade with no travel, the hero bars fade instead of drawing, the Snaxx video does not autoplay, smooth scroll is off, and CSS animations collapse to their end state.
-- No infinite loops outside recreations. Inside a recreation, a loop pauses off-screen and stops under reduced motion.
+Reduced motion: `TransitionLink` navigates without a view transition, all `::view-transition-*` animations are off, CSS animations collapse to their end state, and smooth scroll is off.
 
 ## Components
 
-| Component | Contract |
-| --- | --- |
-| `Container` | `max-w-[1200px] px-gutter mx-auto` |
-| `Reveal`, `RevealGroup`, `RevealItem` | Once-only in-view reveal. `as` picks the tag. `immediate` animates on mount. Items accept `data-*` attributes. |
-| `Eyebrow` | Metadata line: accent swatch, then items split by hairlines, mono, sentence case. It sits below a heading, never above it (the craft floor bans kickers). |
-| `SectionHeading` | `title` (h2), optional `eyebrow` (rendered under the title), optional `lede`. |
-| `Chip` | `tone="neutral"` (ringed surface) or `"accent"` (accent-soft wash). `font="mono"` (default, 0.78rem) for data and labels, `font="sans"` (0.875rem) for chips that hold a sentence, such as world facts. Radius 8 px. |
-| `Button` | `variant="primary"`: accent pill, trailing icon in its own circle that nudges on hover. `variant="quiet"`: outlined pill. `href` renders an anchor. Min height 48 px, never wraps. |
-| `ThemeToggle` | 44 px icon button. Writes `data-theme` and `localStorage.theme` in try/catch, updates `theme-color`. |
-| `Nav` | Floating detached pill. Desktop: monogram, active-world indicator (xl+), Work / Capabilities / Personal / Projects / Contact, CV, theme. Phone: monogram, CV, theme, morphing two-line menu that opens a full overlay with staggered links; Escape closes and returns focus. |
-| `World` | The section shell for every world. See the world contract. |
-| `StagePlaceholder` | Temporary stage content: accent-soft panel with a one-word label. |
-| `Footer` | Four accent rules, the NDA line, GitHub, CV, back to top. |
-
-Icons: `@phosphor-icons/react` only, imported with the `*Icon` names. Use `weight="light"` everywhere except inside recreations. Inside a recreation, `weight="regular"` is allowed, because it is mock product UI with icons at 14-18 px. No emoji, no Unicode glyphs as icons.
-
-## The world contract
-
-Each world lives in `src/worlds/<name>/index.tsx` (exports `<Name>World`) and `src/worlds/<name>/Recreation.tsx` (exports `Recreation`). See `src/worlds/README.md` for the builder checklist.
-
-`World` props:
-
-| Prop | Type | Notes |
+| Component | Props | Contract |
 | --- | --- | --- |
-| `world` | `'healthcare' \| 'streaming' \| 'reading' \| 'web3' \| 'ai'` | Scopes tokens, sets `id`, marks the section for the cross-fade |
-| `title` | `string` | h2 |
-| `meta` | `string[]` | Eyebrow parts from CONTENT.md, shown under the title |
-| `role` | `string` | Employer and period come from `src/lib/worlds.ts` |
-| `story` | `string[]` | Paragraphs |
-| `facts` | `string[]` | Chip list |
-| `stack` | `string[]?` | One line per group |
-| `recreation` | `ReactNode` | Fills the stage core |
-| `recreationName` | `string` | Caption: "Live recreation: <name>. Invented data, no client screens." |
-| `stageAspect` / `stageAspectTablet` / `stageAspectMobile` | CSS aspect-ratio | Desktop (1024 px and up) default `4 / 3`. Tablet (640-1023 px) defaults to `stageAspect`, or `1 / 1` for `stage-wide`. Mobile (below 640 px) defaults to `stageAspect`. From 640 px up, the stage width is capped so the core stays near 82svh tall. |
-| `layout` | `'stage-end' \| 'stage-start' \| 'stage-wide'` | Split with stage right, split with stage left, or full-width stage over a two-column narrative |
-| `children` | `ReactNode?` | Extra narrative after the story |
-| `after` | `ReactNode?` | Full-width content after the narrative and the stage, for example the streaming public pages and the reading published-apps strip |
+| `Masthead` | none | Sticky top bar: GR monogram and name (home link), "Schedule" back link on `/work/*`, ON AIR lamp, KOS local time (Europe/Belgrade, HH:MM, updated on the minute), theme toggle, CV download. |
+| `Footer` | none | Sources line, GitHub, CV, email and LinkedIn when set in `links.ts`, © line. |
+| `ChannelBadge` | `channel`, `showLabel = true`, `size = 'sm' \| 'md'`, `className` | CH number in its tint, a 1 px tint rule, the channel name. Sets `data-channel`. |
+| `SignalDot` | `tone = 'signal' \| 'tint' \| 'off'`, `className` | A steady lamp. It never pulses. |
+| `Panel` | `as`, `label`, `meta`, `className`, `bodyClassName`, `children` | Matte panel with one hairline and an optional labelled top bar. |
+| `Monitor` | `channel`, `label`, `timecode`, `live`, `aspect: {base, sm, lg}`, `world`, `viewTransitionName`, `caption`, `children` | Graphite bezel, a label bar (lamp, CH number in tint, label, time code), and a stage that is a size container scoped with `data-world`. Width is capped so the stage stays near 76 to 78 svh tall. |
+| `MonitorTuning` | none | Stage fallback while a recreation loads; same box, no layout shift. |
+| `MonitorGallery` | `items` | Store frames side by side on a stage; the row scrolls when narrow. |
+| `Showcase` | `title`, `links`, `items`, `aspect = 'web' \| 'phone'` | Public screenshots with store and site links; a frame opens a native dialog. |
+| `TransitionLink` | React Router `Link` props, `to: string`, `preload?: () => Promise` | View-transition navigation with preload on hover, focus and click. |
+| `ScrollToTop` | none | Scrolls to the hash target or to the top on every route change. |
+| `ThemeToggle` | `className` | 44 px button; dark and daylight; writes `data-theme`, `theme-color` and `localStorage.theme`. |
+| `Thumb`, `ThumbFrame` | `kind`, `world` | Stylized mini-screens for schedule rows without a real screenshot. |
 
-Stage core: `position: relative`, `overflow: hidden`, `rounded-stage-inner`, `bg-surface`, and a size container (`@container`), so recreations use `@sm:` style variants and `cqi` units against the stage. Below 1024 px the stage renders first. On wide split layouts the stage is sticky at `top: 6rem`.
+Icons: `@phosphor-icons/react`, `weight="light"` outside recreations. No emoji, no Unicode glyphs as icons.
 
-Current layouts: healthcare `stage-end`, streaming `stage-wide`, reading `stage-start`, web3 `stage-wide`, ai `stage-end`. No three consecutive sections share one split direction.
+## Routes
 
-## Page order
+| Path | Page | Loading |
+| --- | --- | --- |
+| `/` | `HomePage`: masthead, first viewport with the channel switcher, `#schedule`, about and contact, footer | In the main chunk |
+| `/work/:slug` | `CaseStudyPage` for the five featured slugs: channel header, monitor, story (The product / What was built / Result), galleries, facts, next channel | Lazy chunk; each recreation is its own lazy chunk |
+| `*` and non-featured slugs | `NoSignalPage`: test-card bars in the six tints, the path, a link back to the schedule | In the main chunk |
 
-Nav, Hero, Capabilities, Healthcare, Streaming, Reading, Web3, AI dashboards, Personal, All projects, Skills, Contact, Footer. `#work` wraps the five worlds.
+`BrowserRouter` runs with `useTransitions={false}` so `flushSync` can commit a route inside a view transition. Static hosting needs a rewrite of every path to `/index.html` (`vercel.json`).
+
+## Content model
+
+`src/content/projects.ts` is the single source: every project with `slug`, `name`, `kind`, `channel`, `group`, `years` (time code), `role`, `stack`, `line`, `summary`, `links`, `media` (`thumb`, `shot`, `recreation`, `galleries`) and, for the five featured projects, `featured` (`order`, `monitor`, `story`, `facts`). `src/content/channels.ts` holds the channel number, label, tint token and period. `src/lib/recreations.tsx` maps a recreation key to its lazy component, name, palette and monitor aspect.
 
 ## Refused on purpose
 
-Kicker labels above headings, section numbers, em dashes, gradient text, glass on scrolling content, decorative dots, three equal cards, centred hero over mesh, `in oklch` colour mixing, Inter / Roboto / Arial.
+Kicker labels above headings, scroll-triggered reveals on every section, preloaders, scroll-jacking, glow halos, pulsing status dots, gradient text, glass on scrolling content, pill buttons, cards as page structure, `in oklch` colour mixing, Inter, Roboto, Arial. Em dashes stay out of copy; the en dash appears only inside time codes such as `2023–26`.

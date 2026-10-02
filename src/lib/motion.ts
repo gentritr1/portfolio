@@ -16,6 +16,10 @@ export const duration = {
   world: 0.52,
   reveal: 0.6,
   enter: 0.7,
+  micro: 0.2,
+  tune: 0.26,
+  route: 0.48,
+  preview: 0.56,
 } as const
 
 export const stagger = {

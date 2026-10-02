@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" data-world="base">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -14,15 +14,14 @@
       property="og:description"
       content="Gentrit Rashiti, frontend and mobile developer moving to full stack. Web and mobile products in healthcare, video streaming, e-reading and Web3."
     />
-    <meta name="color-scheme" content="light dark" />
-    <meta name="theme-color" content="#f3f5f8" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#121418" media="(prefers-color-scheme: dark)" />
+    <meta name="color-scheme" content="dark light" />
+    <meta name="theme-color" content="#0e1012" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,300..700&family=Geist+Mono:wght@400..500&family=Geist:wght@300..600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,500..700&family=Atkinson+Hyperlegible+Next:wght@400..700&family=Martian+Mono:wdth,wght@75..100,400..500&display=swap"
     />
     <script>
       (function () {
@@ -32,9 +31,8 @@
         } catch (e) {}
         if (theme === 'light' || theme === 'dark') {
           document.documentElement.setAttribute('data-theme', theme);
-          var metas = document.querySelectorAll('meta[name="theme-color"]');
-          for (var i = 0; i < metas.length; i++) {
-            metas[i].setAttribute('content', theme === 'dark' ? '#121418' : '#f3f5f8');
+          if (theme === 'light') {
+            document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ebedf0');
           }
         }
       })();

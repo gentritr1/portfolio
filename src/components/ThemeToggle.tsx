@@ -1,21 +1,14 @@
 import { MoonIcon, SunIcon } from '@phosphor-icons/react'
-import { AnimatePresence, motion } from 'motion/react'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { cn } from '../lib/cn'
-import { duration, ease } from '../lib/motion'
 
 type Theme = 'light' | 'dark'
 
-const THEME_COLOR: Record<Theme, string> = { light: '#f3f5f8', dark: '#121418' }
-const DARK_QUERY = '(prefers-color-scheme: dark)'
+/** Matches --panel-0 in each theme. */
+const THEME_COLOR: Record<Theme, string> = { light: '#ebedf0', dark: '#0e1012' }
 
-function chosenTheme(): Theme | null {
-  const value = document.documentElement.dataset.theme
-  return value === 'light' || value === 'dark' ? value : null
-}
-
-function systemTheme(): Theme {
-  return window.matchMedia(DARK_QUERY).matches ? 'dark' : 'light'
+function currentTheme(): Theme {
+  return document.documentElement.dataset.theme === 'light' ? 'light' : 'dark'
 }
 
 function applyTheme(theme: Theme) {
@@ -28,20 +21,11 @@ function applyTheme(theme: Theme) {
   }
 }
 
+/** Dark is the default; daylight is stored as "light" under the `theme` key. */
 export function ThemeToggle({ className }: { className?: string }) {
-  const [theme, setTheme] = useState<Theme>(() => chosenTheme() ?? systemTheme())
-
-  useEffect(() => {
-    const media = window.matchMedia(DARK_QUERY)
-    const onChange = () => {
-      if (!chosenTheme()) setTheme(systemTheme())
-    }
-    media.addEventListener('change', onChange)
-    return () => media.removeEventListener('change', onChange)
-  }, [])
-
+  const [theme, setTheme] = useState<Theme>(currentTheme)
   const next: Theme = theme === 'dark' ? 'light' : 'dark'
-  const Glyph = theme === 'dark' ? MoonIcon : SunIcon
+  const label = next === 'light' ? 'Switch to daylight theme' : 'Switch to dark theme'
 
   return (
     <button
@@ -50,25 +34,31 @@ export function ThemeToggle({ className }: { className?: string }) {
         applyTheme(next)
         setTheme(next)
       }}
-      aria-label={`Switch to ${next} theme`}
-      title={`Switch to ${next} theme`}
+      aria-label={label}
+      title={label}
       className={cn(
-        'relative grid size-11 shrink-0 place-items-center overflow-hidden rounded-full text-ink transition-[background-color,transform] duration-200 ease-out hover:bg-accent-soft active:scale-[0.96]',
+        'relative grid size-11 shrink-0 place-items-center rounded-sm text-ink-2 transition-[background-color,color,transform] duration-200 ease-out hover:bg-panel-2 hover:text-ink active:scale-[0.96]',
         className,
       )}
     >
-      <AnimatePresence initial={false} mode="popLayout">
-        <motion.span
-          key={theme}
-          className="grid place-items-center"
-          initial={{ opacity: 0, transform: 'rotate(-60deg) scale(0.9)' }}
-          animate={{ opacity: 1, transform: 'rotate(0deg) scale(1)' }}
-          exit={{ opacity: 0, transform: 'rotate(60deg) scale(0.9)' }}
-          transition={{ duration: duration.ui, ease: ease.out }}
-        >
-          <Glyph size={20} weight="light" aria-hidden />
-        </motion.span>
-      </AnimatePresence>
+      <MoonIcon
+        size={19}
+        weight="light"
+        aria-hidden
+        className={cn(
+          'col-start-1 row-start-1 transition-[opacity,rotate] duration-200 ease-out motion-reduce:transition-none',
+          theme === 'dark' ? 'rotate-0 opacity-100' : '-rotate-45 opacity-0',
+        )}
+      />
+      <SunIcon
+        size={19}
+        weight="light"
+        aria-hidden
+        className={cn(
+          'col-start-1 row-start-1 transition-[opacity,rotate] duration-200 ease-out motion-reduce:transition-none',
+          theme === 'light' ? 'rotate-0 opacity-100' : 'rotate-45 opacity-0',
+        )}
+      />
     </button>
   )
 }

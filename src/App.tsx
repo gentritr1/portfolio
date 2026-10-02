@@ -1,44 +1,33 @@
+import { Suspense } from 'react'
+import { Route, Routes } from 'react-router'
 import { Footer } from './components/Footer'
-import { Nav } from './components/Nav'
-import { useActiveWorld } from './lib/useActiveWorld'
-import { Capabilities } from './sections/Capabilities'
-import { Contact } from './sections/Contact'
-import { Hero } from './sections/Hero'
-import { Personal } from './sections/Personal'
-import { Projects } from './sections/Projects'
-import { Skills } from './sections/Skills'
-import { AiDashboardsWorld } from './worlds/ai'
-import { HealthcareWorld } from './worlds/healthcare'
-import { ReadingWorld } from './worlds/reading'
-import { StreamingWorld } from './worlds/streaming'
-import { Web3World } from './worlds/web3'
+import { Masthead } from './components/Masthead'
+import { ScrollToTop } from './components/ScrollToTop'
+import { caseStudyPage } from './lib/routes'
+import { HomePage } from './pages/HomePage'
+import { NoSignalPage } from './pages/NoSignalPage'
+
+const CaseStudyRoute = caseStudyPage.Component
 
 export default function App() {
-  const world = useActiveWorld()
-
   return (
     <>
       <a
         href="#main"
-        className="fixed left-4 top-4 z-(--z-skip) -translate-y-24 rounded-full bg-accent px-5 py-3 text-on-accent transition-transform duration-200 ease-out focus-visible:translate-y-0"
+        className="fixed left-4 top-3 z-(--z-skip) -translate-y-24 rounded-sm bg-signal px-4 py-3 label text-on-signal transition-transform duration-200 ease-out focus-visible:translate-y-0"
       >
         Skip to content
       </a>
-      <Nav world={world} />
+      <ScrollToTop />
+      <Masthead />
       <main id="main">
-        <Hero />
-        <Capabilities />
-        <div id="work">
-          <HealthcareWorld />
-          <StreamingWorld />
-          <ReadingWorld />
-          <Web3World />
-          <AiDashboardsWorld />
-        </div>
-        <Personal />
-        <Projects />
-        <Skills />
-        <Contact />
+        <Suspense fallback={<div className="min-h-[100svh]" />}>
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/work/:slug" element={<CaseStudyRoute />} />
+            <Route path="*" element={<NoSignalPage />} />
+          </Routes>
+        </Suspense>
       </main>
       <Footer />
     </>

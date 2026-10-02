@@ -3,7 +3,14 @@ import { Container } from '../components/Container'
 import { Reveal, RevealGroup, RevealItem } from '../components/Reveal'
 import { SectionHeading } from '../components/SectionHeading'
 import { Thumb, ThumbFrame } from '../components/Thumb'
-import { currentYear, firstYear, projectGroups, projects, type Project } from '../content/projects'
+import { currentYear, firstYear, groupPeriods, projects, worldOf, type Project, type ProjectGroupName } from '../content/projects'
+
+const groupOrder: ProjectGroupName[] = ['Vianova', 'Agency work', 'Incentiv', 'AvahiTech', 'Personal']
+const projectGroups = groupOrder.map((name) => ({
+  name,
+  period: groupPeriods[name],
+  projects: projects.filter((project) => project.group === name),
+}))
 import { cn } from '../lib/cn'
 import { stagger } from '../lib/motion'
 
@@ -16,12 +23,12 @@ const thumbHover = cn(
 )
 
 function RowThumb({ project }: { project: Project }) {
-  if (project.shot) {
+  if (project.media.shot) {
     return (
       <ThumbFrame className={thumbHover}>
         <img
-          src={project.shot.src}
-          alt={project.shot.alt}
+          src={project.media.shot.src}
+          alt={project.media.shot.alt}
           width={256}
           height={160}
           loading="lazy"
@@ -31,11 +38,11 @@ function RowThumb({ project }: { project: Project }) {
       </ThumbFrame>
     )
   }
-  if (project.thumb) {
+  if (project.media.thumb) {
     return (
       <Thumb
-        kind={project.thumb}
-        world={!project.world || project.world === 'personal' ? 'base' : project.world}
+        kind={project.media.thumb}
+        world={worldOf(project)}
         className={thumbHover}
       />
     )
@@ -71,7 +78,7 @@ function PublicLinks({ project }: { project: Project }) {
 }
 
 function Row({ project }: { project: Project }) {
-  const href = project.world ? `#${project.world}` : undefined
+  const href = project.featured ? `/work/${project.slug}` : undefined
   return (
     <div
       className={cn(
