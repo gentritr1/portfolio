@@ -173,6 +173,7 @@ Render as a compact, scannable index (not cards): grouped by employer, each row 
 | Donation and good-deeds app | 2021 – 2022 | Mobile | React Native, Redux Toolkit, Stripe, Firebase | Sign-up and account flows, Stripe donations and subscriptions, badges, video tasks; iOS + Android | — |
 | Coaching app | 2022 – 2023 | Mobile | React Native, Redux Toolkit, React Navigation | Project setup, login flow with an organization step, daily calendar strip, reactions, dev/staging/release builds | — |
 | Member portal, web | 2025 | Frontend | Next.js 15, TypeScript, RTK Query, next-intl, Pusher | Project foundation, route-protection middleware, external auth flow, app shell and layout | — |
+| Grocery shopping and loyalty app | 2023 | Mobile | React Native, Redux Toolkit, Maps, Firebase | Online orders with delivery time slots and a cancellation window, wishlist, purchase history, loyalty view, address search on a map | — |
 | Fuel-station loyalty app | 2026 | Mobile | React Native 0.78 | arm64 simulator support, legacy architecture, shadow fixes | — |
 
 ### Incentiv (2024)

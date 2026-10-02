@@ -152,6 +152,14 @@ export const projects: Project[] = [
   },
   {
     group: 'Vianova',
+    name: 'Grocery shopping and loyalty app',
+    years: '2023',
+    role: 'Mobile',
+    stack: ['React Native', 'Redux Toolkit', 'Maps', 'Firebase'],
+    line: 'Online orders with delivery time slots and a cancellation window, wishlist, purchase history, loyalty view, address search on a map',
+  },
+  {
+    group: 'Vianova',
     name: 'Fuel-station loyalty app',
     years: '2026',
     role: 'Mobile',
