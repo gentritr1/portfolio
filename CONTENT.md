@@ -72,8 +72,7 @@ All facts below come from git history. Do not invent numbers. Do not add product
 
 **Live recreation:** "Live room". A 16:9 player frame with a looping subtle gradient "signal" (no real video), a LIVE badge with a viewer count that ticks, a quality menu (Auto / 1080p / 720p / 480p) that opens on click, and a chat column where invented messages arrive every ~2 s, one pinned message at the top, and a mute action on hover. A "Premium" lock state can be toggled to show the paywall overlay with a plan card ("Monthly $12 · Yearly $99"). Must pause when off-screen and respect reduced motion.
 
-**Public pages strip:** three screenshots after the facts and stack (Landing page · Library · Stories, files in `public/streaming/`). Rule: public pages of the live site only, captured without login, with the logo, wordmark and product name covered by a solid patch in the background colour (never a blur).
-- Stories replaces the Series page (2026-10-02): a Series card title named a presenter. `public-03.webp` is the Stories page, cropped below the nav, so it holds no logo, wordmark or person's name.
+**Showcases:** three `Showcase` blocks after the facts and stack, files in `public/showcase/bayyinah/`: Website (6 pages of https://bayyinahtv.com/), Mobile app (6 App Store frames; links https://apps.apple.com/us/app/bayyinah-tv/id1530635769 and https://play.google.com/store/apps/details?id=com.zombiesoup.bayyinah), Institute website (5 sections and 1 phone view of https://bayyinah.org/, a one-page Next.js site). Rule: public products are named and linked; screenshots come only from public pages (websites without login, store listings), never from a running app, behind a login or with user data; brands stay visible; the product is described, not called a client of the employer.
 
 ---
 
@@ -127,6 +126,8 @@ All facts below come from git history. Do not invent numbers. Do not add product
 - English and French
 
 **Stack:** Next.js 14, React 18, TypeScript, Redux Toolkit + RTK Query, next-intl, Framer Motion, Tailwind, ApexCharts
+
+**Showcase:** one `Showcase` block "Incentiv" after the facts and stack, files in `public/showcase/incentiv/`: home and vision of https://incentiv.io/ and the public sign-in screen of https://portal.incentiv.io/; links Website, Portal, Docs (https://docs.incentiv.io/). Same rule as §3: public pages only, brand visible, no wallet connected.
 
 **Live recreation:** "Wallet card". A dark glass card with a balance ("12,480.00 INC" fictional token, "≈ $3,210"), a chip row (Gas saved · 42 tx), a "Receive" action that flips the card to a QR code (generate an SVG QR of the text `gentrit.portfolio`), and a "Sign in with passkey" button that plays a 3-step micro-sequence (fingerprint icon pulse → check → "Welcome, Gentrit"). No real chain calls.
 

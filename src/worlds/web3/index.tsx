@@ -1,5 +1,30 @@
+import { Showcase, type ShowcaseItem } from '../../components/Showcase'
 import { World } from '../../components/World'
 import { Recreation } from './Recreation'
+
+const publicPages: ShowcaseItem[] = [
+  {
+    src: '/showcase/incentiv/web-01.webp',
+    width: 1440,
+    height: 900,
+    alt: 'Incentiv home: "Build. Incentivize. Settle." hero with a Go to Portal button and a mascot in a visor',
+    caption: 'Home',
+  },
+  {
+    src: '/showcase/incentiv/web-02.webp',
+    width: 1440,
+    height: 900,
+    alt: 'Incentiv vision page: "A world built for agents" over a crowd of robot mascots',
+    caption: 'Vision',
+  },
+  {
+    src: '/showcase/incentiv/web-03.webp',
+    width: 1440,
+    height: 900,
+    alt: 'Incentiv Portal sign-in: Passkey, MetaMask and WalletConnect options beside a dashboard preview',
+    caption: 'Portal sign-in (public screen)',
+  },
+]
 
 export function Web3World() {
   return (
@@ -27,6 +52,18 @@ export function Web3World() {
       stack={['Next.js 14, React 18, TypeScript, Redux Toolkit + RTK Query, next-intl, Framer Motion, Tailwind, ApexCharts']}
       recreationName="Wallet card"
       recreation={<Recreation />}
+      after={
+        <Showcase
+          title="Incentiv"
+          aspect="web"
+          links={[
+            { label: 'Website', href: 'https://incentiv.io/' },
+            { label: 'Portal', href: 'https://portal.incentiv.io/' },
+            { label: 'Docs', href: 'https://docs.incentiv.io/' },
+          ]}
+          items={publicPages}
+        />
+      }
     />
   )
 }

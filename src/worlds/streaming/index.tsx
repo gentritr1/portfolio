@@ -1,60 +1,88 @@
-import { Reveal, RevealGroup, RevealItem } from '../../components/Reveal'
+import { Showcase, type ShowcaseItem } from '../../components/Showcase'
 import { World } from '../../components/World'
 import { Recreation } from './Recreation'
 
-const publicPages = [
+const web = (n: number, alt: string, caption: string): ShowcaseItem => ({
+  src: `/showcase/bayyinah/web-0${n}.webp`,
+  width: 1440,
+  height: 900,
+  alt,
+  caption,
+})
+
+const store = (n: number, alt: string, caption: string): ShowcaseItem => ({
+  src: `/showcase/bayyinah/store-0${n}.webp`,
+  width: 778,
+  height: 1690,
+  alt,
+  caption,
+})
+
+const org = (n: number, alt: string, caption: string): ShowcaseItem => ({
+  src: `/showcase/bayyinah/org-0${n}.webp`,
+  width: 1440,
+  height: 900,
+  alt,
+  caption,
+})
+
+const websitePages = [
+  web(1, 'Bayyinah TV landing page: "Quran Studies Made Simple" hero with the app on a laptop, a monitor and phones', 'Landing page'),
+  web(2, 'Bayyinah TV library, Subject tab: library tabs, search, filters and a row of course cards', 'Library: Subject'),
+  web(3, 'Bayyinah TV library, Arabic tab: beginner courses and the flagship Arabic program', 'Library: Arabic'),
+  web(4, 'Bayyinah TV library, Stories tab: filters by prophet and a row of story courses', 'Library: Stories'),
+  web(5, 'Bayyinah TV series page: episode list in a side column, series summary and video cards', 'Series page'),
+  web(6, 'Bayyinah TV pricing: "Choose Your Plan" with a monthly and annual switch and the Premium plan at $11 a month', 'Pricing'),
+]
+
+const appFrames = [
+  store(1, 'App Store frame: "Quran Studies Made Simple" with the Bayyinah TV home screen on an iPhone', 'Home'),
+  store(2, 'App Store frame: "Study the Quran Surah by Surah" with the surah list and the video player', 'Surah by surah'),
+  store(3, 'App Store frame: "Study the Quran Subject by Subject" with subject course cards', 'Subject by subject'),
+  store(4, 'App Store frame: "Study Quranic Arabic Step by Step" with the Arabic courses', 'Arabic'),
+  store(5, 'App Store frame: "Pick Up Anytime" with the My Learning progress dashboard', 'My Learning'),
+  store(6, 'App Store frame: "Learn Your Way" with the audio and video player on two iPhones', 'Audio and video'),
+]
+
+const institutePages: ShowcaseItem[] = [
+  org(1, 'Bayyinah Foundation home: "Help Us Spread Quranic Knowledge" hero with a Join the Mission button and store badges', 'Home'),
+  org(2, 'Bayyinah Foundation "Why Support" section: three reasons with line icons', 'Why support'),
+  org(3, 'Bayyinah Foundation "Research Funding Opportunities" section with three photos', 'Research funding'),
+  org(4, 'Bayyinah Foundation impact banner: "Together, we can empower individuals" over a city photo', 'Your impact'),
+  org(5, 'Bayyinah Foundation frequently asked questions: six collapsed questions about donations', 'FAQ'),
   {
-    src: '/streaming/public-01.webp',
-    width: 1440,
-    height: 900,
-    alt: 'Landing page of the video-learning platform, brand covered',
-    caption: 'Landing page',
-  },
-  {
-    src: '/streaming/public-02.webp',
-    width: 1272,
-    height: 795,
-    alt: 'Arabic library page of the video-learning platform, brand covered',
-    caption: 'Library',
-  },
-  {
-    src: '/streaming/public-03.webp',
-    width: 1272,
-    height: 795,
-    alt: 'Stories page of the video-learning platform: category tabs, a search field and a row of story courses',
-    caption: 'Stories',
+    src: '/showcase/bayyinah/org-phone.webp',
+    width: 780,
+    height: 1688,
+    alt: 'Bayyinah Foundation home on a phone: the hero, the Join the Mission button and the store badges',
+    caption: 'Home on a phone',
   },
 ]
 
-function PublicPages() {
+function Showcases() {
   return (
-    <div className="border-t border-line pt-5">
-      <Reveal as="p" className="font-mono text-meta text-muted">
-        Public pages of the live site, brand covered
-      </Reveal>
-      <RevealGroup
-        as="ul"
-        className="-mx-gutter mt-4 flex snap-x snap-mandatory scroll-px-gutter gap-3 overflow-x-auto px-gutter pb-2 md:mx-0 md:grid md:grid-cols-3 md:gap-4 md:overflow-visible md:px-0 md:pb-0"
-      >
-        {publicPages.map((page) => (
-          <RevealItem as="li" key={page.src} className="w-[82%] shrink-0 snap-start md:w-auto">
-            <figure>
-              <div className="overflow-hidden rounded-chip border border-line bg-surface">
-                <img
-                  src={page.src}
-                  width={page.width}
-                  height={page.height}
-                  alt={page.alt}
-                  loading="lazy"
-                  decoding="async"
-                  className="block h-auto w-full"
-                />
-              </div>
-              <figcaption className="mt-2 px-0.5 font-mono text-meta text-muted">{page.caption}</figcaption>
-            </figure>
-          </RevealItem>
-        ))}
-      </RevealGroup>
+    <div className="flex flex-col gap-12 lg:gap-14">
+      <Showcase
+        title="Website"
+        aspect="web"
+        links={[{ label: 'Website', href: 'https://bayyinahtv.com/' }]}
+        items={websitePages}
+      />
+      <Showcase
+        title="Mobile app"
+        aspect="phone"
+        links={[
+          { label: 'App Store', href: 'https://apps.apple.com/us/app/bayyinah-tv/id1530635769' },
+          { label: 'Google Play', href: 'https://play.google.com/store/apps/details?id=com.zombiesoup.bayyinah' },
+        ]}
+        items={appFrames}
+      />
+      <Showcase
+        title="Institute website"
+        aspect="web"
+        links={[{ label: 'Website', href: 'https://bayyinah.org/' }]}
+        items={institutePages}
+      />
     </div>
   )
 }
@@ -86,7 +114,7 @@ export function StreamingWorld() {
       stack={['Nuxt 3, Vue 3, TypeScript, Pinia, video.js + HLS, AWS IVS, Pusher, Stripe, Firebase, Tailwind']}
       recreationName="Live room"
       recreation={<Recreation />}
-      after={<PublicPages />}
+      after={<Showcases />}
     />
   )
 }
