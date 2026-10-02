@@ -543,7 +543,7 @@ function Chat({ running, reduce }: { running: boolean; reduce: boolean }) {
           const list = event.currentTarget
           stickRef.current = list.scrollHeight - list.scrollTop - list.clientHeight < 80
         }}
-        className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-1 [mask-image:linear-gradient(to_bottom,transparent,black_28px)] [scrollbar-width:thin] lg:px-1.5"
+        className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-1 [mask-image:linear-gradient(to_bottom,transparent,black_40px)] [scrollbar-width:thin] lg:px-1.5"
       >
         <ol aria-label="Messages" className="flex min-h-full flex-col justify-end py-2">
         {shown.map((id) => {
