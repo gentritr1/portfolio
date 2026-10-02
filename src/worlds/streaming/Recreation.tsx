@@ -214,7 +214,7 @@ export function Recreation() {
           </div>
         </div>
 
-        <div className="hidden min-w-0 items-start gap-3 px-4 py-3 @xl:flex lg:px-1 lg:py-0">
+        <div className="hidden min-w-0 items-start gap-3 px-4 py-3 @2xl:flex lg:px-1 lg:py-0">
           <span
             aria-hidden
             className="grid size-9 shrink-0 place-items-center rounded-full bg-accent-soft font-display text-[0.95rem] font-medium text-accent-ink"
@@ -424,9 +424,9 @@ function Paywall({ reduce }: { reduce: boolean }) {
         )}
       >
         <div className="flex min-h-11 items-center pr-28 @md/player:block @md/player:min-h-0 @md/player:pr-0">
-          <h3 id={titleId} className="font-display text-[0.95rem] font-medium tracking-[-0.01em] @md/player:text-[1.2rem]">
+          <p id={titleId} className="font-display text-[0.95rem] font-medium tracking-[-0.01em] @md/player:text-[1.2rem]">
             Premium episode
-          </h3>
+          </p>
           <p className="mt-1 hidden text-[0.85rem] leading-snug text-muted @md/player:block">
             This session is for members. Pick a plan to keep watching.
           </p>
@@ -525,7 +525,7 @@ function Chat({ running, reduce }: { running: boolean; reduce: boolean }) {
       className="relative z-0 flex min-h-0 flex-col border-t border-line bg-surface lg:rounded-[10px] lg:border-t-0 lg:ring-1 lg:ring-line"
     >
       <header className="flex h-10 shrink-0 items-center justify-between border-b border-line px-3 lg:h-12 lg:px-4">
-        <h3 className="font-sans text-[0.85rem] font-medium text-ink">Live chat</h3>
+        <p className="font-sans text-[0.85rem] font-medium text-ink">Live chat</p>
         <span className="font-mono text-[0.72rem] text-muted tabular">{shown.length} messages</span>
       </header>
 
@@ -543,7 +543,7 @@ function Chat({ running, reduce }: { running: boolean; reduce: boolean }) {
           const list = event.currentTarget
           stickRef.current = list.scrollHeight - list.scrollTop - list.clientHeight < 80
         }}
-        className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-1 [mask-image:linear-gradient(to_bottom,transparent,black_14px)] [scrollbar-width:thin] lg:px-1.5"
+        className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-1 [mask-image:linear-gradient(to_bottom,transparent,black_28px)] [scrollbar-width:thin] lg:px-1.5"
       >
         <ol aria-label="Messages" className="flex min-h-full flex-col justify-end py-2">
         {shown.map((id) => {

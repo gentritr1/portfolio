@@ -315,6 +315,7 @@ function TrendChart({ org, unit, play }: { org: Org; unit: Unit; play: boolean }
     if (!el) return
     const observer = new ResizeObserver(([entry]) => {
       const { width, height } = entry.contentRect
+      if (width <= pad.l + pad.r || height <= pad.t + pad.b) return
       setSize({ w: Math.round(width), h: Math.round(height) })
     })
     observer.observe(el)

@@ -115,7 +115,7 @@ function DocumentPage({ lit, reduce }: { lit: boolean; reduce: boolean }) {
             )
           })}
         </div>
-        <span className="mt-auto pt-3 font-mono text-[clamp(0.5625rem,1.6cqi,0.75rem)] text-muted tabular">Page 3 of 14</span>
+        <span className="mt-auto pt-3 font-mono text-[clamp(0.6875rem,1.6cqi,0.75rem)] text-muted tabular">Page 3 of 14</span>
       </div>
     </div>
   )

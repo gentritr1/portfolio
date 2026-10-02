@@ -7,8 +7,9 @@ export function StreamingWorld() {
       world="streaming"
       layout="stage-wide"
       stageAspect="43 / 20"
+      stageAspectTablet="1 / 1"
       stageAspectMobile="3 / 4"
-      title="A subscription video-learning platform with live streams"
+      title="A subscription video‑learning platform with live streams"
       meta={['Streaming', 'Subscriptions', 'Web']}
       role="Lead frontend developer (top contributor)."
       story={[

@@ -7,8 +7,9 @@ export function HealthcareWorld() {
       world="healthcare"
       layout="stage-end"
       stageAspect="4 / 3"
+      stageAspectTablet="4 / 3"
       stageAspectMobile="4 / 5"
-      title="A care-management platform, rebuilt one screen at a time"
+      title="A care‑management platform, rebuilt one screen at a time"
       meta={['Healthcare', 'Care management', 'Web + backend']}
       role="Software Developer, frontend and mobile first, full stack since 2026."
       story={[

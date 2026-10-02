@@ -119,7 +119,7 @@ Rules:
 | `Reveal`, `RevealGroup`, `RevealItem` | Once-only in-view reveal. `as` picks the tag. `immediate` animates on mount. Items accept `data-*` attributes. |
 | `Eyebrow` | Metadata line: accent swatch, then items split by hairlines, mono, sentence case. It sits below a heading, never above it (the craft floor bans kickers). |
 | `SectionHeading` | `title` (h2), optional `eyebrow` (rendered under the title), optional `lede`. |
-| `Chip` | `tone="neutral"` (ringed surface) or `"accent"` (accent-soft wash). Mono 0.78rem, radius 8 px. |
+| `Chip` | `tone="neutral"` (ringed surface) or `"accent"` (accent-soft wash). `font="mono"` (default, 0.78rem) for data and labels, `font="sans"` (0.875rem) for chips that hold a sentence, such as world facts. Radius 8 px. |
 | `Button` | `variant="primary"`: accent pill, trailing icon in its own circle that nudges on hover. `variant="quiet"`: outlined pill. `href` renders an anchor. Min height 48 px, never wraps. |
 | `ThemeToggle` | 44 px icon button. Writes `data-theme` and `localStorage.theme` in try/catch, updates `theme-color`. |
 | `Nav` | Floating detached pill. Desktop: monogram, active-world indicator (xl+), Work / Capabilities / Personal / Contact, CV, theme. Phone: monogram, CV, theme, morphing two-line menu that opens a full overlay with staggered links; Escape closes and returns focus. |
@@ -127,7 +127,7 @@ Rules:
 | `StagePlaceholder` | Temporary stage content: accent-soft panel with a one-word label. |
 | `Footer` | Four accent rules, the NDA line, GitHub, CV, back to top. |
 
-Icons: `@phosphor-icons/react` only, `weight="light"`, imported with the `*Icon` names. No emoji, no Unicode glyphs as icons.
+Icons: `@phosphor-icons/react` only, imported with the `*Icon` names. Use `weight="light"` everywhere except inside recreations. Inside a recreation, `weight="regular"` is allowed, because it is mock product UI with icons at 14-18 px. No emoji, no Unicode glyphs as icons.
 
 ## The world contract
 
@@ -146,7 +146,7 @@ Each world lives in `src/worlds/<name>/index.tsx` (exports `<Name>World`) and `s
 | `stack` | `string[]?` | One line per group |
 | `recreation` | `ReactNode` | Fills the stage core |
 | `recreationName` | `string` | Caption: "Live recreation: <name>. Invented data, no client screens." |
-| `stageAspect` / `stageAspectMobile` | CSS aspect-ratio | Default `4 / 3`; mobile defaults to the desktop value |
+| `stageAspect` / `stageAspectTablet` / `stageAspectMobile` | CSS aspect-ratio | Desktop (1024 px and up) default `4 / 3`. Tablet (640-1023 px) defaults to `stageAspect`, or `1 / 1` for `stage-wide`. Mobile (below 640 px) defaults to `stageAspect`. From 640 px up, the stage width is capped so the core stays near 82svh tall. |
 | `layout` | `'stage-end' \| 'stage-start' \| 'stage-wide'` | Split with stage right, split with stage left, or full-width stage over a two-column narrative |
 | `children` | `ReactNode?` | Extra narrative after the story |
 

@@ -7,8 +7,9 @@ export function Web3World() {
       world="web3"
       layout="stage-wide"
       stageAspect="21 / 9"
+      stageAspectTablet="6 / 5"
       stageAspectMobile="3 / 4"
-      title="The frontend of a smart-wallet dashboard"
+      title="The frontend of a smart‑wallet dashboard"
       meta={['Web3', 'Smart wallet', 'Web']}
       role="Frontend Developer (UI and app layer; the wallet/blockchain layer was built by teammates)."
       story={[

@@ -550,9 +550,9 @@ function ScanCard() {
             transition={swap}
           >
             <div className="col-start-2 row-start-1 @lg:col-start-1">
-              <h3 className="font-sans text-[0.9375rem] leading-snug font-medium text-ink">
+              <p className="font-sans text-[0.9375rem] leading-snug font-medium text-ink">
                 Scan a book
-              </h3>
+              </p>
               <p className="mt-0.5 font-mono text-[0.6875rem] leading-snug text-muted">
                 {status === "reading"
                   ? "Reading the barcode…"
@@ -581,9 +581,9 @@ function ScanCard() {
             transition={swap}
           >
             <div className="hidden @lg:block">
-              <h3 className="font-sans text-[0.9375rem] leading-snug font-medium text-ink">
+              <p className="font-sans text-[0.9375rem] leading-snug font-medium text-ink">
                 Scan a book
-              </h3>
+              </p>
               <p
                 role="status"
                 className="mt-0.5 font-mono text-[0.6875rem] leading-snug text-muted"

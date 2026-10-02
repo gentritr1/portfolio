@@ -18,6 +18,7 @@ export function ReadingWorld() {
       world="reading"
       layout="stage-start"
       stageAspect="1 / 1"
+      stageAspectTablet="1 / 1"
       stageAspectMobile="9 / 16"
       title="A children's reading app, four years of releases"
       meta={['Mobile', 'iOS + Android', 'Reading']}

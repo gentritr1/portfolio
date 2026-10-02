@@ -7,6 +7,7 @@ export function AiDashboardsWorld() {
       world="ai"
       layout="stage-end"
       stageAspect="4 / 3"
+      stageAspectTablet="4 / 3"
       stageAspectMobile="4 / 5"
       title="A smart business dashboard with AI features"
       meta={['AI', 'Dashboards', 'Freelance']}

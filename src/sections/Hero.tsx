@@ -11,7 +11,7 @@ import { primaryWorlds, worlds } from '../lib/worlds'
 /** Bars rise on wide screens and sweep in from the left on narrow ones. */
 function useBarEntrance() {
   const reduce = usePrefersReducedMotion()
-  const [wide] = useState(() => window.matchMedia('(min-width: 1024px)').matches)
+  const [wide] = useState(() => window.matchMedia('(min-width: 1280px)').matches)
   if (reduce) return { hidden: { opacity: 0 }, shown: { opacity: 1 } }
   return {
     hidden: { clipPath: wide ? 'inset(100% 0% 0% 0% round 16px)' : 'inset(0% 100% 0% 0% round 12px)' },
@@ -23,7 +23,7 @@ function TestCard() {
   const variants = useBarEntrance()
   return (
     <div className="lg:col-span-5">
-      <ul aria-label="The four worlds" className="grid grid-cols-1 gap-1.5 lg:h-[min(60vh,34rem)] lg:grid-cols-4 lg:gap-2">
+      <ul aria-label="The four worlds" className="grid grid-cols-1 gap-1.5 xl:h-[min(60vh,34rem)] xl:grid-cols-4 xl:gap-2">
         {primaryWorlds.map((id, index) => {
           const info = worlds[id]
           return (
@@ -37,16 +37,16 @@ function TestCard() {
               <a
                 href={`#${id}`}
                 data-world={id}
-                className="group flex h-12 items-center justify-between gap-3 rounded-[12px] bg-accent px-4 text-on-accent transition-transform duration-200 ease-out hover:-translate-y-1 active:scale-[0.98] lg:h-full lg:flex-col lg:items-start lg:justify-end lg:rounded-panel lg:p-3.5"
+                className="group flex h-12 items-center justify-between gap-3 rounded-[12px] bg-accent px-4 text-on-accent transition-transform duration-200 ease-out hover:-translate-y-1 active:scale-[0.98] xl:h-full xl:flex-col xl:items-start xl:justify-end xl:rounded-panel xl:p-3.5"
               >
                 <ArrowDownIcon
                   size={18}
                   weight="light"
                   aria-hidden
-                  className="hidden opacity-0 transition-[opacity,transform] duration-200 ease-out group-hover:translate-y-0.5 group-hover:opacity-100 group-focus-visible:opacity-100 lg:mb-auto lg:block"
+                  className="hidden opacity-0 transition-[opacity,transform] duration-200 ease-out group-hover:translate-y-0.5 group-hover:opacity-100 group-focus-visible:opacity-100 xl:mb-auto xl:block"
                 />
-                <span className="font-display text-[1.0625rem] font-medium leading-tight tracking-[-0.01em]">{info.label}</span>
-                <span className="tabular whitespace-nowrap font-mono text-[0.72rem] opacity-80">{info.short}</span>
+                <span className="font-display text-[1.0625rem] font-medium leading-tight tracking-[-0.01em] xl:text-[0.9375rem]">{info.label}</span>
+                <span className="tabular whitespace-nowrap font-mono text-[0.72rem]">{info.short}</span>
               </a>
             </motion.li>
           )

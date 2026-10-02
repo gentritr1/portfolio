@@ -27,7 +27,9 @@ export interface WorldProps {
   recreationName: string
   /** CSS aspect-ratio of the stage core on wide screens, for example "4 / 3". */
   stageAspect?: string
-  /** CSS aspect-ratio of the stage core below 1024px. Defaults to stageAspect. */
+  /** CSS aspect-ratio of the stage core from 640px to 1023px. Defaults to stageAspect, or "1 / 1" for stage-wide. */
+  stageAspectTablet?: string
+  /** CSS aspect-ratio of the stage core below 640px. Defaults to stageAspect. */
   stageAspectMobile?: string
   layout?: WorldLayout
   /** Extra narrative content after the story, for example related projects. */
@@ -37,21 +39,33 @@ export interface WorldProps {
 function Stage({
   recreation,
   recreationName,
-  stageAspect,
+  stageAspect = '4 / 3',
+  stageAspectTablet,
   stageAspectMobile,
-}: Pick<WorldProps, 'recreation' | 'recreationName' | 'stageAspect' | 'stageAspectMobile'>) {
+  layout,
+}: Pick<
+  WorldProps,
+  'recreation' | 'recreationName' | 'stageAspect' | 'stageAspectTablet' | 'stageAspectMobile' | 'layout'
+>) {
+  const tablet = stageAspectTablet ?? (layout === 'stage-wide' ? '1 / 1' : stageAspect)
   const style = {
-    '--stage-aspect': stageAspect ?? '4 / 3',
-    '--stage-aspect-mobile': stageAspectMobile ?? stageAspect ?? '4 / 3',
+    '--stage-aspect': stageAspect,
+    '--stage-aspect-tablet': tablet,
+    '--stage-aspect-mobile': stageAspectMobile ?? stageAspect,
+    '--stage-ratio': `calc(${stageAspect})`,
+    '--stage-ratio-tablet': `calc(${tablet})`,
   } as CSSProperties
 
   return (
-    <Reveal as="figure" className="m-0">
+    <Reveal
+      as="figure"
+      style={style}
+      className="mx-auto w-full sm:max-w-[calc(82svh*var(--stage-ratio-tablet))] lg:max-w-[calc(82svh*var(--stage-ratio))]"
+    >
       <div className="rounded-stage bg-accent-soft p-1.5 shadow-stage ring-1 ring-[color-mix(in_oklab,var(--accent)_18%,transparent)] ring-inset">
         <div
           data-recreation-stage
-          style={style}
-          className="@container relative aspect-(--stage-aspect-mobile) w-full overflow-hidden rounded-stage-inner bg-surface lg:aspect-(--stage-aspect)"
+          className="@container relative aspect-(--stage-aspect-mobile) w-full overflow-hidden rounded-stage-inner bg-surface sm:aspect-(--stage-aspect-tablet) lg:aspect-(--stage-aspect)"
         >
           {recreation}
         </div>
@@ -66,13 +80,16 @@ function Stage({
   )
 }
 
-function NarrativeMain({ world, title, meta, role, story, children, headingId }: WorldProps & { headingId: string }) {
+function NarrativeMain({ world, title, meta, role, story, children, layout, headingId }: WorldProps & { headingId: string }) {
   const info = worlds[world]
   return (
     <div>
       <RevealGroup as="header">
         <RevealItem>
-          <h2 id={headingId} className="text-h2 text-ink">
+          <h2
+            id={headingId}
+            className={cn('text-h2 text-ink', layout !== 'stage-wide' && 'lg:text-[clamp(2.25rem,0.9rem+2.4vw,2.75rem)]')}
+          >
             {title}
           </h2>
         </RevealItem>
@@ -106,7 +123,7 @@ function NarrativeFacts({ facts, stack }: Pick<WorldProps, 'facts' | 'stack'>) {
       <RevealGroup as="ul" gap={0.04} className="flex flex-wrap gap-2">
         {facts.map((fact) => (
           <RevealItem as="li" key={fact}>
-            <Chip>{fact}</Chip>
+            <Chip font="sans">{fact}</Chip>
           </RevealItem>
         ))}
       </RevealGroup>
@@ -138,7 +155,9 @@ export function World(props: WorldProps) {
       recreation={props.recreation}
       recreationName={props.recreationName}
       stageAspect={props.stageAspect}
+      stageAspectTablet={props.stageAspectTablet}
       stageAspectMobile={props.stageAspectMobile}
+      layout={layout}
     />
   )
 

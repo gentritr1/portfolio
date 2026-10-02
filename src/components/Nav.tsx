@@ -29,18 +29,18 @@ function Monogram() {
 function WorldIndicator({ world }: { world: PageWorld }) {
   const label = world === 'base' ? null : worlds[world].label
   return (
-    <span className="hidden w-[8.5rem] items-center gap-2 pl-1 font-mono text-meta text-muted xl:flex" aria-live="polite">
+    <span className="hidden w-[8.5rem] items-center gap-2 pl-1 font-mono text-meta text-muted xl:flex">
       <span aria-hidden className="h-2 w-5 shrink-0 rounded-[2px] bg-accent" />
       <AnimatePresence mode="popLayout" initial={false}>
         <motion.span
-          key={label ?? 'index'}
+          key={label ?? 'top'}
           initial={{ opacity: 0, filter: 'blur(4px)' }}
           animate={{ opacity: 1, filter: 'blur(0px)' }}
           exit={{ opacity: 0, filter: 'blur(4px)' }}
           transition={{ duration: duration.ui, ease: ease.out }}
           className="truncate"
         >
-          {label ?? 'Index'}
+          {label ?? 'Top'}
         </motion.span>
       </AnimatePresence>
     </span>
@@ -171,9 +171,14 @@ export function Nav({ world }: { world: PageWorld }) {
   const [open, setOpen] = useState(false)
   const overlayId = useId()
   const menuButton = useRef<HTMLButtonElement>(null)
+  const header = useRef<HTMLElement>(null)
 
   useEffect(() => {
     if (!open) return
+    const outside = [...(header.current?.parentElement?.children ?? [])].filter(
+      (el): el is HTMLElement => el instanceof HTMLElement && el !== header.current && el.id !== overlayId,
+    )
+    for (const el of outside) el.inert = true
     const onKey = (event: KeyboardEvent) => {
       if (event.key !== 'Escape') return
       setOpen(false)
@@ -186,14 +191,15 @@ export function Nav({ world }: { world: PageWorld }) {
     window.addEventListener('keydown', onKey)
     media.addEventListener('change', onResize)
     return () => {
+      for (const el of outside) el.inert = false
       window.removeEventListener('keydown', onKey)
       media.removeEventListener('change', onResize)
     }
-  }, [open])
+  }, [open, overlayId])
 
   return (
     <>
-      <header className="pointer-events-none fixed inset-x-0 top-3 z-(--z-nav) px-gutter md:top-4">
+      <header ref={header} className="pointer-events-none fixed inset-x-0 top-3 z-(--z-nav) px-gutter md:top-4">
         <nav
           aria-label="Primary"
           className="pointer-events-auto mx-auto flex w-full max-w-[1200px] items-center justify-between gap-2 rounded-full bg-[color-mix(in_oklab,var(--surface)_88%,transparent)] p-1.5 shadow-float ring-1 ring-line backdrop-blur-xl md:w-max md:justify-start"

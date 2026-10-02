@@ -464,7 +464,7 @@ function WalletCard() {
                 >
                   <path d={QR_PATH} style={{ fill: 'var(--canvas)' }} />
                 </svg>
-                <p className="mt-2 text-center font-mono text-[0.68rem] text-muted">{QR_TEXT}</p>
+                <p className="mt-2 text-center font-mono text-[0.6875rem] text-muted">{QR_TEXT}</p>
               </div>
               <div className="flex min-w-0 flex-1 flex-col self-stretch">
                 <p className="font-display text-[1.05rem] font-semibold tracking-[-0.015em] text-ink">Receive INC</p>
