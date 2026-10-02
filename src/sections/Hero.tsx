@@ -55,9 +55,12 @@ function TestCard() {
       <Reveal
         immediate
         delay={0.6}
-        className="mt-4 grid grid-cols-1 gap-1 border-t sm:grid-cols-[minmax(0,0.7fr)_minmax(0,1.6fr)_minmax(0,1.1fr)] sm:gap-4 border-line pt-4 font-mono text-meta text-muted"
+        className="mt-4 grid grid-cols-1 gap-1 border-t border-line pt-4 font-mono text-meta text-muted sm:grid-cols-2 sm:gap-x-4"
       >
-        <p className="tabular">5+ years</p>
+        <p className="flex flex-wrap gap-x-4 sm:col-span-2">
+          <span className="tabular">5+ years</span>
+          <span>Part of two platform rewrites</span>
+        </p>
         <p>React, React Native, Vue, TypeScript, Laravel</p>
         <p>Based in Kosovo, working remotely</p>
       </Reveal>

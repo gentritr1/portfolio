@@ -5,6 +5,7 @@ import { Capabilities } from './sections/Capabilities'
 import { Contact } from './sections/Contact'
 import { Hero } from './sections/Hero'
 import { Personal } from './sections/Personal'
+import { Projects } from './sections/Projects'
 import { Skills } from './sections/Skills'
 import { AiDashboardsWorld } from './worlds/ai'
 import { HealthcareWorld } from './worlds/healthcare'
@@ -35,6 +36,7 @@ export default function App() {
           <AiDashboardsWorld />
         </div>
         <Personal />
+        <Projects />
         <Skills />
         <Contact />
       </main>

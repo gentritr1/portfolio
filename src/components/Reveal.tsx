@@ -57,16 +57,19 @@ export function RevealGroup({
   gap = staggerScale.base,
   delay = 0,
   immediate = false,
+  amount,
   ...rest
-}: BaseProps & { gap?: number; delay?: number; immediate?: boolean }) {
+}: BaseProps & { gap?: number; delay?: number; immediate?: boolean; amount?: number }) {
+  const viewport = amount === undefined ? viewportOnce : { ...viewportOnce, amount }
   return createElement(pick(as), {
     variants: staggerVariants(gap, delay),
     initial: 'hidden',
-    ...(immediate ? { animate: 'shown' } : { whileInView: 'shown', viewport: viewportOnce }),
+    ...(immediate ? { animate: 'shown' } : { whileInView: 'shown', viewport }),
     ...rest,
   })
 }
 
-export function RevealItem({ as = 'div', ...rest }: BaseProps) {
-  return createElement(pick(as), { variants: useRevealVariants(), ...rest })
+/** A child's own delay replaces the parent's stagger offset for that child. */
+export function RevealItem({ as = 'div', delay = 0, ...rest }: BaseProps & { delay?: number }) {
+  return createElement(pick(as), { variants: withDelay(useRevealVariants(), delay), ...rest })
 }

@@ -122,7 +122,7 @@ Rules:
 | `Chip` | `tone="neutral"` (ringed surface) or `"accent"` (accent-soft wash). `font="mono"` (default, 0.78rem) for data and labels, `font="sans"` (0.875rem) for chips that hold a sentence, such as world facts. Radius 8 px. |
 | `Button` | `variant="primary"`: accent pill, trailing icon in its own circle that nudges on hover. `variant="quiet"`: outlined pill. `href` renders an anchor. Min height 48 px, never wraps. |
 | `ThemeToggle` | 44 px icon button. Writes `data-theme` and `localStorage.theme` in try/catch, updates `theme-color`. |
-| `Nav` | Floating detached pill. Desktop: monogram, active-world indicator (xl+), Work / Capabilities / Personal / Contact, CV, theme. Phone: monogram, CV, theme, morphing two-line menu that opens a full overlay with staggered links; Escape closes and returns focus. |
+| `Nav` | Floating detached pill. Desktop: monogram, active-world indicator (xl+), Work / Capabilities / Personal / Projects / Contact, CV, theme. Phone: monogram, CV, theme, morphing two-line menu that opens a full overlay with staggered links; Escape closes and returns focus. |
 | `World` | The section shell for every world. See the world contract. |
 | `StagePlaceholder` | Temporary stage content: accent-soft panel with a one-word label. |
 | `Footer` | Four accent rules, the NDA line, GitHub, CV, back to top. |
@@ -156,7 +156,7 @@ Current layouts: healthcare `stage-end`, streaming `stage-wide`, reading `stage-
 
 ## Page order
 
-Nav, Hero, Capabilities, Healthcare, Streaming, Reading, Web3, AI dashboards, Personal, Skills, Contact, Footer. `#work` wraps the five worlds.
+Nav, Hero, Capabilities, Healthcare, Streaming, Reading, Web3, AI dashboards, Personal, All projects, Skills, Contact, Footer. `#work` wraps the five worlds.
 
 ## Refused on purpose
 

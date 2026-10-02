@@ -11,6 +11,7 @@ const items = [
   { href: '#work', label: 'Work' },
   { href: '#capabilities', label: 'Capabilities' },
   { href: '#personal', label: 'Personal' },
+  { href: '#projects', label: 'Projects' },
   { href: '#contact', label: 'Contact' },
 ]
 
