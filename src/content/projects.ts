@@ -31,12 +31,21 @@ export interface Story {
   result: string
 }
 
+/** A hard number from CONTENT.md, shown large on the case page. `to` draws an arrow from `value`. */
+export interface Readout {
+  value: string
+  to?: string
+  label: string
+}
+
 export interface Featured {
   /** Position in the channel switcher and the "Next channel" order, from 1. */
   order: number
   monitor: MonitorKind
   story: Story
+  /** Facts as label and value rows. The case header reads the `Platforms` row. */
   facts: Fact[]
+  readouts?: Readout[]
 }
 
 export interface Gallery {
@@ -283,18 +292,21 @@ export const projects: Project[] = [
         built:
           'The frontend moves from Vue (Nuxt 2) to React one route at a time: patient profile, care plans, labs and vitals, claims and calls. Parity tests run each scenario against both apps, and 31 architecture decision records and CI quality gates keep the rewrite consistent. The React app uses TanStack Query and Router, Zustand and Zod. The Laravel API gained enrollment drafts, a lab catalog and multi-tenant security fixes.',
         result:
-          'The rewrite replaces the Vue app route by route, and a route moves over only after the parity suite shows the same behaviour in both apps. One billing report went from 16 queries to 2 and no longer times out. The new screens are built on a React design system of 34 accessible components (WCAG 2.1 AA), published as a typed package, and the interface keeps its four languages.',
+          'The rewrite replaces the Vue app one route at a time, and a route moves over after its parity tests show the same behaviour in both apps. On the API side, one billing report went from 16 queries to 2 and no longer times out. New screens use a React design system of 34 accessible components that meet WCAG 2.1 AA, published as a typed package on GitHub Packages.',
       },
       facts: [
-        { label: 'Years', value: '2023–26' },
         { label: 'Role', value: 'Frontend and mobile, full stack since 2026' },
+        { label: 'Years', value: '2023–26' },
         { label: 'Platforms', value: 'Web app, Laravel API' },
+        { label: 'Languages', value: 'English, German, Spanish, Turkish' },
         { label: 'Frontend', value: 'React 19, TypeScript, TanStack Query/Router, Zustand, Zod, Tailwind, Vitest, Playwright' },
         { label: 'Backend', value: 'Laravel 13, PHP 8.3, MySQL, Redis, Pest' },
         { label: 'Services', value: 'Twilio, Chime, Pusher, ECharts' },
-        { label: 'Decisions', value: '31 architecture decision records' },
-        { label: 'Report', value: '16 queries to 2, no more timeouts' },
-        { label: 'Languages', value: 'EN, DE, ES, TR' },
+      ],
+      readouts: [
+        { value: '31', label: 'Architecture decision records' },
+        { value: '16', to: '2', label: 'Queries in one billing report' },
+        { value: '4', label: 'Languages: EN, DE, ES, TR' },
       ],
     },
   },
@@ -377,22 +389,27 @@ export const projects: Project[] = [
       monitor: 'live-room',
       story: {
         product:
-          'Bayyinah TV is a video-learning platform for an online community: courses, playlists, learning progress, a scripture reader, on-demand video and live streams. Members pay through web and in-app subscriptions, gifts and promo codes. The same web app also runs inside the native iOS and Android apps, so one codebase serves the browser and both stores.',
+          'Bayyinah TV is a video-learning platform for an online community: courses, playlists, learning progress, a scripture reader, on-demand video and live streams. Members pay through web and in-app subscriptions, gifts and promo codes. The same web app also runs inside the native iOS and Android apps, so one codebase serves the browser and both stores, in English and in Arabic.',
         built:
           'Its second version is a full rebuild on Nuxt 3, started from an empty template. It added live streaming on AWS IVS with realtime chat and moderation, an HLS player with a quality selector and a paywall for premium content, Stripe, Apple and Google subscriptions, gifting and promo codes. The interface runs in English and Arabic, with a complete right-to-left layout.',
         result:
-          'The rebuild covers 34 routes, 270+ components and 25 stores. Live sessions, the on-demand library and every payment path share one codebase on the web and inside the mobile apps, in two languages and both reading directions. The public website and the store listings below show the product as members see it today.',
+          'The rebuild covers 34 routes, 270+ components and 25 Pinia stores. Live sessions with chat and moderation, the on-demand library and every payment path share one codebase on the web and inside the mobile apps, in English and Arabic and in both reading directions. The public website and the store listings below show the product as members see it today.',
       },
       facts: [
-        { label: 'Years', value: '2023–26' },
         { label: 'Role', value: 'Frontend, core team' },
+        { label: 'Years', value: '2023–26' },
         { label: 'Platforms', value: 'Web, inside the iOS and Android apps' },
+        { label: 'Languages', value: 'English, Arabic (right-to-left)' },
         { label: 'Stack', value: 'Nuxt 3, Vue 3, TypeScript, Pinia, Tailwind' },
         { label: 'Video', value: 'video.js + HLS, AWS IVS' },
         { label: 'Payments', value: 'Stripe, Apple and Google subscriptions, gifting, promo codes' },
-        { label: 'Realtime', value: 'Pusher, Firebase' },
+        { label: 'Services', value: 'Pusher, Firebase' },
         { label: 'Scale', value: '34 routes, 270+ components, 25 stores' },
-        { label: 'Languages', value: 'English, Arabic (right-to-left)' },
+      ],
+      readouts: [
+        { value: '34', label: 'Routes in the Nuxt 3 rebuild' },
+        { value: '270+', label: 'Components, 25 stores' },
+        { value: 'EN / AR', label: 'Right-to-left layout' },
       ],
     },
   },
@@ -402,10 +419,10 @@ export const projects: Project[] = [
     kind: 'Public website',
     channel: 'streaming',
     group: 'Agency work',
-    years: '2024–25',
+    years: null,
     role: 'Frontend',
     stack: ['Next.js', 'React'],
-    line: 'Public website of the institute: programs, courses and content pages',
+    line: 'One-page Next.js site: mission, support, research funding, impact and FAQ',
     summary:
       'The public website of the Bayyinah institute: a one-page Next.js site that presents the mission, the reasons to support it, research funding opportunities, the impact of donations and frequently asked questions. It has a Join the Mission call to action and links to the mobile apps in both stores, and its layout works on phones as well as on desktop screens.',
     links: [bayyinahLinks.institute],
@@ -433,23 +450,28 @@ export const projects: Project[] = [
       monitor: 'reader',
       story: {
         product:
-          "Read to Feed is a children's reading app for iOS and Android. Children read books, scan their own books by barcode, take quizzes as chat conversations, and earn badges and streaks for reading. Parents verify accounts by email. The app is no longer listed in the stores, so the archived store pages below are its public record.",
+          "Read to Feed is a children's reading app for iOS and Android. Children read books, scan their own books by barcode, take quizzes as chat conversations, and earn badges and streaks for reading. Parents verify accounts by email. The store listings are now removed, so the links above go to archived copies of the public App Store and Google Play pages.",
         built:
-          'The app has a PDF and EPUB reader with progress tracking, an ISBN barcode scanner that uses the camera, and gamification with badges, streaks, quizzes and coach marks. Push notifications with deep links feed a notification center, and the interface runs in three languages. Maintained forks of epubjs-react-native and react-native-pdf keep the reader working on current React Native.',
+          'The app has a PDF and EPUB reader with progress tracking, an ISBN barcode scanner that uses the camera, and gamification with badges, streaks, quizzes and coach marks. Push notifications with deep links feed a notification center, and the interface runs in three languages with i18next. Redux Toolkit holds the app state. Maintained forks of epubjs-react-native and react-native-pdf keep the reader working on current React Native.',
         result:
-          'About 14 releases went to both stores over four years. Along the way the app moved from React Native 0.63 to 0.81 through three major upgrades, with the reader, the scanner and push notifications carried across each one. The store screenshots below come from the archived public listings.',
+          'About 14 releases went to both stores over four years. Along the way the app moved from React Native 0.63 to 0.81 through three major upgrades. The store screenshots below come from the archived listings and show the book list with reading progress, the achievements screen, the chapter reader and a new-badge pop-up. The maintained reader forks are public on GitHub.',
       },
       facts: [
-        { label: 'Years', value: '2022–25' },
         { label: 'Role', value: 'Mobile, iOS and Android' },
+        { label: 'Years', value: '2022–25' },
         { label: 'Platforms', value: 'iOS, Android' },
+        { label: 'Languages', value: 'Three' },
         {
           label: 'Stack',
           value: 'React Native, React Navigation, Redux Toolkit, Firebase Messaging, Vision Camera, react-native-pdf, epub.js, Lottie, i18next',
         },
         { label: 'Releases', value: 'About 14, both stores' },
         { label: 'Upgrades', value: 'React Native 0.63 to 0.81, three major upgrades' },
-        { label: 'Languages', value: '3' },
+      ],
+      readouts: [
+        { value: '≈14', label: 'Releases to both stores' },
+        { value: '0.63', to: '0.81', label: 'React Native, three major upgrades' },
+        { value: '3', label: 'Languages' },
       ],
     },
   },
@@ -464,7 +486,7 @@ export const projects: Project[] = [
     stack: ['React Native', 'Redux Toolkit', 'Maps', 'Firebase'],
     line: 'Online grocery orders with delivery slots, loyalty, wishlist and address search on a map',
     summary:
-      'Viva Fresh is a grocery shopping and loyalty app for iOS and Android, with an Albanian interface. Shoppers browse product categories, fill a cart and choose a delivery slot, and a loyalty programme and a wishlist bring them back. Addresses are found with a search on a map. The app is built in React Native with Redux Toolkit and Firebase, and it is live in both stores.',
+      'Viva Fresh is a grocery shopping and loyalty app for iOS and Android, with an Albanian interface. Shoppers browse product categories, fill a cart and choose a delivery slot, and the app has a loyalty programme and a wishlist. A search on a map finds the delivery address. The app is built in React Native with Redux Toolkit and Firebase, and its listings are public in both stores.',
     links: vivaFreshLinks,
     media: {
       shot: { src: '/mobile/thumbs/grocery.webp', alt: 'Viva Fresh store screenshot: home with product categories, Albanian interface' },
@@ -475,19 +497,19 @@ export const projects: Project[] = [
       monitor: 'gallery',
       story: {
         product:
-          'Viva Fresh is a grocery shopping and loyalty app for iOS and Android. Shoppers browse product categories, fill a cart, choose a delivery slot and check out, while a loyalty programme and a wishlist bring them back. The interface is in Albanian, and the published store listings show the same app on iPhone and on Android.',
+          'Viva Fresh is a grocery shopping and loyalty app for iOS and Android. Shoppers browse product categories, fill a cart, choose a delivery slot and check out. The app also has a loyalty programme and a wishlist for products to buy later. The interface is in Albanian, and the published store listings show the same app on iPhone and on Android.',
         built:
           'The app is built in React Native with Redux Toolkit and Firebase. It covers online grocery orders with delivery slots, the loyalty programme, a wishlist, and address search on a map for delivery. Category pages show product grids, and the cart keeps quantities, discounts and the running total in view. One codebase ships to the App Store and Google Play.',
         result:
-          'The app is live in both stores. The six frames on the monitor come from the public listings: three from the App Store on iPhone and three from Google Play on Android. They show the home screen, the fresh-produce category and the cart with its discount and checkout button, in the same order on both platforms.',
+          'The app is listed in the App Store and on Google Play, and both listings are linked above. The six frames on the monitor come from those public listings: three iPhone frames and three Android frames. Together they show the home screen with its product categories, the fresh-produce category with its product grid, and the cart with quantities, a discount and the checkout button.',
       },
       facts: [
-        { label: 'Years', value: '2023' },
         { label: 'Role', value: 'Mobile' },
+        { label: 'Years', value: '2023' },
         { label: 'Platforms', value: 'iOS, Android' },
+        { label: 'Languages', value: 'Albanian' },
         { label: 'Stack', value: 'React Native, Redux Toolkit, Maps, Firebase' },
         { label: 'Features', value: 'Delivery slots, loyalty, wishlist, address search on a map' },
-        { label: 'Language', value: 'Albanian' },
       ],
     },
   },
@@ -565,7 +587,7 @@ export const projects: Project[] = [
     stack: ['React Native', 'Redux Toolkit', 'Stripe', 'Firebase'],
     line: 'Donations and subscriptions with Stripe, badges, guided tasks and video',
     summary:
-      'A React Native app for donations and good deeds, on iOS and Android. People donate or subscribe through Stripe, follow guided tasks, earn badges, and watch video inside the app. Redux Toolkit holds the app state and Firebase provides the backend services. The app brings payments, gamification and media together in one mobile product.',
+      'A React Native app for donations and good deeds, on iOS and Android. People donate or subscribe through Stripe, follow guided tasks, earn badges, and watch video inside the app. Redux Toolkit holds the app state, with Firebase alongside.',
     links: [],
     media: { thumb: 'donation-ring' },
   },
@@ -580,7 +602,7 @@ export const projects: Project[] = [
     stack: ['React Native', 'Redux Toolkit', 'React Navigation'],
     line: 'Organization sign-in, a daily calendar strip, reactions, and dev, staging and release builds',
     summary:
-      'A React Native coaching app. People sign in through their organization, plan the day on a calendar strip, and leave reactions. The project runs separate development, staging and release builds, so a stable version stays in use while new work is checked on its own build. Navigation uses React Navigation, and Redux Toolkit holds the app state.',
+      'A React Native coaching app. People sign in through their organization, see the day on a calendar strip, and leave reactions. The project has separate development, staging and release builds. Navigation uses React Navigation, and Redux Toolkit holds the app state.',
     links: [],
     media: { thumb: 'calendar-strip' },
   },
@@ -595,7 +617,7 @@ export const projects: Project[] = [
     stack: ['React Native 0.78'],
     line: 'Loyalty app upkeep: arm64 simulator support, legacy architecture, shadow fixes',
     summary:
-      'Upkeep of a React Native 0.78 loyalty app for fuel stations. The work made the project build and run on arm64 simulators on Apple-silicon Macs, kept it on the legacy React Native architecture, and fixed shadows that rendered incorrectly. The result is an app that builds, runs and ships again on current tooling, without a rewrite.',
+      'Upkeep of a React Native 0.78 loyalty app for fuel stations. The work added support for arm64 simulators, kept the app on the legacy React Native architecture, and fixed shadows that rendered incorrectly.',
     links: [],
     media: {},
   },
@@ -618,22 +640,22 @@ export const projects: Project[] = [
       monitor: 'wallet',
       story: {
         product:
-          "Incentiv's portal is a smart-wallet dashboard where people and businesses manage an on-chain wallet and incentive programs. Users sign in with a passkey or an external wallet, such as MetaMask or WalletConnect, then see balances, assets, gas saved and transactions. The public website and the portal's sign-in screen are linked below.",
+          "Incentiv's portal is a smart-wallet dashboard where people and businesses manage an on-chain wallet and incentive programs. Users sign in with a passkey or an external wallet, such as MetaMask or WalletConnect, then see balances, assets, gas saved and transactions in dashboard cards. The public website, the docs and the portal's sign-in screen are linked above, and the screenshots below come from those public pages.",
         built:
-          'The frontend is built on Next.js 14 with the App Router, TypeScript and RTK Query. It covers the passkey and wallet sign-in UI, animated onboarding with Framer Motion, dashboard cards, an asset list, a balance popup with a QR address, public and private route middleware, and English and French translations with next-intl. Teammates built the wallet and blockchain layer.',
+          'The frontend is built on Next.js 14 with the App Router, TypeScript and RTK Query. It covers the passkey and wallet sign-in UI, animated onboarding with Framer Motion, dashboard cards, an asset list, a balance popup with a QR address, public and private route middleware, and English and French translations with next-intl. Styles use Tailwind. Teammates built the wallet and blockchain layer.',
         result:
-          'The portal is live at portal.incentiv.io, and its sign-in screen is public. The UI layer ships every screen in English and French, keeps private routes behind sign-in through middleware, and draws the dashboard charts with ApexCharts. The live recreation above shows the balance card, the QR flip and the passkey sign-in with invented data.',
+          'The portal is live at portal.incentiv.io, and its sign-in screen is public. The UI layer ships every screen in both English and French, keeps private routes behind sign-in through middleware, and draws the dashboard charts with ApexCharts. The live recreation above shows the balance card, the QR flip and the passkey sign-in with invented data, and no wallet is connected.',
       },
       facts: [
-        { label: 'Years', value: '2024' },
         { label: 'Role', value: 'Frontend, UI layer' },
-        { label: 'Platform', value: 'Web' },
+        { label: 'Years', value: '2024' },
+        { label: 'Platforms', value: 'Web' },
+        { label: 'Languages', value: 'English, French' },
         {
           label: 'Stack',
           value: 'Next.js 14, React 18, TypeScript, Redux Toolkit + RTK Query, next-intl, Framer Motion, Tailwind, ApexCharts',
         },
         { label: 'Sign-in', value: 'Passkey, external wallet' },
-        { label: 'Languages', value: 'English, French' },
       ],
     },
   },
@@ -641,14 +663,14 @@ export const projects: Project[] = [
     slug: 'member-portal',
     name: 'Member portal, web',
     kind: 'Web app foundation',
-    channel: 'web3',
+    channel: 'ai',
     group: 'Agency work',
     years: '2025',
     role: 'Frontend',
     stack: ['Next.js 15', 'TypeScript', 'RTK Query', 'next-intl', 'Pusher'],
     line: 'Member portal foundation: protected routes, external sign-in, app shell and layout',
     summary:
-      'The foundation of a member portal on Next.js 15 and TypeScript: protected routes, sign-in through an external identity provider, an app shell and a layout that later screens build on. RTK Query handles data fetching, next-intl handles translations, and Pusher brings realtime updates. The work sets the structure that every later feature of the portal plugs into.',
+      'The foundation of a member portal on Next.js 15 and TypeScript: protected routes, sign-in through an external identity provider, an app shell and a layout that later screens build on. RTK Query handles data fetching, next-intl handles translations, and Pusher brings realtime updates.',
     links: [],
     media: { thumb: 'portal-shell' },
   },
@@ -732,10 +754,10 @@ export const projects: Project[] = [
     group: 'Personal',
     years: '2026',
     role: 'Mobile, co-built',
-    stack: ['Expo', 'React Native', 'MapLibre', 'Mapillary', 'Zustand'],
+    stack: ['Expo', 'React Native', 'MapLibre', 'Mapillary'],
     line: 'Street-view guessing game, published on Google Play',
     summary:
-      'Geo Guesser World 3D is a street-view guessing game, co-built and published on Google Play. Players look at a street-level scene, guess where it is on a map, and see the guess and the answer joined by a line. It is built with Expo and React Native, with MapLibre for the map, Mapillary for the street imagery and Zustand for the game state.',
+      'Geo Guesser World 3D is a street-view guessing game, co-built and published on Google Play. Players look at a street-level scene, guess where it is on a map, and see the guess and the answer joined by a line. It is built with Expo and React Native, with MapLibre for the map and Mapillary for the street imagery.',
     links: [{ label: 'Google Play', href: 'https://play.google.com/store/apps/details?id=com.snaxxtech.geoguesser' }],
     media: {
       shot: {
@@ -836,10 +858,10 @@ export const projects: Project[] = [
     group: 'Personal',
     years: '2026',
     role: 'Owner',
-    stack: ['Three.js', 'TypeScript', 'Vite', 'Blender'],
+    stack: ['Three.js', 'TypeScript', 'Blender'],
     line: 'Hover racer with seven circuits and weather, tide and day-night systems',
     summary:
-      'Futurisma is a hover racer built with Three.js and TypeScript on Vite, with models made in Blender. It has seven circuits, and weather, tide and day-night systems change the look and light of each circuit. It is a personal project that explores real-time 3D in the browser: scene loading, lighting and a steady frame rate while the environment changes.',
+      'Futurisma is a hover racer built with Three.js and TypeScript, with models made in Blender. It has seven circuits, and weather, tide and day-night systems change the look and light of each circuit. It is a personal project that explores real-time 3D in the browser: scene loading, lighting and a steady frame rate while the environment changes.',
     links: [],
     media: { thumb: 'track' },
   },

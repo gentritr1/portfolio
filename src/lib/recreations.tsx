@@ -34,7 +34,7 @@ export const recreations: Record<RecreationKey, RecreationEntry> = {
   reader: {
     name: 'Reader page',
     world: 'reading',
-    aspect: { base: '9 / 16', sm: '1 / 1', lg: '16 / 10' },
+    aspect: { base: '9 / 16', sm: '1 / 1', lg: '1 / 1' },
     ...preloadable(() => import('../worlds/reading/Recreation').then((m) => m.Recreation)),
   },
   wallet: {

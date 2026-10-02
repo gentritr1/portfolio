@@ -16,7 +16,7 @@ export const channels: Record<ChannelKey, Channel> = {
   streaming: { key: 'streaming', number: 'CH02', label: 'Streaming', tint: '--ch-streaming', period: '2023–26' },
   reading: { key: 'reading', number: 'CH03', label: 'E-reading & mobile', tint: '--ch-reading', period: '2021–26' },
   web3: { key: 'web3', number: 'CH04', label: 'Web3', tint: '--ch-web3', period: '2024–25' },
-  ai: { key: 'ai', number: 'CH05', label: 'AI', tint: '--ch-ai', period: 'Freelance' },
+  ai: { key: 'ai', number: 'CH05', label: 'AI & web apps', tint: '--ch-ai', period: 'Freelance' },
   personal: { key: 'personal', number: 'CH06', label: 'Games & personal', tint: '--ch-personal', period: '2022–26' },
 }
 
