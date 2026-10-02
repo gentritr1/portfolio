@@ -170,6 +170,9 @@ Render as a compact, scannable index (not cards): grouped by employer, each row 
 | Chatbot runtime library | 2022 – 2025 | Mobile | React Native, Redux Toolkit | Message queue, stall and duplicate guards, typing delays, media items | #reading |
 | Chatbot runtime, web port | 2025 | Frontend | React 19, TypeScript, Vite, Zustand | Library plus example app, moved to TypeScript | — |
 | EPUB reader prototype | 2022 | Mobile | React Native, epub.js | Download, render and resize an EPUB; the seed of the reading app's reader | — |
+| Donation and good-deeds app | 2021 – 2022 | Mobile | React Native, Redux Toolkit, Stripe, Firebase | Sign-up and account flows, Stripe donations and subscriptions, badges, video tasks; iOS + Android | — |
+| Coaching app | 2022 – 2023 | Mobile | React Native, Redux Toolkit, React Navigation | Project setup, login flow with an organization step, daily calendar strip, reactions, dev/staging/release builds | — |
+| Member portal, web | 2025 | Frontend | Next.js 15, TypeScript, RTK Query, next-intl, Pusher | Project foundation, route-protection middleware, external auth flow, app shell and layout | — |
 | Fuel-station loyalty app | 2026 | Mobile | React Native 0.78 | arm64 simulator support, legacy architecture, shadow fixes | — |
 
 ### Incentiv (2024)
