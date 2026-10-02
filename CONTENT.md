@@ -72,6 +72,8 @@ All facts below come from git history. Do not invent numbers. Do not add product
 
 **Live recreation:** "Live room". A 16:9 player frame with a looping subtle gradient "signal" (no real video), a LIVE badge with a viewer count that ticks, a quality menu (Auto / 1080p / 720p / 480p) that opens on click, and a chat column where invented messages arrive every ~2 s, one pinned message at the top, and a mute action on hover. A "Premium" lock state can be toggled to show the paywall overlay with a plan card ("Monthly $12 · Yearly $99"). Must pause when off-screen and respect reduced motion.
 
+**Public pages strip:** three screenshots after the facts and stack (Landing page · Library · Series, files in `public/streaming/`). Rule: public pages of the live site only, captured without login, with the logo, wordmark and product name covered by a solid patch in the background colour (never a blur).
+
 ---
 
 ## 4. World: E-READING & MOBILE — Vianova (client projects), 2021 – 2025

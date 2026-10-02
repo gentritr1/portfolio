@@ -1,5 +1,63 @@
+import { Reveal, RevealGroup, RevealItem } from '../../components/Reveal'
 import { World } from '../../components/World'
 import { Recreation } from './Recreation'
+
+const publicPages = [
+  {
+    src: '/streaming/public-01.webp',
+    width: 1440,
+    height: 900,
+    alt: 'Landing page of the video-learning platform, brand covered',
+    caption: 'Landing page',
+  },
+  {
+    src: '/streaming/public-02.webp',
+    width: 1272,
+    height: 795,
+    alt: 'Arabic library page of the video-learning platform, brand covered',
+    caption: 'Library',
+  },
+  {
+    src: '/streaming/public-03.webp',
+    width: 1272,
+    height: 795,
+    alt: 'Series library page of the video-learning platform, brand covered',
+    caption: 'Series',
+  },
+]
+
+function PublicPages() {
+  return (
+    <div className="border-t border-line pt-5">
+      <Reveal as="p" className="font-mono text-meta text-muted">
+        Public pages of the live site, brand covered
+      </Reveal>
+      <RevealGroup
+        as="ul"
+        className="-mx-gutter mt-4 flex snap-x snap-mandatory scroll-px-gutter gap-3 overflow-x-auto px-gutter pb-2 md:mx-0 md:grid md:grid-cols-3 md:gap-4 md:overflow-visible md:px-0 md:pb-0"
+      >
+        {publicPages.map((page) => (
+          <RevealItem as="li" key={page.src} className="w-[82%] shrink-0 snap-start md:w-auto">
+            <figure>
+              <div className="overflow-hidden rounded-chip border border-line bg-surface">
+                <img
+                  src={page.src}
+                  width={page.width}
+                  height={page.height}
+                  alt={page.alt}
+                  loading="lazy"
+                  decoding="async"
+                  className="block h-auto w-full"
+                />
+              </div>
+              <figcaption className="mt-2 px-0.5 font-mono text-meta text-muted">{page.caption}</figcaption>
+            </figure>
+          </RevealItem>
+        ))}
+      </RevealGroup>
+    </div>
+  )
+}
 
 export function StreamingWorld() {
   return (
@@ -28,6 +86,7 @@ export function StreamingWorld() {
       stack={['Nuxt 3, Vue 3, TypeScript, Pinia, video.js + HLS, AWS IVS, Pusher, Stripe, Firebase, Tailwind']}
       recreationName="Live room"
       recreation={<Recreation />}
+      after={<PublicPages />}
     />
   )
 }
