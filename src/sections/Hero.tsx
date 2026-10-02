@@ -87,8 +87,8 @@ export function Hero() {
             <span>Full Stack</span>
           </RevealItem>
           <RevealItem as="p" className="mt-6 max-w-[36ch] text-lede text-muted">
-            I build web and mobile products from the first screen to release, in healthcare, video streaming, e‑reading
-            and Web3.
+            Web and mobile products, from the first screen to release: healthcare, video streaming, e‑reading and
+            Web3.
           </RevealItem>
           <RevealItem className="mt-9 flex flex-wrap gap-3">
             <Button href="#work" icon={ArrowDownIcon}>

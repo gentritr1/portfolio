@@ -11,11 +11,11 @@ export function HealthcareWorld() {
       stageAspectMobile="4 / 5"
       title="A care‑management platform, rebuilt one screen at a time"
       meta={['Healthcare', 'Care management', 'Web + backend']}
-      role="Software Developer, frontend and mobile first, full stack since 2026."
+      role="Software developer on the core team: frontend and mobile first, full stack since 2026."
       story={[
         "The platform helps care teams monitor patients remotely: vitals from connected devices, care plans, lab results, billing claims, calls and chat. Many client organizations run on one system, so every screen must keep each organization's data separate and respect each user's role.",
-        'In 2026 I led its rewrite from Vue (Nuxt 2) to React. Each screen was inventoried from the old app, rebuilt in React, then proven with automated parity tests that run the same scenario against the old and the new app. I wrote 31 architecture decision records and built the CI gates that check types, module boundaries, dead code, bundle size and translations on every merge.',
-        'On the backend (Laravel) I built program enrollment drafts, a standardized lab catalog, timezone-correct scheduling and multi-tenant security fixes. One billing report timed out at 60 seconds; I changed 16 patient queries into one query plus one aggregate, so it no longer grows with the date range.',
+        'In 2026 the platform moved from Vue (Nuxt 2) to React, one route at a time. Each screen was inventoried from the old app, rebuilt in React, then proven with automated parity tests that run the same scenario against the old and the new app. The work is recorded in 31 architecture decision records, and CI gates check types, module boundaries, dead code, bundle size and translations on every merge.',
+        'The backend (Laravel) gained program enrollment drafts, a standardized lab catalog, timezone-correct scheduling and multi-tenant security fixes. One billing report used to time out at 60 seconds; its 16 patient queries became one query plus one aggregate, so it no longer grows with the date range.',
       ]}
       facts={[
         'Vue → React rewrite, route by route, parity-tested',

@@ -11,7 +11,7 @@ export function StreamingWorld() {
       stageAspectMobile="3 / 4"
       title="A video‑learning platform, rebuilt from scratch with live streams"
       meta={['Streaming', 'Subscriptions', 'Web']}
-      role="Frontend developer on the core team"
+      role="Frontend developer on the core team."
       story={[
         'A video-on-demand and live-streaming platform for a learning community, with courses, playlists, learning progress, a scripture reader, and a subscription business: web and in-app plans, gifting, promo codes and lifetime plans. Its second version started in September 2023 from an empty Nuxt 3 template: localization, environment configuration and the API layer came first, then the product. The new web app replaced the earlier one and also runs inside the native mobile app.',
         'The live page has low-latency video with a realtime comment stream, pinned comments, moderation (mute, report), RSVP and reminders, and study materials next to the stream. The on-demand player has HLS quality selection, autoplay, episode sync, viewing history and a paywall for premium content.',

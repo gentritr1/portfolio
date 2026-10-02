@@ -72,7 +72,7 @@ export function Capabilities() {
   return (
     <section id="capabilities" data-world="base" data-world-section aria-labelledby="capabilities-title" className="pt-section">
       <Container>
-        <SectionHeading id="capabilities-title" title="What I do" />
+        <SectionHeading id="capabilities-title" title="Capabilities" />
         <RevealGroup
           as="ul"
           gap={0.05}

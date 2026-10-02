@@ -8,11 +8,11 @@ All facts below come from git history. Do not invent numbers. Do not add product
 
 **Name:** Gentrit Rashiti
 **Role line:** Frontend & Mobile Developer → Full Stack
-**One-liner:** I build web and mobile products from the first screen to release, in healthcare, video streaming, e-reading and Web3.
-**Secondary:** 5+ years. React, React Native, Vue, TypeScript, Laravel. Based in Kosovo, working remotely.
+**One-liner:** Web and mobile products, from the first screen to release: healthcare, video streaming, e-reading and Web3.
+**Secondary:** 5+ years. Part of two platform rewrites. React, React Native, Vue, TypeScript, Laravel. Based in Kosovo, working remotely.
 **CTAs:** "See the work" (scroll), "Download CV" (link to `/Gentrit-Rashiti-CV.pdf`, copy it into `public/` from `~/Desktop/Gentrit-CV/Gentrit-Rashiti-CV.pdf`).
 
-## 1. What I do (capabilities strip, short)
+## 1. Capabilities (strip, short)
 
 - Rewrites & migrations — move a live app to a new framework step by step, with parity checks.
 - Mobile apps — iOS and Android, from build to store release and major upgrades.
@@ -28,12 +28,12 @@ All facts below come from git history. Do not invent numbers. Do not add product
 
 **Eyebrow:** Healthcare · Care management · Web + backend
 **Title:** A care-management platform, rebuilt one screen at a time
-**Role:** Software Developer, frontend and mobile first, full stack since 2026.
+**Role:** Software developer on the core team: frontend and mobile first, full stack since 2026.
 
 **Story (3 short paragraphs):**
 1. The platform helps care teams monitor patients remotely: vitals from connected devices, care plans, lab results, billing claims, calls and chat. Many client organizations run on one system, so every screen must keep each organization's data separate and respect each user's role.
-2. In 2026 I led its rewrite from Vue (Nuxt 2) to React. Each screen was inventoried from the old app, rebuilt in React, then proven with automated parity tests that run the same scenario against the old and the new app. I wrote 31 architecture decision records and built the CI gates that check types, module boundaries, dead code, bundle size and translations on every merge.
-3. On the backend (Laravel) I built program enrollment drafts, a standardized lab catalog, timezone-correct scheduling and multi-tenant security fixes. One billing report timed out at 60 seconds; I changed 16 patient queries into one query plus one aggregate, so it no longer grows with the date range.
+2. In 2026 the platform moved from Vue (Nuxt 2) to React, one route at a time. Each screen was inventoried from the old app, rebuilt in React, then proven with automated parity tests that run the same scenario against the old and the new app. The work is recorded in 31 architecture decision records, and CI gates check types, module boundaries, dead code, bundle size and translations on every merge.
+3. The backend (Laravel) gained program enrollment drafts, a standardized lab catalog, timezone-correct scheduling and multi-tenant security fixes. One billing report used to time out at 60 seconds; its 16 patient queries became one query plus one aggregate, so it no longer grows with the date range.
 
 **Facts list (chips):**
 - Vue → React rewrite, route by route, parity-tested
@@ -55,15 +55,16 @@ All facts below come from git history. Do not invent numbers. Do not add product
 ## 3. World: VIDEO STREAMING — Vianova (client project), 2023 – 2026
 
 **Eyebrow:** Streaming · Subscriptions · Web
-**Title:** A subscription video-learning platform with live streams
-**Role:** Lead frontend developer (top contributor).
+**Title:** A video-learning platform, rebuilt from scratch with live streams
+**Role:** Frontend developer on the core team. Second platform rewrite.
 
 **Story:**
-1. A video-on-demand and live-streaming platform for a learning community, with courses, playlists, learning progress, a scripture reader, and a subscription business: web and in-app plans, gifting, promo codes and lifetime plans.
-2. I built the live page: low-latency live video with a realtime comment stream, pinned comments, moderation (mute, report), RSVP and reminders, and study materials next to the stream. For on-demand video I built the player with HLS quality selection, autoplay, episode sync, viewing history and a paywall for premium content.
-3. I owned the subscription flows: dynamic pricing from the API, Stripe checkout, Apple and Google Play subscriptions with cancellation surveys, gift subscriptions in three steps, promo-code activation, and the English/Arabic (RTL) interface.
+1. A video-on-demand and live-streaming platform for a learning community, with courses, playlists, learning progress, a scripture reader, and a subscription business: web and in-app plans, gifting, promo codes and lifetime plans. Its second version started in September 2023 from an empty Nuxt 3 template: localization, environment configuration and the API layer came first, then the product. The new web app replaced the earlier one and also runs inside the native mobile app.
+2. The live page has low-latency live video with a realtime comment stream, pinned comments, moderation (mute, report), RSVP and reminders, and study materials next to the stream. The on-demand player has HLS quality selection, autoplay, episode sync, viewing history and a paywall for premium content.
+3. The subscription flows cover dynamic pricing from the API, Stripe checkout, Apple and Google Play subscriptions with cancellation surveys, gift subscriptions in three steps, promo-code activation, and the English/Arabic (RTL) interface.
 
 **Facts list:**
+- Full rebuild on Nuxt 3, from an empty template to production
 - Live streaming with realtime chat, pinned comments and moderation
 - HLS player with quality selector and premium paywall
 - Stripe + Apple + Google Play subscriptions, gifting, promo codes
@@ -81,16 +82,16 @@ All facts below come from git history. Do not invent numbers. Do not add product
 
 **Eyebrow:** Mobile · iOS + Android · Reading
 **Title:** A children's reading app, four years of releases
-**Role:** Lead mobile developer (79% of commits).
+**Role:** Mobile developer on a small team, 2022 – 2025.
 
 **Story:**
 1. Children read books in the app, scan their own books by ISBN barcode, take quizzes as chatbot conversations, and earn badges and streaks. Parents verify accounts by email.
-2. I built the reader for PDF and EPUB, forking the EPUB library to add progress tracking; the barcode scanner (EAN-13) with a camera hook; the gamification (badges, streaks, confetti, coach marks); push notifications with a notification center; the custom video player; and three languages.
-3. I shipped about 14 releases to both stores and carried the app through three major React Native upgrades (0.63 → 0.66 → 0.74 → 0.81).
+2. The app has a reader for PDF and EPUB, with the EPUB library forked to add progress tracking; an EAN-13 barcode scanner built on the camera; gamification with badges, streaks, confetti and coach marks; push notifications with a notification center; a custom video player; and three languages.
+3. About 14 releases went to both stores, and the app moved through three major React Native upgrades (0.63 → 0.66 → 0.74 → 0.81).
 
 **Also in this world (two short cards):**
 - **Bookstore app (2021–22):** React Native shopping app for a publisher: push notifications with deep links across all app states, animated book-detail header, swipeable modals, checkout with promo codes. Shipped iOS and Android.
-- **Chatbot runtime library:** a reusable React Native package that plays scripted conversations (text, media, choices, ratings, timers). I wrote the message-queue engine, the stall and duplicate guards, natural typing delays and the keyboard-aware chat list. Later started the web port in TypeScript.
+- **Chatbot runtime library:** a reusable React Native package that plays scripted conversations (text, media, choices, ratings, timers). A message-queue engine, stall and duplicate guards, natural typing delays and a keyboard-aware chat list. A web port in TypeScript followed.
 
 **Facts list:**
 - PDF + EPUB reader (forked epub.js for progress)
@@ -110,11 +111,11 @@ All facts below come from git history. Do not invent numbers. Do not add product
 
 **Eyebrow:** Web3 · Smart wallet · Web
 **Title:** The frontend of a smart-wallet dashboard
-**Role:** Frontend Developer (UI and app layer; the wallet/blockchain layer was built by teammates).
+**Role:** Frontend developer, UI and app layer. The wallet and blockchain layer was built by teammates.
 
 **Story:**
 1. A dashboard where people and businesses manage an on-chain wallet and incentive programs. Users sign in with a passkey or an external wallet; the dashboard shows balances, assets, gas saved and transactions.
-2. I built the UI layer: the dashboard cards (gas saved, transactions, popular tokens), the asset list with grid/table switch, the balance popup with QR address view, the animated onboarding (nickname step), the sign-in overlay, public/private route middleware, the 404 state, the shared components (table, collapse, tooltip, inputs) and the English/French translations.
+2. The UI layer covers the dashboard cards (gas saved, transactions, popular tokens), the asset list with grid/table switch, the balance popup with QR address view, the animated onboarding (nickname step), the sign-in overlay, public/private route middleware, the 404 state, the shared components (table, collapse, tooltip, inputs) and the English/French translations.
 
 **Facts list:**
 - Next.js 14 App Router, TypeScript, RTK Query
@@ -133,7 +134,7 @@ All facts below come from git history. Do not invent numbers. Do not add product
 
 **Eyebrow:** AI · Dashboards · Freelance
 **Title:** A smart business dashboard with AI features
-**Story (short):** For a digital-transformation client I built the frontend of a smart dashboard with AI features: professional headshot generation from uploaded photos, and an AI workplace assistant that goes from PDF upload to a chat about the document. I also helped on backend features in Python (FastAPI).
+**Story (short):** A smart dashboard for a digital-transformation client, with AI features: professional headshot generation from uploaded photos, and an AI workplace assistant that goes from PDF upload to a chat about the document. Some backend features were added in Python (FastAPI).
 
 **Live recreation (small):** "Document chat". A compact two-pane widget: left, a PDF-like page thumbnail with a highlighted paragraph; right, a chat where a question is typed by a typewriter effect and the answer streams in word by word, citing "page 3". One canned exchange, replayable with a button.
 
@@ -146,6 +147,49 @@ All facts below come from git history. Do not invent numbers. Do not add product
 - **Open source** — maintained forks of `epubjs-react-native` and `react-native-pdf`, used in a production reading app. GitHub: github.com/gentritr1
 
 ---
+
+## 7b. All projects (index section, after Personal, before Skills)
+
+**Title:** All projects
+**Lede:** Every product I have worked on, in one list. Rows with a world link open the case study above.
+
+Render as a compact, scannable index (not cards): grouped by employer, each row = name · years · role · stack · one line. Mono for years and stack, sans for the rest. Rows that map to a world carry a small accent swatch and link to the section id.
+
+### Vianova (2021 – present)
+| Project (generic name) | Years | Role | Stack | One line | World link |
+|---|---|---|---|---|---|
+| Care-management platform, React rewrite | 2026 | Frontend | React 19, TypeScript, TanStack, Zod, Vitest, Playwright | Route-by-route migration from Nuxt 2 with parity tests, 31 ADRs, CI gates | #healthcare |
+| Care-management platform, Vue app | 2023 – 2026 | Frontend | Nuxt 2, Vue 2, Vuex, ECharts, Twilio, Chime | Patient profile, care plans, claims, vitals and labs, calls, timezone fixes, 4 locales | #healthcare |
+| Care-management API | 2026 | Full stack | Laravel 13, PHP 8.3, MySQL, Redis, Pest | Enrollment drafts, lab catalog, multi-tenant fixes, report performance, 70 test files | #healthcare |
+| Design system, React | 2026 | Design system | React 19, CSS Modules, Storybook, Changesets | 34 components, WCAG 2.1 AA contrast matrix, typed package, GitHub Packages releases | — |
+| Design system, Vue | 2026 | Design system | Vue 2, Style Dictionary, Histoire, Playwright | Tokens from Figma, codemods, visual regression, health dashboard | — |
+| Design dashboard (prototype) | 2026 | Frontend | React 19, Vite, Tailwind 4 | Call-activity screen on the design system with demo data; the design oracle for the rewrite | — |
+| Video-learning platform, web | 2023 – 2026 | Frontend | Nuxt 3, Vue 3, Pinia, video.js, AWS IVS, Pusher, Stripe | Full rebuild on Nuxt 3; live streams, player, subscriptions, gifting, EN/AR | #streaming |
+| Children's reading app | 2022 – 2025 | Mobile | React Native, Redux Toolkit, Firebase, Vision Camera, epub.js | PDF/EPUB reader, barcode scanning, gamification, ~14 releases, RN 0.63 → 0.81 | #reading |
+| Bookstore app | 2021 – 2022 | Mobile | React Native, Redux, Firebase Messaging | Push notifications with deep links, animated details, checkout; iOS + Android | #reading |
+| Chatbot runtime library | 2022 – 2025 | Mobile | React Native, Redux Toolkit | Message queue, stall and duplicate guards, typing delays, media items | #reading |
+| Chatbot runtime, web port | 2025 | Frontend | React 19, TypeScript, Vite, Zustand | Library plus example app, moved to TypeScript | — |
+| EPUB reader prototype | 2022 | Mobile | React Native, epub.js | Download, render and resize an EPUB; the seed of the reading app's reader | — |
+| Fuel-station loyalty app | 2026 | Mobile | React Native 0.78 | arm64 simulator support, legacy architecture, shadow fixes | — |
+
+### Incentiv (2024)
+| Smart-wallet dashboard | 2024 | Frontend | Next.js 14, RTK Query, next-intl, Framer Motion | Dashboard cards, balance popup with QR, onboarding, routing middleware, EN/FR | #web3 |
+
+### AvahiTech (freelance)
+| Smart business dashboard with AI | — | Frontend · FastAPI | React, Python/FastAPI | Headshot generation, PDF-to-chat assistant | #ai |
+
+### Personal
+| Studio website | 2026 | Owner | React 19, Vite, three.js, Tailwind | 3D hero, cinemagraph loop, strict CSP; images 972 KB → 337 KB | #personal |
+| Time-off app | 2026 | Owner | Next.js 16, SQLite, Zod, Playwright | Multi-tenant PTO with approvals, calendar, streaming assistant, 16 security tests | #personal |
+| Open-source forks | 2022 | Maintainer | React Native | epubjs-react-native, react-native-pdf, used in production | #personal |
+| Geo Guesser World 3D | 2026 | Mobile · co-built | Expo, React Native, MapLibre, Mapillary | Street-view guessing game, published on Google Play | — |
+| FJALË | 2026 | Owner | Vanilla JS, PWA | Daily Albanian word game, 21k-word dictionary, offline play; live | — |
+| Za! | 2026 | Owner | Node, WebSocket | Multiplayer pizza card game for 2–8 players, server-authoritative with bots; live | — |
+| Morse Trainer | 2026 | Owner | JavaScript | Morse-code learning game with spaced repetition; live | — |
+| Futurisma | 2026 | Owner | Three.js, TypeScript, Blender | Hover racer with seven circuits and weather, tide and day-night systems | — |
+| Secret Dictator | 2026 | Owner | Three.js, TypeScript | Single-player social-deduction game against AI opponents in a 3D town | — |
+
+Voice rule (owner, 2026-10-02): every project text is a general overview of what was built by the team, neutral voice, no "I led", no "top contributor", few "I"s. Role column uses neutral role words only.
 
 ## 8. Skills (compact)
 

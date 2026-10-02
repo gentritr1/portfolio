@@ -8,7 +8,7 @@ const related = [
   },
   {
     title: 'Chatbot runtime library',
-    body: 'A reusable React Native package that plays scripted conversations (text, media, choices, ratings, timers). I wrote the message-queue engine, the stall and duplicate guards, natural typing delays and the keyboard-aware chat list. Later started the web port in TypeScript.',
+    body: 'A reusable React Native package that plays scripted conversations (text, media, choices, ratings, timers): a message-queue engine, stall and duplicate guards, natural typing delays and a keyboard-aware chat list. A web port in TypeScript followed.',
   },
 ]
 
@@ -22,11 +22,11 @@ export function ReadingWorld() {
       stageAspectMobile="9 / 16"
       title="A children's reading app, four years of releases"
       meta={['Mobile', 'iOS + Android', 'Reading']}
-      role="Lead mobile developer (79% of commits)."
+      role="Mobile developer on a small team, 2022 – 2025."
       story={[
         'Children read books in the app, scan their own books by ISBN barcode, take quizzes as chatbot conversations, and earn badges and streaks. Parents verify accounts by email.',
-        'I built the reader for PDF and EPUB, forking the EPUB library to add progress tracking; the barcode scanner (EAN-13) with a camera hook; the gamification (badges, streaks, confetti, coach marks); push notifications with a notification center; the custom video player; and three languages.',
-        'I shipped about 14 releases to both stores and carried the app through three major React Native upgrades (0.63 → 0.66 → 0.74 → 0.81).',
+        'The app has a reader for PDF and EPUB, with the EPUB library forked to add progress tracking; an EAN-13 barcode scanner built on the camera; gamification with badges, streaks, confetti and coach marks; push notifications with a notification center; a custom video player; and three languages.',
+        'About 14 releases went to both stores, and the app moved through three major React Native upgrades (0.63 → 0.66 → 0.74 → 0.81).',
       ]}
       facts={[
         'PDF + EPUB reader (forked epub.js for progress)',
