@@ -192,6 +192,21 @@
   --world-bg: light-dark(oklch(0.972 0.008 115), oklch(0.16 0.01 120));
 }
 
+/* ---------- Project thumbnails ---------- */
+
+[data-thumb] {
+  --thumb-accent: var(--accent);
+  --thumb-bar: color-mix(in oklab, var(--line-strong) 70%, var(--muted));
+  --thumb-panel: light-dark(var(--ink), oklch(0.13 0.008 258));
+  --thumb-on-panel: light-dark(var(--surface), var(--muted));
+  --thumb-highlight: light-dark(oklch(1 0 0 / 0.9), oklch(1 0 0 / 0.06));
+}
+
+/* The light amber and citron accents fall under 3:1 on the surface. */
+[data-thumb]:is([data-world="reading"], [data-world="ai"]) {
+  --thumb-accent: light-dark(color-mix(in oklab, var(--accent) 50%, var(--accent-ink)), var(--accent));
+}
+
 /* ---------- Base ---------- */
 
 @layer base {
