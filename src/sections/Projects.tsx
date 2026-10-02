@@ -9,36 +9,99 @@ import { stagger } from '../lib/motion'
 
 const maxStaggered = 12
 
-const thumbHover =
-  'transition-[translate,border-color] duration-150 ease-out group-hover:border-line-strong group-focus-visible:border-line-strong motion-safe:group-hover:-translate-y-px motion-safe:group-focus-visible:-translate-y-px motion-reduce:transition-none'
+const thumbHover = cn(
+  'transition-[translate,border-color] duration-150 ease-out motion-reduce:transition-none',
+  'group-has-[[data-world-link]:hover]:border-line-strong group-has-[[data-world-link]:focus-visible]:border-line-strong',
+  'motion-safe:group-has-[[data-world-link]:hover]:-translate-y-px motion-safe:group-has-[[data-world-link]:focus-visible]:-translate-y-px',
+)
 
-function RowContent({ project }: { project: Project }) {
-  return (
-    <>
-      {project.shot ? (
-        <ThumbFrame className={thumbHover}>
-          <img
-            src={project.shot.src}
-            alt={project.shot.alt}
-            width={256}
-            height={160}
-            loading="lazy"
-            decoding="async"
-            className="block size-full object-cover object-top"
-          />
-        </ThumbFrame>
-      ) : project.thumb ? (
-        <Thumb
-          kind={project.thumb}
-          world={!project.world || project.world === 'personal' ? 'base' : project.world}
-          className={thumbHover}
+function RowThumb({ project }: { project: Project }) {
+  if (project.shot) {
+    return (
+      <ThumbFrame className={thumbHover}>
+        <img
+          src={project.shot.src}
+          alt={project.shot.alt}
+          width={256}
+          height={160}
+          loading="lazy"
+          decoding="async"
+          className="block size-full object-cover object-top"
         />
-      ) : (
-        <ThumbFrame aria-hidden />
+      </ThumbFrame>
+    )
+  }
+  if (project.thumb) {
+    return (
+      <Thumb
+        kind={project.thumb}
+        world={!project.world || project.world === 'personal' ? 'base' : project.world}
+        className={thumbHover}
+      />
+    )
+  }
+  return <ThumbFrame aria-hidden />
+}
+
+function PublicLinks({ project }: { project: Project }) {
+  if (!project.links?.length) return null
+  return (
+    <ul className="order-last flex flex-wrap gap-x-4 md:order-none">
+      {project.links.map((link) => (
+        <li key={link.href} className="-my-1">
+          <a
+            href={link.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group/link inline-flex min-h-11 items-center gap-1 rounded-chip font-mono text-[0.78rem] text-muted underline decoration-line-strong transition-colors duration-200 ease-out hover:text-ink hover:decoration-current"
+          >
+            {link.label}
+            <ArrowUpRightIcon
+              size={12}
+              weight="light"
+              aria-hidden
+              className="text-accent-ink transition-transform duration-200 ease-out group-hover/link:translate-x-px group-hover/link:-translate-y-px motion-reduce:transition-none"
+            />
+            <span className="sr-only"> of {project.name} (opens in a new tab)</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+function Row({ project }: { project: Project }) {
+  const href = project.world ? `#${project.world}` : undefined
+  return (
+    <div
+      className={cn(
+        '-mx-3 flex gap-4 px-3 py-4 md:gap-5',
+        href &&
+          'group rounded-chip transition-colors duration-200 ease-out has-[[data-world-link]:hover]:bg-surface has-[[data-world-link]:focus-visible]:bg-surface',
       )}
-      <span className="grid min-w-0 flex-1 grid-cols-1 gap-y-1.5 md:grid-cols-12 md:grid-rows-[auto_1fr] md:gap-x-4 md:gap-y-1 lg:gap-x-6">
-        <span className="font-medium leading-6 text-ink md:col-span-4 md:row-start-1">{project.name}</span>
-        <span className="flex flex-wrap items-baseline gap-x-2 leading-6 md:contents">
+    >
+      {href ? (
+        <a href={href} data-world-link tabIndex={-1} aria-hidden className="shrink-0 rounded-chip">
+          <RowThumb project={project} />
+        </a>
+      ) : (
+        <RowThumb project={project} />
+      )}
+      <div className="grid min-w-0 flex-1 grid-cols-1 gap-y-1.5 md:grid-cols-12 md:grid-rows-[auto_1fr] md:gap-x-4 md:gap-y-1 lg:gap-x-6">
+        <p className="font-medium leading-6 text-ink md:col-span-4 md:row-start-1">
+          {href ? (
+            <a
+              href={href}
+              data-world-link
+              className="relative rounded-[2px] decoration-line-strong after:absolute after:-inset-y-3 after:inset-x-0 hover:underline"
+            >
+              {project.name}
+            </a>
+          ) : (
+            project.name
+          )}
+        </p>
+        <p className="flex flex-wrap items-baseline gap-x-2 leading-6 md:contents">
           {project.years && (
             <>
               <span className="tabular font-mono text-meta leading-6 text-muted md:col-span-2 md:col-start-5 md:row-span-2 md:row-start-1">
@@ -52,28 +115,30 @@ function RowContent({ project }: { project: Project }) {
           <span className="text-[0.9375rem] leading-6 text-muted md:col-span-2 md:col-start-7 md:row-span-2 md:row-start-1">
             {project.role}
           </span>
-        </span>
-        <span className="text-pretty text-[0.9375rem] leading-6 text-ink md:col-span-4 md:col-start-9 md:row-span-2 md:row-start-1">
-          {project.line}
-        </span>
-        <span className="font-mono text-meta text-muted md:col-span-4 md:col-start-1 md:row-start-2">
+        </p>
+        <div className="contents md:col-span-4 md:col-start-9 md:row-span-2 md:row-start-1 md:flex md:flex-col md:gap-y-1">
+          <p className="text-pretty text-[0.9375rem] leading-6 text-ink">{project.line}</p>
+          <PublicLinks project={project} />
+        </div>
+        <p className="font-mono text-meta text-muted md:col-span-4 md:col-start-1 md:row-start-2">
           {project.stack.join(', ')}
-        </span>
-      </span>
+        </p>
+      </div>
       <span aria-hidden className="mt-1 w-4 shrink-0 text-accent-ink">
-        {project.world && (
+        {href && (
           <ArrowUpRightIcon
             size={16}
             weight="light"
-            className="opacity-0 transition-[opacity,transform] duration-200 ease-out group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:opacity-100 group-focus-visible:opacity-100 pointer-coarse:opacity-100"
+            className={cn(
+              'opacity-0 transition-[opacity,transform] duration-200 ease-out pointer-coarse:opacity-100',
+              'group-has-[[data-world-link]:hover]:-translate-y-0.5 group-has-[[data-world-link]:hover]:translate-x-0.5 group-has-[[data-world-link]:hover]:opacity-100 group-has-[[data-world-link]:focus-visible]:opacity-100',
+            )}
           />
         )}
       </span>
-    </>
+    </div>
   )
 }
-
-const rowClass = '-mx-3 flex min-h-11 gap-4 px-3 py-4 md:gap-5'
 
 export function Projects() {
   return (
@@ -105,21 +170,7 @@ export function Projects() {
                     delay={Math.min(index, maxStaggered - 1) * stagger.tight}
                     className="border-t border-line"
                   >
-                    {project.world ? (
-                      <a
-                        href={`#${project.world}`}
-                        className={cn(
-                          rowClass,
-                          'group rounded-chip transition-colors duration-200 ease-out hover:bg-surface focus-visible:bg-surface',
-                        )}
-                      >
-                        <RowContent project={project} />
-                      </a>
-                    ) : (
-                      <div className={rowClass}>
-                        <RowContent project={project} />
-                      </div>
-                    )}
+                    <Row project={project} />
                   </RevealItem>
                 ))}
               </RevealGroup>

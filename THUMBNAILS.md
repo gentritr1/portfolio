@@ -18,15 +18,16 @@ Owner decision (2026-10-02): the index gets a small stylized "screen" for each m
 | Care-management API | `api-terminal` | Dark panel with three mono lines (bars), one bracket pair, a green dot |
 | Design system, React | `component-sheet` | A 3×2 grid of tiny components: a button pill, a toggle, an input, a chip, a checkbox, a swatch |
 | Design system, Vue | `tokens` | Four colour swatches in a row over three thin type-scale bars |
-| Video-learning platform, web | `player-chat` | A 16:9 dark player with a play triangle and a red LIVE pill, a narrow chat column with three bubbles |
-| Children's reading app | store frame `mobile/thumbs/reading.webp` | |
-| Bookstore app | store frame `mobile/thumbs/bookstore.webp` | |
+| Bayyinah TV · video-learning platform | `player-chat` | A 16:9 dark player with a play triangle and a red LIVE pill, a narrow chat column with three bubbles |
+| Read to Feed · children's reading app | store frame `mobile/thumbs/reading.webp` | |
+| Dukagjini Bookstore · bookstore app | store frame `mobile/thumbs/bookstore.webp` | |
 | Chatbot runtime library | `chat-choices` | Two bot bubbles left, one user bubble right, two choice chips |
-| Grocery shopping and loyalty app | store frame `mobile/thumbs/grocery.webp` | |
+| Viva Fresh · grocery and loyalty app | store frame `mobile/thumbs/grocery.webp` | |
 | Donation and good-deeds app | `donation-ring` | A progress ring at 70 % with a small badge, a "donate" pill |
 | Coaching app | `calendar-strip` | A 7-day strip with one day highlighted, a prompt card with text bars and three reaction dots |
 | Member portal, web | `portal-shell` | Sidebar, top bar with avatar dot, two content cards |
-| Smart-wallet dashboard | `wallet-card` | A dark card with a balance bar, a QR square (3×3 modules), a chip row (violet) |
+| Bayyinah · institute website | `portal-shell` | Same drawing as the member portal |
+| Incentiv · smart-wallet dashboard | `wallet-card` | A dark card with a balance bar, a QR square (3×3 modules), a chip row (violet) |
 | Smart business dashboard with AI | `doc-chat` | A page with text bars and one highlighted bar, next to two chat bubbles |
 | Studio website | real capture `shots/thumbs/snaxx.webp` |
 | Time-off app | real capture `shots/thumbs/offday-app.webp` | |

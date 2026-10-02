@@ -1,7 +1,12 @@
 import type { ThumbKind } from '../components/Thumb'
 import type { WorldId } from '../lib/worlds'
 
-export type ProjectGroupName = 'Vianova' | 'Incentiv' | 'AvahiTech' | 'Personal'
+export type ProjectGroupName = 'Vianova' | 'Agency work' | 'Incentiv' | 'AvahiTech' | 'Personal'
+
+export interface PublicLink {
+  label: 'Website' | 'App Store' | 'Google Play' | 'Portal' | 'Docs' | 'App Store (archived)' | 'Google Play (archived)'
+  href: string
+}
 
 /** The section id a row links to: a world, or the personal projects section. */
 export type WorldKey = WorldId | 'personal'
@@ -19,6 +24,8 @@ export interface Project {
   thumb?: ThumbKind
   /** Real capture from the owner's own site or a public store page, shown in place of `thumb`. */
   shot?: { src: string; alt: string }
+  /** Public pages of the product: its website, store listings, or archived store listings. */
+  links?: PublicLink[]
 }
 
 export interface ProjectGroup {
@@ -85,18 +92,39 @@ export const projects: Project[] = [
     line: 'Call-activity screen on the design system with demo data, as a design reference',
   },
   {
-    group: 'Vianova',
-    name: 'Video-learning platform, web',
+    group: 'Agency work',
+    name: 'Bayyinah TV · video-learning platform',
     years: '2023 – 2026',
     role: 'Frontend',
     stack: ['Nuxt 3', 'Vue 3', 'Pinia', 'video.js', 'AWS IVS', 'Pusher', 'Stripe'],
     line: 'Full Nuxt 3 rebuild: live streams, HLS player, subscriptions, gifting, English/Arabic',
     world: 'streaming',
     thumb: 'player-chat',
+    links: [
+      { label: 'Website', href: 'https://bayyinahtv.com/' },
+      {
+        label: 'App Store',
+        href: 'https://apps.apple.com/us/app/bayyinah-tv/id1530635769',
+      },
+      {
+        label: 'Google Play',
+        href: 'https://play.google.com/store/apps/details?id=com.zombiesoup.bayyinah',
+      },
+    ],
   },
   {
-    group: 'Vianova',
-    name: "Children's reading app",
+    group: 'Agency work',
+    name: 'Bayyinah · institute website',
+    years: '2024 – 2025',
+    role: 'Frontend',
+    stack: ['React'],
+    line: 'Public website of the institute: programs, courses and content pages',
+    thumb: 'portal-shell',
+    links: [{ label: 'Website', href: 'https://www.bayyinah.org/' }],
+  },
+  {
+    group: 'Agency work',
+    name: "Read to Feed · children's reading app",
     years: '2022 – 2025',
     role: 'Mobile',
     stack: ['React Native', 'Redux Toolkit', 'Firebase', 'Vision Camera', 'epub.js'],
@@ -106,10 +134,20 @@ export const projects: Project[] = [
       src: '/mobile/thumbs/reading.webp',
       alt: 'Read to Feed store screenshot: My Books list with reading progress',
     },
+    links: [
+      {
+        label: 'App Store (archived)',
+        href: 'http://web.archive.org/web/20251124202817/https://apps.apple.com/us/app/read-to-feed/id1623561765',
+      },
+      {
+        label: 'Google Play (archived)',
+        href: 'http://web.archive.org/web/20260316164104/https://play.google.com/store/apps/details?id=com.heifer.rtf',
+      },
+    ],
   },
   {
-    group: 'Vianova',
-    name: 'Bookstore app',
+    group: 'Agency work',
+    name: 'Dukagjini Bookstore · bookstore app',
     years: '2021 – 2022',
     role: 'Mobile',
     stack: ['React Native', 'Redux', 'Firebase Messaging'],
@@ -119,9 +157,19 @@ export const projects: Project[] = [
       src: '/mobile/thumbs/bookstore.webp',
       alt: 'Dukagjini Bookstore store screenshot: foreign books list with ratings and prices',
     },
+    links: [
+      {
+        label: 'App Store',
+        href: 'https://apps.apple.com/us/app/dukagjini-bookstore/id1587352342',
+      },
+      {
+        label: 'Google Play',
+        href: 'https://play.google.com/store/apps/details?id=com.zs.dukagjinibooks',
+      },
+    ],
   },
   {
-    group: 'Vianova',
+    group: 'Agency work',
     name: 'Chatbot runtime library',
     years: '2022 – 2025',
     role: 'Mobile',
@@ -131,7 +179,7 @@ export const projects: Project[] = [
     thumb: 'chat-choices',
   },
   {
-    group: 'Vianova',
+    group: 'Agency work',
     name: 'Chatbot runtime, web port',
     years: '2025',
     role: 'Frontend',
@@ -139,7 +187,7 @@ export const projects: Project[] = [
     line: 'TypeScript web version of the chatbot runtime, with an example app',
   },
   {
-    group: 'Vianova',
+    group: 'Agency work',
     name: 'EPUB reader prototype',
     years: '2022',
     role: 'Mobile',
@@ -147,7 +195,7 @@ export const projects: Project[] = [
     line: "Downloads, renders and resizes an EPUB; the start of the reading app's reader",
   },
   {
-    group: 'Vianova',
+    group: 'Agency work',
     name: 'Donation and good-deeds app',
     years: '2021 – 2022',
     role: 'Mobile',
@@ -156,7 +204,7 @@ export const projects: Project[] = [
     thumb: 'donation-ring',
   },
   {
-    group: 'Vianova',
+    group: 'Agency work',
     name: 'Coaching app',
     years: '2022 – 2023',
     role: 'Mobile',
@@ -165,7 +213,7 @@ export const projects: Project[] = [
     thumb: 'calendar-strip',
   },
   {
-    group: 'Vianova',
+    group: 'Agency work',
     name: 'Member portal, web',
     years: '2025',
     role: 'Frontend',
@@ -174,8 +222,8 @@ export const projects: Project[] = [
     thumb: 'portal-shell',
   },
   {
-    group: 'Vianova',
-    name: 'Grocery shopping and loyalty app',
+    group: 'Agency work',
+    name: 'Viva Fresh · grocery and loyalty app',
     years: '2023',
     role: 'Mobile',
     stack: ['React Native', 'Redux Toolkit', 'Maps', 'Firebase'],
@@ -185,9 +233,19 @@ export const projects: Project[] = [
       src: '/mobile/thumbs/grocery.webp',
       alt: 'Viva Fresh store screenshot: home with product categories, Albanian interface',
     },
+    links: [
+      {
+        label: 'App Store',
+        href: 'https://apps.apple.com/us/app/viva-fresh/id1580739480',
+      },
+      {
+        label: 'Google Play',
+        href: 'https://play.google.com/store/apps/details?id=com.zs.vivafresh',
+      },
+    ],
   },
   {
-    group: 'Vianova',
+    group: 'Agency work',
     name: 'Fuel-station loyalty app',
     years: '2026',
     role: 'Mobile',
@@ -196,13 +254,17 @@ export const projects: Project[] = [
   },
   {
     group: 'Incentiv',
-    name: 'Smart-wallet dashboard',
+    name: 'Incentiv · smart-wallet dashboard',
     years: '2024',
     role: 'Frontend',
     stack: ['Next.js 14', 'RTK Query', 'next-intl', 'Framer Motion'],
     line: 'Wallet dashboard with passkey sign-in, balance and QR, onboarding, EN/FR',
     world: 'web3',
     thumb: 'wallet-card',
+    links: [
+      { label: 'Website', href: 'https://incentiv.io/' },
+      { label: 'Portal', href: 'https://portal.incentiv.io/' },
+    ],
   },
   {
     group: 'AvahiTech',
@@ -226,6 +288,7 @@ export const projects: Project[] = [
       src: '/personal/shots/thumbs/snaxx.webp',
       alt: 'Snaxx Tech studio site hero, The Snaxx Almanac illustrated landscape',
     },
+    links: [{ label: 'Website', href: 'https://www.snaxxtech.com/' }],
   },
   {
     group: 'Personal',
@@ -251,6 +314,12 @@ export const projects: Project[] = [
       src: '/mobile/thumbs/geoguesser.webp',
       alt: 'Geo Guesser store screenshot: dark map with the guess and the answer joined by a dashed line',
     },
+    links: [
+      {
+        label: 'Google Play',
+        href: 'https://play.google.com/store/apps/details?id=com.snaxxtech.geoguesser',
+      },
+    ],
   },
   {
     group: 'Personal',
@@ -263,6 +332,7 @@ export const projects: Project[] = [
       src: '/personal/shots/thumbs/fjale.webp',
       alt: 'FJALË word game board with Albanian keyboard',
     },
+    links: [{ label: 'Website', href: 'https://xn--fjal-opa.com/' }],
   },
   {
     group: 'Personal',
@@ -275,6 +345,7 @@ export const projects: Project[] = [
       src: '/personal/shots/thumbs/za.webp',
       alt: 'Za! card game lobby with pixel logo',
     },
+    links: [{ label: 'Website', href: 'https://za-game.onrender.com/' }],
   },
   {
     group: 'Personal',
@@ -287,6 +358,7 @@ export const projects: Project[] = [
       src: '/personal/shots/thumbs/morse.webp',
       alt: 'Morse Trainer amber terminal in Learn mode',
     },
+    links: [{ label: 'Website', href: 'https://morse-code-amber.vercel.app/' }],
   },
   {
     group: 'Personal',
@@ -315,17 +387,19 @@ export const projects: Project[] = [
     line: 'Forks of epubjs-react-native and react-native-pdf, used in a production reading app',
     world: 'personal',
     thumb: 'fork',
+    links: [{ label: 'Website', href: 'https://github.com/gentritr1' }],
   },
 ]
 
 const periods: Record<ProjectGroupName, string | undefined> = {
   Vianova: '(2021 – present)',
+  'Agency work': '(2021 – 2026)',
   Incentiv: '(2024)',
   AvahiTech: '(freelance)',
   Personal: undefined,
 }
 
-const order: ProjectGroupName[] = ['Vianova', 'Incentiv', 'AvahiTech', 'Personal']
+const order: ProjectGroupName[] = ['Vianova', 'Agency work', 'Incentiv', 'AvahiTech', 'Personal']
 
 export const projectGroups: ProjectGroup[] = order.map((name) => ({
   name,

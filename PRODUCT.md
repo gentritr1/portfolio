@@ -12,17 +12,17 @@ Hiring managers and senior engineers who scan a portfolio for 60 seconds, then d
 
 Gentrit has shipped products in four very different worlds: **healthcare**, **video streaming**, **e-reading / mobile**, and **Web3**. The page travels through those worlds. Each world has its own palette accent, typographic flavour and motion character, but the same underlying system, so the site itself demonstrates range with discipline. The interface recedes; the work leads.
 
-## Hard constraint: NDA
+## Hard constraint: public products, public pages only
 
-Gentrit's employer work is under NDA. The site must NOT contain:
+Owner rule (2026-10-02):
 
-- any screenshot, recording or export of the employer's products;
-- product names of client apps (use generic names: "children's reading app", "video-learning platform", "care-management platform", "smart-wallet dashboard");
-- client, tenant, patient or colleague names; internal URLs; ticket IDs; API hosts.
-
-Employer names ARE allowed: Vianova, Incentiv, AvahiTech.
-
-Instead of screenshots, every case study shows a **live recreation**: a small interactive React component with invented data and no brand, built from scratch for this site. It evokes the feature, it does not copy the product.
+- Public products may be named and linked, for example to their website, their store listings, or an archived store listing.
+- Screenshots come only from public pages and public store listings. Never capture a running app, a build, or any screen behind a login.
+- Do not state a relation between the employer and a client. Do not say that a product was a client of the employer. The employer Vianova is named only on its own platform rows.
+- Employer names (Vianova, Incentiv, AvahiTech) head their own groups in the projects index. Agency work for clients sits in its own group, with no employer name.
+- Products that are not public keep generic names ("chatbot runtime library", "member portal").
+- No client, tenant, patient or colleague names; no internal URLs, ticket IDs or API hosts.
+- Internal screens of the care-management platform remain live recreations: small interactive React components with invented data and no brand, built from scratch for this site. They evoke the feature; they do not copy the product.
 
 Personal projects (Snaxx Tech studio site, Offday, open-source forks) are Gentrit's own and may use real assets (see `public/personal/`).
 
