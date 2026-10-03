@@ -45,7 +45,7 @@ const rows = drafts.map((d) => {
     s.creativity * 0.2 +
     s.content * 0.1
   ).toFixed(2);
-  return `| [${d.title}](/drafts/${d.id}) | ${d.band} | ${d.antiPale} | ${s.design.toFixed(1)} | ${s.usability.toFixed(1)} | ${s.creativity.toFixed(1)} | ${s.content.toFixed(1)} | ${total} | ${d.rounds} | [Desktop](drafts-review/${d.id}-desktop.png) · [Mobile](drafts-review/${d.id}-mobile.png) | ${d.signature} | ${d.holdback} |`;
+  return `| ${d.id} · [${d.title}](/drafts/${d.id}) | ${d.band} | ${d.antiPale} | ${s.design.toFixed(1)} | ${s.usability.toFixed(1)} | ${s.creativity.toFixed(1)} | ${s.content.toFixed(1)} | ${total} | ${d.rounds} | [Desktop](drafts-review/${d.id}-desktop.png) · [Mobile](drafts-review/${d.id}-mobile.png) | ${d.signature} | ${d.holdback} |`;
 });
 const report = `# Live art-direction drafts
 

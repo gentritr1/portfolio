@@ -1,0 +1,17 @@
+{
+  "id": "wall",
+  "title": "The Wall",
+  "band": "Crafted",
+  "description": "A full-bleed image wall, interrupted by an oversized orange identity band. Every project has its place.",
+  "signature": "Screens resolve from dither into colour, bend with scroll and pointer velocity, then travel into a new arrangement when the wall is sorted.",
+  "caseSlug": "incentiv",
+  "scores": {
+    "design": 8.1,
+    "usability": 8,
+    "creativity": 8.2,
+    "content": 8.2
+  },
+  "antiPale": "pass",
+  "rounds": 2,
+  "holdback": "The large identity band masks substantial imagery, and small mobile captions favour browsing over quick comparison."
+}
