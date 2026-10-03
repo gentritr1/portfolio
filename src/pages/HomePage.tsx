@@ -6,6 +6,8 @@ import { Intro } from '../components/home/Intro'
 import { MonitorWall } from '../components/home/MonitorWall'
 import { Schedule } from '../components/home/Schedule'
 import { featuredProjects, findProject } from '../content/projects'
+import { channelOrder } from '../content/channels'
+import { playChannelSound } from '../lib/channelSound'
 
 const defaultSlug = 'bayyinah-tv'
 
@@ -14,6 +16,14 @@ export function HomePage() {
   const stack = useRef<SignalStackHandle>(null)
   const [tuning, setTuning] = useState(false)
   const active = findProject(activeSlug) ?? featuredProjects[0]
+
+  function selectChannel(slug: string) {
+    if (slug === activeSlug) return
+    const project = findProject(slug)
+    if (!project) return
+    playChannelSound(channelOrder.indexOf(project.channel))
+    setActiveSlug(slug)
+  }
 
   async function tuneIn() {
     if (!stack.current?.canTune()) return
@@ -27,7 +37,7 @@ export function HomePage() {
     <>
       <title>Gentrit Rashiti, frontend and mobile developer</title>
       <Intro active={active.channel} stackRef={stack} transitionName={tuning ? `monitor-${active.slug}` : undefined} />
-      <MonitorWall activeSlug={active.slug} onSelect={setActiveSlug} beforeTransition={tuneIn} tuningCamera={tuning} />
+      <MonitorWall activeSlug={active.slug} onSelect={selectChannel} beforeTransition={tuneIn} tuningCamera={tuning} />
       <Schedule nowSlug={active.slug} />
       <About />
     </>

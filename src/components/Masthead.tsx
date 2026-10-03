@@ -1,10 +1,11 @@
-import { ArrowLeftIcon, DownloadSimpleIcon } from '@phosphor-icons/react'
+import { ArrowLeftIcon, DownloadSimpleIcon } from './ShellIcons'
 import { useEffect, useState } from 'react'
 import { useLocation } from 'react-router'
 import { links } from '../content/links'
 import { caseHref, featuredProjects } from '../content/projects'
 import { Container } from './Container'
 import { SignalDot } from './SignalDot'
+import { SoundToggle } from './SoundToggle'
 import { ThemeToggle } from './ThemeToggle'
 import { TransitionLink } from './TransitionLink'
 
@@ -64,7 +65,7 @@ export function Masthead() {
 
         {onCase && (
           <TransitionLink to="/#schedule" className={`${control} label`}>
-            <ArrowLeftIcon size={15} weight="light" aria-hidden />
+            <ArrowLeftIcon size={15} aria-hidden />
             <span className="hidden sm:inline">Schedule</span>
             <span className="sr-only sm:hidden">Back to the schedule</span>
           </TransitionLink>
@@ -76,16 +77,17 @@ export function Masthead() {
               <SignalDot tone={onAir ? 'signal' : 'off'} />
               {onAir ? 'On air' : 'Off air'}
             </span>
-            <span className="flex items-center gap-1.5 text-ink-2">
+            <span className="hidden items-center gap-1.5 text-ink-2 min-[400px]:flex">
               <span aria-hidden>KOS</span>
               <time className="text-ink tabular" dateTime={time} aria-label={`Local time in Kosovo, ${time}`}>
                 {time}
               </time>
             </span>
           </p>
+          <SoundToggle />
           <ThemeToggle />
           <a href={links.cv} download className={`${control} label`}>
-            <DownloadSimpleIcon size={16} weight="light" aria-hidden />
+            <DownloadSimpleIcon size={16} aria-hidden />
             <span className="hidden sm:inline">CV</span>
             <span className="sr-only sm:hidden">Download CV</span>
           </a>
