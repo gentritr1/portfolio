@@ -1,0 +1,17 @@
+{
+  "id": "blueprint",
+  "title": "Blueprint",
+  "band": "Crafted",
+  "description": "An exploded Bayyinah TV laptop, drawn in cobalt across citron and cyan. Explore the layers, then the work.",
+  "signature": "A laptop separates into glass, display and base while live leader lines trace the moving parts; scrolling assembles the device again.",
+  "caseSlug": "bayyinah-tv",
+  "scores": {
+    "design": 8.1,
+    "usability": 8,
+    "creativity": 8.1,
+    "content": 8.3
+  },
+  "antiPale": "pass",
+  "rounds": 2,
+  "holdback": "Simplified blue hardware and the broad cyan field feel more like a clear technical diagram than a finished product sculpture."
+}
