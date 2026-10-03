@@ -1,0 +1,17 @@
+{
+  "id": "desk",
+  "title": "At work",
+  "band": "Experimental",
+  "description": "An orange room, a cyan workbench, and five project objects. Pick up the work from the desk.",
+  "signature": "A short 3D camera settle reveals a real geometric workbench; its monitor, phone, book, word card and calendar open the projects.",
+  "caseSlug": "snaxx-tech",
+  "scores": {
+    "design": 8,
+    "usability": 7.9,
+    "creativity": 8.1,
+    "content": 8.2
+  },
+  "antiPale": "pass",
+  "rounds": 2,
+  "holdback": "Simple materials and limited contact shading make the desktop scene feel like an early geometric model."
+}

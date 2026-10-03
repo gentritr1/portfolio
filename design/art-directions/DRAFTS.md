@@ -8,7 +8,7 @@ Each draft is captured at 1440 px and 375 px, then judged by a non-builder again
 
 Screenshots use the local review frame. Reduced-motion and no-WebGL paths are implemented; browser interactions and bundle sizes are checked separately. No physical-device frame-rate or Android benchmark is claimed.
 
-## Reviewed drafts (15/16)
+## Reviewed drafts (16/16)
 
 | Draft | Band | Energy | D | U | C | Content | Weighted | Rounds | Screenshots | Signature motion | Remaining holdback |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -27,12 +27,42 @@ Screenshots use the local review frame. Reduced-motion and no-WebGL paths are im
 | swiss · [In formation](/drafts/swiss) | Professional | pass | 8.2 | 8.0 | 8.2 | 8.2 | 8.14 | 2 | [Desktop](drafts-review/swiss-desktop.png) · [Mobile](drafts-review/swiss-mobile.png) | The fourteen letters change width and alignment on scroll, settling into a strict grid; reset opens the composition again. | On mobile, Reset the type has more emphasis than it needs ahead of the route to the work. |
 | orbit · [Liquid Orbit](/drafts/orbit) | Crafted | pass | 8.1 | 8.0 | 8.2 | 8.2 | 8.10 | 1 | [Desktop](drafts-review/orbit-desktop.png) · [Mobile](drafts-review/orbit-mobile.png) | Three smooth-union volumes breathe as one gel form; public screens refract through the surface while project images orbit around it. | Refraction sacrifices screenshot legibility, and the small orbiting previews offer limited product detail before opening a case. |
 | primetime · [Primetime](/drafts/primetime) | Fun | pass | 8.2 | 7.8 | 8.1 | 8.2 | 8.06 | 1 | [Desktop](drafts-review/primetime-desktop.png) · [Mobile](drafts-review/primetime-mobile.png) | A short tuning scan resolves into the selected project's public screen. | The full remote sits below the first mobile viewport; the visible television arrows preserve immediate channel browsing. |
+| desk · [At work](/drafts/desk) | Experimental | pass | 8.0 | 7.9 | 8.1 | 8.2 | 8.01 | 2 | [Desktop](drafts-review/desk-desktop.png) · [Mobile](drafts-review/desk-mobile.png) | A short 3D camera settle reveals a real geometric workbench; its monitor, phone, book, word card and calendar open the projects. | Simple materials and limited contact shading make the desktop scene feel like an early geometric model. |
 
 ## Hybrid repair history
 
 The main merge is local commit 89c40c4. Section 6 now includes project-colour page floods, screenshot-filled active names, eager populated case-study surfaces with a GPU-ready crossfade, and a colour-sorted work wall with real-name posters for projects without public imagery. Hover reveals resolve from coarse dither to the decoded image.
 
 Hybrid rounds: **7.86 → 8.01 → 7.95** weighted. The final round improved visible image texture but retained a local text-contrast weakness. The three-round limit was observed. The mobile name is larger and heavier; forced-colour and enhanced-contrast preferences receive solid text.
+
+## Loading and verification
+
+The merged baseline (89c40c4) had an entry of **87.62 kB gzip** and an initial JavaScript graph of **106.75 kB gzip**. The completed gallery has an entry of **20.13 kB** and an initial graph of **101.84 kB**. An explicit group keeps already-eager React/router modules stable; no draft module enters the home loading path.
+
+Each row below includes the picker shell, the draft and all its lazy graphics dependencies, excluding only assets already in the initial graph. Public images and fonts are separate from this JavaScript chunk budget. Every direction is below 150 kB even with its scoped CSS included.
+
+| Draft | JavaScript gzip | CSS gzip | Combined |
+| --- | ---: | ---: | ---: |
+| hybrid | 59.54 kB | 3.88 kB | 63.42 kB |
+| studio | 39.16 kB | 5.11 kB | 44.27 kB |
+| desktop | 11.37 kB | 5.55 kB | 16.92 kB |
+| canvas | 17.66 kB | 5.37 kB | 23.03 kB |
+| index | 23.11 kB | 3.73 kB | 26.84 kB |
+| blueprint | 29.82 kB | 4.80 kB | 34.62 kB |
+| savefile | 10.27 kB | 4.45 kB | 14.72 kB |
+| zine | 11.37 kB | 4.93 kB | 16.30 kB |
+| issue | 7.44 kB | 3.68 kB | 11.12 kB |
+| wall | 27.51 kB | 4.24 kB | 31.75 kB |
+| riso | 8.53 kB | 4.57 kB | 13.10 kB |
+| dither | 12.17 kB | 4.66 kB | 16.83 kB |
+| swiss | 7.47 kB | 3.37 kB | 10.84 kB |
+| orbit | 38.38 kB | 4.42 kB | 42.80 kB |
+| primetime | 8.95 kB | 4.92 kB | 13.87 kB |
+| desk | 29.69 kB | 4.55 kB | 34.24 kB |
+
+Browser checks cover the project indexes, selected-case navigation, keyboard paths, mobile focus/reveal behavior and the signature controls. WebGL and reduced-motion fallback captures accompany Studio, Blueprint, Index, Wall, Orbit and Desk. Desk was verified with an actual raycast click on its 3D phone and a tap on its image fallback. Riso invokes browser printing after decoding images and fonts; the native print layout was not captured or exported during this check.
+
+TypeScript, the production build and the craft detector pass. Gallery filters, all 16 routes, preview assets and noindex behavior are verified separately in the production preview. No deployment or push was performed.
 
 ## Maintenance
 
