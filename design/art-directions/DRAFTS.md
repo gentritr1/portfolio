@@ -8,7 +8,7 @@ Each draft is captured at 1440 px and 375 px, then judged by a non-builder again
 
 Screenshots use the local review frame. Reduced-motion and no-WebGL paths are implemented; browser interactions and bundle sizes are checked separately. No physical-device frame-rate or Android benchmark is claimed.
 
-## Reviewed drafts (13/16)
+## Reviewed drafts (15/16)
 
 | Draft | Band | Energy | D | U | C | Content | Weighted | Rounds | Screenshots | Signature motion | Remaining holdback |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -25,6 +25,8 @@ Screenshots use the local review frame. Reduced-motion and no-WebGL paths are im
 | riso · [Riso](/drafts/riso) | Fun | pass | 8.2 | 8.1 | 8.0 | 8.2 | 8.13 | 2 | [Desktop](drafts-review/riso-desktop.png) · [Mobile](drafts-review/riso-mobile.png) | Two ink passes slide into registration; the pointer gently separates them again. | Ink misregistration is a subtle signature, and the narrow mobile crop trades interface detail for poster impact. |
 | dither · [Work in colour](/drafts/dither) | Experimental | pass | 8.1 | 7.9 | 8.1 | 8.4 | 8.07 | 1 | [Desktop](drafts-review/dither-desktop.png) · [Mobile](drafts-review/dither-mobile.png) | Real Bayer-dithered project images are crossed by a colour wipe, automatically on arrival and again on selection. | The initial care image is muted, so its colour reveal is less dramatic than the other project images. |
 | swiss · [In formation](/drafts/swiss) | Professional | pass | 8.2 | 8.0 | 8.2 | 8.2 | 8.14 | 2 | [Desktop](drafts-review/swiss-desktop.png) · [Mobile](drafts-review/swiss-mobile.png) | The fourteen letters change width and alignment on scroll, settling into a strict grid; reset opens the composition again. | On mobile, Reset the type has more emphasis than it needs ahead of the route to the work. |
+| orbit · [Liquid Orbit](/drafts/orbit) | Crafted | pass | 8.1 | 8.0 | 8.2 | 8.2 | 8.10 | 1 | [Desktop](drafts-review/orbit-desktop.png) · [Mobile](drafts-review/orbit-mobile.png) | Three smooth-union volumes breathe as one gel form; public screens refract through the surface while project images orbit around it. | Refraction sacrifices screenshot legibility, and the small orbiting previews offer limited product detail before opening a case. |
+| primetime · [Primetime](/drafts/primetime) | Fun | pass | 8.2 | 7.8 | 8.1 | 8.2 | 8.06 | 1 | [Desktop](drafts-review/primetime-desktop.png) · [Mobile](drafts-review/primetime-mobile.png) | A short tuning scan resolves into the selected project's public screen. | The full remote sits below the first mobile viewport; the visible television arrows preserve immediate channel browsing. |
 
 ## Hybrid repair history
 
