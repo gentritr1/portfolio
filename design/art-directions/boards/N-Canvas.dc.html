@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>N · Canvas</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Geist+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F5F5F2}
+::selection{background:#0B6CF0;color:#FFFFFF}
+a{color:#1C1C1A;text-underline-offset:3px;text-decoration-thickness:1px}
+a:hover{color:#0B6CF0}
+a:focus-visible,button:focus-visible{outline:2px solid #0B6CF0;outline-offset:2px}
+.mono{font-family:'Geist Mono',ui-monospace,monospace}
+.stage{position:relative;width:1440px;height:2760px;margin:0 auto;animation:drift 30s cubic-bezier(.45,0,.55,1) infinite}
+.dots{position:absolute;inset:-48px;background-image:radial-gradient(circle at 1px 1px,rgba(28,28,26,.16) 1px,transparent 1.3px);background-size:24px 24px}
+.lbl{position:absolute;font-family:'Geist Mono',ui-monospace,monospace;font-size:12px;line-height:16px;color:#5F5F5A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lbl b{font-weight:500;color:#1C1C1A}
+.ab{position:absolute;background:#FFFFFF;box-shadow:0 1px 2px rgba(28,28,26,.06),0 12px 32px -16px rgba(28,28,26,.18)}
+.txt{position:absolute;color:#1C1C1A}
+.txt h2{margin:0 0 8px;font-size:28px;line-height:32px;font-weight:600;letter-spacing:-.02em}
+.txt h3{margin:0 0 6px;font-size:20px;line-height:24px;font-weight:600;letter-spacing:-.01em}
+.txt p{margin:0;font-size:16px;line-height:24px;color:#45453F}
+.note{position:absolute;padding:20px 20px 18px;border-radius:4px;box-shadow:0 1px 1px rgba(28,28,26,.05),0 10px 24px -14px rgba(28,28,26,.22)}
+.note strong{display:block;font-size:44px;line-height:44px;font-weight:600;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.note span{display:block;margin-top:10px;font-size:16px;line-height:22px}
+.wire{position:absolute;background:#9C9C95}
+.wtag{position:absolute;font-family:'Geist Mono',ui-monospace,monospace;font-size:12px;line-height:16px;color:#45453F;background:#F5F5F2;padding:2px 6px;border:1px solid #D6D6D0;border-radius:4px;white-space:nowrap}
+.sel{position:absolute;left:0;top:0;animation-duration:12s;animation-iteration-count:infinite;animation-timing-function:cubic-bezier(.77,0,.175,1);pointer-events:none}
+.eh{width:1000px;height:1.5px;background:#0B6CF0;transform-origin:0 0}
+.ev{width:1.5px;height:1000px;background:#0B6CF0;transform-origin:0 0}
+.hd{width:7px;height:7px;background:#FFFFFF;border:1.5px solid #0B6CF0}
+.btn{display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 16px;border-radius:6px;font:500 14px/1 'Geist',sans-serif;text-decoration:none;white-space:nowrap;transition:transform .14s cubic-bezier(.23,1,.32,1),background-color .18s ease}
+.btn:active{transform:scale(.97)}
+.btn-ink{background:#1C1C1A;color:#FFFFFF}.btn-ink:hover{background:#34342F;color:#FFFFFF}
+.btn-line{background:#FFFFFF;color:#1C1C1A;box-shadow:inset 0 0 0 1px #CFCFC8}.btn-line:hover{background:#F5F5F2;color:#1C1C1A}
+.chip{font:500 14px/1 'Geist',sans-serif;padding:8px 12px;border-radius:6px;color:#45453F;background:#F2F2EE;border:0;cursor:pointer;white-space:nowrap}
+.chip[aria-pressed="true"]{background:#1C1C1A;color:#FFFFFF}
+.row{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr) minmax(0,1.2fr) 72px;gap:16px;align-items:baseline;padding:14px 0;border-top:1px solid #ECECE7;text-decoration:none;color:#1C1C1A}
+.row:hover .rn{color:#0B6CF0}
+.bar{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);display:flex;align-items:center;gap:4px;padding:6px;border-radius:12px;background:#1E1E1C;box-shadow:0 12px 32px -12px rgba(0,0,0,.45);z-index:3}
+.bar a{display:inline-flex;align-items:center;height:36px;padding:0 14px;border-radius:8px;font:500 14px/1 'Geist',sans-serif;color:#E6E6E1;text-decoration:none;white-space:nowrap;transition:background-color .18s ease}
+.bar a:hover{background:#34342F;color:#FFFFFF}
+.bar a.cta{background:#0B6CF0;color:#FFFFFF}
+.bar a.cta:hover{background:#0A5DD0}
+.mm{position:fixed;right:24px;bottom:24px;padding:8px;border-radius:10px;background:#FFFFFF;box-shadow:0 1px 2px rgba(28,28,26,.08),0 12px 32px -14px rgba(28,28,26,.3);z-index:3}
+.mmb{position:absolute;display:block;background:#E9E9E4;border-radius:2px;text-decoration:none;transition:background-color .18s ease}
+.mmb span{position:absolute;left:3px;bottom:2px;font:500 11px/13px 'Geist',sans-serif;color:#45453F;white-space:nowrap}
+.mmb:hover{background:#D6E5FD}
+@keyframes drift{0%{transform:translate(0,0)}25%{transform:translate(-6px,3px)}50%{transform:translate(-2px,-4px)}75%{transform:translate(5px,2px)}100%{transform:translate(0,0)}}
+@keyframes st{0%,17.5%{transform:translate(488px,52px) scaleX(0.9200)}25%,42.5%{transform:translate(32px,720px) scaleX(1.0560)}50%,67.5%{transform:translate(32px,1540px) scaleX(1.0260)}75%,92.5%{transform:translate(1080px,1562px) scaleX(0.3280)}100%{transform:translate(488px,52px) scaleX(0.9200)}}
+@keyframes sb{0%,17.5%{transform:translate(488px,688px) scaleX(0.9200)}25%,42.5%{transform:translate(32px,1376px) scaleX(1.0560)}50%,67.5%{transform:translate(32px,2023px) scaleX(1.0260)}75%,92.5%{transform:translate(1080px,2014px) scaleX(0.3280)}100%{transform:translate(488px,688px) scaleX(0.9200)}}
+@keyframes sl{0%,17.5%{transform:translate(488px,52px) scaleY(0.6360)}25%,42.5%{transform:translate(32px,720px) scaleY(0.6560)}50%,67.5%{transform:translate(32px,1540px) scaleY(0.4830)}75%,92.5%{transform:translate(1080px,1562px) scaleY(0.4520)}100%{transform:translate(488px,52px) scaleY(0.6360)}}
+@keyframes sr{0%,17.5%{transform:translate(1408px,52px) scaleY(0.6360)}25%,42.5%{transform:translate(1088px,720px) scaleY(0.6560)}50%,67.5%{transform:translate(1058px,1540px) scaleY(0.4830)}75%,92.5%{transform:translate(1408px,1562px) scaleY(0.4520)}100%{transform:translate(1408px,52px) scaleY(0.6360)}}
+@keyframes h1{0%,17.5%{transform:translate(484px,48px)}25%,42.5%{transform:translate(28px,716px)}50%,67.5%{transform:translate(28px,1536px)}75%,92.5%{transform:translate(1076px,1558px)}100%{transform:translate(484px,48px)}}
+@keyframes h2{0%,17.5%{transform:translate(1404px,48px)}25%,42.5%{transform:translate(1084px,716px)}50%,67.5%{transform:translate(1054px,1536px)}75%,92.5%{transform:translate(1404px,1558px)}100%{transform:translate(1404px,48px)}}
+@keyframes h3{0%,17.5%{transform:translate(484px,684px)}25%,42.5%{transform:translate(28px,1372px)}50%,67.5%{transform:translate(28px,2019px)}75%,92.5%{transform:translate(1076px,2010px)}100%{transform:translate(484px,684px)}}
+@keyframes h4{0%,17.5%{transform:translate(1404px,684px)}25%,42.5%{transform:translate(1084px,1372px)}50%,67.5%{transform:translate(1054px,2019px)}75%,92.5%{transform:translate(1404px,2010px)}100%{transform:translate(1404px,684px)}}
+@media (prefers-reduced-motion: reduce){*{animation:none!important}}
+</style>
+</helmet>
+<div style="position:relative;width:100%;min-height:2760px;background:#F5F5F2;color:#1C1C1A;font-family:'Geist',system-ui,sans-serif;overflow-x:auto;overflow-y:hidden;-webkit-font-smoothing:antialiased">
+<div style="position:relative;max-width:1440px;min-width:1440px;margin:0 auto;overflow:hidden">
+  <main class="stage" aria-label="Portfolio canvas">
+    <div class="dots" aria-hidden="true"></div>
+
+    <!-- Cover -->
+    <div class="lbl" style="left:48px;top:74px;max-width:412px"><b>Gentrit Rashiti</b> / Cover</div>
+    <div class="ab" style="left:48px;top:96px;width:400px;height:488px;">
+      <section id="about" style="padding:40px;height:100%;box-sizing:border-box;display:flex;flex-direction:column">
+        <h1 style="margin:0;font-size:72px;line-height:68px;font-weight:600;letter-spacing:-.035em">Gentrit<br>Rashiti</h1>
+        <p style="margin:24px 0 0;font-size:20px;line-height:28px;color:#1C1C1A;max-width:300px">Frontend &amp; mobile developer, now full stack.</p>
+        <p style="margin:16px 0 0;font-size:16px;line-height:24px;color:#45453F">[Seniority] · 5+ yrs<br>React · React Native · Vue/Nuxt · Next.js · TypeScript · Laravel</p>
+        <p style="margin:12px 0 0;font-size:16px;line-height:24px;color:#1C1C1A">Kosovo · Open to remote roles</p>
+        <div style="margin-top:auto;display:flex;gap:8px">
+          <a class="btn btn-ink" href="mailto:[your.email@example.com]">Email</a>
+          <a class="btn btn-line" href="#">Download CV</a>
+        </div>
+      </section></div>
+
+    <!-- Bayyinah -->
+    <div id="bayyinah" style="position:absolute;left:504px;top:56px"></div>
+    <div class="lbl" style="left:504px;top:74px;max-width:512px"><b>Bayyinah TV</b> / Web · Nuxt 3 · 2023–26</div>
+    <div class="ab" style="left:504px;top:96px;width:500px;height:313px;overflow:hidden;"><img src="/_blob/b5de8b603eb9fc1eb6243512da056cfb" alt="Bayyinah TV website home page with the headline Quran Studies Made Simple" style="display:block;width:100%;height:100%;object-fit:cover"></div>
+    <div class="lbl" style="left:1024px;top:74px;max-width:188px"><b>Bayyinah TV</b> / App</div>
+    <div class="ab" style="left:1024px;top:96px;width:176px;height:382px;overflow:hidden;"><img src="/_blob/e4db1c62e8865c5bf469ad292fa3ad36" alt="Bayyinah TV app store frame: Quran Studies Made Simple, by Ustadh Nouman Ali Khan" style="display:block;width:100%;height:100%;object-fit:cover"></div>
+    <div class="lbl" style="left:1216px;top:74px;max-width:188px">App · Surahs</div>
+    <div class="ab" style="left:1216px;top:96px;width:176px;height:382px;overflow:hidden;"><img src="/_blob/efd3efb4559b375e93df948c6424122c" alt="Bayyinah TV app store frame: study the Quran surah by surah" style="display:block;width:100%;height:100%;object-fit:cover"></div>
+    <div class="wire" style="left:560px;top:409px;width:1px;height:100px"></div>
+    <div class="wtag" style="left:572px;top:448px">same team, Next.js</div>
+    <div class="lbl" style="left:504px;top:515px;max-width:300px"><b>bayyinah.org</b> / Next.js · 2024–25</div>
+    <div class="ab" style="left:504px;top:537px;width:288px;height:124px;">
+      <div style="padding:20px 20px 0">
+        <div style="font-size:20px;line-height:24px;font-weight:600;letter-spacing:-.01em">bayyinah.org</div>
+        <p style="margin:8px 0 0;font-size:14px;line-height:20px;color:#45453F">Institute site for the same school, on Next.js.</p>
+      </div></div>
+    <div class="txt" style="left:840px;top:506px;width:300px">
+      <h2>Bayyinah TV</h2>
+      <p>Video-learning platform rebuilt on Nuxt&nbsp;3. Live streams with realtime chat, an HLS player, Stripe, Apple and Google subscriptions, English and Arabic (RTL). 34 routes.</p>
+    </div>
+    <div class="note" style="left:1184px;top:510px;width:208px;box-sizing:border-box;background:#F6E8E4;color:#4E1710">
+      <strong>100K+</strong><span>downloads on<br>Google Play</span>
+    </div>
+
+    <!-- Mobile -->
+    <div class="wire" style="left:232px;top:744px;width:1px;height:42px"></div>
+    <div class="wire" style="left:232px;top:744px;width:417px;height:1px"></div>
+    <div class="wire" style="left:648px;top:744px;width:1px;height:42px"></div>
+    <div class="wtag" style="left:331px;top:734px">React Native · iOS + Android</div>
+    <div id="mobile" style="position:absolute;left:48px;top:772px"></div>
+    <div class="lbl" style="left:48px;top:790px;max-width:188px"><b>Viva Fresh</b> / 2023</div>
+    <div class="ab" style="left:48px;top:812px;width:176px;height:382px;overflow:hidden;"><img src="/_blob/47ba7ca5a8b75d1adb0707716e2e02c7" alt="Viva Fresh app: grocery categories and product list with prices in euro" style="display:block;width:100%;height:100%;object-fit:cover"></div>
+    <div class="lbl" style="left:240px;top:790px;max-width:188px">iOS + Android</div>
+    <div class="ab" style="left:240px;top:812px;width:176px;height:382px;overflow:hidden;"><img src="/_blob/0aa911fe9541dfae5df4cfaeb1cd6503" alt="Viva Fresh app: fresh meat category with product cards and cart buttons" style="display:block;width:100%;height:100%;object-fit:cover"></div>
+    <div class="lbl" style="left:464px;top:790px;max-width:188px"><b>Read to Feed</b> / 2022–25</div>
+    <div class="ab" style="left:464px;top:812px;width:176px;height:382px;overflow:hidden;"><img src="/_blob/461e33a21e9453a672979083bb704ea9" alt="Read to Feed store frame: a library of books for ages K-12" style="display:block;width:100%;height:100%;object-fit:cover"></div>
+    <div class="lbl" style="left:656px;top:790px;max-width:188px">Achievements</div>
+    <div class="ab" style="left:656px;top:812px;width:176px;height:382px;overflow:hidden;"><img src="/_blob/5a5111f71e28ccea7450e215ad9e5751" alt="Read to Feed store frame: badges and eggs unlocked by reading and quizzes" style="display:block;width:100%;height:100%;object-fit:cover"></div>
+    <div class="lbl" style="left:880px;top:790px;max-width:188px"><b>Dukagjini</b> / 2021–22</div>
+    <div class="ab" style="left:880px;top:812px;width:176px;height:382px;overflow:hidden;"><img src="/_blob/a5a912f0767e7c0ff1c578911e914398" alt="Dukagjini Bookstore store frame: discover new books you will love" style="display:block;width:100%;height:100%;object-fit:cover"></div>
+    <div class="txt" style="left:48px;top:1226px;width:340px">
+      <h3>Viva Fresh</h3>
+      <p>Grocery and loyalty app. Delivery slots, wishlist, purchase history, map address search.</p>
+    </div>
+    <div class="txt" style="left:464px;top:1226px;width:176px">
+      <h3>Read to Feed</h3>
+      <p>Children's reading app. PDF and EPUB reader, ISBN barcode scanning, badges and streaks. 3 languages.</p>
+    </div>
+    <div class="note" style="left:656px;top:1226px;width:176px;box-sizing:border-box;background:#E4EEFC;color:#123A73">
+      <strong>≈14</strong><span>store releases,<br>React Native<br>0.63 → 0.81</span>
+    </div>
+    <div class="txt" style="left:880px;top:1226px;width:176px">
+      <h3>Dukagjini</h3>
+      <p>Bookstore app for Libraria Dukagjini.</p>
+    </div>
+
+    <!-- Incentiv -->
+    <div id="incentiv" style="position:absolute;left:1112px;top:772px"></div>
+    <div class="lbl" style="left:1112px;top:790px;max-width:292px"><b>Incentiv</b> / Wallet · 2024</div>
+    <div class="ab" style="left:1112px;top:812px;width:280px;height:382px;">
+      <div style="padding:24px;height:100%;box-sizing:border-box;display:flex;flex-direction:column">
+        <div style="font-size:14px;line-height:20px;font-weight:600">Incentiv</div>
+        <div style="margin-top:32px;font-size:12px;line-height:16px;color:#5F5F5A" class="mono">Balance</div>
+        <div style="margin-top:6px;font-size:28px;line-height:32px;font-weight:600;letter-spacing:-.02em;font-variant-numeric:tabular-nums">12,480.00 <span style="font-size:16px;color:#5F5F5A;font-weight:500">INC</span></div>
+        <div style="margin-top:12px;display:flex;align-items:center;gap:8px;font-size:14px;line-height:20px;color:#45453F">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#45453F" stroke-width="1.5" aria-hidden="true"><circle cx="5.5" cy="8" r="3"/><path d="M8.5 8H14.5M12.5 8V10.5"/></svg>
+          Signed in with a passkey
+        </div>
+        <div style="margin-top:auto;display:flex;gap:16px;align-items:flex-end">
+          <svg width="96" height="96" viewBox="0 0 24 24" aria-label="QR code to receive" role="img" shape-rendering="crispEdges"><rect width="24" height="24" fill="#FFFFFF"/><g fill="#1C1C1A"><path d="M1 1h7v7H1zM16 1h7v7h-7zM1 16h7v7H1z"/></g><g fill="#FFFFFF"><path d="M2 2h5v5H2zM17 2h5v5h-5zM2 17h5v5H2z"/></g><g fill="#1C1C1A"><path d="M3 3h3v3H3zM18 3h3v3h-3zM3 18h3v3H3zM10 1h2v2h-2zM13 3h1v3h-1zM9 5h3v1H9zM10 9h4v1h-4zM1 10h3v1H1zM5 10h2v3H5zM16 10h2v2h-2zM20 9h3v2h-3zM9 12h2v3H9zM13 12h3v1h-3zM18 13h2v3h-2zM21 13h2v1h-2zM10 16h3v2h-3zM14 15h2v4h-2zM17 18h3v1h-3zM21 17h2v5h-2zM9 20h4v3H9zM15 21h4v2h-4zM12 6h1v2h-1z"/></g></svg>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <a class="btn btn-ink" href="#" style="height:36px">Receive</a>
+            <a class="btn btn-line" href="#" style="height:36px">Send</a>
+          </div>
+        </div>
+      </div></div>
+    <div class="txt" style="left:1112px;top:1226px;width:280px">
+      <h3>Incentiv</h3>
+      <p>Smart-wallet dashboard on Next.js 14. Passkey sign-in, balances, QR receive.</p>
+    </div>
+
+    <!-- Care platform -->
+    <div id="care" style="position:absolute;left:48px;top:1536px"></div>
+    <div class="lbl" style="left:48px;top:1554px;max-width:690px"><b>Care platform</b> / Recreation, invented data</div>
+    <div class="ab" style="left:48px;top:1576px;width:552px;height:345px;transform:scale(1.25);transform-origin:0 0;">
+      <div style="display:flex;flex-direction:column;height:100%">
+        <div style="display:flex;align-items:center;justify-content:space-between;height:44px;padding:0 20px;border-bottom:1px solid #ECECE7">
+          <div style="font-size:14px;font-weight:600">Patient 4821</div>
+          <div style="display:flex;gap:16px;font-size:12px;line-height:44px;color:#5F5F5A"><span>Overview</span><span style="color:#1C1C1A;box-shadow:inset 0 -2px 0 #1C1C1A">Vitals</span><span>Notes</span></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 168px;flex:1">
+          <div style="padding:16px 20px">
+            <div class="mono" style="font-size:12px;line-height:16px;color:#5F5F5A">Blood pressure · 30 days</div>
+            <div style="margin-top:4px;font-size:28px;line-height:32px;font-weight:600;letter-spacing:-.02em;font-variant-numeric:tabular-nums">138/88 <span style="font-size:14px;font-weight:500;color:#5F5F5A">mmHg</span></div>
+            <svg viewBox="0 0 320 170" width="324" height="172" style="display:block;margin-top:12px" role="img" aria-label="Systolic and diastolic line chart with two readings above the alert line">
+              <g stroke="#ECECE7" stroke-width="1"><path d="M0 20H320M0 70H320M0 120H320M0 168H320"/></g>
+              <path d="M0 52H320" stroke="#D86A64" stroke-width="1" stroke-dasharray="4 4"/>
+              <text x="318" y="47" text-anchor="end" font-family="Geist Mono" font-size="10" fill="#8A2A24">140</text>
+              <polyline fill="none" stroke="#1C1C1A" stroke-width="1.75" stroke-linejoin="round" points="0,78 22,70 44,74 66,64 88,68 110,58 132,40 154,62 176,66 198,60 220,70 242,36 264,58 286,64 308,60 320,62"/>
+              <polyline fill="none" stroke="#A3A39C" stroke-width="1.5" stroke-linejoin="round" points="0,128 22,122 44,126 66,118 88,121 110,114 132,104 154,116 176,119 198,115 220,122 242,102 264,113 286,118 308,115 320,116"/>
+              <circle cx="132" cy="40" r="7" fill="#E8252B" fill-opacity=".16"/><circle cx="132" cy="40" r="3.5" fill="#E8252B"/>
+              <circle cx="242" cy="36" r="7" fill="#E8252B" fill-opacity=".16"/><circle cx="242" cy="36" r="3.5" fill="#E8252B"/>
+            </svg>
+          </div>
+          <div style="border-left:1px solid #ECECE7;padding:16px">
+            <div class="mono" style="font-size:12px;line-height:16px;color:#5F5F5A">Alerts</div>
+            <div style="margin-top:12px;display:flex;flex-direction:column;gap:12px;font-size:14px;line-height:18px">
+              <div><div style="font-weight:600;font-variant-numeric:tabular-nums">152/96</div><div style="color:#5F5F5A;font-size:12px">Day 12 · above 140</div></div>
+              <div><div style="font-weight:600;font-variant-numeric:tabular-nums">149/94</div><div style="color:#5F5F5A;font-size:12px">Day 23 · above 140</div></div>
+            </div>
+            <div class="mono" style="margin-top:24px;font-size:12px;line-height:16px;color:#5F5F5A">Readings</div>
+            <div style="margin-top:4px;font-size:14px;font-variant-numeric:tabular-nums">30 of 30 days</div>
+          </div>
+        </div>
+      </div></div>
+    <div class="txt" style="left:770px;top:1738px;width:272px">
+      <h2>Care-management platform</h2>
+      <p>Remote patient monitoring for many clinics, at Vianova, <span style="white-space:nowrap">2023–26</span>. Vue to React, route by route, with parity tests. Laravel API, 31 architecture decision records, 4 languages.</p>
+    </div>
+    <div class="note" style="left:770px;top:1576px;width:216px;background:#F3EAD6;color:#43361A">
+      <strong>16 → 2</strong><span>queries for one billing report</span>
+    </div>
+
+    <!-- Games -->
+    <div id="games" style="position:absolute;left:1096px;top:1560px"></div>
+    <div class="lbl" style="left:1120px;top:1578px;max-width:272px"><b>FJALË</b> / Word game · live</div>
+    <div class="ab" style="left:1120px;top:1600px;width:272px;height:170px;overflow:hidden;"><img src="/_blob/e72b0dde4d866b2d7a3bf592d48f25a8" alt="FJALË word game on desktop: an empty letter grid and an Albanian keyboard on black" style="display:block;width:100%;height:100%;object-fit:cover"></div>
+    <div class="lbl" style="left:1096px;top:1836px;max-width:224px"><b>Snaxx Tech</b> / Studio site</div>
+    <div class="ab" style="left:1096px;top:1858px;width:224px;height:140px;overflow:hidden;"><img src="/_blob/a883265a486c88d8b055ec37ce097d36" alt="Snaxx Tech studio site: an illustrated almanac village of apps and games" style="display:block;width:100%;height:100%;object-fit:cover"></div>
+
+
+    <!-- Index -->
+    <div id="index" style="position:absolute;left:480px;top:2130px"></div>
+    <div class="lbl" style="left:480px;top:2148px;max-width:808px"><b>All projects</b> / Index</div>
+    <div class="ab" style="left:480px;top:2170px;width:808px;height:430px;">
+      <div style="padding:32px">
+        <div style="display:flex;align-items:baseline;gap:16px">
+          <h2 style="margin:0;font-size:28px;line-height:32px;font-weight:600;letter-spacing:-.02em">All projects</h2>
+          <span style="font-size:16px;color:#5F5F5A">28 projects across 6 channels</span>
+        </div>
+        <div role="group" aria-label="Filter by channel" style="margin-top:20px;display:flex;flex-wrap:wrap;gap:8px">
+          <sc-for list="{{chips}}" as="c" hint-placeholder-count="7"><button class="chip" type="button" aria-pressed="{{c.on}}">{{c.name}}</button></sc-for>
+        </div>
+        <div style="margin-top:20px">
+          <sc-for list="{{rows}}" as="r" hint-placeholder-count="6"><a class="row" href="#"><span class="rn" style="font-size:16px;font-weight:500">{{r.name}}</span><span style="font-size:14px;color:#5F5F5A">{{r.channel}}</span><span class="mono" style="font-size:12px;color:#5F5F5A">{{r.stack}}</span><span class="mono" style="font-size:12px;color:#5F5F5A;text-align:right">{{r.years}}</span></a></sc-for>
+        </div>
+      </div></div>
+
+    <!-- Contact -->
+    <div id="contact" style="position:absolute;left:48px;top:2272px"></div>
+    <div class="lbl" style="left:48px;top:2290px;max-width:352px"><b>Contact</b></div>
+    <div class="ab" style="left:48px;top:2312px;width:352px;height:248px;">
+      <div style="padding:32px;height:100%;box-sizing:border-box;display:flex;flex-direction:column">
+        <h2 style="margin:0;font-size:28px;line-height:32px;font-weight:600;letter-spacing:-.02em">Open to remote roles.</h2>
+        <a href="mailto:[your.email@example.com]" style="margin-top:16px;font-size:16px;line-height:24px;text-decoration:underline">[your.email@example.com]</a>
+        <div style="margin-top:auto;display:flex;gap:20px;font-size:16px">
+          <a href="#">LinkedIn</a><a href="#">GitHub</a><a href="#">Download CV</a>
+        </div>
+      </div></div>
+
+    <div class="sel eh" style="transform:translate(488px,52px) scaleX(0.9200);animation-name:st"></div>
+    <div class="sel eh" style="transform:translate(488px,688px) scaleX(0.9200);animation-name:sb"></div>
+    <div class="sel ev" style="transform:translate(488px,52px) scaleY(0.6360);animation-name:sl"></div>
+    <div class="sel ev" style="transform:translate(1408px,52px) scaleY(0.6360);animation-name:sr"></div>
+    <div class="sel hd" style="transform:translate(484px,48px);animation-name:h1"></div>
+    <div class="sel hd" style="transform:translate(1404px,48px);animation-name:h2"></div>
+    <div class="sel hd" style="transform:translate(484px,684px);animation-name:h3"></div>
+    <div class="sel hd" style="transform:translate(1404px,684px);animation-name:h4"></div>
+  </main>
+</div>
+
+  <nav class="bar" aria-label="Canvas toolbar">
+    <a href="#index">All projects</a>
+    <a href="#about">About</a>
+    <a href="mailto:[your.email@example.com]">Email</a>
+    <a class="cta" href="#">Download CV</a>
+    <span aria-hidden="true" style="width:1px;height:20px;background:#45453F;margin:0 6px"></span>
+    <span class="mono" aria-label="Zoom 100 percent" style="font-size:12px;color:#B5B5AE;padding:0 10px 0 4px">100%</span>
+  </nav>
+
+  <nav class="mm" aria-label="Minimap">
+    <div style="position:relative;width:89px;height:171px">
+        <a class="mmb" href="#about" aria-label="Go to About" style="left:3.0px;top:6.0px;width:24.8px;height:30.3px"><span></span></a>
+        <a class="mmb" href="#bayyinah" aria-label="Go to Bayyinah" style="left:31.2px;top:4.7px;width:55.1px;height:38.9px"><span>Bayyinah</span></a>
+        <a class="mmb" href="#mobile" aria-label="Go to Mobile" style="left:3.0px;top:49.1px;width:63.5px;height:35.2px"><span>Mobile</span></a>
+        <a class="mmb" href="#incentiv" aria-label="Go to Web3" style="left:68.9px;top:49.1px;width:17.4px;height:35.2px"><span></span></a>
+        <a class="mmb" href="#care" aria-label="Go to Care" style="left:3.0px;top:96.0px;width:61.4px;height:28.0px"><span>Care</span></a>
+        <a class="mmb" href="#games" aria-label="Go to Games" style="left:67.7px;top:97.5px;width:18.3px;height:26.0px"><span></span></a>
+        <a class="mmb" href="#index" aria-label="Go to Index" style="left:29.7px;top:132.7px;width:49.9px;height:27.9px"><span>Index</span></a>
+        <a class="mmb" href="#contact" aria-label="Go to Contact" style="left:3.0px;top:141.5px;width:21.8px;height:16.7px"><span></span></a>
+        <div aria-hidden="true" style="position:absolute;left:0;top:0;width:89px;height:56px;box-sizing:border-box;border:1.5px solid #0B6CF0;border-radius:2px"></div>
+    </div>
+  </nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2760}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      chips: [
+        { name: 'All 28', on: 'true' },
+        { name: 'Healthcare', on: 'false' },
+        { name: 'Streaming', on: 'false' },
+        { name: 'Mobile apps', on: 'false' },
+        { name: 'Web3', on: 'false' },
+        { name: 'Web apps & AI', on: 'false' },
+        { name: 'Games & personal', on: 'false' }
+      ],
+      rows: [
+        { name: 'Care-management platform', channel: 'Healthcare', stack: 'Vue → React · Laravel', years: '2023–26' },
+        { name: 'Bayyinah TV', channel: 'Streaming', stack: 'Nuxt 3 · HLS · Stripe', years: '2023–26' },
+        { name: 'Read to Feed', channel: 'Mobile apps', stack: 'React Native', years: '2022–25' },
+        { name: 'Incentiv', channel: 'Web3', stack: 'Next.js 14 · passkeys', years: '2024' },
+        { name: 'AI business dashboard', channel: 'Web apps & AI', stack: 'AvahiTech', years: 'Freelance' },
+        { name: 'Geo Guesser World 3D', channel: 'Games & personal', stack: 'Google Play', years: '2026' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

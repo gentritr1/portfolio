@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>F · Acid Zine</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bowlby+One&amp;family=Familjen+Grotesk:ital,wght@0,400..700;1,400..700&amp;family=Space+Mono:wght@400;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#FFFFFF}
+a{color:#0A0A0A}a:hover{color:#1F3BFF}
+.zig{clip-path:polygon(0.00% 0px, 2.78% 12px, 5.56% 0px, 8.33% 12px, 11.11% 0px, 13.89% 12px, 16.67% 0px, 19.44% 12px, 22.22% 0px, 25.00% 12px, 27.78% 0px, 30.56% 12px, 33.33% 0px, 36.11% 12px, 38.89% 0px, 41.67% 12px, 44.44% 0px, 47.22% 12px, 50.00% 0px, 52.78% 12px, 55.56% 0px, 58.33% 12px, 61.11% 0px, 63.89% 12px, 66.67% 0px, 69.44% 12px, 72.22% 0px, 75.00% 12px, 77.78% 0px, 80.56% 12px, 83.33% 0px, 86.11% 12px, 88.89% 0px, 91.67% 12px, 94.44% 0px, 97.22% 12px, 100.00% 0px, 100.00% 100%, 97.22% calc(100% - 12px), 94.44% 100%, 91.67% calc(100% - 12px), 88.89% 100%, 86.11% calc(100% - 12px), 83.33% 100%, 80.56% calc(100% - 12px), 77.78% 100%, 75.00% calc(100% - 12px), 72.22% 100%, 69.44% calc(100% - 12px), 66.67% 100%, 63.89% calc(100% - 12px), 61.11% 100%, 58.33% calc(100% - 12px), 55.56% 100%, 52.78% calc(100% - 12px), 50.00% 100%, 47.22% calc(100% - 12px), 44.44% 100%, 41.67% calc(100% - 12px), 38.89% 100%, 36.11% calc(100% - 12px), 33.33% 100%, 30.56% calc(100% - 12px), 27.78% 100%, 25.00% calc(100% - 12px), 22.22% 100%, 19.44% calc(100% - 12px), 16.67% 100%, 13.89% calc(100% - 12px), 11.11% 100%, 8.33% calc(100% - 12px), 5.56% 100%, 2.78% calc(100% - 12px), 0.00% 100%)}
+.torn{clip-path:polygon(0.00% 6px, 3.57% 3px, 7.14% 9px, 10.71% 1px, 14.29% 0px, 17.86% 0px, 21.43% 7px, 25.00% 4px, 28.57% 0px, 32.14% 6px, 35.71% 4px, 39.29% 0px, 42.86% 4px, 46.43% 3px, 50.00% 0px, 53.57% 0px, 57.14% 9px, 60.71% 9px, 64.29% 0px, 67.86% 3px, 71.43% 0px, 75.00% 4px, 78.57% 9px, 82.14% 0px, 85.71% 7px, 89.29% 4px, 92.86% 0px, 96.43% 3px, 100.00% 1px, 100.00% calc(100% - 1px), 96.43% calc(100% - 4px), 92.86% calc(100% - 0px), 89.29% calc(100% - 4px), 85.71% calc(100% - 4px), 82.14% calc(100% - 9px), 78.57% calc(100% - 0px), 75.00% calc(100% - 3px), 71.43% calc(100% - 0px), 67.86% calc(100% - 4px), 64.29% calc(100% - 7px), 60.71% calc(100% - 3px), 57.14% calc(100% - 6px), 53.57% calc(100% - 9px), 50.00% calc(100% - 3px), 46.43% calc(100% - 4px), 42.86% calc(100% - 0px), 39.29% calc(100% - 4px), 35.71% calc(100% - 6px), 32.14% calc(100% - 4px), 28.57% calc(100% - 7px), 25.00% calc(100% - 1px), 21.43% calc(100% - 3px), 17.86% calc(100% - 0px), 14.29% calc(100% - 4px), 10.71% calc(100% - 4px), 7.14% calc(100% - 1px), 3.57% calc(100% - 3px), 0.00% calc(100% - 6px))}
+.side{clip-path:polygon(0% 0%, 100% 0%, calc(100% - 0px) 4.17%, calc(100% - 2px) 8.33%, calc(100% - 6px) 12.50%, calc(100% - 0px) 16.67%, calc(100% - 2px) 20.83%, calc(100% - 0px) 25.00%, calc(100% - 2px) 29.17%, calc(100% - 4px) 33.33%, calc(100% - 11px) 37.50%, calc(100% - 6px) 41.67%, calc(100% - 2px) 45.83%, calc(100% - 11px) 50.00%, calc(100% - 8px) 54.17%, calc(100% - 11px) 58.33%, calc(100% - 2px) 62.50%, calc(100% - 11px) 66.67%, calc(100% - 8px) 70.83%, calc(100% - 8px) 75.00%, calc(100% - 4px) 79.17%, calc(100% - 4px) 83.33%, calc(100% - 6px) 87.50%, calc(100% - 4px) 91.67%, calc(100% - 0px) 95.83%, 100% 100%, 0% 100%, 2px 95.83%, 8px 91.67%, 2px 87.50%, 11px 83.33%, 8px 79.17%, 6px 75.00%, 11px 70.83%, 8px 66.67%, 2px 62.50%, 0px 58.33%, 0px 54.17%, 2px 50.00%, 11px 45.83%, 4px 41.67%, 8px 37.50%, 4px 33.33%, 11px 29.17%, 11px 25.00%, 0px 20.83%, 6px 16.67%, 0px 12.50%, 2px 8.33%, 2px 4.17%)}
+.burst{clip-path:polygon(50.0% 0.0%, 56.4% 9.5%, 65.5% 2.4%, 68.6% 13.5%, 79.4% 9.5%, 79.0% 21.0%, 90.5% 20.6%, 86.5% 31.4%, 97.6% 34.5%, 90.5% 43.6%, 100.0% 50.0%, 90.5% 56.4%, 97.6% 65.5%, 86.5% 68.6%, 90.5% 79.4%, 79.0% 79.0%, 79.4% 90.5%, 68.6% 86.5%, 65.5% 97.6%, 56.4% 90.5%, 50.0% 100.0%, 43.6% 90.5%, 34.5% 97.6%, 31.4% 86.5%, 20.6% 90.5%, 21.0% 79.0%, 9.5% 79.4%, 13.5% 68.6%, 2.4% 65.5%, 9.5% 56.4%, 0.0% 50.0%, 9.5% 43.6%, 2.4% 34.5%, 13.5% 31.4%, 9.5% 20.6%, 21.0% 21.0%, 20.6% 9.5%, 31.4% 13.5%, 34.5% 2.4%, 43.6% 9.5%)}
+.ink{filter:drop-shadow(3px 0 0 #0A0A0A) drop-shadow(-3px 0 0 #0A0A0A) drop-shadow(0 3px 0 #0A0A0A) drop-shadow(0 -3px 0 #0A0A0A) drop-shadow(9px 9px 0 #0A0A0A)}
+.dots{background-image:radial-gradient(#0A0A0A 1.3px,transparent 1.7px);background-size:8px 8px}
+.dots-w{background-image:radial-gradient(rgba(255,255,255,.55) 1.3px,transparent 1.7px);background-size:8px 8px}
+.xerox{filter:grayscale(1) contrast(1.6) brightness(1.05);mix-blend-mode:multiply}
+.mq{display:flex;width:max-content;animation:mq 28s linear infinite}
+.mq-rev{animation-direction:reverse;animation-duration:34s}
+.wob{animation:wob 4.2s ease-in-out infinite}
+.flip{animation:flip 8s cubic-bezier(.77,0,.18,1) infinite}
+.face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.btn{transition:transform .16s cubic-bezier(.23,1,.32,1),box-shadow .16s cubic-bezier(.23,1,.32,1)}
+.btn:hover{transform:translate(-2px,-2px);box-shadow:7px 7px 0 #0A0A0A}
+.btn:active{transform:translate(3px,3px);box-shadow:1px 1px 0 #0A0A0A}
+@keyframes mq{to{transform:translateX(-50%)}}
+@keyframes wob{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}
+@keyframes flip{0%,40%{transform:rotateY(0deg)}50%,90%{transform:rotateY(180deg)}100%{transform:rotateY(360deg)}}
+@keyframes blink{0%,60%{opacity:1}61%,100%{opacity:.25}}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+</helmet>
+<div style="background: #FFFFFF; color: #0A0A0A; font-family: 'Familjen Grotesk', sans-serif; min-height: 2200px; overflow: hidden">
+
+  <div style="background: #0A0A0A; color: #FFFFFF; font-family: 'Space Mono', monospace; font-size: 13px; letter-spacing: 0.08em">
+    <div style="max-width: 1440px; margin: 0 auto; padding: 9px 48px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px">
+      <span>ZINE Nº 05 ✦ THE WORK OF GENTRIT RASHITI ✦ PRINTED IN KOSOVO, READ ANYWHERE</span>
+      <span><span style="color: #C6FF00; animation: blink 1.6s steps(1) infinite; display: inline-block">●</span> OPEN TO REMOTE ROLES</span>
+    </div>
+  </div>
+
+  <header style="max-width: 1440px; margin: 0 auto; padding: 20px 48px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; border-bottom: 4px solid #0A0A0A">
+    <a href="#" style="display: flex; align-items: center; gap: 14px; text-decoration: none">
+      <span style="width: 54px; height: 54px; border-radius: 50%; background: #FF2E88; border: 3px solid #0A0A0A; box-shadow: 3px 3px 0 #0A0A0A; display: flex; align-items: center; justify-content: center; font-family: 'Bowlby One', sans-serif; font-size: 20px; transform: rotate(-8deg)">GR</span>
+      <span style="font-family: 'Bowlby One', sans-serif; font-size: 24px; letter-spacing: 0.01em">GENTRIT RASHITI</span>
+    </a>
+    <nav style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 17px; font-weight: 700">
+      <a href="#" style="padding: 12px 16px; text-decoration: none">Work</a>
+      <a href="#" style="padding: 12px 16px; text-decoration: none">Index</a>
+      <a href="#" style="padding: 12px 16px; text-decoration: none">About</a>
+      <a href="#" class="btn" style="padding: 12px 18px; text-decoration: none; background: #FFFFFF; border: 3px solid #0A0A0A; box-shadow: 4px 4px 0 #0A0A0A">Email</a>
+      <a href="#" class="btn" style="padding: 12px 18px; text-decoration: none; background: #C6FF00; border: 3px solid #0A0A0A; box-shadow: 4px 4px 0 #0A0A0A">Download CV ↓</a>
+    </nav>
+  </header>
+
+  <section style="max-width: 1440px; margin: 0 auto; padding: 44px 48px 0; display: flex; flex-wrap: wrap; gap: 40px; align-items: flex-start">
+    <div style="flex: 999 1 640px; min-width: 0">
+      <div style="display: flex; flex-wrap: wrap; gap: 14px; align-items: center">
+        <span style="display: inline-block; padding: 8px 14px; border: 3px solid #FF2E88; color: #C2005A; font-family: 'Space Mono', monospace; font-weight: 700; font-size: 14px; letter-spacing: 0.12em; transform: rotate(-3deg)">FRONTEND · MOBILE · FULL STACK</span>
+        <span style="font-family: 'Space Mono', monospace; font-size: 14px">Kosovo · remote · 5+ years</span>
+      </div>
+      <h1 style="margin: 26px 0 0; font-family: 'Bowlby One', sans-serif; font-weight: 400; font-size: 116px; line-height: 0.9; letter-spacing: -0.01em">
+        <span style="display: block">GENTRIT</span>
+        <span style="display: inline-block; margin-top: 10px; padding: 4px 18px 10px; background: #1F3BFF; color: #FFFFFF; border: 4px solid #0A0A0A; box-shadow: 10px 10px 0 #FF2E88; transform: rotate(-2.5deg)">RASHITI</span>
+      </h1>
+      <p style="margin: 40px 0 0; font-size: 30px; line-height: 1.2; font-weight: 700; max-width: 22ch; letter-spacing: -0.01em">Frontend &amp; mobile developer, <span style="background: #C6FF00; padding: 0 6px; box-decoration-break: clone; -webkit-box-decoration-break: clone">now full stack.</span></p>
+      <p style="margin: 18px 0 0; font-size: 19px; line-height: 1.5; max-width: 46ch">Apps in real stores, platforms in real clinics. Streaming, healthcare, e-reading and Web3, cut and pasted into one zine.</p>
+      <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 26px; font-family: 'Space Mono', monospace; font-size: 14px; font-weight: 700">
+        <span style="padding: 9px 13px; background: #0A0A0A; color: #C6FF00; border: 3px solid #0A0A0A">[Seniority]</span>
+        <span style="padding: 9px 13px; background: #FFFFFF; border: 3px solid #0A0A0A">5+ yrs</span>
+        <span style="padding: 9px 13px; background: #FFFFFF; border: 3px solid #0A0A0A">React · React Native · Vue/Nuxt</span>
+        <span style="padding: 9px 13px; background: #FFFFFF; border: 3px solid #0A0A0A">Next.js · TypeScript · Laravel</span>
+        <span style="padding: 9px 13px; background: #FF2E88; border: 3px solid #0A0A0A">Open to remote roles</span>
+      </div>
+    </div>
+
+    <div style="flex: 1 1 520px; position: relative; height: 520px; min-width: 0">
+      <div style="position: absolute; left: 0; top: 70px; width: 210px; transform: rotate(-9deg)">
+        <div class="ink">
+          <div class="side" style="background: #C6FF00; padding: 14px 14px 12px">
+            <img class="xerox" src="/_blob/0aa911fe9541dfae5df4cfaeb1cd6503" alt="Viva Fresh store screenshot, photocopied" style="width: 100%; display: block">
+            <p style="margin: 10px 0 0; font-family: 'Space Mono', monospace; font-size: 13px; font-weight: 700">CUT-OUT · VIVA FRESH, 2023</p>
+          </div>
+        </div>
+      </div>
+
+      <div style="position: absolute; right: 30px; top: 0; width: 320px; height: 500px; perspective: 1600px">
+        <div class="flip" style="position: relative; width: 100%; height: 100%; transform-style: preserve-3d">
+          <div class="face">
+            <div class="ink" style="height: 100%">
+              <div class="zig" style="height: 100%; box-sizing: border-box; background: #1F3BFF; padding: 30px 26px; display: flex; flex-direction: column; gap: 14px; position: relative">
+                <div class="dots-w" style="position: absolute; inset: 0; opacity: 0.35"></div>
+                <span style="position: relative; align-self: flex-start; padding: 6px 10px; background: #FFFFFF; border: 3px solid #0A0A0A; font-family: 'Space Mono', monospace; font-size: 13px; font-weight: 700">FRONT · BAYYINAH TV</span>
+                <img src="/_blob/e4db1c62e8865c5bf469ad292fa3ad36" alt="Bayyinah TV store screenshot, front of the flip card" style="position: relative; width: 82%; align-self: center; border: 3px solid #0A0A0A; border-radius: 18px; display: block">
+              </div>
+            </div>
+          </div>
+          <div class="face" style="transform: rotateY(180deg)">
+            <div class="ink" style="height: 100%">
+              <div class="zig" style="height: 100%; box-sizing: border-box; background: #C6FF00; padding: 40px 28px; display: flex; flex-direction: column; justify-content: center; gap: 18px; position: relative">
+                <div class="dots" style="position: absolute; inset: 0; opacity: 0.12"></div>
+                <span style="position: relative; align-self: flex-start; padding: 6px 10px; background: #0A0A0A; color: #C6FF00; font-family: 'Space Mono', monospace; font-size: 13px; font-weight: 700">BACK · THE PROOF</span>
+                <span style="position: relative; font-family: 'Bowlby One', sans-serif; font-size: 84px; line-height: 0.9">100K+</span>
+                <span style="position: relative; font-size: 24px; font-weight: 700; line-height: 1.2">downloads on Google Play</span>
+                <div style="position: relative; border-top: 3px solid #0A0A0A; padding-top: 16px; display: flex; flex-direction: column; gap: 8px; font-size: 18px; font-weight: 600">
+                  <span>34 routes on Nuxt 3</span>
+                  <span>Live streams + realtime chat</span>
+                  <span>English / Arabic RTL</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="position: absolute; left: 120px; bottom: 6px; transform: rotate(8deg)">
+        <div class="wob" style="width: 150px; height: 150px; border-radius: 50%; background: #FF2E88; border: 3px solid #0A0A0A; box-shadow: 5px 5px 0 #0A0A0A; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center">
+          <span style="font-family: 'Bowlby One', sans-serif; font-size: 40px; line-height: 1">28</span>
+          <span style="font-family: 'Space Mono', monospace; font-size: 13px; font-weight: 700; margin-top: 4px">projects<br>6 channels</span>
+        </div>
+      </div>
+      <div style="position: absolute; right: 0; bottom: 24px; z-index: 3; padding: 8px 12px; background: #FFFFFF; border: 3px solid #0A0A0A; box-shadow: 4px 4px 0 #0A0A0A; font-family: 'Space Mono', monospace; font-size: 13px; font-weight: 700; transform: rotate(-4deg)">No.01 · STREAMING · 2023–26</div>
+    </div>
+  </section>
+
+  <div style="position: relative; height: 170px; margin-top: 24px" aria-label="Stack: React, React Native, Vue and Nuxt, Next.js, TypeScript, Laravel">
+    <div style="position: absolute; left: -40px; right: -40px; top: 26px; background: #1F3BFF; color: #FFFFFF; border-top: 4px solid #0A0A0A; border-bottom: 4px solid #0A0A0A; transform: rotate(-3deg); overflow: hidden; padding: 14px 0">
+      <div class="mq" style="font-family: 'Bowlby One', sans-serif; font-size: 40px; line-height: 1; white-space: nowrap">
+        <span style="padding-right: 28px">REACT ✦ REACT NATIVE ✦ VUE / NUXT ✦ NEXT.JS ✦ TYPESCRIPT ✦ LARAVEL ✦ REACT ✦ REACT NATIVE ✦ VUE / NUXT ✦ NEXT.JS ✦ TYPESCRIPT ✦ LARAVEL ✦</span>
+        <span style="padding-right: 28px" aria-hidden="true">REACT ✦ REACT NATIVE ✦ VUE / NUXT ✦ NEXT.JS ✦ TYPESCRIPT ✦ LARAVEL ✦ REACT ✦ REACT NATIVE ✦ VUE / NUXT ✦ NEXT.JS ✦ TYPESCRIPT ✦ LARAVEL ✦</span>
+      </div>
+    </div>
+    <div style="position: absolute; left: -40px; right: -40px; top: 84px; background: #C6FF00; color: #0A0A0A; border-top: 4px solid #0A0A0A; border-bottom: 4px solid #0A0A0A; transform: rotate(2.4deg); overflow: hidden; padding: 12px 0">
+      <div class="mq mq-rev" style="font-family: 'Space Mono', monospace; font-weight: 700; font-size: 22px; white-space: nowrap; letter-spacing: 0.04em">
+        <span style="padding-right: 28px">STREAMING ★ HEALTHCARE ★ MOBILE APPS ★ WEB3 ★ WEB APPS &amp; AI ★ GAMES ★ iOS + ANDROID ★ ENGLISH / ARABIC RTL ★ PARITY TESTS ★ STREAMING ★ HEALTHCARE ★ MOBILE APPS ★ WEB3 ★ WEB APPS &amp; AI ★ GAMES ★</span>
+        <span style="padding-right: 28px" aria-hidden="true">STREAMING ★ HEALTHCARE ★ MOBILE APPS ★ WEB3 ★ WEB APPS &amp; AI ★ GAMES ★ iOS + ANDROID ★ ENGLISH / ARABIC RTL ★ PARITY TESTS ★ STREAMING ★ HEALTHCARE ★ MOBILE APPS ★ WEB3 ★ WEB APPS &amp; AI ★ GAMES ★</span>
+      </div>
+    </div>
+  </div>
+
+  <section style="max-width: 1440px; margin: 0 auto; padding: 24px 48px 0">
+    <div style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 30px">
+      <h2 style="margin: 0; font-family: 'Bowlby One', sans-serif; font-weight: 400; font-size: 76px; line-height: 0.95; transform: rotate(-1.5deg); transform-origin: left bottom">THE PAGES<span style="color: #FF2E88">.</span></h2>
+      <p style="margin: 0; font-family: 'Space Mono', monospace; font-size: 15px; max-width: 44ch">Three featured pages, torn out of the full issue. Proof numbers first, story second.</p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 40px; align-items: start">
+
+      <a href="#" style="display: block; text-decoration: none; color: #FFFFFF; transform: rotate(-1.4deg)">
+        <div class="ink">
+          <div class="zig" style="background: #1F3BFF; padding: 34px 26px 36px; display: flex; flex-direction: column; gap: 16px; position: relative">
+            <div style="display: flex; justify-content: space-between; align-items: center; font-family: 'Space Mono', monospace; font-size: 13px; font-weight: 700">
+              <span style="padding: 5px 9px; background: #FFFFFF; color: #0A0A0A">P.01</span><span>STREAMING · 2023–26</span>
+            </div>
+            <div style="display: flex; gap: 18px; align-items: flex-end; flex-wrap: wrap">
+              <div><div style="font-family: 'Bowlby One', sans-serif; font-size: 52px; line-height: 0.95; color: #C6FF00">100K+</div><div style="font-size: 16px; font-weight: 600">Google Play downloads</div></div>
+              <div><div style="font-family: 'Bowlby One', sans-serif; font-size: 52px; line-height: 0.95">34</div><div style="font-size: 16px; font-weight: 600">routes</div></div>
+            </div>
+            <div style="position: relative; height: 212px; background: #FFFFFF; border: 3px solid #0A0A0A; overflow: hidden">
+              <div class="dots" style="position: absolute; inset: 0; opacity: 0.18"></div>
+              <img src="/_blob/b5de8b603eb9fc1eb6243512da056cfb" alt="Bayyinah TV website, public landing page" style="position: absolute; left: 12px; top: 14px; width: 82%; border: 3px solid #0A0A0A; display: block; transform: rotate(-2deg)">
+              <img src="/_blob/efd3efb4559b375e93df948c6424122c" alt="Bayyinah TV store screenshot" style="position: absolute; right: 12px; top: 40px; width: 30%; border: 3px solid #0A0A0A; border-radius: 12px; display: block; transform: rotate(4deg)">
+            </div>
+            <h3 style="margin: 4px 0 0; font-family: 'Bowlby One', sans-serif; font-weight: 400; font-size: 36px; line-height: 1">BAYYINAH TV</h3>
+            <p style="margin: 0; font-size: 17px; line-height: 1.45">Video-learning platform rebuilt on Nuxt 3. Live streams, realtime chat, HLS player, Stripe, Apple and Google subscriptions.</p>
+          </div>
+        </div>
+      </a>
+
+      <a href="#" style="display: block; text-decoration: none; color: #0A0A0A; transform: rotate(1.1deg); margin-top: 28px">
+        <div class="ink">
+          <div class="torn" style="background: #C6FF00; padding: 34px 26px 36px; display: flex; flex-direction: column; gap: 16px">
+            <div style="display: flex; justify-content: space-between; align-items: center; font-family: 'Space Mono', monospace; font-size: 13px; font-weight: 700">
+              <span style="padding: 5px 9px; background: #0A0A0A; color: #C6FF00">P.02</span><span>HEALTHCARE · 2023–26</span>
+            </div>
+            <div style="display: flex; gap: 18px; align-items: flex-end; flex-wrap: wrap">
+              <div><div style="font-family: 'Bowlby One', sans-serif; font-size: 52px; line-height: 0.95">16→2</div><div style="font-size: 16px; font-weight: 600">queries, billing report</div></div>
+              <div><div style="font-family: 'Bowlby One', sans-serif; font-size: 52px; line-height: 0.95; color: #1F3BFF">31</div><div style="font-size: 16px; font-weight: 600">decision records</div></div>
+            </div>
+            <div style="position: relative; height: 212px; background: #FFFFFF; border: 3px solid #0A0A0A; padding: 18px; box-sizing: border-box; display: flex; flex-direction: column; gap: 10px">
+              <div style="display: flex; justify-content: space-between; font-family: 'Space Mono', monospace; font-size: 13px; font-weight: 700"><span>PATIENT 4821 · BLOOD PRESSURE</span><span style="padding: 2px 6px; background: #FF2E88">2 ALERTS</span></div>
+              <svg viewBox="0 0 320 120" role="img" aria-label="Invented recreation: blood-pressure line with two alert dots" style="width: 100%; height: 120px; display: block">
+                <path d="M0 40 H320 M0 80 H320" stroke="#0A0A0A" stroke-width="1" stroke-dasharray="4 6" fill="none"></path>
+                <path d="M0 78 C30 70 50 88 80 74 S130 52 160 66 S210 84 240 30 S290 62 320 56" fill="none" stroke="#1F3BFF" stroke-width="4"></path>
+                <circle cx="240" cy="30" r="9" fill="#FF2E88" stroke="#0A0A0A" stroke-width="3"></circle>
+                <circle cx="123" cy="56" r="9" fill="#FF2E88" stroke="#0A0A0A" stroke-width="3"></circle>
+              </svg>
+              <span style="position: absolute; right: -12px; bottom: -14px; padding: 6px 10px; background: #0A0A0A; color: #FFFFFF; font-family: 'Space Mono', monospace; font-size: 13px; font-weight: 700; transform: rotate(-6deg)">VUE → REACT</span>
+            </div>
+            <h3 style="margin: 4px 0 0; font-family: 'Bowlby One', sans-serif; font-weight: 400; font-size: 36px; line-height: 1">CARE PLATFORM</h3>
+            <p style="margin: 0; font-size: 17px; line-height: 1.45">Remote patient monitoring for many clinics. Moved route by route with parity tests, on a Laravel API, in 4 languages.</p>
+          </div>
+        </div>
+      </a>
+
+      <a href="#" style="display: block; text-decoration: none; color: #0A0A0A; transform: rotate(-0.7deg)">
+        <div class="ink">
+          <div class="side" style="background: #FF2E88; padding: 30px 30px 32px; display: flex; flex-direction: column; gap: 16px; position: relative">
+            <div style="display: flex; justify-content: space-between; align-items: center; font-family: 'Space Mono', monospace; font-size: 13px; font-weight: 700">
+              <span style="padding: 5px 9px; background: #FFFFFF">P.03</span><span>MOBILE · 2022–25</span>
+            </div>
+            <div style="display: flex; gap: 18px; align-items: flex-end; flex-wrap: wrap">
+              <div><div style="font-family: 'Bowlby One', sans-serif; font-size: 52px; line-height: 0.95">≈14</div><div style="font-size: 16px; font-weight: 600">store releases</div></div>
+              <div><div style="font-family: 'Bowlby One', sans-serif; font-size: 34px; line-height: 1.1; color: #FFFFFF; -webkit-text-stroke: 2px #0A0A0A">0.63→0.81</div><div style="font-size: 16px; font-weight: 600">React Native</div></div>
+            </div>
+            <div style="position: relative; height: 212px; background: #FFFFFF; border: 3px solid #0A0A0A; overflow: hidden; display: flex; justify-content: center; gap: 14px; padding-top: 18px; box-sizing: border-box">
+              <div class="dots" style="position: absolute; inset: 0; opacity: 0.14"></div>
+              <img src="/_blob/461e33a21e9453a672979083bb704ea9" alt="Read to Feed store screenshot" style="position: relative; width: 38%; align-self: flex-start; border: 3px solid #0A0A0A; border-radius: 12px; display: block; transform: rotate(-3deg)">
+              <img src="/_blob/5a5111f71e28ccea7450e215ad9e5751" alt="Read to Feed store screenshot" style="position: relative; width: 38%; align-self: flex-start; border: 3px solid #0A0A0A; border-radius: 12px; display: block; margin-top: 26px; transform: rotate(3deg)">
+            </div>
+            <h3 style="margin: 4px 0 0; font-family: 'Bowlby One', sans-serif; font-weight: 400; font-size: 36px; line-height: 1">READ TO FEED</h3>
+            <p style="margin: 0; font-size: 17px; line-height: 1.45">Children's reading app: PDF and EPUB reader, ISBN barcode scanning, badges and streaks, 3 languages.</p>
+          </div>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <section style="max-width: 1440px; margin: 0 auto; padding: 64px 48px 0; display: flex; flex-wrap: wrap; gap: 44px; align-items: flex-start">
+    <div style="flex: 1 1 500px; min-width: 0; position: relative; background: #FFFFFF; border: 3px dashed #0A0A0A; padding: 30px 28px 34px">
+      <span style="position: absolute; left: 22px; top: -20px; padding: 6px 12px; background: #0A0A0A; color: #C6FF00; font-family: 'Space Mono', monospace; font-size: 14px; font-weight: 700; transform: rotate(-2deg)">STICKER SHEET · PROOF, PEEL ONE</span>
+      <div style="display: flex; flex-wrap: wrap; gap: 22px; align-items: center; justify-content: center; padding-top: 10px">
+        <div style="transform: rotate(-6deg)"><div class="wob" style="animation-delay: -0.4s"><div style="filter: drop-shadow(4px 4px 0 #0A0A0A)"><div class="burst" style="width: 184px; height: 184px; background: #C6FF00; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center"><span style="font-family: 'Bowlby One', sans-serif; font-size: 30px; line-height: 1">100K+</span><span style="font-family: 'Space Mono', monospace; font-size: 13px; font-weight: 700">downloads</span></div></div></div></div>
+        <div style="transform: rotate(5deg)"><div class="wob" style="animation-delay: -1.3s; width: 138px; height: 138px; border-radius: 50%; background: #FF2E88; border: 3px solid #0A0A0A; box-shadow: 4px 4px 0 #0A0A0A; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center"><span style="font-family: 'Bowlby One', sans-serif; font-size: 40px; line-height: 1">31</span><span style="font-family: 'Space Mono', monospace; font-size: 13px; font-weight: 700">ADRs</span></div></div>
+        <div style="transform: rotate(-3deg)"><div class="wob" style="animation-delay: -2.1s; padding: 18px 20px; background: #1F3BFF; color: #FFFFFF; border: 3px solid #0A0A0A; box-shadow: 4px 4px 0 #0A0A0A; text-align: center"><div style="font-family: 'Bowlby One', sans-serif; font-size: 36px; line-height: 1">16 → 2</div><div style="font-family: 'Space Mono', monospace; font-size: 13px; font-weight: 700; margin-top: 6px">queries</div></div></div>
+        <div style="transform: rotate(7deg)"><div class="wob" style="animation-delay: -0.9s; width: 128px; height: 128px; border-radius: 50%; background: #FFFFFF; border: 3px solid #0A0A0A; box-shadow: 4px 4px 0 #0A0A0A; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center"><span style="font-family: 'Bowlby One', sans-serif; font-size: 34px; line-height: 1">≈14</span><span style="font-family: 'Space Mono', monospace; font-size: 13px; font-weight: 700">releases</span></div></div>
+        <div style="transform: rotate(-4deg)"><div class="wob" style="animation-delay: -3s; padding: 14px 18px; background: #C6FF00; border: 3px solid #0A0A0A; border-radius: 999px; box-shadow: 4px 4px 0 #0A0A0A; font-family: 'Space Mono', monospace; font-size: 16px; font-weight: 700">RN 0.63 → 0.81</div></div>
+        <div style="transform: rotate(3deg)"><div class="wob" style="animation-delay: -1.7s; padding: 14px 18px; background: #0A0A0A; color: #C6FF00; border: 3px solid #0A0A0A; box-shadow: 4px 4px 0 #FF2E88; font-family: 'Space Mono', monospace; font-size: 16px; font-weight: 700">34 ROUTES</div></div>
+        <div style="transform: rotate(-7deg)"><div class="wob" style="animation-delay: -2.6s; padding: 14px 18px; background: #FF2E88; border: 3px solid #0A0A0A; box-shadow: 4px 4px 0 #0A0A0A; font-family: 'Space Mono', monospace; font-size: 16px; font-weight: 700">4 LANGUAGES</div></div>
+      </div>
+    </div>
+
+    <div style="flex: 1 1 560px; min-width: 0">
+      <h2 style="margin: 0; font-family: 'Bowlby One', sans-serif; font-weight: 400; font-size: 56px; line-height: 1">THE FULL ISSUE <span style="display: inline-block; padding: 0 10px; background: #1F3BFF; color: #FFFFFF; transform: rotate(3deg)">28</span></h2>
+      <div style="display: flex; flex-wrap: wrap; gap: 8px; margin: 22px 0 18px">
+        <button type="button" style="padding: 9px 14px; background: #0A0A0A; color: #C6FF00; border: 3px solid #0A0A0A; font-family: 'Space Mono', monospace; font-size: 14px; font-weight: 700; cursor: pointer">All 28</button>
+        <button type="button" style="padding: 9px 14px; background: #FFFFFF; color: #0A0A0A; border: 3px solid #0A0A0A; font-family: 'Space Mono', monospace; font-size: 14px; font-weight: 700; cursor: pointer">Healthcare</button>
+        <button type="button" style="padding: 9px 14px; background: #FFFFFF; color: #0A0A0A; border: 3px solid #0A0A0A; font-family: 'Space Mono', monospace; font-size: 14px; font-weight: 700; cursor: pointer">Streaming</button>
+        <button type="button" style="padding: 9px 14px; background: #FFFFFF; color: #0A0A0A; border: 3px solid #0A0A0A; font-family: 'Space Mono', monospace; font-size: 14px; font-weight: 700; cursor: pointer">Mobile apps</button>
+        <button type="button" style="padding: 9px 14px; background: #FFFFFF; color: #0A0A0A; border: 3px solid #0A0A0A; font-family: 'Space Mono', monospace; font-size: 14px; font-weight: 700; cursor: pointer">Web3</button>
+        <button type="button" style="padding: 9px 14px; background: #FFFFFF; color: #0A0A0A; border: 3px solid #0A0A0A; font-family: 'Space Mono', monospace; font-size: 14px; font-weight: 700; cursor: pointer">Web apps &amp; AI</button>
+        <button type="button" style="padding: 9px 14px; background: #FFFFFF; color: #0A0A0A; border: 3px solid #0A0A0A; font-family: 'Space Mono', monospace; font-size: 14px; font-weight: 700; cursor: pointer">Games &amp; personal</button>
+      </div>
+      <div style="border: 3px solid #0A0A0A; box-shadow: 8px 8px 0 #0A0A0A; background: #FFFFFF">
+        <sc-for list="{{rows}}" as="r" hint-placeholder-count="7">
+          <a href="#" style="display: grid; grid-template-columns: 52px minmax(0, 1fr) auto auto; gap: 14px; align-items: center; padding: 9px 16px; border-bottom: 3px solid #0A0A0A; text-decoration: none; font-size: 18px; font-weight: 700">
+            <span style="font-family: 'Space Mono', monospace; font-size: 14px">{{r.no}}</span>
+            <span>{{r.name}}</span>
+            <span style="padding: 3px 8px; background: #C6FF00; border: 2px solid #0A0A0A; font-family: 'Space Mono', monospace; font-size: 13px">{{r.tag}}</span>
+            <span style="font-family: 'Space Mono', monospace; font-size: 14px; font-weight: 400">{{r.year}}</span>
+          </a>
+        </sc-for>
+        <a href="#" style="display: block; padding: 12px 16px; background: #FF2E88; font-family: 'Space Mono', monospace; font-weight: 700; font-size: 15px; text-decoration: none">Read the full issue: all 28 projects →</a>
+      </div>
+    </div>
+  </section>
+
+  <footer style="margin-top: 64px; background: #0A0A0A; color: #FFFFFF; position: relative; overflow: hidden">
+    <div class="dots-w" style="position: absolute; inset: 0; opacity: 0.12"></div>
+    <div style="position: relative; max-width: 1440px; margin: 0 auto; padding: 48px 48px 44px; display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 32px">
+      <div>
+        <p style="margin: 0 0 12px; font-family: 'Space Mono', monospace; font-size: 15px; color: #C6FF00">LAST PAGE ✦ LETTERS TO THE EDITOR</p>
+        <h2 style="margin: 0; font-family: 'Bowlby One', sans-serif; font-weight: 400; font-size: 92px; line-height: 0.9">WRITE <span style="display: inline-block; padding: 0 16px 8px; background: #FF2E88; color: #0A0A0A; transform: rotate(-3deg)">BACK.</span></h2>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 12px; align-items: flex-start">
+        <a href="#" class="btn" style="padding: 16px 22px; background: #C6FF00; color: #0A0A0A; border: 3px solid #FFFFFF; box-shadow: 4px 4px 0 #FFFFFF; text-decoration: none; font-size: 22px; font-weight: 700">[your.email@example.com]</a>
+        <div style="display: flex; flex-wrap: wrap; gap: 10px; font-size: 18px; font-weight: 700">
+          <a href="#" style="padding: 12px 18px; border: 3px solid #FFFFFF; color: #FFFFFF; text-decoration: none">LinkedIn</a>
+          <a href="#" style="padding: 12px 18px; border: 3px solid #FFFFFF; color: #FFFFFF; text-decoration: none">GitHub</a>
+          <a href="#" style="padding: 12px 18px; background: #1F3BFF; border: 3px solid #FFFFFF; color: #FFFFFF; text-decoration: none">Download CV ↓</a>
+        </div>
+        <p style="margin: 6px 0 0; font-family: 'Space Mono', monospace; font-size: 14px">Kosovo · remote · photocopied with love</p>
+      </div>
+    </div>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2710}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      rows: [
+        { no: '01', name: 'Bayyinah TV', tag: 'STREAMING', year: '2023–26' },
+        { no: '02', name: 'Care-management platform', tag: 'HEALTH', year: '2023–26' },
+        { no: '03', name: 'Read to Feed', tag: 'MOBILE', year: '2022–25' },
+        { no: '04', name: 'Viva Fresh', tag: 'MOBILE', year: '2023' },
+        { no: '05', name: 'Incentiv smart wallet', tag: 'WEB3', year: '2024' },
+        { no: '06', name: 'Geo Guesser World 3D', tag: 'GAME', year: '2026' },
+        { no: '07', name: 'FJALË word game', tag: 'GAME', year: 'live' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

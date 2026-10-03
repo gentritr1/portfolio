@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>M · Index × Preview</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&amp;family=Instrument+Serif:ital@0;1&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F1EEE6;color:#15130F}
+::selection{background:#2B3BD6;color:#F1EEE6}
+a{color:#2B3BD6;text-decoration:none;background-image:linear-gradient(currentColor,currentColor);background-size:100% 1px;background-position:0 100%;background-repeat:no-repeat;padding-bottom:2px;transition:background-size .3s cubic-bezier(.23,1,.32,1)}
+a:hover{background-size:0 1px}
+a:focus-visible{outline:2px solid #2B3BD6;outline-offset:4px}
+.bg{font-family:'Bricolage Grotesque',sans-serif;font-optical-sizing:auto}
+.num{font-family:'Instrument Serif',serif;font-weight:400;font-variant-numeric:lining-nums}
+.wrap{max-width:1440px;margin:0 auto;padding:0 48px;box-sizing:border-box}
+.split{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:24px}
+.l{grid-column:1 / span 7}
+.r{grid-column:8 / span 5}
+.row{position:relative;display:flex;align-items:baseline;justify-content:space-between;gap:24px;padding:5px 0 5px;border-bottom:1px solid rgba(21,19,15,.12)}
+.nm{position:relative;display:inline-block;font-size:50px;line-height:1;font-weight:520;font-variation-settings:'wdth' 84;letter-spacing:-.03em;white-space:nowrap}
+.ink{opacity:.48}
+.fill{position:absolute;left:0;top:0;right:0;bottom:0;opacity:0;color:transparent;background-color:#15130F;background-repeat:no-repeat;-webkit-background-clip:text;background-clip:text}
+@supports not ((-webkit-background-clip:text) or (background-clip:text)){.fill{color:#15130F;background:none}}
+.mt{font-size:14px;line-height:20px;color:#6E6A62;white-space:nowrap}
+.ar{position:absolute;left:0;top:50%;margin-top:-14px;font-size:28px;line-height:28px;color:#2B3BD6;opacity:0}
+.ru{position:absolute;left:0;right:0;bottom:-1px;height:2px;background:#15130F;transform:scaleX(0);transform-origin:0 50%}
+.on .nm{transform:translateX(40px)}
+.on .ink{opacity:0}
+.on .fill{opacity:1}
+.on .ar{opacity:1}
+.on .ru{transform:scaleX(1)}
+.stage{position:relative;height:760px;perspective:1400px}
+.txt{padding-left:40%}
+.ia{position:relative;height:440px}
+.arw{font-family:'Bricolage Grotesque',sans-serif;font-size:40px;vertical-align:12px;margin:0 4px}
+.cut{-webkit-mask-image:linear-gradient(#000 48%,rgba(0,0,0,.08));mask-image:linear-gradient(#000 48%,rgba(0,0,0,.08))}
+.sl{position:absolute;inset:0;opacity:0;transform-origin:50% 40%;backface-visibility:hidden}
+.sl.first{opacity:1}
+.shot{position:absolute;display:block;border-radius:12px;box-shadow:0 1px 2px rgba(21,19,15,.08),0 24px 48px -16px rgba(21,19,15,.28)}
+.sl.cyc,.cyc .nm,.cyc .ar,.cyc .ru,.cyc .ink,.cyc .fill{animation-duration:12s;animation-iteration-count:infinite;animation-timing-function:cubic-bezier(.23,1,.32,1);animation-fill-mode:both}
+.p1.sl,.p1 .nm,.p1 .ar,.p1 .ru,.p1 .ink,.p1 .fill{animation-delay:-10s}
+.p2.sl,.p2 .nm,.p2 .ar,.p2 .ru,.p2 .ink,.p2 .fill{animation-delay:-6s}
+.p3.sl,.p3 .nm,.p3 .ar,.p3 .ru,.p3 .ink,.p3 .fill{animation-delay:-2s}
+.sl.cyc{animation-name:slide}
+.cyc .nm{animation-name:nameOn}
+.cyc .ink{animation-name:inkOff}
+.cyc .fill{animation-name:fillOn}
+.cyc .ar{animation-name:arrowOn}
+.cyc .ru{animation-name:ruleOn}
+@keyframes slide{0%{opacity:0;transform:rotateY(10deg)}5%{opacity:1;transform:rotateY(0)}33.33%{opacity:1;transform:rotateY(0)}38.33%{opacity:0;transform:rotateY(-10deg)}100%{opacity:0;transform:rotateY(-10deg)}}
+@keyframes nameOn{0%{transform:translateX(0)}5%{transform:translateX(40px)}33.33%{transform:translateX(40px)}38.33%{transform:translateX(0)}100%{transform:translateX(0)}}
+@keyframes inkOff{0%{opacity:.48}5%{opacity:0}33.33%{opacity:0}38.33%{opacity:.48}100%{opacity:.48}}
+@keyframes fillOn{0%{opacity:0}5%{opacity:1}33.33%{opacity:1}38.33%{opacity:0}100%{opacity:0}}
+@keyframes arrowOn{0%{opacity:0;transform:translateX(-8px)}5%{opacity:1;transform:translateX(0)}33.33%{opacity:1;transform:translateX(0)}38.33%{opacity:0;transform:translateX(0)}100%{opacity:0;transform:translateX(-8px)}}
+@keyframes ruleOn{0%{opacity:1;transform:scaleX(0)}5%{opacity:1;transform:scaleX(1)}33.33%{opacity:1;transform:scaleX(1)}38.33%{opacity:0;transform:scaleX(1)}38.4%{opacity:0;transform:scaleX(0)}100%{opacity:0;transform:scaleX(0)}}
+.flt a{background-size:0 1px;color:#15130F}
+.flt a.cur{background-size:100% 1px}
+.flt a:hover{background-size:100% 1px}
+@media (max-width: 960px){.l,.r{grid-column:1 / -1}.nm{font-size:40px;white-space:normal}.stage{height:auto;min-height:720px}}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+</helmet>
+<div class="bg" style="background: #F1EEE6; color: #15130F; font-size: 16px; line-height: 1.5; overflow: hidden">
+
+  <section class="wrap" style="padding-top: 40px; padding-bottom: 40px; min-height: 900px">
+    <header class="split" style="align-items: baseline">
+      <h1 class="l" style="margin: 0; font-size: 44px; line-height: 1; font-weight: 640; letter-spacing: -.025em">Gentrit Rashiti</h1>
+      <nav class="r" style="display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 24px; font-size: 16px">
+        <a href="#">Email</a>
+        <a href="#">Download CV</a>
+      </nav>
+    </header>
+
+    <div class="split" style="margin-top: 16px; align-items: start">
+      <div class="l">
+        <p style="margin: 0; font-size: 20px; line-height: 28px; font-weight: 450">Frontend &amp; mobile developer, now full stack.</p>
+        <p style="margin: 8px 0 0; font-size: 16px; line-height: 24px">[Seniority] · 5+ yrs · Open to remote roles</p>
+        <p style="margin: 0; font-size: 16px; line-height: 24px; color: #6E6A62">React · React Native · Vue/Nuxt · Next.js · TypeScript · Laravel</p>
+
+        <div style="margin-top: 40px; display: flex; justify-content: space-between; font-size: 14px; line-height: 20px; color: #6E6A62; padding-bottom: 8px; border-bottom: 1px solid #15130F">
+          <span>Selected work, 10 of 28</span>
+          <span>Category · year</span>
+        </div>
+        <ol style="list-style: none; margin: 0; padding: 0">
+          <sc-for list="{{rows}}" as="r" hint-placeholder-count="10">
+            <li class="{{r.cls}}">
+              <a href="#" class="row" style="background-image: none; padding-bottom: 6px; color: #15130F">
+                <span class="ar" aria-hidden="true">→</span>
+                <span class="nm"><span class="ink">{{r.name}}</span><span class="fill" aria-hidden="true" style="{{r.fill}}">{{r.name}}</span></span>
+                <span class="mt">{{r.meta}}</span>
+                <span class="ru" aria-hidden="true"></span>
+              </a>
+            </li>
+          </sc-for>
+        </ol>
+      </div>
+
+      <aside class="r" style="position: sticky; top: 40px">
+        <div class="stage">
+
+          <article class="sl first cyc p1">
+            <div class="ia" style="height: 300px">
+              <img class="shot" src="/_blob/b5de8b603eb9fc1eb6243512da056cfb" alt="Bayyinah TV website: Quran Studies Made Simple hero with the app on laptop, desktop, tablet and phone" style="right: 0; top: 0; width: 88%; aspect-ratio: 16 / 10; object-fit: cover">
+              <img class="shot" src="/_blob/efd3efb4559b375e93df948c6424122c" alt="Bayyinah TV phone app: video lesson player with the episode list" style="left: 0; top: 155px; width: 24%; aspect-ratio: 778 / 1690; object-fit: cover">
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 32px; padding-left: 40%">
+              <div><div class="num" style="font-size: 64px; line-height: 56px">100K+</div><div style="font-size: 14px; line-height: 20px; color: #6E6A62; margin-top: 8px">downloads on Google Play</div></div>
+              <div><div class="num" style="font-size: 64px; line-height: 56px">34</div><div style="font-size: 14px; line-height: 20px; color: #6E6A62; margin-top: 8px">routes on Nuxt 3</div></div>
+            </div>
+            <p style="margin: 24px 0 0; padding-left: 40%; font-size: 16px; line-height: 24px">A video-learning platform with live streams and realtime chat, an HLS player, Stripe, Apple and Google subscriptions, in English and Arabic.</p>
+            <div style="margin-top: 16px; padding-left: 40%; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px; font-size: 16px">
+              <span style="display: flex; gap: 16px"><a href="#">Website</a><a href="#">App Store</a><a href="#">Google Play</a></span>
+              <a href="#" style="color: #15130F">Open case study →</a>
+            </div>
+          </article>
+
+          <article class="sl cyc p2">
+            <div class="ia">
+              <img class="shot" src="/_blob/461e33a21e9453a672979083bb704ea9" alt="Read to Feed: the My Books shelf with reading progress" style="left: 40%; top: 0; height: 440px; aspect-ratio: 780 / 1689; object-fit: cover">
+              <img class="shot" src="/_blob/5a5111f71e28ccea7450e215ad9e5751" alt="Read to Feed: achievements screen with eggs and quiz badges" style="left: 0; bottom: 0; width: 28%; aspect-ratio: 780 / 1689; object-fit: cover">
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 32px; padding-left: 40%">
+              <div><div class="num" style="font-size: 64px; line-height: 56px">14</div><div style="font-size: 14px; line-height: 20px; color: #6E6A62; margin-top: 8px">store releases, about</div></div>
+              <div><div class="num" style="font-size: 64px; line-height: 56px">0.81</div><div style="font-size: 14px; line-height: 20px; color: #6E6A62; margin-top: 8px">React Native, from 0.63</div></div>
+            </div>
+            <p style="margin: 24px 0 0; padding-left: 40%; font-size: 16px; line-height: 24px">A children’s reading app with a PDF and EPUB reader, ISBN barcode scanning, badges and streaks, in 3 languages.</p>
+            <div style="margin-top: 16px; padding-left: 40%; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px; font-size: 16px">
+              <span style="display: flex; gap: 16px"><a href="#">App Store</a><a href="#">Google Play</a></span>
+              <a href="#" style="color: #15130F">Open case study →</a>
+            </div>
+          </article>
+
+          <article class="sl cyc p3">
+            <div class="ia">
+              <img class="shot" src="/_blob/0aa911fe9541dfae5df4cfaeb1cd6503" alt="Viva Fresh: the Fresh category with product cards and cart total" style="left: 0; bottom: 0; width: 28%; aspect-ratio: 780 / 1689; object-fit: cover">
+              <img class="shot" src="/_blob/47ba7ca5a8b75d1adb0707716e2e02c7" alt="Viva Fresh: home screen with categories and latest products" style="left: 40%; top: 0; height: 440px; aspect-ratio: 780 / 1689; object-fit: cover">
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 32px; padding-left: 40%">
+              <div style="grid-column: 1 / -1"><div class="num" style="font-size: 64px; line-height: 56px; white-space: nowrap">iOS + Android</div><div style="font-size: 14px; line-height: 20px; color: #6E6A62; margin-top: 8px">both stores, 2023</div></div>
+              <div style="grid-column: 1 / -1; margin-top: -8px"><div class="num" style="font-size: 24px; line-height: 28px">Delivery slots, loyalty, map search</div></div>
+            </div>
+            <p style="margin: 24px 0 0; padding-left: 40%; font-size: 16px; line-height: 24px">A grocery and loyalty app with a wishlist and purchase history.</p>
+            <div style="margin-top: 16px; padding-left: 40%; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px; font-size: 16px">
+              <span style="display: flex; gap: 16px"><a href="#">App Store</a><a href="#">Google Play</a></span>
+              <a href="#" style="color: #15130F">Open case study →</a>
+            </div>
+          </article>
+
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="wrap" style="padding-top: 96px; padding-bottom: 96px; border-top: 1px solid rgba(21,19,15,.12)">
+    <div class="split" style="align-items: start">
+      <div class="l">
+        <div style="display: flex; justify-content: space-between; font-size: 14px; line-height: 20px; color: #6E6A62; padding-bottom: 8px; border-bottom: 1px solid #15130F">
+          <span>Selected work, 10 of 28</span>
+          <span>Category · year</span>
+        </div>
+        <ol class="cut" style="list-style: none; margin: 0; padding: 0">
+          <sc-for list="{{rows2}}" as="r" hint-placeholder-count="10">
+            <li class="{{r.cls}}">
+              <a href="#" class="row" style="background-image: none; padding-bottom: 6px; color: #15130F">
+                <span class="ar" aria-hidden="true">→</span>
+                <span class="nm"><span class="ink">{{r.name}}</span><span class="fill" aria-hidden="true" style="{{r.fill}}">{{r.name}}</span></span>
+                <span class="mt">{{r.meta}}</span>
+                <span class="ru" aria-hidden="true"></span>
+              </a>
+            </li>
+          </sc-for>
+        </ol>
+      </div>
+
+      <aside class="r">
+        <div class="ia" style="height: 480px">
+          <div class="shot" role="img" aria-label="Recreation of the care-management patient view: Patient 4821 with a blood-pressure chart and two alerts" style="right: 0; top: 0; width: 88%; aspect-ratio: 16 / 10; background: #FFFFFF; overflow: hidden; display: flex; font-size: 12px; line-height: 16px; color: #1D2733">
+            <div style="width: 15%; background: #13304A; display: flex; flex-direction: column; gap: 12px; padding: 16px 0; align-items: center">
+              <span style="width: 20px; height: 20px; border-radius: 6px; background: #3FA7A0"></span>
+              <span style="width: 20px; height: 4px; border-radius: 2px; background: rgba(255,255,255,.5)"></span>
+              <span style="width: 20px; height: 4px; border-radius: 2px; background: rgba(255,255,255,.25)"></span>
+              <span style="width: 20px; height: 4px; border-radius: 2px; background: rgba(255,255,255,.25)"></span>
+            </div>
+            <div style="flex: 1; padding: 16px 16px 12px; display: flex; flex-direction: column; gap: 8px">
+              <div style="display: flex; justify-content: space-between; align-items: baseline">
+                <span style="font-size: 16px; line-height: 20px; font-weight: 640">Patient 4821</span>
+                <span style="color: #5B6672">RPM · Blood pressure</span>
+              </div>
+              <div style="display: flex; gap: 12px; color: #5B6672; border-bottom: 1px solid #E3E7EB; padding-bottom: 6px">
+                <span style="color: #1D2733; font-weight: 600">Vitals</span><span>Care notes</span><span>Devices</span>
+              </div>
+              <svg viewBox="0 0 300 120" style="width: 100%; flex: 1" aria-hidden="true">
+                <line x1="0" y1="34" x2="300" y2="34" stroke="#C2412D" stroke-width="1" stroke-dasharray="4 4"></line>
+                <polyline fill="none" stroke="#13304A" stroke-width="2" points="0,62 25,58 50,64 75,55 100,49 125,26 150,52 175,57 200,50 225,22 250,48 275,53 300,51"></polyline>
+                <polyline fill="none" stroke="#3FA7A0" stroke-width="2" points="0,96 25,92 50,98 75,94 100,90 125,80 150,93 175,95 200,90 225,78 250,91 275,94 300,92"></polyline>
+                <circle cx="125" cy="26" r="5" fill="#C2412D"></circle>
+                <circle cx="225" cy="22" r="5" fill="#C2412D"></circle>
+              </svg>
+              <div style="display: flex; gap: 16px; color: #5B6672"><span><b style="color: #1D2733">132/84</b> avg</span><span><b style="color: #C2412D">2</b> alerts</span><span>14 days</span></div>
+            </div>
+          </div>
+          <div class="shot" role="img" aria-label="Recreation of the alert list for Patient 4821" style="left: 0; bottom: 0; width: 40%; background: #FFFFFF; padding: 16px; box-sizing: border-box; font-size: 12px; line-height: 16px; color: #1D2733">
+            <div style="font-weight: 640; font-size: 14px; line-height: 20px">Alerts</div>
+            <div style="margin-top: 8px; padding: 8px 0; border-top: 1px solid #E3E7EB; display: flex; gap: 8px"><span style="width: 8px; height: 8px; margin-top: 4px; border-radius: 4px; background: #C2412D; flex: none"></span><span>Systolic 152 above target<br><span style="color: #5B6672">Day 6 · 07:40</span></span></div>
+            <div style="padding: 8px 0; border-top: 1px solid #E3E7EB; display: flex; gap: 8px"><span style="width: 8px; height: 8px; margin-top: 4px; border-radius: 4px; background: #C2412D; flex: none"></span><span>Systolic 155 above target<br><span style="color: #5B6672">Day 10 · 08:12</span></span></div>
+          </div>
+        </div>
+        <p style="margin: 8px 0 0; text-align: right; font-size: 12px; line-height: 16px; color: #6E6A62">Recreation with invented data</p>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 16px; padding-left: 40%">
+          <div><div class="num" style="font-size: 64px; line-height: 56px">31</div><div style="font-size: 14px; line-height: 20px; color: #6E6A62; margin-top: 8px">architecture decision records</div></div>
+          <div><div class="num" style="font-size: 64px; line-height: 56px">16<span class="arw">→</span>2</div><div style="font-size: 14px; line-height: 20px; color: #6E6A62; margin-top: 8px">queries in a billing report</div></div>
+        </div>
+        <p style="margin: 24px 0 0; padding-left: 40%; font-size: 16px; line-height: 24px">Remote patient monitoring for many clinics, moved from Vue to React route by route with parity tests, on a Laravel API, in 4 languages.</p>
+        <div style="margin-top: 16px; padding-left: 40%; display: flex; justify-content: flex-end; font-size: 16px">
+          <a href="#" style="color: #15130F">Open case study →</a>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="wrap" style="padding-top: 0; padding-bottom: 96px">
+    <div class="split" style="align-items: baseline">
+      <h2 class="l" style="grid-column: 1 / span 3; margin: 0; font-size: 28px; line-height: 32px; font-weight: 560; letter-spacing: -.015em">Everything else</h2>
+      <div style="grid-column: 4 / span 9">
+        <nav class="flt" style="display: flex; flex-wrap: wrap; gap: 8px 24px; font-size: 14px; line-height: 20px; padding-bottom: 16px; border-bottom: 1px solid #15130F">
+          <sc-for list="{{channels}}" as="c" hint-placeholder-count="7"><a href="#" class="{{c.cls}}">{{c.name}}</a></sc-for>
+        </nav>
+        <ul style="list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; column-gap: 24px">
+          <sc-for list="{{rest}}" as="p" hint-placeholder-count="6">
+            <li style="display: flex; justify-content: space-between; gap: 16px; padding: 12px 0; border-bottom: 1px solid rgba(21,19,15,.12); font-size: 16px; line-height: 24px"><span>{{p.name}}</span><span style="color: #6E6A62">{{p.meta}}</span></li>
+          </sc-for>
+        </ul>
+        <p style="margin: 16px 0 0; font-size: 16px; line-height: 24px"><a href="#">Open the full archive of 28 →</a></p>
+      </div>
+    </div>
+  </section>
+
+  <footer style="background: #15130F; color: #F1EEE6">
+    <div class="wrap split" style="padding-top: 96px; padding-bottom: 48px; row-gap: 64px; align-items: end">
+      <div class="l">
+        <p style="margin: 0; font-size: 20px; line-height: 28px; color: #B9B4A9">Open to remote roles. Kosovo, remote.</p>
+        <a href="#" style="display: inline-block; margin-top: 16px; font-size: 56px; line-height: 1.05; font-weight: 520; font-variation-settings: 'wdth' 84; letter-spacing: -.03em; color: #F1EEE6; padding-bottom: 6px; background-size: 100% 2px">[your.email@example.com]</a>
+      </div>
+      <nav class="r" style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px; font-size: 20px; line-height: 28px">
+        <a href="#" style="color: #F1EEE6">LinkedIn</a>
+        <a href="#" style="color: #F1EEE6">GitHub</a>
+        <a href="#" style="color: #F1EEE6">Download CV</a>
+      </nav>
+      <div style="grid-column: 1 / -1; display: flex; justify-content: space-between; font-size: 14px; line-height: 20px; color: #B9B4A9; border-top: 1px solid rgba(241,238,230,.18); padding-top: 16px">
+        <span>Gentrit Rashiti</span>
+        <span>React · React Native · Vue/Nuxt · Next.js · TypeScript · Laravel</span>
+      </div>
+    </div>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2536}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const base = [
+      { key: 'care', name: 'Care-management platform', meta: 'Healthcare · 2023–26' },
+      { key: 'btv', name: 'Bayyinah TV', meta: 'Streaming · 2023–26' },
+      { key: 'rtf', name: 'Read to Feed', meta: 'Mobile apps · 2022–25' },
+      { key: 'viva', name: 'Viva Fresh', meta: 'Mobile apps · 2023' },
+      { key: 'inc', name: 'Incentiv smart wallet', meta: 'Web3 · 2024' },
+      { key: 'org', name: 'bayyinah.org', meta: 'Next.js site · 2024–25' },
+      { key: 'duk', name: 'Dukagjini Bookstore', meta: 'Mobile apps · 2021–22' },
+      { key: 'geo', name: 'Geo Guesser World 3D', meta: 'Games · 2026' },
+      { key: 'fja', name: 'FJALË word game', meta: 'Games · live' },
+      { key: 'ai', name: 'AI business dashboard', meta: 'Web apps & AI · freelance' }
+    ];
+    const cyc = { btv: 'on cyc p1', rtf: 'cyc p2', viva: 'cyc p3' };
+    const fill = {
+      btv: 'background-image: url(/_blob/efd3efb4559b375e93df948c6424122c); background-size: 130% auto; background-position: 50% 2%',
+      rtf: 'background-image: url(/_blob/461e33a21e9453a672979083bb704ea9); background-size: 150% auto; background-position: 50% 48%',
+      viva: 'background-image: url(/_blob/0aa911fe9541dfae5df4cfaeb1cd6503); background-size: 200% auto; background-position: 22% 30%',
+      care: 'background-color: #13304A'
+    };
+    return {
+      rows: base.map(r => ({ ...r, cls: cyc[r.key] || '', fill: fill[r.key] || '' })),
+      rows2: base.map(r => ({ ...r, cls: r.key === 'care' ? 'on' : '', fill: r.key === 'care' ? fill.care : '' })),
+      channels: [
+        { name: 'All 28', cls: 'cur' }, { name: 'Healthcare', cls: '' }, { name: 'Streaming', cls: '' },
+        { name: 'Mobile apps', cls: '' }, { name: 'Web3', cls: '' }, { name: 'Web apps & AI', cls: '' },
+        { name: 'Games & personal', cls: '' }
+      ],
+      rest: [
+        { name: 'Za!', meta: 'Card game' },
+        { name: 'Morse Trainer', meta: 'Games & personal' },
+        { name: 'Snaxx Tech', meta: 'Studio site' },
+        { name: 'Offday', meta: 'Time-off app' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

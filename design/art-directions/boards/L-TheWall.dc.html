@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>L · The Wall</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0A0A0A}
+::selection{background:#F2F2F0;color:#0A0A0A}
+a{color:#F2F2F0;text-decoration:none}
+a:hover{color:#FFFFFF}
+a:focus-visible,button:focus-visible{outline:1px solid #F2F2F0;outline-offset:4px;border-radius:2px}
+.lw{background:#0A0A0A;color:#F2F2F0;font-family:'Geist',sans-serif;font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased;min-height:100%;overflow:hidden}
+.mono{font-family:'Geist Mono',monospace;font-feature-settings:"tnum" 1}
+.page{max-width:1440px;margin:0 auto;padding:0 16px;box-sizing:border-box}
+.grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:8px}
+
+.who{grid-column:1 / span 5;grid-row:1;align-self:start;display:flex;flex-direction:column;gap:8px;padding-top:4px}
+.who h1{margin:0;font-size:20px;line-height:1.2;font-weight:500;letter-spacing:-0.01em}
+.who p{margin:0;font-size:16px;color:#9C9C9A;max-width:44ch}
+.who .facts{margin-top:8px;font-size:12px;line-height:1.6;color:#C8C8C6;letter-spacing:0.01em}
+.key{margin-top:8px;display:flex;align-items:center;gap:12px;font-size:13px;line-height:1.4;color:#9C9C9A}
+.ramp{width:96px;height:4px;border-radius:2px;flex:none;background:linear-gradient(90deg,#5A1414 0%,#C8242B 22%,#E79AA0 40%,#C9A26A 56%,#2A2A28 70%,#EDEDEA 78%,#5DB4E8 88%,#2F57D0 100%)}
+.reach{margin-top:16px;display:flex;flex-wrap:wrap;gap:4px 16px;font-size:14px;color:#9C9C9A}
+.ul{text-decoration:underline;text-decoration-color:rgba(242,242,240,.35);text-underline-offset:4px;text-decoration-thickness:1px}
+.ul:hover{text-decoration-color:#F2F2F0}
+
+.wall{padding-top:20px;grid-template-rows:auto 1fr;row-gap:48px;align-items:start}
+.a,.b{grid-row:2}
+.c,.d,.e{grid-row:1 / span 2}
+.col{display:flex;flex-direction:column;gap:24px;will-change:transform;animation:drift 48s cubic-bezier(.45,0,.55,1) infinite}
+.c2{grid-column:span 2}
+.c3{grid-column:span 3}
+@keyframes drift{0%,14%{transform:translateY(0)}50%,64%{transform:translateY(var(--d))}100%{transform:translateY(0)}}
+
+.tile{margin:0;display:flex;flex-direction:column;gap:8px}
+.shot{display:block;position:relative;overflow:hidden;border-radius:2px;background:#161616}
+.shot img{display:block;width:100%;height:100%;object-fit:cover;transition:opacity .5s cubic-bezier(.23,1,.32,1)}
+.top-crop img{object-position:50% 0}
+.cap{display:flex;flex-direction:column;gap:2px;transition:opacity .5s cubic-bezier(.23,1,.32,1)}
+.cap b{font-weight:500;font-size:14px;line-height:1.3;color:#F2F2F0}
+.cap span{font-size:13px;line-height:1.4;color:#8E8E8C}
+.wall.hovering .tile:not(.on) .shot > *{opacity:.7}
+.wall.hovering .tile:not(.on) .cap{opacity:.8}
+.proof{position:absolute;left:0;right:0;bottom:0;padding:16px;display:flex;flex-direction:column;gap:8px;background:rgba(10,10,10,.82);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-top:1px solid rgba(255,255,255,.08)}
+.proof .pt{display:block;font-size:14px;line-height:1.4;color:#F2F2F0}
+.proof .go{display:flex;align-items:center;justify-content:space-between;font-size:14px;color:#F2F2F0}
+
+.care{background:#F3F3F1;color:#141414;padding:24px;box-sizing:border-box;display:flex;flex-direction:column;justify-content:space-between;transition:opacity .5s cubic-bezier(.23,1,.32,1)}
+.care .row{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.care .pid{font-size:20px;font-weight:500;letter-spacing:-0.01em}
+.care .lab{font-size:11px;color:#5F5F5C;letter-spacing:0.02em}
+.care .read{font-size:44px;line-height:1;font-weight:500;letter-spacing:-0.03em}
+.care .unit{font-size:14px;color:#5F5F5C;margin-left:8px;letter-spacing:0}
+.care .axis{display:flex;justify-content:space-between;font-size:11px;color:#5F5F5C;margin-top:8px}
+.care .note{display:flex;align-items:center;gap:8px;font-size:13px;color:#3A3A38}
+.care .dot{width:8px;height:8px;border-radius:50%;background:#D2412C;flex:none}
+
+.idx{margin-top:128px}
+.idx-head{align-items:baseline;padding-bottom:24px;border-bottom:1px solid #222220}
+.idx-head h2{grid-column:1 / span 4;margin:0;font-size:28px;line-height:1.1;font-weight:500;letter-spacing:-0.02em}
+.filters{grid-column:5 / span 8;display:flex;flex-wrap:wrap;gap:8px 24px;justify-content:flex-end}
+.filters button{all:unset;cursor:pointer;font-size:14px;color:#8E8E8C;padding:4px 0}
+.filters button:hover{color:#F2F2F0}
+.filters button.on{color:#F2F2F0;text-decoration:underline;text-underline-offset:6px;text-decoration-thickness:1px}
+.irow{align-items:baseline;padding:16px 0;border-bottom:1px solid #1C1C1A;transition:background-color .2s ease}
+.irow:hover{background:#121212}
+.irow .n{grid-column:1 / span 5;font-size:16px;color:#F2F2F0}
+.irow .k{grid-column:6 / span 3;font-size:16px;color:#8E8E8C}
+.irow .y{grid-column:9 / span 2;font-size:13px;color:#8E8E8C}
+.irow .l{grid-column:11 / span 2;justify-self:end;font-size:14px;display:inline-flex;align-items:center;gap:8px}
+.more{padding-top:24px;font-size:14px;color:#8E8E8C;display:flex;justify-content:space-between}
+
+.end{margin-top:160px;padding-bottom:128px}
+.end h2{margin:0;font-size:72px;line-height:1.02;font-weight:400;letter-spacing:-0.035em}
+.end h2 .soft{color:#71716F;display:block}
+.end h2 a{display:inline-block}
+.end .foot{margin-top:48px;padding-top:24px;border-top:1px solid #222220;display:flex;flex-wrap:wrap;gap:16px 32px;font-size:14px;color:#8E8E8C}
+.end .foot .sp{flex:1}
+
+.dock{position:fixed;right:16px;top:16px;z-index:10;display:flex;align-items:center;gap:4px;padding:6px;border-radius:999px;background:rgba(26,26,26,.84);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.09)}
+.dock a{font-size:14px;line-height:1;padding:10px 14px;border-radius:999px;color:#C8C8C6;transition:background-color .2s ease,color .2s ease}
+.dock a:hover{background:rgba(255,255,255,.08);color:#FFFFFF}
+.dock a.cv{background:#F2F2F0;color:#0A0A0A;font-weight:500}
+.dock a.cv:hover{background:#FFFFFF;color:#0A0A0A}
+
+@media (max-width: 1024px){
+  .who{grid-column:1 / span 8}
+  .who{grid-column:1 / -1}
+  .a,.b,.c,.d,.e{grid-row:auto;margin-top:0!important}
+  .wall{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .c2,.c3{grid-column:span 1}
+  .end h2{font-size:44px}
+}
+@media (max-width: 640px){
+  .page{padding:0 16px}
+  .who{grid-column:1 / span 12}
+  .wall{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .idx-head h2,.filters{grid-column:1 / span 12;justify-content:flex-start}
+  .filters{margin-top:16px}
+  .irow .n{grid-column:1 / span 12}
+  .irow .k{grid-column:1 / span 6}
+  .irow .y{grid-column:7 / span 3}
+  .irow .l{grid-column:10 / span 3}
+  .end h2{font-size:28px}
+}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+</helmet>
+<div class="lw">
+  <div class="page">
+
+
+    <main>
+      <section class="grid wall hovering" aria-label="Selected work">
+        <header class="who" id="about">
+          <h1>Gentrit Rashiti</h1>
+          <p>Frontend and mobile developer, now full stack. Healthcare, streaming, mobile apps, Web3.</p>
+          <div class="facts mono"><span style="display:block">[Seniority] · 5+ yrs · Open to remote roles</span><span style="display:block">React, React Native, Vue/Nuxt, Laravel</span></div>
+          <div class="key mono"><span class="ramp" aria-hidden="true"></span>Sorted by colour. 28 products, 2021–2026.</div>
+          <div class="reach"><a class="ul" href="#">[your.email@example.com]</a><a href="#">LinkedIn</a><a href="#">GitHub</a><span>Kosovo, remote</span></div>
+        </header>
+
+        <div class="col c2 a" style="--d:-24px;animation-duration:44s">
+          <figure class="tile">
+            <a class="shot" href="#" style="aspect-ratio:780/1689"><img src="/_blob/e4db1c62e8865c5bf469ad292fa3ad36" alt="Bayyinah TV store frame: Quran Studies Made Simple, shown on a phone"></a>
+            <figcaption class="cap"><b>Bayyinah TV</b><span class="mono">Streaming · 2023-26</span></figcaption>
+          </figure>
+          <figure class="tile">
+            <a class="shot" href="#" style="aspect-ratio:1/1"><img src="/_blob/b5de8b603eb9fc1eb6243512da056cfb" alt="Detail of the Bayyinah TV website: course stills on laptop and phone" style="object-position:72% 40%;transform:scale(1.9);transform-origin:72% 40%"></a>
+            <figcaption class="cap"><b>Bayyinah TV, website</b><span class="mono">Streaming · 2023-26</span></figcaption>
+          </figure>
+          <figure class="tile">
+            <a class="shot" href="#" style="aspect-ratio:16/10"><img src="/_blob/b5de8b603eb9fc1eb6243512da056cfb" alt="Bayyinah TV website home page with course stills and subscription call to action"></a>
+            <figcaption class="cap"><b>Bayyinah TV, website</b><span class="mono">Streaming · 2023-26</span></figcaption>
+          </figure>
+        </div>
+
+        <div class="col c3 b" style="--d:32px;animation-duration:56s;margin-top:-16px">
+          <figure class="tile on">
+            <a class="shot top-crop" href="#" style="aspect-ratio:3/5"><img src="/_blob/efd3efb4559b375e93df948c6424122c" alt="Bayyinah TV store frame: Study the Quran Surah by Surah, with the video player and episode list">
+              <span class="proof">
+                <span class="pt">100K+ downloads on Google Play · 34 routes</span>
+                <span class="go"><span>Open case study</span><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"></path></svg></span>
+              </span>
+            </a>
+            <figcaption class="cap"><b>Bayyinah TV</b><span class="mono">Streaming · 2023-26</span></figcaption>
+          </figure>
+          <figure class="tile">
+            <a class="shot" href="#" style="aspect-ratio:1/1"><img src="/_blob/0aa911fe9541dfae5df4cfaeb1cd6503" alt="Detail of the Viva Fresh fresh meat category with product photos and the filter button" style="object-position:50% 22%;transform:scale(1.45);transform-origin:50% 22%"></a>
+            <figcaption class="cap"><b>Viva Fresh</b><span class="mono">Mobile apps · 2023</span></figcaption>
+          </figure>
+          <figure class="tile">
+            <a class="shot top-crop" href="#" style="aspect-ratio:1/1"><img src="/_blob/a5a912f0767e7c0ff1c578911e914398" alt="Dukagjini Bookstore store frame headline: Discover new books you will love"></a>
+            <figcaption class="cap"><b>Dukagjini Bookstore</b><span class="mono">Mobile apps · 2021-22</span></figcaption>
+          </figure>
+        </div>
+
+        <div class="col c2 c" style="--d:24px;animation-duration:40s;margin-top:96px">
+          <figure class="tile">
+            <a class="shot" href="#" style="aspect-ratio:780/1689"><img src="/_blob/47ba7ca5a8b75d1adb0707716e2e02c7" alt="Viva Fresh home screen with categories, promotions and product cards"></a>
+            <figcaption class="cap"><b>Viva Fresh</b><span class="mono">Mobile apps · 2023</span></figcaption>
+          </figure>
+          <figure class="tile">
+            <a class="shot" href="#" style="aspect-ratio:780/1689"><img src="/_blob/0aa911fe9541dfae5df4cfaeb1cd6503" alt="Viva Fresh product list for the fresh meat category, with prices and cart controls"></a>
+            <figcaption class="cap"><b>Viva Fresh</b><span class="mono">Mobile apps · 2023</span></figcaption>
+          </figure>
+          <figure class="tile">
+            <a class="shot" href="#" style="aspect-ratio:780/1689"><img src="/_blob/a5a912f0767e7c0ff1c578911e914398" alt="Dukagjini Bookstore home screen with book search and top categories"></a>
+            <figcaption class="cap"><b>Dukagjini Bookstore</b><span class="mono">Mobile apps · 2021-22</span></figcaption>
+          </figure>
+        </div>
+
+        <div class="col c3 d" style="--d:32px;animation-duration:60s">
+          <figure class="tile">
+            <a class="shot" href="#" style="aspect-ratio:4/5"><img src="/_blob/a883265a486c88d8b055ec37ce097d36" alt="Detail of the Snaxx Tech studio site: an illustrated town under a paper plane" style="object-position:55% 80%;transform:scale(1.6);transform-origin:55% 80%"></a>
+            <figcaption class="cap"><b>Snaxx Tech</b><span class="mono">Studio site · Web</span></figcaption>
+          </figure>
+          <figure class="tile">
+            <a class="shot" href="#" style="aspect-ratio:16/10"><img src="/_blob/a883265a486c88d8b055ec37ce097d36" alt="Snaxx Tech studio site with an illustrated almanac map"></a>
+            <figcaption class="cap"><b>Snaxx Tech</b><span class="mono">Studio site · Web</span></figcaption>
+          </figure>
+          <figure class="tile">
+            <a class="shot" href="#" style="aspect-ratio:16/10"><img src="/_blob/e72b0dde4d866b2d7a3bf592d48f25a8" alt="FJALË word game board on a dark desktop page"></a>
+            <figcaption class="cap"><b>FJALË</b><span class="mono">Games &amp; personal · Live</span></figcaption>
+          </figure>
+          <figure class="tile">
+            <div class="shot care" style="aspect-ratio:3/4" role="img" aria-label="Recreation of a blood pressure card for Patient 4821: 128 over 82 mmHg, two readings above 140 in 30 days">
+              <div>
+                <div class="row"><span class="pid">Patient 4821</span><span class="lab mono">RPM</span></div>
+                <div style="font-size:14px;color:#5F5F5C;margin-top:4px">Blood pressure, last 30 days</div>
+              </div>
+              <div>
+                <div class="read">128/82<span class="unit">mmHg</span></div>
+              </div>
+              <div>
+                <svg viewBox="0 0 294 140" width="100%" style="display:block;overflow:visible" aria-hidden="true">
+                  <line x1="0" y1="30" x2="294" y2="30" stroke="#BDBDB9" stroke-width="1" stroke-dasharray="3 4"></line>
+                  <text x="294" y="24" text-anchor="end" font-family="Geist Mono, monospace" font-size="10" fill="#5F5F5C">140</text>
+                  <polyline fill="none" stroke="#141414" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round" points="0,57 21,51 42,54 63,43.5 84,48 105,37.5 126,25.5 147,46.5 168,49.5 189,40.5 210,51 231,21 252,43.5 273,49.5 294,48"></polyline>
+                  <polyline fill="none" stroke="#A3A39F" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round" points="0,123 21,120 42,121.5 63,115.5 84,118.5 105,114 126,108 147,117 168,120 189,112.5 210,121.5 231,105 252,115.5 273,118.5 294,117"></polyline>
+                  <circle cx="126" cy="25.5" r="4" fill="#D2412C"></circle>
+                  <circle cx="231" cy="21" r="4" fill="#D2412C"></circle>
+                </svg>
+                <div class="axis mono"><span>Sep 2</span><span>Sep 16</span><span>Oct 1</span></div>
+              </div>
+              <div class="note"><span class="dot"></span>2 readings above 140 systolic</div>
+            </div>
+            <figcaption class="cap"><b>Care-management platform</b><span class="mono">Healthcare · 2023-26 · recreation</span></figcaption>
+          </figure>
+        </div>
+
+        <div class="col c2 e" style="--d:20px;animation-duration:52s;margin-top:72px">
+          <figure class="tile">
+            <a class="shot" href="#" style="aspect-ratio:780/1689"><img src="/_blob/461e33a21e9453a672979083bb704ea9" alt="Read to Feed store frame: a library of books for ages K to 12"></a>
+            <figcaption class="cap"><b>Read to Feed</b><span class="mono">Mobile apps · 2022-25</span></figcaption>
+          </figure>
+          <figure class="tile">
+            <a class="shot" href="#" style="aspect-ratio:780/1689"><img src="/_blob/5a5111f71e28ccea7450e215ad9e5751" alt="Read to Feed store frame: unlock badges and eggs by reading and answering quiz questions"></a>
+            <figcaption class="cap"><b>Read to Feed</b><span class="mono">Mobile apps · 2022-25</span></figcaption>
+          </figure>
+          <figure class="tile">
+            <a class="shot" href="#" style="aspect-ratio:4/5"><img src="/_blob/5a5111f71e28ccea7450e215ad9e5751" alt="Detail of the Read to Feed achievements screen with collected eggs, badges and quizzes" style="object-position:50% 78%;transform:scale(1.7);transform-origin:50% 78%"></a>
+            <figcaption class="cap"><b>Read to Feed</b><span class="mono">Mobile apps · 2022-25</span></figcaption>
+          </figure>
+        </div>
+
+      </section>
+
+      <section class="idx" id="index" aria-labelledby="idx-title">
+        <div class="grid idx-head">
+          <h2 id="idx-title">Index</h2>
+          <div class="filters" role="group" aria-label="Filter by channel">
+            <button class="on" type="button">All 28</button>
+            <sc-for list="{{channels}}" as="c" hint-placeholder-count="6"><button type="button">{{c.name}}</button></sc-for>
+          </div>
+        </div>
+        <sc-for list="{{rows}}" as="r" hint-placeholder-count="12">
+          <a class="grid irow" href="#">
+            <span class="n">{{r.name}}</span>
+            <span class="k">{{r.channel}}</span>
+            <span class="y mono">{{r.years}}</span>
+            <span class="l">{{r.link}}<svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"></path></svg></span>
+          </a>
+        </sc-for>
+        <div class="more"><span>12 of 28 projects across 6 channels</span><a class="ul" href="#">Full index</a></div>
+      </section>
+
+      <section class="end" id="email" aria-label="Contact">
+        <h2><span class="soft">Open to remote roles.</span><a class="ul" href="#">[your.email@example.com]</a></h2>
+        <div class="foot">
+          <a class="ul" href="#">LinkedIn</a>
+          <a class="ul" href="#">GitHub</a>
+          <a class="ul" href="#">Download CV</a>
+          <span class="sp"></span>
+          <span>Gentrit Rashiti · Kosovo, remote</span>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <nav class="dock" aria-label="Primary">
+    <a href="#index">Index</a>
+    <a href="#email">Email</a>
+    <a class="cv" href="#">CV</a>
+  </nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":3232}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      channels: [
+        { name: 'Healthcare' }, { name: 'Streaming' }, { name: 'Mobile apps' },
+        { name: 'Web3' }, { name: 'Web apps & AI' }, { name: 'Games & personal' }
+      ],
+      rows: [
+        { name: 'Bayyinah TV', channel: 'Streaming', years: '2023-26', link: 'Case study' },
+        { name: 'Care-management platform', channel: 'Healthcare', years: '2023-26', link: 'Case study' },
+        { name: 'Read to Feed', channel: 'Mobile apps', years: '2022-25', link: 'Case study' },
+        { name: 'Viva Fresh', channel: 'Mobile apps', years: '2023', link: 'Case study' },
+        { name: 'Incentiv', channel: 'Web3', years: '2024', link: 'Case study' },
+        { name: 'bayyinah.org', channel: 'Streaming', years: '2024-25', link: 'View' },
+        { name: 'Dukagjini Bookstore', channel: 'Mobile apps', years: '2021-22', link: 'View' },
+        { name: 'AI business dashboard', channel: 'Web apps & AI', years: 'Freelance', link: 'View' },
+        { name: 'Geo Guesser World 3D', channel: 'Games & personal', years: '2026', link: 'Google Play' },
+        { name: 'FJALË', channel: 'Games & personal', years: 'Live', link: 'Play' },
+        { name: 'Za!', channel: 'Games & personal', years: 'Personal', link: 'View' },
+        { name: 'Morse Trainer', channel: 'Games & personal', years: 'Personal', link: 'View' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -20,7 +20,7 @@ export function HoverPreview({ project, origin }: { project: Project | null; ori
   const picture = useRef<HTMLDivElement>(null)
   const scan = useRef<HTMLDivElement>(null)
   const pointer = useRef(origin)
-  pointer.current = origin
+  if (origin) pointer.current = origin
   const [last, setLast] = useState<Project | null>(project)
   if (project && project !== last) setLast(project)
   const visible = project !== null
@@ -28,8 +28,15 @@ export function HoverPreview({ project, origin }: { project: Project | null; ori
 
   useEffect(() => {
     const update = () => setPageVisible(!document.hidden)
+    const onMove = (event: PointerEvent) => {
+      pointer.current = { x: event.clientX, y: event.clientY }
+    }
     document.addEventListener('visibilitychange', update)
-    return () => document.removeEventListener('visibilitychange', update)
+    window.addEventListener('pointermove', onMove, { passive: true })
+    return () => {
+      document.removeEventListener('visibilitychange', update)
+      window.removeEventListener('pointermove', onMove)
+    }
   }, [])
 
   useLayoutEffect(() => {
@@ -41,6 +48,8 @@ export function HoverPreview({ project, origin }: { project: Project | null; ori
     let tx = -1
     let ty = -1
     let raf = 0
+    let then = 0
+    node.style.visibility = 'hidden'
 
     function target(px: number, py: number) {
       const right = px + OFFSET + CARD_W + EDGE > window.innerWidth
@@ -50,13 +59,19 @@ export function HoverPreview({ project, origin }: { project: Project | null; ori
         x = tx
         y = ty
         node!.style.transform = `translate3d(${x}px, ${y}px, 0)`
+        node!.style.visibility = ''
       }
-      if (!raf) raf = requestAnimationFrame(step)
+      if (!raf) {
+        then = performance.now()
+        raf = requestAnimationFrame(step)
+      }
     }
 
-    function step() {
-      x += (tx - x) * 0.2
-      y += (ty - y) * 0.2
+    function step(now: number) {
+      const k = 1 - Math.exp(-Math.min(now - then, 50) * 0.013)
+      then = now
+      x += (tx - x) * k
+      y += (ty - y) * k
       node!.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0)`
       raf = Math.abs(tx - x) + Math.abs(ty - y) > 0.5 ? requestAnimationFrame(step) : 0
     }

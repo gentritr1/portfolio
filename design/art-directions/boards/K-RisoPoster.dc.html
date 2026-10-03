@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>K · Riso Poster</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anybody:wdth,wght@50..150,400..900&amp;family=Schibsted+Grotesk:wght@400..800&amp;family=Spline+Sans+Mono:wght@400;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F4ECDC}
+a{color:#14213D}a:hover{color:#0078BF}
+.k-root{position:relative}
+.k-root::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:5;background:radial-gradient(rgba(20,33,61,.5) .6px,transparent .9px) 0 0/3px 3px,radial-gradient(rgba(20,33,61,.35) .6px,transparent .9px) 1px 2px/5px 5px;mix-blend-mode:multiply;opacity:.22}
+.k-disp{font-family:'Anybody',sans-serif;font-weight:900;text-transform:uppercase}
+.k-mono{font-family:'Spline Sans Mono',monospace}
+.k-mult{mix-blend-mode:multiply}
+.k-l{display:inline-block;transform-origin:50% 100%;animation:kStretch 7.7s cubic-bezier(.45,0,.55,1) infinite}
+@keyframes kStretch{0%,100%{transform:scaleX(.9)}50%{transform:scaleX(1.12)}}
+@keyframes kDrift{0%,100%{transform:translate(4px,3px)}50%{transform:translate(3px,4px)}}
+@keyframes kSway{0%,100%{transform:rotate(-6deg)}50%{transform:rotate(-3deg)}}
+@keyframes kSpin{to{transform:rotate(360deg)}}
+@keyframes kPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+@keyframes kPeel{0%,100%{transform:rotate(5deg) translateY(0)}50%{transform:rotate(3.5deg) translateY(-6px)}}
+.k-half{background:radial-gradient(#14213D 1.1px,transparent 1.5px) 0 0/7px 7px}
+.k-shot{position:relative;overflow:hidden}
+.k-shot img{display:block;width:100%;height:100%;object-fit:cover;object-position:top;filter:grayscale(1) contrast(1.15);mix-blend-mode:multiply}
+.k-btn{display:inline-flex;align-items:center;gap:10px;min-height:46px;box-sizing:border-box;padding:0 20px;text-decoration:none;font-family:'Spline Sans Mono',monospace;font-weight:600;font-size:14px;letter-spacing:.04em;text-transform:uppercase;border:2px solid #14213D;transition:transform .16s cubic-bezier(.23,1,.32,1)}
+.k-btn:active{transform:scale(.97)}
+.k-poster{position:relative;display:flex;flex-direction:column;gap:14px;padding:26px;box-sizing:border-box;text-decoration:none;overflow:hidden;transition:transform .35s cubic-bezier(.23,1,.32,1)}
+.k-poster:hover{transform:translateY(-6px) rotate(0deg)}
+.k-chip{display:inline-flex;align-items:center;min-height:40px;padding:0 16px;border:2px dashed #14213D;background:transparent;color:#14213D;font-family:'Spline Sans Mono',monospace;font-size:13px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;cursor:pointer}
+.k-row{display:grid;grid-template-columns:64px minmax(0,1fr) 240px 120px 40px;gap:16px;align-items:baseline;padding:8px 0;border-bottom:1px solid rgba(0,120,191,.5);text-decoration:none;color:#14213D}
+.k-row:hover .k-rname{color:#0078BF}
+@media (prefers-reduced-motion: reduce){*{animation:none!important}}
+</style>
+</helmet>
+<div class="k-root" style="background: #F4ECDC; color: #14213D; font-family: 'Schibsted Grotesk', sans-serif; min-height: 2200px; overflow: hidden">
+
+  <header style="max-width: 1440px; margin: 0 auto; padding: 22px 48px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; box-sizing: border-box">
+    <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 40px">
+      <a href="#" class="k-disp" style="font-size: 22px; font-stretch: 150%; text-decoration: none; letter-spacing: -.01em">G<span style="color: #FF48B0">.</span>Rashiti</a>
+      <nav style="display: flex; flex-wrap: wrap; gap: 26px; font-size: 17px; font-weight: 600">
+        <a href="#" style="text-decoration: none">Work</a>
+        <a href="#" style="text-decoration: none">Index</a>
+        <a href="#" style="text-decoration: none">About</a>
+        <a href="#" style="text-decoration: none">Contact</a>
+      </nav>
+    </div>
+    <div style="display: flex; flex-wrap: wrap; gap: 10px">
+      <a href="#" class="k-btn" style="background: transparent">Email</a>
+      <a href="#" class="k-btn" style="background: #FF48B0; box-shadow: 4px 4px 0 #0078BF">Download CV ↓</a>
+    </div>
+  </header>
+
+  <section style="max-width: 1440px; margin: 0 auto; padding: 18px 48px 0; display: flex; flex-wrap: wrap; align-items: flex-start; box-sizing: border-box; position: relative">
+    <div style="flex: 999 1 760px; min-width: 0; position: relative; z-index: 1">
+      <p class="k-mono" style="position: relative; z-index: 3; margin: 0 0 6px; font-size: 16px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase">Gentrit Rashiti presents: five years of shipping, live</p>
+      <div style="position: relative">
+        <svg width="300" height="300" viewBox="0 0 300 300" aria-hidden="true" style="position: absolute; left: 500px; top: -70px; z-index: 0"><circle cx="150" cy="150" r="150" fill="#FFE800"></circle></svg>
+        <h1 class="k-disp" aria-label="Gentrit Rashiti" style="position: relative; z-index: 2; margin: 0; font-size: 292px; font-stretch: 52%; line-height: .8; letter-spacing: -.01em; color: #14213D">
+          <span style="display: block"><span class="k-l" style="animation-delay: -0.00s">G</span><span class="k-l" style="animation-delay: -0.55s">E</span><span class="k-l" style="animation-delay: -1.10s">N</span><span class="k-l" style="animation-delay: -1.65s">T</span><span class="k-l" style="animation-delay: -2.20s">R</span><span class="k-l" style="animation-delay: -2.75s">I</span><span class="k-l" style="animation-delay: -3.30s">T</span></span>
+          <span style="display: block"><span class="k-l" style="animation-delay: -3.85s">R</span><span class="k-l" style="animation-delay: -4.40s">A</span><span class="k-l" style="animation-delay: -4.95s">S</span><span class="k-l" style="animation-delay: -5.50s">H</span><span class="k-l" style="animation-delay: -6.05s">I</span><span class="k-l" style="animation-delay: -6.60s">T</span><span class="k-l" style="animation-delay: -7.15s">I</span></span>
+        </h1>
+        <div class="k-disp k-mult" aria-hidden="true" style="position: absolute; z-index: 1; left: 0; top: 0; font-size: 292px; font-stretch: 52%; line-height: .8; letter-spacing: -.01em; color: #FF48B0; animation: kDrift 11s cubic-bezier(.45,0,.55,1) infinite">
+          <span style="display: block"><span class="k-l" style="animation-delay: -0.00s">G</span><span class="k-l" style="animation-delay: -0.55s">E</span><span class="k-l" style="animation-delay: -1.10s">N</span><span class="k-l" style="animation-delay: -1.65s">T</span><span class="k-l" style="animation-delay: -2.20s">R</span><span class="k-l" style="animation-delay: -2.75s">I</span><span class="k-l" style="animation-delay: -3.30s">T</span></span>
+          <span style="display: block"><span class="k-l" style="animation-delay: -3.85s">R</span><span class="k-l" style="animation-delay: -4.40s">A</span><span class="k-l" style="animation-delay: -4.95s">S</span><span class="k-l" style="animation-delay: -5.50s">H</span><span class="k-l" style="animation-delay: -6.05s">I</span><span class="k-l" style="animation-delay: -6.60s">T</span><span class="k-l" style="animation-delay: -7.15s">I</span></span>
+        </div>
+      </div>
+
+      <p style="margin: 26px 0 0; font-size: 34px; line-height: 1.15; font-weight: 700; max-width: 24ch">Frontend &amp; mobile developer, <span style="background: #FFE800; padding: 0 8px">now full stack.</span></p>
+      <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; font-size: 16px; font-weight: 600">
+        <span style="padding: 9px 14px; border: 2px solid #14213D">[Seniority]</span>
+        <span style="padding: 9px 14px; border: 2px solid #14213D">5+ yrs</span>
+        <span style="padding: 9px 14px; border: 2px solid #14213D">React / React Native / Vue/Nuxt / Next.js / TypeScript / Laravel</span>
+        <span style="padding: 9px 14px; background: #14213D; color: #F4ECDC">Open to remote roles</span>
+      </div>
+    </div>
+
+    <div style="flex: 0 1 390px; min-width: 300px; margin-left: -160px; position: relative; z-index: 2; padding-top: 36px">
+      <div style="position: relative; transform-origin: 50% 0; animation: kSway 7s cubic-bezier(.45,0,.55,1) infinite">
+        <div class="k-mult" style="position: absolute; inset: 0; background: #FF48B0; transform: translate(12px, 10px)"></div>
+        <a href="#" style="position: relative; display: flex; flex-direction: column; gap: 12px; background: #FFE800; padding: 20px; text-decoration: none; box-shadow: 0 18px 30px -18px rgba(20,33,61,.45)">
+          <div style="display: flex; justify-content: space-between; align-items: center">
+            <span class="k-disp" style="font-size: 18px; font-stretch: 130%">Live</span>
+            <span class="k-mono" style="font-size: 13px; font-weight: 600">2023-26</span>
+          </div>
+          <div class="k-shot" style="height: 318px; background: #0078BF">
+            <img src="/_blob/efd3efb4559b375e93df948c6424122c" alt="Bayyinah TV app store screenshot">
+            <div class="k-half k-mult" style="position: absolute; inset: 0; opacity: .35; -webkit-mask-image: linear-gradient(160deg, transparent 45%, #000 100%); mask-image: linear-gradient(160deg, transparent 45%, #000 100%)"></div>
+          </div>
+          <span class="k-disp" style="font-size: 54px; font-stretch: 60%; line-height: .85">Bayyinah TV</span>
+          <span class="k-mono" style="font-size: 13px; font-weight: 600">100K+ ON GOOGLE PLAY</span>
+        </a>
+        <span class="k-disp" style="position: absolute; right: -26px; top: 70px; width: 96px; height: 96px; border-radius: 50%; background: #FF48B0; display: flex; align-items: center; justify-content: center; font-size: 22px; font-stretch: 120%; transform: rotate(14deg)"><span style="display: block; animation: kPulse 2.4s cubic-bezier(.45,0,.55,1) infinite">Live!</span></span>
+      </div>
+
+      <div style="position: relative; margin: 16px 0 0 90px; width: 290px; background: #FFFDF6; padding: 14px 16px; box-shadow: 0 10px 20px -12px rgba(20,33,61,.5); animation: kPeel 9s cubic-bezier(.45,0,.55,1) infinite; z-index: 3">
+        <div role="img" aria-label="Barcode" style="height: 52px; background: linear-gradient(90deg,#14213D 0% 2%,transparent 2% 4%,#14213D 4% 6%,transparent 6% 7%,#14213D 7% 8%,transparent 8% 9%,#14213D 9% 11%,transparent 11% 12%,#14213D 12% 15%,transparent 15% 17%,#14213D 17% 18%,transparent 18% 19%,#14213D 19% 21%,transparent 21% 24%,#14213D 24% 25%,transparent 25% 27%,#14213D 27% 28%,transparent 28% 31%,#14213D 31% 32%,transparent 32% 33%,#14213D 33% 34%,transparent 34% 35%,#14213D 35% 38%,transparent 38% 41%,#14213D 41% 42%,transparent 42% 44%,#14213D 44% 45%,transparent 45% 47%,#14213D 47% 49%,transparent 49% 52%,#14213D 52% 53%,transparent 53% 54%,#14213D 54% 57%,transparent 57% 59%,#14213D 59% 62%,transparent 62% 64%,#14213D 64% 65%,transparent 65% 67%,#14213D 67% 69%,transparent 69% 70%,#14213D 70% 73%,transparent 73% 74%,#14213D 74% 77%,transparent 77% 78%,#14213D 78% 81%,transparent 81% 83%,#14213D 83% 85%,transparent 85% 88%,#14213D 88% 90%,transparent 90% 93%,#14213D 93% 96%,transparent 96% 100%)"></div>
+        <div class="k-mono" style="display: grid; grid-template-columns: 64px 1fr; gap: 3px 10px; margin-top: 10px; font-size: 14px; line-height: 1.4">
+          <span style="font-weight: 600">STACK</span><span>React, RN, Vue, Next, TS, Laravel</span>
+          <span style="font-weight: 600">YEARS</span><span>5+</span>
+          <span style="font-weight: 600">ROLE</span><span>Frontend, mobile, full stack</span>
+          <span style="font-weight: 600">LEVEL</span><span>[Seniority]</span>
+        </div>
+      </div>
+    </div>
+
+    <svg width="170" height="170" viewBox="0 0 200 200" aria-hidden="true" class="k-mult" style="position: absolute; left: 850px; top: 6px; z-index: 3; animation: kSpin 24s linear infinite">
+      <defs><path id="k-circ" d="M100,100 m-76,0 a76,76 0 1,1 152,0 a76,76 0 1,1 -152,0"></path></defs>
+      <circle cx="100" cy="100" r="98" fill="#FF48B0"></circle>
+      <text style="font-family: 'Spline Sans Mono', monospace; font-size: 15px; font-weight: 600; letter-spacing: 2px" fill="#14213D"><textPath href="#k-circ">NOW BOOKING ★ REMOTE ROLES ★ NOW BOOKING ★ REMOTE ROLES ★</textPath></text>
+      <text x="100" y="112" text-anchor="middle" style="font-family: 'Anybody', sans-serif; font-weight: 900; font-size: 34px; font-stretch: 70%" fill="#14213D">OPEN</text>
+    </svg>
+  </section>
+
+  <section style="max-width: 1440px; margin: 0 auto; padding: 44px 48px 0; box-sizing: border-box">
+    <div style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px 32px; margin-bottom: 26px">
+      <div style="position: relative">
+        <span class="k-disp" aria-hidden="true" style="position: absolute; left: 4px; top: 4px; white-space: nowrap; font-size: 92px; font-stretch: 140%; line-height: .85; letter-spacing: -.02em; color: #FF48B0">On tour</span>
+        <h2 class="k-disp" style="position: relative; margin: 0; white-space: nowrap; font-size: 92px; font-stretch: 140%; line-height: .85; letter-spacing: -.02em; color: #14213D">On tour</h2>
+      </div>
+      <p style="margin: 0 0 8px; font-size: 18px; line-height: 1.45; max-width: 44ch">Five headline shows from 28 products. Each poster prints the proof first.</p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 22px; align-items: start">
+
+      <a href="#" class="k-poster" style="grid-column: span 7; background: #FF48B0; color: #14213D; transform: rotate(-.6deg)">
+        <div style="display: flex; flex-wrap: wrap; gap: 26px; align-items: flex-end">
+          <div><div class="k-disp" style="font-size: 76px; font-stretch: 55%; line-height: .85">100K+</div><div class="k-mono" style="font-size: 13px; font-weight: 600">DOWNLOADS ON GOOGLE PLAY</div></div>
+          <div><div class="k-disp" style="font-size: 76px; font-stretch: 55%; line-height: .85">34</div><div class="k-mono" style="font-size: 13px; font-weight: 600">ROUTES</div></div>
+          <span class="k-mono" style="margin-left: auto; padding: 6px 10px; background: #14213D; color: #FF48B0; font-size: 13px; font-weight: 600">LIVE / 2023-26</span>
+        </div>
+        <h3 class="k-disp" style="margin: 0; font-size: 128px; font-stretch: 50%; line-height: .8; letter-spacing: -.01em">Bayyinah TV</h3>
+        <div style="position: relative">
+          <div class="k-mult" style="position: absolute; inset: 0; background: #0078BF; transform: translate(-8px, 8px)"></div>
+          <div class="k-shot" style="height: 300px; background: #FF48B0; border: 3px solid #14213D">
+            <img src="/_blob/b5de8b603eb9fc1eb6243512da056cfb" alt="Bayyinah TV website home page">
+          </div>
+        </div>
+        <div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; font-size: 16px; font-weight: 700">
+          <span>With: Nuxt 3, HLS, realtime chat, Stripe, EN / AR right to left</span>
+          <span>Support act: bayyinah.org (Next.js)</span>
+        </div>
+      </a>
+
+      <a href="#" class="k-poster" style="grid-column: span 5; background: #0078BF; color: #FFFFFF; transform: rotate(.8deg); margin-top: 26px">
+        <div style="display: flex; flex-wrap: wrap; gap: 26px">
+          <div><div class="k-disp" style="font-size: 76px; font-stretch: 55%; line-height: .85">31</div><div class="k-mono" style="font-size: 13px; font-weight: 600">ARCHITECTURE RECORDS</div></div>
+          <div><div class="k-disp" style="font-size: 76px; font-stretch: 55%; line-height: .85; color: #FFE800">16→2</div><div class="k-mono" style="font-size: 13px; font-weight: 600">REPORT QUERIES</div></div>
+        </div>
+        <h3 class="k-disp" style="margin: 0; font-size: 92px; font-stretch: 50%; line-height: .82">Care platform</h3>
+        <div style="background: #F4ECDC; color: #14213D; padding: 14px; border: 3px solid #14213D">
+          <div class="k-mono" style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 600"><span>PATIENT 4821</span><span>BP, 14 DAYS</span></div>
+          <svg viewBox="0 0 300 110" role="img" aria-label="Invented example: blood-pressure line over 14 days with 2 alert points" style="display: block; width: 100%; height: 110px">
+            <rect x="0" y="0" width="300" height="38" fill="#FFE800" class="k-mult"></rect>
+            <path d="M0 80 L25 74 L50 82 L75 66 L100 72 L125 54 L150 66 L175 58 L200 30 L225 62 L250 54 L275 26 L300 50" fill="none" stroke="#0078BF" stroke-width="5" transform="translate(3 3)" class="k-mult"></path>
+            <path d="M0 80 L25 74 L50 82 L75 66 L100 72 L125 54 L150 66 L175 58 L200 30 L225 62 L250 54 L275 26 L300 50" fill="none" stroke="#14213D" stroke-width="2.5"></path>
+            <circle cx="200" cy="30" r="8" fill="#FF48B0" class="k-mult"></circle>
+            <circle cx="275" cy="26" r="8" fill="#FF48B0" class="k-mult"></circle>
+          </svg>
+          <div class="k-mono" style="font-size: 12px">Invented example. Real screens stay private.</div>
+        </div>
+        <p style="margin: 0; font-size: 17px; line-height: 1.45; font-weight: 600">Remote patient monitoring for many clinics. Vue to React, route by route, with parity tests. Laravel API, 4 languages.</p>
+      </a>
+
+      <a href="#" class="k-poster" style="grid-column: span 4; background: #FFE800; color: #14213D; transform: rotate(.7deg)">
+        <div style="display: flex; flex-wrap: wrap; gap: 20px">
+          <div><div class="k-disp" style="font-size: 64px; font-stretch: 55%; line-height: .85">~14</div><div class="k-mono" style="font-size: 13px; font-weight: 600">STORE RELEASES</div></div>
+          <div><div class="k-disp" style="font-size: 64px; font-stretch: 55%; line-height: .85">0.63→0.81</div><div class="k-mono" style="font-size: 13px; font-weight: 600">REACT NATIVE</div></div>
+        </div>
+        <h3 class="k-disp" style="margin: 0; font-size: 80px; font-stretch: 50%; line-height: .82">Read to Feed</h3>
+        <div style="display: flex; gap: 12px">
+          <div class="k-shot" style="flex: 1 1 0; height: 210px; background: #FF48B0; border: 3px solid #14213D"><img src="/_blob/461e33a21e9453a672979083bb704ea9" alt="Read to Feed app store screenshot"></div>
+          <div class="k-shot" style="flex: 1 1 0; height: 210px; background: #FFE800; border: 3px solid #14213D; margin-top: 22px"><img src="/_blob/5a5111f71e28ccea7450e215ad9e5751" alt="Read to Feed reading screen"></div>
+        </div>
+        <p style="margin: 0; font-size: 16px; line-height: 1.45; font-weight: 600">Children's reading app: PDF and EPUB reader, ISBN scanning, badges, 3 languages. 2022-25.</p>
+      </a>
+
+      <a href="#" class="k-poster" style="grid-column: span 5; background: #F4ECDC; color: #14213D; border: 3px solid #14213D; transform: rotate(-.9deg); margin-top: 18px">
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 16px">
+          <div><div class="k-disp" style="font-size: 64px; font-stretch: 55%; line-height: .85; color: #0078BF">iOS + Android</div><div class="k-mono" style="font-size: 13px; font-weight: 600">BOTH STORES, 2023</div></div>
+          <span class="k-mono" style="padding: 6px 10px; background: #FF48B0; font-size: 13px; font-weight: 600">MOBILE</span>
+        </div>
+        <h3 class="k-disp" style="margin: 0; font-size: 96px; font-stretch: 50%; line-height: .82">Viva Fresh</h3>
+        <div style="display: flex; gap: 12px">
+          <div class="k-shot" style="flex: 1 1 0; height: 210px; background: #0078BF"><img src="/_blob/47ba7ca5a8b75d1adb0707716e2e02c7" alt="Viva Fresh app store screenshot"></div>
+          <div class="k-shot" style="flex: 1 1 0; height: 210px; background: #FF48B0"><img src="/_blob/0aa911fe9541dfae5df4cfaeb1cd6503" alt="Viva Fresh delivery and loyalty screen"></div>
+          <div class="k-shot" style="flex: 1 1 0; height: 210px; background: #FFE800"><img src="/_blob/a5a912f0767e7c0ff1c578911e914398" alt="Dukagjini Bookstore app store screenshot"></div>
+        </div>
+        <p style="margin: 0; font-size: 16px; line-height: 1.45; font-weight: 600">Grocery and loyalty app: delivery slots, wishlist, purchase history, map address search. Opening act: Dukagjini Bookstore.</p>
+      </a>
+
+      <a href="#" class="k-poster" style="grid-column: span 3; background: #14213D; color: #F4ECDC; transform: rotate(1.2deg); margin-top: 40px">
+        <div><div class="k-disp" style="font-size: 56px; font-stretch: 55%; line-height: .85; color: #FFE800">Next.js 14</div><div class="k-mono" style="font-size: 13px; font-weight: 600">PASSKEY SIGN-IN, 2024</div></div>
+        <h3 class="k-disp" style="margin: 0; font-size: 80px; font-stretch: 50%; line-height: .82">Incentiv</h3>
+        <div style="background: #F4ECDC; color: #14213D; padding: 14px; display: flex; flex-direction: column; gap: 6px">
+          <span class="k-mono" style="font-size: 12px">SMART WALLET (invented)</span>
+          <span class="k-disp" style="font-size: 38px; font-stretch: 60%; line-height: 1">12,480.00 INC</span>
+          <span class="k-mono" style="align-self: flex-start; padding: 6px 10px; background: #FF48B0; font-size: 12px; font-weight: 600">QR RECEIVE</span>
+        </div>
+        <p style="margin: 0; font-size: 16px; line-height: 1.45">Web3 smart-wallet dashboard: balances, passkeys, QR receive.</p>
+      </a>
+    </div>
+  </section>
+
+  <section style="max-width: 1440px; margin: 0 auto; padding: 44px 48px 0; box-sizing: border-box">
+    <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 16px; margin-bottom: 14px">
+      <h2 class="k-disp" style="margin: 0; font-size: 64px; font-stretch: 140%; line-height: .9; letter-spacing: -.02em">The ledger</h2>
+      <div style="display: flex; flex-wrap: wrap; gap: 8px">
+        <button type="button" class="k-chip" aria-pressed="true" style="background: #14213D; color: #F4ECDC; border-style: solid">All 28</button>
+        <button type="button" class="k-chip" aria-pressed="false">Healthcare</button>
+        <button type="button" class="k-chip" aria-pressed="false">Streaming</button>
+        <button type="button" class="k-chip" aria-pressed="false">Mobile apps</button>
+        <button type="button" class="k-chip" aria-pressed="false">Web3</button>
+        <button type="button" class="k-chip" aria-pressed="false">Web apps &amp; AI</button>
+        <button type="button" class="k-chip" aria-pressed="false">Games &amp; personal</button>
+      </div>
+    </div>
+    <div style="position: relative; border-top: 6px double #14213D">
+      <span aria-hidden="true" style="position: absolute; left: 70px; top: 0; bottom: 0; width: 2px; background: #FF48B0"></span>
+      <div class="k-mono" style="display: grid; grid-template-columns: 64px minmax(0, 1fr) 240px 120px 40px; gap: 16px; padding: 10px 0; border-bottom: 2px solid #14213D; font-size: 12px; font-weight: 600; letter-spacing: .08em">
+        <span>NO.</span><span style="padding-left: 14px">PROJECT</span><span>SECTOR</span><span>YEAR</span><span></span>
+      </div>
+      <sc-for list="{{rows}}" as="r" hint-placeholder-count="7">
+        <a href="#" class="k-row">
+          <span class="k-mono" style="font-size: 14px">{{r.n}}</span>
+          <span class="k-disp k-rname" style="padding-left: 14px; font-size: 32px; font-stretch: 70%; font-weight: 800; line-height: 1">{{r.name}}</span>
+          <span style="font-size: 17px; font-weight: 600">{{r.sector}}</span>
+          <span class="k-mono" style="font-size: 14px">{{r.year}}</span>
+          <span style="font-size: 20px; text-align: right">↗</span>
+        </a>
+      </sc-for>
+    </div>
+  </section>
+
+  <footer style="max-width: 1440px; margin: 0 auto; padding: 56px 48px 48px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 28px; box-sizing: border-box">
+    <div style="position: relative">
+      <p class="k-disp" aria-hidden="true" style="position: absolute; left: 0; top: 0; margin: 0; white-space: nowrap; font-size: 128px; font-stretch: 55%; line-height: .8; color: #FF48B0; animation: kDrift 11s cubic-bezier(.45,0,.55,1) infinite -4s">Now booking<br>your team</p>
+      <p class="k-disp" style="position: relative; margin: 0; font-size: 128px; font-stretch: 55%; line-height: .8; color: #14213D">Now booking<br>your team</p>
+      <p style="margin: 18px 0 0; font-size: 18px; font-weight: 600">Kosovo, working remote. Open to remote roles.</p>
+    </div>
+    <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 12px">
+      <a href="#" style="display: flex; align-items: center; gap: 18px; padding: 18px 24px; background: #FFE800; border: 3px solid #14213D; border-left-style: dashed; text-decoration: none; box-shadow: 6px 6px 0 #FF48B0">
+        <span class="k-mono" style="font-size: 12px; font-weight: 600; writing-mode: horizontal-tb">ADMIT ONE</span>
+        <span style="font-size: 22px; font-weight: 800">[your.email@example.com]</span>
+      </a>
+      <div style="display: flex; flex-wrap: wrap; gap: 10px">
+        <a href="#" class="k-btn">LinkedIn</a>
+        <a href="#" class="k-btn">GitHub</a>
+        <a href="#" class="k-btn" style="background: #FF48B0">Download CV ↓</a>
+      </div>
+    </div>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":3085}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      rows: [
+        { n: '001', name: 'Bayyinah TV', sector: 'Streaming', year: '2023-26' },
+        { n: '002', name: 'Care-management platform', sector: 'Healthcare', year: '2023-26' },
+        { n: '003', name: 'Read to Feed', sector: 'Mobile apps', year: '2022-25' },
+        { n: '004', name: 'Viva Fresh', sector: 'Mobile apps', year: '2023' },
+        { n: '005', name: 'Incentiv smart wallet', sector: 'Web3', year: '2024' },
+        { n: '006', name: 'Dukagjini Bookstore', sector: 'Mobile apps', year: '2021-22' },
+        { n: '007', name: 'FJALË word game', sector: 'Games & personal', year: 'Live' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

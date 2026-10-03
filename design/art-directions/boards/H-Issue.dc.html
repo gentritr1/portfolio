@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>H · The Issue</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&amp;family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,300..700&amp;family=DM+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F0F0EC}
+a{color:#141413}a:hover{color:#E8432E}
+.bod{font-family:'Bodoni Moda',serif;font-optical-sizing:auto}
+.news{font-family:'Newsreader',serif;font-optical-sizing:auto}
+.mono{font-family:'DM Mono',monospace}
+.drop::first-letter{font-family:'Bodoni Moda',serif;font-weight:900;float:left;font-size:4.6em;line-height:.78;padding:6px 10px 0 0}
+.btn{transition:transform .16s cubic-bezier(.23,1,.32,1)}
+.btn:active{transform:scale(.97)}
+.chip{transition:background-color .2s ease,color .2s ease}
+.chip:hover{background:#141413;color:#F0F0EC}
+@keyframes turn{
+  0%,46%{transform:rotateY(0deg)}
+  60%,88%{transform:rotateY(-180deg)}
+  100%{transform:rotateY(0deg)}
+}
+@keyframes shade{
+  0%,46%{opacity:0}
+  53%{opacity:.45}
+  60%,88%{opacity:0}
+  94%{opacity:.45}
+  100%{opacity:0}
+}
+@keyframes fanBack{0%,28%,100%{transform:rotate(-4deg) translate(-10px,8px)}50%,78%{transform:rotate(-13deg) translate(-78px,20px)}}
+@keyframes fanMid{0%,28%,100%{transform:rotate(-1deg) translate(0,0)}50%,78%{transform:rotate(-4deg) translate(-26px,6px)}}
+@keyframes fanFront{0%,28%,100%{transform:rotate(3deg) translate(14px,-4px)}50%,78%{transform:rotate(8deg) translate(46px,-12px)}}
+@media (prefers-reduced-motion: reduce){*{animation:none!important}}
+</style>
+</helmet>
+<div class="news" style="background: #F0F0EC; color: #141413; overflow: hidden">
+
+  <header style="max-width: 1440px; margin: 0 auto; padding: 12px 56px; box-sizing: border-box; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; border-bottom: 2px solid #141413">
+    <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 28px">
+      <a href="#" style="display: inline-flex; align-items: center; gap: 12px; text-decoration: none">
+        <span class="bod" style="width: 40px; height: 40px; display: inline-flex; align-items: center; justify-content: center; background: #141413; color: #F0F0EC; font-weight: 900; font-size: 19px">GR</span>
+        <span style="font-weight: 600; font-size: 19px">Gentrit Rashiti</span>
+      </a>
+      <nav class="mono" style="display: flex; gap: 22px; font-size: 14px; letter-spacing: .04em">
+        <a href="#" style="text-decoration: none">FEATURES</a>
+        <a href="#" style="text-decoration: none">INDEX</a>
+        <a href="#" style="text-decoration: none">COLOPHON</a>
+      </nav>
+    </div>
+    <div class="mono" style="display: flex; gap: 10px; font-size: 14px">
+      <a href="#" class="btn" style="padding: 10px 16px; border: 2px solid #141413; text-decoration: none">Email</a>
+      <a href="#" class="btn" style="padding: 10px 16px; background: #141413; color: #F0F0EC; border: 2px solid #141413; text-decoration: none">Download CV ↓</a>
+    </div>
+  </header>
+
+  <section style="max-width: 1440px; margin: 0 auto; padding: 14px 56px 34px; box-sizing: border-box">
+    <div class="mono" style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; font-size: 14px; letter-spacing: .06em">
+      <span>ISSUE 05 · 2021–2026</span>
+      <span>THE FULL-STACK ISSUE</span>
+    </div>
+    <h1 class="bod" style="margin: 4px 0 0; font-weight: 900; font-size: 212px; line-height: .8; letter-spacing: -.04em; color: #E8432E">SHIPPED</h1>
+
+    <div style="display: grid; grid-template-columns: 290px minmax(0, 1fr) 420px; gap: 44px; margin-top: 26px; align-items: start">
+
+      <div>
+        <p class="mono" style="margin: 0 0 10px; font-size: 13px; letter-spacing: .06em; border-top: 2px solid #141413; padding-top: 8px">INSIDE THIS ISSUE</p>
+        <div>
+          <div style="display: flex; flex-direction: column">
+            <sc-for list="{{lines}}" as="l" hint-placeholder-count="7">
+              <a href="#" style="display: block; text-decoration: none; padding: 10px 0 14px">
+                <span class="mono" style="display: inline-block; padding: 2px 7px; background: {{l.bg}}; color: {{l.fg}}; font-size: 12px; letter-spacing: .05em">{{l.page}}</span>
+                <span class="bod" style="display: block; margin-top: 6px; font-weight: 600; font-size: 23px; line-height: 1.12">{{l.text}}</span>
+              </a>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+
+      <div style="min-width: 0">
+        <p class="mono" style="margin: 0 0 10px; font-size: 13px; letter-spacing: .06em; border-top: 2px solid #141413; padding-top: 8px">COVER STORY</p>
+        <p class="bod" style="margin: 0; font-style: italic; font-weight: 400; font-size: 80px; line-height: .98; letter-spacing: -.02em">Gentrit Rashiti</p>
+        <p style="margin: 16px 0 0; font-size: 27px; line-height: 1.25; max-width: 24ch">Frontend &amp; mobile developer, now full stack.</p>
+        <p class="mono" style="margin: 18px 0 0; font-size: 14px; line-height: 1.6; color: #3E3E3A">[Seniority] · 5+ yrs<br>React, React Native, Vue/Nuxt, Next.js, TypeScript, Laravel</p>
+        <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 22px">
+          <span class="mono" style="padding: 9px 12px; background: #1E5B3F; color: #FFFFFF; font-size: 14px">Open to remote roles</span>
+          <a href="#" class="btn mono" style="padding: 9px 14px; background: #141413; color: #F0F0EC; text-decoration: none; font-size: 14px">Download CV ↓</a>
+          <a href="#" style="font-size: 18px; font-style: italic">Read the features</a>
+        </div>
+      </div>
+
+      <div style="position: relative; height: 420px; margin-top: -104px; z-index: 2">
+        <div style="position: absolute; left: 76px; top: 20px; width: 272px; height: 384px; background: #F2A71B; color: #141413; padding: 14px; box-sizing: border-box; transform-origin: 50% 100%; transform: rotate(-4deg) translate(-10px, 8px); animation: fanBack 9s cubic-bezier(.77,0,.175,1) infinite; box-shadow: 0 18px 30px -18px rgba(60,40,0,.5)">
+          <p class="bod" style="margin: 0; font-weight: 900; font-size: 46px; line-height: .9; letter-spacing: -.03em">SHIPPED</p>
+          <div style="margin-top: 10px; height: 214px; overflow: hidden"><img src="/_blob/461e33a21e9453a672979083bb704ea9" alt="Read to Feed screenshot from the app store listing" style="width: 100%; height: 100%; object-fit: cover; object-position: top; display: block"></div>
+          <p class="bod" style="margin: 10px 0 0; font-style: italic; font-size: 21px; line-height: 1.1">About 14 releases of a reading app</p>
+        </div>
+        <div style="position: absolute; left: 76px; top: 20px; width: 272px; height: 384px; background: #E8432E; color: #141413; padding: 14px; box-sizing: border-box; transform-origin: 50% 100%; transform: rotate(-1deg); animation: fanMid 9s cubic-bezier(.77,0,.175,1) infinite; box-shadow: 0 18px 30px -18px rgba(80,20,10,.5)">
+          <p class="bod" style="margin: 0; font-weight: 900; font-size: 46px; line-height: .9; letter-spacing: -.03em">SHIPPED</p>
+          <div style="margin-top: 10px; height: 214px; overflow: hidden"><img src="/_blob/47ba7ca5a8b75d1adb0707716e2e02c7" alt="Viva Fresh screenshot from the app store listing" style="width: 100%; height: 100%; object-fit: cover; object-position: top; display: block"></div>
+          <p class="bod" style="margin: 10px 0 0; font-style: italic; font-size: 21px; line-height: 1.1">Groceries, delivery slots and loyalty</p>
+        </div>
+        <div style="position: absolute; left: 76px; top: 20px; width: 272px; height: 384px; background: #1F45D6; color: #FFFFFF; padding: 14px; box-sizing: border-box; transform-origin: 50% 100%; transform: rotate(3deg) translate(14px, -4px); animation: fanFront 9s cubic-bezier(.77,0,.175,1) infinite; box-shadow: 0 22px 34px -18px rgba(10,20,80,.6)">
+          <p class="bod" style="margin: 0; font-weight: 900; font-size: 46px; line-height: .9; letter-spacing: -.03em">SHIPPED</p>
+          <div style="margin-top: 10px; height: 214px; overflow: hidden"><img src="/_blob/b5de8b603eb9fc1eb6243512da056cfb" alt="Bayyinah TV website home page" style="width: 100%; height: 100%; object-fit: cover; object-position: left top; display: block"></div>
+          <p class="bod" style="margin: 10px 0 0; font-style: italic; font-size: 21px; line-height: 1.1">100K+ downloads. One Nuxt 3 rebuild.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section style="background: #1F45D6; color: #FFFFFF">
+    <div style="max-width: 1440px; margin: 0 auto; padding: 40px 56px 18px; box-sizing: border-box">
+      <div style="display: grid; grid-template-columns: minmax(0, 1fr) 700px; gap: 56px; align-items: start">
+        <div style="min-width: 0">
+          <p class="mono" style="margin: 0; font-size: 13px; letter-spacing: .06em; color: #DCE3FF">STREAMING · 2023–26</p>
+          <h2 class="bod" style="margin: 10px 0 0; font-weight: 800; font-size: 56px; line-height: .98; letter-spacing: -.025em">Bayyinah TV, rebuilt on Nuxt 3.</h2>
+          <div style="display: flex; flex-wrap: wrap; gap: 36px; margin-top: 22px">
+            <div><span class="bod" style="display: block; font-weight: 900; font-size: 62px; line-height: .9">100K+</span><span class="mono" style="font-size: 13px; color: #DCE3FF">downloads on Google Play</span></div>
+            <div><span class="bod" style="display: block; font-weight: 900; font-size: 62px; line-height: .9">34</span><span class="mono" style="font-size: 13px; color: #DCE3FF">routes, two languages</span></div>
+          </div>
+          <p class="drop" style="margin: 22px 0 0; font-size: 18px; line-height: 1.55; max-width: 58ch">Bayyinah TV is a video-learning platform. The platform was rebuilt on Nuxt 3, with live streams and realtime chat, an HLS player, and Stripe, Apple and Google subscriptions. Every screen reads in English and in Arabic, right to left.</p>
+          <p style="margin: 14px 0 0; font-size: 17px; font-style: italic; color: #DCE3FF">Also in this story: bayyinah.org, the institute site, on Next.js (2024–25).</p>
+        </div>
+
+        <div style="min-width: 0">
+          <p class="bod" style="margin: 0 0 18px; font-style: italic; font-size: 30px; line-height: 1.15">“Live streams, realtime chat and an HLS player, in English and in Arabic.”</p>
+          <div style="position: relative; width: 700px; max-width: 100%; height: 280px; perspective: 2200px">
+            <div style="position: absolute; left: 0; top: 0; width: 50%; height: 100%; background: #F0F0EC; color: #141413; box-sizing: border-box; overflow: hidden">
+              <img src="/_blob/b5de8b603eb9fc1eb6243512da056cfb" alt="Bayyinah TV website home page" style="width: 100%; height: 206px; object-fit: cover; object-position: left top; display: block">
+              <p class="mono" style="margin: 0; padding: 12px 14px; font-size: 12px; line-height: 1.45">The Bayyinah TV website, on desktop.</p>
+            </div>
+            <div style="position: absolute; left: 50%; top: 0; width: 50%; height: 100%; background: #0E1A55; display: flex; align-items: center; justify-content: center">
+              <img src="/_blob/efd3efb4559b375e93df948c6424122c" alt="Bayyinah TV screenshot from the Google Play listing" style="height: 254px; display: block">
+            </div>
+            <div style="position: absolute; left: 50%; top: 0; width: 50%; height: 100%; transform-origin: 0 50%; transform-style: preserve-3d; animation: turn 10s cubic-bezier(.77,0,.175,1) infinite">
+              <div style="position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; background: #14298A; display: flex; align-items: center; justify-content: center">
+                <img src="/_blob/e4db1c62e8865c5bf469ad292fa3ad36" alt="Bayyinah TV screenshot from the Google Play listing" style="height: 254px; display: block">
+                <div style="position: absolute; inset: 0; background: linear-gradient(90deg, rgba(0,0,0,.55), transparent 40%); animation: shade 10s linear infinite; opacity: 0"></div>
+              </div>
+              <div style="position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; transform: rotateY(180deg); background: #F0F0EC; color: #141413; padding: 26px 26px 18px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between">
+                <p class="drop" style="margin: 0; font-size: 18px; line-height: 1.5">Subscriptions run through Stripe, Apple and Google. 34 routes, rebuilt on Nuxt 3.</p>
+                <p class="mono" style="margin: 0; font-size: 12px; text-align: right">13</p>
+              </div>
+            </div>
+            <div style="position: absolute; left: calc(50% - 18px); top: 0; width: 36px; height: 100%; background: linear-gradient(90deg, transparent, rgba(0,0,0,.22) 50%, transparent); pointer-events: none"></div>
+          </div>
+          <p class="mono" style="margin: 12px 0 0; font-size: 13px; color: #DCE3FF">Left: bayyinah.tv on desktop. Right: two Google Play frames.</p>
+        </div>
+      </div>
+      <div class="mono" style="display: flex; justify-content: space-between; margin-top: 18px; font-size: 13px; color: #DCE3FF"><span>12</span><span>SHIPPED · ISSUE 05</span><span>13</span></div>
+    </div>
+  </section>
+
+  <section style="display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr)">
+    <article style="background: #1E5B3F; color: #FFFFFF; padding: 36px 44px 18px 56px; display: flex; flex-direction: column">
+      <p class="mono" style="margin: 0; font-size: 13px; letter-spacing: .06em; color: #CFE8D9">HEALTHCARE · 2023–26 · VIANOVA</p>
+      <h2 class="bod" style="margin: 10px 0 0; font-weight: 800; font-size: 60px; line-height: .98; letter-spacing: -.025em">16 queries became 2.</h2>
+      <div style="display: grid; grid-template-columns: minmax(0, 1fr) 260px; gap: 28px; margin-top: 20px; flex: 1">
+        <div>
+          <p class="drop" style="margin: 0; font-size: 18px; line-height: 1.55">A remote patient-monitoring platform for many clinics. The platform moved from Vue to React route by route, and parity tests check each route against the old app. A Laravel API sits behind it, in 4 languages.</p>
+          <div style="display: flex; flex-wrap: wrap; gap: 30px; margin-top: 20px">
+            <div><span class="bod" style="display: block; font-weight: 900; font-size: 56px; line-height: .9">31</span><span class="mono" style="font-size: 13px; color: #CFE8D9">architecture decision records</span></div>
+            <div><span class="bod" style="display: block; font-weight: 900; font-size: 56px; line-height: .9">16→2</span><span class="mono" style="font-size: 13px; color: #CFE8D9">queries in a billing report</span></div>
+          </div>
+        </div>
+        <figure style="margin: 0">
+          <div style="background: #F0F0EC; color: #141413; padding: 16px">
+            <div class="mono" style="display: flex; justify-content: space-between; font-size: 12px"><span>Patient 4821</span><span style="color: #B3301F">2 alerts</span></div>
+            <p class="bod" style="margin: 6px 0 0; font-weight: 700; font-size: 22px">Blood pressure, 14 days</p>
+            <svg viewBox="0 0 268 150" role="img" aria-label="Invented blood-pressure line with two alert points" style="width: 100%; height: auto; display: block; margin-top: 8px">
+              <line x1="0" y1="46" x2="268" y2="46" stroke="#E8432E" stroke-width="1.5" stroke-dasharray="4 4"></line>
+              <text x="268" y="40" text-anchor="end" font-family="DM Mono" font-size="10" fill="#B3301F">140</text>
+              <polyline points="0,96 20,90 40,94 60,84 80,88 100,70 120,38 140,78 160,82 180,74 200,90 220,34 240,72 268,80" fill="none" stroke="#1E5B3F" stroke-width="3" stroke-linejoin="round"></polyline>
+              <circle cx="120" cy="38" r="6" fill="#E8432E"></circle>
+              <circle cx="220" cy="34" r="6" fill="#E8432E"></circle>
+              <line x1="0" y1="140" x2="268" y2="140" stroke="#141413" stroke-width="1"></line>
+            </svg>
+          </div>
+          <figcaption class="mono" style="margin-top: 8px; font-size: 12px; line-height: 1.45; color: #CFE8D9">Recreation with invented data. The real screens are private.</figcaption>
+        </figure>
+      </div>
+      <p class="mono" style="margin: 14px 0 0; font-size: 13px; color: #CFE8D9">14</p>
+    </article>
+
+    <article style="background: #F2A71B; color: #141413; padding: 36px 56px 18px 44px; display: flex; flex-direction: column">
+      <p class="mono" style="margin: 0; font-size: 13px; letter-spacing: .06em">MOBILE · 2022–25</p>
+      <h2 class="bod" style="margin: 10px 0 0; font-weight: 800; font-size: 60px; line-height: .98; letter-spacing: -.025em">Read to Feed.</h2>
+      <div style="display: grid; grid-template-columns: minmax(0, 1fr) 236px; gap: 24px; margin-top: 20px; flex: 1">
+        <div>
+          <p class="drop" style="margin: 0; font-size: 18px; line-height: 1.55">A children's reading app: a PDF and EPUB reader, ISBN barcode scanning, badges and streaks, in 3 languages.</p>
+          <p class="bod" style="margin: 16px 0 0; font-style: italic; font-size: 27px; line-height: 1.12">“From React Native 0.63 to 0.81.”</p>
+          <div style="margin-top: 16px"><span class="bod" style="display: block; font-weight: 900; font-size: 56px; line-height: .9">≈14</span><span class="mono" style="font-size: 13px">store releases</span></div>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: flex-start">
+          <img src="/_blob/461e33a21e9453a672979083bb704ea9" alt="Read to Feed screenshot from the app store listing" style="width: 113px; height: 244px; object-fit: cover; object-position: top; display: block">
+          <img src="/_blob/5a5111f71e28ccea7450e215ad9e5751" alt="Read to Feed screenshot from the app store listing" style="width: 113px; height: 244px; object-fit: cover; object-position: top; display: block; margin-top: 28px">
+        </div>
+      </div>
+      <p class="mono" style="margin: 14px 0 0; font-size: 13px; text-align: right">15</p>
+    </article>
+  </section>
+
+  <section style="display: grid; grid-template-columns: 430px minmax(0, 1fr)">
+    <article style="background: #E8432E; color: #141413; padding: 34px 40px 18px 56px; display: flex; flex-direction: column">
+      <p class="mono" style="margin: 0; font-size: 13px; letter-spacing: .06em">IN BRIEF · MOBILE · 2023</p>
+      <h2 class="bod" style="margin: 8px 0 0; font-weight: 800; font-size: 48px; line-height: 1">Viva Fresh</h2>
+      <p style="margin: 10px 0 0; font-size: 18px; line-height: 1.5">A grocery and loyalty app for iOS and Android: delivery slots, a wishlist, purchase history and map address search.</p>
+      <div style="display: flex; gap: 10px; margin-top: 16px">
+        <img src="/_blob/47ba7ca5a8b75d1adb0707716e2e02c7" alt="Viva Fresh screenshot from the app store listing" style="width: 148px; height: 150px; object-fit: cover; object-position: top; display: block">
+        <img src="/_blob/0aa911fe9541dfae5df4cfaeb1cd6503" alt="Viva Fresh screenshot from the app store listing" style="width: 148px; height: 150px; object-fit: cover; object-position: top; display: block">
+      </div>
+      <p class="mono" style="margin: auto 0 0; padding-top: 12px; font-size: 13px">16</p>
+    </article>
+
+    <div style="padding: 34px 56px 18px 48px; min-width: 0">
+      <div style="display: flex; flex-wrap: wrap; align-items: baseline; gap: 18px">
+        <h2 class="bod" style="margin: 0; font-weight: 900; font-size: 64px; line-height: .9; letter-spacing: -.02em">Index</h2>
+        <span style="font-style: italic; font-size: 22px">28 projects in 6 channels</span>
+      </div>
+      <div class="mono" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; font-size: 13px">
+        <button class="chip" style="font: inherit; padding: 7px 12px; border: 2px solid #141413; background: #141413; color: #F0F0EC; cursor: pointer">All 28</button>
+        <sc-for list="{{channels}}" as="c" hint-placeholder-count="6">
+          <button class="chip" style="font: inherit; padding: 7px 12px; border: 2px solid #141413; background: transparent; color: #141413; cursor: pointer">{{c.name}}</button>
+        </sc-for>
+      </div>
+      <div style="margin-top: 14px">
+        <sc-for list="{{rows}}" as="r" hint-placeholder-count="5">
+          <a href="#" style="display: grid; grid-template-columns: auto minmax(40px, 1fr) 170px 86px 34px; gap: 14px; align-items: baseline; padding: 9px 0; text-decoration: none">
+            <span class="bod" style="font-weight: 700; font-size: 25px">{{r.name}}</span>
+            <span style="border-bottom: 2px dotted #141413; transform: translateY(-6px)"></span>
+            <span class="mono" style="font-size: 13px">{{r.channel}}</span>
+            <span class="mono" style="font-size: 13px">{{r.years}}</span>
+            <span class="bod" style="font-style: italic; font-size: 22px; text-align: right">{{r.page}}</span>
+          </a>
+        </sc-for>
+      </div>
+    </div>
+  </section>
+
+  <footer style="background: #141413; color: #F0F0EC">
+    <div style="max-width: 1440px; margin: 0 auto; padding: 38px 56px 30px; box-sizing: border-box; display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 28px">
+      <div>
+        <p class="bod" style="margin: 0; font-weight: 900; font-size: 76px; line-height: .92; letter-spacing: -.03em">Letters to the editor.</p>
+        <a href="#" class="bod" style="display: inline-block; margin-top: 12px; font-style: italic; font-size: 34px; color: #F2A71B">[your.email@example.com]</a>
+      </div>
+      <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 14px">
+        <div class="mono" style="display: flex; flex-wrap: wrap; gap: 10px; font-size: 14px">
+          <a href="#" class="btn" style="padding: 10px 16px; border: 2px solid #F0F0EC; color: #F0F0EC; text-decoration: none">LinkedIn</a>
+          <a href="#" class="btn" style="padding: 10px 16px; border: 2px solid #F0F0EC; color: #F0F0EC; text-decoration: none">GitHub</a>
+          <a href="#" class="btn" style="padding: 10px 16px; background: #F0F0EC; color: #141413; border: 2px solid #F0F0EC; text-decoration: none">Download CV ↓</a>
+        </div>
+        <span class="mono" style="font-size: 13px; color: #BDBDB6">Back cover · Kosovo, remote</span>
+      </div>
+    </div>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2420}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const lines = [
+      { page: 'P. 14', bg: '#1E5B3F', fg: '#FFFFFF', text: 'How a billing report went from 16 queries to 2' },
+      { page: 'P. 12', bg: '#1F45D6', fg: '#FFFFFF', text: '100K+ downloads: inside the Bayyinah TV rebuild' },
+      { page: 'P. 15', bg: '#F2A71B', fg: '#141413', text: 'React Native 0.63 to 0.81, release by release' },
+      { page: 'P. 14', bg: '#1E5B3F', fg: '#FFFFFF', text: '31 decisions, written down' },
+      { page: 'P. 12', bg: '#1F45D6', fg: '#FFFFFF', text: 'English and Arabic, right to left, one player' },
+      { page: 'P. 16', bg: '#E8432E', fg: '#141413', text: 'Delivery slots, a wishlist and loyalty' },
+      { page: 'P. 17', bg: '#141413', fg: '#F0F0EC', text: 'A smart wallet with passkey sign-in' }
+    ];
+    return {
+      lines: lines.slice(0, 4),
+      channels: [
+        { name: 'Healthcare' }, { name: 'Streaming' }, { name: 'Mobile apps' },
+        { name: 'Web3' }, { name: 'Web apps & AI' }, { name: 'Games & personal' }
+      ],
+      rows: [
+        { name: 'Bayyinah TV', channel: 'Streaming', years: '2023–26', page: '12' },
+        { name: 'Care-management platform', channel: 'Healthcare', years: '2023–26', page: '14' },
+        { name: 'Incentiv smart wallet', channel: 'Web3', years: '2024', page: '17' },
+        { name: 'Geo Guesser World 3D', channel: 'Games & personal', years: '2026', page: '18' },
+        { name: 'Dukagjini Bookstore', channel: 'Mobile apps', years: '2021–22', page: '19' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>
