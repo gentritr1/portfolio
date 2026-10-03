@@ -174,3 +174,7 @@ Icons: `@phosphor-icons/react`, `weight="light"` outside recreations. No emoji, 
 ## Refused on purpose
 
 Kicker labels above headings, scroll-triggered reveals on every section, preloaders, scroll-jacking, glow halos, pulsing status dots, gradient text, glass on scrolling content, pill buttons, cards as page structure, `in oklch` colour mixing, Inter, Roboto, Arial. Em dashes stay out of copy; the en dash appears only inside time codes such as `2023–26`.
+
+## Signal Stack: tune-in camera
+
+A visible WebGL hero stack dollies into its active pane for 450 ms with cubic ease-out before the route transition. The stack temporarily owns `monitor-<slug>` and hands it to the case monitor; the wall releases that name so snapshots remain unique. Imports finish before the camera starts. Repeated activation is guarded and unmount cancels pending navigation. Reduced motion, CSS fallback, hidden stacks and phones navigate through the existing path without a camera delay.

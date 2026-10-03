@@ -1,3 +1,5 @@
+import type { Ref } from 'react'
+import type { SignalStackHandle } from '../signal-stack/SignalStack'
 import type { ChannelKey } from '../../content/channels'
 import { Container } from '../Container'
 import { HeaderVisual } from '../HeaderVisual'
@@ -5,7 +7,7 @@ import { SignalDot } from '../SignalDot'
 
 const status = ['5+ yrs', '2 platform rewrites']
 
-export function Intro({ active }: { active: ChannelKey }) {
+export function Intro({ active, stackRef, transitionName }: { active: ChannelKey; stackRef?: Ref<SignalStackHandle>; transitionName?: string }) {
   return (
     <section aria-labelledby="intro-title" className="pt-8 sm:pt-10">
       <Container className="grid items-center gap-x-8 md:grid-cols-[minmax(0,1fr)_300px] lg:grid-cols-[minmax(0,1fr)_380px]">
@@ -36,6 +38,8 @@ export function Intro({ active }: { active: ChannelKey }) {
         </div>
         <HeaderVisual
           active={active}
+          stackRef={stackRef}
+          transitionName={transitionName}
           className="hidden md:block md:h-[200px] md:w-[300px] md:justify-self-end lg:h-[220px] lg:w-[380px]"
         />
       </Container>

@@ -116,11 +116,13 @@ const ownArrowKeys =
   '[role="tablist"], [role="slider"], [role="radiogroup"], [role="listbox"], [role="menu"], [role="grid"], [data-world]'
 
 interface MonitorWallProps {
+  beforeTransition?: () => Promise<(() => void) | undefined>
+  tuningCamera?: boolean
   activeSlug: string
   onSelect: (slug: string) => void
 }
 
-export function MonitorWall({ activeSlug, onSelect }: MonitorWallProps) {
+export function MonitorWall({ activeSlug, onSelect, beforeTransition, tuningCamera }: MonitorWallProps) {
   const shownSlug = useDeferredValue(activeSlug)
   const active = findProject(activeSlug) ?? featuredProjects[0]
   const shown = findProject(shownSlug) ?? active
@@ -147,6 +149,7 @@ export function MonitorWall({ activeSlug, onSelect }: MonitorWallProps) {
   const index = featuredProjects.findIndex((project) => project.slug === activeSlug)
 
   function select(next: number, focus: boolean) {
+    if (tuningCamera) return
     const project = featuredAt(next)
     preloadMonitor(project)
     setSwitched(true)
@@ -156,7 +159,7 @@ export function MonitorWall({ activeSlug, onSelect }: MonitorWallProps) {
 
   useEffect(() => {
     function onKey(event: globalThis.KeyboardEvent) {
-      if (!inView.current || event.defaultPrevented || event.metaKey || event.ctrlKey || event.altKey) return
+      if (tuningCamera || !inView.current || event.defaultPrevented || event.metaKey || event.ctrlKey || event.altKey) return
       if (isTypingTarget(event.target) || document.querySelector('dialog[open]')) return
       let next: number | null = null
       if (/^[1-9]$/.test(event.key) && Number(event.key) <= featuredProjects.length) next = Number(event.key) - 1
@@ -272,12 +275,13 @@ export function MonitorWall({ activeSlug, onSelect }: MonitorWallProps) {
             live={Boolean(recreation) && !tuning}
             aspect={aspectOf(shown)}
             world={recreation?.world ?? 'base'}
-            viewTransitionName={`monitor-${shown.slug}`}
+            viewTransitionName={tuningCamera ? undefined : `monitor-${shown.slug}`}
             fit
             actions={
               <TransitionLink
                 to={caseHref(active)}
                 preload={() => preloadCase(active.slug)}
+                beforeTransition={beforeTransition}
                 className="group inline-flex min-h-11 items-center gap-2 rounded-sm bg-ink px-3.5 label-lg text-panel-0 transition-[background-color,transform] duration-150 ease-out hover:bg-ink-2 active:scale-[0.98] sm:px-4"
               >
                 Tune in

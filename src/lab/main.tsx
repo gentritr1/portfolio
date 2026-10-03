@@ -1,8 +1,8 @@
-import { StrictMode, useEffect, useState } from 'react'
+import { StrictMode, useEffect, useRef, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import '../styles/globals.css'
 import { channelOrder, channels } from '../content/channels'
-import { SignalStack } from '../components/signal-stack/SignalStack'
+import { SignalStack, type SignalStackHandle } from '../components/signal-stack/SignalStack'
 import { SignalStackCss } from '../components/signal-stack/SignalStackCss'
 import { cn } from '../lib/cn'
 
@@ -40,6 +40,20 @@ function useFrameRate() {
   return stats
 }
 
+function DollyPreview({ active }: { active: typeof channelOrder[number] }) {
+  const stack = useRef<SignalStackHandle>(null)
+  const [busy, setBusy] = useState(false)
+  return <div className="relative size-full">
+    <SignalStack ref={stack} channels={channelOrder} active={active} className="size-full" />
+    <button type="button" disabled={busy} className="absolute right-0 bottom-0 min-h-11 border border-hairline bg-panel-0 px-3 label" onClick={async () => {
+      setBusy(true)
+      await stack.current?.tuneIn()
+      stack.current?.reset()
+      setBusy(false)
+    }}>Test tune in</button>
+  </div>
+}
+
 function Lab() {
   const [index, setIndex] = useState(0)
   const [forceCss, setForceCss] = useState(false)
@@ -51,7 +65,7 @@ function Lab() {
     document.documentElement.setAttribute('data-theme', theme)
   }, [theme])
 
-  const Stack = forceCss ? SignalStackCss : SignalStack
+  const Stack = forceCss ? SignalStackCss : DollyPreview
 
   return (
     <main className="min-h-dvh bg-panel-0 p-6 text-ink">
@@ -96,7 +110,7 @@ function Lab() {
             key={scheme}
             data-lab-panel={scheme}
             style={{ colorScheme: scheme }}
-            className="flex flex-col gap-6 border border-hairline bg-panel-0 p-6"
+            className="flex min-w-0 max-w-full flex-col gap-6 border border-hairline bg-panel-0 p-6"
           >
             <p className="label text-ink-3">{scheme === 'dark' ? 'Dark' : 'Daylight'} panel</p>
             {sizes.map(({ w, h }) => (
@@ -106,7 +120,7 @@ function Lab() {
                 </span>
                 <div
                   data-lab-box={`${scheme}-${w}`}
-                  style={{ width: w, height: h }}
+                  style={{ width: w, height: h, maxWidth: '100%' }}
                   className="outline outline-1 outline-dashed outline-hairline"
                 >
                   <Stack channels={channelOrder} active={active} className="size-full" />

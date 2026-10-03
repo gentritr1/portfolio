@@ -35,6 +35,8 @@ export interface SceneOptions {
 }
 
 export interface SignalScene {
+  tuneIn(): Promise<void>
+  resetCamera(): void
   setActive(index: number): void
   setTints(tints: Tints): void
   dispose(): void
@@ -120,6 +122,9 @@ export function createScene(context: WebGL2RenderingContext, opts: SceneOptions)
   let active = opts.active
   let centre = active
   let tuneAt = -1
+  let dollyAt = -1
+  let finishDolly: (() => void) | undefined
+  let dollyTimeout = 0
   const panes: Pane[] = []
   const order: Pane[] = []
   for (let i = 0; i < count; i++) {
@@ -224,6 +229,10 @@ export function createScene(context: WebGL2RenderingContext, opts: SceneOptions)
     tiltY = approach(tiltY, aimY, 6, dt)
     stack.rotation.y = Math.sin((time / 24) * Math.PI * 2) * IDLE_YAW + tiltX * TILT_YAW
     stack.rotation.x = tiltY * TILT_PITCH
+    const progress = dollyAt < 0 ? 0 : Math.min(1, (now - dollyAt) / 450)
+    const dolly = 1 - (1 - progress) ** 3
+    stack.rotation.y *= 1 - dolly
+    stack.rotation.x *= 1 - dolly
 
     for (let i = 0; i < count; i++) {
       const pane = panes[i]
@@ -248,6 +257,12 @@ export function createScene(context: WebGL2RenderingContext, opts: SceneOptions)
       order[j + 1] = p
     }
 
+    panePose(active, centre, count, pose)
+    const targetX = pose.x * stack.scale.x
+    const targetZ = (pose.z + FORWARD) * stack.scale.x
+    const distance = PANE_H * PANE_SCALE * stack.scale.x / (2 * Math.tan(FOV * Math.PI / 360))
+    camera.position.set(targetX * dolly, -Math.sin(PITCH) * CAMERA_Z * (1 - dolly), Math.cos(PITCH) * CAMERA_Z * (1 - dolly) + (targetZ + distance) * dolly)
+    camera.lookAt([targetX * dolly, 0, targetZ * dolly])
     u.uTime.value = time
     stack.updateMatrixWorld()
     camera.updateMatrixWorld()
@@ -258,6 +273,11 @@ export function createScene(context: WebGL2RenderingContext, opts: SceneOptions)
     if (firstFrame) {
       firstFrame = false
       opts.onFirstFrame?.()
+    }
+    if (progress === 1 && finishDolly) {
+      window.clearTimeout(dollyTimeout)
+      finishDolly()
+      finishDolly = undefined
     }
     watch(ms)
   }
@@ -306,6 +326,16 @@ export function createScene(context: WebGL2RenderingContext, opts: SceneOptions)
   start()
 
   return {
+    tuneIn() {
+      dollyAt = performance.now()
+      return new Promise<void>((resolve) => {
+        finishDolly?.()
+        finishDolly = resolve
+        // Navigation must finish even if the tab becomes hidden during the move.
+        dollyTimeout = window.setTimeout(() => { finishDolly?.(); finishDolly = undefined }, 550)
+      })
+    },
+    resetCamera() { dollyAt = -1 },
     setActive(index) {
       if (index === active || index < 0 || index >= count) return
       active = index
@@ -314,6 +344,8 @@ export function createScene(context: WebGL2RenderingContext, opts: SceneOptions)
     setTints,
     dispose() {
       disposed = true
+      window.clearTimeout(dollyTimeout)
+      finishDolly?.()
       stop()
       ro.disconnect()
       io.disconnect()

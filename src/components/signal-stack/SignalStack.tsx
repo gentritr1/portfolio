@@ -1,11 +1,19 @@
-import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
+import { useEffect, useImperativeHandle, type Ref, useRef, useState, useSyncExternalStore } from 'react'
 import type { ChannelKey } from '../../content/channels'
 import { cn } from '../../lib/cn'
 import type { Rgb, SignalScene, Tints } from './scene'
 import { SignalStackCss } from './SignalStackCss'
 import { waveIndex } from './waves'
 
+export interface SignalStackHandle {
+  canTune(): boolean
+  tuneIn(): Promise<void>
+  reset(): void
+}
+
 export interface SignalStackProps {
+  ref?: Ref<SignalStackHandle>
+  transitionName?: string
   channels: ChannelKey[]
   active: ChannelKey
   className?: string
@@ -73,7 +81,7 @@ function readTints(probe: HTMLElement, channels: ChannelKey[]): Tints {
  * Six channel panes on a shallow arc. The active channel's pane steps forward and tunes in.
  * WebGL (OGL, lazy chunk) when the device can afford it; the CSS stack otherwise and as the first paint.
  */
-export function SignalStack({ channels, active, className }: SignalStackProps) {
+export function SignalStack({ channels, active, className, ref, transitionName }: SignalStackProps) {
   const reduced = useSyncExternalStore(subscribeReduced, getReduced, getReducedServer)
   const [mode, setMode] = useState<Mode>('css')
   const [cssGone, setCssGone] = useState(false)
@@ -83,6 +91,15 @@ export function SignalStack({ channels, active, className }: SignalStackProps) {
   const activeIndex = Math.max(0, channels.indexOf(active))
   const activeRef = useRef(activeIndex)
   const channelKey = channels.join(',')
+
+  useImperativeHandle(ref, () => ({
+    canTune() {
+      const rect = host.current?.getBoundingClientRect()
+      return !reduced && mode === 'webgl' && !!scene.current && !!rect && rect.width > 0 && rect.top >= 0 && rect.bottom <= window.innerHeight
+    },
+    async tuneIn() { await scene.current?.tuneIn() },
+    reset() { scene.current?.resetCamera() },
+  }), [reduced, mode])
 
   useEffect(() => {
     const el = host.current
@@ -163,7 +180,7 @@ export function SignalStack({ channels, active, className }: SignalStackProps) {
   }, [activeIndex])
 
   return (
-    <div ref={host} aria-hidden data-mode={mode} className={cn('relative', className)}>
+    <div ref={host} aria-hidden data-mode={mode} style={{ viewTransitionName: transitionName }} className={cn('relative', className)}>
       <span ref={probe} hidden />
       {!cssGone && (
         <SignalStackCss

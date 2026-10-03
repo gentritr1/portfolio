@@ -1,8 +1,9 @@
-import type { MouseEvent } from 'react'
+import { useEffect, useRef, type MouseEvent } from 'react'
 import { flushSync } from 'react-dom'
 import { Link, useNavigate, type LinkProps } from 'react-router'
 
 interface TransitionLinkProps extends Omit<LinkProps, 'viewTransition' | 'to'> {
+  beforeTransition?: () => Promise<(() => void) | undefined>
   to: string
   /** Starts the destination's imports on hover and focus, and finishes them before the transition starts. */
   preload?: () => Promise<unknown>
@@ -18,22 +19,38 @@ function prefersReducedMotion() {
  * BrowserRouter with synchronous updates, so flushSync commits the new route
  * inside the transition callback.
  */
-export function TransitionLink({ to, preload, onClick, onPointerEnter, onFocus, target, ...rest }: TransitionLinkProps) {
+export function TransitionLink({ to, preload, beforeTransition, onClick, onPointerEnter, onFocus, target, ...rest }: TransitionLinkProps) {
   const navigate = useNavigate()
 
+  const pending = useRef(false)
+  const mounted = useRef(true)
+  useEffect(() => { mounted.current = true; return () => { mounted.current = false } }, [])
+
   async function go() {
+    if (pending.current) return
+    pending.current = true
+    let cleanup: (() => void) | undefined
     try {
-      await preload?.()
-    } catch {
-      // A failed import surfaces again when the route renders.
+      try {
+        await preload?.()
+      } catch {
+        // A failed import surfaces again when the route renders.
+      }
+      if (!mounted.current) return
+      if (typeof document.startViewTransition !== 'function' || prefersReducedMotion()) {
+        navigate(to)
+        return
+      }
+      cleanup = await beforeTransition?.()
+      if (!mounted.current) return
+      const transition = document.startViewTransition(() => {
+        flushSync(() => navigate(to))
+      })
+      await transition.finished.catch(() => undefined)
+    } finally {
+      cleanup?.()
+      pending.current = false
     }
-    if (typeof document.startViewTransition !== 'function' || prefersReducedMotion()) {
-      navigate(to)
-      return
-    }
-    document.startViewTransition(() => {
-      flushSync(() => navigate(to))
-    })
   }
 
   function handleClick(event: MouseEvent<HTMLAnchorElement>) {
