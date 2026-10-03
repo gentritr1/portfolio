@@ -1,0 +1,17 @@
+{
+  "id": "index",
+  "title": "Work in focus",
+  "band": "Professional",
+  "description": "A typographic work index whose active project becomes its own liquid image.",
+  "signature": "Screenshot ink ripples through the active name while its preview tilts and its colour floods the page.",
+  "caseSlug": "read-to-feed",
+  "scores": {
+    "design": 8.2,
+    "usability": 8.1,
+    "creativity": 8.1,
+    "content": 8.1
+  },
+  "antiPale": "pass",
+  "rounds": 2,
+  "holdback": "The row-and-preview structure is conventional, and product imagery arrives low on mobile."
+}
