@@ -1,0 +1,17 @@
+{
+  "id": "studio",
+  "title": "Studio Shot",
+  "band": "Crafted",
+  "description": "A saturated product studio with three sculpted phones and a scroll-driven Read to Feed story.",
+  "signature": "Three bevelled phones open into a fan, then the camera moves between the collection, reader and progress as the studio changes from cobalt to coral to citron.",
+  "caseSlug": "read-to-feed",
+  "scores": {
+    "design": 8.3,
+    "usability": 8.1,
+    "creativity": 8,
+    "content": 8.3
+  },
+  "antiPale": "pass",
+  "rounds": 1,
+  "holdback": "The phone-fan composition is familiar, and the enlarged public screenshots look soft."
+}

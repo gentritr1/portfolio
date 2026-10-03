@@ -1,14 +1,36 @@
-import { readdir, readFile, writeFile } from 'node:fs/promises';
+import { readdir, readFile, writeFile } from "node:fs/promises";
 
-const order = ['hybrid', 'studio', 'desktop', 'canvas', 'index', 'blueprint', 'savefile', 'zine', 'issue', 'wall', 'riso', 'dither', 'swiss', 'orbit', 'primetime', 'desk'];
-const folders = await readdir(new URL('../src/drafts/', import.meta.url), { withFileTypes: true });
+const order = [
+  "hybrid",
+  "studio",
+  "desktop",
+  "canvas",
+  "index",
+  "blueprint",
+  "savefile",
+  "zine",
+  "issue",
+  "wall",
+  "riso",
+  "dither",
+  "swiss",
+  "orbit",
+  "primetime",
+  "desk",
+];
+const folders = await readdir(new URL("../src/drafts/", import.meta.url), {
+  withFileTypes: true,
+});
 const drafts = [];
 for (const folder of folders.filter((entry) => entry.isDirectory())) {
   let source;
   try {
-    source = await readFile(new URL(`../src/drafts/${folder.name}/meta.json`, import.meta.url), 'utf8');
+    source = await readFile(
+      new URL(`../src/drafts/${folder.name}/meta.json`, import.meta.url),
+      "utf8",
+    );
   } catch (error) {
-    if (error.code === 'ENOENT') continue;
+    if (error.code === "ENOENT") continue;
     throw error;
   }
   const meta = JSON.parse(source);
@@ -17,7 +39,12 @@ for (const folder of folders.filter((entry) => entry.isDirectory())) {
 drafts.sort((a, b) => order.indexOf(a.id) - order.indexOf(b.id));
 const rows = drafts.map((d) => {
   const s = d.scores;
-  const total = (s.design * .4 + s.usability * .3 + s.creativity * .2 + s.content * .1).toFixed(2);
+  const total = (
+    s.design * 0.4 +
+    s.usability * 0.3 +
+    s.creativity * 0.2 +
+    s.content * 0.1
+  ).toFixed(2);
   return `| [${d.title}](/drafts/${d.id}) | ${d.band} | ${d.antiPale} | ${s.design.toFixed(1)} | ${s.usability.toFixed(1)} | ${s.creativity.toFixed(1)} | ${s.content.toFixed(1)} | ${total} | ${d.rounds} | [Desktop](drafts-review/${d.id}-desktop.png) · [Mobile](drafts-review/${d.id}-mobile.png) | ${d.signature} | ${d.holdback} |`;
 });
 const report = `# Live art-direction drafts
@@ -34,7 +61,7 @@ Screenshots use the local review frame. Reduced-motion and no-WebGL paths are im
 
 | Draft | Band | Energy | D | U | C | Content | Weighted | Rounds | Screenshots | Signature motion | Remaining holdback |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-${rows.join('\n')}
+${rows.join("\n")}
 
 ## Hybrid repair history
 
@@ -46,5 +73,8 @@ Hybrid rounds: **7.86 → 8.01 → 7.95** weighted. The final round improved vis
 
 Draft metadata and jury scores live beside each implementation in src/drafts/<id>/meta.json. Run node scripts/update-drafts-report.mjs after accepting a review. Picker thumbnails are downscaled captures of the corresponding desktop draft, with provenance metadata. All directions reuse the same project facts. Any invented product interface is labelled as a recreation.
 `;
-await writeFile(new URL('../design/art-directions/DRAFTS.md', import.meta.url), report);
+await writeFile(
+  new URL("../design/art-directions/DRAFTS.md", import.meta.url),
+  report,
+);
 console.log(`Updated ${drafts.length} reviewed drafts`);

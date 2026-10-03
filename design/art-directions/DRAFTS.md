@@ -8,11 +8,13 @@ Each draft is captured at 1440 px and 375 px, then judged by a non-builder again
 
 Screenshots use the local review frame. Reduced-motion and no-WebGL paths are implemented; browser interactions and bundle sizes are checked separately. No physical-device frame-rate or Android benchmark is claimed.
 
-## Reviewed drafts (1/16)
+## Reviewed drafts (3/16)
 
 | Draft | Band | Energy | D | U | C | Content | Weighted | Rounds | Screenshots | Signature motion | Remaining holdback |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | [Index × Preview](/drafts/hybrid) | Professional | pass | 7.9 | 7.9 | 8.0 | 8.2 | 7.95 | 3 | [Desktop](drafts-review/hybrid-desktop.png) · [Mobile](drafts-review/hybrid-mobile.png) | Selecting a project floods the page with its colour as its screenshot reveals inside the name. | Image-filled active names lose contrast where their crop matches the page colour. Retained after the three-round limit. |
+| [Studio Shot](/drafts/studio) | Crafted | pass | 8.3 | 8.1 | 8.0 | 8.3 | 8.18 | 1 | [Desktop](drafts-review/studio-desktop.png) · [Mobile](drafts-review/studio-mobile.png) | Three bevelled phones open into a fan, then the camera moves between the collection, reader and progress as the studio changes from cobalt to coral to citron. | The phone-fan composition is familiar, and the enlarged public screenshots look soft. |
+| [A working canvas](/drafts/canvas) | Experimental | pass | 8.1 | 7.7 | 8.2 | 8.3 | 8.02 | 1 | [Desktop](drafts-review/canvas-desktop.png) · [Mobile](drafts-review/canvas-mobile.png) | The opening camera glides across oversized lettering into a spatial portfolio; clusters become a keyboard-driven presentation. | Mobile canvas controls and the partially visible care artboard make exploration less immediate than the linear reading mode. |
 
 ## Hybrid repair history
 

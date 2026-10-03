@@ -154,10 +154,15 @@ function Lab() {
 }
 
 function Review() {
-  const [width, setWidth] = useState(375)
-  const [theme, setTheme] = useState('dark')
-  const [motion, setMotion] = useState('full')
-  const [path, setPath] = useState('/')
+  const initial = new URLSearchParams(location.search)
+  const [width, setWidth] = useState(() => [375, 820, 1440].includes(Number(initial.get('width'))) ? Number(initial.get('width')) : 375)
+  const [theme, setTheme] = useState(() => initial.get('theme') === 'light' ? 'light' : 'dark')
+  const [motion, setMotion] = useState(() => initial.get('motion') === 'reduce' ? 'reduce' : 'full')
+  const [path, setPath] = useState(() => initial.get('page')?.startsWith('/') ? initial.get('page')! : '/')
+  useEffect(() => {
+    const params = new URLSearchParams({ review: '1', width: String(width), theme, motion, page: path })
+    history.replaceState(null, '', `${location.pathname}?${params}`)
+  }, [width, theme, motion, path])
   const frame = useRef<HTMLIFrameElement>(null)
   const [gestureResult, setGestureResult] = useState('')
   function testSwipe() {
