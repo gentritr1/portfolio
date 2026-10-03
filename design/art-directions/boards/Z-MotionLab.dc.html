@@ -1,0 +1,521 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Z · Motion &amp; 3D lab</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&amp;family=JetBrains+Mono:wght@400;600&amp;family=Instrument+Serif:ital@0;1&amp;family=Pixelify+Sans:wght@500..700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0E0E12}
+a{color:#EEEDF3}a:hover{color:#FFC23D}
+.mono{font-family:'JetBrains Mono',monospace}
+.tile{background:#14141A;border:1px solid #24242C;border-radius:18px;padding:12px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.stage{position:relative;height:280px;border-radius:12px;overflow:hidden;background:#1A1A21}
+.meta{display:flex;flex-direction:column;gap:8px;padding:0 6px 4px}
+.t-head{display:flex;align-items:baseline;gap:10px}
+.t-num{font-family:'JetBrains Mono',monospace;font-size:13px;color:#8A889A}
+.t-title{margin:0;font-size:22px;font-weight:700;letter-spacing:-0.01em;color:#EEEDF3}
+.t-purpose{margin:0;font-size:16px;line-height:1.4;color:#C9C7D4}
+.t-time{margin:0;font-family:'JetBrains Mono',monospace;font-size:13px;line-height:1.45;color:#FFC23D}
+.suits{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:'JetBrains Mono',monospace;font-size:12px;padding:4px 9px;border:1px solid #34343F;border-radius:999px;color:#C9C7D4}
+.p3d{transform-style:preserve-3d}
+.anchor{position:absolute;left:50%;top:50%;width:0;height:0;transform-style:preserve-3d}
+
+/* 01 Signal Stack */
+.ss-yaw{position:absolute;left:0;top:0;transform-style:preserve-3d;animation:ss-yaw 24s cubic-bezier(.77,0,.175,1) infinite alternate}
+.ss-pane{position:absolute;left:0;top:0;transform-style:preserve-3d}
+.ss-face{position:absolute;left:-52px;top:-32px;width:104px;height:65px;border-radius:8px;overflow:hidden;background:linear-gradient(160deg,rgba(255,255,255,.17),rgba(255,255,255,.04) 62%);opacity:.5;animation:ss-step 18s cubic-bezier(.23,1,.32,1) infinite}
+.ss-rim{position:absolute;inset:0;border-radius:8px;border:2px solid #FF5A36;box-shadow:inset 0 0 14px rgba(255,90,54,.55);opacity:0;animation:ss-tune 18s linear infinite}
+.ss-dot{position:absolute;top:7px;right:7px;width:6px;height:6px;border-radius:50%;background:#FF5A36;opacity:0;animation:ss-air 18s linear infinite}
+.ss-label{position:absolute;top:6px;left:8px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.04em}
+.ss-trace{position:absolute;left:0;bottom:8px;width:224px;height:28px;animation:ss-scan 4s linear infinite}
+@keyframes ss-yaw{from{transform:rotateY(-4deg)}to{transform:rotateY(4deg)}}
+@keyframes ss-step{0%{transform:translateZ(0);opacity:.5}2.5%{transform:translateZ(48px);opacity:1}15%{transform:translateZ(48px);opacity:1}17.5%{transform:translateZ(0);opacity:.5}100%{transform:translateZ(0);opacity:.5}}
+@keyframes ss-tune{0%,1%{opacity:0}2.6%,4.2%{opacity:1}6%,100%{opacity:0}}
+@keyframes ss-air{0%,5%{opacity:0}6.5%,15%{opacity:1}16%,100%{opacity:0}}
+@keyframes ss-scan{from{transform:translateX(0)}to{transform:translateX(-112px)}}
+
+/* 02 Device orbit */
+.do-ring{position:absolute;left:0;top:0;transform-style:preserve-3d;animation:do-spin 12s cubic-bezier(.77,0,.175,1) infinite}
+.do-slot{position:absolute;left:0;top:0;transform-style:preserve-3d}
+.do-face{position:absolute;left:-38px;top:-76px;width:76px;height:152px;border-radius:16px;border:3px solid #3A3A46;background:#0E0E12;overflow:hidden;box-shadow:0 18px 30px rgba(0,0,0,.45);transform:rotateX(14deg);animation:do-counter 12s cubic-bezier(.77,0,.175,1) infinite}
+.do-face img{display:block;width:100%;height:100%;object-fit:cover}
+@keyframes do-spin{0%,18%{transform:rotateY(0deg)}33.33%,51.33%{transform:rotateY(120deg)}66.67%,84.67%{transform:rotateY(240deg)}100%{transform:rotateY(360deg)}}
+@keyframes do-counter{0%,18%{transform:rotateY(0deg) rotateX(14deg)}33.33%,51.33%{transform:rotateY(-120deg) rotateX(14deg)}66.67%,84.67%{transform:rotateY(-240deg) rotateX(14deg)}100%{transform:rotateY(-360deg) rotateX(14deg)}}
+
+/* 03 Exploded phone */
+.ep-layer{position:absolute;left:-55px;top:-110px;width:110px;height:220px;transform-style:preserve-3d}
+.ep-frame{position:absolute;inset:0;border-radius:24px;background:#26262F;border:5px solid #4A4A58}
+.ep-screen{position:absolute;inset:7px;border-radius:17px;overflow:hidden;background:#000}
+.ep-screen img{display:block;width:100%;height:100%;object-fit:cover}
+.ep-glass{position:absolute;inset:0;border-radius:24px;border:1px solid rgba(255,255,255,.45);background:linear-gradient(135deg,rgba(255,255,255,.34),rgba(255,255,255,.05) 42%,rgba(255,255,255,0) 60%,rgba(255,255,255,.14))}
+.ep-tag{position:absolute;left:100%;margin-left:12px;display:flex;align-items:center;gap:6px;white-space:nowrap;font-family:'JetBrains Mono',monospace;font-size:12px;color:#EEEDF3;animation:ep-label 9s linear infinite}
+.ep-tag::before{content:"";display:block;width:16px;height:1px;background:#FFC23D}
+.ep-up1{transform:translateZ(46px);animation:ep-screen 9s cubic-bezier(.77,0,.175,1) infinite}
+.ep-up2{transform:translateZ(92px);animation:ep-glass 9s cubic-bezier(.77,0,.175,1) infinite}
+@keyframes ep-screen{0%,15%{transform:translateZ(2px)}35%,68%{transform:translateZ(46px)}86%,100%{transform:translateZ(2px)}}
+@keyframes ep-glass{0%,15%{transform:translateZ(4px)}35%,68%{transform:translateZ(92px)}86%,100%{transform:translateZ(4px)}}
+@keyframes ep-label{0%,24%{opacity:0}35%,64%{opacity:1}72%,100%{opacity:0}}
+
+/* 04 Card tilt and glare */
+.ct-card{position:absolute;left:50%;top:50%;width:240px;margin:-108px 0 0 -120px;border-radius:14px;overflow:hidden;background:#22222B;border:1px solid #34343F;animation:ct-tilt 10s cubic-bezier(.45,0,.55,1) infinite}
+.ct-card img{display:block;width:240px;height:150px;object-fit:cover}
+.ct-glare{position:absolute;left:-50%;top:-50%;width:200%;height:200%;background:radial-gradient(circle at 50% 50%,rgba(255,255,255,.42),rgba(255,255,255,0) 32%);opacity:0;pointer-events:none;animation:ct-glare 10s cubic-bezier(.45,0,.55,1) infinite}
+.ct-shadow{position:absolute;left:50%;top:50%;width:220px;height:30px;margin:96px 0 0 -110px;border-radius:50%;background:rgba(0,0,0,.55);filter:blur(14px);animation:ct-shadow 10s cubic-bezier(.45,0,.55,1) infinite}
+@keyframes ct-tilt{0%,10%{transform:rotateX(0deg) rotateY(0deg)}28%,40%{transform:rotateX(6deg) rotateY(-12deg)}58%,70%{transform:rotateX(-5deg) rotateY(11deg)}88%,100%{transform:rotateX(0deg) rotateY(0deg)}}
+@keyframes ct-glare{0%,10%{transform:translate(0,0);opacity:0}28%,40%{transform:translate(-20%,-16%);opacity:.9}58%,70%{transform:translate(20%,14%);opacity:.65}88%,100%{transform:translate(0,0);opacity:0}}
+@keyframes ct-shadow{0%,10%{transform:translateX(0)}28%,40%{transform:translateX(14px)}58%,70%{transform:translateX(-12px)}88%,100%{transform:translateX(0)}}
+
+/* 05 Page turn */
+.pt-book{position:absolute;left:50%;top:50%;width:320px;height:200px;margin:-100px 0 0 -160px;transform-style:preserve-3d;transform:rotateX(14deg)}
+.pt-page{position:absolute;top:0;width:160px;height:200px;box-sizing:border-box;padding:14px;background:#F3EFE6;color:#1B1A17}
+.pt-leaf{position:absolute;left:160px;top:0;width:160px;height:200px;transform-origin:0 50%;transform-style:preserve-3d;transform:translateZ(1px);animation:pt-turn 10s cubic-bezier(.77,0,.175,1) infinite}
+.pt-side{position:absolute;inset:0;box-sizing:border-box;padding:14px;background:#FBF8F1;color:#1B1A17;-webkit-backface-visibility:hidden;backface-visibility:hidden}
+.pt-shade{position:absolute;inset:0;background:linear-gradient(to right,rgba(27,26,23,.4),rgba(27,26,23,0) 70%);opacity:0;animation:pt-shade 10s linear infinite}
+.pt-eyebrow{margin:0;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.08em}
+.pt-serif{font-family:'Instrument Serif',serif;font-style:italic;font-weight:400}
+@keyframes pt-turn{0%,25%{transform:translateZ(1px) rotateY(0deg)}45%,72%{transform:translateZ(1px) rotateY(-180deg)}92%,100%{transform:translateZ(1px) rotateY(0deg)}}
+@keyframes pt-shade{0%,25%{opacity:0}33%{opacity:1}40%,80%{opacity:0}86%{opacity:1}92%,100%{opacity:0}}
+
+/* 06 Card flip */
+.cf-card{position:absolute;left:50%;top:50%;width:200px;height:250px;margin:-125px 0 0 -100px;transform-style:preserve-3d;animation:cf-flip 9s cubic-bezier(.77,0,.175,1) infinite}
+.cf-side{position:absolute;inset:0;border-radius:16px;overflow:hidden;-webkit-backface-visibility:hidden;backface-visibility:hidden}
+@keyframes cf-flip{0%,35%{transform:rotateY(0deg)}44%,82%{transform:rotateY(180deg)}91%,100%{transform:rotateY(360deg)}}
+
+/* 07 Type cylinder */
+.ty-drum{position:absolute;left:50%;top:50%;width:0;height:0;transform-style:preserve-3d;animation:ty-roll 12s cubic-bezier(.77,0,.175,1) infinite}
+.ty-face{position:absolute;left:-170px;top:-36px;width:340px;height:72px;box-sizing:border-box;padding:0 18px;display:flex;align-items:center;gap:14px;background:#1A1A21;-webkit-backface-visibility:hidden;backface-visibility:hidden}
+.ty-name{font-size:36px;font-weight:800;letter-spacing:-0.02em;white-space:nowrap}
+@keyframes ty-roll{0%,11.67%{transform:rotateX(0deg)}16.67%,28.33%{transform:rotateX(60deg)}33.33%,45%{transform:rotateX(120deg)}50%,61.67%{transform:rotateX(180deg)}66.67%,78.33%{transform:rotateX(240deg)}83.33%,95%{transform:rotateX(300deg)}100%{transform:rotateX(360deg)}}
+
+/* 08 Cartridge insert */
+.cg-cart{position:absolute;left:50%;top:40px;width:110px;height:100px;margin-left:-55px;border-radius:8px 8px 4px 4px;background:#B6F23C;z-index:1;animation:cg-cart 8s cubic-bezier(.23,1,.32,1) infinite}
+.cg-off{position:absolute;inset:0;background:#07070A;opacity:0;animation:cg-off 8s linear infinite}
+.cg-flash{position:absolute;inset:0;background:#F5EFD8;opacity:0;animation:cg-flash 8s linear infinite}
+.cg-scan{position:absolute;left:0;top:0;width:100%;height:2px;background:#F5EFD8;box-shadow:0 0 10px #B6F23C;opacity:0;animation:cg-scan 8s linear infinite}
+.cg-led{width:8px;height:8px;border-radius:50%;background:#B6F23C;box-shadow:0 0 8px #B6F23C;animation:cg-led 8s linear infinite}
+@keyframes cg-cart{0%,12%{transform:translateY(-36px)}20%{transform:translateY(2px)}22%,80%{transform:translateY(0)}90%,100%{transform:translateY(-36px)}}
+@keyframes cg-off{0%,23%{opacity:1}27%,78%{opacity:0}81%,100%{opacity:1}}
+@keyframes cg-flash{0%,23%{opacity:0}24.5%{opacity:.7}30%,100%{opacity:0}}
+@keyframes cg-scan{0%,24%{opacity:0;transform:translateY(0)}24.5%{opacity:.9;transform:translateY(0)}34%{opacity:.9;transform:translateY(123px)}35%,100%{opacity:0;transform:translateY(123px)}}
+@keyframes cg-led{0%,23%{opacity:.2}25%,79%{opacity:1}81%,100%{opacity:.2}}
+
+/* 09 Sticker peel and wobble */
+.sp-wob{position:absolute;left:50%;top:50%;width:190px;height:190px;margin:-95px 0 0 -95px;transform:rotate(-6deg);transform-origin:50% 0;animation:sp-wob 7s cubic-bezier(.23,1,.32,1) infinite}
+.sp-sticker{position:absolute;inset:0;border-radius:18px;border:4px solid #F3EFE6;background:linear-gradient(135deg,#FFC23D,#FF5C8A 55%,#8C7BFF);color:#120F1C;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:2px}
+.sp-corner{position:absolute;right:-4px;bottom:-4px;width:72px;height:72px}
+.sp-cover,.sp-flap{position:absolute;inset:0;transform-origin:100% 100%;opacity:0;transform:scale(.2);animation:sp-peel 7s cubic-bezier(.23,1,.32,1) infinite}
+.sp-cover{background:#1A1A21;clip-path:polygon(100% 0,100% 100%,0 100%)}
+.sp-flap{background:linear-gradient(to top left,#BDB6A8 50%,#F6F2EA 100%);clip-path:polygon(0 0,100% 0,0 100%)}
+@keyframes sp-peel{0%,18%{opacity:0;transform:scale(.2)}19%{opacity:1;transform:scale(.2)}34%,50%{opacity:1;transform:scale(1)}56%{opacity:1;transform:scale(.2)}57%,100%{opacity:0;transform:scale(.2)}}
+@keyframes sp-wob{0%,56%{transform:rotate(-6deg) scale(1)}57%{transform:rotate(-6deg) scale(.97)}61%{transform:rotate(-1deg) scale(1)}65%{transform:rotate(-9deg)}69%{transform:rotate(-4.5deg)}73%{transform:rotate(-7deg)}76%,100%{transform:rotate(-6deg)}}
+
+/* 10 Ticker bands */
+.tk-band{position:absolute;left:-20%;top:50%;width:140%;height:46px;margin-top:-23px;overflow:hidden;display:flex;align-items:center}
+.tk-track{display:flex;width:max-content;white-space:nowrap}
+.tk-item{padding:0 14px;font-size:18px;font-weight:800;letter-spacing:.01em;text-transform:uppercase}
+.tk-a{animation:tk-a 24s cubic-bezier(.45,0,.55,1) infinite}
+.tk-b{animation:tk-b 30s cubic-bezier(.45,0,.55,1) infinite}
+@keyframes tk-a{0%{transform:translateX(0)}44%,50%{transform:translateX(-25%)}94%,100%{transform:translateX(-50%)}}
+@keyframes tk-b{0%{transform:translateX(-50%)}44%,50%{transform:translateX(-25%)}94%,100%{transform:translateX(0)}}
+
+/* 11 Shared-element tune in */
+.tn-monitor{position:absolute;left:50%;top:8px;width:280px;height:198px;margin-left:-140px;box-sizing:border-box;padding:0 6px 6px;border-radius:12px;background:#24242D;border:1px solid #3A3A46;z-index:2;animation:tn-morph 9s infinite}
+.tn-bar{height:18px;display:flex;align-items:center;gap:6px;font-family:'JetBrains Mono',monospace;font-size:10px;color:#C9C7D4}
+.tn-air{width:6px;height:6px;border-radius:50%;background:#FF5A36;animation:tn-air 9s linear infinite}
+.tn-screen{position:relative;height:168px;border-radius:6px;overflow:hidden;background:#000}
+.tn-screen img{display:block;width:100%;height:100%;object-fit:cover}
+.tn-noise{position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(255,255,255,.08) 0 1px,rgba(14,14,18,.92) 1px 3px);opacity:0;animation:tn-noise 9s linear infinite}
+.tn-scan{position:absolute;left:0;top:0;width:100%;height:2px;background:#FFFFFF;box-shadow:0 0 12px #FF5A36;opacity:0;animation:tn-scan 9s linear infinite}
+.tn-thumb{width:80px;height:50px;border-radius:6px;overflow:hidden;border:1px solid #3A3A46;animation:tn-dim 9s linear infinite}
+.tn-thumb img{display:block;width:100%;height:100%;object-fit:cover}
+@keyframes tn-morph{0%,14%{transform:translate(-136px,134px) scale(.2857);animation-timing-function:cubic-bezier(.23,1,.32,1)}20.2%,74%{transform:translate(0,0) scale(1);animation-timing-function:cubic-bezier(.77,0,.175,1)}80.2%,100%{transform:translate(-136px,134px) scale(.2857)}}
+@keyframes tn-noise{0%,20%{opacity:1}27%,74%{opacity:0}78%,100%{opacity:1}}
+@keyframes tn-scan{0%,20%{opacity:0;transform:translateY(0)}21%{opacity:1;transform:translateY(0)}30%{opacity:1;transform:translateY(166px)}31%,100%{opacity:0;transform:translateY(166px)}}
+@keyframes tn-air{0%,26%{opacity:0}28%,72%{opacity:1}74%,100%{opacity:0}}
+@keyframes tn-dim{0%,14%{opacity:1}18%,74%{opacity:.35}80%,100%{opacity:1}}
+
+/* 12 Iridescent orb */
+.orb{position:absolute;left:50%;top:50%;width:190px;height:190px;margin:-110px 0 0 -95px;border-radius:50%;overflow:hidden;animation:orb-breathe 6s cubic-bezier(.45,0,.55,1) infinite alternate}
+.orb-glow{position:absolute;left:50%;top:50%;width:260px;height:260px;margin:-145px 0 0 -130px;border-radius:50%;background:conic-gradient(from 0deg,#19C79A,#4DB8FF,#8C7BFF,#FF5C8A,#FFC23D,#B6F23C,#19C79A);filter:blur(40px);opacity:.25;animation:orb-glow 6s cubic-bezier(.45,0,.55,1) infinite alternate}
+.orb-hue{position:absolute;left:-25%;top:-25%;width:150%;height:150%;background:conic-gradient(from 0deg,#19C79A,#4DB8FF,#8C7BFF,#FF5C8A,#FFC23D,#B6F23C,#19C79A);filter:blur(14px);animation:orb-spin 24s linear infinite}
+.orb-light{position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at 34% 28%,rgba(255,255,255,.55),rgba(255,255,255,0) 38%),radial-gradient(circle at 50% 50%,rgba(14,14,18,0) 52%,rgba(14,14,18,.6) 100%)}
+.orb-dither{position:absolute;inset:0;border-radius:50%;background-image:radial-gradient(circle,#0E0E12 0.9px,rgba(14,14,18,0) 1.2px);background-size:4px 4px;-webkit-mask-image:radial-gradient(circle at 36% 30%,rgba(0,0,0,0) 22%,#000 82%);mask-image:radial-gradient(circle at 36% 30%,rgba(0,0,0,0) 22%,#000 82%);opacity:.9}
+@keyframes orb-breathe{from{transform:scale(.98)}to{transform:scale(1.02)}}
+@keyframes orb-glow{from{opacity:.18}to{opacity:.34}}
+@keyframes orb-spin{to{transform:rotate(360deg)}}
+
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+</helmet>
+<div style="background: #0E0E12; color: #EEEDF3; font-family: 'Bricolage Grotesque', sans-serif; min-height: 2400px; overflow: hidden">
+
+  <header style="max-width: 1440px; margin: 0 auto; padding: 56px 48px 40px; box-sizing: border-box; display: flex; flex-wrap: wrap; gap: 32px 48px; align-items: flex-end; justify-content: space-between">
+    <div style="flex: 1 1 620px; min-width: 0">
+      <p class="mono" style="margin: 0 0 14px; font-size: 13px; letter-spacing: .08em; color: #FF5A36">Z · SPECIMEN SHEET · 12 LIVE LOOPS · CSS ONLY</p>
+      <h1 style="margin: 0; font-size: 92px; line-height: .92; font-weight: 800; letter-spacing: -0.035em">Motion &amp; 3D lab</h1>
+      <ol style="margin: 26px 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; font-size: 18px; line-height: 1.4">
+        <li style="display: flex; gap: 14px"><span class="mono" style="color: #FFC23D; font-size: 14px; padding-top: 3px">01</span><span><b>Motion confirms intent.</b> Each loop shows one product truth: tuning in, shipping, proof.</span></li>
+        <li style="display: flex; gap: 14px"><span class="mono" style="color: #FFC23D; font-size: 14px; padding-top: 3px">02</span><span><b>Transform and opacity only.</b> No layout properties. Every move ends in a hold.</span></li>
+        <li style="display: flex; gap: 14px"><span class="mono" style="color: #FFC23D; font-size: 14px; padding-top: 3px">03</span><span><b>Reduced motion = static.</b> One global rule stops every loop on its readable frame.</span></li>
+      </ol>
+    </div>
+    <div style="flex: 0 1 470px; min-width: 0; display: flex; flex-direction: column; gap: 14px">
+      <div class="mono" style="font-size: 12px; color: #8A889A; letter-spacing: .06em">DIRECTIONS ON THE CANVAS</div>
+      <div style="display: flex; flex-wrap: wrap; gap: 8px">
+        <sc-for list="{{dirs}}" as="d" hint-placeholder-count="9">
+          <span class="chip" style="display: inline-flex; gap: 8px; align-items: center"><b style="color: {{d.color}}">{{d.letter}}</b>{{d.name}}</span>
+        </sc-for>
+      </div>
+      <div class="mono" style="font-size: 12px; line-height: 1.6; color: #C9C7D4; border-top: 1px solid #24242C; padding-top: 12px">--ease-out cubic-bezier(.23,1,.32,1) · enters, arrivals<br>--ease-in-out cubic-bezier(.77,0,.175,1) · moves on screen<br>linear · constant drift only (scan lines, hue)</div>
+    </div>
+  </header>
+
+  <main style="max-width: 1440px; margin: 0 auto; padding: 0 48px 64px; box-sizing: border-box; display: grid; grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); gap: 24px">
+
+    <article class="tile">
+      <div class="stage" style="perspective: 900px; perspective-origin: 50% 42%; background: radial-gradient(ellipse at 50% 60%, #22222C, #16161C 70%)">
+        <div class="anchor" style="transform: translateZ(300px) rotateX(-6deg)">
+          <div class="ss-yaw">
+            <div class="ss-pane" style="transform: rotateY(22.5deg) translateZ(-340px)">
+              <div class="ss-face" style="border: 1px solid #19C79A; color: #19C79A; animation-delay: 0s"><span class="ss-label">01 HEALTHCARE</span><svg class="ss-trace" viewBox="0 0 224 28" style="animation-duration: 5s"><path d="M0 14 Q14 2 28 14 T56 14 T84 14 T112 14 T140 14 T168 14 T196 14 T224 14" fill="none" stroke="#19C79A" stroke-width="1.5"></path></svg><div class="ss-rim" style="animation-delay: 0s"></div><span class="ss-dot" style="animation-delay: 0s"></span></div>
+            </div>
+            <div class="ss-pane" style="transform: rotateY(13.5deg) translateZ(-340px)">
+              <div class="ss-face" style="border: 1px solid #FF5C8A; color: #FF5C8A; animation-delay: -15s; opacity: 1; transform: translateZ(48px)"><span class="ss-label">02 STREAMING</span><svg class="ss-trace" viewBox="0 0 224 28" style="animation-duration: 4s"><path d="M0 14 Q14 2 28 14 T56 14 T84 14 T112 14 T140 14 T168 14 T196 14 T224 14" fill="none" stroke="#FF5C8A" stroke-width="1.5"></path></svg><div class="ss-rim" style="animation-delay: -15s"></div><span class="ss-dot" style="animation-delay: -15s; opacity: 1"></span></div>
+            </div>
+            <div class="ss-pane" style="transform: rotateY(4.5deg) translateZ(-340px)">
+              <div class="ss-face" style="border: 1px solid #FFC23D; color: #FFC23D; animation-delay: -12s"><span class="ss-label">03 MOBILE</span><svg class="ss-trace" viewBox="0 0 224 28" style="animation-duration: 6s"><path d="M0 14 Q14 2 28 14 T56 14 T84 14 T112 14 T140 14 T168 14 T196 14 T224 14" fill="none" stroke="#FFC23D" stroke-width="1.5"></path></svg><div class="ss-rim" style="animation-delay: -12s"></div><span class="ss-dot" style="animation-delay: -12s"></span></div>
+            </div>
+            <div class="ss-pane" style="transform: rotateY(-4.5deg) translateZ(-340px)">
+              <div class="ss-face" style="border: 1px solid #8C7BFF; color: #8C7BFF; animation-delay: -9s"><span class="ss-label">04 WEB3</span><svg class="ss-trace" viewBox="0 0 224 28" style="animation-duration: 4.5s"><path d="M0 14 Q14 2 28 14 T56 14 T84 14 T112 14 T140 14 T168 14 T196 14 T224 14" fill="none" stroke="#8C7BFF" stroke-width="1.5"></path></svg><div class="ss-rim" style="animation-delay: -9s"></div><span class="ss-dot" style="animation-delay: -9s"></span></div>
+            </div>
+            <div class="ss-pane" style="transform: rotateY(-13.5deg) translateZ(-340px)">
+              <div class="ss-face" style="border: 1px solid #4DB8FF; color: #4DB8FF; animation-delay: -6s"><span class="ss-label">05 WEB &amp; AI</span><svg class="ss-trace" viewBox="0 0 224 28" style="animation-duration: 5.5s"><path d="M0 14 Q14 2 28 14 T56 14 T84 14 T112 14 T140 14 T168 14 T196 14 T224 14" fill="none" stroke="#4DB8FF" stroke-width="1.5"></path></svg><div class="ss-rim" style="animation-delay: -6s"></div><span class="ss-dot" style="animation-delay: -6s"></span></div>
+            </div>
+            <div class="ss-pane" style="transform: rotateY(-22.5deg) translateZ(-340px)">
+              <div class="ss-face" style="border: 1px solid #B6F23C; color: #B6F23C; animation-delay: -3s"><span class="ss-label">06 GAMES</span><svg class="ss-trace" viewBox="0 0 224 28" style="animation-duration: 3.5s"><path d="M0 14 Q14 2 28 14 T56 14 T84 14 T112 14 T140 14 T168 14 T196 14 T224 14" fill="none" stroke="#B6F23C" stroke-width="1.5"></path></svg><div class="ss-rim" style="animation-delay: -3s"></div><span class="ss-dot" style="animation-delay: -3s"></span></div>
+            </div>
+          </div>
+        </div>
+        <span class="mono" style="position: absolute; left: 14px; bottom: 12px; font-size: 11px; color: #8A889A">6 CHANNELS · 1 ON AIR</span>
+      </div>
+      <div class="meta">
+        <div class="t-head"><span class="t-num">01</span><h3 class="t-title">Signal Stack</h3></div>
+        <p class="t-purpose">A product tunes in: one channel goes on air.</p>
+        <p class="t-time">step 450 ms · tune 280 ms · cubic-bezier(.23,1,.32,1) · 18 s loop</p>
+        <div class="suits"><span class="chip">A Prime Time</span><span class="chip">E Liquid Orbit</span><span class="chip">I Desktop OS</span></div>
+      </div>
+    </article>
+
+    <article class="tile">
+      <div class="stage" style="perspective: 1000px; background: radial-gradient(ellipse at 50% 70%, #1F2A2A, #15161B 72%)">
+        <div class="anchor" style="transform: rotateX(-14deg)">
+          <div style="position: absolute; left: -150px; top: -150px; width: 300px; height: 300px; border-radius: 50%; border: 1px dashed rgba(238,237,243,.22); transform: rotateX(90deg)"></div>
+          <div style="position: absolute; left: -110px; top: -34px; width: 220px; text-align: center; transform: rotateX(14deg)">
+            <div style="font-size: 46px; font-weight: 800; letter-spacing: -0.03em; line-height: 1">Gentrit</div>
+            <div class="mono" style="margin-top: 6px; font-size: 11px; color: #C9C7D4">3 APPS · iOS + ANDROID</div>
+          </div>
+          <div class="do-ring">
+            <div class="do-slot" style="transform: rotateY(60deg) translateZ(150px) rotateY(-60deg)">
+              <div class="do-face"><img src="/_blob/e4db1c62e8865c5bf469ad292fa3ad36" alt="Bayyinah TV app store screenshot showing the streaming home screen"></div>
+            </div>
+            <div class="do-slot" style="transform: rotateY(180deg) translateZ(150px) rotateY(-180deg)">
+              <div class="do-face"><img src="/_blob/47ba7ca5a8b75d1adb0707716e2e02c7" alt="Viva Fresh app store screenshot showing the grocery shop"></div>
+            </div>
+            <div class="do-slot" style="transform: rotateY(300deg) translateZ(150px) rotateY(-300deg)">
+              <div class="do-face"><img src="/_blob/461e33a21e9453a672979083bb704ea9" alt="Read to Feed app store screenshot showing the reading app"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="meta">
+        <div class="t-head"><span class="t-num">02</span><h3 class="t-title">Device orbit</h3></div>
+        <p class="t-purpose">Three shipped apps take turns at the front.</p>
+        <p class="t-time">1.84 s turn · 2.16 s hold · cubic-bezier(.77,0,.175,1) · 12 s loop</p>
+        <div class="suits"><span class="chip">E Liquid Orbit</span><span class="chip">A Prime Time</span><span class="chip">I Desktop OS</span></div>
+      </div>
+    </article>
+
+    <article class="tile">
+      <div class="stage" style="perspective: 1100px; background: #141A24; background-image: linear-gradient(rgba(77,184,255,.08) 1px, transparent 1px), linear-gradient(90deg, rgba(77,184,255,.08) 1px, transparent 1px); background-size: 20px 20px">
+        <div class="anchor" style="top: 60%; transform: rotateX(58deg) rotateZ(-38deg)">
+          <div class="ep-layer">
+            <div class="ep-frame"></div>
+            <span class="ep-tag" style="top: 176px">frame</span>
+          </div>
+          <div class="ep-layer ep-up1">
+            <div class="ep-screen"><img src="/_blob/5a5111f71e28ccea7450e215ad9e5751" alt="Read to Feed app store screenshot used as the phone screen layer"></div>
+            <span class="ep-tag" style="top: 96px">screen · RN 0.81</span>
+          </div>
+          <div class="ep-layer ep-up2">
+            <div class="ep-glass"></div>
+            <span class="ep-tag" style="top: 16px">glass</span>
+          </div>
+        </div>
+        <span class="mono" style="position: absolute; left: 14px; bottom: 12px; font-size: 11px; color: #9FC9EC">READ TO FEED · RN 0.63 → 0.81</span>
+      </div>
+      <div class="meta">
+        <div class="t-head"><span class="t-num">03</span><h3 class="t-title">Exploded phone</h3></div>
+        <p class="t-purpose">What sits under the screen, layer by layer.</p>
+        <p class="t-time">1.8 s open · 3 s hold · cubic-bezier(.77,0,.175,1) · 9 s loop</p>
+        <div class="suits"><span class="chip">G Blueprint</span><span class="chip">E Liquid Orbit</span><span class="chip">D Swiss Kinetic</span></div>
+      </div>
+    </article>
+
+    <article class="tile">
+      <div class="stage" style="perspective: 800px; background: radial-gradient(ellipse at 50% 40%, #2A1C24, #16161C 70%)">
+        <div class="ct-shadow"></div>
+        <div class="ct-card">
+          <img src="/_blob/b5de8b603eb9fc1eb6243512da056cfb" alt="Bayyinah TV website home page">
+          <div style="padding: 12px 14px; display: flex; justify-content: space-between; align-items: baseline; gap: 8px">
+            <b style="font-size: 17px">Bayyinah TV</b>
+            <span class="mono" style="font-size: 11px; color: #FF8FB0">100K+ GOOGLE PLAY</span>
+          </div>
+          <div class="ct-glare"></div>
+        </div>
+      </div>
+      <div class="meta">
+        <div class="t-head"><span class="t-num">04</span><h3 class="t-title">Card tilt + glare</h3></div>
+        <p class="t-purpose">A project card catches the light on hover.</p>
+        <p class="t-time">1.8 s moves · 1.2 s holds · cubic-bezier(.45,0,.55,1) · 10 s loop</p>
+        <div class="suits"><span class="chip">E Liquid Orbit</span><span class="chip">C Save File</span><span class="chip">I Desktop OS</span></div>
+      </div>
+    </article>
+
+    <article class="tile">
+      <div class="stage" style="perspective: 1200px; background: radial-gradient(ellipse at 50% 55%, #2A2620, #17161A 72%)">
+        <div class="pt-book">
+          <div class="pt-page" style="left: 0; border-radius: 4px 0 0 4px; display: flex; flex-direction: column; justify-content: space-between">
+            <p class="pt-eyebrow">THE ISSUE · Nº 03</p>
+            <div>
+              <div class="pt-serif" style="font-size: 32px; line-height: .95">Read to Feed</div>
+              <p style="margin: 8px 0 0; font-size: 12px; line-height: 1.35">A children's reading app, 2022–25.</p>
+            </div>
+            <p class="pt-eyebrow" style="color: #B23A1E">ABOUT 14 STORE RELEASES</p>
+          </div>
+          <div class="pt-page" style="left: 160px; border-radius: 0 4px 4px 0; display: flex; flex-direction: column; gap: 8px">
+            <img src="/_blob/461e33a21e9453a672979083bb704ea9" alt="Read to Feed store screenshot of the barcode scan screen" style="display: block; width: 100%; height: 132px; object-fit: cover; object-position: top; border-radius: 3px">
+            <p class="pt-eyebrow">ISBN BARCODE SCANNING</p>
+          </div>
+          <div style="position: absolute; left: 144px; top: 0; width: 32px; height: 200px; background: linear-gradient(to right, rgba(27,26,23,0), rgba(27,26,23,.22) 50%, rgba(27,26,23,0)); transform: translateZ(2px)"></div>
+          <div class="pt-leaf">
+            <div class="pt-side" style="border-radius: 0 4px 4px 0; display: flex; flex-direction: column; gap: 8px">
+              <img src="/_blob/5a5111f71e28ccea7450e215ad9e5751" alt="Read to Feed store screenshot of the book reader" style="display: block; width: 100%; height: 132px; object-fit: cover; object-position: top; border-radius: 3px">
+              <p class="pt-eyebrow">PDF &amp; EPUB READER</p>
+              <div class="pt-shade"></div>
+            </div>
+            <div class="pt-side" style="transform: rotateY(180deg); border-radius: 4px 0 0 4px; display: flex; flex-direction: column; justify-content: space-between">
+              <p class="pt-eyebrow">THE UPGRADE</p>
+              <div>
+                <div style="font-size: 12px; font-weight: 700">React Native</div>
+                <div class="pt-serif" style="font-size: 34px; line-height: 1">0.63 → 0.81</div>
+              </div>
+              <p class="pt-eyebrow">3 LANGUAGES</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="meta">
+        <div class="t-head"><span class="t-num">05</span><h3 class="t-title">3D page turn</h3></div>
+        <p class="t-purpose">The case study turns to its next page.</p>
+        <p class="t-time">2 s turn · 2.7 s hold · cubic-bezier(.77,0,.175,1) · 10 s loop</p>
+        <div class="suits"><span class="chip">H The Issue</span><span class="chip">B Studio Desk</span></div>
+      </div>
+    </article>
+
+    <article class="tile">
+      <div class="stage" style="perspective: 1000px; background: radial-gradient(ellipse at 50% 50%, #2B1A22, #16161C 70%)">
+        <div class="cf-card">
+          <div class="cf-side" style="background: #22222B; border: 1px solid #34343F; box-sizing: border-box">
+            <img src="/_blob/efd3efb4559b375e93df948c6424122c" alt="Bayyinah TV store screenshot of a live stream with chat" style="display: block; width: 100%; height: 176px; object-fit: cover; object-position: top">
+            <div style="padding: 12px 14px">
+              <div style="font-size: 18px; font-weight: 800">Bayyinah TV</div>
+              <div class="mono" style="margin-top: 4px; font-size: 11px; color: #C9C7D4">STREAMING · 2023–26</div>
+            </div>
+          </div>
+          <div class="cf-side" style="transform: rotateY(180deg); background: #FF5C8A; color: #120F1C; box-sizing: border-box; padding: 18px; display: flex; flex-direction: column; justify-content: space-between">
+            <div class="mono" style="font-size: 11px; font-weight: 600; letter-spacing: .06em">PROOF</div>
+            <div>
+              <div style="font-size: 58px; font-weight: 800; letter-spacing: -0.04em; line-height: .9">100K+</div>
+              <div style="margin-top: 6px; font-size: 16px; font-weight: 700">on Google Play</div>
+            </div>
+            <div class="mono" style="font-size: 11px; line-height: 1.6; border-top: 1px solid #120F1C; padding-top: 8px">34 ROUTES · NUXT 3<br>ENGLISH / ARABIC RTL</div>
+          </div>
+        </div>
+      </div>
+      <div class="meta">
+        <div class="t-head"><span class="t-num">06</span><h3 class="t-title">Card flip to proof</h3></div>
+        <p class="t-purpose">Turn the project over to read the proof.</p>
+        <p class="t-time">810 ms flip · 3.2 s holds · cubic-bezier(.77,0,.175,1) · 9 s loop</p>
+        <div class="suits"><span class="chip">B Studio Desk</span><span class="chip">C Save File</span><span class="chip">F Acid Zine</span><span class="chip">H The Issue</span></div>
+      </div>
+    </article>
+
+    <article class="tile">
+      <div class="stage" style="perspective: 700px; background: #16161C">
+        <div class="ty-drum">
+          <div class="ty-face" style="transform: rotateX(0deg) translateZ(62px)"><span class="mono" style="font-size: 12px; color: #8A889A">01</span><span class="ty-name" style="color: #19C79A">Healthcare</span></div>
+          <div class="ty-face" style="transform: rotateX(-60deg) translateZ(62px)"><span class="mono" style="font-size: 12px; color: #8A889A">02</span><span class="ty-name" style="color: #FF5C8A">Streaming</span></div>
+          <div class="ty-face" style="transform: rotateX(-120deg) translateZ(62px)"><span class="mono" style="font-size: 12px; color: #8A889A">03</span><span class="ty-name" style="color: #FFC23D">Mobile apps</span></div>
+          <div class="ty-face" style="transform: rotateX(-180deg) translateZ(62px)"><span class="mono" style="font-size: 12px; color: #8A889A">04</span><span class="ty-name" style="color: #8C7BFF">Web3</span></div>
+          <div class="ty-face" style="transform: rotateX(-240deg) translateZ(62px)"><span class="mono" style="font-size: 12px; color: #8A889A">05</span><span class="ty-name" style="color: #4DB8FF">Web apps &amp; AI</span></div>
+          <div class="ty-face" style="transform: rotateX(-300deg) translateZ(62px)"><span class="mono" style="font-size: 12px; color: #8A889A">06</span><span class="ty-name" style="color: #B6F23C">Games</span></div>
+        </div>
+        <div style="position: absolute; left: 0; right: 0; top: 0; height: 90px; background: linear-gradient(#16161C, rgba(22,22,28,0)); pointer-events: none"></div>
+        <div style="position: absolute; left: 0; right: 0; bottom: 0; height: 90px; background: linear-gradient(rgba(22,22,28,0), #16161C); pointer-events: none"></div>
+        <div style="position: absolute; left: 20px; right: 20px; top: 50%; height: 80px; margin-top: -40px; border-top: 1px solid #FF5A36; border-bottom: 1px solid #FF5A36; pointer-events: none"></div>
+        <span class="mono" style="position: absolute; left: 20px; top: 50%; margin-top: -58px; font-size: 11px; color: #FF7A5C">▶ TUNED</span>
+        <span class="mono" style="position: absolute; right: 20px; bottom: 12px; font-size: 11px; color: #8A889A">28 PROJECTS · 6 CHANNELS</span>
+      </div>
+      <div class="meta">
+        <div class="t-head"><span class="t-num">07</span><h3 class="t-title">Kinetic type cylinder</h3></div>
+        <p class="t-purpose">Six channels on one dial, one at a time.</p>
+        <p class="t-time">600 ms detent · 1.4 s hold · cubic-bezier(.77,0,.175,1) · 12 s loop</p>
+        <div class="suits"><span class="chip">D Swiss Kinetic</span><span class="chip">A Prime Time</span><span class="chip">F Acid Zine</span></div>
+      </div>
+    </article>
+
+    <article class="tile">
+      <div class="stage" style="background: radial-gradient(ellipse at 50% 30%, #2A2540, #120F1C 72%)">
+        <div class="cg-cart">
+          <div style="margin: 8px 10px 0; height: 30px; border-radius: 4px; background: #120F1C; color: #B6F23C; display: flex; align-items: center; justify-content: center; font-family: 'Pixelify Sans', sans-serif; font-size: 18px; font-weight: 700">FJALË</div>
+          <div style="margin: 8px 18px 0; height: 3px; background: rgba(18,15,28,.35)"></div>
+          <div style="margin: 4px 18px 0; height: 3px; background: rgba(18,15,28,.35)"></div>
+        </div>
+        <div style="position: absolute; left: 50%; top: 84px; width: 240px; height: 186px; margin-left: -120px; border-radius: 14px 14px 30px 30px; background: #2B2840; border: 2px solid #3E3960; box-sizing: border-box; z-index: 2">
+          <div style="position: absolute; left: 58px; top: -6px; width: 120px; height: 8px; border-radius: 3px; background: #0B0912"></div>
+          <div style="position: absolute; left: 18px; top: 14px; width: 200px; height: 125px; border-radius: 6px; overflow: hidden; background: #000">
+            <img src="/_blob/e72b0dde4d866b2d7a3bf592d48f25a8" alt="FJALË word game on desktop" style="display: block; width: 100%; height: 100%; object-fit: cover">
+            <div class="cg-off"></div>
+            <div class="cg-flash"></div>
+            <div class="cg-scan"></div>
+          </div>
+          <div style="position: absolute; left: 30px; top: 150px; width: 26px; height: 8px; margin-top: 9px; border-radius: 2px; background: #120F1C"></div>
+          <div style="position: absolute; left: 39px; top: 150px; width: 8px; height: 26px; border-radius: 2px; background: #120F1C"></div>
+          <div style="position: absolute; left: 96px; top: 158px; display: flex; align-items: center; gap: 6px"><span class="cg-led"></span><span class="mono" style="font-size: 9px; color: #B8B2CC">POWER</span></div>
+          <div style="position: absolute; right: 52px; top: 156px; width: 18px; height: 18px; border-radius: 50%; background: #FF6B4A"></div>
+          <div style="position: absolute; right: 26px; top: 148px; width: 18px; height: 18px; border-radius: 50%; background: #FFCC33"></div>
+        </div>
+      </div>
+      <div class="meta">
+        <div class="t-head"><span class="t-num">08</span><h3 class="t-title">Cartridge insert</h3></div>
+        <p class="t-purpose">Load the build: the screen boots up.</p>
+        <p class="t-time">640 ms insert · cubic-bezier(.23,1,.32,1) · 4 s on · 8 s loop</p>
+        <div class="suits"><span class="chip">C Save File</span><span class="chip">I Desktop OS</span></div>
+      </div>
+    </article>
+
+    <article class="tile">
+      <div class="stage" style="background: #1A1A21">
+        <div class="sp-wob">
+          <div class="sp-sticker">
+            <span class="mono" style="font-size: 10px; font-weight: 600; letter-spacing: .1em">BAYYINAH TV</span>
+            <span style="font-size: 56px; font-weight: 800; letter-spacing: -0.04em; line-height: .95">100K+</span>
+            <span style="font-size: 14px; font-weight: 700; line-height: 1.2">downloads on<br>Google Play</span>
+          </div>
+          <div class="sp-corner"><div class="sp-cover"></div><div class="sp-flap"></div></div>
+        </div>
+      </div>
+      <div class="meta">
+        <div class="t-head"><span class="t-num">09</span><h3 class="t-title">Sticker peel + wobble</h3></div>
+        <p class="t-purpose">Proof that sticks: peel it, it's real.</p>
+        <p class="t-time">1.05 s peel · 1.4 s wobble · cubic-bezier(.23,1,.32,1) · 7 s loop</p>
+        <div class="suits"><span class="chip">B Studio Desk</span><span class="chip">F Acid Zine</span><span class="chip">C Save File</span></div>
+      </div>
+    </article>
+
+    <article class="tile">
+      <div class="stage" style="background: #16161C">
+        <div class="tk-band" style="transform: rotate(-8deg); background: #FFC23D; color: #120F1C">
+          <div class="tk-track tk-a">
+            <span class="tk-item">React ✦</span><span class="tk-item">React Native ✦</span><span class="tk-item">Vue/Nuxt ✦</span><span class="tk-item">Next.js ✦</span><span class="tk-item">TypeScript ✦</span><span class="tk-item">Laravel ✦</span>
+            <span class="tk-item">React ✦</span><span class="tk-item">React Native ✦</span><span class="tk-item">Vue/Nuxt ✦</span><span class="tk-item">Next.js ✦</span><span class="tk-item">TypeScript ✦</span><span class="tk-item">Laravel ✦</span>
+          </div>
+        </div>
+        <div class="tk-band" style="transform: rotate(6deg); background: #8C7BFF; color: #0E0E12; z-index: 1">
+          <div class="tk-track tk-b">
+            <span class="tk-item">100K+ on Google Play ★</span><span class="tk-item">31 ADRs ★</span><span class="tk-item">16 queries → 2 ★</span><span class="tk-item">About 14 store releases ★</span><span class="tk-item">RN 0.63 → 0.81 ★</span>
+            <span class="tk-item">100K+ on Google Play ★</span><span class="tk-item">31 ADRs ★</span><span class="tk-item">16 queries → 2 ★</span><span class="tk-item">About 14 store releases ★</span><span class="tk-item">RN 0.63 → 0.81 ★</span>
+          </div>
+        </div>
+      </div>
+      <div class="meta">
+        <div class="t-head"><span class="t-num">10</span><h3 class="t-title">Crossing ticker bands</h3></div>
+        <p class="t-purpose">Stack and proof run past like live news.</p>
+        <p class="t-time">10.6–13.2 s glide · 1.4–1.8 s hold · cubic-bezier(.45,0,.55,1) · 24 s / 30 s</p>
+        <div class="suits"><span class="chip">A Prime Time</span><span class="chip">F Acid Zine</span><span class="chip">D Swiss Kinetic</span></div>
+      </div>
+    </article>
+
+    <article class="tile">
+      <div class="stage" style="background: radial-gradient(ellipse at 50% 35%, #26202A, #15151B 72%)">
+        <div class="tn-monitor">
+          <div class="tn-bar"><span class="tn-air"></span><span>ON AIR · BAYYINAH TV</span></div>
+          <div class="tn-screen">
+            <img src="/_blob/b5de8b603eb9fc1eb6243512da056cfb" alt="Bayyinah TV website shown inside the monitor frame">
+            <div class="tn-noise"></div>
+            <div class="tn-scan"></div>
+          </div>
+        </div>
+        <div style="position: absolute; left: 50%; top: 216px; margin-left: -176px; display: flex; gap: 16px">
+          <div style="width: 80px; height: 50px; border-radius: 6px; border: 1px dashed #4A4A58; box-sizing: border-box"></div>
+          <div class="tn-thumb"><img src="/_blob/e72b0dde4d866b2d7a3bf592d48f25a8" alt="FJALË word game thumbnail"></div>
+          <div class="tn-thumb"><img src="/_blob/a883265a486c88d8b055ec37ce097d36" alt="Snaxx studio site thumbnail"></div>
+        </div>
+      </div>
+      <div class="meta">
+        <div class="t-head"><span class="t-num">11</span><h3 class="t-title">Shared-element tune in</h3></div>
+        <p class="t-purpose">A thumbnail grows into the route it opens.</p>
+        <p class="t-time">560 ms · cubic-bezier(.23,1,.32,1) · 4.8 s hold · 9 s loop</p>
+        <div class="suits"><span class="chip">A Prime Time</span><span class="chip">I Desktop OS</span><span class="chip">E Liquid Orbit</span></div>
+      </div>
+    </article>
+
+    <article class="tile">
+      <div class="stage" style="background: #111116">
+        <div class="orb-glow"></div>
+        <div class="orb">
+          <div class="orb-hue"></div>
+          <div class="orb-light"></div>
+          <div class="orb-dither"></div>
+        </div>
+        <div class="mono" style="position: absolute; left: 0; right: 0; bottom: 18px; text-align: center; font-size: 12px; color: #C9C7D4"><span style="color: #B6F23C">●</span> Open to remote roles</div>
+      </div>
+      <div class="meta">
+        <div class="t-head"><span class="t-num">12</span><h3 class="t-title">Dithered iridescent orb</h3></div>
+        <p class="t-purpose">Idle but alive: open to work, listening.</p>
+        <p class="t-time">scale .98↔1.02 · 6 s cubic-bezier(.45,0,.55,1) · hue 24 s linear</p>
+        <div class="suits"><span class="chip">E Liquid Orbit</span><span class="chip">I Desktop OS</span></div>
+      </div>
+    </article>
+
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2400}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      dirs: [
+        { letter: 'A', name: 'Prime Time', color: '#FF5A36' },
+        { letter: 'B', name: 'Studio Desk', color: '#F3EFE6' },
+        { letter: 'C', name: 'Save File', color: '#B6F23C' },
+        { letter: 'D', name: 'Swiss Kinetic', color: '#FF5C8A' },
+        { letter: 'E', name: 'Liquid Orbit', color: '#4DB8FF' },
+        { letter: 'F', name: 'Acid Zine', color: '#FFC23D' },
+        { letter: 'G', name: 'Blueprint', color: '#9FC9EC' },
+        { letter: 'H', name: 'The Issue', color: '#E8D9B5' },
+        { letter: 'I', name: 'Desktop OS', color: '#8C7BFF' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

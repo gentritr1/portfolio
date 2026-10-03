@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>E · Liquid Orbit</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Funnel+Display:wght@300..800&amp;family=Funnel+Sans:ital,wght@0,300..800;1,300..800&amp;family=Geist+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F4F5F8}
+a{color:#0A0F1F}a:hover{color:#2F5BFF}
+.lo-display{font-family:'Funnel Display',sans-serif}
+.lo-mono{font-family:'Geist Mono',monospace}
+.lo-glass{background:rgba(255,255,255,0.62);backdrop-filter:blur(26px) saturate(170%);-webkit-backdrop-filter:blur(26px) saturate(170%);border:1px solid rgba(255,255,255,0.9);box-shadow:inset 0 1px 0 rgba(255,255,255,0.95),0 1px 2px rgba(10,15,31,0.06),0 24px 48px -28px rgba(10,15,31,0.28)}
+.lo-pill{display:inline-flex;align-items:center;gap:8px;min-height:36px;padding:0 14px;border-radius:999px;background:rgba(255,255,255,0.7);border:1px solid rgba(10,15,31,0.1);font-family:'Geist Mono',monospace;font-size:13px;color:#0A0F1F;white-space:nowrap}
+.lo-orb{position:absolute;border-radius:50%;overflow:hidden;isolation:isolate}
+.lo-orb-hue{position:absolute;inset:-25%;background:conic-gradient(from 20deg,#FF4D2E,#FFB31A,#12C29B,#2F5BFF,#FF5FA8,#FF4D2E);filter:blur(14px);animation:lo-turn 30s linear infinite}
+.lo-orb-shade{position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at 32% 26%,rgba(255,255,255,0.9) 0%,rgba(255,255,255,0) 40%),radial-gradient(circle at 72% 80%,rgba(10,15,31,0.42) 0%,rgba(10,15,31,0) 58%)}
+.lo-orb-dots{position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,0.95) 0.9px,transparent 1.5px);background-size:5px 5px;-webkit-mask-image:radial-gradient(circle at 30% 26%,#000 0%,rgba(0,0,0,0.35) 55%,transparent 80%);mask-image:radial-gradient(circle at 30% 26%,#000 0%,rgba(0,0,0,0.35) 55%,transparent 80%)}
+.lo-orb-dots-dark{position:absolute;inset:0;background-image:radial-gradient(rgba(10,15,31,0.55) 0.9px,transparent 1.5px);background-size:5px 5px;background-position:2.5px 2.5px;-webkit-mask-image:radial-gradient(circle at 74% 82%,#000 0%,transparent 62%);mask-image:radial-gradient(circle at 74% 82%,#000 0%,transparent 62%)}
+.lo-stage{position:relative;perspective:2000px;perspective-origin:50% 38%}
+.lo-tilt{position:absolute;left:50%;top:300px;width:0;height:0;transform-style:preserve-3d;transform:rotateX(-18deg)}
+.lo-dev{position:absolute;left:0;top:0;transform-style:preserve-3d;animation:lo-orbit 28s linear infinite}
+.lo-float{animation:lo-float 7s ease-in-out infinite alternate}
+.lo-phone{width:116px;height:244px;padding:5px;box-sizing:border-box;border-radius:28px;background:#0A0F1F}
+.lo-phone img{width:100%;height:100%;object-fit:cover;object-position:top center;border-radius:23px;display:block}
+.lo-browser{width:262px;border-radius:14px;overflow:hidden;background:#FFFFFF;border:1px solid rgba(10,15,31,0.1)}
+.lo-browser-bar{height:24px;display:flex;align-items:center;gap:6px;padding:0 10px;background:#EEF0F4}
+.lo-browser-bar span{width:8px;height:8px;border-radius:50%;background:#C9CDD6}
+.lo-browser img{width:100%;aspect-ratio:16/10;object-fit:cover;object-position:top left;display:block}
+.lo-glow{position:absolute;z-index:0;border-radius:50%;animation:lo-breathe 9s ease-in-out infinite alternate}
+.lo-card{position:relative;display:block;text-decoration:none;color:#0A0F1F;transition:transform 500ms cubic-bezier(0.32,0.72,0,1)}
+.lo-card:hover{transform:translateY(-6px)}
+.lo-shell{position:relative;z-index:1;height:100%;box-sizing:border-box;padding:6px;border-radius:36px;background:rgba(255,255,255,0.34);border:1px solid rgba(255,255,255,0.75)}
+.lo-core{position:relative;height:100%;box-sizing:border-box;border-radius:30px;padding:26px;overflow:hidden;background:rgba(255,255,255,0.64);backdrop-filter:blur(26px) saturate(170%);-webkit-backdrop-filter:blur(26px) saturate(170%);box-shadow:inset 0 1px 0 rgba(255,255,255,0.95),inset 0 0 0 1px rgba(10,15,31,0.06)}
+.lo-go{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:50%;background:#0A0F1F;color:#FFFFFF;font-size:16px;transition:transform 400ms cubic-bezier(0.23,1,0.32,1)}
+.lo-card:hover .lo-go,.lo-btn:hover .lo-go{transform:translate(3px,-2px) scale(1.06)}
+.lo-btn{display:inline-flex;align-items:center;gap:12px;min-height:48px;padding:4px 4px 4px 20px;border-radius:999px;background:#0A0F1F;color:#FFFFFF;text-decoration:none;font-weight:600;transition:transform 160ms cubic-bezier(0.23,1,0.32,1)}
+.lo-btn:active{transform:scale(0.97)}
+.lo-btn .lo-go{width:40px;height:40px;background:rgba(255,255,255,0.16)}
+.lo-row{transition:background-color 200ms ease}
+.lo-row:hover{background:rgba(255,255,255,0.7)}
+@keyframes lo-orbit{from{transform:translate(-50%,-50%) rotateY(0deg) translateZ(560px) rotateY(0deg) rotateX(18deg)}to{transform:translate(-50%,-50%) rotateY(360deg) translateZ(560px) rotateY(-360deg) rotateX(18deg)}}
+@keyframes lo-float{from{transform:translateY(-9px) rotateZ(-2deg)}to{transform:translateY(9px) rotateZ(2deg)}}
+@keyframes lo-turn{to{transform:rotate(360deg)}}
+@keyframes lo-breathe{from{transform:scale(0.92);opacity:0.75}to{transform:scale(1.06);opacity:1}}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+</helmet>
+<div style="background: #F4F5F8; color: #0A0F1F; font-family: 'Funnel Sans', sans-serif; overflow: hidden">
+
+  <header style="max-width: 1440px; margin: 0 auto; padding: 24px 48px 0; box-sizing: border-box; position: relative; z-index: 3">
+    <div class="lo-glass" style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; padding: 8px 8px 8px 12px; border-radius: 999px">
+      <a href="#" style="display: flex; align-items: center; gap: 12px; text-decoration: none">
+        <span style="position: relative; width: 40px; height: 40px; flex: none">
+          <span class="lo-orb" style="inset: 0"><span class="lo-orb-hue"></span><span class="lo-orb-shade"></span><span class="lo-orb-dots"></span></span>
+        </span>
+        <span class="lo-display" style="font-weight: 700; font-size: 19px; letter-spacing: -0.01em">Gentrit Rashiti</span>
+      </a>
+      <nav style="display: flex; flex-wrap: wrap; gap: 4px; font-size: 16px; font-weight: 500">
+        <a href="#" style="padding: 10px 16px; border-radius: 999px; background: rgba(10,15,31,0.06); text-decoration: none">Work</a>
+        <a href="#" style="padding: 10px 16px; border-radius: 999px; text-decoration: none">Index</a>
+        <a href="#" style="padding: 10px 16px; border-radius: 999px; text-decoration: none">About</a>
+      </nav>
+      <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 16px">
+        <a href="#" style="display: inline-flex; align-items: center; min-height: 48px; padding: 0 20px; border-radius: 999px; border: 1px solid rgba(10,15,31,0.14); background: rgba(255,255,255,0.6); text-decoration: none; font-weight: 600">Email</a>
+        <a href="#" class="lo-btn">Download CV <span class="lo-go">↓</span></a>
+      </div>
+    </div>
+  </header>
+
+  <section style="max-width: 1440px; margin: 0 auto; padding: 0 48px; box-sizing: border-box">
+    <div class="lo-stage" style="height: 680px">
+      <div class="lo-tilt">
+        <div class="lo-orb" style="left: -220px; top: -220px; width: 440px; height: 440px; transform: rotateX(18deg); box-shadow: 0 80px 120px -50px rgba(47,91,255,0.45)">
+          <span class="lo-orb-hue"></span><span class="lo-orb-shade"></span><span class="lo-orb-dots"></span><span class="lo-orb-dots-dark"></span>
+        </div>
+
+        <div class="lo-dev" style="animation-delay: 0s"><div class="lo-float"><div class="lo-phone" style="box-shadow: 0 30px 50px -22px rgba(255,77,46,0.6)"><img src="/_blob/e4db1c62e8865c5bf469ad292fa3ad36" alt="Bayyinah TV phone app, video library screen"></div></div></div>
+        <div class="lo-dev" style="animation-delay: -4.667s"><div class="lo-float" style="animation-delay: -2s"><div class="lo-browser" style="box-shadow: 0 30px 50px -22px rgba(255,77,46,0.5)"><div class="lo-browser-bar"><span></span><span></span><span></span></div><img src="/_blob/b5de8b603eb9fc1eb6243512da056cfb" alt="Bayyinah TV website home page"></div></div></div>
+        <div class="lo-dev" style="animation-delay: -9.333s"><div class="lo-float" style="animation-delay: -4s"><div class="lo-phone" style="box-shadow: 0 30px 50px -22px rgba(47,203,110,0.6)"><img src="/_blob/47ba7ca5a8b75d1adb0707716e2e02c7" alt="Viva Fresh grocery app home screen"></div></div></div>
+        <div class="lo-dev" style="animation-delay: -14s"><div class="lo-float" style="animation-delay: -1s"><div class="lo-phone" style="box-shadow: 0 30px 50px -22px rgba(255,179,26,0.65)"><img src="/_blob/461e33a21e9453a672979083bb704ea9" alt="Read to Feed reading app home screen"></div></div></div>
+        <div class="lo-dev" style="animation-delay: -18.667s"><div class="lo-float" style="animation-delay: -5s"><div class="lo-browser" style="box-shadow: 0 30px 50px -22px rgba(47,91,255,0.5)"><div class="lo-browser-bar"><span></span><span></span><span></span></div><img src="/_blob/e72b0dde4d866b2d7a3bf592d48f25a8" alt="FJALË word game in a desktop browser"></div></div></div>
+        <div class="lo-dev" style="animation-delay: -23.333s"><div class="lo-float" style="animation-delay: -3s"><div class="lo-phone" style="box-shadow: 0 30px 50px -22px rgba(255,95,168,0.55)"><img src="/_blob/a5a912f0767e7c0ff1c578911e914398" alt="Dukagjini Bookstore app store screenshot"></div></div></div>
+      </div>
+
+      <div class="lo-glass" style="position: absolute; left: 50%; top: 300px; transform: translate(-50%, -50%); z-index: 2; padding: 18px 56px 22px; border-radius: 999px; text-align: center; background: rgba(255,255,255,0.5)">
+        <h1 class="lo-display" style="margin: 0; font-weight: 800; font-size: 112px; line-height: 1; letter-spacing: -0.045em; white-space: nowrap">Gentrit Rashiti</h1>
+      </div>
+      <p class="lo-glass lo-display" style="position: absolute; left: 50%; top: 392px; transform: translateX(-50%); z-index: 2; margin: 0; padding: 12px 28px; border-radius: 999px; background: rgba(255,255,255,0.72); font-weight: 600; font-size: 30px; line-height: 1.1; letter-spacing: -0.02em; white-space: nowrap">Frontend &amp; mobile developer, now full stack.</p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 24px; align-items: end; margin-top: -8px; position: relative; z-index: 3">
+      <div style="grid-column: 1 / -1; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; min-width: 0">
+        <span class="lo-pill">[Seniority]</span>
+        <span class="lo-pill">5+ yrs</span>
+        <span class="lo-pill">Kosovo, remote</span>
+        <span class="lo-pill">React · React Native · Vue/Nuxt · Next.js · TypeScript · Laravel</span>
+        <span class="lo-pill" style="background: #0A0F1F; color: #FFFFFF; border-color: #0A0F1F"><span style="width: 8px; height: 8px; border-radius: 50%; background: #2FCB6E"></span>Open to remote roles</span>
+      </div>
+    </div>
+  </section>
+
+  <section style="max-width: 1440px; margin: 0 auto; padding: 104px 48px 0; box-sizing: border-box">
+    <h2 class="lo-display" style="margin: 0; font-weight: 700; font-size: 72px; line-height: 1; letter-spacing: -0.04em">Selected work</h2>
+    <p style="margin: 14px 0 40px; font-size: 18px; line-height: 1.5; color: #475069; max-width: 60ch">Five shipped products. The proof sits on top, the screens sit under it.</p>
+
+    <div style="display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 28px 24px">
+
+      <a href="#" class="lo-card" style="grid-column: span 7">
+        <span class="lo-glow" style="left: 6%; right: 6%; bottom: -12%; height: 64%; background: radial-gradient(closest-side, rgba(255,77,46,0.8), rgba(255,77,46,0))"></span>
+        <div class="lo-shell"><div class="lo-core" style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 24px; min-height: 470px">
+          <div style="display: flex; flex-direction: column; gap: 16px">
+            <span class="lo-pill" style="align-self: flex-start">Streaming · 2023-26</span>
+            <h3 class="lo-display" style="margin: 0; font-weight: 700; font-size: 52px; line-height: 0.95; letter-spacing: -0.035em">Bayyinah TV</h3>
+            <div style="display: flex; gap: 22px">
+              <div><div class="lo-display" style="font-weight: 800; font-size: 48px; line-height: 1; letter-spacing: -0.04em">100K+</div><div class="lo-mono" style="font-size: 13px; color: #475069">Google Play downloads</div></div>
+              <div><div class="lo-display" style="font-weight: 800; font-size: 48px; line-height: 1; letter-spacing: -0.04em">34</div><div class="lo-mono" style="font-size: 13px; color: #475069">routes</div></div>
+            </div>
+            <p style="margin: 0; font-size: 17px; line-height: 1.5; color: #2A3045">Video-learning platform rebuilt on Nuxt 3. Live streams with realtime chat, HLS player, Stripe, Apple and Google subscriptions, English and Arabic RTL.</p>
+            <span style="margin-top: auto; display: inline-flex; align-items: center; gap: 12px; font-weight: 600">Case study <span class="lo-go">↗</span></span>
+          </div>
+          <div style="position: relative; min-height: 400px">
+            <div class="lo-browser" style="position: absolute; right: 0; top: 20px; width: 100%; box-sizing: border-box; box-shadow: 0 30px 60px -30px rgba(255,77,46,0.6)"><div class="lo-browser-bar"><span></span><span></span><span></span></div><img src="/_blob/b5de8b603eb9fc1eb6243512da056cfb" alt="Bayyinah TV website with featured video series"></div>
+            <div class="lo-phone" style="position: absolute; left: 6px; bottom: -6px; width: 128px; height: 270px; transform: rotate(-5deg); box-shadow: 0 30px 50px -20px rgba(255,77,46,0.6)"><img src="/_blob/efd3efb4559b375e93df948c6424122c" alt="Bayyinah TV phone app, live stream screen"></div>
+          </div>
+        </div></div>
+      </a>
+
+      <a href="#" class="lo-card" style="grid-column: span 5">
+        <span class="lo-glow" style="left: 10%; right: 10%; bottom: -12%; height: 60%; background: radial-gradient(closest-side, rgba(18,194,155,0.75), rgba(18,194,155,0)); animation-delay: -3s"></span>
+        <div class="lo-shell"><div class="lo-core" style="display: flex; flex-direction: column; gap: 16px; min-height: 470px">
+          <span class="lo-pill" style="align-self: flex-start">Healthcare · 2023-26 · Vianova</span>
+          <h3 class="lo-display" style="margin: 0; font-weight: 700; font-size: 40px; line-height: 0.98; letter-spacing: -0.03em">Care-management platform</h3>
+          <div style="display: flex; gap: 26px">
+            <div><div class="lo-display" style="font-weight: 800; font-size: 48px; line-height: 1; letter-spacing: -0.04em">31</div><div class="lo-mono" style="font-size: 13px; color: #475069">architecture records</div></div>
+            <div><div class="lo-display" style="font-weight: 800; font-size: 48px; line-height: 1; letter-spacing: -0.04em">16→2</div><div class="lo-mono" style="font-size: 13px; color: #475069">report queries</div></div>
+          </div>
+          <div style="background: #FFFFFF; border-radius: 22px; padding: 16px; box-shadow: 0 1px 2px rgba(10,15,31,0.06), 0 20px 40px -24px rgba(18,194,155,0.5)">
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px">
+              <div style="display: flex; align-items: center; gap: 10px"><span class="lo-mono" style="width: 34px; height: 34px; border-radius: 50%; background: #D7F5EC; display: inline-flex; align-items: center; justify-content: center; font-size: 12px">P4</span><span style="font-weight: 600; font-size: 16px">Patient 4821</span></div>
+              <span class="lo-mono" style="font-size: 12px; padding: 4px 10px; border-radius: 999px; background: #FFE3DD; color: #8A1C08">2 alerts</span>
+            </div>
+            <svg viewBox="0 0 320 96" role="img" aria-label="Invented blood-pressure line over 14 days with two alert points" style="width: 100%; height: 100px; display: block; margin-top: 8px">
+              <line x1="0" y1="30" x2="320" y2="30" stroke="#C9CDD6" stroke-dasharray="4 5"></line>
+              <path d="M0 64 C24 60 40 70 62 58 S98 52 120 26 S160 60 186 56 S220 48 242 22 S286 58 320 50" fill="none" stroke="#12C29B" stroke-width="3" stroke-linecap="round"></path>
+              <circle cx="120" cy="26" r="6" fill="#FF4D2E" stroke="#FFFFFF" stroke-width="2"></circle>
+              <circle cx="242" cy="22" r="6" fill="#FF4D2E" stroke="#FFFFFF" stroke-width="2"></circle>
+            </svg>
+            <div class="lo-mono" style="font-size: 12px; color: #475069">Blood pressure · 14 days · invented data</div>
+          </div>
+          <p style="margin: 0; font-size: 17px; line-height: 1.5; color: #2A3045">Remote patient monitoring for many clinics. Vue to React, route by route, with parity tests. Laravel API, 4 languages.</p>
+        </div></div>
+      </a>
+
+      <a href="#" class="lo-card" style="grid-column: span 5">
+        <span class="lo-glow" style="left: 8%; right: 8%; bottom: -14%; height: 62%; background: radial-gradient(closest-side, rgba(255,179,26,0.85), rgba(255,179,26,0)); animation-delay: -5s"></span>
+        <div class="lo-shell"><div class="lo-core" style="display: grid; grid-template-columns: minmax(0, 1fr) 200px; gap: 16px; min-height: 380px">
+          <div style="display: flex; flex-direction: column; gap: 14px">
+            <span class="lo-pill" style="align-self: flex-start">Mobile · 2022-25</span>
+            <h3 class="lo-display" style="margin: 0; font-weight: 700; font-size: 40px; line-height: 0.98; letter-spacing: -0.03em">Read to Feed</h3>
+            <div style="display: flex; flex-direction: column; gap: 10px">
+              <div><div class="lo-display" style="font-weight: 800; font-size: 40px; line-height: 1; letter-spacing: -0.04em">~14</div><div class="lo-mono" style="font-size: 13px; color: #475069">store releases</div></div>
+              <div><div class="lo-display" style="font-weight: 800; font-size: 40px; line-height: 1; letter-spacing: -0.04em">0.63→0.81</div><div class="lo-mono" style="font-size: 13px; color: #475069">React Native</div></div>
+            </div>
+            <p style="margin: 0; font-size: 16px; line-height: 1.5; color: #2A3045">Children's reading app. PDF and EPUB reader, ISBN scanning, badges and streaks.</p>
+          </div>
+          <div style="position: relative">
+            <div class="lo-phone" style="position: absolute; right: 64px; top: 30px; transform: rotate(-7deg); box-shadow: 0 30px 50px -20px rgba(255,179,26,0.7)"><img src="/_blob/461e33a21e9453a672979083bb704ea9" alt="Read to Feed reading home screen"></div>
+            <div class="lo-phone" style="position: absolute; right: -14px; top: 74px; transform: rotate(6deg); box-shadow: 0 30px 50px -20px rgba(255,179,26,0.7)"><img src="/_blob/5a5111f71e28ccea7450e215ad9e5751" alt="Read to Feed badges and streaks screen"></div>
+          </div>
+        </div></div>
+      </a>
+
+      <a href="#" class="lo-card" style="grid-column: span 3">
+        <span class="lo-glow" style="left: 4%; right: 4%; bottom: -14%; height: 60%; background: radial-gradient(closest-side, rgba(47,203,110,0.75), rgba(47,203,110,0)); animation-delay: -1s"></span>
+        <div class="lo-shell"><div class="lo-core" style="display: flex; flex-direction: column; gap: 12px; min-height: 380px">
+          <span class="lo-pill" style="align-self: flex-start">Mobile · 2023</span>
+          <h3 class="lo-display" style="margin: 0; font-weight: 700; font-size: 36px; line-height: 0.98; letter-spacing: -0.03em">Viva Fresh</h3>
+          <p style="margin: 0; font-size: 16px; line-height: 1.5; color: #2A3045">Grocery and loyalty app. Delivery slots, wishlist, map address search. iOS + Android.</p>
+          <div class="lo-phone" style="align-self: center; margin-top: auto; box-shadow: 0 30px 50px -20px rgba(47,203,110,0.7)"><img src="/_blob/0aa911fe9541dfae5df4cfaeb1cd6503" alt="Viva Fresh delivery slot screen"></div>
+        </div></div>
+      </a>
+
+      <a href="#" class="lo-card" style="grid-column: span 4">
+        <span class="lo-glow" style="left: 8%; right: 8%; bottom: -14%; height: 62%; background: radial-gradient(closest-side, rgba(47,91,255,0.7), rgba(47,91,255,0)); animation-delay: -6s"></span>
+        <div class="lo-shell"><div class="lo-core" style="display: flex; flex-direction: column; gap: 14px; min-height: 380px">
+          <span class="lo-pill" style="align-self: flex-start">Web3 · 2024 · Next.js 14</span>
+          <h3 class="lo-display" style="margin: 0; font-weight: 700; font-size: 40px; line-height: 0.98; letter-spacing: -0.03em">Incentiv</h3>
+          <div style="background: #FFFFFF; border-radius: 22px; padding: 18px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 1px 2px rgba(10,15,31,0.06), 0 20px 40px -24px rgba(47,91,255,0.55)">
+            <span class="lo-mono" style="font-size: 12px; color: #475069">Smart wallet · balance</span>
+            <span class="lo-display" style="font-weight: 800; font-size: 36px; letter-spacing: -0.03em; white-space: nowrap">12,480.00 INC</span>
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px">
+              <span style="display: inline-flex; align-items: center; min-height: 36px; padding: 0 14px; border-radius: 999px; background: #2F5BFF; color: #FFFFFF; font-size: 14px; font-weight: 600">Sign in with passkey</span>
+              <svg viewBox="0 0 7 7" role="img" aria-label="QR receive code" style="width: 40px; height: 40px; shape-rendering: crispEdges"><path d="M0 0h3v3H0zM4 0h3v3H4zM0 4h3v3H0zM4 4h1v1H4zM6 4h1v1H6zM5 5h1v1H5zM4 6h1v1H4zM6 6h1v1H6z" fill="#0A0F1F"></path></svg>
+            </div>
+          </div>
+          <p style="margin: 0; font-size: 16px; line-height: 1.5; color: #2A3045">Smart-wallet dashboard. Passkey sign-in, balances, QR receive.</p>
+        </div></div>
+      </a>
+    </div>
+  </section>
+
+  <section style="max-width: 1440px; margin: 0 auto; padding: 104px 48px 0; box-sizing: border-box; position: relative">
+    <div class="lo-orb" style="right: 40px; top: 40px; width: 240px; height: 240px; z-index: 0"><span class="lo-orb-hue" style="animation-direction: reverse"></span><span class="lo-orb-shade"></span><span class="lo-orb-dots"></span><span class="lo-orb-dots-dark"></span></div>
+    <div class="lo-glass" style="position: relative; z-index: 1; border-radius: 36px; padding: 32px 32px 20px; background: rgba(255,255,255,0.66)">
+      <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 18px; margin-bottom: 16px">
+        <h2 class="lo-display" style="margin: 0; font-weight: 700; font-size: 44px; letter-spacing: -0.035em">All 28 projects</h2>
+        <div style="display: flex; flex-wrap: wrap; gap: 6px">
+          <button type="button" class="lo-pill" style="cursor: pointer; background: #0A0F1F; color: #FFFFFF; border-color: #0A0F1F">All</button>
+          <button type="button" class="lo-pill" style="cursor: pointer">Healthcare</button>
+          <button type="button" class="lo-pill" style="cursor: pointer">Streaming</button>
+          <button type="button" class="lo-pill" style="cursor: pointer">Mobile apps</button>
+          <button type="button" class="lo-pill" style="cursor: pointer">Web3</button>
+          <button type="button" class="lo-pill" style="cursor: pointer">Web apps &amp; AI</button>
+          <button type="button" class="lo-pill" style="cursor: pointer">Games &amp; personal</button>
+        </div>
+      </div>
+      <sc-for list="{{rows}}" as="r" hint-placeholder-count="6">
+        <a href="#" class="lo-row" style="display: grid; grid-template-columns: 56px minmax(0, 1.4fr) minmax(0, 1fr) 200px 40px; gap: 16px; align-items: center; padding: 12px 12px; border-top: 1px solid rgba(10,15,31,0.08); border-radius: 18px; text-decoration: none; color: inherit">
+          <span style="width: 44px; height: 44px; border-radius: 14px; background: {{r.color}}; box-shadow: inset 0 1px 0 rgba(255,255,255,0.6)"></span>
+          <span class="lo-display" style="font-weight: 600; font-size: 22px; letter-spacing: -0.015em">{{r.name}}</span>
+          <span style="font-size: 16px; color: #475069">{{r.what}}</span>
+          <span class="lo-mono" style="font-size: 13px">{{r.where}}</span>
+          <span class="lo-go" style="width: 36px; height: 36px; background: rgba(10,15,31,0.06); color: #0A0F1F">→</span>
+        </a>
+      </sc-for>
+    </div>
+  </section>
+
+  <footer style="max-width: 1440px; margin: 0 auto; padding: 104px 48px 48px; box-sizing: border-box">
+    <div class="lo-glass" style="position: relative; overflow: hidden; border-radius: 48px; padding: 40px 44px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 28px">
+      <div style="display: flex; align-items: center; gap: 28px; flex-wrap: wrap">
+        <span style="position: relative; width: 120px; height: 120px; flex: none"><span class="lo-orb" style="inset: 0"><span class="lo-orb-hue"></span><span class="lo-orb-shade"></span><span class="lo-orb-dots"></span><span class="lo-orb-dots-dark"></span></span></span>
+        <p class="lo-display" style="margin: 0; font-weight: 700; font-size: 60px; line-height: 0.98; letter-spacing: -0.04em">Got a role<br>in mind?</p>
+      </div>
+      <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px">
+        <a href="#" class="lo-btn" style="font-size: 18px">[your.email@example.com] <span class="lo-go">↗</span></a>
+        <a href="#" style="display: inline-flex; align-items: center; min-height: 48px; padding: 0 20px; border-radius: 999px; border: 1px solid rgba(10,15,31,0.14); background: rgba(255,255,255,0.7); text-decoration: none; font-weight: 600">LinkedIn</a>
+        <a href="#" style="display: inline-flex; align-items: center; min-height: 48px; padding: 0 20px; border-radius: 999px; border: 1px solid rgba(10,15,31,0.14); background: rgba(255,255,255,0.7); text-decoration: none; font-weight: 600">GitHub</a>
+      </div>
+    </div>
+    <p class="lo-mono" style="margin: 20px 0 0; font-size: 13px; color: #475069; text-align: center">Gentrit Rashiti · Kosovo, open to remote roles</p>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":3180}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      rows: [
+        { name: 'Bayyinah TV', what: 'Video-learning platform', where: 'Streaming · 2023-26', color: '#FF4D2E' },
+        { name: 'Care-management platform', what: 'Remote patient monitoring', where: 'Healthcare · 2023-26', color: '#12C29B' },
+        { name: 'Read to Feed', what: "Children's reading app", where: 'Mobile · 2022-25', color: '#FFB31A' },
+        { name: 'Dukagjini Bookstore', what: 'Bookstore app', where: 'Mobile · 2021-22', color: '#FF5FA8' },
+        { name: 'Incentiv', what: 'Smart-wallet dashboard', where: 'Web3 · 2024', color: '#2F5BFF' },
+        { name: 'Geo Guesser World 3D', what: '3D geography game', where: 'Google Play · 2026', color: '#2FCB6E' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

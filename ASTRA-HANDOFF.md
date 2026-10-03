@@ -151,3 +151,7 @@ The gap is clarity for recruiters, not craft.
 3. For each item, test at 375, 820 and 1440, in dark and daylight, with reduced motion on and off. Check frame time in the lab (target 16.7 ms). Check the chunk size against the budget.
 4. Commit each item separately as `gentritr1` (repo-local identity `gentrit.rashiti2@gmail.com`). The push remote is `git@github-gentritr1:gentritr1/portfolio.git`.
 5. Keep `DESIGN.md` current when you add tokens, components or motion.
+
+## 7. Art direction exploration (2026-10-03)
+
+The owner wants more energy and creativity than the current control room. Sixteen art directions, a calibrated jury and a recommended hybrid are in `design/art-directions/ASTRA-ART-DIRECTIONS.md`. Read it before section 5.
