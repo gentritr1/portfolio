@@ -58,6 +58,66 @@ Six thin 16:10 glass panes, one per channel, stand in a shallow arc in the hero 
 
 ## 5. What to take further (ranked)
 
+### Priority 0: what the two reviews found (2026-10-03). Do these first.
+
+Two independent reviews ran on the production build: a recruiter review that also checked for slop, and a motion review that measured the build.
+- Recruiter scores: distinctiveness 8/10, clarity 5/10, credibility 5/10, polish 7/10.
+- Motion is measured and mostly excellent (baseline below).
+
+The gap is clarity for recruiters, not craft.
+
+**Recruiter clarity (Astra can do):**
+1. **Hero for a recruiter in 5 seconds.**
+   - Replace the chips with: role and seniority, one stack line ("React · React Native · Vue/Nuxt · Laravel"), and "Open to remote roles".
+   - Put "Email" next to "CV" in the masthead. Show "CV" as a text label on phones, not an icon only.
+2. **Plain words first, metaphor second.**
+   - Make the domain name the primary label ("Healthcare"), with "CH01" as a small secondary mark.
+   - Remove the duplicate index digit in the tabs: "CH03 3" next to "CH03 4" reads as a bug.
+   - Rename "Tune in" → "Case study", "Schedule" → "All projects", "Next channel" → "Next project". Keep "ON AIR", the KOS clock and the mono labels as the identity layer.
+3. **Lead with proof, not invented data.**
+   - The default home monitor is the live room (fake "1,284 watching", invented chat, blurred video), about 700 px of fake data before any real proof.
+   - Add a proof row to the monitor caption (store links, platforms, years, role, public install counts once the owner supplies them).
+   - Make the default channel one whose first frame is real (store frames or public screenshots). The live demos stay one key away and on the case pages.
+4. **Schedule.**
+   - Inside each group, put shipped products first (store-listed, live) and prototypes after.
+   - Fold minor rows behind "Show all".
+   - Fix the AvahiTech row: it shows "·"; show "Freelance".
+   - Fix the "REACT NAV…" truncation in the Coaching row and the stacked link wrap at 390 px.
+5. **Result blocks.** They state outcomes, so they need outcome numbers from the owner (see Open owner items). Until those arrive, keep them short; do not pad them with code-size numbers such as route or component counts.
+
+**Motion (Astra can do).** Measured on the production build, M1 Pro, real GPU:
+1. **Route morph double image.** Old and new monitor snapshots have different aspect ratios and cross-fade for 480 ms, so text appears twice at 80–200 ms. Also, the recreation remounts and resets (the viewer count, chat and clock jump).
+   - Fix: `view-transition-class: monitor`, a short fade on `::view-transition-old(*.monitor)`, and either keep the recreation state across the route or freeze it into a still for the morph.
+2. **Back navigation has no view transition.** Forward morphs; back is instant. Add a reverse morph.
+3. **Abrupt state changes.**
+   - FrameDialog has no exit animation, and frames swap with no transition. Add a 150 ms fade/scale on exit and a short crossfade between frames.
+   - The theme toggle switches the whole palette in one frame. Crossfade it with a root view transition, about 200 ms, and skip it under reduced motion.
+   - The filter count and list height jump.
+   - A second drawer open during the 260 ms close is ignored.
+4. **Showcase hover zoom is 500 ms** (`Showcase.tsx:108`). Hover motion should stay at or under 300 ms.
+5. **CSS fallback costs more than WebGL** on exactly the weak devices it serves: an endless `stroke-dashoffset` sweep, 26 % main thread versus 17 % for WebGL at 4× CPU. Make it static, or slow it and pause it off-screen.
+6. **CLS is not exactly 0.**
+   - The live chat inserts a message every 2 s (+0.0013 each). Reserve a fixed list height.
+   - The font swap shifts the masthead at about 500 ms. Add `size-adjust` fallback metrics.
+
+**Already fixed** (commit 7b6057e, verified on the production build):
+- A layer-less `[data-channel]{transition:--tint}` rule cancelled every Tailwind transition on the same elements (drawer slide, hover preview, row and chip hovers). It is now in `@layer base`.
+- The hover preview appeared at (0,0). It is now seeded from the last pointer position, and its follow speed no longer depends on the refresh rate.
+- Phones loaded and ran the hidden 3D scene. It is now gated by `(min-width: 768px)`; phone blocking time went from 241–257 ms to 144–161 ms.
+
+**Measured baseline (keep it).**
+
+| Metric | Value |
+|---|---|
+| LCP | 0.33–0.40 s on `/`; 0.63–0.69 s on case pages |
+| JS on `/` | 188 kB gzip (main 107, motion 41, scene 17) |
+| Idle and scroll, desktop | p95 16.7 ms with the 3D and the live room together |
+| 4× CPU at 390 px | p95 16.8 ms |
+| Channel switch | 24–48 ms |
+| Drawer, filter, dialog, theme | 16–32 ms |
+| Route morph | first frame 40–73 ms after the click |
+| Reduced motion | full pass |
+
 ### 3D and motion
 1. **"Tune in" camera dolly.** When the visitor clicks "Tune in", move the camera into the active pane over about 450 ms, then hand off to the View Transition so the pane becomes the case-page monitor. This is the signature moment. Keep a reduced-motion path. Est. +1 kB.
 2. **Waveform morph.** When the channel changes, morph the active trace from the old channel's waveform into the new one over 280 ms, instead of a hard swap. Est. +0.5 kB.
@@ -77,7 +137,11 @@ Six thin 16:10 glass panes, one per channel, stand in a shallow arc in the hero 
 14. **Hosting.** Deploy to Vercel (`vercel.json` already rewrites to `index.html`). Add a custom domain when the owner chooses one.
 
 ### Open owner items (do not invent)
+- **The CV download is still a template.** `public/Gentrit-Rashiti-CV.pdf` shows "[your.email@example.com]", "[+000 00 000 000] · [City, Country]" and "linkedin.com/in/[handle]". This is the first thing to fix before anyone sees the site. The source is `~/Desktop/Gentrit-CV/Gentrit-Rashiti-CV.html`; re-print it to PDF and copy it into `public/`.
 - Contact email and LinkedIn are empty in `src/content/links.ts`. Education is missing on the site and on the CV.
+- **Outcome numbers, public or approved only.** Store installs and ratings: earlier research saw Bayyinah TV at 100K+ downloads and 4.7★ on Google Play, and Viva Fresh at about 490K downloads on a third-party tracker. Re-check both on the live store pages before use. Also needed: the number of releases, and the number of tenants or clinics as a range if allowed.
+- Seniority title, a dated work history line, and one line on what role he wants.
+- The care-platform "Public intake pages" gallery names a tenant (GoodCannaNow). The owner asked for it; both reviewers flagged it against `PRODUCT.md`. Keep it only as an explicit owner decision.
 - The repo also tracks the tooling folders `.agents`, `.claude`, `.impeccable` and `skills-lock.json`. Remove them from git if the owner wants a clean public repo.
 
 ## 6. How to work
