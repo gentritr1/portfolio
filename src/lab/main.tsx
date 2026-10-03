@@ -1,4 +1,6 @@
-import { StrictMode, useEffect, useRef, useState } from 'react'
+import { recreations } from '../lib/recreations'
+import type { RecreationKey } from '../content/projects'
+import { StrictMode, Suspense, useEffect, useRef, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import '../styles/globals.css'
 import { channelOrder, channels } from '../content/channels'
@@ -134,8 +136,18 @@ function Lab() {
   )
 }
 
+function Poster() {
+  const key = new URLSearchParams(location.search).get('poster') as RecreationKey
+  const entry = recreations[key]
+  if (!entry) return <Lab />
+  const Recreation = entry.Component
+  return <main data-world={entry.world} className="@container relative h-[500px] w-[800px] overflow-hidden bg-surface" data-poster>
+    <div className={key === 'reader' ? '@container absolute inset-y-0 left-[150px] w-[500px]' : '@container absolute inset-0'}><Suspense fallback={<span>Loading recreation</span>}><Recreation /></Suspense></div>
+  </main>
+}
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <Lab />
+    <Poster />
   </StrictMode>,
 )

@@ -1,4 +1,4 @@
-import { Camera, Mesh, Plane, Program, Renderer, Transform } from 'ogl'
+import { Camera, Mesh, Plane, Program, Renderer, Texture, Transform } from 'ogl'
 import {
   CAMERA_Z,
   DESIGN_ASPECT,
@@ -30,6 +30,7 @@ export interface SceneOptions {
   active: number
   /** Waveform per pane, 0 to 5, in channel order. */
   waves: number[]
+  posters?: (string | undefined)[]
   onFirstFrame?: () => void
   onDegrade?: () => void
 }
@@ -85,6 +86,24 @@ export function createScene(context: WebGL2RenderingContext, opts: SceneOptions)
   camera.position.set(0, -Math.sin(PITCH) * CAMERA_Z, Math.cos(PITCH) * CAMERA_Z)
   camera.lookAt([0, 0, 0])
 
+  const blank = new Texture(gl, { generateMipmaps: false })
+  const textures = new Map<number, Texture>()
+  const pendingImages = new Map<number, HTMLImageElement>()
+  function loadPoster(index: number) {
+    const url = opts.posters?.[index]
+    if (!url || textures.has(index) || pendingImages.has(index)) return
+    const image = new Image()
+    pendingImages.set(index, image)
+    image.onload = () => {
+      if (disposed) return
+      const texture = new Texture(gl, { image, generateMipmaps: false, minFilter: gl.LINEAR })
+      textures.set(index, texture)
+      pendingImages.delete(index)
+    }
+    image.onerror = () => pendingImages.delete(index)
+    image.src = url
+  }
+
   const signal = new Float32Array(3)
   const panel = new Float32Array(3)
   const line = new Float32Array(3)
@@ -96,6 +115,8 @@ export function createScene(context: WebGL2RenderingContext, opts: SceneOptions)
     depthWrite: false,
     cullFace: false,
     uniforms: {
+      uPoster: { value: blank },
+      uHasPoster: { value: 0 },
       uTint: { value: new Float32Array(3) },
       uSignal: { value: signal },
       uPanel: { value: panel },
@@ -143,6 +164,8 @@ export function createScene(context: WebGL2RenderingContext, opts: SceneOptions)
     const wave = opts.waves[i] ?? i
     mesh.onBeforeRender(() => {
       const tune = pane.weight > 0 && i === active ? tuneEnvelope() : 0
+      u.uPoster.value = textures.get(i) ?? blank
+      u.uHasPoster.value = textures.has(i) ? pane.weight : 0
       u.uTint.value = pane.tint
       u.uDim.value = 0.4 + 0.6 * pane.weight
       u.uTune.value = tune
@@ -330,6 +353,7 @@ export function createScene(context: WebGL2RenderingContext, opts: SceneOptions)
   }
   document.addEventListener('visibilitychange', onVisibility)
   start()
+  loadPoster(active)
 
   return {
     tuneIn() {
@@ -347,6 +371,7 @@ export function createScene(context: WebGL2RenderingContext, opts: SceneOptions)
       fromWave = opts.waves[active] ?? active
       panes[index].phase = panes[active].phase
       active = index
+      loadPoster(index)
       tuneAt = time
     },
     setTints,
@@ -360,6 +385,9 @@ export function createScene(context: WebGL2RenderingContext, opts: SceneOptions)
       document.removeEventListener('visibilitychange', onVisibility)
       window.removeEventListener('pointermove', onPointer)
       document.documentElement.removeEventListener('pointerleave', onLeave)
+      for (const image of pendingImages.values()) { image.onload = null; image.onerror = null }
+      for (const texture of textures.values()) gl.deleteTexture(texture.texture)
+      gl.deleteTexture(blank.texture)
       program.remove()
       geometry.remove()
       gl.getExtension('WEBGL_lose_context')?.loseContext()

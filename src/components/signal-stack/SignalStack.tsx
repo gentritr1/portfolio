@@ -141,6 +141,7 @@ export function SignalStack({ channels, active, className, ref, transitionName }
             tints: readTints(pr, list),
             active: activeRef.current,
             waves: list.map((key) => waveIndex[key]),
+            posters: list.map((key) => key === 'personal' ? undefined : `/signal-posters/${key}.avif`),
             onFirstFrame: () => {
               canvas.classList.replace('opacity-0', 'opacity-100')
               setMode('webgl')
