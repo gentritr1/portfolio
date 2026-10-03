@@ -1,4 +1,4 @@
-import { ArrowUpRightIcon, DownloadSimpleIcon } from '@phosphor-icons/react'
+import { ArrowUpRightIcon, DownloadSimpleIcon } from '../ShellIcons'
 import { links } from '../../content/links'
 import { Container } from '../Container'
 
@@ -62,6 +62,10 @@ export function About() {
                 working remotely.
               </p>
             </div>
+            <dl className="mt-6 border-t border-hairline pt-4">
+              <dt className="label text-ink-3">Education</dt>
+              <dd className="mt-1.5 text-ink">Bachelor's degree · UBT</dd>
+            </dl>
           </div>
 
           <dl className="grid content-start gap-x-8 sm:grid-cols-2 lg:col-span-7 lg:pt-2">
@@ -79,7 +83,7 @@ export function About() {
               download
               className="group inline-flex min-h-11 items-center gap-2 rounded-sm bg-ink px-4 label-lg text-panel-0 transition-[background-color,transform] duration-150 ease-out hover:bg-ink-2 active:scale-[0.98]"
             >
-              <DownloadSimpleIcon size={16} weight="light" aria-hidden />
+              <DownloadSimpleIcon size={16} aria-hidden />
               Download CV
             </a>
             {contact.map((item) => (
@@ -90,7 +94,7 @@ export function About() {
                 className={secondary}
               >
                 {item.label}
-                <ArrowUpRightIcon size={14} weight="light" aria-hidden className="text-ink-3" />
+                <ArrowUpRightIcon size={14} aria-hidden className="text-ink-3" />
               </a>
             ))}
           </div>

@@ -2,7 +2,7 @@
 
 Channel labels (owner, 2026-10-02): CH01 Healthcare, CH02 Streaming, CH03 Mobile apps, CH04 Web3, CH05 Web apps & AI, CH06 Games & personal.
 
-All facts below come from git history. Do not invent numbers. Do not add product names, except public products, which are named and linked (§4 rule). Keep copy in plain English, short sentences, no metaphors, no buzzwords. Every number here is safe to show.
+Project facts below come from git history; contact and education details were confirmed by the owner. Do not invent numbers. Do not add product names, except public products, which are named and linked (§4 rule). Keep copy in plain English, short sentences, no metaphors, no buzzwords. Every number here is safe to show.
 
 ---
 
@@ -12,7 +12,7 @@ All facts below come from git history. Do not invent numbers. Do not add product
 **Role line:** Frontend & Mobile Developer → Full Stack
 **One-liner:** Web and mobile products, from the first screen to release: healthcare, video streaming, e-reading and Web3.
 **Secondary:** 5+ years. Part of two platform rewrites. React, React Native, Vue, TypeScript, Laravel. Based in Kosovo, working remotely.
-**CTAs:** "See the work" (scroll), "Download CV" (link to `/Gentrit-Rashiti-CV.pdf`, copy it into `public/` from `~/Desktop/Gentrit-CV/Gentrit-Rashiti-CV.pdf`).
+**CTAs:** "See the work" (scroll), "Download CV" (link to `/Gentrit-Rashiti-CV.pdf`; the editable source is `cv/Gentrit-Rashiti-CV.html`).
 
 ## 1. Capabilities (strip, short)
 
@@ -226,8 +226,12 @@ Localization: multi-language, Arabic RTL
 
 ## 9. Contact / footer
 
-- Email: `[your.email@example.com]` (placeholder, Gentrit fills it)
+- Email: gentrit.rashiti2@gmail.com (owner, 2026-10-03)
 - GitHub: github.com/gentritr1
-- LinkedIn: `[linkedin.com/in/handle]` (placeholder)
+- LinkedIn: https://www.linkedin.com/in/gentrit-rashiti-885662199 (owner, 2026-10-03)
 - "Download CV" again.
 - Footer line: "Built with React, Tailwind and motion. No screenshots of client work: every demo above is a recreation with invented data."
+
+## 10. Education
+
+Bachelor's degree, UBT (owner, 2026-10-03). No field of study, dates or further qualifications supplied; do not add them.
