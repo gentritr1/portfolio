@@ -1,0 +1,17 @@
+{
+  "id": "zine",
+  "title": "The work, cut together",
+  "band": "Experimental",
+  "description": "A magenta and citron portfolio zine: cut-out lettering, public app imagery and two crossing streams of project names.",
+  "signature": "Counter-moving project-name bands cross a collage of Viva Fresh store frames; one pause control stills the whole cover.",
+  "caseSlug": "viva-fresh",
+  "scores": {
+    "design": 8.2,
+    "usability": 7.9,
+    "creativity": 8.3,
+    "content": 8.3
+  },
+  "antiPale": "pass",
+  "rounds": 1,
+  "holdback": "Mobile introduces the product imagery relatively late, and the bands obscure some of it; the direct Viva Fresh link preserves access."
+}
