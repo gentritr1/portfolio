@@ -1,0 +1,17 @@
+{
+  "id": "canvas",
+  "title": "A working canvas",
+  "band": "Experimental",
+  "description": "An open, acid-yellow workspace of web and mobile products. Pan between artboards or read everything as a page.",
+  "signature": "The opening camera glides across oversized lettering into a spatial portfolio; clusters become a keyboard-driven presentation.",
+  "caseSlug": "care-platform",
+  "scores": {
+    "design": 8.1,
+    "usability": 7.7,
+    "creativity": 8.2,
+    "content": 8.3
+  },
+  "antiPale": "pass",
+  "rounds": 1,
+  "holdback": "Mobile canvas controls and the partially visible care artboard make exploration less immediate than the linear reading mode."
+}
