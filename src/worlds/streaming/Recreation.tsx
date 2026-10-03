@@ -526,7 +526,7 @@ function Chat({ running, reduce }: { running: boolean; reduce: boolean }) {
     >
       <header className="flex h-10 shrink-0 items-center justify-between border-b border-line px-3 lg:h-12 lg:px-4">
         <p className="font-sans text-[0.85rem] font-medium text-ink">Live chat</p>
-        <span className="font-mono text-[0.72rem] text-muted tabular">{shown.length} messages</span>
+        <span className="w-[12ch] shrink-0 text-right whitespace-nowrap font-mono text-[0.72rem] text-muted tabular">{String(shown.length).padStart(2, '0')} messages</span>
       </header>
 
       <div className="mx-2 mt-2 flex shrink-0 gap-2 rounded-chip bg-accent-soft px-2.5 py-2 lg:mx-3 lg:mt-3 lg:px-3">
@@ -545,7 +545,7 @@ function Chat({ running, reduce }: { running: boolean; reduce: boolean }) {
         }}
         className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-1 [mask-image:linear-gradient(to_bottom,transparent,black_40px)] [scrollbar-width:thin] lg:px-1.5"
       >
-        <ol aria-label="Messages" className="flex min-h-full flex-col justify-end py-2">
+        <ol aria-label="Messages" className="flex flex-col py-2">
         {shown.map((id) => {
           const message = MESSAGES[id % MESSAGES.length]
           const fresh = !reduce && !FIRST_MESSAGES.includes(id)

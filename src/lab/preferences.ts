@@ -1,0 +1,40 @@
+/** Development-only frame controls. This module is eliminated from production builds. */
+export function applyReviewPreferences() {
+  const params = new URLSearchParams(location.search)
+  if (!params.has('review')) return
+  document.documentElement.dataset.reviewCls = '0'
+  let cls = 0
+  const observer = new PerformanceObserver((list) => {
+    for (const entry of list.getEntries()) {
+      const shift = entry as PerformanceEntry & { hadRecentInput: boolean; value: number; sources?: { node?: Element; previousRect: DOMRectReadOnly; currentRect: DOMRectReadOnly }[] }
+      if (!shift.hadRecentInput) {
+        cls += shift.value
+        document.documentElement.dataset.reviewShift = JSON.stringify(shift.sources?.map(source => ({
+          element: source.node?.tagName, class: source.node?.className,
+          before: source.previousRect, after: source.currentRect,
+        })))
+      }
+    }
+    document.documentElement.dataset.reviewCls = String(cls)
+  })
+  observer.observe({ type: 'layout-shift', buffered: true })
+  document.documentElement.dataset.theme = params.get('theme') === 'light' ? 'light' : 'dark'
+  const reduced = params.get('motion') === 'reduce'
+  const nativeMatchMedia = window.matchMedia.bind(window)
+  window.matchMedia = (query) => {
+    const result = nativeMatchMedia(query)
+    if (!query.includes('prefers-reduced-motion')) return result
+    return new Proxy(result, {
+      get(target, property) {
+        if (property === 'matches') return query.includes('no-preference') ? !reduced : reduced
+        const value = Reflect.get(target, property, target)
+        return typeof value === 'function' ? value.bind(target) : value
+      },
+    })
+  }
+  if (reduced) {
+    const style = document.createElement('style')
+    style.textContent = '*,*::before,*::after{animation-duration:0.01ms!important;animation-iteration-count:1!important;transition-duration:0.01ms!important;scroll-behavior:auto!important}'
+    document.head.append(style)
+  }
+}

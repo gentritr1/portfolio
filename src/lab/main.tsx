@@ -138,7 +138,41 @@ function Lab() {
   )
 }
 
+function Review() {
+  const [width, setWidth] = useState(375)
+  const [theme, setTheme] = useState('dark')
+  const [motion, setMotion] = useState('full')
+  const [path, setPath] = useState('/')
+  const frame = useRef<HTMLIFrameElement>(null)
+  const [gestureResult, setGestureResult] = useState('')
+  function testSwipe() {
+    const doc = frame.current?.contentDocument
+    const target = doc?.querySelector('#monitor-panel figure [data-world]')
+    if (!target || !doc) return
+    const before = doc.querySelector('[role="tab"][aria-selected="true"]')?.id
+    target.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, pointerType: 'touch', isPrimary: true, clientX: 240, clientY: 400 }))
+    target.dispatchEvent(new PointerEvent('pointerup', { bubbles: true, pointerType: 'touch', isPrimary: true, clientX: 100, clientY: 403 }))
+    const clicked = target.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, detail: 1 }))
+    requestAnimationFrame(() => {
+      const after = doc.querySelector('[role="tab"][aria-selected="true"]')?.id
+      setGestureResult(`${before} → ${after}; synthetic click ${clicked ? 'not blocked' : 'blocked'}`)
+    })
+  }
+  return <main className="p-4 text-ink">
+    <div className="mb-4 flex flex-wrap gap-2">
+      {[375, 820, 1440].map(size => <button type="button" key={size} onClick={() => setWidth(size)} className="min-h-11 border border-hairline px-3">{size} px</button>)}
+      <button type="button" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} className="min-h-11 border border-hairline px-3">Theme: {theme}</button>
+      <button type="button" onClick={() => setMotion(motion === 'full' ? 'reduce' : 'full')} className="min-h-11 border border-hairline px-3">Motion: {motion}</button>
+      <button type="button" onClick={() => setPath(path === '/' ? '/work/bayyinah-tv' : '/')} className="min-h-11 border border-hairline px-3">Page: {path === '/' ? 'Home' : 'Project'}</button>
+    </div>
+    {path === '/' && width === 375 && <button type="button" onClick={testSwipe} className="mb-4 min-h-11 border border-hairline px-3">Test touch swipe</button>}
+    <output className="mb-2 block label">{gestureResult}</output>
+    <iframe ref={frame} key={`${width}-${theme}-${motion}-${path}`} title="Portfolio review" src={`${path}?review=1&theme=${theme}&motion=${motion}`} style={{ width: width + 0.5, height: 812.5 }} className="outline outline-hairline" />
+  </main>
+}
+
 function Poster() {
+  if (new URLSearchParams(location.search).has('review')) return <Review />
   const key = new URLSearchParams(location.search).get('poster') as RecreationKey
   const entry = recreations[key]
   if (!entry) return <Lab />

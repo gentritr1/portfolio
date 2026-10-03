@@ -7,6 +7,7 @@ import {
   useRef,
   useState,
   type KeyboardEvent,
+  type PointerEvent,
   type ReactNode,
 } from 'react'
 import { channels } from '../../content/channels'
@@ -132,6 +133,27 @@ export function MonitorWall({ activeSlug, onSelect, beforeTransition, tuningCame
   const [announcement, setAnnouncement] = useState('')
   const section = useRef<HTMLElement>(null)
   const inView = useRef(false)
+  const swipe = useRef<{ x: number; y: number; time: number } | null>(null)
+  const suppressClick = useRef(false)
+
+  function startSwipe(event: PointerEvent<HTMLDivElement>) {
+    suppressClick.current = false
+    swipe.current = null
+    if (event.pointerType !== 'touch' || !event.isPrimary || window.innerWidth >= 640) return
+    if (event.target instanceof Element && event.target.closest('button, a, input, select, textarea, [role="slider"]')) return
+    swipe.current = { x: event.clientX, y: event.clientY, time: event.timeStamp }
+  }
+
+  function finishSwipe(event: PointerEvent<HTMLDivElement>) {
+    const start = swipe.current
+    swipe.current = null
+    if (!start || !event.isPrimary || event.pointerType !== 'touch') return
+    const dx = event.clientX - start.x
+    const dy = event.clientY - start.y
+    if (Math.abs(dx) < 56 || Math.abs(dx) < Math.abs(dy) * 1.5 || event.timeStamp - start.time > 800) return
+    suppressClick.current = true
+    select(index + (dx < 0 ? 1 : -1), false)
+  }
 
   useEffect(() => {
     const node = section.current
@@ -154,6 +176,12 @@ export function MonitorWall({ activeSlug, onSelect, beforeTransition, tuningCame
     preloadMonitor(project)
     setSwitched(true)
     onSelect(project.slug)
+    setAnnouncement(`${channels[project.channel].number}, ${project.name}`)
+    const tab = tabs.current[featuredProjects.indexOf(project)]
+    if (window.innerWidth < 640 && tab?.parentElement?.parentElement) {
+      const strip = tab.parentElement.parentElement
+      strip.scrollTo({ left: tab.parentElement.offsetLeft - strip.offsetLeft - 16, behavior: 'instant' })
+    }
     if (focus) tabs.current[featuredProjects.indexOf(project)]?.focus()
   }
 
@@ -177,7 +205,7 @@ export function MonitorWall({ activeSlug, onSelect, beforeTransition, tuningCame
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [index, onSelect])
+  }, [index, onSelect, tuningCamera])
 
   function onTabKey(event: KeyboardEvent<HTMLUListElement>) {
     const moves: Record<string, number> = {
@@ -267,7 +295,14 @@ export function MonitorWall({ activeSlug, onSelect, beforeTransition, tuningCame
           {announcement}
         </p>
 
-        <div id="monitor-panel" role="tabpanel" aria-labelledby={`tab-${activeSlug}`} className="mt-4 sm:mt-5">
+        <div id="monitor-panel" role="tabpanel" aria-labelledby={`tab-${activeSlug}`} className="-mx-gutter mt-4 [touch-action:pan-y_pinch-zoom] sm:mx-0 sm:mt-5"
+          onPointerDown={startSwipe}
+          onPointerUp={finishSwipe}
+          onPointerCancel={() => { swipe.current = null }}
+          onClickCapture={(event) => {
+            if (suppressClick.current && event.detail > 0) { event.preventDefault(); event.stopPropagation(); suppressClick.current = false }
+          }}
+        >
           <Monitor
             channel={shown.channel}
             label={tuning ? 'Tuning' : (recreation?.name ?? 'Store frames')}
@@ -302,9 +337,21 @@ export function MonitorWall({ activeSlug, onSelect, beforeTransition, tuningCame
             </Suspense>
           </Monitor>
 
-          <div className="mt-4 max-w-[70ch]">
-            <p className="text-lede text-ink sm:min-h-[2lh]">{active.line}</p>
-            <p className="mt-1.5 label text-ink-3">{active.stack.slice(0, 4).join(' · ')}</p>
+          <div className="flex min-h-12 items-center justify-between border-b border-hairline px-gutter sm:hidden">
+            <span className="label text-ink-3 tabular">{active.years}</span>
+            <span className="label text-ink-3">Swipe to switch</span>
+            <div className="flex">
+              <button type="button" aria-label="Previous channel" onClick={() => select(index - 1, false)} className="grid size-11 place-items-center text-ink">
+                <ArrowRightIcon size={18} weight="light" aria-hidden className="rotate-180" />
+              </button>
+              <button type="button" aria-label="Next channel" onClick={() => select(index + 1, false)} className="grid size-11 place-items-center text-ink">
+                <ArrowRightIcon size={18} weight="light" aria-hidden />
+              </button>
+            </div>
+          </div>
+          <div className="mt-4 max-w-[70ch] max-sm:px-gutter">
+            <p className="text-lede text-ink min-h-[3lh] sm:min-h-[2lh]">{active.line}</p>
+            <p className="mt-1.5 min-h-[3lh] label text-ink-3 sm:min-h-[2lh]">{active.stack.slice(0, 4).join(' · ')}</p>
           </div>
         </div>
       </Container>

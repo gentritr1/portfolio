@@ -133,39 +133,49 @@ export function SignalStack({ channels, active, className, ref, transitionName, 
     const scheme = window.matchMedia('(prefers-color-scheme: dark)')
     scheme.addEventListener('change', syncTints)
 
-    const cancelIdle = whenIdle(() => {
-      import('./scene')
-        .then(({ createScene }) => {
-          if (cancelled) return
-          scene.current = createScene(gl, {
-            host: el,
-            still,
-            tints: readTints(pr, list),
-            active: activeRef.current,
-            waves: list.map((key) => waveIndex[key]),
-            posters: list.map((key) => still || key === 'personal' ? undefined : `/signal-posters/${key}.avif`),
-            onFirstFrame: () => {
-              canvas.classList.replace('opacity-0', 'opacity-100')
-              setMode('webgl')
-              fade = window.setTimeout(() => setCssGone(true), 450)
-            },
-            onDegrade: () => {
-              scene.current?.dispose()
-              scene.current = null
-              canvas.remove()
-              setCssGone(false)
-              setMode('css')
-            },
+    let launched = false
+    let cancelIdle = () => {}
+    const launch = () => {
+      if (launched || !el.clientWidth || !el.clientHeight) return
+      launched = true
+      cancelIdle = whenIdle(() => {
+        import('./scene')
+          .then(({ createScene }) => {
+            if (cancelled) return
+            scene.current = createScene(gl, {
+              host: el,
+              still,
+              tints: readTints(pr, list),
+              active: activeRef.current,
+              waves: list.map((key) => waveIndex[key]),
+              posters: list.map((key) => still || key === 'personal' ? undefined : `/signal-posters/${key}.avif`),
+              onFirstFrame: () => {
+                canvas.classList.replace('opacity-0', 'opacity-100')
+                setMode('webgl')
+                fade = window.setTimeout(() => setCssGone(true), 450)
+              },
+              onDegrade: () => {
+                scene.current?.dispose()
+                scene.current = null
+                canvas.remove()
+                setCssGone(false)
+                setMode('css')
+              },
+            })
           })
-        })
-        .catch(() => {
-          if (!cancelled) setMode('css')
-        })
-    })
+          .catch(() => {
+            if (!cancelled) setMode('css')
+          })
+      })
+    }
+    const layoutObserver = new ResizeObserver(launch)
+    layoutObserver.observe(el)
+    launch()
 
     return () => {
       cancelled = true
       cancelIdle()
+      layoutObserver.disconnect()
       window.clearTimeout(fade)
       themeObserver.disconnect()
       scheme.removeEventListener('change', syncTints)

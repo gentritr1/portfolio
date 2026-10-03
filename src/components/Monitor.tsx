@@ -26,7 +26,7 @@ interface MonitorProps {
   /** A band under the stage, inside the bezel: channel, title and time code. */
   lowerThird?: ReactNode
   /**
-   * Fixed stage height from 640 px up, for a monitor whose content changes.
+   * Fixed stage height at every breakpoint, for a monitor whose content changes.
    * The content keeps its own aspect and sits centred in the stage.
    */
   fit?: boolean
@@ -85,6 +85,7 @@ export function Monitor({
         className={cn(
           'rounded-stage bg-bezel p-1.5 pt-0 shadow-stage ring-1 ring-[color-mix(in_oklab,var(--tint)_30%,var(--bezel-line))] ring-inset',
           lowerThird ? 'pb-0' : undefined,
+          fit && 'max-sm:rounded-none',
         )}
       >
         <div
@@ -100,7 +101,7 @@ export function Monitor({
           </span>
           {(timecode || actions) && (
             <span className="flex shrink-0 items-center gap-3">
-              {timecode && <span className="whitespace-nowrap tabular">{timecode}</span>}
+              {timecode && <span className={cn('whitespace-nowrap tabular', fit && 'max-sm:hidden')}>{timecode}</span>}
               {actions}
             </span>
           )}
@@ -108,7 +109,7 @@ export function Monitor({
         {fit ? (
           <div
             data-world={world}
-            className="relative aspect-(--m-aspect-base) w-full overflow-hidden rounded-stage-inner bg-bezel [container-type:size] [--m-ratio:var(--m-ratio-base)] sm:aspect-auto sm:h-[min(62svh,560px)] sm:[--m-ratio:var(--m-ratio-sm)] lg:h-[min(58svh,620px)] lg:[--m-ratio:var(--m-ratio-lg)]"
+            className="relative h-[min(70svh,560px)] w-full overflow-hidden rounded-stage-inner bg-bezel [container-type:size] [--m-ratio:var(--m-ratio-base)] sm:aspect-auto sm:h-[min(62svh,560px)] sm:[--m-ratio:var(--m-ratio-sm)] lg:h-[min(58svh,620px)] lg:[--m-ratio:var(--m-ratio-lg)]"
           >
             <div className="@container absolute inset-0 m-auto h-[min(100cqh,calc(100cqw/var(--m-ratio)))] w-[min(100cqw,calc(100cqh*var(--m-ratio)))] overflow-hidden rounded-stage-inner bg-surface">
               {children}
