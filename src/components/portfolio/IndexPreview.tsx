@@ -164,7 +164,17 @@ export function IndexPreview({
         )}
       </div>
       <div className="index-preview-note" key={`${project.slug}-copy`}>
-        <p className="index-preview-project">{project.name}</p>
+        <p
+          className="index-preview-project"
+          data-name={project.name}
+          style={
+            {
+              "--name-image": `url("${art?.images.at(-1) ?? ""}")`,
+            } as CSSProperties
+          }
+        >
+          {project.name}
+        </p>
         <p className="index-proof">{art?.proof ?? project.name}</p>
         <p className="index-proof-detail">
           {art?.detail ?? project.stack.slice(0, 3).join(" · ")}

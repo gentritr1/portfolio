@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent } from 'react'
 import { currentYear, firstYear, projects, type Project } from '../../content/projects'
 import { ArrowUpRightIcon } from '../ShellIcons'
-import { wallAssets, wallPlatform, wallYear, type WallAsset } from './wallAssets'
+import { wallAssets, wallColour, wallPlatform, wallPosters, wallYear, type WallAsset } from './wallAssets'
 import type { WallHoverScene } from './wallHoverScene'
 import './WorkWall.css'
 
@@ -35,6 +35,48 @@ function canAnimate() {
   return !window.matchMedia('(prefers-reduced-motion: reduce)').matches
 }
 
+/** A named colour poster remains visible until the browser has decoded the real image. */
+function WallImage({ project, asset, height, eager }: { project: Project; asset: WallAsset; height: number; eager: boolean }) {
+  const image = useRef<HTMLImageElement>(null)
+  const [ready, setReady] = useState(false)
+
+  useEffect(() => {
+    const node = image.current
+    if (!node) return
+    let current = true
+    setReady(false)
+    const loaded = async () => {
+      if (!node.complete || !node.naturalWidth) return
+      try {
+        await node.decode()
+        if (current) setReady(true)
+      } catch {
+        if (current) setReady(false)
+      }
+    }
+    const failed = () => { if (current) setReady(false) }
+    node.addEventListener('load', loaded)
+    node.addEventListener('error', failed)
+    void loaded()
+    return () => {
+      current = false
+      node.removeEventListener('load', loaded)
+      node.removeEventListener('error', failed)
+    }
+  }, [asset.src])
+
+  return (
+    <span className="work-wall-image" data-wall-image style={{ height, '--poster-ground': asset.fallback.background, '--poster-ink': asset.fallback.ink, viewTransitionName: project.featured ? `monitor-${project.slug}` : undefined } as CSSProperties}>
+      <span className="work-wall-image-poster" aria-hidden="true"><strong>{project.name}</strong></span>
+      <img
+        ref={image} src={asset.src} alt="" loading={eager ? 'eager' : 'lazy'} decoding="async" data-ready={ready}
+        style={{ objectPosition: `${(asset.position?.[0] ?? 0.5) * 100}% ${(asset.position?.[1] ?? 0.5) * 100}%`, transform: `scale(${asset.zoom ?? 1})`, transformOrigin: `${(asset.position?.[0] ?? 0.5) * 100}% ${(asset.position?.[1] ?? 0.5) * 100}%` } as CSSProperties}
+      />
+      {asset.recreation && <span className="work-wall-provenance">Recreation · invented data</span>}
+    </span>
+  )
+}
+
 /** A work-first wall. Native buttons and images are the complete experience before WebGL loads. */
 export default function WorkWall({ onProject }: { onProject: (slug: string) => void }) {
   const grid = useRef<HTMLDivElement>(null)
@@ -51,7 +93,7 @@ export default function WorkWall({ onProject }: { onProject: (slug: string) => v
   const ordered = useMemo(() => [...projects].sort((a, b) => {
     if (sort === 'year') return wallYear(b) - wallYear(a) || a.name.localeCompare(b.name)
     if (sort === 'platform') return wallPlatform(a).localeCompare(wallPlatform(b)) || wallYear(b) - wallYear(a) || a.name.localeCompare(b.name)
-    return (wallAssets[a.slug]?.colour ?? 100) - (wallAssets[b.slug]?.colour ?? 100) || a.name.localeCompare(b.name)
+    return wallColour(a) - wallColour(b) || a.name.localeCompare(b.name)
   }), [sort])
   const layout = useMemo(() => arrange(ordered, width), [ordered, width])
 
@@ -119,7 +161,7 @@ export default function WorkWall({ onProject }: { onProject: (slug: string) => v
     if (connection.connection?.saveData || (connection.deviceMemory !== undefined && connection.deviceMemory < 4)) return
     const host = event.currentTarget.querySelector<HTMLElement>('[data-wall-image]')
     const image = host?.querySelector('img')
-    if (!host || !image || !image.complete || !image.naturalWidth) return
+    if (!host || !image || image.dataset.ready !== 'true' || !image.complete || !image.naturalWidth) return
     hovered.current = host
     const point = { x: event.clientX, y: event.clientY }
     if (!sceneLoad.current) {
@@ -154,6 +196,7 @@ export default function WorkWall({ onProject }: { onProject: (slug: string) => v
       <div ref={grid} className="work-wall-grid" role="list" style={{ height: layout.height }}>
         {layout.positions.map(({ project, x, y, width: tileWidth, height, mediaHeight }, index) => {
           const asset = wallAssets[project.slug]
+          const poster = wallPosters[project.slug]
           return (
             <div key={project.slug} role="listitem" data-work-tile={project.slug} className="work-wall-tile" style={{ width: tileWidth, height, transform: `translate3d(${x}px, ${y}px, 0)` }}>
               <button
@@ -167,18 +210,11 @@ export default function WorkWall({ onProject }: { onProject: (slug: string) => v
                 onFocus={leave}
               >
                 {asset ? (
-                  <span className="work-wall-image" data-wall-image style={{ height: mediaHeight, viewTransitionName: project.featured ? `monitor-${project.slug}` : undefined }}>
-                    <img
-                      src={asset.src} alt="" loading={index < 5 ? 'eager' : 'lazy'} decoding="async"
-                      style={{ objectPosition: `${(asset.position?.[0] ?? 0.5) * 100}% ${(asset.position?.[1] ?? 0.5) * 100}%`, transform: `scale(${asset.zoom ?? 1})`, transformOrigin: `${(asset.position?.[0] ?? 0.5) * 100}% ${(asset.position?.[1] ?? 0.5) * 100}%` } as CSSProperties}
-                    />
-                    {asset.recreation && <span className="work-wall-provenance">Recreation · invented data</span>}
-                  </span>
+                  <WallImage project={project} asset={asset} height={mediaHeight} eager={index < 5} />
                 ) : (
-                  <span className="work-wall-editorial" style={{ height: mediaHeight }}>
-                    <strong>{project.name}</strong>
-                    <span>{project.line}</span>
-                    <small>{project.stack.slice(0, 3).join(' / ')}</small>
+                  <span className="work-wall-editorial" style={{ height: mediaHeight, '--poster-ground': poster?.background, '--poster-ink': poster?.ink } as CSSProperties}>
+                    <strong aria-hidden="true">{(poster?.lines ?? [project.name]).map((line) => <span key={line}>{line}</span>)}</strong>
+                    <span className="work-wall-poster-copy">{project.line}</span>
                   </span>
                 )}
                 <span className="work-wall-caption">

@@ -1,22 +1,48 @@
-import { Suspense } from 'react'
-import { Route, Routes, useParams } from 'react-router'
-import { Footer } from './components/Footer'
-import { Masthead } from './components/Masthead'
-import { ScrollToTop } from './components/ScrollToTop'
-import { featuredProjects } from './content/projects'
-import { caseStudyPage } from './lib/routes'
-import { HomePage } from './pages/HomePage'
-import { NoSignalPage } from './pages/NoSignalPage'
+import { lazy, Suspense } from "react";
+import { Route, Routes, useLocation, useParams } from "react-router";
+import { Footer } from "./components/Footer";
+import { Masthead } from "./components/Masthead";
+import { ScrollToTop } from "./components/ScrollToTop";
+import { featuredProjects } from "./content/projects";
+import { caseStudyPage } from "./lib/routes";
+import { HomePage } from "./pages/HomePage";
+const NoSignalPage = lazy(() =>
+  import("./pages/NoSignalPage").then((module) => ({
+    default: module.NoSignalPage,
+  })),
+);
+const DraftApp = lazy(() => import("./drafts/DraftApp"));
 
-const CaseStudyPage = caseStudyPage.Component
+const CaseStudyPage = caseStudyPage.Component;
 
-/** Unknown slugs render No signal from the main chunk, so the lazy fallback never paints first. */
+/** Unknown slugs load the small 404 route without any case-study modules. */
 function CaseStudyRoute() {
-  const { slug } = useParams()
-  return featuredProjects.some((project) => project.slug === slug) ? <CaseStudyPage /> : <NoSignalPage />
+  const { slug } = useParams();
+  return featuredProjects.some((project) => project.slug === slug) ? (
+    <CaseStudyPage />
+  ) : (
+    <NoSignalPage />
+  );
 }
 
 export default function App() {
+  const { pathname } = useLocation();
+  if (pathname === "/drafts" || pathname.startsWith("/drafts/"))
+    return (
+      <>
+        <meta name="robots" content="noindex,nofollow" />
+        <ScrollToTop />
+        <Suspense
+          fallback={
+            <div role="status" className="min-h-[100svh] p-8">
+              Opening the drafts…
+            </div>
+          }
+        >
+          <DraftApp />
+        </Suspense>
+      </>
+    );
   return (
     <>
       <a
@@ -38,5 +64,5 @@ export default function App() {
       </main>
       <Footer />
     </>
-  )
+  );
 }

@@ -6,13 +6,29 @@ import { studioShots, type StudioShot } from './studioShots'
 import './studio.css'
 
 export function StudioImage({ shot, eager = false }: { shot: StudioShot; eager?: boolean }) {
+  const [decodedSource, setDecodedSource] = useState<string | null>(null)
   const [x, y, width, height] = shot.crop ?? [0, 0, 1, 1]
-  return <img src={shot.src} alt={shot.alt} loading={eager ? 'eager' : 'lazy'} fetchPriority={eager ? 'high' : 'auto'} decoding="async" style={{ left: `${-x / width * 100}%`, top: `${-y / height * 100}%`, width: `${100 / width}%`, height: `${100 / height}%` }} />
+  const style = { left: `${-x / width * 100}%`, top: `${-y / height * 100}%`, width: `${100 / width}%`, height: `${100 / height}%` }
+  return <>
+    <img src={shot.preview} alt="" aria-hidden decoding="sync" style={style} />
+    <img
+      src={shot.src} alt={shot.alt} loading={eager ? 'eager' : 'lazy'}
+      fetchPriority={eager ? 'high' : 'auto'} decoding="async" style={style}
+      data-studio-screen data-decoded={decodedSource === shot.src}
+      onLoad={event => {
+        const image = event.currentTarget
+        image.decode().then(() => {
+          if (image.isConnected) setDecodedSource(shot.src)
+        }).catch(() => {})
+      }}
+    />
+  </>
 }
 
 export function StudioHero({ project }: { project: Project }) {
   const composition = studioShots[project.slug]
   const host = useRef<HTMLDivElement>(null)
+  const fallback = useRef<HTMLDivElement>(null)
   const [rendered, setRendered] = useState(false)
 
   useEffect(() => {
@@ -26,9 +42,13 @@ export function StudioHero({ project }: { project: Project }) {
     const preferenceChanged = () => { if (preference.matches) disable() }
     preference.addEventListener('change', preferenceChanged)
     if (!preference.matches && !nav.connection?.saveData && (nav.deviceMemory === undefined || nav.deviceMemory >= 4)) {
-      import('./studioScene').then(({ createStudioScene }) => {
-        if (cancelled || preference.matches) return
-        dispose = createStudioScene(node, composition, () => {
+      const screens = Array.from(fallback.current?.querySelectorAll<HTMLImageElement>('[data-studio-screen]') ?? [])
+      Promise.all(screens.map(image => image.decode())).then(() => {
+        if (cancelled || preference.matches) return null
+        return import('./studioScene')
+      }).then(scene => {
+        if (!scene || cancelled || preference.matches) return
+        dispose = scene.createStudioScene(node, composition, screens, () => {
           if (!cancelled) setRendered(true)
         }, disable)
         if (cancelled || preference.matches) { dispose?.(); dispose = undefined }
@@ -48,9 +68,9 @@ export function StudioHero({ project }: { project: Project }) {
         </div>
         <div className="studio-stage" data-device={composition.device} style={{ '--studio-colour': composition.colour, viewTransitionName: `monitor-${project.slug}` } as CSSProperties}>
           <div className="studio-floor" aria-hidden />
-          <div className="studio-fallback" data-hidden={rendered}>
+          <div ref={fallback} className="studio-fallback" data-hidden={rendered}>
             {composition.shots.map((shot, index) => <div className="studio-device" data-slot={index} key={shot.src}>
-              <div className="studio-device-screen"><StudioImage shot={shot} eager={index === 0} /></div>
+              <div className="studio-device-screen"><StudioImage shot={shot} eager /></div>
             </div>)}
           </div>
           <div ref={host} className="studio-webgl" aria-hidden data-ready={rendered} />

@@ -113,7 +113,11 @@ function deviceGeometry(gl: OGLRenderingContext, width: number, height: number, 
 }
 
 /** Static render at rest; only pointer movement or a resize requests animation frames. */
-export function createStudioScene(host: HTMLElement, composition: StudioComposition, onReady: () => void, onUnavailable: () => void): () => void {
+export function createStudioScene(host: HTMLElement, composition: StudioComposition, images: readonly HTMLImageElement[], onReady: () => void, onUnavailable: () => void): () => void {
+  if (images.length !== composition.shots.length || images.some(image => !image.complete || !image.naturalWidth)) {
+    onUnavailable()
+    return () => {}
+  }
   const canvas = document.createElement('canvas')
   const context = canvas.getContext('webgl2', { alpha: true, antialias: true, powerPreference: 'low-power' })
   if (!context) { onUnavailable(); return () => {} }
@@ -121,12 +125,13 @@ export function createStudioScene(host: HTMLElement, composition: StudioComposit
   const geometries: Geometry[] = []
   const programs: Program[] = []
   const textures: Texture[] = []
-  const images: HTMLImageElement[] = []
   let disposed = false
   let frame = 0
   let visible = true
   let ready = false
   let firstFrame = true
+  let readyFence: WebGLSync | null = null
+  let fadeUntil = 0
   let resizeObserver: ResizeObserver | undefined
   let intersectionObserver: IntersectionObserver | undefined
   let resize = () => {}
@@ -144,8 +149,8 @@ export function createStudioScene(host: HTMLElement, composition: StudioComposit
     host.removeEventListener('pointerleave', leave)
     document.removeEventListener('visibilitychange', visibility)
     canvas.removeEventListener('webglcontextlost', lost)
-    for (const image of images) { image.onload = null; image.onerror = null }
     if (!context!.isContextLost()) {
+      if (readyFence) context!.deleteSync(readyFence)
       geometries.forEach(geometry => geometry.remove())
       programs.forEach(program => {
         program.remove()
@@ -196,7 +201,7 @@ export function createStudioScene(host: HTMLElement, composition: StudioComposit
         device.scale.set(0.83)
       }
       new Mesh(gl, { geometry, program: metal }).setParent(device)
-      const texture = new Texture(gl, { generateMipmaps: false, minFilter: gl.LINEAR, magFilter: gl.LINEAR })
+      const texture = new Texture(gl, { image: images[index], generateMipmaps: false, minFilter: gl.LINEAR, magFilter: gl.LINEAR })
       textures.push(texture)
       const program = new Program(gl, {
         vertex: screenVertex, fragment: screenFragment,
@@ -213,6 +218,11 @@ export function createStudioScene(host: HTMLElement, composition: StudioComposit
       display.setParent(device)
     })
     if (programs.some(program => !gl.getProgramParameter(program.program, gl.LINK_STATUS))) throw new Error('Studio shader did not link')
+    // These are the already-decoded DOM images behind the canvas. Upload them before
+    // rendering; loading a second set would let the two presentations race.
+    textures.forEach(texture => texture.update(0))
+    if (context.getError() !== context.NO_ERROR || context.isContextLost()) throw new Error('Studio texture upload failed')
+    ready = true
 
     let targetX = 0, targetY = 0
     let last = 0
@@ -226,9 +236,26 @@ export function createStudioScene(host: HTMLElement, composition: StudioComposit
       assembly.rotation.y += (targetY - assembly.rotation.y) * blend
       try {
         renderer.render({ scene, camera })
-        if (firstFrame) { firstFrame = false; onReady() }
+        if (firstFrame) {
+          if (!readyFence) {
+            readyFence = context.fenceSync(context.SYNC_GPU_COMMANDS_COMPLETE, 0)
+            if (!readyFence) throw new Error('Studio frame could not be confirmed')
+            context.flush()
+            request()
+            return
+          }
+          const status = context.clientWaitSync(readyFence, 0, 0)
+          if (status === context.TIMEOUT_EXPIRED) { request(); return }
+          if (status === context.WAIT_FAILED || context.isContextLost()) throw new Error('Studio frame failed')
+          context.deleteSync(readyFence)
+          readyFence = null
+          firstFrame = false
+          // Keep repainting through the canvas fade and the delayed still removal.
+          fadeUntil = now + 500
+          onReady()
+        }
       } catch { unavailable(); return }
-      if (Math.abs(targetX - assembly.rotation.x) + Math.abs(targetY - assembly.rotation.y) > 0.0002) request()
+      if (now < fadeUntil || Math.abs(targetX - assembly.rotation.x) + Math.abs(targetY - assembly.rotation.y) > 0.0002) request()
     }
     function request() {
       if (!disposed && ready && visible && !document.hidden && !frame) frame = requestAnimationFrame(render)
@@ -270,20 +297,6 @@ export function createStudioScene(host: HTMLElement, composition: StudioComposit
     })
     intersectionObserver.observe(host)
     resize()
-    let loaded = 0
-    composition.shots.forEach((shot, index) => {
-      const image = new Image()
-      images.push(image)
-      image.onload = () => {
-        if (disposed) return
-        textures[index].image = image
-        textures[index].needsUpdate = true
-        loaded++
-        if (loaded === composition.shots.length) { ready = true; request() }
-      }
-      image.onerror = () => { if (!disposed) unavailable() }
-      image.src = shot.src
-    })
   } catch { unavailable() }
   return dispose
 }

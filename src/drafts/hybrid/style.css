@@ -1,0 +1,37 @@
+.draft-hybrid .hybrid-gallery-link {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  padding: 0 24px;
+  color: var(--ink);
+  text-decoration: underline;
+}
+.draft-hybrid .hybrid-case {
+  margin-top: 72px;
+}
+.draft-hybrid .hybrid-case-copy {
+  padding-block: 40px 80px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+.draft-hybrid .hybrid-case-copy h2 {
+  font-size: clamp(36px, 4vw, 64px);
+  line-height: 1.02;
+  max-width: 16ch;
+}
+.draft-hybrid .hybrid-case-copy p {
+  max-width: 65ch;
+  line-height: 1.7;
+}
+.draft-hybrid .hybrid-case-copy a {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  text-decoration: underline;
+}
+@media (max-width: 760px) {
+  .draft-hybrid .hybrid-case-copy {
+    grid-template-columns: 1fr;
+  }
+}

@@ -2,16 +2,22 @@ import {
   lazy,
   Suspense,
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
   type KeyboardEvent,
   type PointerEvent,
+  type CSSProperties,
 } from "react";
 import { flushSync } from "react-dom";
 import { useNavigate, useSearchParams } from "react-router";
 import { About } from "../components/home/About";
 import { IndexPreview } from "../components/portfolio/IndexPreview";
-import { selectedSlugs } from "../components/portfolio/indexArt";
+import {
+  selectedSlugs,
+  indexArt,
+  indexGrounds,
+} from "../components/portfolio/indexArt";
 import { TransitionLink } from "../components/TransitionLink";
 import { ArrowRightIcon, ArrowUpRightIcon } from "../components/ShellIcons";
 import { projects, findProject, type Project } from "../content/projects";
@@ -53,6 +59,19 @@ export function HomePage() {
   const drawer = findProject(params.get("p") ?? undefined);
   const rows = all ? projects : selectedProjects;
   const WorkHeading = view === "wall" ? "h1" : "h2";
+
+  useLayoutEffect(() => {
+    const root = document.documentElement;
+    root.dataset.portfolio = view;
+    root.style.setProperty(
+      "--portfolio-ground",
+      indexGrounds[activeSlug] ?? "#244b83",
+    );
+    return () => {
+      delete root.dataset.portfolio;
+      root.style.removeProperty("--portfolio-ground");
+    };
+  }, [activeSlug, view]);
 
   function select(project: Project, hover = false) {
     setActiveSlug(project.slug);
@@ -209,7 +228,15 @@ export function HomePage() {
                           {String(index + 1).padStart(2, "0")}
                         </span>
                         <span className="index-row-main">
-                          <span className="index-project-name">
+                          <span
+                            className="index-project-name"
+                            data-name={project.name}
+                            style={
+                              {
+                                "--name-image": `url("${indexArt[project.slug]?.images.at(-1) ?? project.media.shot?.src ?? ""}")`,
+                              } as CSSProperties
+                            }
+                          >
                             {project.name}
                           </span>
                           <span className="index-mobile-kind">

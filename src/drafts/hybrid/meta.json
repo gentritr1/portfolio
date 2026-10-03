@@ -1,0 +1,17 @@
+{
+  "id": "hybrid",
+  "title": "Index × Preview",
+  "band": "Professional",
+  "description": "The existing hybrid, with project-colour floods and image-filled typography.",
+  "signature": "Selecting a project floods the page with its colour as its screenshot reveals inside the name.",
+  "caseSlug": "bayyinah-tv",
+  "scores": {
+    "design": 7.9,
+    "usability": 7.9,
+    "creativity": 8,
+    "content": 8.2
+  },
+  "antiPale": "pass",
+  "rounds": 3,
+  "holdback": "Image-filled active names lose contrast where their crop matches the page colour. Retained after the three-round limit."
+}

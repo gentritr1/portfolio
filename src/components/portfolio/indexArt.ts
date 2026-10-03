@@ -17,6 +17,17 @@ export type IndexArt = {
   detail: string;
   caption: string;
 };
+/** Page colours sampled and deepened from the work so cream text stays readable. */
+export const indexGrounds: Record<string, string> = {
+  "bayyinah-tv": "#ab2e19",
+  "care-platform": "#08705a",
+  "read-to-feed": "#096c96",
+  "viva-fresh": "#bb1730",
+  incentiv: "#593da1",
+  "snaxx-tech": "#945023",
+  offday: "#216841",
+  fjale: "#72520b",
+};
 export const indexArt: Record<string, IndexArt> = {
   "bayyinah-tv": {
     background: "#721a0d",

@@ -23,6 +23,10 @@ uniform vec2 uPointer;
 uniform float uAspect;
 uniform float uReveal;
 varying vec2 vUv;
+float bayer2(vec2 p) {
+  vec2 cell = mod(p, 2.0);
+  return 2.0 * cell.x + 3.0 * cell.y - 4.0 * cell.x * cell.y;
+}
 void main() {
   vec2 delta = vUv - uPointer;
   float distance = length(delta * vec2(uAspect, 1.0));
@@ -30,10 +34,13 @@ void main() {
   vec2 bent = vUv - delta * lens * 0.09;
   vec2 uv = clamp(bent * uCover + uOrigin, 0.002, 0.998);
   vec3 colour = texture2D(uImage, uv).rgb;
-  vec2 pixel = floor(gl_FragCoord.xy / 2.0);
-  float threshold = fract(dot(pixel, vec2(0.75487766, 0.56984029)));
-  vec3 dither = floor(colour * 5.0 + threshold) / 5.0;
-  gl_FragColor = vec4(mix(dither, colour, smoothstep(0.0, 1.0, uReveal)), 1.0);
+  vec2 pixel = floor(gl_FragCoord.xy / 4.0);
+  float threshold = (4.0 * bayer2(pixel) + bayer2(floor(pixel / 2.0)) + 0.5) / 16.0;
+  float light = dot(colour, vec3(0.2126, 0.7152, 0.0722));
+  vec3 dither = mix(vec3(0.035, 0.055, 0.055), vec3(0.93, 0.95, 0.87), step(threshold, light));
+  float radius = uReveal * (length(vec2(uAspect, 1.0)) + 0.08);
+  float reveal = (1.0 - smoothstep(radius - 0.07, radius + 0.07, distance)) * smoothstep(0.0, 0.08, uReveal);
+  gl_FragColor = vec4(mix(dither, colour, reveal), 1.0);
 }
 `
 
@@ -41,6 +48,7 @@ void main() {
 export function createWallHover(): WallHoverScene {
   const canvas = document.createElement('canvas')
   canvas.setAttribute('aria-hidden', 'true')
+  canvas.style.visibility = 'hidden'
   const context = canvas.getContext('webgl2', { alpha: false, antialias: false, powerPreference: 'low-power' })
   if (!context) throw new Error('WebGL2 unavailable')
   const renderer = new Renderer({ canvas, dpr: Math.min(devicePixelRatio || 1, 1.5), alpha: false, antialias: false, depth: false })
@@ -54,6 +62,13 @@ export function createWallHover(): WallHoverScene {
       uPointer: { value: [0.5, 0.5] }, uAspect: { value: 1 }, uReveal: { value: 0 },
     },
   })
+  if (!gl.getProgramParameter(program.program, gl.LINK_STATUS)) {
+    gl.deleteTexture(texture.texture)
+    program.remove()
+    geometry.remove()
+    gl.getExtension('WEBGL_lose_context')?.loseContext()
+    throw new Error('Wall hover shader unavailable')
+  }
   const mesh = new Mesh(gl, { geometry, program })
   let host: HTMLElement | null = null
   let image: HTMLImageElement | null = null
@@ -66,6 +81,7 @@ export function createWallHover(): WallHoverScene {
   let lastFrame = 0
   let slow = 0
   let degraded = false
+  let verified = false
   const target = [0.5, 0.5]
   const pointer = [0.5, 0.5]
 
@@ -74,6 +90,8 @@ export function createWallHover(): WallHoverScene {
     const width = host.clientWidth
     const height = host.clientHeight
     if (!width || !height) return
+    canvas.style.visibility = 'hidden'
+    verified = false
     renderer.setSize(width, height)
     const aspect = width / height
     const photoAspect = image.naturalWidth / image.naturalHeight
@@ -92,14 +110,28 @@ export function createWallHover(): WallHoverScene {
     if (lastFrame && now - lastFrame > 34) slow++
     lastFrame = now
     if (slow > 12) { degraded = true; hide(); return }
-    const reveal = Math.min(1, (now - began) / 280)
+    const reveal = Math.max(0, Math.min(1, (now - began - 140) / 660))
     const dx = target[0] - pointer[0]
     const dy = target[1] - pointer[1]
     pointer[0] += dx * 0.22
     pointer[1] += dy * 0.22
     program.uniforms.uPointer.value = pointer
     program.uniforms.uReveal.value = reveal
-    renderer.render({ scene: mesh })
+    try {
+      renderer.render({ scene: mesh })
+      if (!verified) {
+        if (gl.isContextLost() || gl.getError() !== gl.NO_ERROR || !gl.isTexture(texture.texture) || texture.needsUpdate) {
+          degraded = true
+          hide()
+          return
+        }
+        verified = true
+      }
+    } catch {
+      degraded = true
+      hide()
+      return
+    }
     canvas.style.visibility = 'visible'
     if (reveal < 1 || Math.abs(dx) + Math.abs(dy) > 0.0008) raf = requestAnimationFrame(frame)
     else lastFrame = 0
@@ -136,7 +168,7 @@ export function createWallHover(): WallHoverScene {
 
   return {
     show(nextHost, nextImage, nextAsset, x, y) {
-      if (disposed || degraded) return
+      if (disposed || degraded || !nextImage.complete || !nextImage.naturalWidth || nextImage.dataset.ready !== 'true') return
       hide()
       host = nextHost
       image = nextImage
