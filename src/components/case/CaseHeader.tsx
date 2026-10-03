@@ -1,3 +1,4 @@
+import { SignalStack } from '../signal-stack/SignalStack'
 import { ArrowUpRightIcon } from '@phosphor-icons/react'
 import { ChannelBadge } from '../ChannelBadge'
 import type { Featured, Project } from '../../content/projects'
@@ -8,7 +9,10 @@ const linkClass =
 /** The case title as a broadcast lower third on the monitor bezel: channel, kind, title and time code. */
 export function LowerThird({ project }: { project: Project }) {
   return (
-    <div className="grid gap-x-6 gap-y-2 px-1.5 pt-3 pb-3.5 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end sm:px-3 sm:pb-4">
+    <div className="relative isolate overflow-hidden grid gap-x-6 gap-y-2 px-1.5 pt-3 pb-3.5 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end sm:px-3 sm:pb-4">
+      <div className="absolute inset-y-0 right-0 -z-10 w-[180px] opacity-25">
+        <SignalStack channels={[project.channel]} active={project.channel} still className="size-full" />
+      </div>
       <div className="min-w-0">
         <p className="flex flex-wrap items-center gap-x-4 gap-y-1">
           <ChannelBadge channel={project.channel} size="md" />

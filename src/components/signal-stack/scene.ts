@@ -31,6 +31,7 @@ export interface SceneOptions {
   /** Waveform per pane, 0 to 5, in channel order. */
   waves: number[]
   posters?: (string | undefined)[]
+  still?: boolean
   onFirstFrame?: () => void
   onDegrade?: () => void
 }
@@ -230,9 +231,11 @@ export function createScene(context: WebGL2RenderingContext, opts: SceneOptions)
     aimX = 0
     aimY = 0
   }
+  const pointerSurface = opts.still ? host : window
+  const leaveSurface = opts.still ? host : document.documentElement
   if (fine) {
-    window.addEventListener('pointermove', onPointer, { passive: true })
-    document.documentElement.addEventListener('pointerleave', onLeave)
+    pointerSurface.addEventListener('pointermove', onPointer as EventListener, { passive: true })
+    leaveSurface.addEventListener('pointerleave', onLeave)
   }
 
   const pose: PanePose = { x: 0, z: 0, yaw: 0 }
@@ -256,8 +259,8 @@ export function createScene(context: WebGL2RenderingContext, opts: SceneOptions)
     centre = approach(centre, active, 8, dt)
     tiltX = approach(tiltX, aimX, 6, dt)
     tiltY = approach(tiltY, aimY, 6, dt)
-    stack.rotation.y = Math.sin((time / 24) * Math.PI * 2) * IDLE_YAW + tiltX * TILT_YAW
-    stack.rotation.x = tiltY * TILT_PITCH
+    stack.rotation.y = (opts.still ? 0 : Math.sin((time / 24) * Math.PI * 2) * IDLE_YAW) + tiltX * (opts.still ? 2 * DEG : TILT_YAW)
+    stack.rotation.x = tiltY * (opts.still ? DEG : TILT_PITCH)
     const progress = dollyAt < 0 ? 0 : Math.min(1, (now - dollyAt) / 450)
     const dolly = 1 - (1 - progress) ** 3
     stack.rotation.y *= 1 - dolly
@@ -266,12 +269,12 @@ export function createScene(context: WebGL2RenderingContext, opts: SceneOptions)
     for (let i = 0; i < count; i++) {
       const pane = panes[i]
       pane.weight = approach(pane.weight, i === active ? 1 : 0, 8, dt)
-      pane.phase += dt * (0.25 + 0.75 * pane.weight)
+      if (!opts.still) pane.phase += dt * (0.25 + 0.75 * pane.weight)
       panePose(i, centre, count, pose)
       const m = pane.mesh
       m.position.x = pose.x
       m.position.z = pose.z + FORWARD * pane.weight
-      m.position.y = Math.sin(((time - i * 0.6) / 8) * Math.PI * 2) * PANE_H * PANE_SCALE * 0.02
+      m.position.y = opts.still ? 0 : Math.sin(((time - i * 0.6) / 8) * Math.PI * 2) * PANE_H * PANE_SCALE * 0.02
       m.rotation.y = pose.yaw
       pane.depth = m.position.z
     }
@@ -383,8 +386,8 @@ export function createScene(context: WebGL2RenderingContext, opts: SceneOptions)
       ro.disconnect()
       io.disconnect()
       document.removeEventListener('visibilitychange', onVisibility)
-      window.removeEventListener('pointermove', onPointer)
-      document.documentElement.removeEventListener('pointerleave', onLeave)
+      pointerSurface.removeEventListener('pointermove', onPointer as EventListener)
+      leaveSurface.removeEventListener('pointerleave', onLeave)
       for (const image of pendingImages.values()) { image.onload = null; image.onerror = null }
       for (const texture of textures.values()) gl.deleteTexture(texture.texture)
       gl.deleteTexture(blank.texture)

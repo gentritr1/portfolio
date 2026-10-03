@@ -14,6 +14,7 @@ export interface SignalStackHandle {
 export interface SignalStackProps {
   ref?: Ref<SignalStackHandle>
   transitionName?: string
+  still?: boolean
   channels: ChannelKey[]
   active: ChannelKey
   className?: string
@@ -81,7 +82,7 @@ function readTints(probe: HTMLElement, channels: ChannelKey[]): Tints {
  * Six channel panes on a shallow arc. The active channel's pane steps forward and tunes in.
  * WebGL (OGL, lazy chunk) when the device can afford it; the CSS stack otherwise and as the first paint.
  */
-export function SignalStack({ channels, active, className, ref, transitionName }: SignalStackProps) {
+export function SignalStack({ channels, active, className, ref, transitionName, still = false }: SignalStackProps) {
   const reduced = useSyncExternalStore(subscribeReduced, getReduced, getReducedServer)
   const [mode, setMode] = useState<Mode>('css')
   const [cssGone, setCssGone] = useState(false)
@@ -138,10 +139,11 @@ export function SignalStack({ channels, active, className, ref, transitionName }
           if (cancelled) return
           scene.current = createScene(gl, {
             host: el,
+            still,
             tints: readTints(pr, list),
             active: activeRef.current,
             waves: list.map((key) => waveIndex[key]),
-            posters: list.map((key) => key === 'personal' ? undefined : `/signal-posters/${key}.avif`),
+            posters: list.map((key) => still || key === 'personal' ? undefined : `/signal-posters/${key}.avif`),
             onFirstFrame: () => {
               canvas.classList.replace('opacity-0', 'opacity-100')
               setMode('webgl')
@@ -173,7 +175,7 @@ export function SignalStack({ channels, active, className, ref, transitionName }
       setCssGone(false)
       setMode('css')
     }
-  }, [reduced, channelKey])
+  }, [reduced, channelKey, still])
 
   useEffect(() => {
     activeRef.current = activeIndex
@@ -185,6 +187,7 @@ export function SignalStack({ channels, active, className, ref, transitionName }
       <span ref={probe} hidden />
       {!cssGone && (
         <SignalStackCss
+          still={still}
           channels={channels}
           active={active}
           className={cn(

@@ -58,6 +58,7 @@ function DollyPreview({ active }: { active: typeof channelOrder[number] }) {
 
 function Lab() {
   const [index, setIndex] = useState(0)
+  const [single, setSingle] = useState(false)
   const [forceCss, setForceCss] = useState(false)
   const [theme, setTheme] = useState<'dark' | 'light'>('dark')
   const { fps, ms } = useFrameRate()
@@ -85,6 +86,7 @@ function Lab() {
             {channels[key].number} {channels[key].label}
           </button>
         ))}
+        <button type="button" aria-pressed={single} onClick={() => setSingle(!single)} className="min-h-11 border border-hairline px-3">Single pane</button>
         <label className="ml-4 flex min-h-9 items-center gap-2 border border-hairline px-3">
           <input
             type="checkbox"
@@ -125,7 +127,7 @@ function Lab() {
                   style={{ width: w, height: h, maxWidth: '100%' }}
                   className="outline outline-1 outline-dashed outline-hairline"
                 >
-                  <Stack channels={channelOrder} active={active} className="size-full" />
+                  {single ? <SignalStack channels={[active]} active={active} still className="size-full" /> : <Stack channels={channelOrder} active={active} className="size-full" />}
                 </div>
               </div>
             ))}

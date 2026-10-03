@@ -6,6 +6,7 @@ import { tracePoints, waveIndex } from './waves'
 
 interface SignalStackCssProps {
   channels: ChannelKey[]
+  still?: boolean
   active: ChannelKey
   className?: string
 }
@@ -32,7 +33,7 @@ function trace(key: ChannelKey, i: number) {
  * The Signal Stack drawn with CSS 3D transforms. It is the first paint, the reduced-motion
  * view, and the fallback when WebGL is not available or too slow.
  */
-export function SignalStackCss({ channels, active, className }: SignalStackCssProps) {
+export function SignalStackCss({ channels, active, className, still = false }: SignalStackCssProps) {
   const stage = useRef<HTMLDivElement>(null)
   const centre = Math.max(0, channels.indexOf(active))
   const pose: PanePose = { x: 0, z: 0, yaw: 0 }
@@ -50,22 +51,24 @@ export function SignalStackCss({ channels, active, className }: SignalStackCssPr
         const r = el.getBoundingClientRect()
         const nx = Math.max(-1, Math.min(1, (e.clientX - (r.left + r.width / 2)) / (r.width * 0.9)))
         const ny = Math.max(-1, Math.min(1, (e.clientY - (r.top + r.height / 2)) / (r.height * 0.9)))
-        el.style.setProperty('--tilt-yaw', `${(nx * 5).toFixed(2)}deg`)
-        el.style.setProperty('--tilt-pitch', `${(ny * 3).toFixed(2)}deg`)
+        el.style.setProperty('--tilt-yaw', `${(nx * (still ? 2 : 5)).toFixed(2)}deg`)
+        el.style.setProperty('--tilt-pitch', `${(ny * (still ? 1 : 3)).toFixed(2)}deg`)
       })
     }
     function onLeave() {
       el?.style.setProperty('--tilt-yaw', '0deg')
       el?.style.setProperty('--tilt-pitch', '0deg')
     }
-    window.addEventListener('pointermove', onMove, { passive: true })
-    document.documentElement.addEventListener('pointerleave', onLeave)
+    const pointerSurface = still ? el : window
+    const leaveSurface = still ? el : document.documentElement
+    pointerSurface.addEventListener('pointermove', onMove as EventListener, { passive: true })
+    leaveSurface.addEventListener('pointerleave', onLeave)
     return () => {
       cancelAnimationFrame(raf)
-      window.removeEventListener('pointermove', onMove)
-      document.documentElement.removeEventListener('pointerleave', onLeave)
+      pointerSurface.removeEventListener('pointermove', onMove as EventListener)
+      leaveSurface.removeEventListener('pointerleave', onLeave)
     }
-  }, [])
+  }, [still])
 
   return (
     <div aria-hidden className={cn('relative size-full overflow-hidden [container-type:size]', className)}>
@@ -144,7 +147,7 @@ export function SignalStackCss({ channels, active, className }: SignalStackCssPr
                       vectorEffect="non-scaling-stroke"
                       className="motion-reduce:hidden"
                       style={{
-                        animationName: 'signal-stack-sweep',
+                        animationName: still ? 'none' : 'signal-stack-sweep',
                         animationDuration: `${on ? 3 : 9}s`,
                         animationTimingFunction: 'linear',
                         animationIterationCount: 'infinite',
