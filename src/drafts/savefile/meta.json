@@ -1,0 +1,17 @@
+{
+  "id": "savefile",
+  "title": "Save File",
+  "band": "Fun",
+  "description": "Choose a project, play a small word-game demo, and save your place in the work.",
+  "signature": "The project map opens in a stepped scan, settling on the selected level.",
+  "caseSlug": "fjale",
+  "scores": {
+    "design": 8.2,
+    "usability": 7.9,
+    "creativity": 8.1,
+    "content": 8.1
+  },
+  "antiPale": "pass",
+  "rounds": 2,
+  "holdback": "The dense level grid gives project names less emphasis than their numbers."
+}
