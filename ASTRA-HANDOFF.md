@@ -2,6 +2,17 @@
 
 You are the next design-engineering agent on Gentrit Rashiti's portfolio. The site is built, reviewed and live in the repo `github.com/gentritr1/portfolio` (branch `main`, local folder `~/Desktop/gentrit-portfolio`). Your job is to polish it and take it further, especially in 3D and motion, without losing what already works. Read this brief fully before you change anything.
 
+## Status after the 2026-10-03 follow-up
+
+Items 1–13 are implemented locally. The detailed brief below is retained as the original request; DESIGN.md describes the current implementation and ASTRA-VERIFICATION.md records its checks.
+
+- Items 1–4 and 8 shipped in the first five-item pass.
+- Items 5–7 and 9–13 are now implemented: lost-signal stack, compact GPU-gated OGL refraction, optional sound, live schedule previews, factual milestones and guided 16-second loops, typography/daylight polish, and a 1200×630 sharing card.
+- Owner supplied email `gentrit.rashiti2@gmail.com`, LinkedIn `https://www.linkedin.com/in/gentrit-rashiti-885662199`, and Bachelor's degree at UBT. Site and CV updated; subject and education dates were not provided and are omitted.
+- Owner chose compact OGL refraction within the existing budget and chose to keep tooling tracked.
+- Item 14 remains pending: no push or deployment, and no custom domain has been selected. Build metadata supports VITE_SITE_URL or Vercel's production URL when hosting is authorized.
+- Additional review fixes: delayed preview loading, Escape/focus dismissal, case-only narrative loading, unused icon-weight removal, correct camera-space pane sorting, explicit refraction texture binding, and CSS recovery after WebGL context loss.
+
 ## 1. The concept (keep it)
 
 The site is a **broadcast / monitoring control room** that monitors the products Gentrit has shipped.

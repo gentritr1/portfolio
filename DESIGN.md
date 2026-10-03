@@ -27,14 +27,14 @@ Theme: dark is the default. `<html data-theme="light">` selects daylight. The ch
 | Token | Daylight | Dark | Use |
 | --- | --- | --- | --- |
 | `--panel-0` | `oklch(0.948 0.004 250)` | `oklch(0.15 0.004 250)` | Page ground, masthead |
-| `--panel-1` | `oklch(0.976 0.003 250)` | `oklch(0.182 0.005 250)` | Panels, hovered rows |
-| `--panel-2` | `oklch(0.918 0.005 250)` | `oklch(0.214 0.006 250)` | Control hover, gallery stage |
+| `--panel-1` | `oklch(0.985 0.002 250)` | `oklch(0.182 0.005 250)` | Panels, hovered rows |
+| `--panel-2` | `oklch(0.908 0.007 250)` | `oklch(0.214 0.006 250)` | Control hover, gallery stage |
 | `--panel-3` | `oklch(0.885 0.006 250)` | `oklch(0.252 0.007 250)` | Pressed or strongest fill |
-| `--hairline` | `oklch(0.86 0.006 250)` | `oklch(0.27 0.006 250)` | Rules, panel borders |
-| `--hairline-strong` | `oklch(0.74 0.008 250)` | `oklch(0.37 0.008 250)` | Control outlines, underlines |
+| `--hairline` | `oklch(0.805 0.008 250)` | `oklch(0.27 0.006 250)` | Rules, panel borders |
+| `--hairline-strong` | `oklch(0.68 0.012 250)` | `oklch(0.37 0.008 250)` | Control outlines, underlines |
 | `--ink` | `oklch(0.2 0.01 250)` | `oklch(0.94 0.004 250)` | Headings, body |
 | `--ink-2` | `oklch(0.4 0.012 250)` | `oklch(0.76 0.008 250)` | Secondary text |
-| `--ink-3` | `oklch(0.49 0.012 250)` | `oklch(0.64 0.008 250)` | Labels (4.5:1 or more on `--panel-0`) |
+| `--ink-3` | `oklch(0.46 0.012 250)` | `oklch(0.64 0.008 250)` | Labels (4.5:1 or more on `--panel-0`) |
 
 Daylight is not an inversion: the panels are pale console grey, the page ground sits one step below the panels, and the monitor hardware stays graphite.
 
@@ -44,9 +44,9 @@ Daylight is not an inversion: the panels are pale console grey, the page ground 
 | --- | --- | --- | --- |
 | `--signal` | `oklch(0.57 0.2 31)` | `oklch(0.69 0.19 33)` | ON AIR lamp, live monitors, active channel, focus ring, selection wash |
 | `--on-signal` | `oklch(0.985 0.005 30)` | `oklch(0.16 0.02 30)` | Text on a signal fill |
-| `--bezel` | `oklch(0.25 0.006 250)` | `oklch(0.205 0.006 250)` | Monitor bezel |
+| `--bezel` | `oklch(0.27 0.008 250)` | `oklch(0.205 0.006 250)` | Monitor bezel |
 | `--bezel-ink` | `oklch(0.8 0.008 250)` | same | Bezel label bar text |
-| `--bezel-line` | `oklch(0.33 0.006 250)` | same | Bezel ring |
+| `--bezel-line` | `oklch(0.43 0.008 250)` | `oklch(0.33 0.006 250)` | Bezel ring |
 
 ### Channel tints
 
@@ -54,11 +54,11 @@ The v1 world accents, desaturated. A tint marks a channel's number, its rule and
 
 | Channel | Key | Period | Token | Daylight | Dark |
 | --- | --- | --- | --- | --- | --- |
-| CH01 Healthcare | `healthcare` | 2023–26 | `--ch-healthcare` | `oklch(0.5 0.075 184)` | `oklch(0.77 0.07 180)` |
-| CH02 Streaming | `streaming` | 2023–26 | `--ch-streaming` | `oklch(0.52 0.08 12)` | `oklch(0.75 0.07 10)` |
-| CH03 Mobile apps | `reading` | 2021–26 | `--ch-reading` | `oklch(0.52 0.08 70)` | `oklch(0.81 0.075 78)` |
+| CH01 Healthcare | `healthcare` | 2023–26 | `--ch-healthcare` | `oklch(0.49 0.075 184)` | `oklch(0.77 0.07 180)` |
+| CH02 Streaming | `streaming` | 2023–26 | `--ch-streaming` | `oklch(0.49 0.08 12)` | `oklch(0.75 0.07 10)` |
+| CH03 Mobile apps | `reading` | 2021–26 | `--ch-reading` | `oklch(0.49 0.08 70)` | `oklch(0.81 0.075 78)` |
 | CH04 Web3 | `web3` | 2024 | `--ch-web3` | `oklch(0.5 0.1 285)` | `oklch(0.75 0.08 285)` |
-| CH05 Web apps & AI | `ai` | 2025 | `--ch-ai` | `oklch(0.5 0.08 125)` | `oklch(0.84 0.08 120)` |
+| CH05 Web apps & AI | `ai` | 2025 | `--ch-ai` | `oklch(0.49 0.08 125)` | `oklch(0.84 0.08 120)` |
 | CH06 Games & personal | `personal` | 2022–26 | `--ch-personal` | `oklch(0.48 0.04 245)` | `oklch(0.78 0.035 240)` |
 
 A channel's period is derived in `channels.ts` from the first and last year of its projects; nobody writes it by hand. A row with no years shows a muted `·` in the schedule, never the channel period. CH01 also carries the design systems (React, Vue) and the design dashboard; the care-platform page lists them under "Also on this channel".
@@ -126,7 +126,7 @@ Panels are matte: one hairline, no shadow. Only the monitor carries depth. Pills
 | `--dur-root` | 160 ms | Route cross-fade of the page (`::view-transition-old/new(root)`), short so the two pages never ghost |
 | `--dur-tune` | 260 ms | Channel switch tune (scan line, slight blur-in), 280 ms ceiling |
 | `--dur-route` | 480 ms | Shared-element morph between routes |
-| `--dur-preview` | 560 ms | Schedule hover preview, ease-out, scale 0.96 to 1 |
+| `--dur-preview` | 150 ms | Schedule preview entry/exit opacity; row changes tune for 260 ms |
 
 `src/lib/motion.ts` mirrors these in seconds for `motion`.
 
@@ -138,7 +138,7 @@ Reduced motion: `TransitionLink` navigates without a view transition, all `::vie
 
 | Component | Props | Contract |
 | --- | --- | --- |
-| `Masthead` | none | Sticky top bar: GR monogram and name (home link), "Schedule" back link on `/work/*`, ON AIR lamp (OFF AIR with an unlit lamp on No signal), KOS local time (Europe/Belgrade, HH:MM, updated on the minute), theme toggle, CV download. Every control is 44 × 44 px or larger. |
+| `Masthead` | none | Sticky top bar: GR monogram and name (home link), "Schedule" back link on `/work/*`, ON AIR lamp (OFF AIR with an unlit lamp on No signal), KOS local time (Europe/Belgrade, HH:MM, updated on the minute), sound toggle (off by default), theme toggle, CV download. Every control is 44 × 44 px or larger. |
 | `Footer` | none | Sources line, GitHub, CV, email and LinkedIn when set in `links.ts`, © line. |
 | `ChannelBadge` | `channel`, `showLabel = true`, `size = 'sm' \| 'md'`, `className` | CH number in its tint, a 1 px tint rule, the channel name. Sets `data-channel`. |
 | `SignalDot` | `tone = 'signal' \| 'tint' \| 'off'`, `className` | A steady lamp. It never pulses. |
@@ -163,13 +163,13 @@ Icons: `@phosphor-icons/react`, `weight="light"` outside recreations. No emoji, 
 | `/` | `HomePage`: masthead; one hero band (name, role line, claim, status strip, and the `HeaderVisual` slot at 380 × 220 from 1024 px); the channel strip; the wall monitor with "Tune in" in its label bar (at 1440 × 900 the monitor top and "Tune in" sit above the fold); the lede (70ch); `#schedule`; about and contact; footer. Number keys and ←/→ switch channels only while the wall is in view. | In the main chunk |
 | `#schedule` | A rundown. Group headers are slates: a short bar of the group's channel tints, the group name, a two-digit count, the period. The row of the project on the wall carries a 1 px signal rule at its left edge and a mono "Now" tag under its time code. Public links sit under the line, 44 px tall. | In the main chunk |
 | `/work/:slug` | `CaseStudyPage` for the five featured slugs: the monitor first, sized to its content, with the title in a `LowerThird` on its bezel (the only visible title, and the page `h1`); readouts; the line and the story (The product / What was built / Result) with `CaseFacts` on the right; galleries; "Also on this channel" where `featured.related` lists rows (they open the home drawer through `/?p=<slug>`); spec sheet; next channel | Lazy chunk; each recreation is its own lazy chunk |
-| `*` and non-featured slugs | `NoSignalPage`: test-card bars in the six tints, the path, a link back to the schedule. The route element checks the slug against `featuredProjects` before the lazy boundary, so an unknown slug never paints the lazy fallback first. | In the main chunk |
+| `*` and non-featured slugs | `NoSignalPage`: a Signal Stack that loses its trace and colour, the path, a link back to the schedule. The route element checks the slug against `featuredProjects` before the lazy boundary, so an unknown slug never paints the lazy fallback first. | In the main chunk |
 
 `BrowserRouter` runs with `useTransitions={false}` so `flushSync` can commit a route inside a view transition. Static hosting needs a rewrite of every path to `/index.html` (`vercel.json`).
 
 ## Content model
 
-`src/content/projects.ts` is the single source: every project with `slug`, `name`, `kind`, `channel`, `group`, `years` (time code), `role`, `stack`, `line`, `summary`, `links`, `media` (`thumb`, `shot`, `recreation`, `galleries`) and, for the five featured projects, `featured` (`order`, `monitor`, `story`, `facts`). `src/content/channels.ts` holds the channel number, label, tint token and period. `src/lib/recreations.tsx` maps a recreation key to its lazy component, name, palette and monitor aspect.
+`src/content/projects.ts` is the single source: every project with `slug`, `name`, `kind`, `channel`, `group`, `years` (time code), `role`, `stack`, `line`, `summary`, `links`, `media` (`thumb`, `shot`, `recreation`, `galleries`) and, for the five featured projects, `featured` (`order`, `monitor`, `readouts`, `related`); case-only stories and facts are in `src/content/caseNarratives.ts`. `src/content/channels.ts` holds the channel number, label, tint token and period. `src/lib/recreations.tsx` maps a recreation key to its lazy component, name, palette and monitor aspect.
 
 ## Refused on purpose
 
@@ -190,3 +190,29 @@ Project lower thirds carry a single channel-tinted pane behind their right edge 
 Below 640 px, the monitor is edge-to-edge with a constant `min(70svh, 560px)` stage. Each recreation fits its authored aspect inside this stable frame. The time code moves to a separate rail with a swipe hint and 44 px previous/next buttons. A horizontal touch gesture of at least 56 px selects the adjacent project, excluding interactive controls and vertical scrolling. A completed swipe suppresses its synthetic click; pointer cancellation clears the gesture. Caption and stack rows reserve space so switching does not move the schedule. Channel tabs, arrow keys and number keys remain available, with announcements for swipe and button changes.
 
 The live-room chat starts at the top of its scroll area. Bottom justification shifted existing messages whenever an automatic message arrived before the list filled; removing it keeps the scene within the zero-layout-shift budget. `/lab.html?review=1` provides exact-width home/project frames, theme and reduced-motion controls, plus development-only layout-shift measurements. These preference overrides are removed from production builds.
+
+## No signal and optional glass
+
+The 404 stack flattens its waveform and desaturates over 1.2 seconds, with no on-air lamp, texture or idle motion. Reduced motion and the CSS fallback show the settled state immediately. A failed WebGL shader leaves the CSS stack visible.
+
+Strong, identifiable GPUs may load a separate compact OGL refraction module after 90 measured frames following warmup average at most 16.7 ms. Eligibility requires at least eight CPU threads, eight GB device memory when exposed, sufficient texture capacity, and an allowlisted Apple M, NVIDIA or AMD adapter. Unknown adapters, still/single panes, reduced motion and low-data devices keep the base path. Each pane samples a framebuffer copy of panes drawn behind it, with shallow edge refraction. Sustained frame time above 16.7 ms removes glass; the existing DPR/CSS degradation remains. The lab's Test glass tier bypasses hardware identity only in development; the measured frame gate still applies.
+
+## Sound and schedule preview
+
+The 44 px masthead Channel sound control is off by default and remembers its setting. Only an intentional wall channel change creates/resumes WebAudio and lazy-loads a 22 ms relay tap plus 90 ms quiet sine tone. Loads and preference changes are silent. Muting cancels pending audio and suspends the context. Kosovo time yields below 400 px to preserve the controls' space.
+
+Fine-pointer visitors without reduced motion see an inert miniature live monitor on schedule hover. Code loads on the first eligible row entry; live recreations mount only while visible. Public frames/authored illustrations cover other rows. Changes tune over 260 ms with a scan and 2 px clarity transition; entry/exit fade for 150 ms. Provenance labels distinguish recreations, public frames and illustrations. Escape, Tab, focus changes and pointer leave dismiss the preview; only a fresh pointer entry restores it.
+
+## Case milestones and guided playback
+
+Every featured page has a short How it was built list sourced from CONTENT.md, without inferred milestone dates. Watch it work starts with a poster and plays a 16-second, four-step sequence after activation. It reuses the authored recreations with explicit demo state; Viva Fresh tours public store frames. Play/Pause, Replay and four 44 px step controls sit outside the inert scene. Playback pauses below 20% visibility or in a hidden tab, preserving position. Reduced motion uses manual steps. The original interactive monitor remains available.
+
+## Responsive typography and daylight
+
+Archivo stays at 112% stretch, with Atkinson body text and Martian labels. Meter values use the width of their whole strip (`clamp(2rem, 4.5cqw, 3.75rem)`) and align at the top in three columns from 768 px; phones keep separate rows. Story/spec label rails are 8.5 rem with 24 px gaps. Daylight combines brighter panel surfaces, stronger rules/tints and graphite hardware. `--monitor-shadow` provides a shorter contact/cast shadow in daylight; dark colours are unchanged.
+
+## Contact, CV and sharing
+
+Owner-confirmed email and LinkedIn live in `links.ts`; education is Bachelor's degree · UBT, with no inferred subject or dates. The CV is `public/Gentrit-Rashiti-CV.pdf`, with editable source `cv/Gentrit-Rashiti-CV.html`.
+
+The sharing card is `public/og-image.png`, 1200 × 630. Regenerate with `python3 scripts/generate-og.py` and Pillow; bundled OFL fonts and their provenance live beside the generator. The card uses the same geometric panes, waveform and typography as the site. Open Graph/Twitter image URLs use VITE_SITE_URL when supplied, otherwise Vercel's production-host variable. Local builds use a relative path until a real host exists. Hosting and domain selection remain pending; no deployment was made.
