@@ -136,8 +136,29 @@ export function SignalStack({ channels, active, className, ref, transitionName, 
 
     let launched = false
     let cancelIdle = () => {}
+    const release = () => {
+      if (cancelled) return
+      cancelled = true
+      cancelIdle()
+      layoutObserver.disconnect()
+      window.clearTimeout(fade)
+      themeObserver.disconnect()
+      scheme.removeEventListener('change', syncTints)
+      canvas.removeEventListener('webglcontextlost', showFallback)
+      scene.current?.dispose()
+      scene.current = null
+      // The context exists before the idle import, so it also needs cleanup without a scene.
+      if (!gl.isContextLost()) gl.getExtension('WEBGL_lose_context')?.loseContext()
+      canvas.remove()
+    }
+    function showFallback() {
+      if (cancelled) return
+      release()
+      setCssGone(false)
+      setMode('css')
+    }
     const launch = () => {
-      if (launched || !el.clientWidth || !el.clientHeight) return
+      if (cancelled || launched || !el.clientWidth || !el.clientHeight) return
       launched = true
       cancelIdle = whenIdle(() => {
         import('./scene')
@@ -156,38 +177,19 @@ export function SignalStack({ channels, active, className, ref, transitionName, 
                 setMode('webgl')
                 fade = window.setTimeout(() => setCssGone(true), 450)
               },
-              onDegrade: () => {
-                scene.current?.dispose()
-                scene.current = null
-                canvas.remove()
-                setCssGone(false)
-                setMode('css')
-              },
+              onDegrade: showFallback,
             })
           })
-          .catch(() => {
-            if (!cancelled) {
-              canvas.remove()
-              gl.getExtension('WEBGL_lose_context')?.loseContext()
-              setMode('css')
-            }
-          })
+          .catch(showFallback)
       })
     }
     const layoutObserver = new ResizeObserver(launch)
+    canvas.addEventListener('webglcontextlost', showFallback)
     layoutObserver.observe(el)
     launch()
 
     return () => {
-      cancelled = true
-      cancelIdle()
-      layoutObserver.disconnect()
-      window.clearTimeout(fade)
-      themeObserver.disconnect()
-      scheme.removeEventListener('change', syncTints)
-      scene.current?.dispose()
-      scene.current = null
-      canvas.remove()
+      release()
       setCssGone(false)
       setMode('css')
     }

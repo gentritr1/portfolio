@@ -299,17 +299,6 @@ export function createScene(context: WebGL2RenderingContext, opts: SceneOptions)
       m.position.z = pose.z + FORWARD * pane.weight
       m.position.y = opts.still ? 0 : Math.sin(((time - i * 0.6) / 8) * Math.PI * 2) * PANE_H * PANE_SCALE * 0.02
       m.rotation.y = pose.yaw
-      pane.depth = m.position.z
-    }
-
-    for (let i = 1; i < count; i++) {
-      const p = order[i]
-      let j = i - 1
-      while (j >= 0 && order[j].depth > p.depth) {
-        order[j + 1] = order[j]
-        j--
-      }
-      order[j + 1] = p
     }
 
     panePose(active, centre, count, pose)
@@ -322,6 +311,23 @@ export function createScene(context: WebGL2RenderingContext, opts: SceneOptions)
     u.uLoss.value = opts.lostSignal ? Math.min(1, time / 1.2) : 0
     stack.updateMatrixWorld()
     camera.updateMatrixWorld()
+
+    // Camera-space Z includes stack tilt and the dolly. More negative is farther away.
+    const view = camera.viewMatrix
+    for (const pane of panes) {
+      const world = pane.mesh.worldMatrix
+      pane.depth = view[2] * world[12] + view[6] * world[13] + view[10] * world[14] + view[14]
+    }
+    for (let i = 1; i < count; i++) {
+      const p = order[i]
+      let j = i - 1
+      while (j >= 0 && order[j].depth > p.depth) {
+        order[j + 1] = order[j]
+        j--
+      }
+      order[j + 1] = p
+    }
+
     renderer.setViewport(width * dpr, height * dpr)
     gl.clear(gl.COLOR_BUFFER_BIT)
     for (let i = 0; i < count; i++) {
@@ -422,6 +428,7 @@ export function createScene(context: WebGL2RenderingContext, opts: SceneOptions)
     },
     setTints,
     dispose() {
+      if (disposed) return
       disposed = true
       window.clearTimeout(dollyTimeout)
       finishDolly?.()
@@ -437,7 +444,7 @@ export function createScene(context: WebGL2RenderingContext, opts: SceneOptions)
       glass?.dispose()
       program.remove()
       geometry.remove()
-      gl.getExtension('WEBGL_lose_context')?.loseContext()
+      if (!gl.isContextLost()) gl.getExtension('WEBGL_lose_context')?.loseContext()
     },
   }
 }

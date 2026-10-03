@@ -44,15 +44,26 @@ function useFrameRate() {
 
 function DollyPreview({ active }: { active: typeof channelOrder[number] }) {
   const stack = useRef<SignalStackHandle>(null)
+  const wrapper = useRef<HTMLDivElement>(null)
   const [busy, setBusy] = useState(false)
-  return <div className="relative size-full">
+  const [contextLost, setContextLost] = useState(false)
+  return <div ref={wrapper} className="relative size-full">
     <SignalStack ref={stack} channels={channelOrder} active={active} className="size-full" />
-    <button type="button" disabled={busy} className="absolute right-0 bottom-0 min-h-11 border border-hairline bg-panel-0 px-3 label" onClick={async () => {
-      setBusy(true)
-      await stack.current?.tuneIn()
-      stack.current?.reset()
-      setBusy(false)
-    }}>Test tune in</button>
+    <div className="absolute right-0 bottom-0 left-0 flex flex-wrap justify-end gap-2">
+      <button type="button" disabled={contextLost} className="min-h-11 border border-hairline bg-panel-0 px-3 label disabled:text-ink-3" onClick={() => {
+        const gl = wrapper.current?.querySelector('canvas')?.getContext('webgl2')
+        const extension = gl?.getExtension('WEBGL_lose_context')
+        if (!extension) return
+        extension.loseContext()
+        setContextLost(true)
+      }}>{contextLost ? 'Context lost' : 'Lose WebGL context'}</button>
+      <button type="button" disabled={busy || contextLost} className="min-h-11 border border-hairline bg-panel-0 px-3 label disabled:text-ink-3" onClick={async () => {
+        setBusy(true)
+        await stack.current?.tuneIn()
+        stack.current?.reset()
+        setBusy(false)
+      }}>Test tune in</button>
+    </div>
   </div>
 }
 

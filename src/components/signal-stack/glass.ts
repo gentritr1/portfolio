@@ -40,6 +40,8 @@ export function createGlass(gl: OGLRenderingContext, base: Program) {
         resolution[1] = backdrop.height = height
         backdrop.needsUpdate = true
       }
+      // update() may reuse its cached binding without selecting the texture unit.
+      gl.renderer.activeTexture(0)
       backdrop.update(0)
       gl.copyTexSubImage2D(gl.TEXTURE_2D, 0, 0, 0, 0, 0, width, height)
     },
