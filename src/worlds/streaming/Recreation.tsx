@@ -102,14 +102,15 @@ function tint(handle: string) {
   return [14, 24, 34][sum % 3]
 }
 
-export function Recreation() {
+export function Recreation({ demoStep, demoPlaying = true }: { demoStep?: number; demoPlaying?: boolean } = {}) {
   const reduce = usePrefersReducedMotion()
   const rootRef = useRef<HTMLDivElement>(null)
   const onScreen = useInView(rootRef, { amount: 0.25 })
-  const running = onScreen && !reduce
+  const running = onScreen && !reduce && demoPlaying
 
   const [playing, setPlaying] = useState(true)
-  const [premium, setPremium] = useState(false)
+  const [selectedPremium, setPremium] = useState(false)
+  const premium = demoStep === undefined ? selectedPremium : demoStep === 2
   const [viewers, setViewers] = useState(1284)
   const [elapsed, setElapsed] = useState(38 * 60 + 12)
   const randomRef = useRef(mulberry32(1284))
@@ -203,7 +204,7 @@ export function Recreation() {
                 / {clock(SESSION_SECONDS)}
               </span>
               <span className="flex-1" />
-              <QualityMenu locked={premium} reduce={reduce} />
+              <QualityMenu locked={premium} reduce={reduce} demoQuality={demoStep === undefined ? undefined : demoStep === 0 ? 'Auto' : '1080p'} />
             </div>
           </div>
 
@@ -269,9 +270,10 @@ function PremiumSwitch({ on, onToggle }: { on: boolean; onToggle: () => void }) 
   )
 }
 
-function QualityMenu({ locked, reduce }: { locked: boolean; reduce: boolean }) {
+function QualityMenu({ locked, reduce, demoQuality }: { locked: boolean; reduce: boolean; demoQuality?: Quality }) {
   const [open, setOpen] = useState(false)
-  const [value, setValue] = useState<Quality>('Auto')
+  const [selectedValue, setValue] = useState<Quality>('Auto')
+  const value = demoQuality ?? selectedValue
   const buttonRef = useRef<HTMLButtonElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
   const itemRefs = useRef<(HTMLButtonElement | null)[]>([])

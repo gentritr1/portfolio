@@ -247,11 +247,13 @@ function PageLeaf({
   );
 }
 
-function Reader() {
+function Reader({ demoStep }: { demoStep?: number }) {
   const reduce = usePrefersReducedMotion();
-  const [index, setIndex] = useState(0);
+  const [selectedIndex, setIndex] = useState(0);
   const [flip, setFlip] = useState<Flip | null>(null);
-  const [step, setStep] = useState(1);
+  const [selectedStep, setStep] = useState(1);
+  const index = demoStep === undefined ? selectedIndex : Math.min(Math.max(0, demoStep - 1), passages.length - 1);
+  const step = demoStep === undefined ? selectedStep : demoStep === 0 ? 1 : 2;
   const [toast, setToast] = useState(false);
   const flips = useRef(0);
 
@@ -510,9 +512,10 @@ function Barcode({ active, fast }: { active: boolean; fast: boolean }) {
 
 type ScanStatus = "idle" | "reading" | "done";
 
-function ScanCard() {
+function ScanCard({ demoStep }: { demoStep?: number }) {
   const reduce = usePrefersReducedMotion();
-  const [status, setStatus] = useState<ScanStatus>("idle");
+  const [selectedStatus, setStatus] = useState<ScanStatus>("idle");
+  const status = demoStep === undefined ? selectedStatus : demoStep === 3 ? "done" : "idle";
   const [hovered, setHovered] = useState(false);
   const [focused, setFocused] = useState(false);
   const [shelved, setShelved] = useState(false);
@@ -656,7 +659,7 @@ function ScanCard() {
   );
 }
 
-export function Recreation() {
+export function Recreation({ demoStep }: { demoStep?: number } = {}) {
   useEffect(() => {
     if (document.getElementById(SERIF_FONT_ID)) return;
     const link = document.createElement("link");
@@ -671,8 +674,8 @@ export function Recreation() {
       style={tokens}
       className="absolute inset-0 flex flex-col items-center gap-3 bg-[color-mix(in_oklab,var(--accent-soft)_35%,var(--surface))] p-4 @lg:flex-row @lg:justify-center @lg:gap-[4cqi]"
     >
-      <Reader />
-      <ScanCard />
+      <Reader demoStep={demoStep} />
+      <ScanCard demoStep={demoStep} />
     </div>
   );
 }

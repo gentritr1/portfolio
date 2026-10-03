@@ -540,12 +540,14 @@ function TrendChart({ org, unit, play }: { org: Org; unit: Unit; play: boolean }
  * Vitals trend card: one patient's 14-day blood pressure, scoped to the
  * selected organization. All data is invented.
  */
-export function Recreation() {
+export function Recreation({ demoStep }: { demoStep?: number } = {}) {
   const reduce = usePrefersReducedMotion()
   const rootRef = useRef<HTMLDivElement>(null)
   const inView = useInView(rootRef, { once: true, amount: 0.4 })
-  const [orgId, setOrgId] = useState<OrgId>('northwind')
-  const [unit, setUnit] = useState<Unit>('mmHg')
+  const [selectedOrg, setOrgId] = useState<OrgId>('northwind')
+  const [selectedUnit, setUnit] = useState<Unit>('mmHg')
+  const orgId = demoStep === undefined ? selectedOrg : demoStep >= 2 ? 'harbor' : 'northwind'
+  const unit = demoStep === undefined ? selectedUnit : demoStep === 1 || demoStep === 2 ? 'kPa' : 'mmHg'
   const org = orgs.find((o) => o.id === orgId) ?? orgs[0]
   const fade = reduce
     ? { initial: { opacity: 0 }, animate: { opacity: 1 } }

@@ -2,17 +2,20 @@ import { ArrowRightIcon } from '@phosphor-icons/react'
 import { Suspense } from 'react'
 import { useParams } from 'react-router'
 import { CaseFacts, LowerThird } from '../components/case/CaseHeader'
+import { BuildTimeline } from '../components/case/BuildTimeline'
 import { NextChannel } from '../components/case/NextChannel'
 import { Readouts } from '../components/case/Readouts'
 import { SpecSheet } from '../components/case/SpecSheet'
 import { StoryBlocks } from '../components/case/StoryBlocks'
 import { useDocumentMeta } from '../components/case/useDocumentMeta'
+import { WatchItWork } from '../components/case/WatchItWork'
 import { Container } from '../components/Container'
 import { Monitor, MonitorTuning } from '../components/Monitor'
 import { MonitorGallery } from '../components/MonitorGallery'
 import { Showcase } from '../components/Showcase'
 import { TransitionLink } from '../components/TransitionLink'
 import { findProject, nextFeatured, projects, type Featured, type Gallery, type Project } from '../content/projects'
+import { caseNarratives } from '../content/caseNarratives'
 import { recreations } from '../lib/recreations'
 import { NoSignalPage } from './NoSignalPage'
 
@@ -117,12 +120,15 @@ function CaseStudy({ project, featured }: { project: Project; featured: Featured
             <div className="mt-10">
               <StoryBlocks story={featured.story} />
             </div>
+            <BuildTimeline slug={project.slug} />
           </div>
           <aside aria-label="Project facts" className="lg:col-span-4">
             <CaseFacts project={project} featured={featured} />
           </aside>
         </Container>
       </div>
+
+      <WatchItWork project={project} featured={featured} />
 
       {galleries.length > 0 && (
         <section aria-labelledby="galleries-title" className="pt-section">
@@ -172,6 +178,7 @@ function CaseStudy({ project, featured }: { project: Project; featured: Featured
 export function CaseStudyPage() {
   const { slug } = useParams()
   const project = findProject(slug)
-  if (!project?.featured) return <NoSignalPage />
-  return <CaseStudy key={project.slug} project={project} featured={project.featured} />
+  const narrative = project ? caseNarratives[project.slug] : undefined
+  if (!project?.featured || !narrative) return <NoSignalPage />
+  return <CaseStudy key={project.slug} project={project} featured={{ ...project.featured, ...narrative }} />
 }

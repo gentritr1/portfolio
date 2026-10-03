@@ -333,9 +333,10 @@ const NOTICE_TEXT: Record<Exclude<Notice, null>, string> = {
   send: 'Sending is off in this demo',
 }
 
-function WalletCard() {
+function WalletCard({ demoStep }: { demoStep?: number }) {
   const reduce = usePrefersReducedMotion()
-  const [flipped, setFlipped] = useState(false)
+  const [selectedFlipped, setFlipped] = useState(false)
+  const flipped = demoStep === undefined ? selectedFlipped : demoStep === 1
   const [notice, setNotice] = useState<Notice>(null)
   const noticeTimer = useRef<number | undefined>(undefined)
   const frontRef = useRef<HTMLDivElement>(null)
@@ -519,9 +520,10 @@ function StepGlyph({ step }: { step: Step }) {
   return <LockSimpleIcon size={20} weight="light" className="text-muted" />
 }
 
-function PasskeyCard() {
+function PasskeyCard({ demoStep }: { demoStep?: number }) {
   const reduce = usePrefersReducedMotion()
-  const [step, setStep] = useState<Step>('idle')
+  const [selectedStep, setStep] = useState<Step>('idle')
+  const step: Step = demoStep === undefined ? selectedStep : demoStep === 2 ? 'touch' : demoStep === 3 ? 'welcome' : 'idle'
   const timers = useRef<number[]>([])
   const rootRef = useRef<HTMLDivElement>(null)
 
@@ -659,7 +661,7 @@ function PasskeyCard() {
 
 /* ---------- Stage ---------- */
 
-export function Recreation() {
+export function Recreation({ demoStep }: { demoStep?: number } = {}) {
   return (
     <div
       className="absolute inset-0 grid place-items-center overflow-hidden p-3 @sm:p-6"
@@ -668,8 +670,8 @@ export function Recreation() {
       }}
     >
       <div className="flex w-full flex-col items-center gap-2.5 @sm:gap-3 @3xl:flex-row @3xl:items-center @3xl:justify-center @3xl:gap-8">
-        <WalletCard />
-        <PasskeyCard />
+        <WalletCard demoStep={demoStep} />
+        <PasskeyCard demoStep={demoStep} />
       </div>
     </div>
   )
