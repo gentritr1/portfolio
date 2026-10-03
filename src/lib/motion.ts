@@ -19,7 +19,7 @@ export const duration = {
   micro: 0.2,
   tune: 0.26,
   route: 0.48,
-  preview: 0.56,
+  preview: 0.15,
 } as const
 
 export const stagger = {

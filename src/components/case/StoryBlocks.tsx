@@ -14,13 +14,13 @@ export function StoryBlocks({ story }: { story: Story }) {
         <section
           key={block.key}
           aria-labelledby={`story-${block.key}`}
-          className="grid gap-x-8 gap-y-4 border-t border-hairline pt-4 sm:grid-cols-[10rem_minmax(0,1fr)]"
+          className="grid gap-x-6 gap-y-3 border-t border-hairline pt-5 sm:grid-cols-[8.5rem_minmax(0,1fr)]"
         >
-          <h2 id={`story-${block.key}`} className="flex items-baseline gap-3 label-lg text-ink sm:pt-1">
+          <h2 id={`story-${block.key}`} className="flex items-baseline gap-2.5 label-lg leading-relaxed text-ink sm:pt-1">
             <span className="text-tint">{String(index + 1).padStart(2, '0')}</span>
             {block.title}
           </h2>
-          <p className="max-w-[64ch] text-story text-ink">{story[block.key]}</p>
+          <p className="min-w-0 max-w-[64ch] text-story text-ink">{story[block.key]}</p>
         </section>
       ))}
     </div>

@@ -70,6 +70,8 @@
   --text-lede--line-height: 1.5;
   --text-story: 1.0625rem;
   --text-story--line-height: 1.7;
+  --text-readout: clamp(2rem, 4.5cqw, 3.75rem);
+  --text-readout--line-height: 1;
   --text-meta: 0.8125rem;
   --text-meta--line-height: 1.45;
   --text-label: 0.6875rem;
@@ -94,7 +96,7 @@
   --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
 
   --shadow-float: 0 1px 1px oklch(0.1 0.01 250 / 0.06), 0 10px 28px -12px oklch(0.1 0.01 250 / 0.32);
-  --shadow-stage: 0 2px 4px oklch(0.1 0.01 250 / 0.08), 0 28px 64px -28px oklch(0.1 0.01 250 / 0.45);
+  --shadow-stage: var(--monitor-shadow);
 }
 
 /* Registered so the channel tint can cross-fade when the active channel changes. */
@@ -115,38 +117,40 @@
   --dur-root: 160ms;
   --dur-tune: 260ms;
   --dur-route: 480ms;
-  --dur-preview: 560ms;
+  --dur-preview: 150ms;
 
   --z-overlay: 40;
   --z-masthead: 50;
   --z-skip: 60;
 
+  --monitor-shadow: 0 2px 4px oklch(0.1 0.01 250 / 0.08), 0 28px 64px -28px oklch(0.1 0.01 250 / 0.45);
+
   /* Matte panels, ground to control. */
   --panel-0: light-dark(oklch(0.948 0.004 250), oklch(0.15 0.004 250));
-  --panel-1: light-dark(oklch(0.976 0.003 250), oklch(0.182 0.005 250));
-  --panel-2: light-dark(oklch(0.918 0.005 250), oklch(0.214 0.006 250));
+  --panel-1: light-dark(oklch(0.985 0.002 250), oklch(0.182 0.005 250));
+  --panel-2: light-dark(oklch(0.908 0.007 250), oklch(0.214 0.006 250));
   --panel-3: light-dark(oklch(0.885 0.006 250), oklch(0.252 0.007 250));
-  --hairline: light-dark(oklch(0.86 0.006 250), oklch(0.27 0.006 250));
-  --hairline-strong: light-dark(oklch(0.74 0.008 250), oklch(0.37 0.008 250));
+  --hairline: light-dark(oklch(0.805 0.008 250), oklch(0.27 0.006 250));
+  --hairline-strong: light-dark(oklch(0.68 0.012 250), oklch(0.37 0.008 250));
   --ink: light-dark(oklch(0.2 0.01 250), oklch(0.94 0.004 250));
   --ink-2: light-dark(oklch(0.4 0.012 250), oklch(0.76 0.008 250));
-  --ink-3: light-dark(oklch(0.49 0.012 250), oklch(0.64 0.008 250));
+  --ink-3: light-dark(oklch(0.46 0.012 250), oklch(0.64 0.008 250));
 
   /* The on-air signal: live states, the active channel, focus. Nothing else. */
   --signal: light-dark(oklch(0.57 0.2 31), oklch(0.69 0.19 33));
   --on-signal: light-dark(oklch(0.985 0.005 30), oklch(0.16 0.02 30));
 
   /* Monitor hardware stays graphite in both themes. */
-  --bezel: light-dark(oklch(0.25 0.006 250), oklch(0.205 0.006 250));
+  --bezel: light-dark(oklch(0.27 0.008 250), oklch(0.205 0.006 250));
   --bezel-ink: oklch(0.8 0.008 250);
-  --bezel-line: oklch(0.33 0.006 250);
+  --bezel-line: light-dark(oklch(0.43 0.008 250), oklch(0.33 0.006 250));
 
   /* Channel tints: the v1 world accents, desaturated. */
-  --ch-healthcare: light-dark(oklch(0.5 0.075 184), oklch(0.77 0.07 180));
-  --ch-streaming: light-dark(oklch(0.52 0.08 12), oklch(0.75 0.07 10));
-  --ch-reading: light-dark(oklch(0.52 0.08 70), oklch(0.81 0.075 78));
+  --ch-healthcare: light-dark(oklch(0.49 0.075 184), oklch(0.77 0.07 180));
+  --ch-streaming: light-dark(oklch(0.49 0.08 12), oklch(0.75 0.07 10));
+  --ch-reading: light-dark(oklch(0.49 0.08 70), oklch(0.81 0.075 78));
   --ch-web3: light-dark(oklch(0.5 0.1 285), oklch(0.75 0.08 285));
-  --ch-ai: light-dark(oklch(0.5 0.08 125), oklch(0.84 0.08 120));
+  --ch-ai: light-dark(oklch(0.49 0.08 125), oklch(0.84 0.08 120));
   --ch-personal: light-dark(oklch(0.48 0.04 245), oklch(0.78 0.035 240));
 
   --tint: var(--ink-2);
@@ -161,6 +165,8 @@
 
 :root[data-theme="light"] {
   color-scheme: light;
+  /* Daylight catches the upper edge and casts a shorter shadow onto the console. */
+  --monitor-shadow: inset 0 1px 0 oklch(1 0 0 / 0.12), 0 2px 3px oklch(0.2 0.01 250 / 0.16), 0 18px 40px -20px oklch(0.2 0.01 250 / 0.3);
 }
 
 @media (min-width: 640px) {
@@ -287,6 +293,7 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
+    caret-color: var(--signal);
     overflow-x: clip;
   }
 
