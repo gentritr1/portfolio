@@ -1,0 +1,17 @@
+{
+  "id": "dither",
+  "title": "Work in colour",
+  "band": "Experimental",
+  "description": "A vermilion portfolio with a full-width one-bit image collage. Selecting the work resolves its dots into colour.",
+  "signature": "Real Bayer-dithered project images are crossed by a colour wipe, automatically on arrival and again on selection.",
+  "caseSlug": "care-platform",
+  "scores": {
+    "design": 8.1,
+    "usability": 7.9,
+    "creativity": 8.1,
+    "content": 8.4
+  },
+  "antiPale": "pass",
+  "rounds": 1,
+  "holdback": "The initial care image is muted, so its colour reveal is less dramatic than the other project images."
+}
