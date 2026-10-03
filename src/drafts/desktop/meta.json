@@ -1,0 +1,17 @@
+{
+  "id": "desktop",
+  "title": "Gentrit Desktop",
+  "band": "Fun",
+  "description": "A chartreuse desktop where the projects are the apps. Open, move and explore the work.",
+  "signature": "The featured project window springs out of the dock into a full working desktop.",
+  "caseSlug": "incentiv",
+  "scores": {
+    "design": 8.2,
+    "usability": 7.9,
+    "creativity": 8.1,
+    "content": 8.3
+  },
+  "antiPale": "pass",
+  "rounds": 2,
+  "holdback": "Mobile reading requires navigating both the page and the app window\u2019s scrolling area."
+}

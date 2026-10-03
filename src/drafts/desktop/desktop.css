@@ -1,0 +1,223 @@
+.draft-desktop {
+  --desktop-paper: #f8f7ee;
+  --desktop-ink: #152eae;
+  --desktop-blue: #2348e4;
+  --desktop-field: #d4f741;
+  --desktop-ease: cubic-bezier(.16, 1, .3, 1);
+  min-height: 100svh;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--desktop-field);
+  color: var(--desktop-ink);
+  font-family: 'Archivo', sans-serif;
+  font-variation-settings: 'wdth' 100;
+  isolation: isolate;
+}
+.draft-desktop *, .draft-desktop *::before, .draft-desktop *::after { box-sizing: border-box; }
+.draft-desktop ::selection { color: var(--desktop-paper); background: var(--desktop-blue); }
+.draft-desktop :focus-visible { outline: 3px solid #ff6237; outline-offset: 3px; }
+.draft-desktop button, .draft-desktop input, .draft-desktop a { -webkit-tap-highlight-color: transparent; }
+.draft-desktop button, .draft-desktop a { touch-action: manipulation; }
+.draft-desktop button { font: inherit; color: inherit; cursor: pointer; }
+.draft-desktop button:disabled { cursor: default; }
+.draft-desktop a { color: inherit; text-underline-offset: 4px; }
+.draft-desktop p, .draft-desktop h1, .draft-desktop h2, .draft-desktop h3, .draft-desktop figure { margin: 0; }
+.draft-desktop svg { flex-shrink: 0; }
+.draft-desktop button { border: 0; }
+.draft-desktop input { caret-color: var(--desktop-blue); }
+.draft-desktop kbd { font: 10px 'Martian Mono', monospace; }
+.draft-desktop [hidden] { display: none !important; }
+.draft-desktop .desktop-menubar { display: flex; align-items: center; height: 56px; flex-shrink: 0; padding: 0 24px; border-bottom: 1px solid #152eae40; gap: 4px; z-index: 10000; position: relative; background: var(--desktop-field); }
+.draft-desktop .desktop-menubar > button, .draft-desktop .desktop-open-menu > button { min-height: 44px; padding: 0 15px; display: flex; align-items: center; gap: 10px; background: transparent; font-size: 13px; font-weight: 600; }
+.draft-desktop .desktop-menubar button:hover { background: #152eae0c; }
+.draft-desktop .desktop-menubar button span { font-variant-numeric: tabular-nums; font-size: 11px; opacity: .8; }
+.draft-desktop .desktop-brand { font-size: 29px; font-weight: 750; text-decoration: none; letter-spacing: -.04em; padding: 2px 20px 5px 0; }
+.draft-desktop .desktop-menubar-spacer { flex: 1; }
+.draft-desktop .desktop-gallery-link { display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 0 0 14px; font-size: 12px; text-decoration: none; }
+.draft-desktop .desktop-open-menu { position: relative; }
+.draft-desktop .desktop-window-menu { position: absolute; right: 0; top: 48px; width: 280px; border-radius: 12px; padding: 12px; background: var(--desktop-paper); box-shadow: 0 12px 32px #14205333; color: #182033; }
+.draft-desktop .desktop-window-menu > strong { display: block; padding: 8px 10px; font-size: 12px; }
+.draft-desktop .desktop-window-menu > p { padding: 12px 10px; font-size: 13px; }
+.draft-desktop .desktop-window-menu > button { min-height: 44px; width: 100%; background: transparent; padding: 8px 10px; text-align: left; border-radius: 6px; display: flex; justify-content: space-between; gap: 16px; font-size: 13px; }
+.draft-desktop .desktop-window-menu small { font-size: 10px; align-self: center; color: #50576a; }
+.draft-desktop .desktop-stage { flex: 1; min-height: 0; position: relative; }
+.draft-desktop .desktop-wallpaper { position: absolute; top: 49px; left: 42px; width: 40%; }
+.draft-desktop .desktop-wallpaper h1 { font-size: clamp(108px, 12.2vw, 184px); line-height: .86; letter-spacing: -.04em; font-weight: 670; font-variation-settings: 'wdth' 85; }
+.draft-desktop .desktop-wallpaper h1 span { color: #ff693b; }
+.draft-desktop .desktop-wallpaper > p { margin-top: 28px; font-size: clamp(23px, 2.25vw, 34px); line-height: 1.16; letter-spacing: -.025em; font-weight: 520; }
+.draft-desktop .desktop-location { margin-top: 20px; font-size: 12px; }
+.draft-desktop .desktop-shortcuts { position: absolute; bottom: 26px; left: 34px; display: grid; grid-template-columns: repeat(3, 100px); gap: 18px 8px; }
+.draft-desktop .desktop-shortcuts > button { padding: 4px; min-height: 88px; display: flex; flex-direction: column; align-items: center; gap: 8px; font-size: 11px; font-weight: 600; background: transparent; border-radius: 12px; }
+.draft-desktop .desktop-shortcuts > button:hover { background: #ffffff35; }
+.draft-desktop .desktop-shortcuts > button:last-child { grid-column: auto; }
+.draft-desktop .desktop-app-icon { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 12px; color: #fff; background: var(--desktop-blue); box-shadow: 0 4px 7px #17224318, inset 0 1px #ffffff40; }
+.draft-desktop .desktop-app-icon--large { width: 61px; height: 61px; border-radius: 17px; }
+.draft-desktop .desktop-app-icon--streaming { background: #f56830; color: #2c1d22; }
+.draft-desktop .desktop-app-icon--reading { background: #f7de77; color: #574005; }
+.draft-desktop .desktop-app-icon--healthcare { background: #17764e; }
+.draft-desktop .desktop-app-icon--personal { background: #7137cc; }
+.draft-desktop .desktop-app-icon--ai { background: #5a517d; }
+.draft-desktop .desktop-app-icon--about { background: #b5b9f6; color: #1f348b; }
+.draft-desktop .desktop-app-icon--contact { background: #fc8365; color: #702513; }
+.draft-desktop .desktop-app-icon--cv { background: #f7f5df; color: #1734a7; }
+.draft-desktop .desktop-window { position: absolute; top: var(--window-y); left: var(--window-x); width: min(540px, calc(100% - 32px)); height: min(590px, calc(100% - 16px)); display: flex; flex-direction: column; background: var(--desktop-paper); color: #1b2437; border-radius: 13px; box-shadow: 0 16px 46px #18243b3a, 0 3px 6px #18243b12; overflow: hidden; transform-origin: 50% 110%; }
+.draft-desktop .desktop-window--project { width: min(780px, 57%); height: min(640px, calc(100% - 16px)); }
+.draft-desktop .desktop-window:not(.is-active) { box-shadow: 0 7px 24px #18243b22; }
+.draft-desktop .desktop-window.is-maximized { top: 8px; left: 8px; width: calc(100% - 16px); height: calc(100% - 16px); }
+.draft-desktop .desktop-window.is-opening { animation: desktop-window-arrive 920ms var(--desktop-ease) 80ms both; }
+.draft-desktop .desktop-window.is-dragging { user-select: none; animation: none; }
+.draft-desktop .desktop-window-bar { min-height: 47px; display: flex; flex-shrink: 0; align-items: center; background: #e6e7f6; color: #273473; padding-left: 12px; }
+.draft-desktop .is-active > .desktop-window-bar { background: var(--desktop-blue); color: white; }
+.draft-desktop .desktop-window-title { display: flex; flex: 1; min-width: 0; align-items: center; gap: 10px; align-self: stretch; text-align: left; background: transparent; font-size: 12px; font-weight: 600; cursor: grab; touch-action: none; }
+.draft-desktop .desktop-window-title span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.draft-desktop .is-dragging .desktop-window-title { cursor: grabbing; }
+.draft-desktop .desktop-window-controls { display: flex; align-self: stretch; margin-left: 10px; }
+.draft-desktop .desktop-window-controls button { min-width: 44px; min-height: 44px; display: flex; justify-content: center; align-items: center; background: transparent; }
+.draft-desktop .desktop-window-controls button:hover { background: #fff2; }
+.draft-desktop .desktop-window-controls button:last-child:hover { color: white; background: #b73125; }
+.draft-desktop .desktop-window-body { overflow: auto; flex: 1; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: #8893c4 #eeeee6; }
+.draft-desktop .desktop-app-tabs { display: flex; align-items: center; gap: 22px; padding: 0 25px; border-bottom: 1px solid #e0e0d8; }
+.draft-desktop .desktop-app-tabs button { min-height: 47px; background: transparent; font-size: 12px; color: #566074; border-bottom: 2px solid transparent; }
+.draft-desktop .desktop-app-tabs button[aria-pressed=true] { border-color: var(--desktop-blue); color: var(--desktop-ink); }
+.draft-desktop .desktop-app-tabs span { margin-left: 4px; font-size: 10px; }
+.draft-desktop .desktop-project-heading { padding: 21px 26px; display: flex; justify-content: space-between; align-items: center; }
+.draft-desktop .desktop-project-heading h2 { font-size: 36px; line-height: 1; font-weight: 580; letter-spacing: -.035em; }
+.draft-desktop .desktop-project-heading p { font-size: 12px; margin-top: 7px; }
+.draft-desktop .desktop-project-heading > span { font-size: 11px; font-variant-numeric: tabular-nums; }
+.draft-desktop .desktop-project-image { width: 100%; display: block; background: #e9e9e2; padding: 0; overflow: hidden; }
+.draft-desktop .desktop-project-image img { display: block; width: 100%; max-height: 350px; object-fit: cover; object-position: top; }
+.draft-desktop .desktop-project-image--incentiv img { aspect-ratio: 2.55; max-height: none; object-fit: cover; object-position: 50% 43%; }
+.draft-desktop .desktop-project-copy { padding: 25px 28px 32px; }
+.draft-desktop .desktop-project-copy h3 { font-size: 24px; line-height: 1.13; letter-spacing: -.025em; font-weight: 580; }
+.draft-desktop .desktop-project-copy p { margin-top: 13px; font-size: 14px; line-height: 1.65; max-width: 66ch; color: #464c5a; }
+.draft-desktop .desktop-project-details h2 { font-size: 36px; line-height: 1.04; letter-spacing: -.035em; font-weight: 570; margin-bottom: 20px; max-width: 16ch; }
+.draft-desktop .desktop-project-details h3 { margin-top: 32px; }
+.draft-desktop .desktop-links { display: flex; gap: 10px 22px; flex-wrap: wrap; margin-top: 18px; }
+.draft-desktop .desktop-links a, .draft-desktop .desktop-links button { display: inline-flex; align-items: center; min-height: 44px; gap: 12px; font-size: 12px; font-weight: 600; color: var(--desktop-ink); text-decoration: underline; background: transparent; padding: 0; text-underline-offset: 5px; }
+.draft-desktop .desktop-screens { padding-bottom: 24px; }
+.draft-desktop .desktop-screen-picker { display: flex; overflow: auto; gap: 6px; padding: 12px 20px; scrollbar-width: thin; }
+.draft-desktop .desktop-screen-picker button { white-space: nowrap; min-height: 44px; padding: 0 12px; border-radius: 5px; font-size: 12px; color: #454b5b; background: #eaeae2; }
+.draft-desktop .desktop-screen-picker button[aria-pressed=true] { background: var(--desktop-blue); color: white; }
+.draft-desktop .desktop-screens figure > img { display: block; max-width: 100%; max-height: 500px; margin-inline: auto; }
+.draft-desktop .desktop-screens figcaption { padding: 14px 24px 0; font-size: 11px; color: #5d626e; }
+.draft-desktop .desktop-screens > .desktop-links { padding-inline: 24px; }
+.draft-desktop .desktop-finder { padding: 20px; }
+.draft-desktop .desktop-search { display: flex; align-items: center; gap: 12px; border: 1px solid #c5c9d9; border-radius: 7px; padding: 0 13px; color: #69728b; background: white; }
+.draft-desktop .desktop-search input { width: 100%; min-height: 46px; background: transparent; border: 0; outline-offset: 0; font: inherit; font-size: 13px; color: #1b2437; }
+.draft-desktop .desktop-search input::placeholder { color: #687188; }
+.draft-desktop .desktop-finder-categories { display: flex; flex-wrap: wrap; gap: 4px; margin: 15px -5px 4px; }
+.draft-desktop .desktop-finder-categories button { min-height: 44px; padding: 6px 9px; border-radius: 6px; background: transparent; font-size: 11px; }
+.draft-desktop .desktop-finder-categories button[aria-pressed=true] { background: var(--desktop-blue); color: white; }
+.draft-desktop .desktop-result-count { padding: 14px 0; font-size: 11px; color: #5f6779; }
+.draft-desktop .desktop-project-list { border-top: 1px solid #dedfd7; }
+.draft-desktop .desktop-project-list > button { width: 100%; display: flex; align-items: center; gap: 13px; padding: 13px 0; text-align: left; background: transparent; border-bottom: 1px solid #dedfd7; }
+.draft-desktop .desktop-project-list > button:hover { background: #e9ecea; }
+.draft-desktop .desktop-project-list > button > span:nth-child(2) { flex: 1; min-width: 0; }
+.draft-desktop .desktop-project-list strong { display: block; font-size: 13px; line-height: 1.3; font-weight: 600; }
+.draft-desktop .desktop-project-list small { display: block; font-size: 11px; color: #626978; margin-top: 3px; }
+.draft-desktop .desktop-list-year { font-size: 10px; color: #626978; }
+.draft-desktop .desktop-empty { font-size: 14px; line-height: 1.5; padding: 20px 0; }
+.draft-desktop .desktop-document { padding: 33px 34px 40px; }
+.draft-desktop .desktop-document > svg { color: var(--desktop-blue); margin-bottom: 28px; }
+.draft-desktop .desktop-document h2 { font-size: 56px; line-height: .96; letter-spacing: -.04em; font-weight: 620; }
+.draft-desktop .desktop-document p { font-size: 14px; line-height: 1.65; margin-top: 23px; color: #495264; }
+.draft-desktop .desktop-document .desktop-document-lead { font-size: 23px; line-height: 1.25; letter-spacing: -.02em; color: var(--desktop-ink); }
+.draft-desktop dl { margin-top: 28px; }
+.draft-desktop dl > div { display: grid; grid-template-columns: 95px 1fr; gap: 18px; border-top: 1px solid #d9dcd9; padding: 13px 0; font-size: 12px; line-height: 1.55; }
+.draft-desktop dt { color: #687082; }
+.draft-desktop dd { margin: 0; }
+.draft-desktop .desktop-contact-email { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-top: 32px; min-height: 44px; font-size: 18px; font-weight: 500; letter-spacing: -.02em; }
+.draft-desktop .desktop-primary-link { display: flex; align-items: center; justify-content: space-between; min-height: 52px; margin-top: 28px; background: var(--desktop-blue); color: white; padding: 0 20px; border-radius: 7px; text-decoration: none; font-size: 14px; }
+.draft-desktop .desktop-text-link { display: inline-flex; align-items: center; min-height: 44px; margin-top: 14px; color: var(--desktop-ink); font-size: 12px; }
+.draft-desktop .desktop-empty-desktop { position: absolute; top: 40%; right: 12%; display: flex; gap: 24px; align-items: center; background: var(--desktop-ink); color: var(--desktop-field); padding: 22px; border-radius: 12px; }
+.draft-desktop .desktop-dock-zone { position: relative; flex-shrink: 0; min-height: 109px; display: flex; align-items: center; justify-content: center; padding: 9px 32px 16px; gap: 30px; }
+.draft-desktop .desktop-dock-zone > p { position: absolute; left: 42px; font-size: 13px; line-height: 1.4; }
+.draft-desktop .desktop-dock { display: flex; align-items: center; gap: 7px; padding: 10px 16px 7px; border-radius: 20px; background: #f7f9dd; box-shadow: 0 9px 28px #65701928; }
+.draft-desktop .desktop-dock > button { min-width: 61px; padding: 0 3px 8px; display: flex; align-items: center; flex-direction: column; gap: 7px; background: transparent; position: relative; border-radius: 7px; }
+.draft-desktop .desktop-dock > button > span:last-child { font-size: 10px; }
+.draft-desktop .desktop-dock > button.is-running::after { content: ''; width: 4px; height: 4px; position: absolute; bottom: 0; background: var(--desktop-ink); border-radius: 50%; }
+.draft-desktop .desktop-dock .desktop-app-icon { transition: transform 180ms var(--desktop-ease); }
+.draft-desktop .desktop-dock > button:hover .desktop-app-icon { transform: translateY(-5px) scale(1.08); }
+.draft-desktop .desktop-dock-search { display: flex; align-items: center; gap: 10px; background: transparent; position: absolute; right: 32px; min-height: 44px; padding: 5px; font-size: 12px; }
+.draft-desktop .desktop-dock-search kbd { padding: 5px; border: 1px solid #152eae50; border-radius: 4px; }
+@keyframes desktop-window-arrive {
+  from { transform: translate(-110px, 330px) scale(.16, .08); opacity: .45; filter: blur(3px); }
+  58% { transform: translate(0, -12px) scale(1.015, 1.025); opacity: 1; filter: blur(0); }
+  to { transform: translate(0, 0) scale(1); opacity: 1; filter: blur(0); }
+}
+@media (min-width: 1101px) and (max-height: 900px) {
+  .draft-desktop .desktop-shortcuts { grid-template-columns: repeat(5, 100px); gap: 8px; }
+}
+@media (min-width: 701px) and (max-height: 790px) {
+  .draft-desktop .desktop-wallpaper { top: 32px; }
+  .draft-desktop .desktop-wallpaper h1 { font-size: min(11.2vw, 22svh); }
+  .draft-desktop .desktop-shortcuts { grid-template-columns: repeat(5, 83px); bottom: 12px; left: 22px; gap: 4px; }
+  .draft-desktop .desktop-shortcuts .desktop-app-icon--large { width: 50px; height: 50px; border-radius: 13px; }
+  .draft-desktop .desktop-dock-zone { min-height: 101px; }
+}
+@media (min-width: 701px) and (max-width: 1100px) {
+  .draft-desktop .desktop-wallpaper { left: 24px; }
+  .draft-desktop .desktop-wallpaper h1 { font-size: 12.7vw; }
+  .draft-desktop .desktop-shortcuts { left: 18px; grid-template-columns: repeat(3, 84px); }
+  .draft-desktop .desktop-dock-zone > p { left: 25px; font-size: 11px; }
+  .draft-desktop .desktop-dock-search span { display: none; }
+}
+@media (max-width: 700px) {
+  .draft-desktop { height: auto; min-height: 100svh; overflow: visible; padding-bottom: 99px; }
+  .draft-desktop .desktop-menubar { padding: 0 13px; height: 52px; }
+  .draft-desktop .desktop-brand { font-size: 26px; padding-right: 9px; }
+  .draft-desktop .desktop-menubar > button, .draft-desktop .desktop-open-menu > button { padding: 0 9px; font-size: 12px; gap: 6px; }
+  .draft-desktop .desktop-menubar > button:nth-of-type(2), .draft-desktop .desktop-gallery-link, .draft-desktop .desktop-help { display: none; }
+  .draft-desktop .desktop-window-menu { right: -5px; }
+  .draft-desktop .desktop-stage { display: flex; flex-direction: column; padding: 0 12px 15px; min-height: calc(100svh - 151px); }
+  .draft-desktop .desktop-wallpaper { position: static; width: 100%; padding: 24px 8px 20px; }
+  .draft-desktop .desktop-wallpaper h1 { font-size: clamp(88px, 23vw, 128px); line-height: .84; letter-spacing: -.04em; }
+  .draft-desktop .desktop-wallpaper h1 br { display: block; }
+  .draft-desktop .desktop-wallpaper h1 { max-width: 8ch; }
+  .draft-desktop .desktop-wallpaper > p { margin-top: 16px; font-size: 20px; line-height: 1.1; }
+  .draft-desktop .desktop-wallpaper > p br { display: block; }
+  .draft-desktop .desktop-location { margin-top: 10px; font-size: 10px; }
+  .draft-desktop .desktop-shortcuts { display: none; }
+  .draft-desktop .desktop-window { display: none; position: relative; top: auto; left: auto; width: 100%; height: min(580px, 74svh); min-height: 360px; border-radius: 11px; flex: none; }
+  .draft-desktop .desktop-window.is-active { display: flex; }
+  .draft-desktop .desktop-window.is-maximized { top: auto; left: auto; width: 100%; height: min(580px, 74svh); }
+  .draft-desktop .desktop-window-title { touch-action: auto; cursor: default; }
+  .draft-desktop .desktop-maximize { display: none !important; }
+  .draft-desktop .desktop-window-controls { margin-left: 3px; }
+  .draft-desktop .desktop-window-bar { padding-left: 12px; }
+  .draft-desktop .desktop-window-title { font-size: 11px; gap: 7px; }
+  .draft-desktop .desktop-app-tabs { gap: 17px; padding-inline: 16px; }
+  .draft-desktop .desktop-app-tabs button { font-size: 11px; }
+  .draft-desktop .desktop-project-heading { padding: 18px; }
+  .draft-desktop .desktop-project-heading h2 { font-size: 32px; }
+  .draft-desktop .desktop-project-heading p { font-size: 11px; }
+  .draft-desktop .desktop-project-image--incentiv img { aspect-ratio: 1.82; }
+  .draft-desktop .desktop-project-copy { padding: 22px 19px 28px; }
+  .draft-desktop .desktop-project-copy h3 { font-size: 25px; }
+  .draft-desktop .desktop-project-copy p { font-size: 13px; }
+  .draft-desktop .desktop-document { padding: 28px 22px; }
+  .draft-desktop .desktop-document h2 { font-size: 48px; }
+  .draft-desktop .desktop-document .desktop-document-lead { font-size: 21px; }
+  .draft-desktop .desktop-contact-email { font-size: 15px; }
+  .draft-desktop dl > div { grid-template-columns: 77px 1fr; gap: 10px; }
+  .draft-desktop .desktop-finder { padding: 16px; }
+  .draft-desktop .desktop-list-year { display: none; }
+  .draft-desktop .desktop-project-list { margin: 0 -2px; }
+  .draft-desktop .desktop-project-list > button { gap: 9px; }
+  .draft-desktop .desktop-project-list strong { font-size: 12px; }
+  .draft-desktop .desktop-project-list small { font-size: 10px; }
+  .draft-desktop .desktop-dock-zone { position: fixed; z-index: 10001; left: 0; right: 0; bottom: 0; min-height: 94px; padding: 7px 6px max(8px, env(safe-area-inset-bottom)); background: var(--desktop-field); }
+  .draft-desktop .desktop-dock-zone > p, .draft-desktop .desktop-dock-search { display: none; }
+  .draft-desktop .desktop-dock { gap: 0; width: 100%; max-width: 470px; justify-content: space-around; padding: 9px 4px 6px; border-radius: 17px; }
+  .draft-desktop .desktop-dock > button { min-width: 49px; gap: 6px; padding-inline: 1px; }
+  .draft-desktop .desktop-dock > button > span:last-child { font-size: 9px; }
+  .draft-desktop .desktop-dock .desktop-app-icon { height: 40px; width: 40px; border-radius: 11px; }
+  .draft-desktop .desktop-empty-desktop { position: static; align-self: flex-start; margin: 24px 8px; }
+  .draft-desktop .desktop-window.is-opening { animation-name: desktop-window-mobile; }
+}
+@keyframes desktop-window-mobile { from { transform: translateY(100px) scale(.91); opacity: .45; } to { transform: translateY(0) scale(1); opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  .draft-desktop *, .draft-desktop *::before, .draft-desktop *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}
