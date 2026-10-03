@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+@font-face { font-family: "Archivo"; src: url('/fonts/Archivo.woff2') format('woff2'); font-weight: 100 900; font-stretch: 62% 125%; font-display: swap; }
+@font-face { font-family: "Martian Mono"; src: url('/fonts/MartianMono.woff2') format('woff2'); font-weight: 100 800; font-stretch: 75% 112.5%; font-display: swap; }
+
 /*
  * Theme: dark is the default. The html element with data-theme="light" selects daylight.
  * Every colour token is a light-dark() pair, so it resolves against the
@@ -18,7 +21,7 @@
 
 @theme inline {
   --font-display: "Archivo", ui-sans-serif, system-ui, sans-serif;
-  --font-sans: "Atkinson Hyperlegible Next", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Archivo", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "Martian Mono", ui-monospace, "SF Mono", Menlo, monospace;
 
   --color-panel-0: var(--panel-0);
@@ -126,7 +129,7 @@
   --monitor-shadow: 0 2px 4px oklch(0.1 0.01 250 / 0.08), 0 28px 64px -28px oklch(0.1 0.01 250 / 0.45);
 
   /* Matte panels, ground to control. */
-  --panel-0: light-dark(oklch(0.948 0.004 250), oklch(0.15 0.004 250));
+  --panel-0: light-dark(#f0efe9, #101112);
   --panel-1: light-dark(oklch(0.985 0.002 250), oklch(0.182 0.005 250));
   --panel-2: light-dark(oklch(0.908 0.007 250), oklch(0.214 0.006 250));
   --panel-3: light-dark(oklch(0.885 0.006 250), oklch(0.252 0.007 250));
@@ -137,8 +140,8 @@
   --ink-3: light-dark(oklch(0.46 0.012 250), oklch(0.64 0.008 250));
 
   /* The on-air signal: live states, the active channel, focus. Nothing else. */
-  --signal: light-dark(oklch(0.57 0.2 31), oklch(0.69 0.19 33));
-  --on-signal: light-dark(oklch(0.985 0.005 30), oklch(0.16 0.02 30));
+  --signal: light-dark(#2447d9, #849bff);
+  --on-signal: light-dark(#ffffff, #101112);
 
   /* Monitor hardware stays graphite in both themes. */
   --bezel: light-dark(oklch(0.27 0.008 250), oklch(0.205 0.006 250));

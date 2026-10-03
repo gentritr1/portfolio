@@ -1,7 +1,6 @@
 import { ArrowRightIcon } from '@phosphor-icons/react'
-import { Suspense } from 'react'
 import { useParams } from 'react-router'
-import { CaseFacts, LowerThird } from '../components/case/CaseHeader'
+import { CaseFacts } from '../components/case/CaseHeader'
 import { BuildTimeline } from '../components/case/BuildTimeline'
 import { NextChannel } from '../components/case/NextChannel'
 import { Readouts } from '../components/case/Readouts'
@@ -9,51 +8,14 @@ import { SpecSheet } from '../components/case/SpecSheet'
 import { StoryBlocks } from '../components/case/StoryBlocks'
 import { useDocumentMeta } from '../components/case/useDocumentMeta'
 import { WatchItWork } from '../components/case/WatchItWork'
+import { StudioHero } from '../components/case/StudioHero'
+import { TechnicalDiagram } from '../components/case/TechnicalDiagram'
 import { Container } from '../components/Container'
-import { Monitor, MonitorTuning } from '../components/Monitor'
-import { MonitorGallery } from '../components/MonitorGallery'
 import { Showcase } from '../components/Showcase'
 import { TransitionLink } from '../components/TransitionLink'
 import { findProject, nextFeatured, projects, type Featured, type Gallery, type Project } from '../content/projects'
 import { caseNarratives } from '../content/caseNarratives'
-import { recreations } from '../lib/recreations'
 import { NoSignalPage } from './NoSignalPage'
-
-const galleryAspect = { base: '3 / 4', sm: '4 / 3', lg: '21 / 9' }
-
-function CaseMonitor({ project, featured }: { project: Project; featured: Featured }) {
-  const shared = {
-    channel: project.channel,
-    viewTransitionName: `monitor-${project.slug}`,
-    lowerThird: <LowerThird project={project} />,
-  }
-
-  if (featured.monitor === 'gallery') {
-    const gallery = project.media.galleries?.[0]
-    return (
-      <Monitor {...shared} label={gallery?.title ?? 'Store frames'} aspect={galleryAspect} caption="Store frames · from the public listings">
-        <MonitorGallery items={gallery?.items ?? []} />
-      </Monitor>
-    )
-  }
-
-  const recreation = recreations[featured.monitor]
-  const Recreation = recreation.Component
-  return (
-    <Monitor
-      {...shared}
-      live
-      label={recreation.name}
-      aspect={recreation.aspect}
-      world={recreation.world}
-      maxWidth={recreation.maxWidth}
-      caption="Live recreation · invented data">
-      <Suspense fallback={<MonitorTuning />}>
-        <Recreation />
-      </Suspense>
-    </Monitor>
-  )
-}
 
 /** Another project that owns this gallery, shown as work built beside the featured product. */
 function alsoBuilt(gallery: Gallery, owner: Project): Project | undefined {
@@ -70,7 +32,7 @@ function AlsoOnChannel({ slugs }: { slugs: string[] }) {
     <section aria-labelledby="also-title" className="pt-section">
       <Container>
         <h2 id="also-title" className="label-lg text-ink">
-          Also on this channel
+          Related work
         </h2>
         <ul className="mt-4 border-t border-hairline">
           {rows.map((row) => (
@@ -102,16 +64,14 @@ function AlsoOnChannel({ slugs }: { slugs: string[] }) {
 function CaseStudy({ project, featured }: { project: Project; featured: Featured }) {
   useDocumentMeta(`${project.name} · Gentrit Rashiti`, project.line)
   const next = nextFeatured(project)
-  const galleries = featured.monitor === 'gallery' ? (project.media.galleries ?? []).slice(1) : (project.media.galleries ?? [])
+  const galleries = project.media.galleries ?? []
 
   return (
     <article data-channel={project.channel} aria-labelledby="case-title">
-      <div className="pt-8 sm:pt-10">
-        <Container>
-          <CaseMonitor project={project} featured={featured} />
-          {featured.readouts && <Readouts readouts={featured.readouts} />}
-        </Container>
-      </div>
+      <StudioHero project={project} />
+      {featured.readouts && <Container><Readouts readouts={featured.readouts} /></Container>}
+
+      <TechnicalDiagram slug={project.slug} />
 
       <div className="pt-section">
         <Container className="grid gap-x-12 gap-y-12 lg:grid-cols-12">
@@ -166,7 +126,7 @@ function CaseStudy({ project, featured }: { project: Project; featured: Featured
         </Container>
       </section>
 
-      <nav aria-label="Next channel" className="pt-section">
+      <nav aria-label="Next project" className="pt-section">
         <Container>
           <NextChannel next={next} />
         </Container>

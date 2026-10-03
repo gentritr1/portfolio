@@ -4,7 +4,7 @@ import { cn } from '../lib/cn'
 type Theme = 'light' | 'dark'
 
 /** Matches --panel-0 in each theme. */
-const THEME_COLOR: Record<Theme, string> = { light: '#ebedf0', dark: '#0e1012' }
+const THEME_COLOR: Record<Theme, string> = { light: '#f0efe9', dark: '#101112' }
 
 function currentTheme(): Theme {
   return document.documentElement.dataset.theme === 'light' ? 'light' : 'dark'

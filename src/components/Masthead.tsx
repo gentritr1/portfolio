@@ -1,98 +1,102 @@
-import { ArrowLeftIcon, DownloadSimpleIcon } from './ShellIcons'
-import { useEffect, useState } from 'react'
-import { useLocation } from 'react-router'
-import { links } from '../content/links'
-import { caseHref, featuredProjects } from '../content/projects'
-import { Container } from './Container'
-import { SignalDot } from './SignalDot'
-import { SoundToggle } from './SoundToggle'
-import { ThemeToggle } from './ThemeToggle'
-import { TransitionLink } from './TransitionLink'
+import { lazy, Suspense, useEffect, useState } from "react";
+import { useLocation } from "react-router";
+import { links } from "../content/links";
+import { SoundToggle } from "./SoundToggle";
+import { ThemeToggle } from "./ThemeToggle";
+import { TransitionLink } from "./TransitionLink";
 
-const clock = new Intl.DateTimeFormat('en-GB', {
-  timeZone: 'Europe/Belgrade',
-  hour: '2-digit',
-  minute: '2-digit',
-  hourCycle: 'h23',
-})
-
-/** Local time in Kosovo, HH:MM, updated on each minute boundary. */
-function useKosovoTime(): string {
-  const [now, setNow] = useState(() => new Date())
-
-  useEffect(() => {
-    let interval: number | undefined
-    const timeout = window.setTimeout(
-      () => {
-        setNow(new Date())
-        interval = window.setInterval(() => setNow(new Date()), 60_000)
-      },
-      60_000 - (Date.now() % 60_000),
-    )
-    return () => {
-      window.clearTimeout(timeout)
-      window.clearInterval(interval)
-    }
-  }, [])
-
-  return clock.format(now)
-}
-
-const control =
-  'inline-flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-sm px-2.5 text-ink-2 transition-[background-color,color] duration-200 ease-out hover:bg-panel-2 hover:text-ink'
+const ProjectSearch = lazy(() => import("./portfolio/ProjectSearch"));
 
 export function Masthead() {
-  const { pathname } = useLocation()
-  const onCase = pathname.startsWith('/work/')
-  const onAir = pathname === '/' || featuredProjects.some((project) => pathname === caseHref(project))
-  const time = useKosovoTime()
-
+  const [search, setSearch] = useState(false);
+  const { pathname } = useLocation();
+  useEffect(() => {
+    const shortcut = (event: KeyboardEvent) => {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+        event.preventDefault();
+        setSearch((value) => !value);
+      }
+    };
+    document.addEventListener("keydown", shortcut);
+    return () => document.removeEventListener("keydown", shortcut);
+  }, []);
   return (
-    <header data-masthead className="sticky top-0 z-(--z-masthead) border-b border-hairline bg-panel-0">
-      <Container className="flex h-14 items-center gap-1 sm:gap-3">
-        <TransitionLink to="/" className="-ml-1 flex min-h-11 min-w-11 items-center justify-center gap-2.5 rounded-sm px-1 text-ink">
-          <span
-            aria-hidden
-            className="grid size-8 place-items-center rounded-sm border border-hairline-strong font-display text-[0.8125rem] font-semibold [font-stretch:112%] tracking-[-0.01em]"
+    <>
+      <header data-masthead className="portfolio-masthead">
+        <div className="portfolio-shell masthead-content">
+          <TransitionLink
+            to="/"
+            className="identity-link"
+            aria-label="Gentrit Rashiti, home"
           >
-            GR
-          </span>
-          <span className="hidden font-display text-[0.9375rem] font-semibold [font-stretch:112%] tracking-[-0.01em] md:inline">
-            Gentrit Rashiti
-          </span>
-          <span className="sr-only md:hidden">Gentrit Rashiti, home</span>
-        </TransitionLink>
-
-        {onCase && (
-          <TransitionLink to="/#schedule" className={`${control} label`}>
-            <ArrowLeftIcon size={15} aria-hidden />
-            <span className="hidden sm:inline">Schedule</span>
-            <span className="sr-only sm:hidden">Back to the schedule</span>
+            <img src="/mark.svg" width="42" height="42" alt="" />
+            <span>
+              Gentrit Rashiti
+              <span className="identity-location">Kosovo · Remote</span>
+            </span>
           </TransitionLink>
-        )}
-
-        <div className="ml-auto flex items-center gap-1 sm:gap-2">
-          <p className="flex items-center gap-x-3 px-1 label">
-            <span className={onAir ? 'flex items-center gap-2 text-ink' : 'flex items-center gap-2 text-ink-3'}>
-              <SignalDot tone={onAir ? 'signal' : 'off'} />
-              {onAir ? 'On air' : 'Off air'}
-            </span>
-            <span className="hidden items-center gap-1.5 text-ink-2 min-[400px]:flex">
-              <span aria-hidden>KOS</span>
-              <time className="text-ink tabular" dateTime={time} aria-label={`Local time in Kosovo, ${time}`}>
-                {time}
-              </time>
-            </span>
-          </p>
-          <SoundToggle />
-          <ThemeToggle />
-          <a href={links.cv} download className={`${control} label`}>
-            <DownloadSimpleIcon size={16} aria-hidden />
-            <span className="hidden sm:inline">CV</span>
-            <span className="sr-only sm:hidden">Download CV</span>
-          </a>
+          <nav aria-label="Main navigation" className="portfolio-navigation">
+            <TransitionLink
+              to="/#work"
+              className={pathname === "/" ? "nav-current" : ""}
+            >
+              Work
+            </TransitionLink>
+            <TransitionLink to="/#about">About</TransitionLink>
+            <a href={`mailto:${links.email}`}>
+              Email
+              <svg
+                aria-hidden
+                width="12"
+                height="12"
+                viewBox="0 0 12 12"
+                fill="none"
+              >
+                <path d="M2 10 10 2M2 2h8v8" stroke="currentColor" />
+              </svg>
+            </a>
+            <a href={links.cv} download className="cv-link">
+              CV
+              <svg
+                aria-hidden
+                width="12"
+                height="12"
+                viewBox="0 0 12 12"
+                fill="none"
+              >
+                <path d="M6 1v7m-3-3 3 3 3-3M2 9v2h8V9" stroke="currentColor" />
+              </svg>
+            </a>
+          </nav>
+          <div className="masthead-tools">
+            <button
+              type="button"
+              className="search-trigger"
+              onClick={() => setSearch(true)}
+              aria-label="Search projects"
+            >
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 20 20"
+                fill="none"
+                aria-hidden
+              >
+                <circle cx="8.5" cy="8.5" r="5.5" stroke="currentColor" />
+                <path d="m13 13 4 4" stroke="currentColor" />
+              </svg>
+              <kbd>⌘ K</kbd>
+            </button>
+            <SoundToggle />
+            <ThemeToggle />
+          </div>
         </div>
-      </Container>
-    </header>
-  )
+      </header>
+      {search && (
+        <Suspense fallback={null}>
+          <ProjectSearch onClose={() => setSearch(false)} />
+        </Suspense>
+      )}
+    </>
+  );
 }

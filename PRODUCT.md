@@ -2,7 +2,7 @@
 
 ## What this is
 
-A single-page personal portfolio for Gentrit Rashiti, Frontend & Mobile Developer who moved to full stack. Local only for now (no hosting). Built with Vite + React 19 + TypeScript + Tailwind 4 + `motion` (Framer Motion successor) + Phosphor icons.
+A routed personal portfolio for Gentrit Rashiti, Frontend & Mobile Developer who moved to full stack. Local only for now (no hosting). Built with Vite + React 19 + TypeScript + Tailwind 4 + react-router 7 + `motion` (Framer Motion successor) + Phosphor icons.
 
 ## Audience
 
@@ -10,7 +10,9 @@ Hiring managers and senior engineers who scan a portfolio for 60 seconds, then d
 
 ## The one idea
 
-Gentrit has shipped products in four very different worlds: **healthcare**, **video streaming**, **e-reading / mobile**, and **Web3**. The page travels through those worlds. Each world has its own palette accent, typographic flavour and motion character, but the same underlying system, so the site itself demonstrates range with discipline. The interface recedes; the work leads.
+Gentrit has shipped products across **healthcare**, **video streaming**, **e-reading / mobile**, and **Web3**. The work leads through a readable project index and large product imagery. A visitor can scan selected work, reveal the full index, or switch to a visual wall, then open a factual case study. An optional canvas supports playful exploration without becoming a required step.
+
+The owner-approved visual direction is the hybrid recommended in `design/art-directions/ASTRA-ART-DIRECTIONS.md`: Index × Preview for home, a colour-sorted wall for all work, studio product shots and exploded technical diagrams for case pages, and a pan/zoom canvas with a desktop easter egg. One local sans family, one mono family, a dark/light neutral shell and restrained cobalt controls unify these surfaces. Product imagery supplies the stronger colour. DESIGN.md records the implemented visual system; `.impeccable/surfaces/src-app-tsx.md` records the page sequence.
 
 ## Hard constraint: public products, public pages only
 
@@ -19,7 +21,7 @@ Owner rule (2026-10-02):
 - Public products may be named and linked, for example to their website, their store listings, or an archived store listing.
 - Screenshots come only from public pages and public store listings. Never capture a running app, a build, or any screen behind a login.
 - Do not state a relation between the employer and a client. Do not say that a product was a client of the employer. The employer Vianova is named only on its own platform rows.
-- Employer names (Vianova, Incentiv, AvahiTech) head their own groups in the projects index. Agency work for clients sits in its own group, with no employer name.
+- Employer names (Vianova, Incentiv, AvahiTech) belong only to their own work records. Agency work for clients keeps separate attribution, with no employer name. The index and wall may order projects by the approved visual structure without implying a relationship between an employer and a public product.
 - Products that are not public keep generic names ("chatbot runtime library", "member portal").
 - No client, tenant, patient or colleague names; no internal URLs, ticket IDs or API hosts.
 - Internal screens of the care-management platform remain live recreations: small interactive React components with invented data and no brand, built from scratch for this site. They evoke the feature; they do not copy the product.

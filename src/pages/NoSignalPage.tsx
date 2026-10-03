@@ -31,14 +31,14 @@ export function NoSignalPage() {
           </div>
           <div className="md:col-span-5 md:pt-3">
             <p className="max-w-[46ch] text-ink-2">
-              Nothing is broadcast on this address. The schedule lists every channel and every project.
+              There’s no page at this address. Explore the work to find a project.
             </p>
             <TransitionLink
-              to="/#schedule"
+              to="/#work"
               className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-sm border border-hairline-strong px-4 label text-ink transition-[background-color,border-color] duration-200 ease-out hover:border-transparent hover:bg-panel-2"
             >
               <ArrowLeftIcon size={14} aria-hidden />
-              Back to the schedule
+              Back to the work
             </TransitionLink>
           </div>
         </div>

@@ -18,6 +18,11 @@ export function applyReviewPreferences() {
     document.documentElement.dataset.reviewCls = String(cls)
   })
   observer.observe({ type: 'layout-shift', buffered: true })
+  const paintObserver = new PerformanceObserver((list) => {
+    const last = list.getEntries().at(-1)
+    if (last) document.documentElement.dataset.reviewLcp = String(Math.round(last.startTime))
+  })
+  paintObserver.observe({ type: 'largest-contentful-paint', buffered: true })
   document.documentElement.dataset.theme = params.get('theme') === 'light' ? 'light' : 'dark'
   const reduced = params.get('motion') === 'reduce'
   const nativeMatchMedia = window.matchMedia.bind(window)

@@ -1,0 +1,88 @@
+/** Art direction uses existing public store frames, public pages and authored recreations. */
+export const selectedSlugs = [
+  "bayyinah-tv",
+  "care-platform",
+  "read-to-feed",
+  "viva-fresh",
+  "incentiv",
+  "snaxx-tech",
+  "offday",
+  "fjale",
+];
+export type IndexArt = {
+  background: string;
+  images: string[];
+  type: "portrait" | "web";
+  proof: string;
+  detail: string;
+  caption: string;
+};
+export const indexArt: Record<string, IndexArt> = {
+  "bayyinah-tv": {
+    background: "#721a0d",
+    images: [
+      "/showcase/bayyinah/store-02.webp",
+      "/showcase/bayyinah/store-04.webp",
+    ],
+    type: "portrait",
+    proof: "An entire platform. Rebuilt.",
+    detail: "34 routes · 270+ components · Nuxt 3",
+    caption: "Public App Store frames",
+  },
+  "care-platform": {
+    background: "#163f38",
+    images: ["/signal-posters/healthcare.avif"],
+    type: "web",
+    proof: "A live platform. A careful rewrite.",
+    detail: "Vue → React · parity-tested · 31 ADRs",
+    caption: "Recreation with invented data",
+  },
+  "read-to-feed": {
+    background: "#16769a",
+    images: ["/mobile/reading-1.webp", "/mobile/reading-3.webp"],
+    type: "portrait",
+    proof: "Four years of reading.",
+    detail: "About 14 releases · React Native 0.63 → 0.81",
+    caption: "Public store frames",
+  },
+  "viva-fresh": {
+    background: "#e6272b",
+    images: ["/mobile/grocery-1.webp", "/mobile/grocery-2.webp"],
+    type: "portrait",
+    proof: "From the aisle to the doorstep.",
+    detail: "iOS + Android · delivery · loyalty",
+    caption: "Public store frames",
+  },
+  incentiv: {
+    background: "#373047",
+    images: ["/showcase/incentiv/web-03.webp"],
+    type: "web",
+    proof: "A simpler way into Web3.",
+    detail: "Passkeys · wallet UI · Next.js",
+    caption: "Public sign-in page",
+  },
+  "snaxx-tech": {
+    background: "#746047",
+    images: ["/personal/shots/snaxx-desktop.webp"],
+    type: "web",
+    proof: "A small studio. A whole world.",
+    detail: "3D · React · images 972 → 337 kB",
+    caption: "Personal project",
+  },
+  offday: {
+    background: "#283b38",
+    images: ["/personal/shots/offday-dark-desktop.webp"],
+    type: "web",
+    proof: "Time off, together.",
+    detail: "Multi-tenant · Next.js · 16 security tests",
+    caption: "Personal project",
+  },
+  fjale: {
+    background: "#24211a",
+    images: ["/personal/shots/fjale-desktop.webp"],
+    type: "web",
+    proof: "A daily word in Albanian.",
+    detail: "21k-word dictionary · offline play",
+    caption: "Personal project",
+  },
+};

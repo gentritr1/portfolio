@@ -4,6 +4,14 @@ You are the next design-engineering agent on Gentrit Rashiti's portfolio. The si
 
 ## Status after the 2026-10-03 follow-up
 
+### Art-direction hybrid supersedes the original home concept
+
+The subsequent owner request selected the recommendation in `design/art-directions/ASTRA-ART-DIRECTIONS.md`: M Index × Preview as the home, L Work Wall as the alternate view, O studio case heroes with G technical diagrams, and N canvas with the hidden I desktop. That hybrid is now implemented. The original control-room brief below remains historical context; the Signal Stack survives on the 404 and in the development lab.
+
+The fresh jury requested two corrections: compress the Wall opening and remove the duplicate featured-project row on phones. Both were implemented and scored resolved. Final internal scores are Design 8.1, Usability 8.1, Creativity 8.0, Content 8.2; weighted total 8.09. This meets the art-direction brief's ≥8 category threshold, and is not an external award or a 9+ claim. See `design/art-directions/JURY.md` for evidence and verification limits, and `DESIGN.md` for the current system.
+
+All 28 projects remain reachable, including five featured studio case pages. The hybrid keeps the confirmed email, LinkedIn and UBT education, local Archivo/Martian fonts, optional sound, keyboard access, reduced-motion paths, and compact lazy OGL scenes. Hosting remains pending owner authorization.
+
 Items 1–13 are implemented locally. The detailed brief below is retained as the original request; DESIGN.md describes the current implementation and ASTRA-VERIFICATION.md records its checks.
 
 - Items 1–4 and 8 shipped in the first five-item pass.
