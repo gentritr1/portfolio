@@ -107,6 +107,8 @@ export function createScene(context: WebGL2RenderingContext, opts: SceneOptions)
       uAmp: { value: 0.12 },
       uPhase: { value: 0 },
       uWave: { value: 0 },
+      uFromWave: { value: 0 },
+      uMorph: { value: 1 },
       uOnAir: { value: 0 },
       uTime: { value: 0 },
     },
@@ -120,6 +122,7 @@ export function createScene(context: WebGL2RenderingContext, opts: SceneOptions)
   const stack = new Transform()
   const count = opts.tints.panes.length
   let active = opts.active
+  let fromWave = opts.waves[active] ?? active
   let centre = active
   let tuneAt = -1
   let dollyAt = -1
@@ -146,6 +149,9 @@ export function createScene(context: WebGL2RenderingContext, opts: SceneOptions)
       u.uAmp.value = 0.12 * (1 + 1.4 * tune)
       u.uPhase.value = pane.phase
       u.uWave.value = wave
+      u.uFromWave.value = i === active ? fromWave : wave
+      const progress = tuneAt < 0 ? 1 : Math.min(1, (time - tuneAt) / TUNE_S)
+      u.uMorph.value = i === active ? progress * progress * (3 - 2 * progress) : 1
       u.uOnAir.value = i === active ? Math.max(0, pane.weight * 2 - 1) * (1 - tune) : 0
     })
     mesh.setParent(stack)
@@ -338,6 +344,8 @@ export function createScene(context: WebGL2RenderingContext, opts: SceneOptions)
     resetCamera() { dollyAt = -1 },
     setActive(index) {
       if (index === active || index < 0 || index >= count) return
+      fromWave = opts.waves[active] ?? active
+      panes[index].phase = panes[active].phase
       active = index
       tuneAt = time
     },

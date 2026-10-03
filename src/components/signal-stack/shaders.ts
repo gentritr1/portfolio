@@ -30,6 +30,8 @@ uniform float uTune;
 uniform float uAmp;
 uniform float uPhase;
 uniform float uWave;
+uniform float uFromWave;
+uniform float uMorph;
 uniform float uOnAir;
 uniform float uTime;
 out vec4 fragColor;
@@ -46,25 +48,26 @@ float g(float x, float c, float w) {
   return exp(-d * d);
 }
 
-float wave(float s) {
-  if (uWave < 0.5) {
+float wave(float kind, float s) {
+  if (kind < 0.5) {
     float u = fract(s * 0.5);
     return 0.95 * g(u, 0.46, 0.018) - 0.42 * g(u, 0.51, 0.02) - 0.18 * g(u, 0.41, 0.025) + 0.2 * g(u, 0.7, 0.05);
   }
-  if (uWave < 1.5) return sin(TAU * s) * 0.8;
-  if (uWave < 2.5) {
+  if (kind < 1.5) return sin(TAU * s) * 0.8;
+  if (kind < 2.5) {
     float q = sin(TAU * s * 0.75) * 1.5;
     return (floor(q) + smoothstep(0.4, 0.6, fract(q))) / 2.2;
   }
-  if (uWave < 3.5) return clamp(sin(TAU * s * 0.75) * 7.0, -1.0, 1.0) * 0.7;
-  if (uWave < 4.5) return 0.5 * sin(TAU * s) + 0.38 * sin(TAU * s * 2.7 + 1.3) * cos(TAU * s * 0.35);
+  if (kind < 3.5) return clamp(sin(TAU * s * 0.75) * 7.0, -1.0, 1.0) * 0.7;
+  if (kind < 4.5) return 0.5 * sin(TAU * s) + 0.38 * sin(TAU * s * 2.7 + 1.3) * cos(TAU * s * 0.35);
   return (1.0 - 4.0 * abs(fract(s * 0.8 + 0.25) - 0.5)) * 0.75;
 }
 
 float trace(float x, float span) {
   float t = (x + span) / (2.0 * span);
   float env = smoothstep(0.0, 0.1, t) * smoothstep(1.0, 0.9, t);
-  return wave(t * 2.4 - uPhase) * env * uAmp;
+  float s = t * 2.4 - uPhase;
+  return mix(wave(uFromWave, s), wave(uWave, s), uMorph) * env * uAmp;
 }
 
 float hash(float n) {

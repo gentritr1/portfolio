@@ -96,7 +96,7 @@ export function SignalStackCss({ channels, active, className }: SignalStackCssPr
                 className={cn(
                   'absolute top-1/2 left-1/2 border bg-panel-2 transition-[transform,border-color] duration-[450ms] ease-out motion-reduce:transition-none',
                   on
-                    ? 'border-[color-mix(in_oklab,var(--signal)_70%,var(--hairline-strong))]'
+                    ? 'border-[color-mix(in_oklab,var(--tint)_70%,var(--hairline-strong))]'
                     : 'border-[color-mix(in_oklab,var(--tint)_32%,var(--hairline))]',
                 )}
               >

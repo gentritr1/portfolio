@@ -178,3 +178,5 @@ Kicker labels above headings, scroll-triggered reveals on every section, preload
 ## Signal Stack: tune-in camera
 
 A visible WebGL hero stack dollies into its active pane for 450 ms with cubic ease-out before the route transition. The stack temporarily owns `monitor-<slug>` and hands it to the case monitor; the wall releases that name so snapshots remain unique. Imports finish before the camera starts. Repeated activation is guarded and unmount cancels pending navigation. Reduced motion, CSS fallback, hidden stacks and phones navigate through the existing path without a camera delay.
+
+Channel switching interpolates the incoming pane's trace from the previous channel waveform to its own over 280 ms, using smoothstep and a shared phase so peaks do not jump. In the static CSS/reduced-motion path the final waveform appears directly. Active rims settle to the channel tint in both renderers; only the on-air dot remains signal coloured.
