@@ -3,18 +3,10 @@ import { useLocation } from 'react-router'
 import { Container } from '../components/Container'
 import { SignalDot } from '../components/SignalDot'
 import { TransitionLink } from '../components/TransitionLink'
+import { SignalStack } from '../components/signal-stack/SignalStack'
 import { channelOrder } from '../content/channels'
 
-const bars: Record<(typeof channelOrder)[number], string> = {
-  healthcare: 'bg-ch-healthcare',
-  streaming: 'bg-ch-streaming',
-  reading: 'bg-ch-reading',
-  web3: 'bg-ch-web3',
-  ai: 'bg-ch-ai',
-  personal: 'bg-ch-personal',
-}
-
-/** A calm test card for routes with no broadcast. */
+/** A quiet stack losing its broadcast, with an immediate still for reduced motion. */
 export function NoSignalPage() {
   const { pathname } = useLocation()
 
@@ -22,26 +14,17 @@ export function NoSignalPage() {
     <section aria-labelledby="no-signal-title" className="pt-12 sm:pt-20">
       <title>No signal, Gentrit Rashiti</title>
       <Container>
-        <div aria-hidden className="overflow-hidden rounded-panel border border-hairline">
-          <div className="grid h-36 grid-cols-6 sm:h-52">
-            {channelOrder.map((key) => (
-              <span key={key} className={`${bars[key]} opacity-80`} />
-            ))}
-          </div>
-          <div className="grid h-8 grid-cols-4 sm:h-10">
-            <span className="bg-panel-0" />
-            <span className="bg-panel-1" />
-            <span className="bg-panel-2" />
-            <span className="bg-panel-3" />
-          </div>
+        <div className="relative h-56 overflow-hidden rounded-panel border border-hairline bg-panel-1 sm:h-72">
+          <SignalStack channels={channelOrder} active="streaming" lostSignal className="size-full" />
+          <span aria-hidden className="absolute bottom-4 left-4 label text-ink-3">404 / Broadcast ended</span>
         </div>
 
         <div className="mt-10 grid gap-6 md:grid-cols-12">
-          <div className="md:col-span-7">
+          <div className="min-w-0 md:col-span-7">
             <h1 id="no-signal-title" className="text-h1 text-ink">
               No signal
             </h1>
-            <p className="mt-3 flex items-center gap-2 label text-ink-3">
+            <p className="mt-3 flex min-w-0 items-center gap-2 label text-ink-3">
               <SignalDot tone="off" />
               <span className="truncate">{pathname}</span>
             </p>

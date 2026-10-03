@@ -36,6 +36,7 @@ uniform float uFromWave;
 uniform float uMorph;
 uniform float uOnAir;
 uniform float uTime;
+uniform float uLoss;
 out vec4 fragColor;
 
 const float TAU = 6.2831853;
@@ -132,6 +133,7 @@ void main() {
 
   col *= 0.985 + 0.015 * sign(fract(gl_FragCoord.y * 0.5) - 0.5);
 
+  col = mix(col, vec3(dot(col, vec3(0.2126, 0.7152, 0.0722))), uLoss);
   float a = cover * 0.97;
   fragColor = vec4(col * a, a);
 }

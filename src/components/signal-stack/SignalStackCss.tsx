@@ -7,6 +7,7 @@ import { tracePoints, waveIndex } from './waves'
 interface SignalStackCssProps {
   channels: ChannelKey[]
   still?: boolean
+  lostSignal?: boolean
   active: ChannelKey
   className?: string
 }
@@ -33,7 +34,7 @@ function trace(key: ChannelKey, i: number) {
  * The Signal Stack drawn with CSS 3D transforms. It is the first paint, the reduced-motion
  * view, and the fallback when WebGL is not available or too slow.
  */
-export function SignalStackCss({ channels, active, className, still = false }: SignalStackCssProps) {
+export function SignalStackCss({ channels, active, className, still = false, lostSignal = false }: SignalStackCssProps) {
   const stage = useRef<HTMLDivElement>(null)
   const centre = Math.max(0, channels.indexOf(active))
   const pose: PanePose = { x: 0, z: 0, yaw: 0 }
@@ -42,10 +43,10 @@ export function SignalStackCss({ channels, active, className, still = false }: S
     const el = stage.current
     if (!el) return
     const fine = window.matchMedia('(pointer: fine)')
-    const still = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
     let raf = 0
     function onMove(e: PointerEvent) {
-      if (!fine.matches || still.matches || !el) return
+      if (!fine.matches || reducedMotion.matches || lostSignal || !el) return
       cancelAnimationFrame(raf)
       raf = requestAnimationFrame(() => {
         const r = el.getBoundingClientRect()
@@ -68,10 +69,10 @@ export function SignalStackCss({ channels, active, className, still = false }: S
       pointerSurface.removeEventListener('pointermove', onMove as EventListener)
       leaveSurface.removeEventListener('pointerleave', onLeave)
     }
-  }, [still])
+  }, [still, lostSignal])
 
   return (
-    <div aria-hidden className={cn('relative size-full overflow-hidden [container-type:size]', className)}>
+    <div aria-hidden className={cn('relative size-full overflow-hidden [container-type:size]', lostSignal && 'grayscale', className)}>
       <div className="absolute inset-0" style={{ perspective: PERSPECTIVE }}>
         <div
           ref={stage}
@@ -127,7 +128,7 @@ export function SignalStackCss({ channels, active, className, still = false }: S
                       vectorEffect="non-scaling-stroke"
                     />
                     <polyline
-                      points={trace(key, i)}
+                      points={lostSignal ? "0,15 136,15" : trace(key, i)}
                       fill="none"
                       stroke="currentColor"
                       strokeOpacity={0.55}
@@ -136,7 +137,7 @@ export function SignalStackCss({ channels, active, className, still = false }: S
                       vectorEffect="non-scaling-stroke"
                     />
                     <polyline
-                      points={trace(key, i)}
+                      points={lostSignal ? "0,15 136,15" : trace(key, i)}
                       fill="none"
                       stroke="currentColor"
                       strokeWidth="1.5"
@@ -147,7 +148,7 @@ export function SignalStackCss({ channels, active, className, still = false }: S
                       vectorEffect="non-scaling-stroke"
                       className="motion-reduce:hidden"
                       style={{
-                        animationName: still ? 'none' : 'signal-stack-sweep',
+                        animationName: still || lostSignal ? 'none' : 'signal-stack-sweep',
                         animationDuration: `${on ? 3 : 9}s`,
                         animationTimingFunction: 'linear',
                         animationIterationCount: 'infinite',
@@ -156,7 +157,7 @@ export function SignalStackCss({ channels, active, className, still = false }: S
                     />
                   </svg>
                 </div>
-                {on && (
+                {on && !lostSignal && (
                   <span className="absolute top-[13.2%] left-[89.5%] aspect-square w-[3.5%] rounded-full bg-signal" />
                 )}
               </div>

@@ -59,6 +59,7 @@ function DollyPreview({ active }: { active: typeof channelOrder[number] }) {
 function Lab() {
   const [index, setIndex] = useState(0)
   const [single, setSingle] = useState(false)
+  const [lostSignal, setLostSignal] = useState(false)
   const [forceCss, setForceCss] = useState(false)
   const [theme, setTheme] = useState<'dark' | 'light'>('dark')
   const { fps, ms } = useFrameRate()
@@ -81,13 +82,14 @@ function Lab() {
             data-lab-channel={i}
             aria-pressed={i === index}
             onClick={() => setIndex(i)}
-            className={cn('min-h-9 border px-3', i === index ? 'border-signal text-ink' : 'border-hairline text-tint')}
+            className={cn('min-h-11 border px-3', i === index ? 'border-signal text-ink' : 'border-hairline text-tint')}
           >
             {channels[key].number} {channels[key].label}
           </button>
         ))}
         <button type="button" aria-pressed={single} onClick={() => setSingle(!single)} className="min-h-11 border border-hairline px-3">Single pane</button>
-        <label className="ml-4 flex min-h-9 items-center gap-2 border border-hairline px-3">
+        <button type="button" aria-pressed={lostSignal} onClick={() => setLostSignal(!lostSignal)} className="min-h-11 border border-hairline px-3">Lose signal</button>
+        <label className="ml-4 flex min-h-11 items-center gap-2 border border-hairline px-3">
           <input
             type="checkbox"
             data-lab="force-css"
@@ -100,7 +102,7 @@ function Lab() {
           type="button"
           data-lab="theme"
           onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-          className="min-h-9 border border-hairline px-3"
+          className="min-h-11 border border-hairline px-3"
         >
           Page theme: {theme}
         </button>
@@ -127,7 +129,7 @@ function Lab() {
                   style={{ width: w, height: h, maxWidth: '100%' }}
                   className="outline outline-1 outline-dashed outline-hairline"
                 >
-                  {single ? <SignalStack channels={[active]} active={active} still className="size-full" /> : <Stack channels={channelOrder} active={active} className="size-full" />}
+                  {lostSignal || single ? (forceCss ? <SignalStackCss channels={single ? [active] : channelOrder} active={active} still lostSignal={lostSignal} className="size-full" /> : <SignalStack channels={single ? [active] : channelOrder} active={active} still lostSignal={lostSignal} className="size-full" />) : <Stack channels={channelOrder} active={active} className="size-full" />}
                 </div>
               </div>
             ))}
@@ -163,6 +165,7 @@ function Review() {
       {[375, 820, 1440].map(size => <button type="button" key={size} onClick={() => setWidth(size)} className="min-h-11 border border-hairline px-3">{size} px</button>)}
       <button type="button" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} className="min-h-11 border border-hairline px-3">Theme: {theme}</button>
       <button type="button" onClick={() => setMotion(motion === 'full' ? 'reduce' : 'full')} className="min-h-11 border border-hairline px-3">Motion: {motion}</button>
+      <select aria-label="Review page" value={path} onChange={e => setPath(e.target.value)} className="min-h-11 border border-hairline bg-panel-1 px-3"><option value="/">Home</option><option value="/work/bayyinah-tv">Bayyinah TV</option><option value="/work/read-to-feed">Read to Feed</option><option value="/work/care-platform">Care platform</option><option value="/work/incentiv">Incentiv</option><option value="/work/viva-fresh">Viva Fresh</option><option value="/missing-channel">No signal</option></select>
       <button type="button" onClick={() => setPath(path === '/' ? '/work/bayyinah-tv' : '/')} className="min-h-11 border border-hairline px-3">Page: {path === '/' ? 'Home' : 'Project'}</button>
     </div>
     {path === '/' && width === 375 && <button type="button" onClick={testSwipe} className="mb-4 min-h-11 border border-hairline px-3">Test touch swipe</button>}

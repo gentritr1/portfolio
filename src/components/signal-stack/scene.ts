@@ -32,6 +32,7 @@ export interface SceneOptions {
   waves: number[]
   posters?: (string | undefined)[]
   still?: boolean
+  lostSignal?: boolean
   onFirstFrame?: () => void
   onDegrade?: () => void
 }
@@ -133,6 +134,7 @@ export function createScene(context: WebGL2RenderingContext, opts: SceneOptions)
       uMorph: { value: 1 },
       uOnAir: { value: 0 },
       uTime: { value: 0 },
+      uLoss: { value: 0 },
     },
   })
   const u = program.uniforms
@@ -170,13 +172,13 @@ export function createScene(context: WebGL2RenderingContext, opts: SceneOptions)
       u.uTint.value = pane.tint
       u.uDim.value = 0.4 + 0.6 * pane.weight
       u.uTune.value = tune
-      u.uAmp.value = 0.12 * (1 + 1.4 * tune)
+      u.uAmp.value = 0.12 * (1 + 1.4 * tune) * (1 - u.uLoss.value)
       u.uPhase.value = pane.phase
       u.uWave.value = wave
       u.uFromWave.value = i === active ? fromWave : wave
       const progress = tuneAt < 0 ? 1 : Math.min(1, (time - tuneAt) / TUNE_S)
       u.uMorph.value = i === active ? progress * progress * (3 - 2 * progress) : 1
-      u.uOnAir.value = i === active ? Math.max(0, pane.weight * 2 - 1) * (1 - tune) : 0
+      u.uOnAir.value = !opts.lostSignal && i === active ? Math.max(0, pane.weight * 2 - 1) * (1 - tune) : 0
     })
     mesh.setParent(stack)
     panes.push(pane)
@@ -233,7 +235,7 @@ export function createScene(context: WebGL2RenderingContext, opts: SceneOptions)
   }
   const pointerSurface = opts.still ? host : window
   const leaveSurface = opts.still ? host : document.documentElement
-  if (fine) {
+  if (fine && !opts.lostSignal) {
     pointerSurface.addEventListener('pointermove', onPointer as EventListener, { passive: true })
     leaveSurface.addEventListener('pointerleave', onLeave)
   }
@@ -296,6 +298,7 @@ export function createScene(context: WebGL2RenderingContext, opts: SceneOptions)
     camera.position.set(targetX * dolly, -Math.sin(PITCH) * CAMERA_Z * (1 - dolly), Math.cos(PITCH) * CAMERA_Z * (1 - dolly) + (targetZ + distance) * dolly)
     camera.lookAt([targetX * dolly, 0, targetZ * dolly])
     u.uTime.value = time
+    u.uLoss.value = opts.lostSignal ? Math.min(1, time / 1.2) : 0
     stack.updateMatrixWorld()
     camera.updateMatrixWorld()
     renderer.setViewport(width * dpr, height * dpr)
