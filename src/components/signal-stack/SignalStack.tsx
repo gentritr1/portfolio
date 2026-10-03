@@ -166,7 +166,11 @@ export function SignalStack({ channels, active, className, ref, transitionName, 
             })
           })
           .catch(() => {
-            if (!cancelled) setMode('css')
+            if (!cancelled) {
+              canvas.remove()
+              gl.getExtension('WEBGL_lose_context')?.loseContext()
+              setMode('css')
+            }
           })
       })
     }

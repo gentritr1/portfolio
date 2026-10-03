@@ -117,15 +117,15 @@ void main() {
   float tr = line(td, px, 1.35 + 0.5 * uTune) * inSpan;
   col = mix(col, accent, tr * uDim);
 
-  float dot = clamp(0.5 - (length(p - vec2(inner - 0.02, top - 0.02)) - 0.028) / px, 0.0, 1.0);
-  col = mix(col, uSignal, dot * uOnAir);
+  float lamp = clamp(0.5 - (length(p - vec2(inner - 0.02, top - 0.02)) - 0.028) / px, 0.0, 1.0);
+  col = mix(col, uSignal, lamp * uOnAir);
 
   vec2 posterUv = p / (uHalf * 2.0) + 0.5;
   vec3 poster = texture(uPoster, clamp(posterUv, 0.0, 1.0)).rgb;
   float posterMix = uHasPoster * (1.0 - uTune * 0.35);
   col = mix(col, poster, posterMix * 0.92);
   // The status lamp stays readable over every recreation still.
-  col = mix(col, uSignal, dot * uOnAir);
+  col = mix(col, uSignal, lamp * uOnAir);
 
   float rim = line(abs(d + px), px, 1.0);
   vec3 rimCol = mix(uLine, accent, 0.55 + 0.45 * uTune) * lift;

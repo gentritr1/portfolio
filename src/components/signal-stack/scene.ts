@@ -13,6 +13,7 @@ import {
   type PanePose,
 } from './layout'
 import { fragment, vertex } from './shaders'
+import type { createGlass } from './glass'
 
 export type Rgb = [number, number, number]
 
@@ -66,6 +67,16 @@ function copy(into: Float32Array, rgb: Rgb) {
   into[0] = rgb[0]
   into[1] = rgb[1]
   into[2] = rgb[2]
+}
+
+/** Unknown and privacy-masked adapters deliberately keep the base renderer. */
+function strongGpu(gl: WebGL2RenderingContext) {
+  const memory = (navigator as Navigator & { deviceMemory?: number }).deviceMemory
+  if (navigator.hardwareConcurrency < 8 || (memory !== undefined && memory < 8)) return false
+  const debug = gl.getExtension('WEBGL_debug_renderer_info')
+  if (!debug || gl.getParameter(gl.MAX_TEXTURE_SIZE) < 8192) return false
+  const name = String(gl.getParameter(debug.UNMASKED_RENDERER_WEBGL))
+  return /Apple M\d|NVIDIA (?:GeForce )?(?:RTX|GTX 1[068])|AMD Radeon (?:RX|Pro)/i.test(name)
 }
 
 export function createScene(context: WebGL2RenderingContext, opts: SceneOptions): SignalScene {
@@ -137,6 +148,16 @@ export function createScene(context: WebGL2RenderingContext, opts: SceneOptions)
       uLoss: { value: 0 },
     },
   })
+  if (!gl.getProgramParameter(program.program, gl.LINK_STATUS)) {
+    program.remove()
+    throw new Error('Signal pane shader could not be linked')
+  }
+  let glass: ReturnType<typeof createGlass> | undefined
+  let glassRequested = false
+  const eligibleForGlass = !opts.still && !opts.lostSignal && (
+    strongGpu(context) || (import.meta.env.DEV && host.closest('[data-lab-glass="force"]') !== null)
+  )
+  host.dataset.glass = eligibleForGlass ? 'qualified' : 'base'
   const u = program.uniforms
   const geometry = new Plane(gl, {
     width: PANE_W + 0.04,
@@ -303,7 +324,10 @@ export function createScene(context: WebGL2RenderingContext, opts: SceneOptions)
     camera.updateMatrixWorld()
     renderer.setViewport(width * dpr, height * dpr)
     gl.clear(gl.COLOR_BUFFER_BIT)
-    for (let i = 0; i < count; i++) order[i].mesh.draw({ camera })
+    for (let i = 0; i < count; i++) {
+      glass?.snapshot()
+      order[i].mesh.draw({ camera })
+    }
 
     if (firstFrame) {
       firstFrame = false
@@ -326,6 +350,22 @@ export function createScene(context: WebGL2RenderingContext, opts: SceneOptions)
     const mean = slowSum / slowCount
     slowSum = 0
     slowCount = 0
+    if (glass && mean > 16.7) {
+      for (const pane of panes) pane.mesh.program = program
+      glass.dispose()
+      glass = undefined
+      host.dataset.glass = 'degraded'
+      return
+    }
+    if (eligibleForGlass && !glassRequested && degraded === 0 && mean <= 16.7) {
+      glassRequested = true
+      import('./glass').then(({ createGlass }) => {
+        if (disposed || degraded > 0) return
+        glass = createGlass(gl, program)
+        for (const pane of panes) pane.mesh.program = glass.program
+        host.dataset.glass = 'active'
+      }).catch(() => { host.dataset.glass = 'unavailable' })
+    }
     if (mean <= SLOW_FRAME_MS) return
     if (degraded === 0 && dpr > 1) {
       degraded = 1
@@ -394,6 +434,7 @@ export function createScene(context: WebGL2RenderingContext, opts: SceneOptions)
       for (const image of pendingImages.values()) { image.onload = null; image.onerror = null }
       for (const texture of textures.values()) gl.deleteTexture(texture.texture)
       gl.deleteTexture(blank.texture)
+      glass?.dispose()
       program.remove()
       geometry.remove()
       gl.getExtension('WEBGL_lose_context')?.loseContext()

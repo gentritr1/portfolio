@@ -60,6 +60,7 @@ function Lab() {
   const [index, setIndex] = useState(0)
   const [single, setSingle] = useState(false)
   const [lostSignal, setLostSignal] = useState(false)
+  const [forceGlass, setForceGlass] = useState(false)
   const [forceCss, setForceCss] = useState(false)
   const [theme, setTheme] = useState<'dark' | 'light'>('dark')
   const { fps, ms } = useFrameRate()
@@ -72,7 +73,7 @@ function Lab() {
   const Stack = forceCss ? SignalStackCss : DollyPreview
 
   return (
-    <main className="min-h-dvh bg-panel-0 p-6 text-ink">
+    <main data-lab-glass={forceGlass ? "force" : "auto"} className="min-h-dvh bg-panel-0 p-6 text-ink">
       <div className="mb-6 flex flex-wrap items-center gap-2 label">
         {channelOrder.map((key, i) => (
           <button
@@ -89,6 +90,7 @@ function Lab() {
         ))}
         <button type="button" aria-pressed={single} onClick={() => setSingle(!single)} className="min-h-11 border border-hairline px-3">Single pane</button>
         <button type="button" aria-pressed={lostSignal} onClick={() => setLostSignal(!lostSignal)} className="min-h-11 border border-hairline px-3">Lose signal</button>
+        <button type="button" aria-pressed={forceGlass} onClick={() => setForceGlass(!forceGlass)} className="min-h-11 border border-hairline px-3">Test glass tier</button>
         <label className="ml-4 flex min-h-11 items-center gap-2 border border-hairline px-3">
           <input
             type="checkbox"
@@ -129,7 +131,7 @@ function Lab() {
                   style={{ width: w, height: h, maxWidth: '100%' }}
                   className="outline outline-1 outline-dashed outline-hairline"
                 >
-                  {lostSignal || single ? (forceCss ? <SignalStackCss channels={single ? [active] : channelOrder} active={active} still lostSignal={lostSignal} className="size-full" /> : <SignalStack channels={single ? [active] : channelOrder} active={active} still lostSignal={lostSignal} className="size-full" />) : <Stack channels={channelOrder} active={active} className="size-full" />}
+                  {lostSignal || single ? (forceCss ? <SignalStackCss channels={single ? [active] : channelOrder} active={active} still lostSignal={lostSignal} className="size-full" /> : <SignalStack channels={single ? [active] : channelOrder} active={active} still lostSignal={lostSignal} className="size-full" />) : <Stack key={String(forceGlass)} channels={channelOrder} active={active} className="size-full" />}
                 </div>
               </div>
             ))}
