@@ -1,4 +1,4 @@
-import { ArrowRightIcon } from '@phosphor-icons/react'
+import { ArrowRightIcon } from '../ShellIcons'
 import {
   Suspense,
   useDeferredValue,
@@ -323,7 +323,6 @@ export function MonitorWall({ activeSlug, onSelect, beforeTransition, tuningCame
                 <span className="sr-only">: {active.name}</span>
                 <ArrowRightIcon
                   size={15}
-                  weight="light"
                   aria-hidden
                   className="transition-transform duration-200 ease-out group-hover:translate-x-0.5"
                 />
@@ -342,10 +341,10 @@ export function MonitorWall({ activeSlug, onSelect, beforeTransition, tuningCame
             <span className="label text-ink-3">Swipe to switch</span>
             <div className="flex">
               <button type="button" aria-label="Previous channel" onClick={() => select(index - 1, false)} className="grid size-11 place-items-center text-ink">
-                <ArrowRightIcon size={18} weight="light" aria-hidden className="rotate-180" />
+                <ArrowRightIcon size={18} aria-hidden className="rotate-180" />
               </button>
               <button type="button" aria-label="Next channel" onClick={() => select(index + 1, false)} className="grid size-11 place-items-center text-ink">
-                <ArrowRightIcon size={18} weight="light" aria-hidden />
+                <ArrowRightIcon size={18} aria-hidden />
               </button>
             </div>
           </div>

@@ -1,4 +1,4 @@
-import { ArrowLeftIcon } from '@phosphor-icons/react'
+import { ArrowLeftIcon } from '../components/ShellIcons'
 import { useLocation } from 'react-router'
 import { Container } from '../components/Container'
 import { SignalDot } from '../components/SignalDot'
@@ -37,7 +37,7 @@ export function NoSignalPage() {
               to="/#schedule"
               className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-sm border border-hairline-strong px-4 label text-ink transition-[background-color,border-color] duration-200 ease-out hover:border-transparent hover:bg-panel-2"
             >
-              <ArrowLeftIcon size={14} weight="light" aria-hidden />
+              <ArrowLeftIcon size={14} aria-hidden />
               Back to the schedule
             </TransitionLink>
           </div>
