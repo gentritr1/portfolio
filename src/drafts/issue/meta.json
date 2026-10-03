@@ -1,0 +1,17 @@
+{
+  "id": "issue",
+  "title": "The working issue",
+  "band": "Professional",
+  "description": "A red-cover magazine of shipped products, with large serif type and turning feature spreads.",
+  "signature": "The feature spread opens like a page; the next control turns to a new project and its real facts.",
+  "caseSlug": "offday",
+  "scores": {
+    "design": 8.3,
+    "usability": 8.1,
+    "creativity": 8.1,
+    "content": 8.2
+  },
+  "antiPale": "pass",
+  "rounds": 2,
+  "holdback": "At 375 px, the split spread makes the product image small and the pull quote narrow."
+}
