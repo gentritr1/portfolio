@@ -8,7 +8,7 @@ Each draft is captured at 1440 px and 375 px, then judged by a non-builder again
 
 Screenshots use the local review frame. Reduced-motion and no-WebGL paths are implemented; browser interactions and bundle sizes are checked separately. No physical-device frame-rate or Android benchmark is claimed.
 
-## Reviewed drafts (12/16)
+## Reviewed drafts (13/16)
 
 | Draft | Band | Energy | D | U | C | Content | Weighted | Rounds | Screenshots | Signature motion | Remaining holdback |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -24,6 +24,7 @@ Screenshots use the local review frame. Reduced-motion and no-WebGL paths are im
 | wall · [The Wall](/drafts/wall) | Crafted | pass | 8.1 | 8.0 | 8.2 | 8.2 | 8.10 | 2 | [Desktop](drafts-review/wall-desktop.png) · [Mobile](drafts-review/wall-mobile.png) | Screens resolve from dither into colour, bend with scroll and pointer velocity, then travel into a new arrangement when the wall is sorted. | The large identity band masks substantial imagery, and small mobile captions favour browsing over quick comparison. |
 | riso · [Riso](/drafts/riso) | Fun | pass | 8.2 | 8.1 | 8.0 | 8.2 | 8.13 | 2 | [Desktop](drafts-review/riso-desktop.png) · [Mobile](drafts-review/riso-mobile.png) | Two ink passes slide into registration; the pointer gently separates them again. | Ink misregistration is a subtle signature, and the narrow mobile crop trades interface detail for poster impact. |
 | dither · [Work in colour](/drafts/dither) | Experimental | pass | 8.1 | 7.9 | 8.1 | 8.4 | 8.07 | 1 | [Desktop](drafts-review/dither-desktop.png) · [Mobile](drafts-review/dither-mobile.png) | Real Bayer-dithered project images are crossed by a colour wipe, automatically on arrival and again on selection. | The initial care image is muted, so its colour reveal is less dramatic than the other project images. |
+| swiss · [In formation](/drafts/swiss) | Professional | pass | 8.2 | 8.0 | 8.2 | 8.2 | 8.14 | 2 | [Desktop](drafts-review/swiss-desktop.png) · [Mobile](drafts-review/swiss-mobile.png) | The fourteen letters change width and alignment on scroll, settling into a strict grid; reset opens the composition again. | On mobile, Reset the type has more emphasis than it needs ahead of the route to the work. |
 
 ## Hybrid repair history
 

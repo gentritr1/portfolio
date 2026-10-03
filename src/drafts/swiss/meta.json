@@ -1,0 +1,17 @@
+{
+  "id": "swiss",
+  "title": "In formation",
+  "band": "Professional",
+  "description": "A red-and-paper typographic grid that gathers itself as the work comes into view.",
+  "signature": "The fourteen letters change width and alignment on scroll, settling into a strict grid; reset opens the composition again.",
+  "caseSlug": "care-platform",
+  "scores": {
+    "design": 8.2,
+    "usability": 8,
+    "creativity": 8.2,
+    "content": 8.2
+  },
+  "antiPale": "pass",
+  "rounds": 2,
+  "holdback": "On mobile, Reset the type has more emphasis than it needs ahead of the route to the work."
+}
