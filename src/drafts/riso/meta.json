@@ -1,0 +1,17 @@
+{
+  "id": "riso",
+  "title": "Riso",
+  "band": "Fun",
+  "description": "A collection of two-ink project posters. Choose a project, separate the inks, and print a copy.",
+  "signature": "Two ink passes slide into registration; the pointer gently separates them again.",
+  "caseSlug": "snaxx-tech",
+  "scores": {
+    "design": 8.2,
+    "usability": 8.1,
+    "creativity": 8,
+    "content": 8.2
+  },
+  "antiPale": "pass",
+  "rounds": 2,
+  "holdback": "Ink misregistration is a subtle signature, and the narrow mobile crop trades interface detail for poster impact."
+}

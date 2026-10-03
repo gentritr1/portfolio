@@ -1,0 +1,168 @@
+.draft-riso { --riso-paper: #f4eedc; --riso-red: #fa512d; --riso-blue: #112c96; --riso-ink: #18284e; background: var(--riso-paper); color: var(--riso-ink); font-family: 'Archivo', sans-serif; min-height: 100svh; padding: 0 32px; }
+.draft-riso *, .draft-riso *::before, .draft-riso *::after { box-sizing: border-box; }
+.draft-riso :is(h1,h2,h3,p,figure) { margin: 0; }
+.draft-riso :is(h1,h2,h3) { font-family: 'Archivo', sans-serif; font-stretch: normal; font-weight: 760; }
+.draft-riso button, .draft-riso a { min-height: 44px; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+.draft-riso button { font: inherit; color: inherit; cursor: pointer; }
+.draft-riso a { color: inherit; text-underline-offset: 4px; }
+.draft-riso :focus-visible { outline: 3px solid var(--riso-blue); outline-offset: 4px; }
+.draft-riso ::selection { background: var(--riso-red); color: var(--riso-paper); }
+.draft-riso input { caret-color: var(--riso-red); }
+.draft-riso .riso-sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.draft-riso .riso-header { display: flex; align-items: center; gap: 35px; max-width: 1600px; margin: 0 auto; min-height: 99px; border-bottom: 1px solid #18284e40; }
+.draft-riso .riso-owner { font-size: 24px; font-weight: 760; letter-spacing: -.035em; text-decoration: none; display: flex; align-items: center; }
+.draft-riso .riso-header > p { font-size: 12px; line-height: 1.35; }
+.draft-riso .riso-header nav { margin-left: auto; display: flex; gap: 25px; align-items: center; }
+.draft-riso .riso-header nav a { display: flex; gap: 8px; align-items: center; font-size: 12px; text-decoration: none; }
+.draft-riso .riso-header nav span { color: #68412e; font-size: 10px; }
+.draft-riso main { max-width: 1600px; margin-inline: auto; }
+.draft-riso .riso-workspace { display: grid; grid-template-columns: minmax(0, 1fr) 290px; gap: 37px; padding: 21px 0 60px; }
+.draft-riso .riso-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin-bottom: 14px; }
+.draft-riso .riso-step { display: flex; align-items: center; gap: 12px; }
+.draft-riso .riso-step button { border: 0; background: transparent; width: 44px; display: flex; justify-content: center; align-items: center; }
+.draft-riso .riso-step span { font-size: 11px; font-variant-numeric: tabular-nums; }
+.draft-riso .riso-print-button { display: flex; align-items: center; gap: 10px; padding: 10px 15px; border: 1px solid var(--riso-ink); background: transparent; font-size: 12px; font-weight: 550; }
+.draft-riso .riso-print-button:hover { background: var(--riso-blue); color: var(--riso-paper); border-color: var(--riso-blue); }
+.draft-riso .riso-poster { --riso-shift-x: 2px; --riso-shift-y: 2px; position: relative; padding: 27px 34px 19px; background: var(--riso-red); color: var(--riso-blue); overflow: hidden; container-type: inline-size; isolation: isolate; scroll-margin-top: 18px; }
+.draft-riso .riso-poster-byline { display: flex; justify-content: space-between; gap: 20px; font-size: 13px; line-height: 1; font-weight: 600; color: #17203a; }
+.draft-riso .riso-title-wrap { position: relative; margin-top: 30px; }
+.draft-riso .riso-title-wrap h1, .draft-riso .riso-title-plate { font-size: var(--riso-title-size); font-weight: 870; font-variation-settings: 'wdth' 82; line-height: .88; letter-spacing: -.04em; text-transform: uppercase; overflow-wrap: anywhere; }
+.draft-riso .riso-title-wrap h1 { position: relative; z-index: 2; color: var(--riso-blue); }
+.draft-riso .riso-title-plate { position: absolute; inset: 0; color: #f8d1a3; transform: translate(var(--riso-shift-x), var(--riso-shift-y)); animation: riso-register 1000ms cubic-bezier(.16,1,.3,1) backwards; pointer-events: none; }
+.draft-riso .riso-poster-subtitle { display: flex; align-items: baseline; justify-content: space-between; gap: 20px; margin-top: 19px; padding: 16px 0; border-top: 2px solid var(--riso-blue); font-size: 12px; font-weight: 550; color: #17203a; }
+.draft-riso .riso-poster-subtitle p { font-size: 18px; font-weight: 620; letter-spacing: -.02em; }
+.draft-riso .riso-image { position: relative; overflow: hidden; background: #aab4e8; aspect-ratio: 1.94; isolation: isolate; }
+.draft-riso .riso-image img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 56%; }
+.draft-riso .riso-image-key { filter: grayscale(1) contrast(1.2); mix-blend-mode: multiply; }
+.draft-riso .riso-image-color { position: absolute; inset: 0; filter: grayscale(1) sepia(1) saturate(5) hue-rotate(318deg) contrast(1.12); mix-blend-mode: multiply; opacity: .65; transform: translate(var(--riso-shift-x), var(--riso-shift-y)); animation: riso-image-register 1100ms cubic-bezier(.16,1,.3,1) backwards; }
+.draft-riso .riso-poster--original .riso-image-key { filter: none; mix-blend-mode: normal; }
+.draft-riso .riso-poster--original .riso-image-color { display: none; }
+.draft-riso .riso-poster-description { display: grid; grid-template-columns: 1.2fr 1fr; gap: 28px; padding: 24px 0; color: #17203a; }
+.draft-riso .riso-poster-description > p { max-width: 38ch; font-size: 17px; line-height: 1.26; font-weight: 650; letter-spacing: -.02em; }
+.draft-riso .riso-poster-description > div { display: flex; flex-direction: column; gap: 9px; align-self: end; font-size: 11px; line-height: 1.3; }
+.draft-riso .riso-poster-description > div span:first-child { font-weight: 650; }
+.draft-riso .riso-poster-footer { display: flex; justify-content: space-between; gap: 20px; padding-top: 14px; border-top: 1px solid #17203a80; font-size: 10px; color: #17203a; }
+.draft-riso .riso-type-poster { background: var(--riso-blue); color: var(--riso-paper); padding: 34px; min-height: 290px; display: flex; flex-direction: column; justify-content: space-between; gap: 28px; }
+.draft-riso .riso-type-poster p { font-size: 45px; line-height: 1.03; font-weight: 650; letter-spacing: -.03em; max-width: 23ch; }
+.draft-riso .riso-type-poster > span { font-size: 12px; }
+.draft-riso .riso-print-caption, .draft-riso .riso-print-contact { display: none; }
+.draft-riso .riso-poster-controls { display: flex; justify-content: space-between; gap: 20px; margin-top: 10px; }
+.draft-riso .riso-poster-controls button { border: 0; background: transparent; text-decoration: underline; text-underline-offset: 4px; font-size: 11px; padding: 0; }
+.draft-riso .riso-poster-controls a { display: flex; align-items: center; gap: 10px; font-size: 12px; text-decoration: none; }
+.draft-riso .riso-print-status { font-size: 11px; min-height: 0; }
+.draft-riso .riso-index { position: sticky; top: 20px; align-self: start; padding-top: 8px; }
+.draft-riso .riso-index-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
+.draft-riso .riso-index-heading h2 { font-size: 36px; line-height: 1; letter-spacing: -.04em; }
+.draft-riso .riso-index-heading > span { font-size: 10px; }
+.draft-riso .riso-index input { width: 100%; min-height: 44px; font: 12px 'Archivo', sans-serif; background: transparent; color: var(--riso-ink); padding: 11px 0; border: 0; border-bottom: 1px solid #18284e80; }
+.draft-riso .riso-index input::placeholder { color: #50566a; }
+.draft-riso .riso-project-index { max-height: 540px; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: var(--riso-red) var(--riso-paper); margin-top: 8px; }
+.draft-riso .riso-project-index > button { width: 100%; display: grid; grid-template-columns: 1fr 20px; align-items: center; gap: 4px 12px; text-align: left; border: 0; border-bottom: 1px solid #18284e24; background: transparent; padding: 12px 8px 12px 0; }
+.draft-riso .riso-project-index > button > span { font-size: 14px; font-weight: 570; line-height: 1.2; letter-spacing: -.015em; }
+.draft-riso .riso-project-index > button > small { grid-column: 1; font-size: 10px; color: #4e566d; }
+.draft-riso .riso-project-index > button > svg { grid-column: 2; grid-row: 1/3; opacity: 0; }
+.draft-riso .riso-project-index > button[aria-pressed=true] { color: var(--riso-blue); }
+.draft-riso .riso-project-index > button[aria-pressed=true] > svg, .draft-riso .riso-project-index > button:hover > svg { opacity: 1; }
+.draft-riso .riso-project-index > button:hover { color: var(--riso-blue); }
+.draft-riso .riso-index-foot { border-top: 1px solid #18284e60; padding-top: 18px; margin-top: 18px; font-size: 11px; line-height: 1.5; }
+.draft-riso .riso-empty { padding-block: 20px; font-size: 13px; }
+.draft-riso .riso-case { display: grid; grid-template-columns: 1fr 1fr; gap: 10%; padding: 50px 0 80px; border-top: 2px solid var(--riso-ink); }
+.draft-riso .riso-case h2 { font-size: clamp(42px,5vw,78px); line-height: .94; letter-spacing: -.04em; white-space: pre-line; max-width: 15ch; }
+.draft-riso .riso-case-links { display: flex; gap: 25px; flex-wrap: wrap; margin-top: 24px; }
+.draft-riso .riso-case-links a { display: flex; align-items: center; gap: 12px; font-size: 13px; }
+.draft-riso .riso-case p { font-size: 15px; line-height: 1.7; max-width: 66ch; }
+.draft-riso .riso-case h3 { font-size: 23px; letter-spacing: -.025em; margin: 30px 0 15px; }
+.draft-riso .riso-case dl { margin-top: 30px; }
+.draft-riso .riso-case dl > div { border-top: 1px solid #18284e40; display: grid; grid-template-columns: 90px 1fr; gap: 20px; padding: 13px 0; font-size: 12px; }
+.draft-riso .riso-case dt { color: #566077; }
+.draft-riso .riso-case dd { margin: 0; }
+.draft-riso .riso-about { display: grid; grid-template-columns: 1fr 1fr; gap: 12%; padding: 54px 50px 65px; margin-inline: -32px; background: var(--riso-blue); color: var(--riso-paper); }
+.draft-riso .riso-about h2 { font-size: clamp(66px,7.5vw,112px); line-height: .86; font-variation-settings: 'wdth' 80; letter-spacing: -.04em; }
+.draft-riso .riso-about p { font-size: 15px; line-height: 1.6; margin-top: 24px; max-width: 55ch; }
+.draft-riso .riso-contact h3 { font-size: 50px; line-height: 1; letter-spacing: -.035em; margin-bottom: 25px; }
+.draft-riso .riso-contact { align-self: end; }
+.draft-riso .riso-contact > a { font-size: 22px; letter-spacing: -.025em; display: flex; align-items: center; gap: 22px; overflow-wrap: anywhere; }
+.draft-riso .riso-contact > div { display: flex; gap: 25px; flex-wrap: wrap; margin-top: 23px; }
+.draft-riso .riso-contact > div a { display: flex; align-items: center; gap: 10px; font-size: 12px; }
+.draft-riso .riso-about :focus-visible { outline-color: var(--riso-red); }
+.draft-riso .riso-footer { display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: 20px 0; max-width: 1600px; margin-inline: auto; }
+.draft-riso .riso-footer a { display: flex; align-items: center; gap: 14px; font-size: 12px; text-decoration: none; }
+@keyframes riso-register { from { transform: translate(24px,13px); } to { transform: translate(2px,2px); } }
+@keyframes riso-image-register { from { transform: translate(-19px,8px); opacity: .85; } to { transform: translate(2px,2px); opacity: .65; } }
+@media (min-width: 701px) and (max-width: 1100px) {
+  .draft-riso { padding-inline: 24px; }
+  .draft-riso .riso-header { gap: 24px; }
+  .draft-riso .riso-header > p { display: none; }
+  .draft-riso .riso-workspace { grid-template-columns: minmax(0,1fr) 245px; gap: 25px; }
+  .draft-riso .riso-poster { padding-inline: 25px; }
+  .draft-riso .riso-poster-description { grid-template-columns: 1fr; gap: 15px; }
+  .draft-riso .riso-about { margin-inline: -24px; padding-inline: 32px; gap: 7%; }
+  .draft-riso .riso-contact > a { font-size: 17px; }
+}
+@media (max-width: 700px) {
+  .draft-riso { padding-inline: 17px; }
+  .draft-riso .riso-header { min-height: 113px; display: flex; flex-wrap: wrap; gap: 5px; padding-block: 15px 6px; }
+  .draft-riso .riso-owner { font-size: 23px; }
+  .draft-riso .riso-header > p { margin-left: auto; font-size: 9px; }
+  .draft-riso .riso-header nav { width: 100%; margin: 0; justify-content: space-between; gap: 12px; }
+  .draft-riso .riso-header nav a { font-size: 10px; }
+  .draft-riso .riso-workspace { display: block; padding-top: 12px; padding-bottom: 34px; }
+  .draft-riso .riso-toolbar { margin-bottom: 10px; gap: 8px; }
+  .draft-riso .riso-step { gap: 2px; }
+  .draft-riso .riso-step span { font-size: 10px; }
+  .draft-riso .riso-print-button { padding-inline: 10px; font-size: 10px; }
+  .draft-riso .riso-poster { padding: 23px 22px 18px; }
+  .draft-riso .riso-poster-byline { font-size: 10px; }
+  .draft-riso .riso-title-wrap { margin-top: 23px; }
+  .draft-riso .riso-title-wrap h1, .draft-riso .riso-title-plate { font-size: var(--riso-mobile-title-size); line-height: .85; }
+  .draft-riso .riso-title-wrap span { display: block; }
+  .draft-riso .riso-poster-subtitle { gap: 12px; padding-block: 13px; margin-top: 17px; }
+  .draft-riso .riso-poster-subtitle p { font-size: 14px; }
+  .draft-riso .riso-poster-subtitle > span { font-size: 9px; }
+  .draft-riso .riso-image { aspect-ratio: 1.24; margin-inline: -22px; }
+  .draft-riso .riso-image img { object-position: 50% 55%; }
+  .draft-riso .riso-poster-description { grid-template-columns: 1fr; padding-block: 19px; gap: 17px; }
+  .draft-riso .riso-poster-description > p { font-size: 15px; }
+  .draft-riso .riso-poster-description > div { gap: 4px; font-size: 10px; }
+  .draft-riso .riso-poster-footer { gap: 10px; font-size: 8px; }
+  .draft-riso .riso-poster-controls { margin-top: 6px; }
+  .draft-riso .riso-poster-controls button, .draft-riso .riso-poster-controls a { font-size: 10px; }
+  .draft-riso .riso-type-poster { padding: 23px; min-height: 260px; margin-inline: -22px; }
+  .draft-riso .riso-type-poster p { font-size: 33px; }
+  .draft-riso .riso-type-poster > span { font-size: 10px; }
+  .draft-riso .riso-index { position: static; padding-top: 38px; scroll-margin-top: 18px; }
+  .draft-riso .riso-index-heading h2 { font-size: 40px; }
+  .draft-riso .riso-project-index { max-height: 410px; }
+  .draft-riso .riso-case { grid-template-columns: 1fr; gap: 22px; padding: 32px 0 45px; }
+  .draft-riso .riso-case h2 { font-size: 49px; }
+  .draft-riso .riso-case-links { margin-top: 14px; }
+  .draft-riso .riso-case p { font-size: 14px; }
+  .draft-riso .riso-about { grid-template-columns: 1fr; gap: 40px; margin-inline: -17px; padding: 36px 22px 44px; }
+  .draft-riso .riso-about h2 { font-size: 67px; }
+  .draft-riso .riso-about p { font-size: 14px; }
+  .draft-riso .riso-contact h3 { font-size: 44px; }
+  .draft-riso .riso-contact > a { font-size: 15px; gap: 12px; }
+  .draft-riso .riso-contact > div { gap: 17px; margin-top: 13px; }
+  .draft-riso .riso-footer { gap: 14px; }
+  .draft-riso .riso-footer a { font-size: 10px; gap: 8px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .draft-riso *, .draft-riso *::before, .draft-riso *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}
+@page riso-project { size: A4 portrait; margin: 12mm; }
+@media print {
+  .draft-riso { padding: 0; background: white; min-height: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .draft-riso .riso-screen-only { display: none !important; }
+  .draft-riso main, .draft-riso .riso-workspace, .draft-riso .riso-poster-column { display: block; margin: 0; padding: 0; width: 100%; }
+  .draft-riso .riso-poster { page: riso-project; break-inside: avoid; width: 186mm; height: 263mm; min-height: 0; display: flex; flex-direction: column; padding: 11mm 10mm 8mm; overflow: hidden; }
+  .draft-riso .riso-title-wrap { margin-top: 12mm; }
+  .draft-riso .riso-title-wrap h1, .draft-riso .riso-title-plate { font-size: var(--riso-title-size); }
+  .draft-riso .riso-title-wrap span { display: inline; }
+  .draft-riso .riso-title-plate, .draft-riso .riso-image-color { animation: none; transform: translate(1px,1px); }
+  .draft-riso .riso-image { aspect-ratio: auto; flex: 1; min-height: 45mm; max-height: 115mm; margin: 5mm 0 0; }
+  .draft-riso .riso-poster-description { grid-template-columns: 1fr; gap: 5mm; padding: 9mm 0; }
+  .draft-riso .riso-poster-description > p { font-size: 14pt; }
+  .draft-riso .riso-poster-description > div { font-size: 9pt; }
+  .draft-riso .riso-poster-footer { font-size: 8pt; }
+  .draft-riso .riso-print-contact { display: block; padding-top: 6mm; font-size: 8pt; color: #17203a; }
+}
