@@ -1,5 +1,5 @@
-import { ArrowRightIcon, ArrowUpRightIcon } from '@phosphor-icons/react'
-import { Fragment, Suspense, useLayoutEffect, useRef, useState } from 'react'
+import { ArrowRightIcon, ArrowUpRightIcon } from '../ShellIcons'
+import { Fragment, Suspense, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router'
 import { channelOrder, channels, type ChannelKey } from '../../content/channels'
 import { caseHref, findProject, groupPeriods, projects, type Project, type ProjectGroupName } from '../../content/projects'
@@ -51,14 +51,14 @@ function Row({
   /** The project on the wall monitor right now. */
   now: boolean
   onOpen: (project: Project, opener: HTMLElement) => void
-  onHover: (project: Project) => void
+  onHover: (project: Project, pointer: { x: number; y: number }) => void
 }) {
   const action = 'outline-none after:absolute after:inset-0 after:content-[""]'
   return (
     <li
       data-channel={project.channel}
       onPointerEnter={(event) => {
-        if (event.pointerType === 'mouse') onHover(project)
+        if (event.pointerType === 'mouse') onHover(project, { x: event.clientX, y: event.clientY })
       }}
       className="group relative grid grid-cols-[4.75rem_minmax(0,1fr)] gap-x-4 gap-y-1.5 border-b border-hairline py-3.5 transition-colors duration-150 ease-out hover:bg-panel-1 has-[[data-row-action]:focus-visible]:outline-2 has-[[data-row-action]:focus-visible]:-outline-offset-2 has-[[data-row-action]:focus-visible]:outline-signal sm:grid-cols-[5.5rem_minmax(0,1fr)_12rem] sm:px-2 lg:grid-cols-[5.5rem_minmax(0,1.6fr)_12rem_minmax(0,1fr)]"
     >
@@ -88,7 +88,6 @@ function Row({
             {project.name}
             <ArrowRightIcon
               size={14}
-              weight="light"
               aria-hidden
               className="text-tint transition-transform duration-200 ease-out group-hover:translate-x-0.5"
             />
@@ -122,7 +121,7 @@ function Row({
                   className="inline-flex min-h-11 items-center gap-1 whitespace-nowrap label text-ink-2 transition-colors duration-150 ease-out hover:text-ink"
                 >
                   {link.label}
-                  <ArrowUpRightIcon size={12} weight="light" aria-hidden className="text-tint" />
+                  <ArrowUpRightIcon size={12} aria-hidden className="text-tint" />
                   <span className="sr-only">(opens in a new tab)</span>
                 </a>
               </li>
@@ -173,21 +172,38 @@ export function Schedule({ nowSlug }: ScheduleProps) {
   const fine = useMediaQuery(finePointer)
   const reduce = useMediaQuery(reducedMotion)
   const preview = fine && !reduce
-  const [hovered, setHovered] = useState<Project | null>(null)
+  const [previewRequested, setPreviewRequested] = useState(false)
+  const [hovered, setHovered] = useState<{ project: Project; pointer: { x: number; y: number } } | null>(null)
   const opener = useRef<HTMLElement | null>(null)
   const list = useRef<HTMLOListElement>(null)
   const firstFilter = useRef(true)
+
+  useEffect(() => {
+    if (!preview || !previewRequested) return
+    const dismiss = () => setHovered(null)
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' || event.key === 'Tab') dismiss()
+    }
+    window.addEventListener('keydown', onKey)
+    window.addEventListener('focusin', dismiss)
+    return () => {
+      window.removeEventListener('keydown', onKey)
+      window.removeEventListener('focusin', dismiss)
+    }
+  }, [preview, previewRequested])
 
   useLayoutEffect(() => {
     if (firstFilter.current) {
       firstFilter.current = false
       return
     }
-    list.current?.animate([{ opacity: 0 }, { opacity: 1 }], {
+    if (reduce) return
+    const animation = list.current?.animate([{ opacity: 0 }, { opacity: 1 }], {
       duration: 200,
       easing: 'cubic-bezier(0.23, 1, 0.32, 1)',
     })
-  }, [filter])
+    return () => animation?.cancel()
+  }, [filter, reduce])
 
   function update(change: (next: URLSearchParams) => void) {
     setParams(
@@ -201,7 +217,15 @@ export function Schedule({ nowSlug }: ScheduleProps) {
   }
 
   function setFilter(key: ChannelKey | null) {
+    setHovered(null)
     update((next) => (key ? next.set('ch', key) : next.delete('ch')))
+  }
+
+  function showPreview(project: Project, pointer: { x: number; y: number }) {
+    if (!preview) return
+    // Only a fresh row entry restores a preview dismissed by keyboard or focus.
+    setPreviewRequested(true)
+    setHovered({ project, pointer })
   }
 
   function open(project: Project, from: HTMLElement) {
@@ -285,7 +309,7 @@ export function Schedule({ nowSlug }: ScheduleProps) {
               <Fragment key={group}>
                 {!filter && <Slate group={group} items={items} />}
                 {items.map((project) => (
-                  <Row key={project.slug} project={project} now={project.slug === nowSlug} onOpen={open} onHover={setHovered} />
+                  <Row key={project.slug} project={project} now={project.slug === nowSlug} onOpen={open} onHover={showPreview} />
                 ))}
               </Fragment>
             ),
@@ -293,9 +317,9 @@ export function Schedule({ nowSlug }: ScheduleProps) {
         </ol>
       </Container>
 
-      {preview && (
+      {preview && previewRequested && (
         <Suspense fallback={null}>
-          <HoverPreview project={openProject ? null : hovered} />
+          <HoverPreview project={openProject ? null : hovered?.project ?? null} origin={hovered?.pointer} />
         </Suspense>
       )}
       {openProject && (
