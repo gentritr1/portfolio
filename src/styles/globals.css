@@ -176,8 +176,11 @@
 
 /* ---------- Channels ---------- */
 
-[data-channel] {
-  transition: --tint var(--dur-ui) var(--ease-out);
+/* Layered so Tailwind transition utilities on the same elements still win. */
+@layer base {
+  [data-channel] {
+    transition: --tint var(--dur-ui) var(--ease-out);
+  }
 }
 [data-channel="healthcare"] {
   --tint: var(--ch-healthcare);

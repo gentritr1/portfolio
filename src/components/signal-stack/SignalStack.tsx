@@ -22,6 +22,16 @@ function subscribeReduced(cb: () => void) {
 const getReduced = () => window.matchMedia(REDUCED).matches
 const getReducedServer = () => true
 
+// The host is display:none below md, so the scene must not load there.
+const WIDE = '(min-width: 768px)'
+function subscribeWide(cb: () => void) {
+  const mq = window.matchMedia(WIDE)
+  mq.addEventListener('change', cb)
+  return () => mq.removeEventListener('change', cb)
+}
+const getWide = () => window.matchMedia(WIDE).matches
+const getWideServer = () => false
+
 interface NetworkInformation {
   saveData?: boolean
 }
@@ -75,6 +85,7 @@ function readTints(probe: HTMLElement, channels: ChannelKey[]): Tints {
  */
 export function SignalStack({ channels, active, className }: SignalStackProps) {
   const reduced = useSyncExternalStore(subscribeReduced, getReduced, getReducedServer)
+  const wide = useSyncExternalStore(subscribeWide, getWide, getWideServer)
   const [mode, setMode] = useState<Mode>('css')
   const [cssGone, setCssGone] = useState(false)
   const host = useRef<HTMLDivElement>(null)
@@ -87,7 +98,7 @@ export function SignalStack({ channels, active, className }: SignalStackProps) {
   useEffect(() => {
     const el = host.current
     const pr = probe.current
-    if (!el || !pr || reduced || lightweightDevice()) return
+    if (!el || !pr || reduced || !wide || lightweightDevice()) return
     const list = channelKey.split(',') as ChannelKey[]
 
     const canvas = document.createElement('canvas')
@@ -155,7 +166,7 @@ export function SignalStack({ channels, active, className }: SignalStackProps) {
       setCssGone(false)
       setMode('css')
     }
-  }, [reduced, channelKey])
+  }, [reduced, wide, channelKey])
 
   useEffect(() => {
     activeRef.current = activeIndex

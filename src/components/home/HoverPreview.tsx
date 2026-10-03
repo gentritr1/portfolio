@@ -15,9 +15,18 @@ const EDGE = 12
  */
 export function HoverPreview({ project }: { project: Project | null }) {
   const frame = useRef<HTMLDivElement>(null)
+  const pointer = useRef<{ x: number; y: number } | null>(null)
   const [last, setLast] = useState<Project | null>(project)
   if (project && project !== last) setLast(project)
   const visible = project !== null
+
+  useEffect(() => {
+    const onMove = (event: PointerEvent) => {
+      pointer.current = { x: event.clientX, y: event.clientY }
+    }
+    window.addEventListener('pointermove', onMove, { passive: true })
+    return () => window.removeEventListener('pointermove', onMove)
+  }, [])
 
   useEffect(() => {
     if (!visible) return
@@ -28,6 +37,8 @@ export function HoverPreview({ project }: { project: Project | null }) {
     let tx = -1
     let ty = -1
     let raf = 0
+    let then = 0
+    node.style.visibility = 'hidden'
 
     function target(px: number, py: number) {
       const right = px + OFFSET + CARD_W + EDGE > window.innerWidth
@@ -37,17 +48,24 @@ export function HoverPreview({ project }: { project: Project | null }) {
         x = tx
         y = ty
         node!.style.transform = `translate3d(${x}px, ${y}px, 0)`
+        node!.style.visibility = ''
       }
-      if (!raf) raf = requestAnimationFrame(step)
+      if (!raf) {
+        then = performance.now()
+        raf = requestAnimationFrame(step)
+      }
     }
 
-    function step() {
-      x += (tx - x) * 0.2
-      y += (ty - y) * 0.2
+    function step(now: number) {
+      const k = 1 - Math.exp(-Math.min(now - then, 50) * 0.013)
+      then = now
+      x += (tx - x) * k
+      y += (ty - y) * k
       node!.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0)`
       raf = Math.abs(tx - x) + Math.abs(ty - y) > 0.5 ? requestAnimationFrame(step) : 0
     }
 
+    if (pointer.current) target(pointer.current.x, pointer.current.y)
     const onMove = (event: PointerEvent) => target(event.clientX, event.clientY)
     window.addEventListener('pointermove', onMove, { passive: true })
     return () => {
