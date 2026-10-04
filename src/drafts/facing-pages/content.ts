@@ -5,7 +5,7 @@ export const chapters = [
     id: "healthcare",
     en: "Healthcare",
     ar: "الرعاية الصحية",
-    color: "#c5cbb0",
+    color: "#1f6f4a",
     slugs: [
       "care-platform",
       "care-api",
@@ -18,14 +18,14 @@ export const chapters = [
     id: "streaming",
     en: "Streaming",
     ar: "البث والتعليم",
-    color: "#ddba86",
+    color: "#c2641a",
     slugs: ["bayyinah-tv", "bayyinah-institute"],
   },
   {
     id: "reading",
     en: "Reading",
     ar: "القراءة والهاتف",
-    color: "#adbfc1",
+    color: "#1f4e7a",
     slugs: [
       "read-to-feed",
       "viva-fresh",
@@ -43,14 +43,14 @@ export const chapters = [
     id: "web3",
     en: "Web3",
     ar: "المحفظة الرقمية",
-    color: "#c9b0c7",
+    color: "#5a3aa0",
     slugs: ["incentiv"],
   },
   {
     id: "games",
     en: "Games & tools",
     ar: "ألعاب وأدوات",
-    color: "#ddb396",
+    color: "#b53a2a",
     slugs: [
       "member-portal",
       "ai-dashboard",

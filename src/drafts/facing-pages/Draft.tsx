@@ -8,7 +8,7 @@ import {
   type PointerEvent,
 } from "react";
 import { flushSync } from "react-dom";
-import { LayoutGroup, motion } from "motion/react";
+import { animate, LayoutGroup, motion } from "motion/react";
 import { links } from "../../content/links";
 import { projects } from "../../content/projects";
 import { chapters } from "./content";
@@ -88,6 +88,8 @@ export default function Draft() {
   const leafBack = useRef<HTMLDivElement>(null);
   const reader = useRef<HTMLDivElement>(null);
   const book = useRef<HTMLDivElement>(null);
+  const turnWrap = useRef<HTMLDivElement>(null);
+  const flipping = useRef(false);
   const curl = useRef<PageCurl | null>(null);
   const cssAnimation = useRef<Animation | null>(null);
   const currentTurn = useRef<Turn | null>(null);
@@ -349,14 +351,32 @@ export default function Draft() {
     );
   }
 
-  function flipDirection() {
+  function preview(color: string | null) {
+    const element = book.current;
+    if (!element) return;
+    if (color) element.style.setProperty("--fp-preview", color);
+    element.dataset.preview = color ? "true" : "false";
+  }
+
+  async function flipDirection() {
+    if (flipping.current) return;
     cancelTurn();
-    setRtl((value) => !value);
-    setStatus(
-      rtl
-        ? "English on the left. Read from left to right."
-        : "Arabic on the right-to-left side; English is the facing page.",
-    );
+    const next = !rtl;
+    const message = next
+      ? "Arabic on the right-to-left side; English is the facing page."
+      : "English on the left. Read from left to right.";
+    const element = turnWrap.current;
+    if (reduced || !element) {
+      setRtl(next);
+      setStatus(message);
+      return;
+    }
+    flipping.current = true;
+    await animate(element, { rotateY: 90 }, { duration: 0.32, ease: ease.sheet });
+    flushSync(() => setRtl(next));
+    await animate(element, { rotateY: [-90, 0] }, { duration: 0.42, ease: ease.arrive });
+    flipping.current = false;
+    setStatus(message);
   }
 
   function bookKeys(event: KeyboardEvent<HTMLElement>) {
@@ -508,6 +528,7 @@ export default function Draft() {
               <span>{rtl ? "Arabic first" : "English first"}</span>
             </motion.button>
           </div>
+          <div className="fp-book-turn" ref={turnWrap}>
           <motion.div
             ref={book}
             className="fp-book"
@@ -611,32 +632,32 @@ export default function Draft() {
               style={{ pointerEvents: opened ? "none" : "auto" }}
             >
               <span className="fp-cover-front">
-                <span className="fp-cover-edition">
-                  2021—2026 <span>EN / AR</span>
-                </span>
-                <span className="fp-cover-title">
-                  Facing
-                  <br />
-                  <i>pages.</i>
-                </span>
+                <span className="fp-cover-strip" aria-hidden="true" />
+                <span className="fp-cover-edition">2021—2026</span>
                 <span className="fp-cover-arabic" lang="ar" dir="rtl">
                   صفحات
                   <br />
                   متقابلة
                 </span>
+                <span className="fp-cover-col">
+                <span className="fp-cover-title">
+                  Facing
+                  <br />
+                  <i>pages.</i>
+                </span>
                 <span className="fp-cover-credit">
                   Gentrit Rashiti<span>Web, mobile & full stack · Kosovo</span>
                 </span>
-                <span className="fp-cover-facts">
-                  <span>
-                    <strong>Bayyinah TV</strong>34 routes · English / Arabic
-                  </span>
-                  <span>
-                    <strong>Read to Feed</strong>PDF, EPUB & an ISBN scanner
-                  </span>
-                  <span>
-                    <strong>FJALË</strong>21k Albanian words
-                  </span>
+                <span className="fp-cover-contents">
+                  {chapters.map((chapter, index) => (
+                    <span key={chapter.id}>
+                      <b>{["I", "II", "III", "IV", "V"][index]}</b>
+                      {chapter.en}
+                      <i aria-hidden="true" />
+                      <small>{chapter.slugs.length} {chapter.slugs.length === 1 ? "project" : "projects"}</small>
+                    </span>
+                  ))}
+                </span>
                 </span>
                 <span className="fp-open-label">
                   Open the book <Arrow />
@@ -656,6 +677,10 @@ export default function Draft() {
                   style={{ "--fp-tab": chapter.color } as CSSProperties}
                   aria-pressed={opened && position.chapter === chapter.id}
                   onClick={() => openBook(chapter.id)}
+                  onPointerEnter={() => preview(chapter.color)}
+                  onPointerLeave={() => preview(null)}
+                  onFocus={() => preview(chapter.color)}
+                  onBlur={() => preview(null)}
                   title={
                     chapter.en + " · " + chapter.slugs.length + " projects"
                   }
@@ -668,6 +693,7 @@ export default function Draft() {
               ))}
             </nav>
           </motion.div>
+          </div>
           <div
             className="fp-reader-bottom"
             data-visible={opened}
@@ -710,7 +736,7 @@ export default function Draft() {
                 transition={reduced ? { duration: 0.01 } : spring.ui}
               />
             </div>
-            <p className="fp-reader-hint">
+            <p className="fp-reader-hint fp-sr">
               {mobile
                 ? "Swipe a page. Flip English / Arabic above."
                 : "Arrow keys turn pages. A− / A+ reflows the text."}
@@ -718,7 +744,7 @@ export default function Draft() {
           </div>
           <footer className="fp-footer">
             <a href="/drafts">All art directions</a>
-            <p role="status" aria-live="polite">
+            <p className="fp-sr" role="status" aria-live="polite">
               {status}
             </p>
             <a
