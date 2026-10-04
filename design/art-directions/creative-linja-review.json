@@ -1,0 +1,189 @@
+{
+  "id": "linja",
+  "reviewer": "draft_jury",
+  "status": "final-round-2; no further repair required",
+  "rule": "the flip-disc board",
+  "scope": "Independent review by an agent that did not build LINJA. The 1440px desktop and 375px phone captures were inspected directly. Source was read only to corroborate mechanisms. Runtime checks supplied by the implementer are identified separately; still images do not establish motion quality or frame rate.",
+  "rounds": [
+    {
+      "round": 1,
+      "captures": [
+        "drafts-review/linja-desktop.png",
+        "drafts-review/linja-mobile.png"
+      ],
+      "antiPale": "pass",
+      "antiPaleEvidence": {
+        "visibleComposition": "pass",
+        "rationale": "The large yellow disc lettering and dense image matrix dominate the black display, with a yellow identity strip and small owner name. Both sizes are composed around the board rather than a personal-name hero. Type carries the image even where the low-resolution screenshot is hard to identify.",
+        "temporalEvidence": "Source supplies a finite opening wave and six-second project changes. The captures show paused final states; their motion quality, first-two-second appearance and pacing were not independently observed."
+      },
+      "slopCount": 1,
+      "slopCauses": [
+        "Dark background with a single yellow accent is visibly present."
+      ],
+      "slopRationale": "Count the monochrome dark-plus-accent marker rather than exempting it because the display is attractive. The real disc material, Morse input, factual project lines and functioning timetable keep this below the generic threshold. There is no oversized personal-name composition, meaningless liquid object, device mockup or decorative dashboard instrumentation in these captures.",
+      "m2": "pass",
+      "m2Evidence": "The board is a Morse input surface that decodes commands into work, contact and help states, while project arrivals open inside the board. Removing its command mechanism removes a real navigation workflow. The timetable is the plain HTML alternative explicitly specified for LINJA, rather than evidence that the Morse route is simulated. This earns a functional pass, not a claim that every ordinary route depends on decoding Morse.",
+      "scores": {
+        "design": 8.1,
+        "usability": 7.6,
+        "creativity": 8.0,
+        "content": 7.8
+      },
+      "weightedTotal": 7.9,
+      "mechanisms": [
+        "M1",
+        "M2",
+        "M3",
+        "M4",
+        "M5",
+        "M6",
+        "M9"
+      ],
+      "mechanismEvidence": {
+        "M1": "Projects are expressed as destination lines through one disc matrix, with a timetable and arrival detail as the corresponding HTML reading path. The board remains the organising surface at both sizes.",
+        "M2": "Morse commands change the site's work, contact and help states; ordinary route selection opens that project's arrival over the same board. The implementer verified the contact command and case open/return paths.",
+        "M3": "Source contains 6,912 instanced discs with per-disc rotation and an actual image-to-bitmap conversion, plus a Canvas fallback. The screenshots visibly show individual discs rather than a decorative pixel filter laid over regular type.",
+        "M4": "The owner's Morse Trainer becomes an alternate way to navigate the work. The visible desktop explanation makes the personal connection explicit.",
+        "M5": "Changing a destination reveals a different project's name, dates and facts. Opening a timetable route reveals its actual project details; Morse C reveals contact content.",
+        "M6": "The dot-matrix project lettering is the dominant image on both sizes. Removing the screenshot portion would leave a complete and recognisable visual direction.",
+        "M9": "The mobile care line exposes the owner's 31 ADRs and 16-to-2 query change, with the recreation labelled as invented data. The desktop names Read to Feed and its dates. The Morse connection is specific to the owner's own project."
+      },
+      "withheldMechanisms": [
+        "M7",
+        "M8",
+        "M10",
+        "M11"
+      ],
+      "withheldRationale": "The six-second rotation, 60ms Morse timing, springs and optional sound are implemented, but still captures cannot demonstrate a felt beat, convincing mass, sound quality or interruption craft. The copy is specific and useful without yet having an independently distinctive personal voice. No FPS, budget or slow-motion claim is made.",
+      "runtimeEvidenceSuppliedByImplementer": [
+        "6,912 instanced discs rendered.",
+        "All 28 project rows are available.",
+        "Morse -.-. opens Contact.",
+        "Case open and return, and the care facts flip, work.",
+        "Canvas fallback and reduced-motion state work.",
+        "No mobile horizontal overflow; the quick-key nowrap repair is in the reviewed capture."
+      ],
+      "lowestCategory": "usability",
+      "repairNeeded": true,
+      "concreteLowestIssue": {
+        "priority": 2,
+        "title": "Expose the current destination's project action",
+        "evidence": "The phone shows Care-management platform and its facts, but its visible controls only operate the Morse key, pause and sound. There is no labelled action that opens the displayed project. The first timetable row reaches the bottom of the viewport and names Bayyinah TV, so opening the care project requires more scrolling and locating a different row. Source confirms openRoute is only called by timetable buttons.",
+        "requestedRepair": "Add a plainly labelled Open {current project} action to the board caption or its adjacent control area, using the same selected route state and a target of at least 44px. Preserve the Morse workflow and the timetable.",
+        "acceptanceEvidence": "A fresh 375px capture shows the selected project, its recreation label when applicable, and a clearly labelled open action together without scrolling. Activating it opens that selected case and Return restores board focus."
+      },
+      "secondaryIssue": {
+        "priority": 2,
+        "title": "Keep the unit attached to the board's evidence",
+        "evidence": "The desktop Read to Feed board reads ABOUT 14 with no noun; the number could describe anything. The phone care line compresses the plural query claim into 16->2 QUERY. These are the largest content elements in the respective captures, so missing or broken units weaken the owner-specific story.",
+        "requestedRepair": "Show an unambiguous release count for Read to Feed, retaining the approximate qualifier, and a readable plural query label for the care fact. Use a deliberate second line or a short explanatory caption if the matrix width cannot carry the words; do not truncate a factual unit.",
+        "acceptanceEvidence": "The desktop Read to Feed state reads approximately 14 releases with its dates, and the mobile care state communicates 16 to 2 queries in complete wording. The facts remain legible at the captured sizes."
+      },
+      "holdback": "The board is memorable, but the low-resolution imagery becomes pattern more than evidence, especially the sparse lower portion of the phone board. Mobile gives most of its first screen to the display while the selected case has no direct visible entry. The underlying interaction may earn more through motion, but these stills do not justify Site-of-the-Day pacing or physics credit.",
+      "calibration": "Creativity 8.0 is below DIFF's reviewed 8.2 and FJALËKRYQ's reviewed 8.4. LINJA earns distinction through a real disc material and the owner's Morse input, but the still composition is a familiar destination display over a timetable. DIFF makes a comparison operation central to the whole reading experience, while FJALËKRYQ turns the owner's language and intersecting project names into the actual site map. This separation is based on the visible organising rule and information access, not implementation size or feature count.",
+      "remainingRounds": 2,
+      "captureHistoryNote": "Round 1 was assessed before the canonical captures were replaced by the repaired round-2 states. Its scores and observed issues are preserved."
+    },
+    {
+      "round": 2,
+      "captures": [
+        "drafts-review/linja-desktop.png",
+        "drafts-review/linja-mobile.png"
+      ],
+      "captureScope": "Both replacement captures inspected directly. The final desktop state is Read to Feed with ABOUT 14 / RELEASES; the phone state is Care-management platform with 16->2 / QUERIES. A transient desktop EPUB reader capture was superseded before this verdict.",
+      "antiPale": "pass",
+      "antiPaleEvidence": {
+        "visibleComposition": "pass",
+        "rationale": "The large yellow disc lettering, dense bitmap and yellow identity strip retain the distinct board composition. The owner name remains small. The new project action fits the timetable and board controls without introducing a second visual rule.",
+        "temporalEvidence": "Source supplies a finite opening wave and six-second project changes. The captures show paused final states; their motion quality, first-two-second appearance and pacing were not independently observed."
+      },
+      "slopCount": 1,
+      "slopCauses": [
+        "Dark background with a single yellow accent is visibly present."
+      ],
+      "slopRationale": "Count the monochrome dark-plus-accent marker rather than exempting it because the display is attractive. The real disc material, Morse input, factual project lines and functioning timetable keep this below the generic threshold. There is no oversized personal-name composition, meaningless liquid object, device mockup or decorative dashboard instrumentation in these captures.",
+      "m2": "pass",
+      "m2Evidence": "The board is a Morse input surface that decodes commands into work, contact and help states, while project arrivals open inside the board. Removing its command mechanism removes a real navigation workflow. The timetable is the plain HTML alternative explicitly specified for LINJA, rather than evidence that the Morse route is simulated. This earns a functional pass, not a claim that every ordinary route depends on decoding Morse.",
+      "scores": {
+        "design": 8.1,
+        "usability": 8.0,
+        "creativity": 8.0,
+        "content": 8.1
+      },
+      "weightedTotal": 8.05,
+      "mechanisms": [
+        "M1",
+        "M2",
+        "M3",
+        "M4",
+        "M5",
+        "M6",
+        "M9"
+      ],
+      "mechanismEvidence": {
+        "M1": "Projects are expressed as destination lines through one disc matrix, with a timetable and arrival detail as the corresponding HTML reading path. The board remains the organising surface at both sizes.",
+        "M2": "Morse commands change the site's work, contact and help states; ordinary route selection opens that project's arrival over the same board. The implementer verified the contact command and case open/return paths.",
+        "M3": "Source contains 6,912 instanced discs with per-disc rotation and an actual image-to-bitmap conversion, plus a Canvas fallback. The screenshots visibly show individual discs rather than a decorative pixel filter laid over regular type.",
+        "M4": "The owner's Morse Trainer becomes an alternate way to navigate the work. The visible desktop explanation makes the personal connection explicit.",
+        "M5": "Changing a destination reveals a different project's name, dates and facts. Opening a timetable route reveals its actual project details; Morse C reveals contact content.",
+        "M6": "The dot-matrix project lettering is the dominant image on both sizes. Removing the screenshot portion would leave a complete and recognisable visual direction.",
+        "M9": "The phone exposes 31 ADRs and 16-to-2 queries, with the care recreation labelled as invented data. Desktop now clearly attributes approximately 14 releases to Read to Feed. The Morse navigation is tied to the owner's own project."
+      },
+      "withheldMechanisms": [
+        "M7",
+        "M8",
+        "M10",
+        "M11"
+      ],
+      "withheldRationale": "The six-second rotation, 60ms Morse timing, springs and optional sound are implemented, but still captures cannot demonstrate a felt beat, convincing mass, sound quality or interruption craft. The copy is specific and useful without yet having an independently distinctive personal voice. No FPS, budget or slow-motion claim is made.",
+      "runtimeEvidenceSuppliedByImplementer": [
+        "The current-project Open action opens the corresponding care case.",
+        "The mobile action is 44px high and the repaired layout has no horizontal overflow.",
+        "The earlier Morse, case-return, care-flip, all-28-projects, Canvas fallback and reduced-motion checks remain applicable."
+      ],
+      "repairsVerified": [
+        {
+          "issue": "Expose the current destination project action",
+          "result": "resolved",
+          "visualEvidence": "The phone shows Open Care-management platform as a full-width action immediately under its selected-project caption at about y640. Its recreation label remains visible. Desktop shows Open Read to Feed beside the matching current destination.",
+          "sourceEvidence": "The new action calls openRoute(index), sharing the current selection, and its CSS sets a 44px minimum height."
+        },
+        {
+          "issue": "Keep the unit attached to the board evidence",
+          "result": "resolved",
+          "visualEvidence": "Desktop now reads READ TO FEED / ABOUT 14 / RELEASES. Phone reads 31 ADRS / 16->2 / QUERIES. The qualifier and units are legible and complete.",
+          "sourceEvidence": "Read to Feed facts carry ABOUT 14 and RELEASES; the phone care state reserves a separate QUERIES line."
+        }
+      ],
+      "lowestCategory": "usability and creativity, tied",
+      "concreteLowestIssue": null,
+      "repairNeeded": false,
+      "holdback": "The low-resolution images still function more as disc patterns than readable product evidence, especially the sparse lower phone board. The large board pushes the full timetable below the first phone screen, although the selected project now has a clear immediate action. This is a distinctive 8-level direction; a Site-of-the-Day motion claim would require directly observing its pacing, physical response, sound and interruptions.",
+      "calibration": "Design and Creativity remain 8.1 and 8.0 because the organising composition and material are unchanged. Usability rises from 7.6 to 8.0 after making the current project directly accessible, and Content rises from 7.8 to 8.1 after restoring the units to the prominent facts. Creativity remains below DIFF 8.2 and FJALEKRYQ 8.4 for the distinctions recorded in round 1; no feature-count or unobserved-motion uplift is applied.",
+      "remainingRounds": 1
+    }
+  ],
+  "scores": {
+    "design": 8.1,
+    "usability": 8.0,
+    "creativity": 8.0,
+    "content": 8.1
+  },
+  "weightedTotal": 8.05,
+  "antiPale": "pass",
+  "slopCount": 1,
+  "m2": "pass",
+  "mechanisms": [
+    "M1",
+    "M2",
+    "M3",
+    "M4",
+    "M5",
+    "M6",
+    "M9"
+  ],
+  "repairNeeded": false,
+  "nextStep": "Accept this bounded review and retain its holdback. No third repair round requested. Motion quality and performance remain separate from the still-capture verdict.",
+  "holdback": "The low-resolution images still function more as disc patterns than readable product evidence, especially the sparse lower phone board. The large board pushes the full timetable below the first phone screen, although the selected project now has a clear immediate action. This is a distinctive 8-level direction; a Site-of-the-Day motion claim would require directly observing its pacing, physical response, sound and interruptions."
+}

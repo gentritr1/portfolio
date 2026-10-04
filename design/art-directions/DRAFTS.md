@@ -10,12 +10,13 @@ The 16 previous directions retain their Design, Usability and Content scores for
 
 For new drafts, the anti-pale, slop ≤2 and M2 gates precede scoring. The new no-giant-name rule takes precedence over the previous name-size requirement. Maximum three rounds per new draft. Weights remain Design 40%, Usability 30%, Creativity 20%, Content 10%.
 
-## Reviewed directions (18)
+## Reviewed directions (19)
 
 | Draft | Band | Rule | Mechanisms | Slop | Gates | D | U | C | Content | Weighted | Rounds | Captures | Remaining holdback |
 | --- | --- | --- | --- | ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- |
 | [DIFF](/drafts/diff) | Professional | the migration seam | M1, M2, M3, M4, M5, M9 | 0 | pass | 8.1 | 8.0 | 8.2 | 8.4 | 8.12 | 2 | [1440](drafts-review/diff-desktop.png) · [375](drafts-review/diff-mobile.png) | The fixed mobile runner still takes a substantial share of the viewport, so the first screen shows only one project row and the seam handle overlaps the evidence card. The legacy/current treatment is also visually restrained. These limit immediacy and spectacle, but no longer obscure the primary statement or first project. Keep the draft at round two rather than adding another repair cycle. |
 | [Fjalëkryq](/drafts/fjalekryq) | Fun | the crossword is the site map | M1, M2, M3, M4, M5, M6, M9 | 0 | pass | 8.3 | 8.1 | 8.4 | 8.2 | 8.25 | 2 | [1440](drafts-review/fjalekryq-desktop.png) · [375](drafts-review/fjalekryq-mobile.png) | The phone necessarily crops the connected map, so its overall structure is less immediately apparent than on desktop and the clue fallback carries more of the navigation. Compressed grid tokens also require selection to explain the work. The visible case is clear but largely conventional once opened. These are limits below a 9-level experience, not reasons for another repair round. |
+| [LINJA](/drafts/linja) | Crafted | the flip-disc board | M1, M2, M3, M4, M5, M6, M9 | 1 | pass | 8.1 | 8.0 | 8.0 | 8.1 | 8.05 | 2 | [1440](drafts-review/linja-desktop.png) · [375](drafts-review/linja-mobile.png) | The low-resolution images still function more as disc patterns than readable product evidence, especially the sparse lower phone board. The large board pushes the full timetable below the first phone screen, although the selected project now has a clear immediate action. This is a distinctive 8-level direction; a Site-of-the-Day motion claim would require directly observing its pacing, physical response, sound and interruptions. |
 | [Index × Preview](/drafts/hybrid) | Professional | select a row, reveal its work | M5 | 3 | slop fail | 7.9 | 7.9 | 6.2 | 8.2 | 7.59 | 3 | [1440](drafts-review/hybrid-desktop.png) · [375](drafts-review/hybrid-mobile.png) | Solid-ink Bayyinah TV is now clear in both replacement captures. This resolves the active-name defect without changing the creative assessment: the familiar index-and-preview composition exposes projects, but offers little author-specific narrative in either first viewport. On mobile the large identity and generic role copy still precede the work. |
 | [Studio Shot](/drafts/studio) | Crafted | the phone fan | None earned | 4 | slop fail, M2 fail | 8.3 | 8.1 | 5.7 | 8.3 | 7.72 | 1 | [1440](drafts-review/studio-desktop.png) · [375](drafts-review/studio-mobile.png) | Both captures are dominated by a conventional product-ad phone fan and identity. Collection, reader and progress labels describe the pictured screens without making the studio metaphor necessary to understanding or navigating the work. Real rendered geometry does not make this capture distinguishable from a stock device mockup. |
 | [Gentrit Desktop](/drafts/desktop) | Fun | projects open as windows | M5, M9 | 3 | slop fail, M2 fail | 8.2 | 7.9 | 6.4 | 8.3 | 7.76 | 2 | [1440](drafts-review/desktop-desktop.png) · [375](drafts-review/desktop-mobile.png) | The visible project tabs and Incentiv facts provide more information than Studio or Hybrid. However, launchers select documents and window controls manage their shell; removing desktop styling and window movement leaves a conventional selector and reading panel. Mobile makes that underlying structure particularly clear. |
@@ -43,24 +44,25 @@ Baseline 889e02f: entry **20.19 kB gzip**, initial JS graph **101.86 kB**. Curre
 
 | Draft | JS gzip | CSS gzip | Combined |
 | --- | ---: | ---: | ---: |
-| blueprint | 33.75 kB | 4.79 kB | 38.54 kB |
-| canvas | 21.47 kB | 5.36 kB | 26.82 kB |
-| desk | 33.68 kB | 4.57 kB | 38.25 kB |
-| desktop | 15.21 kB | 5.54 kB | 20.76 kB |
-| diff | 17.16 kB | 6.33 kB | 23.49 kB |
-| dither | 15.95 kB | 4.64 kB | 20.59 kB |
-| fjalekryq | 59.83 kB | 5.55 kB | 65.38 kB |
-| hybrid | 63.38 kB | 3.87 kB | 67.26 kB |
-| index | 27.03 kB | 3.72 kB | 30.75 kB |
-| issue | 11.25 kB | 3.68 kB | 14.93 kB |
-| orbit | 42.26 kB | 4.42 kB | 46.67 kB |
-| primetime | 12.77 kB | 4.91 kB | 17.68 kB |
-| riso | 12.33 kB | 4.57 kB | 16.90 kB |
-| savefile | 14.08 kB | 4.43 kB | 18.52 kB |
-| studio | 43.07 kB | 5.09 kB | 48.16 kB |
-| swiss | 11.28 kB | 3.37 kB | 14.65 kB |
-| wall | 37.07 kB | 4.30 kB | 41.36 kB |
-| zine | 15.14 kB | 4.91 kB | 20.06 kB |
+| blueprint | 34.38 kB | 4.79 kB | 39.17 kB |
+| canvas | 21.86 kB | 5.36 kB | 27.22 kB |
+| desk | 34.31 kB | 4.57 kB | 38.88 kB |
+| desktop | 15.61 kB | 5.54 kB | 21.15 kB |
+| diff | 17.56 kB | 6.33 kB | 23.89 kB |
+| dither | 16.34 kB | 4.64 kB | 20.99 kB |
+| fjalekryq | 60.48 kB | 5.55 kB | 66.03 kB |
+| hybrid | 64.02 kB | 3.87 kB | 67.89 kB |
+| index | 27.68 kB | 3.72 kB | 31.40 kB |
+| issue | 11.65 kB | 3.68 kB | 15.32 kB |
+| linja | 75.26 kB | 4.14 kB | 79.40 kB |
+| orbit | 42.90 kB | 4.42 kB | 47.31 kB |
+| primetime | 13.16 kB | 4.91 kB | 18.07 kB |
+| riso | 12.73 kB | 4.57 kB | 17.29 kB |
+| savefile | 14.48 kB | 4.43 kB | 18.91 kB |
+| studio | 43.70 kB | 5.09 kB | 48.80 kB |
+| swiss | 11.68 kB | 3.37 kB | 15.04 kB |
+| wall | 37.71 kB | 4.30 kB | 42.00 kB |
+| zine | 15.54 kB | 4.91 kB | 20.45 kB |
 
 ## Verification and limits
 
