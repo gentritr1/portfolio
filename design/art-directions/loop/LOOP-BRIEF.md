@@ -53,3 +53,15 @@ The owner wants many directions, kept as live drafts, iterated round after round
 - No strike where there is no real problem. If a sentence has no constraint, write it plain.
 - The phone first screen shows work, not only words.
 - Builders over-scored "original" by 1.5–2 points in round 1. Score it strictly.
+
+## Loop operation (owner request, 2026-10-05)
+
+The loop runs on its own until the weekly reset (2026-10-05 07:00 UTC). For each round:
+
+1. Build about 6 directions with agents (convergence on the best-scored ideas, plus 2 bold new ones).
+2. Builders self-critique with the skills listed above.
+3. A fresh Fable 5.1 reviewer scores the round strictly and writes `round-N-review.md`.
+4. Commit and push `drafts-polish` and `main` (as gentritr1), publish the drafts gallery, and make a 12 s vertical reel for each new draft (`brag-output-loopN/`).
+5. Log the round here and start the next round.
+
+Status: round 2 is published (gallery version 6) and its reels are in `brag-output-loop2/`. Round 2 review: running.
