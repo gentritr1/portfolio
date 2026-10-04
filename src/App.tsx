@@ -32,6 +32,17 @@ export default function App() {
         </Suspense>
       </>
     );
+  if (pathname.startsWith("/work/"))
+    return (
+      <>
+        <ScrollToTop />
+        <Suspense fallback={<div className="min-h-[100svh] bg-[#ffd400]" />}>
+          <Routes>
+            <Route path="/work/:slug" element={<CaseStudyRoute />} />
+          </Routes>
+        </Suspense>
+      </>
+    );
   if (pathname === "/drafts" || pathname.startsWith("/drafts/"))
     return (
       <>
@@ -61,7 +72,6 @@ export default function App() {
       <main id="main">
         <Suspense fallback={<div className="min-h-[100svh]" />}>
           <Routes>
-            <Route path="/work/:slug" element={<CaseStudyRoute />} />
             <Route path="*" element={<NoSignalPage />} />
           </Routes>
         </Suspense>

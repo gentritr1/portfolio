@@ -4,7 +4,7 @@ interface Milestone {
 }
 
 /** Build milestones from CONTENT.md. No dates are inferred for individual stages. */
-const milestones: Record<string, Milestone[]> = {
+export const milestones: Record<string, Milestone[]> = {
   'care-platform': [
     { title: 'Vue to React, route by route', detail: 'A gradual frontend rewrite covers patient profiles, care plans, labs, vitals, claims and calls.' },
     { title: 'Parity tests and quality gates', detail: 'The same scenarios run against both apps. Architecture decisions and CI quality gates support the migration.' },

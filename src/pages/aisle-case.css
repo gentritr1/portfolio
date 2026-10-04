@@ -1,0 +1,163 @@
+@font-face{font-family:Anton;src:url('/fonts/creative/Anton-Latin.woff2') format('woff2');font-weight:400;font-display:swap}
+@font-face{font-family:'Public Sans';src:url('/fonts/creative/PublicSans-Latin.woff2') format('woff2');font-weight:100 900;font-display:swap}
+@font-face{font-family:'Courier Prime';src:url('/fonts/creative/CourierPrime-Latin.woff2') format('woff2');font-weight:400;font-display:swap}
+
+/* The case page is the back of the product box: front panel, facts label, back-of-pack copy, till. */
+.aisle-case{
+  --ac-yellow:#ffd400;--ac-red:#e3001b;--ac-ink:#171913;--ac-paper:#fbfaf4;--ac-edge:40px;
+  min-height:100svh;background:var(--ac-yellow);color:var(--ac-ink);
+  font-family:'Public Sans',sans-serif;font-size:15px;line-height:1.55;
+  padding:0 var(--ac-edge);overflow-x:clip;color-scheme:light
+}
+.aisle-case *{box-sizing:border-box}
+.aisle-case :is(h1,h2,h3,p,dl,dd,ol,figure){margin:0}
+.aisle-case ol{padding:0;list-style:none}
+.aisle-case a{color:inherit;text-underline-offset:4px}
+.aisle-case :is(a,button,[tabindex]):focus-visible{outline:3px solid var(--ac-ink);outline-offset:4px}
+.aisle-case ::selection{background:var(--ac-ink);color:var(--ac-yellow)}
+.aisle-case > *{max-width:1360px;margin-inline:auto}
+.aisle-case .ac-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.aisle-case .ac-skip{position:absolute;top:-100px;left:16px;z-index:10;background:var(--ac-paper);padding:12px 16px}
+.aisle-case .ac-skip:focus{top:8px}
+
+/* Shelf talker */
+.aisle-case .ac-talker{display:flex;align-items:flex-end;gap:24px;padding:24px 0 16px;border-bottom:2px solid var(--ac-ink)}
+.aisle-case .ac-mark{font-family:Anton,sans-serif;font-size:56px;line-height:.86;letter-spacing:-.02em;text-decoration:none}
+.aisle-case .ac-mark em{font-style:normal;color:var(--ac-red)}
+.aisle-case .ac-talker-line{font-family:Anton,sans-serif;font-size:18px;line-height:1.1;letter-spacing:.04em;text-transform:uppercase;padding-bottom:2px}
+.aisle-case .ac-talker-line i{font-style:normal;color:var(--ac-red);padding-inline:6px}
+.aisle-case .ac-tools{margin-left:auto;display:flex;gap:24px}
+.aisle-case .ac-tools a{display:flex;align-items:center;gap:8px;min-height:44px;font-size:12px;font-weight:650;letter-spacing:.06em;text-transform:uppercase;text-decoration:none}
+.aisle-case .ac-tools a:hover{color:#8a0715}
+
+/* Front of the box */
+.aisle-case .ac-front{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:56px;align-items:start;padding:36px 0 72px}
+.aisle-case .ac-box{position:relative;margin-right:28px}
+.aisle-case .ac-box-face{position:relative;z-index:1;display:grid;gap:10px;padding:28px 40px 64px;border-radius:6px 6px 2px 2px;background:var(--ac-field);color:var(--ac-pack-ink);
+  background-image:linear-gradient(115deg,#ffffff2e 0%,#ffffff00 32%,#00000000 70%,#0000001f 100%);
+  box-shadow:0 2px 0 #00000026,0 40px 50px -28px #3c3000aa}
+.aisle-case .ac-box-side{position:absolute;top:0;bottom:0;right:-28px;width:28px;transform-origin:left center;transform:skewY(-32deg);
+  background:color-mix(in srgb,var(--ac-field) 62%,#000);display:flex;align-items:center;justify-content:center;border-radius:0 4px 4px 0}
+.aisle-case .ac-box-side span{writing-mode:vertical-rl;font-family:Anton,sans-serif;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:color-mix(in srgb,var(--ac-field) 30%,#fff);transform:skewY(32deg)}
+.aisle-case .ac-box-ref{font-family:'Courier Prime',monospace;font-size:13px;letter-spacing:.04em;opacity:.85}
+.aisle-case h1{font-family:Anton,sans-serif;font-weight:400;font-size:clamp(52px,6.4vw,100px);line-height:.9;letter-spacing:-.01em;text-wrap:balance}
+.aisle-case .ac-box-kind{font-size:13px;font-weight:650;letter-spacing:.08em;text-transform:uppercase}
+.aisle-case .ac-box-line{max-width:52ch;font-size:16px;line-height:1.45}
+
+/* The window in the box shows the real screens. */
+.aisle-case .ac-window{position:relative;display:flex;align-items:flex-end;justify-content:center;gap:18px;height:clamp(260px,26vw,380px);margin:12px 0 8px;padding:22px;
+  border:10px solid var(--ac-window);border-radius:22px;background:#111;overflow:hidden}
+.aisle-case .ac-window::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(120deg,#ffffff00 30%,#ffffff40 42%,#ffffff00 54%);background-size:250% 100%;background-position:110% 0;transition:background-position .9s cubic-bezier(.65,0,.35,1)}
+.aisle-case .ac-box:hover .ac-window::after{background-position:-40% 0}
+.aisle-case .ac-screen{position:relative;overflow:hidden;background:#000;flex:none}
+.aisle-case .ac-screen img{position:absolute;max-width:none;object-fit:cover}
+.aisle-case .ac-screen img[aria-hidden]{filter:blur(6px)}
+.aisle-case .ac-screen img[data-decoded=true]{transition:opacity .3s}
+.aisle-case .ac-window[data-device=phone] .ac-screen{height:100%;aspect-ratio:9/18.5;border-radius:24px;border:5px solid #050505;box-shadow:0 18px 30px #0008}
+.aisle-case .ac-window[data-device=phone] .ac-screen[data-slot="0"],.aisle-case .ac-window[data-device=phone] .ac-screen[data-slot="2"]{height:86%}
+.aisle-case .ac-window[data-device=phone] .ac-screen[data-slot="0"]{order:-1}
+.aisle-case .ac-window[data-device=phone] .ac-screen[data-slot="1"]{order:0}
+.aisle-case .ac-window[data-device=display]{align-items:center;padding:0}
+.aisle-case .ac-window[data-device=display] .ac-screen[data-slot="0"]{width:100%;height:100%}
+.aisle-case .ac-window[data-device=display] .ac-screen[data-slot="1"]{position:absolute;right:20px;bottom:20px;width:34%;aspect-ratio:16/10;border:4px solid var(--ac-window);border-radius:8px;box-shadow:0 16px 30px #000a}
+.aisle-case .ac-small-print{position:absolute;left:14px;bottom:10px;z-index:2;font-family:'Courier Prime',monospace;font-size:12px;color:#fff;background:#000a;padding:2px 8px}
+
+/* Price tag hangs off the shelf edge under the box. */
+.aisle-case .ac-tag{position:absolute;z-index:2;left:40px;bottom:-34px;display:grid;min-width:180px;padding:10px 18px 12px;background:var(--ac-red);color:#fff;transform-origin:top center;box-shadow:0 10px 16px -8px #0006}
+.aisle-case .ac-tag::before{content:"";position:absolute;top:-8px;left:50%;width:28px;height:8px;margin-left:-14px;background:var(--ac-ink)}
+.aisle-case .ac-tag strong{font-family:Anton,sans-serif;font-weight:400;font-size:40px;line-height:1}
+.aisle-case .ac-tag span{font-size:12px;font-weight:600}
+
+/* Facts label, set like a nutrition panel. */
+.aisle-case .ac-label{background:var(--ac-paper);border:3px solid var(--ac-ink);padding:14px 18px 18px;font-size:14px}
+.aisle-case .ac-label h2{font-weight:900;font-size:36px;line-height:1;letter-spacing:-.02em}
+.aisle-case .ac-serving{padding:6px 0 8px;border-bottom:10px solid var(--ac-ink);font-size:13px}
+.aisle-case .ac-label dl > div{display:flex;justify-content:space-between;gap:16px;padding:7px 0;border-bottom:1px solid var(--ac-ink)}
+.aisle-case .ac-label dt{font-weight:800;flex:none}
+.aisle-case .ac-label dd{text-align:right;min-width:0}
+.aisle-case .ac-ingredients{margin-top:2px;padding-top:10px;border-top:6px solid var(--ac-ink);font-size:13px;line-height:1.5}
+.aisle-case .ac-label nav{display:flex;flex-wrap:wrap;gap:4px 20px;margin-top:12px;padding-top:10px;border-top:1px solid var(--ac-ink)}
+.aisle-case .ac-label nav a{display:inline-flex;align-items:center;gap:6px;min-height:44px;font-weight:650}
+
+/* Readouts are a row of shelf price tags. */
+.aisle-case .ac-readouts{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:24px;padding:24px 0 72px;border-top:12px solid #e0b800}
+.aisle-case .ac-readout{position:relative;display:grid;padding:14px 20px 16px;background:var(--ac-red);color:#fff;box-shadow:0 10px 16px -8px #0006}
+.aisle-case .ac-readout::before{content:"";position:absolute;top:-8px;left:24px;width:28px;height:8px;background:var(--ac-ink)}
+.aisle-case .ac-readout strong{font-family:Anton,sans-serif;font-weight:400;font-size:64px;line-height:1;display:flex;gap:12px;align-items:baseline}
+.aisle-case .ac-readout i{font-style:normal;font-size:40px}
+.aisle-case .ac-readout > span{font-size:14px;font-weight:600}
+
+/* Back-of-pack copy */
+.aisle-case .ac-back{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:40px;padding:32px 0 72px;border-top:2px solid var(--ac-ink)}
+.aisle-case .ac-back h2{font-family:Anton,sans-serif;font-weight:400;font-size:26px;letter-spacing:.02em;text-transform:uppercase;margin-bottom:10px}
+.aisle-case .ac-back p{font-size:16px;line-height:1.6;max-width:62ch}
+
+.aisle-case .ac-section{padding:32px 0 72px;border-top:2px solid var(--ac-ink)}
+.aisle-case .ac-heading{font-family:Anton,sans-serif;font-weight:400;font-size:44px;line-height:1;text-transform:uppercase}
+.aisle-case .ac-heading-note{margin:8px 0 24px;font-size:15px;max-width:62ch}
+.aisle-case .ac-mono{font-family:'Courier Prime',monospace;font-size:14px}
+.aisle-case .ac-compartments{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border:3px solid var(--ac-ink);background:var(--ac-paper)}
+.aisle-case .ac-compartments li{display:grid;align-content:start;gap:8px;padding:20px 22px 24px}
+.aisle-case .ac-compartments li + li{border-left:3px solid var(--ac-ink)}
+.aisle-case .ac-compartment-no{font-family:Anton,sans-serif;font-size:32px;line-height:1;color:var(--ac-red)}
+.aisle-case .ac-compartments h3{font-size:19px;font-weight:800}
+.aisle-case .ac-directions{counter-reset:step;display:grid;gap:14px;max-width:880px;margin-top:24px}
+.aisle-case .ac-directions li{counter-increment:step;display:grid;grid-template-columns:56px minmax(0,1fr);gap:12px;font-size:16px}
+.aisle-case .ac-directions li::before{content:counter(step);font-family:Anton,sans-serif;font-size:34px;line-height:1;color:var(--ac-red)}
+
+/* Sample: the live recreation or the store frames. */
+.aisle-case .ac-sample-stage{position:relative;width:100%;max-width:1100px;aspect-ratio:var(--ac-aspect-lg);border:3px solid var(--ac-ink);border-radius:10px;overflow:hidden;background:#111;container-type:size}
+.aisle-case .ac-loading{padding:24px;color:#fff}
+.aisle-case .ac-frames{display:flex;gap:20px;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:12px}
+.aisle-case .ac-frames figure{flex:none;scroll-snap-align:start;display:grid;gap:8px}
+.aisle-case .ac-frames img{height:min(560px,70svh);width:auto;border:3px solid var(--ac-ink);border-radius:12px;background:#fff}
+.aisle-case .ac-frames figcaption{font-family:'Courier Prime',monospace;font-size:13px}
+
+/* Till */
+.aisle-case .ac-till{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:32px;align-items:center;margin-bottom:40px;padding:24px 28px;background:var(--ac-ink);color:var(--ac-yellow);border-radius:4px}
+.aisle-case .ac-till-code{display:grid;gap:4px;padding:10px 14px;background:var(--ac-paper);color:var(--ac-ink);font-family:'Courier Prime',monospace;font-size:12px;text-align:center}
+.aisle-case .ac-barcode{width:150px;height:40px;fill:var(--ac-ink)}
+.aisle-case .ac-next{display:flex;align-items:center;gap:20px;text-decoration:none;min-width:0}
+.aisle-case .ac-next-label{font-size:12px;font-weight:650;letter-spacing:.08em;text-transform:uppercase}
+.aisle-case .ac-next-box{display:grid;min-width:0;padding:12px 18px;border-radius:4px;background:var(--ac-next-field);color:var(--ac-next-ink);transition:transform .25s cubic-bezier(.34,1.35,.64,1),box-shadow .25s}
+.aisle-case .ac-next-box strong{font-family:Anton,sans-serif;font-weight:400;font-size:28px;line-height:1.05}
+.aisle-case .ac-next-box span{font-size:12px;font-weight:600}
+.aisle-case .ac-next:hover .ac-next-box,.aisle-case .ac-next:focus-visible .ac-next-box{transform:translateY(-6px) rotate(-1deg);box-shadow:0 14px 20px -10px #000}
+.aisle-case .ac-contact{display:flex;flex-wrap:wrap;gap:4px 20px;justify-content:flex-end}
+.aisle-case .ac-contact a{display:inline-flex;align-items:center;gap:6px;min-height:44px;font-weight:650}
+
+@media (max-width:1100px){
+  .aisle-case .ac-front{grid-template-columns:minmax(0,1fr);gap:72px}
+  .aisle-case .ac-label{max-width:520px}
+  .aisle-case .ac-back,.aisle-case .ac-compartments{grid-template-columns:minmax(0,1fr)}
+  .aisle-case .ac-compartments li + li{border-left:0;border-top:3px solid var(--ac-ink)}
+  .aisle-case .ac-till{grid-template-columns:minmax(0,1fr)}
+  .aisle-case .ac-contact{justify-content:flex-start}
+}
+@media (max-width:640px){
+  .aisle-case{--ac-edge:16px;font-size:14px}
+  .aisle-case .ac-talker{flex-wrap:wrap;gap:8px 16px;padding-top:16px}
+  .aisle-case .ac-mark{font-size:44px}
+  .aisle-case .ac-talker-line{font-size:14px;flex-basis:100%;order:3}
+  .aisle-case .ac-tools{gap:16px}
+  .aisle-case .ac-front{padding-top:28px}
+  .aisle-case .ac-box{margin-right:18px}
+  .aisle-case .ac-box-side{right:-18px;width:18px}
+  .aisle-case .ac-box-face{padding:22px 20px 60px}
+  .aisle-case h1{font-size:52px}
+  .aisle-case .ac-window{height:300px;border-width:7px;padding:14px;gap:10px}
+  .aisle-case .ac-window[data-device=phone] .ac-screen{border-radius:16px;border-width:3px}
+  .aisle-case .ac-tag{left:20px}
+  .aisle-case .ac-tag strong{font-size:32px}
+  .aisle-case .ac-readout strong{font-size:48px}
+  .aisle-case .ac-heading{font-size:34px}
+  .aisle-case .ac-sample-stage{aspect-ratio:var(--ac-aspect-base)}
+  .aisle-case .ac-frames img{height:420px}
+}
+@media (min-width:641px) and (max-width:1023px){
+  .aisle-case .ac-sample-stage{aspect-ratio:var(--ac-aspect-sm)}
+}
+@media (prefers-reduced-motion:reduce){
+  .aisle-case .ac-window::after{transition:none}
+  .aisle-case .ac-next-box{transition:none}
+}

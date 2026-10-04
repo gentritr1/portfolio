@@ -4,7 +4,7 @@ import { StudioImage } from './StudioHero'
 import { studioShots } from './studioShots'
 
 interface Layer { title: string; stack: string; description: string }
-const systems: Record<string, { title: string; layers: Layer[] }> = {
+export const systems: Record<string, { title: string; layers: Layer[] }> = {
   'care-platform': { title: 'One platform.\nSeparate organizations.', layers: [
     { title: 'The interface', stack: 'React 19 · TypeScript', description: 'Patient profiles, care plans, labs and vitals. A route-by-route move from Vue to React.' },
     { title: 'The boundaries', stack: 'TanStack Query · Zustand · Zod', description: 'Separate tenant data, roles and timezones, with parity tests across both frontends.' },
