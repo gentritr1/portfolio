@@ -12,9 +12,9 @@ export const caseNarratives: Partial<Record<string, CaseNarrative>> = {
     product:
       "A care-management platform for remote patient monitoring. Care teams use it to follow vitals from connected devices, care plans, lab results, billing claims, calls and chat. Many client organizations share one multi-tenant system, so every screen keeps each organization's data separate and respects each user's role and timezone. The whole interface runs in four languages: English, German, Spanish and Turkish.",
     built:
-      'The frontend moves from Vue (Nuxt 2) to React one route at a time: patient profile, care plans, labs and vitals, claims and calls. Parity tests run each scenario against both apps, and 31 architecture decision records and CI quality gates keep the rewrite consistent. The React app uses TanStack Query and Router, Zustand and Zod. The Laravel API gained enrollment drafts, a lab catalog and multi-tenant security fixes.',
+      'Two eras of one product. From 2023 the team built its features on Vue (Nuxt 2): patient profile, care plans, labs and vitals, claims, calls and chat. In 2026 the frontend moves to React one route at a time, in strict TypeScript with TanStack Query and Router, Zustand and Zod. Each route gets a parity test that runs the same scenario against both apps. AI agents with written rules help build and review each step, and independent reviewers check the evidence.',
     result:
-      'The rewrite replaces the Vue app one route at a time, and a route moves over after its parity tests show the same behaviour in both apps. On the API side, one billing report went from 16 queries to 2 and no longer times out. New screens use a React design system of 34 accessible components that meet WCAG 2.1 AA, published as a typed package on GitHub Packages.',
+      'Most screens are already rebuilt in React, and a route moves over only after its parity tests show the same behaviour in both apps. New screens use Design System v2, a library of 36 accessible components built to WCAG 2.1 AA floors. On the API side, one billing report went from 16 queries to 2 and no longer times out.',
   },
     facts: [
     { label: 'Role', value: 'Frontend and mobile, full stack since 2026' },
@@ -24,6 +24,7 @@ export const caseNarratives: Partial<Record<string, CaseNarrative>> = {
     { label: 'Frontend', value: 'React 19, TypeScript, TanStack Query/Router, Zustand, Zod, Tailwind, Vitest, Playwright' },
     { label: 'Backend', value: 'Laravel 13, PHP 8.3, MySQL, Redis, Pest' },
     { label: 'Services', value: 'Twilio, Chime, Pusher, ECharts' },
+    { label: 'Method', value: 'Route-by-route rewrite, parity tests, AI agents with independent review' },
   ],
   },
   'bayyinah-tv': {
@@ -107,6 +108,27 @@ export const caseNarratives: Partial<Record<string, CaseNarrative>> = {
     },
     { label: 'Sign-in', value: 'Passkey, external wallet' },
   ],
+  },
+  'design-system-react': {
+    story: {
+      product:
+        'Design System v2 is the shared base of controls and layout parts for the new React dashboard of a care-management platform. It is built from scratch on a framework-agnostic token spine. One source of design tokens in three tiers (core, semantic and component) generates CSS variables, TypeScript modules and a Figma bundle. Thirty-six components, from Button and Alert to Combobox, Datepicker and Toast, ship as a typed, versioned package.',
+      built:
+        'The work started with research: a benchmark of leading design systems, a large multi-agent audit of the old frontend, and studies on tokens, testing, governance and measurement, distilled into one best-practices guide. Decision records and an append-only lessons log keep the reasoning. AI agents work under written rules and reusable skills, fresh independent reviewers check each change, and executable gates apply the founding rule: every claim derives from one artifact, through a check that runs.',
+      result:
+        "Twenty releases shipped in about six weeks. Each component is built to WCAG 2.1 AA floors with automated, rendered evidence: axe tests and in-browser contrast checks, with negative controls that prove the checks can fail. Per-component builds cut a Button-only consumer's JavaScript by 96.6%. The new React dashboard uses the system across its screens through one adapter layer, and a gate keeps raw colours and native controls out. The dashboard is not in production yet.",
+    },
+    facts: [
+      { label: 'Role', value: 'Design system' },
+      { label: 'Years', value: '2026' },
+      { label: 'Platforms', value: 'React component library, Storybook workshop' },
+      { label: 'Tokens', value: '805 in three tiers: core, semantic, component' },
+      { label: 'Components', value: '36, each with a story, unit tests and axe tests' },
+      { label: 'Releases', value: '20 in about six weeks' },
+      { label: 'Accessibility', value: 'Built to WCAG 2.1 AA floors with automated, rendered evidence' },
+      { label: 'Method', value: 'Research corpus, decision records, lessons log, agent skills, independent reviewers' },
+      { label: 'Stack', value: 'React 19, TypeScript, CSS Modules, Storybook 10, DTCG tokens, Style Dictionary, Playwright, axe, Changesets' },
+    ],
   },
   'dukagjini-bookstore': {
     story: {

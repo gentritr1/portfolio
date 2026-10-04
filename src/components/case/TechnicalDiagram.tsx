@@ -30,6 +30,11 @@ export const systems: Record<string, { title: string; layers: Layer[] }> = {
     { title: 'The order', stack: 'Checkout · Promo codes', description: 'A checkout with promo codes completes the shopping flow on both platforms.' },
     { title: 'The return', stack: 'Firebase Messaging · Deep links', description: 'Push notifications open the right screen. An animated book header and swipe-to-close modals finish the details.' },
   ] },
+  'design-system-react': { title: 'One source.\nEvery screen.', layers: [
+    { title: 'Research and agents', stack: 'Research corpus · Agent skills · Fresh reviewers', description: 'Studies and a large multi-agent audit of the old frontend became one best-practices guide. Agents work under written rules, and independent reviewers check each change.' },
+    { title: 'Tokens and components', stack: 'DTCG tokens · React 19 · CSS Modules', description: '805 tokens in three tiers generate CSS, TypeScript and a Figma bundle. 36 components ship as a typed, versioned package.' },
+    { title: 'Evidence and adoption', stack: 'Playwright · axe · Executable gates', description: 'Rendered contrast checks and axe tests against WCAG 2.1 AA floors. The new dashboard adopts the system through one adapter layer.' },
+  ] },
   incentiv: { title: 'A clear view\nof a smart wallet.', layers: [
     { title: 'The interface', stack: 'Next.js 14 · TypeScript', description: 'Dashboard cards, assets and a balance popup with a QR address.' },
     { title: 'The data', stack: 'RTK Query · next-intl', description: 'A typed frontend with English and French translations. The wallet and blockchain layer was built by teammates.' },

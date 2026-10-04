@@ -14,6 +14,8 @@ import incentivHomePreview from './studio-previews/incentiv-home.webp?inline'
 import bookstoreHomePreview from './studio-previews/bookstore-home.webp?inline'
 import bookstoreBooksPreview from './studio-previews/bookstore-books.webp?inline'
 import bookstoreFavouritesPreview from './studio-previews/bookstore-favourites.webp?inline'
+import designSystemLightPreview from './studio-previews/design-system-light.webp?inline'
+import designSystemDarkPreview from './studio-previews/design-system-dark.webp?inline'
 
 export interface StudioShot {
   src: string
@@ -66,6 +68,13 @@ export const studioShots: Record<string, StudioComposition> = {
       { src: '/mobile/bookstore-1.webp', preview: bookstoreHomePreview, alt: 'Dukagjini Bookstore home with book search and top categories, from the public App Store listing', crop: [0.135, 0.4, 0.73, 0.6] },
       { src: '/mobile/bookstore-2.webp', preview: bookstoreBooksPreview, alt: 'Dukagjini Bookstore foreign books list with ratings and prices, from the public App Store listing', crop: [0.135, 0.4, 0.73, 0.6] },
       { src: '/mobile/bookstore-3.webp', preview: bookstoreFavouritesPreview, alt: 'Dukagjini Bookstore favourites and categories sheet, from the public App Store listing', crop: [0.135, 0.4, 0.73, 0.6] },
+    ],
+  },
+  'design-system-react': {
+    title: 'Design System v2', colour: '#2454e8', device: 'display', platform: 'React component library',
+    shots: [
+      { src: '/showcase/design-system/specimen-light.webp', preview: designSystemLightPreview, crop: [0, 0, 1, 0.74], alt: 'Component specimen recreation with invented data: tokens in three tiers, alerts, fields, steps, tabs and buttons in the light theme' },
+      { src: '/showcase/design-system/specimen-dark.webp', preview: designSystemDarkPreview, alt: 'The same component specimen in the dark theme, with the Select menu open' },
     ],
   },
   incentiv: {

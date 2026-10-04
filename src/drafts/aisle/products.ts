@@ -10,10 +10,10 @@ export const shelves = [
 
 const facts: Record<string, { value: string; label: string }> = {
   'bayyinah-tv': { value: '34', label: 'routes · EN / AR' },
-  'care-platform': { value: '31', label: 'architecture decisions' },
+  'care-platform': { value: 'PARITY', label: 'Vue to React, route by route' },
   incentiv: { value: 'QR', label: 'balances & passkeys' },
   'care-api': { value: '16 → 2', label: 'report queries' },
-  'design-system-react': { value: '34', label: 'accessible components' },
+  'design-system-react': { value: '36', label: 'components · 805 tokens' },
   'design-system-vue': { value: 'FIGMA', label: 'tokens to components' },
   'design-dashboard': { value: 'DEMO', label: 'design reference' },
   'bayyinah-institute': { value: '1 PAGE', label: 'mission & support' },
@@ -68,12 +68,20 @@ const windowCrop: Record<string, [number, number]> = {
   'bayyinah-institute': [0.5, 0.3],
 }
 
+/** Captures of an authored recreation with invented data, shown in the box window. */
+const recreationImages: Record<string, { src: string; alt: string; position: [number, number] }> = {
+  'design-system-react': { src: '/showcase/design-system/specimen-light.webp', alt: 'Component specimen recreation with invented data', position: [0.32, 0.12] },
+}
+
 export const aisleProducts = projects.map((project, index) => {
   const asset = wallAssets[project.slug]
   const shot = project.media.shot
+  const authored = recreationImages[project.slug]
   const image = shot
     ? { src: shot.src, alt: shot.alt, position: [0.5, 0.5] as [number, number], recreation: false }
-    : asset
+    : authored
+      ? { ...authored, recreation: true }
+      : asset
       ? { src: asset.src, alt: asset.recreation ? 'Care-management interface recreation with invented data' : project.name + ', public product image', position: windowCrop[project.slug] ?? asset.position ?? [0.5, 0.35], recreation: Boolean(asset.recreation) }
       : null
   return {
@@ -82,7 +90,7 @@ export const aisleProducts = projects.map((project, index) => {
     fact: facts[project.slug],
     pack: brandPacks[project.slug] ?? packs[project.channel],
     image,
-    poster: asset?.src ?? shot?.src ?? null,
+    poster: asset?.src ?? shot?.src ?? authored?.src ?? null,
   }
 })
 

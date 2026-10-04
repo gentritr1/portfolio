@@ -46,6 +46,12 @@ export const recreations: Record<RecreationKey, RecreationEntry> = {
     maxWidth: '920px',
     ...preloadable(() => import('../worlds/web3/Recreation').then((m) => m.Recreation)),
   },
+  'design-system': {
+    name: 'Component specimen',
+    world: 'healthcare',
+    aspect: { base: '9 / 16', sm: '1 / 1', lg: '16 / 10' },
+    ...preloadable(() => import('../worlds/design-system/Recreation').then((m) => m.Recreation)),
+  },
   'doc-chat': {
     name: 'Document chat',
     world: 'ai',

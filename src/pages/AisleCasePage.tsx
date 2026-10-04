@@ -15,6 +15,7 @@ import './aisle-case.css'
 
 const OldCareFile = lazy(() => import('../components/portfolio/OldCareFile').then((module) => ({ default: module.OldCareFile })))
 
+const recreationWindows = new Set(['care-platform', 'design-system-react'])
 const arrive = [0.16, 1, 0.3, 1] as const
 const pop = [0.34, 1.35, 0.64, 1] as const
 
@@ -55,7 +56,7 @@ function Window({ project }: { project: Project }) {
           <StudioImage shot={shot} eager={index === 0} />
         </div>
       ))}
-      {project.slug === 'care-platform' && <p className="ac-small-print">Recreation · invented data</p>}
+      {recreationWindows.has(project.slug) && <p className="ac-small-print">Recreation · invented data</p>}
     </div>
   )
 }

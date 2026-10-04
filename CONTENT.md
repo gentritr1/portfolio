@@ -34,11 +34,12 @@ Project facts below come from git history; contact and education details were co
 
 **Story (2 paragraphs):**
 1. A care-management platform for remote patient monitoring. Care teams use it to follow vitals from connected devices, care plans, lab results, billing claims, calls and chat. Many client organizations share one multi-tenant system, so each screen keeps each organization's data separate and respects each user's role.
-2. The frontend moved from Vue (Nuxt 2) to React route by route, with parity tests that run each scenario against both apps, 31 architecture decision records and CI quality gates. The Laravel backend gained enrollment drafts, a lab catalog and multi-tenant security fixes; one billing report went from 16 queries to 2.
+2. The frontend moved from Vue (Nuxt 2) to React route by route, with parity tests that run each scenario against both apps, decision records and automated quality gates, on Design System v2. The Laravel backend gained enrollment drafts, a lab catalog and multi-tenant security fixes; one billing report went from 16 queries to 2.
 
 **Facts list:**
 - Vue → React rewrite, route by route, parity-tested
-- 31 architecture decision records, CI quality gates
+- Decision records, automated quality gates, AI agents with independent review (high level only, owner 2026-10-05: no internal counts)
+- Built on Design System v2 (36 components)
 - Patient profile, care plans, labs and vitals, claims, calls
 - Multi-tenant: data separation, roles, timezones
 - Laravel API: enrollment drafts, lab catalog, security fixes
@@ -158,6 +159,20 @@ Owner confirmed (2026-10-02): built bayyinah.org, Next.js, 2024–25; repo acces
 
 ---
 
+## 6b. DESIGN SYSTEM v2 — Vianova, 2026 (featured case; owner 2026-10-05, facts from ds-factsheet)
+
+**Kind:** Token-driven React design system · **Role:** Design system · **Case:** `/work/design-system-react`, featured order 7.
+
+**Allowed facts (owner, high level only):** 36 components; 805 design tokens in three tiers (core, semantic, component) from one source to CSS, TypeScript and a Figma bundle; 20 releases in about six weeks; 96.6% less JavaScript for a Button-only consumer; built to WCAG 2.1 AA floors with automated, rendered evidence. Research and agent work stays qualitative: a research corpus, a large multi-agent audit of the old frontend, a best-practices guide, decision records, an append-only lessons log, agent skills, fresh independent reviewers, executable gates and the founding rule ("every claim derives from one artifact, through a check that runs"). Adoption: the new React dashboard uses the system across its screens through one adapter layer; a gate keeps raw colours and native controls out; the dashboard is not in production yet.
+
+**Do not publish:** old-vs-new dashboard comparisons (tests, CI, lint, file sizes), internal counts (skills, lessons, ADRs, asks, version bumps, routes), client or tenant names, internal URLs, repo or package links, other contributors' names. Never claim "WCAG compliant", "faster" or "more stable in production".
+
+**Readouts:** 36 Components · 805 Design tokens in three tiers · 20 Releases in about six weeks · 96.6% Less JavaScript for a Button-only consumer.
+
+**Live recreation (invented data, own palette, no employer visuals):** "Component specimen" for an invented project-tracker kit. A bento board with a three-tier token strip whose Light/Dark switch re-points the semantic tier live (circular reveal from the switch), five alert tones, a Sonner-style toast stack, Steps, Select, chip Combobox, Input states, Button hierarchy and sizes, Tabs with Pagination, avatars and switches. A gentle demo loop runs until hover, focus, a hidden tab or the pause button stops it. Marked "Recreation · invented data".
+
+---
+
 ## 7. PERSONAL PROJECTS
 
 - **Snaxx Tech studio site** — marketing site for an indie app studio: a three.js hero, a seamless cinemagraph video loop, Almanac visual theme, strict CSP on Vercel. Images 972 KB → 337 KB, deploy 28 MB → 9.5 MB.
@@ -181,7 +196,7 @@ Render as a compact, scannable index (not cards): grouped by employer, each row 
 | Care-management platform, React rewrite | 2026 | Frontend | React 19, TypeScript, TanStack, Zod, Vitest, Playwright | Route-by-route move from Nuxt 2 to React with parity tests, 31 ADRs, CI gates | #healthcare |
 | Care-management platform, Vue app | 2023 – 2026 | Frontend | Nuxt 2, Vue 2, Vuex, ECharts, Twilio, Chime | Remote patient care: profiles, care plans, claims, vitals and labs, calls, 4 locales | #healthcare |
 | Care-management API | 2026 | Full stack | Laravel 13, PHP 8.3, MySQL, Redis, Pest | Laravel API for enrollment drafts, a lab catalog, multi-tenant security and fast reports | #healthcare |
-| Design system, React | 2026 | Design system | React 19, CSS Modules, Storybook, Changesets | 34 accessible components (WCAG 2.1 AA) in a typed package on GitHub Packages | — |
+| Design System v2 (featured case, owner 2026-10-05, facts from ds-factsheet) | 2026 | Design system | React 19, TypeScript, CSS Modules, Storybook 10, DTCG tokens, Playwright, axe | 36 components, 805 design tokens and 20 releases in about six weeks | /work/design-system-react |
 | Design system, Vue | 2026 | Design system | Vue 2, Style Dictionary, Histoire, Playwright | Design tokens from Figma, codemods, visual regression tests and a health dashboard | — |
 | Design dashboard (prototype) | 2026 | Frontend | React 19, Vite, Tailwind 4 | Call-activity screen on the design system with demo data, as a design reference | — |
 | Video-learning platform, web | 2023 – 2026 | Frontend | Nuxt 3, Vue 3, Pinia, video.js, AWS IVS, Pusher, Stripe | Full Nuxt 3 rebuild: live streams, HLS player, subscriptions, gifting, English/Arabic | #streaming |

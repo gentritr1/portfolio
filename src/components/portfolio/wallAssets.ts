@@ -37,7 +37,7 @@ export const wallAssets: Record<string, WallAsset> = {
 /** Editorial poster colours, not invented product branding. Titles retain the project names. */
 export const wallPosters: Record<string, WallPoster> = {
   'care-api': { background: '#2351df', ink: '#fffaf0', colour: 11.2, lines: ['Care-', 'management', 'API'] },
-  'design-system-react': { background: '#2454e8', ink: '#fffaf0', colour: 9.2, lines: ['Design', 'system,', 'React'] },
+  'design-system-react': { background: '#2454e8', ink: '#fffaf0', colour: 9.2, lines: ['Design', 'System', 'v2'] },
   'design-system-vue': { background: '#a9e928', ink: '#172312', colour: 7.2, lines: ['Design', 'system,', 'Vue'] },
   'design-dashboard': { background: '#12cbbd', ink: '#102724', colour: 9.4, lines: ['Design', 'dashboard', '(prototype)'] },
   'chatbot-runtime': { background: '#5c34d8', ink: '#fffaf0', colour: 6.1, lines: ['Chatbot', 'runtime', 'library'] },

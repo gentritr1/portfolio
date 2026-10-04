@@ -12,7 +12,7 @@ export interface PublicLink {
 }
 
 /** Live recreations with invented data. Each key maps to one lazy component in `src/lib/recreations.tsx`. */
-export type RecreationKey = 'care' | 'live-room' | 'reader' | 'wallet' | 'doc-chat'
+export type RecreationKey = 'care' | 'live-room' | 'reader' | 'wallet' | 'doc-chat' | 'design-system'
 
 /** What the case-page monitor shows: a live recreation, or the first gallery as a phone wall. */
 export type MonitorKind = Exclude<RecreationKey, 'doc-chat'> | 'gallery'
@@ -283,18 +283,18 @@ export const projects: Project[] = [
     years: '2023–26',
     role: 'Frontend and mobile, full stack since 2026',
     stack: ['React 19', 'TypeScript', 'TanStack', 'Zod', 'Nuxt 2', 'Laravel 13', 'Playwright'],
-    line: 'Remote patient care, moved from Vue to React route by route with parity tests',
+    line: 'Remote patient care: a Vue app since 2023, now rebuilt in React with parity tests',
     summary:
-      'A care-management platform for remote patient monitoring. Care teams follow vitals from connected devices, care plans, lab results, billing claims, calls and chat, and many client organizations share one multi-tenant system. The frontend moves from Vue (Nuxt 2) to React route by route, with parity tests that run each scenario against both apps, 31 architecture decision records and CI quality gates. The Laravel API gained enrollment drafts, a lab catalog and multi-tenant security fixes.',
+      'A care-management platform for remote patient monitoring. Care teams follow vitals from connected devices, care plans, lab results, billing claims, calls and chat, and many client organizations share one multi-tenant system. Its features were built on Vue (Nuxt 2) from 2023. In 2026 the frontend moves to React route by route, with parity tests that compare each screen with the old app, decision records and automated quality gates, on Design System v2. The Laravel API gained enrollment drafts, a lab catalog and multi-tenant security fixes.',
     links: [],
     media: { thumb: 'dashboard-vitals', galleries: [careIntakeGallery] },
     featured: {
       order: 1,
       monitor: 'care',
       readouts: [
-        { value: '31', label: 'Architecture decision records' },
         { value: '16', to: '2', label: 'Queries in one billing report' },
         { value: '4', label: 'Languages: EN, DE, ES, TR' },
+        { value: '36', label: 'Design-system components underneath' },
       ],
       related: ['design-system-react', 'design-system-vue', 'design-dashboard'],
     },
@@ -316,18 +316,28 @@ export const projects: Project[] = [
   },
   {
     slug: 'design-system-react',
-    name: 'Design system, React',
-    kind: 'Component library',
+    name: 'Design System v2',
+    kind: 'Token-driven React design system',
     channel: 'healthcare',
     group: 'Vianova',
     years: '2026',
     role: 'Design system',
-    stack: ['React 19', 'CSS Modules', 'Storybook', 'Changesets'],
-    line: '34 accessible components (WCAG 2.1 AA) in a typed package on GitHub Packages',
+    stack: ['React 19', 'TypeScript', 'CSS Modules', 'Storybook 10', 'DTCG tokens', 'Playwright', 'axe'],
+    line: '36 components, 805 design tokens and 20 releases in about six weeks',
     summary:
-      'A React design system for the care-management platform: 34 accessible components that meet WCAG 2.1 AA, written in React 19 with CSS Modules. Each component is documented in Storybook, versioned with Changesets and published as a typed package on GitHub Packages. Product screens import one tested source of controls and layout parts instead of copying markup, and the package is the shared base for the new React screens.',
+      "Design System v2 is a token-driven React component library for the new dashboard of a care-management platform. The team defined 805 design tokens in three tiers (core, semantic and component) in one source that generates CSS, TypeScript and a Figma bundle, and shipped 36 components in 20 releases in about six weeks. Each component is built to WCAG 2.1 AA floors with automated, rendered evidence, and per-component builds cut a Button-only consumer's JavaScript by 96.6%. Research and AI agents shaped the work, and executable gates check each claim. The new React dashboard, not yet in production, uses the system across its screens through one adapter layer.",
     links: [],
     media: { thumb: 'component-sheet' },
+    featured: {
+      order: 7,
+      monitor: 'design-system',
+      readouts: [
+        { value: '36', label: 'Components' },
+        { value: '805', label: 'Design tokens in three tiers' },
+        { value: '20', label: 'Releases in about six weeks' },
+        { value: '96.6%', label: 'Less JavaScript for a Button-only consumer' },
+      ],
+    },
   },
   {
     slug: 'design-system-vue',

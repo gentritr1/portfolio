@@ -30,6 +30,11 @@ export const milestones: Record<string, Milestone[]> = {
     { title: 'Search, categories and favourites', detail: 'Book search, top categories, books on sale and favourite lists.' },
     { title: 'Checkout and notifications', detail: 'Checkout with promo codes, and Firebase push notifications with deep links.' },
   ],
+  'design-system-react': [
+    { title: 'Research before components', detail: 'A benchmark of leading systems, a multi-agent audit of the old frontend and studies on tokens, testing and governance set the rules.' },
+    { title: 'One token source, 36 components', detail: '805 tokens in three tiers and 36 components, shipped in 20 releases in about six weeks.' },
+    { title: 'Adopted by the new dashboard', detail: 'The React dashboard uses the system through one adapter layer, and a gate keeps raw colours and native controls out.' },
+  ],
   incentiv: [
     { title: 'Next.js application foundation', detail: 'App Router, TypeScript and RTK Query support the dashboard, with public and private route middleware.' },
     { title: 'Sign-in and onboarding', detail: 'Passkey and external-wallet sign-in interfaces, with animated onboarding.' },

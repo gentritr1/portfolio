@@ -202,6 +202,9 @@ function Poster() {
   const entry = recreations[key]
   if (!entry) return <Lab />
   const Recreation = entry.Component
+  if (new URLSearchParams(location.search).has('full')) {
+    return <main data-world={entry.world} className="@container relative h-svh w-full overflow-hidden bg-surface"><Suspense fallback={<span>Loading recreation</span>}><Recreation /></Suspense></main>
+  }
   return <main data-world={entry.world} className="@container relative h-[500px] w-[800px] overflow-hidden bg-surface" data-poster>
     <div className={key === 'reader' ? '@container absolute inset-y-0 left-[150px] w-[500px]' : '@container absolute inset-0'}><Suspense fallback={<span>Loading recreation</span>}><Recreation /></Suspense></div>
   </main>
