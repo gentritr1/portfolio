@@ -1,3 +1,4 @@
+import { OldDraftMotion } from '../../components/portfolio/OldDraftMotion'
 import { HomePage } from "../../pages/HomePage";
 import { Masthead } from "../../components/Masthead";
 import { Footer } from "../../components/Footer";
@@ -9,6 +10,7 @@ export default function HybridDraft() {
   const project = findProject("bayyinah-tv")!;
   return (
     <div className="draft-hybrid">
+      <OldDraftMotion />
       <Masthead />
       <main>
         <HomePage />

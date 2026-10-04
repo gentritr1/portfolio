@@ -10,7 +10,7 @@ varying vec2 vUv;
 void main(){
   vUv=uv;
   vec2 point=vec2(uRect.x+uv.x*uRect.z,uRect.y+(1.0-uv.y)*uRect.w);
-  point.x+=sin(uv.y*3.14159)*sin(uv.x*3.14159)*uSkew*28.0;
+  point.x+=(uv.y-.5)*uRect.w*tan(radians(uSkew));
   gl_Position=vec4(point.x/uViewport.x*2.0-1.0,1.0-point.y/uViewport.y*2.0,0.0,1.0);
 }`
 const fragment = `
@@ -148,8 +148,8 @@ export function createWallScene(root: HTMLElement): WallScene | null {
       if (disposed || !visible || document.hidden) return
       const dt = last ? Math.min((now - last) / 1000, .05) : 1 / 60
       last = now
-      velocity *= Math.exp(-9 * dt)
-      pointerVelocity *= Math.exp(-9 * dt)
+      velocity *= Math.pow(.95, dt * 60)
+      pointerVelocity *= Math.pow(.95, dt * 60)
       gl.clear(gl.COLOR_BUFFER_BIT)
       let count = 0
       try {
@@ -170,7 +170,7 @@ export function createWallScene(root: HTMLElement): WallScene | null {
           const hovering = active === tile.slug
           uniforms.uPointer.value = hovering ? [pointerX, pointerY] : [.35, .5]
           uniforms.uReveal.value = paused ? 1 : Math.max(0, Math.min(1, hovering ? (now - activeSince) / 700 : (now - began - 100) / 1400))
-          uniforms.uSkew.value = paused ? 0 : velocity + (hovering ? pointerVelocity + (pointerX - .5) * .25 : 0)
+          uniforms.uSkew.value = paused ? 0 : Math.max(-3, Math.min(3, (velocity + (hovering ? pointerVelocity : 0)) * 2))
           renderer.render({ scene: tile.mesh, clear: false })
           count++
         })

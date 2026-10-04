@@ -1,3 +1,4 @@
+import { OldCareFile } from '../../components/portfolio/OldCareFile'
 import { currentYear, firstYear, projects } from '../../content/projects'
 import { links } from '../../content/links'
 import { caseNarratives } from '../../content/caseNarratives'
@@ -29,7 +30,7 @@ export default function ReadPage({ destination, onCanvas }: { destination: strin
           {projects.map((project) => <details key={project.slug}>
             <summary><span className="dc-project-name">{project.name}</span><span className="dc-project-kind">{project.kind}</span><span className="dc-project-year">{project.years ?? '—'}</span><span className="dc-details-mark" aria-hidden="true" /></summary>
             <div className="dc-project-detail">
-              <p>{project.summary}</p>
+              <OldCareFile slug={project.slug} /><p>{project.summary}</p>
               <dl><div><dt>Role</dt><dd>{project.role}</dd></div><div><dt>Stack</dt><dd>{project.stack.join(' · ')}</dd></div></dl>
               <div className="dc-detail-links">
                 {project.slug === 'care-platform' && <a href="#dc-case">Read the case study</a>}
@@ -42,7 +43,7 @@ export default function ReadPage({ destination, onCanvas }: { destination: strin
 
       <article id="dc-case" className="dc-case" aria-labelledby="dc-case-title">
         <h2 id="dc-case-title">Care management,<br />one route at a time.</h2>
-        <div className="dc-case-story"><p>{story.product}</p><p>{story.built}</p></div>
+        <OldCareFile slug="care-platform" /><div className="dc-case-story"><p>{story.product}</p><p>{story.built}</p></div>
         <div className="dc-case-demo">
           <div className="dc-case-demo-title"><h3>Vitals trend card</h3><p>Interactive recreation. All clinic names and patient readings are invented.</p></div>
           <CareArtboard />

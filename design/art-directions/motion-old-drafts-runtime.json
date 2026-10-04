@@ -1,0 +1,437 @@
+{
+  "method": "IAB 375px reduced/no-WebGL fallback and keyboard CV feedback; 1440px 10% development playback. Equivalent slow playback, not literal DevTools scrubbing. Named checks do not establish physical-device frame rate.",
+  "checks": [
+    {
+      "id": "hybrid",
+      "confirmation": "CV download started.",
+      "done": true,
+      "overflow": 0,
+      "review": "reduce"
+    },
+    {
+      "id": "studio",
+      "confirmation": "CV download started.",
+      "done": true,
+      "overflow": 0,
+      "review": "reduce"
+    },
+    {
+      "id": "desktop",
+      "confirmation": "CV download started.",
+      "done": true,
+      "overflow": 0,
+      "review": "reduce"
+    },
+    {
+      "id": "canvas",
+      "confirmation": "CV download started.",
+      "done": true,
+      "overflow": 0,
+      "review": "reduce"
+    },
+    {
+      "id": "index",
+      "confirmation": "CV download started.",
+      "done": true,
+      "overflow": 0,
+      "review": "reduce"
+    },
+    {
+      "id": "blueprint",
+      "confirmation": "CV download started.",
+      "done": true,
+      "overflow": 0,
+      "review": "reduce"
+    },
+    {
+      "id": "savefile",
+      "confirmation": "CV download started.",
+      "done": true,
+      "overflow": 0,
+      "review": "reduce"
+    },
+    {
+      "id": "zine",
+      "confirmation": "CV download started.",
+      "done": true,
+      "overflow": 0,
+      "review": "reduce"
+    },
+    {
+      "id": "issue",
+      "confirmation": "CV download started.",
+      "done": true,
+      "overflow": 0,
+      "review": "reduce"
+    },
+    {
+      "id": "wall",
+      "confirmation": "CV download started.",
+      "done": true,
+      "overflow": 0,
+      "review": "reduce"
+    },
+    {
+      "id": "riso",
+      "confirmation": "CV download started.",
+      "done": true,
+      "overflow": 0,
+      "review": "reduce"
+    },
+    {
+      "id": "dither",
+      "confirmation": "CV download started.",
+      "done": true,
+      "overflow": 0,
+      "review": "reduce"
+    },
+    {
+      "id": "swiss",
+      "confirmation": "CV download started.",
+      "done": true,
+      "overflow": 0,
+      "review": "reduce"
+    },
+    {
+      "id": "orbit",
+      "confirmation": "CV download started.",
+      "done": true,
+      "overflow": 0,
+      "review": "reduce"
+    },
+    {
+      "id": "primetime",
+      "confirmation": "CV download started.",
+      "done": true,
+      "overflow": 0,
+      "review": "reduce"
+    },
+    {
+      "id": "desk",
+      "confirmation": "CV download started.",
+      "done": true,
+      "overflow": 0,
+      "review": "reduce"
+    }
+  ],
+  "slowPlayback": [
+    {
+      "id": "studio",
+      "enter": {
+        "children": [
+          {
+            "filter": "blur(3.92316px)",
+            "opacity": "0.0192111",
+            "transform": "matrix(1, 0, 0, 1, 0, 7.84631)"
+          }
+        ],
+        "height": 114.5703125,
+        "open": true
+      },
+      "interruptedExit": {
+        "children": [
+          {
+            "filter": "blur(3.87343px)",
+            "opacity": "0.0316409",
+            "transform": "matrix(1, 0, 0, 1, 0, 7.74688)"
+          }
+        ],
+        "height": 119.4609375,
+        "open": true
+      }
+    },
+    {
+      "id": "index",
+      "disclosure": "none in this state"
+    },
+    {
+      "id": "blueprint",
+      "enter": {
+        "children": [
+          {
+            "filter": "blur(4px)",
+            "opacity": "0",
+            "transform": "matrix(1, 0, 0, 1, 0, 8)"
+          }
+        ],
+        "height": 91,
+        "open": true
+      },
+      "interruptedExit": {
+        "children": [
+          {
+            "filter": "blur(3.91898px)",
+            "opacity": "0.0202541",
+            "transform": "matrix(1, 0, 0, 1, 0, 7.83797)"
+          }
+        ],
+        "height": 98.9765625,
+        "open": true
+      }
+    },
+    {
+      "id": "zine",
+      "enter": {
+        "children": [
+          {
+            "filter": "blur(3.96544px)",
+            "opacity": "0.00863991",
+            "transform": "matrix(1, 0, 0, 1, 0, 7.93088)"
+          }
+        ],
+        "height": 86.046875,
+        "open": true
+      },
+      "interruptedExit": {
+        "children": [
+          {
+            "filter": "blur(3.88089px)",
+            "opacity": "0.0297769",
+            "transform": "matrix(1, 0, 0, 1, 0, 7.76179)"
+          }
+        ],
+        "height": 98.390625,
+        "open": true
+      }
+    },
+    {
+      "id": "issue",
+      "enter": {
+        "children": [
+          {
+            "filter": "blur(3.96324px)",
+            "opacity": "0.00919048",
+            "transform": "matrix(1, 0, 0, 1, 0, 7.92648)"
+          }
+        ],
+        "height": 75.5234375,
+        "open": true
+      },
+      "interruptedExit": {
+        "children": [
+          {
+            "filter": "blur(3.8344px)",
+            "opacity": "0.0413994",
+            "transform": "matrix(1, 0, 0, 1, 0, 7.66881)"
+          }
+        ],
+        "height": 91.3984375,
+        "open": true
+      }
+    },
+    {
+      "id": "riso",
+      "disclosure": "none in this state"
+    },
+    {
+      "id": "dither",
+      "enter": {
+        "children": [
+          {
+            "filter": "blur(3.95667px)",
+            "opacity": "0.0108318",
+            "transform": "matrix(1, 0, 0, 1, 0, 7.91335)"
+          }
+        ],
+        "height": 89.2734375,
+        "open": true
+      },
+      "interruptedExit": {
+        "children": [
+          {
+            "filter": "blur(3.91594px)",
+            "opacity": "0.0210154",
+            "transform": "matrix(1, 0, 0, 1, 0, 7.83188)"
+          }
+        ],
+        "height": 95.75,
+        "open": true
+      }
+    },
+    {
+      "id": "swiss",
+      "enter": {
+        "children": [
+          {
+            "filter": "blur(3.9577px)",
+            "opacity": "0.010574",
+            "transform": "matrix(1, 0, 0, 1, 0, 7.91541)"
+          }
+        ],
+        "height": 90.5390625,
+        "open": true
+      },
+      "interruptedExit": {
+        "children": [
+          {
+            "filter": "blur(3.90872px)",
+            "opacity": "0.0228196",
+            "transform": "matrix(1, 0, 0, 1, 0, 7.81744)"
+          }
+        ],
+        "height": 96.96875,
+        "open": true
+      }
+    },
+    {
+      "id": "orbit",
+      "enter": {
+        "children": [
+          {
+            "filter": "blur(4px)",
+            "opacity": "0",
+            "transform": "matrix(1, 0, 0, 1, 0, 8)"
+          }
+        ],
+        "height": 97,
+        "open": true
+      },
+      "interruptedExit": {
+        "children": [
+          {
+            "filter": "blur(3.91491px)",
+            "opacity": "0.0212732",
+            "transform": "matrix(1, 0, 0, 1, 0, 7.82981)"
+          }
+        ],
+        "height": 105.5546875,
+        "open": true
+      }
+    },
+    {
+      "id": "desk",
+      "enter": {
+        "children": [
+          {
+            "filter": "blur(3.94997px)",
+            "opacity": "0.0125079",
+            "transform": "matrix(1, 0, 0, 1, 0, 7.89994)"
+          }
+        ],
+        "height": 86.984375,
+        "open": true
+      },
+      "interruptedExit": {
+        "children": [
+          {
+            "filter": "blur(3.91618px)",
+            "opacity": "0.0209534",
+            "transform": "matrix(1, 0, 0, 1, 0, 7.83238)"
+          }
+        ],
+        "height": 92.3203125,
+        "open": true
+      }
+    },
+    {
+      "id": "hybrid",
+      "theme": "light"
+    },
+    {
+      "id": "index",
+      "preview": "Care-management platform preview"
+    },
+    {
+      "id": "savefile",
+      "result": "Read project and return controls activated during slow playback."
+    },
+    {
+      "id": "riso",
+      "selected": "Snaxx Tech\nPersonal"
+    },
+    {
+      "id": "primetime",
+      "channel": "Channel\n06"
+    },
+    {
+      "id": "canvas",
+      "mode": "canvas"
+    },
+    {
+      "id": "desktop",
+      "entry": {
+        "filter": "blur(3.60887px)",
+        "opacity": "0.097783",
+        "transform": "matrix(1, 0, 0, 1, 0, 7.21774)",
+        "translate": "633.6px 8px"
+      },
+      "dragRelease": {
+        "rect": {
+          "bottom": 690.0458984375,
+          "height": 623,
+          "left": 652,
+          "right": 1432,
+          "top": 67.0458984375,
+          "width": 780,
+          "x": 652,
+          "y": 67.0458984375
+        },
+        "translate": "652px 8px"
+      },
+      "interruptedExit": {
+        "filter": "blur(4px)",
+        "opacity": "0.635811",
+        "transform": "matrix(1, 0, 0, 1, 0, 8)",
+        "translate": "652px 8px"
+      }
+    },
+    {
+      "id": "desktop",
+      "confirmationAfterRepair": {
+        "entry": {
+          "filter": "blur(3.84381px)",
+          "opacity": "0.039048",
+          "transform": "matrix(1, 0, 0, 1, 0, 7.69144)",
+          "translate": "633.6px 8px"
+        },
+        "interruptedExit": {
+          "filter": "blur(3.49092px)",
+          "opacity": "0.12727",
+          "transform": "matrix(1, 0, 0, 1, 0, 6.98677)",
+          "translate": "633.6px 8px"
+        }
+      },
+      "repair": "Motion owns y separately from CSS drag translation, consistent blur units."
+    },
+    {
+      "id": "wall",
+      "entry": {
+        "filter": "blur(3.89037px)",
+        "modal": true,
+        "opacity": "0.0274067",
+        "transform": "matrix(1, 0, 0, 1, 0, 7.75328)"
+      },
+      "interruptedExit": {
+        "filter": "blur(3.68837px)",
+        "opacity": "0.0779086",
+        "transform": "matrix(1, 0, 0, 1, 0, 7.50635)"
+      }
+    },
+    {
+      "id": "shared-care-case",
+      "entry": "matrix3d(0.0783897, 0, -0.0030042, 0, 0, 0.07839, 0, 0, 0.000235499, 0, 0.999995, 0, 0, 0, 0.0344256, 1)",
+      "interruptedExit": "matrix3d(0.0930192, 0, -0.0489007, 0, 0, 0.0931306, 0, 0, 0.00455415, 0, 0.998804, 0, 0, 0, 0.560588, 1)",
+      "content": "Confidential file exposes31architecture decisions, parity tests and16→2queries, with labelled invented-data recreation."
+    },
+    {
+      "id": "shared-care-case",
+      "repairConfirmation": {
+        "neutral": "none",
+        "entry": "matrix3d(1.00001, 0, -0.000543405, 0, 0, 1.00001, 0, 0, 0.000543409, 0, 1, 0, 0, 0, 0.00622696, 1)",
+        "interruptedExit": "matrix3d(1.00011, 0, -0.0101603, 0, 0, 1.00016, 0, 0, 0.0101619, 0, 0.999948, 0, 0, 0, 0.11643, 1)"
+      },
+      "repair": "Explicit Motion z/scale/rotateY, initial=false, neutral scale1 and larger lift shadow."
+    }
+  ],
+  "additionalChecks": [
+    {
+      "id": "blueprint",
+      "nativeSliderRelease": "100%→native38% throw settled at20%, a5% step."
+    },
+    {
+      "id": "canvas",
+      "camera": "Camera transform changed from(-72,-40) to(-1144.27,-769.803) after native drag. First drag missed because the starting point was on an SVG; no uninterrupted regrab quality claim."
+    }
+  ],
+  "reviewSetup": "Forced preference now handles both explicit :reduce and Motion shorthand media queries; setup runs before App. Production drops all review helpers."
+}

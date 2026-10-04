@@ -1,3 +1,6 @@
+import { OldCareFile } from '../../components/portfolio/OldCareFile'
+import { OldDraftMotion } from '../../components/portfolio/OldDraftMotion'
+import { transitionOldDraft } from '../../components/portfolio/oldDraftTransition'
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { projects } from "../../content/projects";
 import { links } from "../../content/links";
@@ -58,6 +61,7 @@ export default function Draft() {
   const preview = useRef<HTMLDivElement>(null);
   const current = projects.find((p) => p.slug === active)!;
   const art = indexArt[active];
+  function chooseProject(slug: string) { if (slug !== active) transitionOldDraft(() => setActive(slug)) }
   function tilt(event: React.PointerEvent<HTMLDivElement>) {
     if (
       event.pointerType !== "mouse" ||
@@ -84,6 +88,7 @@ export default function Draft() {
         } as CSSProperties
       }
     >
+      <OldDraftMotion />
       <title>Work in focus — Gentrit Rashiti</title>
       <header className="di-header">
         <a href="/drafts">Gentrit Rashiti</a>
@@ -95,7 +100,7 @@ export default function Draft() {
         <nav>
           <a href="#di-about">About</a>
           <a href={`mailto:${links.email}`}>Email</a>
-          <a href={links.cv}>CV</a>
+          <a href={links.cv} download>CV</a>
         </nav>
       </header>
       <main>
@@ -109,8 +114,8 @@ export default function Draft() {
               {selected.map((project, i) => (
                 <li key={project.slug} data-active={active === project.slug}>
                   <button
-                    onClick={() => setActive(project.slug)}
-                    onFocus={() => setActive(project.slug)}
+                    onClick={() => chooseProject(project.slug)}
+                    onFocus={() => chooseProject(project.slug)}
                     aria-pressed={active === project.slug}
                   >
                     <span className="di-ordinal">
@@ -225,7 +230,7 @@ export default function Draft() {
                     <span>{p.name}</span>
                     <span>{p.years ?? "—"}</span>
                   </summary>
-                  <p>{p.summary}</p>
+                  <OldCareFile slug={p.slug} /><p>{p.summary}</p>
                   <p>{p.stack.join(" · ")}</p>
                   <div>
                     {p.links.map((l) => (
@@ -270,7 +275,7 @@ export default function Draft() {
             <nav>
               <a href={links.linkedin}>LinkedIn</a>
               <a href={links.github}>GitHub</a>
-              <a href={links.cv}>Download CV</a>
+              <a href={links.cv} download>Download CV</a>
             </nav>
           </div>
         </section>

@@ -42,31 +42,31 @@ Merged origin/main locally at 889e02f. Hybrid's active project names now use sol
 
 ## Measured loading budget
 
-Baseline 889e02f: entry **20.19 kB gzip**, initial JS graph **101.86 kB**. Current measurement: entry **20.15 kB**, initial graph **101.82 kB**. Measurement date and coverage are recorded in draft-budgets.json. Public images and self-hosted fonts are separate transfers. Each row includes the lazy picker shell and the draft's recursive graphics imports; already-loaded initial modules are excluded.
+Baseline 889e02f: entry **20.19 kB gzip**, initial JS graph **101.86 kB**. Current measurement: entry **19.78 kB**, initial graph **101.45 kB**. Measurement date and coverage are recorded in draft-budgets.json. Public images and self-hosted fonts are separate transfers. Each row includes the lazy picker shell and the draft's recursive graphics imports; already-loaded initial modules are excluded.
 
 | Draft | JS gzip | CSS gzip | Combined |
 | --- | ---: | ---: | ---: |
-| aisle | 62.24 kB | 7.54 kB | 69.78 kB |
-| bitrate | 68.72 kB | 6.56 kB | 75.28 kB |
-| blueprint | 35.19 kB | 4.79 kB | 39.98 kB |
-| canvas | 22.66 kB | 5.36 kB | 28.02 kB |
-| desk | 35.11 kB | 4.57 kB | 39.68 kB |
-| desktop | 16.41 kB | 5.54 kB | 21.95 kB |
-| diff | 18.36 kB | 6.33 kB | 24.69 kB |
-| dither | 17.14 kB | 4.64 kB | 21.79 kB |
-| fjalekryq | 61.48 kB | 5.55 kB | 67.03 kB |
-| hybrid | 64.82 kB | 3.87 kB | 68.69 kB |
-| index | 28.48 kB | 3.72 kB | 32.20 kB |
-| issue | 12.45 kB | 3.68 kB | 16.12 kB |
-| linja | 76.26 kB | 4.14 kB | 80.40 kB |
-| orbit | 43.70 kB | 4.42 kB | 48.11 kB |
-| primetime | 13.96 kB | 4.91 kB | 18.87 kB |
-| riso | 13.53 kB | 4.57 kB | 18.09 kB |
-| savefile | 15.28 kB | 4.43 kB | 19.71 kB |
-| studio | 44.51 kB | 5.09 kB | 49.60 kB |
-| swiss | 12.48 kB | 3.37 kB | 15.84 kB |
-| wall | 38.51 kB | 4.30 kB | 42.80 kB |
-| zine | 16.34 kB | 4.91 kB | 21.25 kB |
+| aisle | 62.92 kB | 7.54 kB | 70.46 kB |
+| bitrate | 69.70 kB | 6.56 kB | 76.27 kB |
+| blueprint | 78.98 kB | 6.23 kB | 85.21 kB |
+| canvas | 66.59 kB | 6.81 kB | 73.40 kB |
+| desk | 78.80 kB | 6.13 kB | 84.93 kB |
+| desktop | 62.36 kB | 7.03 kB | 69.39 kB |
+| diff | 67.54 kB | 6.58 kB | 74.12 kB |
+| dither | 60.84 kB | 6.25 kB | 67.08 kB |
+| fjalekryq | 62.15 kB | 5.55 kB | 67.70 kB |
+| hybrid | 66.83 kB | 4.53 kB | 71.36 kB |
+| index | 72.18 kB | 5.30 kB | 77.48 kB |
+| issue | 57.13 kB | 5.41 kB | 62.54 kB |
+| linja | 76.93 kB | 4.14 kB | 81.08 kB |
+| orbit | 87.38 kB | 6.00 kB | 93.38 kB |
+| primetime | 57.65 kB | 6.51 kB | 64.16 kB |
+| riso | 57.23 kB | 6.14 kB | 63.37 kB |
+| savefile | 58.97 kB | 6.02 kB | 64.99 kB |
+| studio | 87.92 kB | 6.53 kB | 94.46 kB |
+| swiss | 56.89 kB | 4.96 kB | 61.84 kB |
+| wall | 84.08 kB | 5.80 kB | 89.89 kB |
+| zine | 59.76 kB | 6.37 kB | 66.12 kB |
 
 ## Verification and limits
 

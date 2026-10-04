@@ -7,7 +7,7 @@ import { SignalStack } from '../components/signal-stack/SignalStack'
 import { channelOrder } from '../content/channels'
 
 /** A quiet stack losing its broadcast, with an immediate still for reduced motion. */
-export function NoSignalPage() {
+export default function NoSignalPage() {
   const { pathname } = useLocation()
 
   return (

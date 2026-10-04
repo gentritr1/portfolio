@@ -1,3 +1,6 @@
+import { OldCareFile } from '../../components/portfolio/OldCareFile'
+import { OldDraftMotion } from '../../components/portfolio/OldDraftMotion'
+import { transitionOldDraft } from '../../components/portfolio/oldDraftTransition'
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react'
 import { projects, currentYear, firstYear } from '../../content/projects'
 import { caseNarratives } from '../../content/caseNarratives'
@@ -31,7 +34,7 @@ export default function Draft() {
     return () => window.clearTimeout(timer)
   }, [])
 
-  function select(index: number) { setActive(index); setRevealed(true) }
+  function select(index: number) { transitionOldDraft(() => { setActive(index); setRevealed(true) }) }
   function moveSelection(event: KeyboardEvent<HTMLButtonElement>, index: number) {
     let next = index
     if (event.key === 'ArrowRight' || event.key === 'ArrowDown') next = (index + 1) % selected.length
@@ -45,6 +48,7 @@ export default function Draft() {
   }
 
   return <div className="draft-dither">
+      <OldDraftMotion />
     <title>Work in colour — Gentrit Rashiti</title>
     <header className="dd-header"><a href="/drafts">Gentrit Rashiti</a><nav aria-label="Portfolio navigation"><a href="#dd-work">All {projects.length}</a><a href="#dd-about">About</a><a href={links.cv} download>CV <Arrow /></a></nav></header>
     <main>
@@ -61,12 +65,12 @@ export default function Draft() {
 
       <article id="dd-care" className="dd-case" aria-labelledby="dd-case-title">
         <div className="dd-case-heading"><h2 id="dd-case-title">Care,<br />continued.</h2><div><p>{care.story.product}</p><dl><div><dt>Role</dt><dd>Frontend and mobile, full stack since 2026</dd></div><div><dt>Years</dt><dd>2023–26</dd></div></dl></div></div>
-        <div className="dd-case-demo"><CareDemo /><div><h3>A working interface.<br />A careful rewrite.</h3><p>{care.story.built}</p><p>{care.story.result}</p><p className="dd-source-note">The product is private. The visual above and the interactive example are recreations with invented data.</p></div></div>
+        <OldCareFile slug="care-platform" /><div className="dd-case-demo"><CareDemo /><div><h3>A working interface.<br />A careful rewrite.</h3><p>{care.story.built}</p><p>{care.story.result}</p><p className="dd-source-note">The product is private. The visual above and the interactive example are recreations with invented data.</p></div></div>
       </article>
 
       <section id="dd-work" className="dd-work" aria-labelledby="dd-work-title"><div className="dd-work-heading"><h2 id="dd-work-title">All the work.</h2><p>{projects.length} projects · {firstYear}—{currentYear}</p></div>
         <div className="dd-search"><label htmlFor="dd-search">Find a project or technology</label><input id="dd-search" type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Project, React, Laravel…" /><p role="status">{rows.length} {rows.length === 1 ? 'project' : 'projects'}</p></div>
-        <div className="dd-projects">{rows.map((project) => <details key={project.slug}><summary><span>{project.name}</span><span>{project.years ?? '—'}</span><Arrow /></summary><div className="dd-project-body"><p>{project.summary}</p><dl><div><dt>Role</dt><dd>{project.role}</dd></div><div><dt>Stack</dt><dd>{project.stack.join(' · ')}</dd></div></dl><div className="dd-project-links">{project.slug === 'care-platform' && <a href="#dd-care">Read the featured case<Arrow /></a>}{project.links.map((link) => <a key={link.href} href={link.href} target="_blank" rel="noopener noreferrer">{link.label}<Arrow /><span className="dd-sr"> (opens in a new tab)</span></a>)}</div></div></details>)}</div>
+        <div className="dd-projects">{rows.map((project) => <details key={project.slug}><summary><span>{project.name}</span><span>{project.years ?? '—'}</span><Arrow /></summary><div className="dd-project-body"><OldCareFile slug={project.slug} /><p>{project.summary}</p><dl><div><dt>Role</dt><dd>{project.role}</dd></div><div><dt>Stack</dt><dd>{project.stack.join(' · ')}</dd></div></dl><div className="dd-project-links">{project.slug === 'care-platform' && <a href="#dd-care">Read the featured case<Arrow /></a>}{project.links.map((link) => <a key={link.href} href={link.href} target="_blank" rel="noopener noreferrer">{link.label}<Arrow /><span className="dd-sr"> (opens in a new tab)</span></a>)}</div></div></details>)}</div>
         {!rows.length && <p className="dd-empty">No projects match “{query}”. <button type="button" onClick={() => setQuery('')}>Show all projects</button></p>}
       </section>
 

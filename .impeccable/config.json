@@ -1,0 +1,26 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "bounce-easing",
+        "value": "cubic-bezier(.34, 1.35, .64, 1)",
+        "files": [
+          "src/drafts/*/*.css"
+        ],
+        "createdAt": "2026-10-04T01:22:24.123Z",
+        "reason": "User requested the exact pop curve in ASTRA-MOTION-CRAFT.md section 4; scoped to draft motion tokens."
+      },
+      {
+        "rule": "bounce-easing",
+        "value": "cubic-bezier(0.34, 1.35, 0.64, 1)",
+        "files": [
+          "src/drafts/*/*.css"
+        ],
+        "createdAt": "2026-10-04T01:23:39.371Z",
+        "reason": "User requested this exact pop curve in ASTRA-MOTION-CRAFT.md section 4."
+      }
+    ]
+  }
+}

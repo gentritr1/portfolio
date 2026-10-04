@@ -1,3 +1,6 @@
+import { OldCareFile } from '../../components/portfolio/OldCareFile'
+import { AnimatePresence, motion, useIsPresent, useReducedMotion } from 'motion/react'
+import { OldDraftMotion } from '../../components/portfolio/OldDraftMotion'
 import { useEffect, useRef, useState } from 'react'
 import type { CSSProperties, KeyboardEvent, PointerEvent, ReactNode } from 'react'
 import { Link } from 'react-router'
@@ -69,7 +72,7 @@ function ProjectApp({ project }: { project: Project }) {
     {tab === 'overview' && <>
       <div className="desktop-project-heading"><div><h2>{project.name}</h2><p>{project.kind}</p></div><span>{project.years}</span></div>
       {image && <button className={`desktop-project-image${isIncentiv ? ' desktop-project-image--incentiv' : ''}`} type="button" onClick={() => shots.length > 0 && setTab('screens')} aria-label={`View ${project.name} public screenshots`} disabled={!shots.length}><img src={image.src} alt={image.alt} /></button>}
-      <div className="desktop-project-copy">
+      <div className="desktop-project-copy"><OldCareFile slug={project.slug} />
         <h3>{isIncentiv ? 'The frontend of a smart wallet.' : project.line}</h3>
         <p>{isIncentiv ? 'Passkey sign-in, animated onboarding and a wallet dashboard, in English and French. Frontend and UI layer; teammates built the wallet and blockchain layer.' : project.summary}</p>
         <PublicLinks project={project} />
@@ -115,10 +118,13 @@ function DesktopWindow({ window, active, initial, onFocus, onClose, onMinimize, 
   window: WindowState; active: boolean; initial: boolean; onFocus: (id: string) => void; onClose: (id: string) => void; onMinimize: (id: string) => void; onOpen: (id: string) => void
 }) {
   const frame = useRef<HTMLElement>(null)
-  const drag = useRef<{ pointer: number; cursor: Point; origin: Point } | null>(null)
+  const drag = useRef<{ pointer: number; cursor: Point; origin: Point; previous: Point; time: number; vx: number; vy: number } | null>(null)
   const [position, setPosition] = useState<Point | null>(null)
   const [maximized, setMaximized] = useState(false)
   const [dragging, setDragging] = useState(false)
+  const momentum = useRef(0)
+  const present = useIsPresent()
+  const reduced = useReducedMotion()
   const project = projects.find(item => item.slug === window.id)
   const title = project?.name ?? utilityTitles[window.id]
 
@@ -137,14 +143,16 @@ function DesktopWindow({ window, active, initial, onFocus, onClose, onMinimize, 
       setPosition(current => bounded(current ?? { x: project ? parent.clientWidth * .44 : parent.clientWidth * .27, y: project ? 56 : 96 }))
     })
     observer.observe(parent)
-    return () => observer.disconnect()
+    return () => { observer.disconnect(); cancelAnimationFrame(momentum.current) }
   }, [project])
 
   function startDrag(event: PointerEvent<HTMLButtonElement>) {
     if (event.button !== 0 || maximized || matchMedia('(max-width: 700px)').matches) return
     const element = frame.current
     if (!element) return
-    drag.current = { pointer: event.pointerId, cursor: { x: event.clientX, y: event.clientY }, origin: position ?? { x: element.offsetLeft, y: element.offsetTop } }
+    if (drag.current) return
+    cancelAnimationFrame(momentum.current)
+    drag.current = { pointer: event.pointerId, cursor: { x: event.clientX, y: event.clientY }, origin: position ?? { x: element.offsetLeft, y: element.offsetTop }, previous: { x: event.clientX, y: event.clientY }, time: event.timeStamp, vx: 0, vy: 0 }
     event.currentTarget.setPointerCapture(event.pointerId)
     setDragging(true)
   }
@@ -152,24 +160,49 @@ function DesktopWindow({ window, active, initial, onFocus, onClose, onMinimize, 
   function moveDrag(event: PointerEvent<HTMLButtonElement>) {
     const current = drag.current
     if (!current || current.pointer !== event.pointerId) return
+    const elapsed = Math.max(8, event.timeStamp - current.time)
+    current.vx = Math.max(-2000, Math.min(2000, (event.clientX - current.previous.x) / elapsed * 1000))
+    current.vy = Math.max(-2000, Math.min(2000, (event.clientY - current.previous.y) / elapsed * 1000))
+    current.previous = { x: event.clientX, y: event.clientY }; current.time = event.timeStamp
     setPosition(bounded({ x: current.origin.x + event.clientX - current.cursor.x, y: current.origin.y + event.clientY - current.cursor.y }))
   }
 
-  function endDrag() { drag.current = null; setDragging(false) }
+  function endDrag(event: PointerEvent<HTMLButtonElement>) {
+    const current = drag.current
+    if (!current || current.pointer !== event.pointerId) return
+    drag.current = null; setDragging(false)
+    if (reduced || event.type !== 'pointerup' || event.timeStamp - current.time > 80) return
+    let point = bounded({ x: current.origin.x + current.previous.x - current.cursor.x, y: current.origin.y + current.previous.y - current.cursor.y })
+    const target = bounded({ x: Math.round((point.x + current.vx * .2) / 8) * 8, y: Math.round((point.y + current.vy * .2) / 8) * 8 })
+    let vx = current.vx, vy = current.vy, previous = 0
+    function settle(now: number) {
+      const dt = Math.min(previous ? (now - previous) / 1000 : 1 / 60, 1 / 30)
+      previous = now
+      vx += (350 * (target.x - point.x) - 35 * vx) * dt
+      vy += (350 * (target.y - point.y) - 35 * vy) * dt
+      point = bounded({ x: point.x + vx * dt, y: point.y + vy * dt })
+      setPosition(point)
+      if (Math.abs(target.x - point.x) + Math.abs(target.y - point.y) + Math.abs(vx) + Math.abs(vy) > .1) momentum.current = requestAnimationFrame(settle)
+      else { setPosition(target); momentum.current = 0 }
+    }
+    momentum.current = requestAnimationFrame(settle)
+  }
+  useEffect(() => { if (maximized || reduced) { cancelAnimationFrame(momentum.current); momentum.current = 0 } }, [maximized, reduced])
 
   function moveKey(event: KeyboardEvent<HTMLButtonElement>) {
     if (!['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key) || maximized || matchMedia('(max-width: 700px)').matches) return
     event.preventDefault()
+    cancelAnimationFrame(momentum.current)
     const step = event.shiftKey ? 64 : 16
     const current = position ?? { x: 16, y: 16 }
     setPosition(bounded({ x: current.x + (event.key === 'ArrowRight' ? step : event.key === 'ArrowLeft' ? -step : 0), y: current.y + (event.key === 'ArrowDown' ? step : event.key === 'ArrowUp' ? -step : 0) }))
   }
 
   const style = { '--window-x': `${position?.x ?? 0}px`, '--window-y': `${position?.y ?? 0}px`, zIndex: window.order } as CSSProperties
-  return <section ref={frame} id={`desktop-window-${window.id}`} className={`desktop-window${project ? ' desktop-window--project' : ''}${active ? ' is-active' : ''}${initial ? ' is-opening' : ''}${dragging ? ' is-dragging' : ''}${maximized ? ' is-maximized' : ''}`} style={style} hidden={window.minimized} aria-label={`${title} window`} onPointerDownCapture={() => onFocus(window.id)} onFocusCapture={() => onFocus(window.id)} onKeyDown={event => { if (event.key === 'Escape') { event.stopPropagation(); onClose(window.id) } }}>
+  return <motion.section ref={frame} inert={!present} initial={{ opacity: 0, y: reduced ? 0 : 8, filter: reduced ? "blur(0px)" : "blur(4px)" }} animate={{ opacity: 1, y: 0, filter: "blur(0px)" }} exit={{ opacity: 0, y: reduced ? 0 : 8, filter: reduced ? "blur(0px)" : "blur(4px)", transition: { duration: reduced ? .01 : .22, ease: [.215,.61,.355,1] } }} transition={{ duration: reduced ? .01 : initial ? 1.1 : .22, ease: [.215,.61,.355,1] }} id={`desktop-window-${window.id}`} className={`desktop-window${project ? ' desktop-window--project' : ''}${active ? ' is-active' : ''}${dragging ? ' is-dragging' : ''}${maximized ? ' is-maximized' : ''}`} style={style} hidden={window.minimized} aria-label={`${title} window`} onPointerDownCapture={() => onFocus(window.id)} onFocusCapture={() => onFocus(window.id)} onKeyDown={event => { if (event.key === 'Escape') { event.stopPropagation(); onClose(window.id) } }}>
     <header className="desktop-window-bar"><button type="button" className="desktop-window-title" onPointerDown={startDrag} onPointerMove={moveDrag} onPointerUp={endDrag} onPointerCancel={endDrag} onLostPointerCapture={endDrag} onKeyDown={moveKey} onDoubleClick={() => setMaximized(value => !value)} aria-label={`${title}. Drag or use arrow keys to move the window.`}><Icon name={project?.channel ?? (window.id as IconName)} size={18} /><span>{title}</span></button><div className="desktop-window-controls"><button type="button" aria-label={`Minimize ${title}`} onClick={() => onMinimize(window.id)}><Icon name="minimize" size={17} /></button><button type="button" className="desktop-maximize" aria-label={`${maximized ? 'Restore size of' : 'Expand'} ${title}`} aria-pressed={maximized} onClick={() => setMaximized(value => !value)}><Icon name="maximize" size={15} /></button><button type="button" aria-label={`Close ${title}`} onClick={() => onClose(window.id)}><Icon name="close" size={18} /></button></div></header>
     <div className="desktop-window-body">{project ? <ProjectApp project={project} /> : <UtilityApp id={window.id} onOpen={onOpen} />}</div>
-  </section>
+  </motion.section>
 }
 
 export default function Draft() {
@@ -228,11 +261,12 @@ export default function Draft() {
   }
 
   return <div ref={root} className="draft-desktop" onKeyDown={desktopKeys}>
+      <OldDraftMotion />
     <header className="desktop-menubar"><Link className="desktop-brand" to="/drafts" aria-label="Back to draft gallery">gr.</Link><button type="button" onClick={() => openWindow('apps')}>Projects <span>{projects.length}</span></button><button type="button" onClick={() => openWindow('about')}>About</button><div className="desktop-menubar-spacer" /><div className="desktop-open-menu"><button type="button" aria-expanded={windowMenu} aria-controls="desktop-window-menu" onClick={() => setWindowMenu(value => !value)}>Windows <span>{windows.length}</span></button>{windowMenu && <div id="desktop-window-menu" className="desktop-window-menu"><strong>Open windows</strong>{windows.length ? windows.toSorted((a, b) => b.order - a.order).map(window => <button key={window.id} type="button" onClick={() => openWindow(window.id)}>{projects.find(project => project.slug === window.id)?.name ?? utilityTitles[window.id]}<small>{window.minimized ? 'Minimized' : window.id === activeWindow?.id ? 'Active' : 'Open'}</small></button>) : <p>No windows open. Choose a project from the dock.</p>}</div>}</div><button className="desktop-help" type="button" aria-label="Desktop keyboard and pointer controls" onClick={() => openWindow('help')}><Icon name="help" size={19} /></button><Link className="desktop-gallery-link" to="/drafts">All drafts<Icon name="arrow" size={15} /></Link></header>
     <main className="desktop-stage" aria-label="Portfolio desktop">
       <div className="desktop-wallpaper"><h1>Gentrit<br />Rashiti<span>.</span></h1><p>Frontend & mobile.<br />Now full stack.</p><div className="desktop-location">Kosovo · Working remotely</div></div>
       <nav className="desktop-shortcuts" aria-label="Project shortcuts">{pinnedSlugs.map(slug => { const project = projects.find(item => item.slug === slug)!; return <button key={slug} type="button" data-open={slug} onClick={() => openWindow(slug)}><AppIcon icon={project.channel} large /><span>{slug === 'care-platform' ? 'Healthcare' : project.name}</span></button> })}<button type="button" data-open="apps" onClick={() => openWindow('apps')}><AppIcon icon="apps" large /><span>All {projects.length} projects</span></button></nav>
-      {windows.map(window => <DesktopWindow key={window.id} window={window} active={window.id === activeWindow?.id} initial={opening && window.id === 'incentiv'} onFocus={focusWindow} onClose={closeWindow} onMinimize={minimizeWindow} onOpen={openWindow} />)}
+      <AnimatePresence>{windows.map(window => <DesktopWindow key={window.id} window={window} active={window.id === activeWindow?.id} initial={opening && window.id === 'incentiv'} onFocus={focusWindow} onClose={closeWindow} onMinimize={minimizeWindow} onOpen={openWindow} />)}</AnimatePresence>
       {visibleWindows.length === 0 && <button type="button" className="desktop-empty-desktop" onClick={() => openWindow('apps')}>Open a project<Icon name="arrow" /></button>}
     </main>
     <footer className="desktop-dock-zone"><p>Open something.<br />Make yourself at home.</p><nav className="desktop-dock" aria-label="App dock">{dockItems.map(item => { const running = windows.find(window => window.id === item.id); return <button key={item.id} type="button" data-open={item.id} className={running ? 'is-running' : ''} aria-label={`${item.label}${running?.minimized ? ', minimized' : running ? ', open' : ''}`} aria-pressed={activeWindow?.id === item.id} onClick={() => openWindow(item.id)}><AppIcon icon={item.icon} /><span>{item.label}</span></button> })}</nav><button className="desktop-dock-search" type="button" onClick={() => openWindow('apps')}><Icon name="search" size={18} /><span>Find anything</span><kbd>⌘ K</kbd></button></footer>

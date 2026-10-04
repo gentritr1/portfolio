@@ -1,3 +1,5 @@
+import { OldCareFile } from '../../components/portfolio/OldCareFile'
+import { OldDraftMotion } from '../../components/portfolio/OldDraftMotion'
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { projects, featuredProjects, findProject } from '../../content/projects'
 import { links } from '../../content/links'
@@ -20,6 +22,8 @@ export default function Draft() {
   const separationRef = useRef(1)
   const startedRef = useRef(0)
   const pausedRef = useRef(false)
+  const settleFrame = useRef(0)
+  const sliderDrag = useRef({ active: false, value: 1, time: 0, velocity: 0 })
   const [separation, setSeparation] = useState(1)
   const [paused, setPaused] = useState(false)
   const [ready, setReady] = useState(false)
@@ -31,9 +35,9 @@ export default function Draft() {
   useEffect(() => {
     startedRef.current = performance.now()
     const media = matchMedia('(prefers-reduced-motion: reduce)')
-    const change = () => setReduced(media.matches)
+    const change = () => { setReduced(media.matches); if (media.matches) { cancelAnimationFrame(settleFrame.current); sliderDrag.current.active = false } }
     media.addEventListener('change', change)
-    return () => media.removeEventListener('change', change)
+    return () => { media.removeEventListener('change', change); cancelAnimationFrame(settleFrame.current) }
   }, [])
 
   useEffect(() => {
@@ -42,6 +46,7 @@ export default function Draft() {
       frame = 0
       const hero = heroRef.current
       if (!hero) return
+      cancelAnimationFrame(settleFrame.current)
       const distance = Math.max(0, -hero.getBoundingClientRect().top)
       const value = 1 - Math.min(1, distance / (hero.offsetHeight * .8))
       separationRef.current = value
@@ -92,9 +97,30 @@ export default function Draft() {
   }, [paused])
 
   function changeSeparation(value: number) {
+    cancelAnimationFrame(settleFrame.current)
     setSeparation(value)
     separationRef.current = value
     sceneRef.current?.setSeparation(value)
+  }
+  function releaseSeparation(cancelled = false) {
+    const drag = sliderDrag.current
+    if (!drag.active) return
+    drag.active = false
+    if (cancelled || reduced || paused) return
+    const velocity = performance.now() - drag.time < 80 ? drag.velocity : 0
+    const target = Math.max(0, Math.min(1, Math.round((separationRef.current + velocity * .2) * 20) / 20))
+    let speed = velocity, previous = 0
+    function settle(now: number) {
+      const dt = Math.min(previous ? (now - previous) / 1000 : 1 / 60, 1 / 30)
+      previous = now
+      const current = separationRef.current
+      speed += (350 * (target - current) - 35 * speed) * dt
+      const value = Math.max(0, Math.min(1, current + speed * dt))
+      separationRef.current = value; setSeparation(value); sceneRef.current?.setSeparation(value)
+      if (Math.abs(target - value) + Math.abs(speed) > .001) settleFrame.current = requestAnimationFrame(settle)
+      else { separationRef.current = target; setSeparation(target); sceneRef.current?.setSeparation(target); settleFrame.current = 0 }
+    }
+    settleFrame.current = requestAnimationFrame(settle)
   }
   function replayOpening() {
     setPaused(false)
@@ -104,6 +130,7 @@ export default function Draft() {
   }
 
   return <main className="draft-blueprint" data-motion={reduced ? 'reduced' : paused ? 'paused' : 'active'}>
+      <OldDraftMotion />
     <a className="draft-blueprint-skip" href="#blueprint-work">Skip to work index</a>
     <header className="draft-blueprint-header"><a className="draft-blueprint-name" href="#blueprint-home">Gentrit Rashiti</a><nav aria-label="Blueprint navigation"><a href="#blueprint-work">Work</a><a href="#blueprint-about">About</a><a href="#blueprint-contact">Contact<Arrow /></a></nav></header>
     <section className="draft-blueprint-hero" id="blueprint-home" ref={heroRef} aria-labelledby="blueprint-title">
@@ -128,7 +155,12 @@ export default function Draft() {
       </figure>
       <div className="draft-blueprint-controls">
         <div className="draft-blueprint-assembly-buttons"><button type="button" aria-pressed={separation < .05} onClick={() => changeSeparation(0)}>Assemble</button><button type="button" aria-pressed={separation > .95} onClick={() => changeSeparation(1)}>Explode</button></div>
-        <label className="draft-blueprint-slider">Separation<input type="range" min="0" max="100" value={Math.round(separation * 100)} onChange={event => changeSeparation(Number(event.target.value) / 100)} aria-valuetext={`${Math.round(separation * 100)} percent separated`} /></label>
+        <label className="draft-blueprint-slider">Separation<input type="range" min="0" max="100" value={Math.round(separation * 100)} onPointerDown={event => { event.currentTarget.setPointerCapture(event.pointerId); cancelAnimationFrame(settleFrame.current); sliderDrag.current = { active: true, value: separationRef.current, time: performance.now(), velocity: 0 } }} onPointerUp={() => releaseSeparation()} onPointerCancel={() => releaseSeparation(true)} onLostPointerCapture={() => releaseSeparation(true)} onBlur={() => releaseSeparation(true)} onChange={event => {
+          const value = Number(event.target.value) / 100
+          const drag = sliderDrag.current, now = performance.now()
+          if (drag.active) { drag.velocity = Math.max(-4, Math.min(4, (value - drag.value) / Math.max(8, now - drag.time) * 1000)); drag.value = value; drag.time = now }
+          changeSeparation(value)
+        }} aria-valuetext={`${Math.round(separation * 100)} percent separated`} /></label>
         {!reduced && <div className="draft-blueprint-playback"><button type="button" aria-pressed={paused} onClick={() => setPaused(value => !value)}>{paused ? 'Resume' : 'Pause'}</button><button type="button" onClick={replayOpening}>Replay</button></div>}
       </div>
       <p className="draft-blueprint-instruction">Scroll to assemble, or move the slider.</p>
@@ -148,7 +180,7 @@ export default function Draft() {
     <section className="draft-blueprint-work" id="blueprint-work" aria-labelledby="blueprint-work-title">
       <div className="draft-blueprint-section-title"><h2 id="blueprint-work-title">Work, in detail.</h2><button type="button" aria-expanded={all} onClick={() => setAll(value => !value)}>{all ? 'Selected projects' : `All ${projects.length} projects`}<Arrow /></button></div>
       <div className="draft-blueprint-work-columns" aria-hidden="true"><span>Project</span><span>Field</span><span>Period</span><span /></div>
-      {(all ? projects : featuredProjects).map(item => <details className="draft-blueprint-project" key={item.slug}><summary><strong>{item.name}</strong><span>{item.kind}</span><span>{item.years ?? '—'}</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="M12 4v16M4 12h16" /></svg></summary><div className="draft-blueprint-project-detail"><p>{item.summary}</p><div><p>{item.stack.join(' · ')}</p><div className="draft-blueprint-project-links">{item.slug === project.slug && <a href="#blueprint-case">Read this case<Arrow /></a>}{item.featured && item.slug !== project.slug && <a href={`/work/${item.slug}`}>View case<Arrow /></a>}{item.links.map(link => <a key={link.href} href={link.href} target="_blank" rel="noopener noreferrer">{link.label}<Arrow /></a>)}</div></div></div></details>)}
+      {(all ? projects : featuredProjects).map(item => <details className="draft-blueprint-project" key={item.slug}><summary><strong>{item.name}</strong><span>{item.kind}</span><span>{item.years ?? '—'}</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="M12 4v16M4 12h16" /></svg></summary><div className="draft-blueprint-project-detail"><OldCareFile slug={item.slug} /><p>{item.summary}</p><div><p>{item.stack.join(' · ')}</p><div className="draft-blueprint-project-links">{item.slug === project.slug && <a href="#blueprint-case">Read this case<Arrow /></a>}{item.featured && item.slug !== project.slug && <a href={`/work/${item.slug}`}>View case<Arrow /></a>}{item.links.map(link => <a key={link.href} href={link.href} target="_blank" rel="noopener noreferrer">{link.label}<Arrow /></a>)}</div></div></div></details>)}
     </section>
 
     <section className="draft-blueprint-about" id="blueprint-about" aria-labelledby="blueprint-about-title"><h2 id="blueprint-about-title">The person<br />behind the parts.</h2><div><p>Gentrit Rashiti is a frontend and mobile developer, now full stack. Work spans healthcare, video streaming, e-reading and Web3, from the first screen to release.</p><dl><div><dt>Experience</dt><dd>5+ years. Part of two platform rewrites.</dd></div><div><dt>Based in</dt><dd>Kosovo, working remotely.</dd></div><div><dt>Education</dt><dd>Bachelor’s degree · UBT</dd></div></dl><a href={links.cv} download>Download CV<Arrow /></a></div></section>

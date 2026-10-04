@@ -1,0 +1,125 @@
+{
+  "reviewer": "creative_jury_a",
+  "date": "2026-10-04",
+  "status": "complete — independent second comparison; no repair round",
+  "scope": "Creativity only for the first five new directions. This reviewer did not build any of these directions; supplying licensed fonts does not constitute authorship of their composition or interaction. Existing Design, Usability, Content, gate decisions and round histories are preserved.",
+  "method": {
+    "scale": "7 = good personal site; 8 = distinctive; 9 = Site of the Day",
+    "evidence": "Direct inspection of the current 1440×812 and 375×812 canonical captures and the supporting states listed below. Source confirms that visible mechanisms are real. Reported root browser checks establish functionality, but receive no extra credit for physical feel, sound, pacing or interruption craft that this reviewer has not observed.",
+    "judgment": "Evaluate how completely the rule determines the composition, navigation and information revealed, and how specifically it belongs to this owner. Mechanism counts are evidence, not points to add together. Technical complexity and novelty alone do not raise a score.",
+    "trigger": "LINJA 8.0, BITRATE 8.0 and DIFF 8.2 occupy an inclusive 0.2 band. All five were inspected again side by side, including changed states, rather than spreading numbers mechanically.",
+    "outcome": "Retain the five scores after the second look. The 0.6 range reflects meaningful distinctions among five successful new directions. The remaining three-item cluster is explicitly justified below; no score was moved merely to manufacture a wider spread.",
+    "roundHandling": "This is the required comparative calibration, not an additional implementation or repair round. No new repair is requested. No original review JSON or draft meta was edited."
+  },
+  "calibratedCreativity": {
+    "diff": 8.2,
+    "fjalekryq": 8.4,
+    "linja": 8.0,
+    "bitrate": 8.0,
+    "aisle": 8.6
+  },
+  "clusterSecondLook": {
+    "ids": ["linja", "bitrate", "diff"],
+    "range": [8.0, 8.2],
+    "completed": true,
+    "linjaVersusBitrate": "The tie is intentional. LINJA has the stronger visible material identity: both lettering and imagery obey the disc field, and the Morse input comes from the owner's work. Its first phone view, however, gives a sparse image pattern and pushes the timetable down. BITRATE uses a more familiar player composition, but its supporting captures show quality changing both the image and surrounding information, while the year control selects another project and matching facts. Material authorship and personal input distinguish LINJA; the directly demonstrated information transformation distinguishes BITRATE. Neither set of evidence establishes a clear overall Creativity advantage at one-decimal precision.",
+    "whyDiffIsHigher": "DIFF's paired document and failed parity state expose an unusually specific engineering idea: changing implementation while preserving behaviour. The red blocked pair and missing-title explanation reveal a causal failure, not simply another project or rendering style. This makes the owner's actual method more central to the navigation than the more familiar destination-board and player structures. The advantage is modest because the visual difference between document versions is restrained, its rows remain familiar, and the phone runner occupies substantial space.",
+    "whyNoForcedSpread": "Reducing one tied draft or promoting the other would overstate the evidence. The two 8.0 scores mean different kinds of distinctive execution with comparable limits, not interchangeable work. DIFF earns the 0.2 advantage for the information relationship made inspectable, rather than for a larger feature list."
+  },
+  "reviews": [
+    {
+      "id": "diff",
+      "rule": "the migration seam",
+      "previousCreativity": 8.2,
+      "creativity": 8.2,
+      "delta": 0,
+      "preservedScores": { "design": 8.1, "usability": 8.0, "content": 8.4 },
+      "captures": ["drafts-review/diff-desktop.png", "drafts-review/diff-mobile.png", "drafts-review/diff-parity.png"],
+      "captureQualification": "The parity supporting capture predates the round-2 headline alignment repair. It supplies evidence of the failed comparison state, not evidence of the current desktop geometry.",
+      "earnedMechanisms": ["M1", "M2", "M3", "M4", "M5", "M9"],
+      "visibleEvidence": [
+        "The seam crosses the headline, evidence panel and project rows as a continuous document. The repaired canonical captures keep the headline and table geometry aligned.",
+        "The supporting state reports 27/28 equal and 1 blocked, names the missing title as the reason, and marks pair 02 red. The interaction visibly explains a failure.",
+        "31 architecture decisions, 16→2 queries and 34 routes connect the mechanism to documented projects; the local 28-pair model is explicitly labelled as a recreation."
+      ],
+      "sourceConfirmation": "The parity model compares five local fields across 28 project pairs. Source supports the visible result rather than supplying an unseen animation bonus.",
+      "separatingRationale": "Above LINJA/BITRATE because its comparison teaches a specific working method and exposes a causal mismatch. Below FJALËKRYQ because the presentation remains a relatively conventional evidence-led page and table around the seam; the crossword more completely determines the visual composition and navigation.",
+      "holdback": "The two versions are visually restrained, and the phone's fixed runner limits how much project material appears at once. A distinctive engineering argument is present, but the captures do not demonstrate the exceptional pacing or physical craft needed to justify 9."
+    },
+    {
+      "id": "fjalekryq",
+      "rule": "the crossword is the site map",
+      "previousCreativity": 8.4,
+      "creativity": 8.4,
+      "delta": 0,
+      "preservedScores": { "design": 8.3, "usability": 8.1, "content": 8.2 },
+      "captures": ["drafts-review/fjalekryq-desktop.png", "drafts-review/fjalekryq-mobile.png", "drafts-review/fjalekryq-solved.png"],
+      "earnedMechanisms": ["M1", "M2", "M3", "M4", "M5", "M6", "M9"],
+      "visibleEvidence": [
+        "The connected project names are the main image and the navigation. The desktop page has a genuine crossword topology, with a selected answer and corresponding clue instead of a screenshot hero.",
+        "FJALË and Ë make the owner's Albanian word project central. The clue immediately supplies the 21k dictionary, archive and offline facts.",
+        "The solved capture shows FJALE accepted, FJALË solved, and the actual project case opened. The phone retains a direct labelled Open action alongside the puzzle."
+      ],
+      "sourceConfirmation": "The authored 28-answer grid has actual shared-letter intersections; selecting and solving address real projects. The Verlet implementation is not given weight or pacing credit from still images.",
+      "separatingRationale": "Above DIFF because the organizing rule produces the whole image, spatial layout and language of discovery. Below AISLE because it primarily changes how the visitor reaches existing cases; AISLE also creates a useful visitor-selected output from the interaction.",
+      "holdback": "The cropped phone grid communicates less of the overall network and depends more on the clue fallback. Compressed answer tokens need selection to become understandable, and the opened case becomes conventional. Strongly distinctive, with no observed evidence for a 9-level motion claim."
+    },
+    {
+      "id": "linja",
+      "rule": "the flip-disc board",
+      "previousCreativity": 8.0,
+      "creativity": 8.0,
+      "delta": 0,
+      "preservedScores": { "design": 8.1, "usability": 8.0, "content": 8.1 },
+      "captures": ["drafts-review/linja-desktop.png", "drafts-review/linja-mobile.png"],
+      "earnedMechanisms": ["M1", "M2", "M3", "M4", "M5", "M6", "M9"],
+      "visibleEvidence": [
+        "Lettering, project facts and the image all occupy the same yellow disc material. Desktop reads as a large departure board rather than a normal name-and-screenshot portfolio.",
+        "Read to Feed's about 14 releases and care-platform's 31 ADRs / 16→2 queries have units and project context. A direct selected-project action is visible on both screen sizes.",
+        "The hold/tap key and Morse explanation connect the alternative input to Morse Trainer. Root's verified Contact decoding supports that it works; a still does not establish its rhythm or feel."
+      ],
+      "sourceConfirmation": "The board uses 6,912 instanced discs, not a static dotted overlay. This establishes material honesty without turning rendering complexity into score points.",
+      "separatingRationale": "Tied with BITRATE for comparable overall distinctiveness, through stronger material coherence and a more personal input method. Below DIFF because departure selection and timetable structure are a more familiar organization, and the captured board does less to explain the owner's engineering process.",
+      "holdback": "Low-resolution pictures read as disc patterns rather than clear product evidence; the phone's lower board is particularly sparse. Its scale pushes the timetable below the first screen. The brief calls this a Site-of-the-Day candidate, but that aspiration is not evidence and does not raise the score."
+    },
+    {
+      "id": "bitrate",
+      "rule": "the quality menu renders the site",
+      "previousCreativity": 8.0,
+      "creativity": 8.0,
+      "delta": 0,
+      "preservedScores": { "design": 7.9, "usability": 8.0, "content": 8.4 },
+      "captures": ["drafts-review/bitrate-desktop.png", "drafts-review/bitrate-mobile.png", "drafts-review/bitrate-240p-desktop.png", "drafts-review/bitrate-2023-mobile.png"],
+      "earnedMechanisms": ["M1", "M2", "M3", "M5", "M9"],
+      "visibleEvidence": [
+        "The 240p capture visibly resamples the project image into coarse blocks and changes the surrounding type, colour and factual-feed density. The quality menu has consequences beyond a badge.",
+        "The 2023 phone state selects Viva Fresh, changes the reel and project title, and supplies corresponding grocery and loyalty facts. The career scrubber reveals real information.",
+        "The local reel and factual-feed labels are explicit. Streaming, HLS, paywall and English/Arabic material belong to the owner's work rather than an invented live audience."
+      ],
+      "sourceConfirmation": "The reel is genuinely sampled into a lower-resolution canvas and the selected year addresses project data. The buffer duration and spring release receive no physical or temporal credit without direct observation.",
+      "separatingRationale": "Tied with LINJA because its demonstrated quality and career transformations compensate for a more familiar player composition. Below DIFF because changing display quality and selecting a career chapter offer less unusual explanatory structure than the paired migration model and actionable failure state.",
+      "holdback": "The default desktop is still recognisable player chrome around a screenshot, and the career scrubber is below the fold there. Low quality deliberately removes factual density, even though Show all facts offers recovery. These are substantive limits on the rule's first-view impact."
+    },
+    {
+      "id": "aisle",
+      "rule": "scan to basket; the receipt is the selected-work CV",
+      "previousCreativity": 8.6,
+      "creativity": 8.6,
+      "delta": 0,
+      "preservedScores": { "design": 8.3, "usability": 7.9, "content": 8.3 },
+      "captures": ["drafts-review/aisle-desktop.png", "drafts-review/aisle-mobile.png", "drafts-review/aisle-receipt-mobile.png"],
+      "earnedMechanisms": ["M1", "M2", "M3", "M5", "M9"],
+      "visibleEvidence": [
+        "Product boxes, fact tags, category shelves, selected states and the receipt obey one retail rule. The desktop shows a selected care-platform box and its corresponding factual receipt simultaneously.",
+        "The phone shelf shows Bayyinah in the basket and an immediate View receipt action. The supporting receipt contains two chosen projects with roles, years, concrete facts, stacks and case links, with a total of 02 projects.",
+        "The visitor's selections produce a readable new document. It is more than a shopping appearance applied to project links, and its barcode/grocery relationship belongs to Viva Fresh and Read to Feed."
+      ],
+      "sourceConfirmation": "Receipt rows derive from the actual basket. Text export and an 80mm print stylesheet exist. This confirms that the artefact can leave the interface; printed pagination and thermal-feed quality have not been visually verified and are not credited.",
+      "separatingRationale": "Highest because the metaphor creates a useful outcome owned by the visitor: a factual, chosen-work document. It governs not only how work looks and is selected but what the visitor takes away. Its five evidenced mechanisms are applied more consequentially than a larger checklist count would imply.",
+      "holdback": "Dense desktop labels and horizontal shelves still demand effort; the phone exposes few products and adds a receipt step before detailed reading. Retail is itself familiar, and exceptional print, pacing, sound or interruption craft has not been observed. Those limits justify staying at 8.6 rather than rounding toward 9."
+    }
+  ],
+  "withheldAcrossCalibration": ["M7", "M8", "M10", "M11"],
+  "withheldExplanation": "These captures do not establish felt pacing, physical weight or sound, an unusually individual sustained voice, or motion and interruption craft. No additional mechanism is awarded solely because implementation or reported runtime checks exist.",
+  "nextStep": "Root may use calibratedCreativity when updating the gallery while preserving the original D/U/Content values and review histories. Continue the planned gallery; no further repair or score-spreading round is requested."
+}

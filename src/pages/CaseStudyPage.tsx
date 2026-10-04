@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react'
 import { ArrowRightIcon } from '@phosphor-icons/react'
 import { useParams } from 'react-router'
 import { CaseFacts } from '../components/case/CaseHeader'
@@ -15,7 +16,9 @@ import { Showcase } from '../components/Showcase'
 import { TransitionLink } from '../components/TransitionLink'
 import { findProject, nextFeatured, projects, type Featured, type Gallery, type Project } from '../content/projects'
 import { caseNarratives } from '../content/caseNarratives'
-import { NoSignalPage } from './NoSignalPage'
+import NoSignalPage from './NoSignalPage'
+
+const OldCareFile = lazy(() => import('../components/portfolio/OldCareFile').then(module => ({ default: module.OldCareFile })))
 
 /** Another project that owns this gallery, shown as work built beside the featured product. */
 function alsoBuilt(gallery: Gallery, owner: Project): Project | undefined {
@@ -69,6 +72,7 @@ function CaseStudy({ project, featured }: { project: Project; featured: Featured
   return (
     <article data-channel={project.channel} aria-labelledby="case-title">
       <StudioHero project={project} />
+      {project.slug === 'care-platform' && <Container><Suspense fallback={null}><OldCareFile slug={project.slug} /></Suspense></Container>}
       {featured.readouts && <Container><Readouts readouts={featured.readouts} /></Container>}
 
       <TechnicalDiagram slug={project.slug} />

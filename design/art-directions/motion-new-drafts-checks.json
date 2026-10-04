@@ -1,0 +1,115 @@
+{
+  "method": "Source audit plus browser interactions. The in-app browser does not expose DevTools Animations. A development-only10% clock synchronizes rAF, performance.now, event timestamps, timers and native animation start times; CSS/WAAPI playback is slowed. This is slow playback and interruption inspection, not a literal DevTools timeline scrub.",
+  "linja": {
+    "controls": "Morse key hover/focus, pressed tilt, sent signal; persistent sound state; pause confirmation; CV requested confirmation.",
+    "case": "Timetable title shares layoutId with case heading; presence entry and exit; confidential file has paper preview, front/back facts and reversible spring lift.",
+    "drag": "Not applicable: Morse uses timed hold/release, not drag.",
+    "tenPercent": {
+      "tested": true,
+      "entry": {
+        "opacity": 0.224689,
+        "blurPx": 3.10124,
+        "translateY": 7.0581
+      },
+      "interruptedExit": {
+        "opacity": 0.207824,
+        "blurPx": 3.1687,
+        "translateY": 5.96719
+      },
+      "result": "Exit continues from the sampled in-flight position and focus values. No reset to the entry pose."
+    },
+    "reducedNoWebGL": "Verified 375px, data-reduced=true, renderer=canvas, zero horizontal overflow; Bayyinah case opens and closes; paused final board remains readable.",
+    "keyboard": "Morse -.-. via physical key events selected Contact; case Escape and focus return implemented; direct controls retain native keyboard activation.",
+    "limitations": "No physical mid-range phone frame-rate measurement. No literal DevTools scrubbing interface available."
+  },
+  "bitrate": {
+    "controls": "Native quality select tilts on hover/focus/press and reports active quality after a 300ms buffer; actual 240×135 phone canvas at 240p verified. CV requested feedback. All 28 projects remain available.",
+    "case": "Programme title shares layoutId with notes; enter/exit includes opacity, blur and 8px offset; native focus and close action verified. Care file source contains reversible peek/lift/flip.",
+    "drag": "At 10% playback, physical timeline drag from 2026 toward center reported target 2023/Grocery, spring value 2022.77 during settling. Source passes release velocity and predicts target.",
+    "tenPercent": {
+      "tested": true,
+      "entry": {
+        "opacity": 0.379012,
+        "blurPx": 2.48395,
+        "translateY": 4.98264
+      },
+      "result": "Inspected open and interrupted close; smooth intermediate state, no replacement blank page."
+    },
+    "functional": "2023 selects Viva Fresh; project notes open/close; All 28 shows all project chapters with Undated option; Bayyinah premium preview opens and Continue preview returns to reel.",
+    "phone": "375px, zero horizontal overflow; quality effect remains inside player.",
+    "limitations": "No physical mid-range-phone measurement or literal DevTools scrubbing.",
+    "reducedMotion": "Verified375px forced reduced state: STILL FRAME, automatic playback disabled, all5Bayyinah facts visible, keyboard Open project yields visible notes at opacity1; zero horizontal overflow."
+  },
+  "diff": {
+    "tenPercent": {
+      "tested": true,
+      "entry": {
+        "opacity": 0.913997,
+        "filter": "blur(0.34401px)",
+        "translateY": 0.691966
+      },
+      "interruptedExit": {
+        "opacity": 0.832227,
+        "filter": "blur(0.67109px)",
+        "translateY": 1.37548
+      },
+      "drag": "Native drag from40% toward60% produced61–62% during release settling; source predicts5% target from release velocity, preserving spring momentum."
+    },
+    "reducedMotion": "375px care case opens and its file flips to31ADRs/parity/16→2 facts; zero horizontal overflow. No private care imagery exists in DIFF.",
+    "keyboard": "Seam ArrowRight updates40%; native disclosure/folder keyboard states remain available.",
+    "limitations": "No physical phone performance or literal DevTools timeline."
+  },
+  "fjalekryq": {
+    "tenPercent": {
+      "tested": true,
+      "pan": "Zoom1.25 then native pan changed translation −377.875/−224.875 to−301.987/−203.385; predicted constrained spring settle implemented.",
+      "entry": {
+        "opacity": 0.182203,
+        "filter": "blur(3.27119px)",
+        "translateY": 6.30259
+      },
+      "interruptedExit": {
+        "opacity": 0.633376,
+        "filter": "blur(1.4665px)",
+        "translateY": 2.83045
+      }
+    },
+    "reducedMotion": "375px keyboard Open FJALË gives data-case=true, opacity1, zero overflow; Back to clue completes. All28 answers remain available.",
+    "reviewClockRepair": "Event timestamps now share the scaled clock so gesture click suppression stays coherent at10% speed.",
+    "limitations": "No physical phone performance or literal DevTools timeline."
+  },
+  "facing-pages": {
+    "tenPercent": "Settled cover first; actual turn reported webgl/turning=true. Opposite arrow retained current turning state then completed back at page1. Screenshot is early-turn evidence, not proof of exceptional curl quality.",
+    "functional": "True measured columns: desktop text17→20 changed2→3pages; width375 produced4pages before44px desktop target repair. New desktop44px contents produce3pages. Phone Arabic-first makes ARvisible/order0 and ENhidden/order1; zero horizontal overflow.",
+    "reducedMotion": "375px forced reduce/noGL opens Bayyinah with readable title, renderer reduced, zero overflow.",
+    "limits": "Equivalent slowed clock, not literal DevTools timeline. No physical-device FPS result."
+  },
+  "ledger": {
+    "tenPercent": {
+      "entry": {
+        "opacity": 0.0989235,
+        "blur": 3.60431,
+        "y": 7.23298
+      },
+      "interruptedExit": {
+        "opacity": 0.112404,
+        "blur": 3.55039,
+        "y": 7.06749
+      },
+      "result": "Exit continues from intermediate entry position/blur/opacity."
+    },
+    "functional": "Search FJALË and Enter opens and focuses inline case; pin expands cell and reflows neighbors. Fourteen complete desktop rows. All28 rows remain available.",
+    "reducedMotion": "375px forced reduce/noGL filtered case opens at opacity1, zero overflow.",
+    "limits": "Scheduler observed in desktop browser; no physical mid-range-phone FPS claim."
+  },
+  "deal": {
+    "tenPercent": {
+      "flipEntry": "matrix3d m11 .999196, m31 .0400988",
+      "interruptedReverse": "matrix3d m11 .982275, m31 .187447; continuous intermediate rather than reset",
+      "throw": "Native short handle throw transferred velocity and returned Za! to deck; count5→4, next card selected."
+    },
+    "functional": "Settled28-card spread has moving=0 and readable faces. Open case after repair moves case fromy573 to93, headingfrom661to181; focush2. Native page scroll over table advanced scrollY543.",
+    "reducedMotion": "375px forced reduce/noGL flip + keyboard open case preserve state, titlefocus, zero overflow.",
+    "limits": "Page scroll gesture verified in desktop phone viewport, not physical touch hardware. Actual engine settle/snap/return tests also recorded by builder."
+  }
+}

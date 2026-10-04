@@ -25,6 +25,11 @@
 }
 
 .draft-diff {
+  --diff-ease-out: cubic-bezier(0.215, 0.61, 0.355, 1);
+  --diff-ease-arrive: cubic-bezier(0.16, 1, 0.3, 1);
+  --diff-ease-sheet: cubic-bezier(0.32, 0.72, 0, 1);
+  --diff-ease-story: cubic-bezier(0.65, 0, 0.35, 1);
+
   --diff-bone: #f3efe6;
   --diff-ink: #15291d;
   --diff-green: #16c172;
@@ -67,6 +72,20 @@
   border-radius: 0;
   background: transparent;
   text-align: left;
+  transition:
+    transform 0.15s var(--diff-ease-out),
+    background-color 0.22s var(--diff-ease-out),
+    color 0.22s var(--diff-ease-out);
+}
+.draft-diff :is(button, a):active {
+  transform: translateY(1px) scale(0.99);
+}
+.draft-diff :is(button, a):hover,
+.draft-diff :is(button, a):focus-visible {
+  text-decoration-thickness: 2px;
+}
+.draft-diff button:focus-visible {
+  background-color: #16c17220;
 }
 .draft-diff button:disabled {
   cursor: default;
@@ -312,7 +331,7 @@
   width: 100%;
   height: 100%;
   transform-style: preserve-3d;
-  transition: transform 540ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform 300ms var(--diff-ease-out);
 }
 .diff-row-turn[data-migrated="true"] {
   transform: rotateX(-180deg);
@@ -840,33 +859,6 @@
     background: #9cbf7d;
   }
 }
-html:has(.draft-diff)::view-transition-old(root),
-html:has(.draft-diff)::view-transition-new(root) {
-  animation: none;
-}
-@media (min-width: 1000px) {
-  .diff-current .diff-project[data-open="true"] {
-    view-transition-name: diff-selected-project;
-  }
-}
-::view-transition-old(diff-selected-project) {
-  animation: diff-out 160ms ease-out both;
-}
-::view-transition-new(diff-selected-project) {
-  animation: diff-in 240ms cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-@keyframes diff-out {
-  to {
-    opacity: 0;
-  }
-}
-@keyframes diff-in {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-}
-
 @media (min-width: 1600px) {
   .diff-sheet {
     padding-inline: max(48px, calc((100vw - 1450px) / 2));
@@ -1289,7 +1281,7 @@ html:has(.draft-diff)::view-transition-new(root) {
   }
 }
 .draft-diff[data-discover="true"]:not([data-manual="true"]) {
-  animation: diff-discover 1200ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: diff-discover 1100ms var(--diff-ease-story) both;
 }
 @keyframes diff-discover {
   0%,
@@ -1318,15 +1310,101 @@ html:has(.draft-diff)::view-transition-new(root) {
   }
   .draft-diff * {
     scroll-behavior: auto !important;
+    transition-duration: 0.01s !important;
   }
   .diff-row-turn,
   .diff-row-face,
   .diff-parity-strip button {
-    transition: none !important;
     animation: none !important;
   }
-  ::view-transition-old(diff-selected-project),
-  ::view-transition-new(diff-selected-project) {
-    animation: none !important;
+}
+
+.diff-care-file {
+  display: block;
+  width: 100%;
+  height: 224px !important;
+  margin: 24px 0 30px;
+  position: relative;
+  perspective: 1000px;
+  text-align: left;
+  color: #173723 !important;
+  isolation: isolate;
+}
+.diff-file-tab {
+  display: block;
+  width: max-content;
+  max-width: 95%;
+  height: 30px;
+  padding: 6px 14px;
+  background: #9eb788;
+  font-family: diff-mono, monospace;
+  font-size: 10px;
+  line-height: 18px;
+}
+.diff-file-card {
+  display: block;
+  position: relative;
+  width: 100%;
+  height: 194px;
+  transform-style: preserve-3d;
+  transform-origin: center;
+}
+.diff-file-front,
+.diff-file-back {
+  position: absolute;
+  inset: 0;
+  background: #dae5cb;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 9px;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.diff-file-back {
+  transform: rotateY(180deg);
+  background: #b5e8b8;
+}
+.diff-file-front code {
+  font-family: diff-mono, monospace;
+  font-size: 11px;
+}
+.diff-file-front strong {
+  font-family: diff-hubot, sans-serif;
+  font-size: 25px;
+  line-height: 1.1;
+  font-weight: 650;
+}
+.diff-file-back strong {
+  font-family: diff-hubot, sans-serif;
+  font-size: 21px;
+  line-height: 1.2;
+  font-weight: 650;
+}
+.diff-file-back > span {
+  font-size: 13px;
+}
+.diff-file-card small {
+  font-family: diff-mono, monospace;
+  font-size: 9px;
+  margin-top: 5px;
+}
+@media (max-width: 700px) {
+  .diff-care-file {
+    height: 225px !important;
+  }
+  .diff-file-card {
+    height: 195px;
+  }
+  .diff-file-front,
+  .diff-file-back {
+    padding: 17px;
+  }
+  .diff-file-front strong {
+    font-size: 23px;
+  }
+  .diff-file-back strong {
+    font-size: 20px;
   }
 }

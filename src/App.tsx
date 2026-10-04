@@ -6,11 +6,7 @@ import { ScrollToTop } from "./components/ScrollToTop";
 import { featuredProjects } from "./content/projects";
 import { caseStudyPage } from "./lib/routes";
 import { HomePage } from "./pages/HomePage";
-const NoSignalPage = lazy(() =>
-  import("./pages/NoSignalPage").then((module) => ({
-    default: module.NoSignalPage,
-  })),
-);
+const NoSignalPage = lazy(() => import("./pages/NoSignalPage"));
 const DraftApp = lazy(() => import("./drafts/DraftApp"));
 
 const CaseStudyPage = caseStudyPage.Component;

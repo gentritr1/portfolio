@@ -28,6 +28,7 @@ export default function CanvasStage({ onRead }: { onRead: (section?: string) => 
   const camera = useRef<Camera>({ x: -72, y: -40, scale: 1 })
   const size = useRef({ width: window.innerWidth, height: 600 })
   const animation = useRef(0)
+  const destination = useRef<{ camera: Camera; done?: () => void } | null>(null)
   const reduce = useRef(window.matchMedia('(prefers-reduced-motion: reduce)').matches)
   const pointers = useRef(new Map<number, { x: number; y: number }>())
   const last = useRef({ x: 0, y: 0, time: 0, vx: 0, vy: 0 })
@@ -41,7 +42,7 @@ export default function CanvasStage({ onRead }: { onRead: (section?: string) => 
   const active = clusters[Math.max(0, selected)]
   const liveFrame = active.frames.find((frame) => frame.live)
 
-  function stop() { cancelAnimationFrame(animation.current); animation.current = 0 }
+  function stop() { cancelAnimationFrame(animation.current); animation.current = 0; destination.current = null }
   function apply(next: Camera) {
     const bounded = contain(next, size.current)
     camera.current = bounded
@@ -54,9 +55,10 @@ export default function CanvasStage({ onRead }: { onRead: (section?: string) => 
       mapView.current.setAttribute('height', String(size.current.height / bounded.scale))
     }
   }
-  function travel(next: Camera, duration = 440, done?: () => void) {
+  function travel(next: Camera, duration = 300, done?: () => void) {
     stop()
     if (reduce.current || duration === 0) { apply(next); done?.(); return }
+    destination.current = { camera: next, done }
     const from = { ...camera.current }
     let began = 0
     function frame(now: number) {
@@ -65,7 +67,7 @@ export default function CanvasStage({ onRead }: { onRead: (section?: string) => 
       const eased = 1 - (1 - progress) ** 4
       apply({ x: from.x + (next.x - from.x) * eased, y: from.y + (next.y - from.y) * eased, scale: from.scale + (next.scale - from.scale) * eased })
       if (progress < 1) animation.current = requestAnimationFrame(frame)
-      else { animation.current = 0; done?.() }
+      else { animation.current = 0; destination.current = null; done?.() }
     }
     animation.current = requestAnimationFrame(frame)
   }
@@ -102,7 +104,7 @@ export default function CanvasStage({ onRead }: { onRead: (section?: string) => 
     if (interactive) { setInteractive(null); viewport.current?.focus(); return }
     setSelected(Math.max(0, selected))
     // A 100% camera is deliberate: native demo controls retain their 44px targets.
-    travel({ scale: 1, x: (size.current.width - liveFrame.width) / 2 - active.x - liveFrame.x, y: (size.current.height - liveFrame.height) / 2 - active.y - liveFrame.y + 12 }, 440, () => {
+    travel({ scale: 1, x: (size.current.width - liveFrame.width) / 2 - active.x - liveFrame.x, y: (size.current.height - liveFrame.height) / 2 - active.y - liveFrame.y + 12 }, 300, () => {
       setInteractive(liveFrame.id)
       setNotice(`${liveFrame.title} demo is interactive. All displayed data is invented. Escape returns to the canvas.`)
       requestAnimationFrame(() => world.current?.querySelector<HTMLElement>(`[data-frame="${liveFrame.id}"] select, [data-frame="${liveFrame.id}"] button`)?.focus({ preventScroll: true }))
@@ -115,7 +117,14 @@ export default function CanvasStage({ onRead }: { onRead: (section?: string) => 
     let initial = true
     const preference = window.matchMedia('(prefers-reduced-motion: reduce)')
     reduce.current = preference.matches
-    const change = () => { reduce.current = preference.matches; if (reduce.current) stop() }
+    const change = () => {
+      reduce.current = preference.matches
+      if (reduce.current) {
+        const target = destination.current
+        stop()
+        if (target) { apply(target.camera); target.done?.() }
+      }
+    }
     preference.addEventListener('change', change)
     const observer = new ResizeObserver(([entry]) => {
       if (!entry.contentRect.width || !entry.contentRect.height) return
@@ -125,7 +134,7 @@ export default function CanvasStage({ onRead }: { onRead: (section?: string) => 
         initial = false
         const target = { x: -72, y: -40, scale: 1 }
         apply(reduce.current ? target : { x: 20, y: -6, scale: 1.055 })
-        travel(target, 1250)
+        travel(target, 1100)
       } else apply(camera.current)
     })
     observer.observe(view)
@@ -198,17 +207,21 @@ export default function CanvasStage({ onRead }: { onRead: (section?: string) => 
     }
     event.currentTarget.dataset.dragging = 'false'
     if (cancelled || reduce.current || event.timeStamp - last.current.time > 80) return
-    let { vx, vy } = last.current
+    // Predict the free-pan resting point, then settle with the release velocity.
+    const target = contain({ ...camera.current, x: camera.current.x + last.current.vx * 200, y: camera.current.y + last.current.vy * 200 }, size.current)
+    let vx = last.current.vx * 1000, vy = last.current.vy * 1000
     let previous = 0
-    function coast(now: number) {
-      const dt = previous ? Math.min(32, now - previous) : 16
+    function settle(now: number) {
+      const dt = Math.min(previous ? (now - previous) / 1000 : 1 / 60, 1 / 30)
       previous = now
-      const friction = Math.exp(-dt / 150)
-      vx *= friction; vy *= friction
-      apply({ ...camera.current, x: camera.current.x + vx * dt, y: camera.current.y + vy * dt })
-      animation.current = Math.hypot(vx, vy) > 0.025 ? requestAnimationFrame(coast) : 0
+      const current = camera.current
+      vx += (350 * (target.x - current.x) - 35 * vx) * dt
+      vy += (350 * (target.y - current.y) - 35 * vy) * dt
+      apply({ ...current, x: current.x + vx * dt, y: current.y + vy * dt })
+      if (Math.abs(target.x - camera.current.x) + Math.abs(target.y - camera.current.y) + Math.abs(vx) + Math.abs(vy) > .1) animation.current = requestAnimationFrame(settle)
+      else { apply(target); animation.current = 0 }
     }
-    if (Math.hypot(vx, vy) > 0.025) animation.current = requestAnimationFrame(coast)
+    animation.current = requestAnimationFrame(settle)
   }
   function keyboard(event: KeyboardEvent<HTMLElement>) {
     if (event.key === 'Escape') {

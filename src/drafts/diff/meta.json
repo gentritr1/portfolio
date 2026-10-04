@@ -15,14 +15,7 @@
   },
   "rounds": 2,
   "antiPale": "pass",
-  "mechanisms": [
-    "M1",
-    "M2",
-    "M3",
-    "M4",
-    "M5",
-    "M9"
-  ],
+  "mechanisms": ["M1", "M2", "M3", "M4", "M5", "M9"],
   "slopCount": 0,
   "m2": "pass",
   "creativeGates": "pass"

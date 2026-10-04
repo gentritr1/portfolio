@@ -1,3 +1,5 @@
+import { OldCareFile } from '../../components/portfolio/OldCareFile'
+import { OldDraftMotion } from '../../components/portfolio/OldDraftMotion'
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { featuredProjects, findProject, projects, type Project } from '../../content/projects'
 import { links } from '../../content/links'
@@ -36,7 +38,7 @@ function WorkRow({ project }: { project: Project }) {
       <span className="draft-studio-work-expand" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 4v16M4 12h16" /></svg></span>
     </summary>
     <div className="draft-studio-work-details">
-      <p>{project.summary}</p>
+      <OldCareFile slug={project.slug} /><p>{project.summary}</p>
       <div><p className="draft-studio-work-stack">{project.stack.join(' · ')}</p>
         <div className="draft-studio-row-links">
           {project.slug === reading.slug && <a href="#studio-case">Read this case <Arrow /></a>}
@@ -148,6 +150,7 @@ export default function Draft() {
   const palette = chapters[chapter]
 
   return <main className="draft-studio" data-motion={reduced ? 'reduced' : paused ? 'paused' : 'active'}>
+      <OldDraftMotion />
     <a className="draft-studio-skip" href="#studio-work">Skip to work index</a>
     <section className="draft-studio-journey" ref={journeyRef} aria-label="Read to Feed studio story">
       <div className="draft-studio-stage" ref={stageRef} data-chapter={chapter} style={{ '--draft-studio-backdrop': palette.colour, '--draft-studio-foreground': palette.text } as CSSProperties}>

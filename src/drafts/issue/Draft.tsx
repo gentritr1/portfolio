@@ -1,3 +1,7 @@
+import { OldCareFile } from '../../components/portfolio/OldCareFile'
+import { OldDraftMotion } from '../../components/portfolio/OldDraftMotion'
+import { transitionOldDraft } from '../../components/portfolio/oldDraftTransition'
+import { OutlineName } from '../../components/portfolio/OutlineName'
 import { useState } from "react";
 import { projects } from "../../content/projects";
 import { links } from "../../content/links";
@@ -37,6 +41,7 @@ export default function Draft() {
   const project = projects.find((p) => p.slug === feature.slug)!;
   return (
     <div className="draft-issue">
+      <OldDraftMotion />
       <title>The working issue — Gentrit Rashiti</title>
       <header className="iss-header">
         <a href="/drafts">Gentrit Rashiti</a>
@@ -53,9 +58,9 @@ export default function Draft() {
           <div className="iss-cover-grid">
             <div className="iss-editor">
               <h2>
-                Gentrit
+                <OutlineName>Gentrit
                 <br />
-                <em>Rashiti.</em>
+                <em>Rashiti.</em></OutlineName>
               </h2>
               <p>
                 Frontend & mobile developer,
@@ -103,7 +108,7 @@ export default function Draft() {
                 <button
                   type="button"
                   onClick={() =>
-                    setPage((page + features.length - 1) % features.length)
+                    transitionOldDraft(() => setPage((page + features.length - 1) % features.length))
                   }
                   aria-label="Previous feature"
                 >
@@ -119,7 +124,7 @@ export default function Draft() {
                 </p>
                 <button
                   type="button"
-                  onClick={() => setPage((page + 1) % features.length)}
+                  onClick={() => transitionOldDraft(() => setPage((page + 1) % features.length))}
                   aria-label="Turn to next feature"
                 >
                   <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -195,7 +200,7 @@ export default function Draft() {
                   <span>{p.years ?? "—"}</span>
                 </summary>
                 <div>
-                  <p>{p.summary}</p>
+                  <OldCareFile slug={p.slug} /><p>{p.summary}</p>
                   <p>{p.stack.join(" · ")}</p>
                   <nav>
                     {p.links.map((l) => (
@@ -240,7 +245,7 @@ export default function Draft() {
             <nav>
               <a href={links.linkedin}>LinkedIn</a>
               <a href={links.github}>GitHub</a>
-              <a href={links.cv}>Download CV</a>
+              <a href={links.cv} download>Download CV</a>
             </nav>
           </div>
         </section>

@@ -1,3 +1,6 @@
+import { OldCareFile } from '../../components/portfolio/OldCareFile'
+import { OldDraftMotion } from '../../components/portfolio/OldDraftMotion'
+import { transitionOldDraft } from '../../components/portfolio/oldDraftTransition'
 import { useEffect, useRef, useState } from 'react'
 import type { CSSProperties, FormEvent, KeyboardEvent } from 'react'
 import { Link } from 'react-router'
@@ -67,14 +70,14 @@ function ProjectView({ project, onVisit, visited }: { project: Project; onVisit:
   const image = project.media.galleries?.[0]?.items[0] ?? project.media.shot
   const isFjale = project.slug === 'fjale'
 
-  function openCase() { setView('case'); onVisit(project.slug) }
+  function openCase() { transitionOldDraft(() => setView('case')); onVisit(project.slug) }
   return <article id="savefile-project-panel" tabIndex={-1} className="savefile-project" aria-label={`${project.name} project`}>
     <div className="savefile-project-top"><span>{worlds[project.channel]}</span><span>{project.years ?? project.role}</span></div>
     <h2>{project.name}</h2>
     {view === 'preview' && (isFjale ? <WordDemo /> : image ? <figure className="savefile-project-shot"><img src={image.src} alt={image.alt} /><figcaption>Public product screenshot</figcaption></figure> : <p className="savefile-project-summary">{project.summary}</p>)}
-    {view === 'case' && <div className="savefile-case-copy"><h3>{isFjale ? 'A daily word, in Albanian.' : project.kind}</h3><p>{project.summary}</p><dl><div><dt>Role</dt><dd>{project.role}</dd></div><div><dt>Technology</dt><dd>{project.stack.join(', ')}</dd></div>{isFjale && <><div><dt>Dictionary</dt><dd>21,000 words</dd></div><div><dt>Play</dt><dd>Daily puzzles, archive, offline support</dd></div></>}</dl>{isFjale && <p>Vanilla JavaScript keeps the game in the browser. The progressive web app can be installed, with an Albanian keyboard, hints and earlier daily puzzles available to replay.</p>}</div>}
+    {view === 'case' && <div className="savefile-case-copy"><OldCareFile slug={project.slug} /><h3>{isFjale ? 'A daily word, in Albanian.' : project.kind}</h3><p>{project.summary}</p><dl><div><dt>Role</dt><dd>{project.role}</dd></div><div><dt>Technology</dt><dd>{project.stack.join(', ')}</dd></div>{isFjale && <><div><dt>Dictionary</dt><dd>21,000 words</dd></div><div><dt>Play</dt><dd>Daily puzzles, archive, offline support</dd></div></>}</dl>{isFjale && <p>Vanilla JavaScript keeps the game in the browser. The progressive web app can be installed, with an Albanian keyboard, hints and earlier daily puzzles available to replay.</p>}</div>}
     {view === 'screen' && image && <figure className="savefile-project-shot"><img src={image.src} alt={image.alt} /><figcaption>{isFjale ? 'The actual FJALË website' : 'Public product screenshot'}</figcaption></figure>}
-    <div className="savefile-project-actions">{view !== 'case' ? <button type="button" className="savefile-action" onClick={openCase}>Read project<Arrow /></button> : <button type="button" className="savefile-action" onClick={() => setView('preview')}><Arrow back />Back to {isFjale ? 'demo' : 'preview'}</button>}{image && <button type="button" className="savefile-screen-toggle" onClick={() => setView(view === 'screen' ? 'preview' : 'screen')}>{view === 'screen' ? 'Back' : 'Real screen'}</button>}</div>
+    <div className="savefile-project-actions">{view !== 'case' ? <button type="button" className="savefile-action" onClick={openCase}>Read project<Arrow /></button> : <button type="button" className="savefile-action" onClick={() => transitionOldDraft(() => setView('preview'))}><Arrow back />Back to {isFjale ? 'demo' : 'preview'}</button>}{image && <button type="button" className="savefile-screen-toggle" onClick={() => transitionOldDraft(() => setView(view === 'screen' ? 'preview' : 'screen'))}>{view === 'screen' ? 'Back' : 'Real screen'}</button>}</div>
     <div className="savefile-public-links">{project.links.map(link => <a key={link.href} href={link.href} target="_blank" rel="noreferrer" onClick={() => onVisit(project.slug)}>{isFjale ? 'Play the full game' : link.label}<Arrow /></a>)}</div>
     {visited && <p className="savefile-visited-note">Opened on this device</p>}
   </article>
@@ -109,7 +112,7 @@ export default function Draft() {
     })
   }
 
-  function chooseProject(slug: string) { setSelected(slug); focusMobilePreview(); if (soundEnabled) sound.current?.play() }
+  function chooseProject(slug: string) { transitionOldDraft(() => setSelected(slug)); focusMobilePreview(); if (soundEnabled) sound.current?.play() }
 
   function showProjectSelector() {
     setPanel('projects')
@@ -148,6 +151,7 @@ export default function Draft() {
   }
 
   return <div className="draft-savefile">
+      <OldDraftMotion />
     <header className="savefile-header"><Link to="/drafts" className="savefile-logo">SAVE FILE</Link><nav aria-label="Save File navigation"><button type="button" aria-pressed={panel === 'projects'} onClick={showProjectSelector}>Projects <span>{projects.length}</span></button><button type="button" aria-pressed={panel === 'about'} onClick={() => setPanel('about')}>About / Contact</button><button type="button" aria-pressed={panel === 'save'} onClick={() => setPanel('save')}>Your save</button><button type="button" aria-pressed={soundEnabled} onClick={toggleSound}>Sound {soundEnabled ? 'on' : 'off'}</button></nav><Link className="savefile-back" to="/drafts">All drafts <Arrow /></Link></header>
     <main>
       <div className="savefile-identity"><h1>GENTRIT <span>RASHITI</span></h1><div><p>Frontend & mobile developer. Now full stack.</p><span>Kosovo · Working remotely</span></div></div>

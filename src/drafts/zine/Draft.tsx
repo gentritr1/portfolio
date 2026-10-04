@@ -1,3 +1,5 @@
+import { OldCareFile } from '../../components/portfolio/OldCareFile'
+import { OldDraftMotion } from '../../components/portfolio/OldDraftMotion'
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { currentYear, firstYear, projects } from '../../content/projects'
 import { caseNarratives } from '../../content/caseNarratives'
@@ -58,6 +60,7 @@ export default function Draft() {
 
   return (
     <div className="draft-zine" style={{ '--zn-play': paused || reduced || !visible ? 'paused' : 'running' } as CSSProperties}>
+      <OldDraftMotion />
       <header className="zn-header">
         <a href="/drafts" className="zn-brand">Gentrit Rashiti<span>Zine</span></a>
         <nav aria-label="Portfolio navigation"><a href="#zn-index">All {projects.length}</a><a href="#zn-about">About</a><button type="button" aria-pressed={paused || reduced} disabled={reduced} onClick={() => setPaused(!paused)}>{reduced ? 'Motion off' : paused ? 'Play motion' : 'Pause motion'}</button></nav>
@@ -90,7 +93,7 @@ export default function Draft() {
           <div className="zn-index-tools"><label>Show <select value={filter} onChange={(event) => setFilter(event.target.value)}><option value="All">All projects</option>{groups.map((group) => <option key={group}>{group}</option>)}</select></label><p role="status">{rows.length} {rows.length === 1 ? 'project' : 'projects'}</p></div>
           <div className="zn-projects">{rows.map((project) => <details key={project.slug}>
             <summary><span>{project.name}</span><span>{project.years ?? '—'}</span><span className="zn-expand" aria-hidden="true" /></summary>
-            <div className="zn-project-story"><p>{project.summary}</p><dl><div><dt>Role</dt><dd>{project.role}</dd></div><div><dt>Stack</dt><dd>{project.stack.join(' · ')}</dd></div></dl><div className="zn-project-links">{project.slug === 'viva-fresh' && <a href="#zn-viva">Read the featured case <Arrow /></a>}{project.links.map((link) => <a key={link.href} href={link.href} target="_blank" rel="noopener noreferrer">{link.label}<Arrow /><span className="zn-sr"> (opens in a new tab)</span></a>)}</div></div>
+            <div className="zn-project-story"><OldCareFile slug={project.slug} /><p>{project.summary}</p><dl><div><dt>Role</dt><dd>{project.role}</dd></div><div><dt>Stack</dt><dd>{project.stack.join(' · ')}</dd></div></dl><div className="zn-project-links">{project.slug === 'viva-fresh' && <a href="#zn-viva">Read the featured case <Arrow /></a>}{project.links.map((link) => <a key={link.href} href={link.href} target="_blank" rel="noopener noreferrer">{link.label}<Arrow /><span className="zn-sr"> (opens in a new tab)</span></a>)}</div></div>
           </details>)}</div>
         </section>
 

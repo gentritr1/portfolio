@@ -1,3 +1,6 @@
+import { OldCareFile } from '../../components/portfolio/OldCareFile'
+import { OldDraftMotion } from '../../components/portfolio/OldDraftMotion'
+import { transitionOldDraft } from '../../components/portfolio/oldDraftTransition'
 import { useRef, useState } from 'react'
 import type { CSSProperties, PointerEvent } from 'react'
 import { Link } from 'react-router'
@@ -47,7 +50,7 @@ function Poster({ project, plainImage }: { project: Project; plainImage: boolean
 function CaseDetails({ project }: { project: Project }) {
   return <section className="riso-case" id="riso-case" aria-labelledby="riso-case-title">
     <div><h2 id="riso-case-title">{project.name === 'Snaxx Tech' ? 'A small studio.\nAn entire world.' : project.name}</h2><div className="riso-case-links">{project.links.map(link => <a key={link.href} href={link.href} target="_blank" rel="noreferrer">{link.label}<Arrow /></a>)}</div></div>
-    <div><p>{project.summary}</p><dl><div><dt>Role</dt><dd>{project.role}</dd></div><div><dt>Year</dt><dd>{project.years ?? 'Not listed'}</dd></div><div><dt>Technology</dt><dd>{project.stack.join(', ')}</dd></div></dl>{project.slug === 'snaxx-tech' && <><h3>A lighter site, with the same world.</h3><p>The three.js hero and seamless cinemagraph loop sit inside the Almanac visual theme. The site runs on Vercel under a strict content security policy. Image assets went from 972 KB to 337 KB, and the deploy from 28 MB to 9.5 MB.</p></>}</div>
+    <div><OldCareFile slug={project.slug} /><p>{project.summary}</p><dl><div><dt>Role</dt><dd>{project.role}</dd></div><div><dt>Year</dt><dd>{project.years ?? 'Not listed'}</dd></div><div><dt>Technology</dt><dd>{project.stack.join(', ')}</dd></div></dl>{project.slug === 'snaxx-tech' && <><h3>A lighter site, with the same world.</h3><p>The three.js hero and seamless cinemagraph loop sit inside the Almanac visual theme. The site runs on Vercel under a strict content security policy. Image assets went from 972 KB to 337 KB, and the deploy from 28 MB to 9.5 MB.</p></>}</div>
   </section>
 }
 
@@ -61,7 +64,7 @@ export default function Draft() {
   const visible = projects.filter(item => `${item.name} ${item.kind} ${item.stack.join(' ')}`.toLowerCase().includes(query.toLowerCase().trim()))
 
   function selectProject(slug: string, revealPoster = false) {
-    setSelected(slug); setPlainImage(false); setPrintMessage('')
+    transitionOldDraft(() => { setSelected(slug); setPlainImage(false); setPrintMessage('') })
     if (revealPoster && matchMedia('(max-width: 700px)').matches) {
       requestAnimationFrame(() => {
         const poster = document.querySelector<HTMLElement>('.draft-riso .riso-poster')
@@ -79,6 +82,7 @@ export default function Draft() {
   }
 
   return <div className="draft-riso">
+      <OldDraftMotion />
     <header className="riso-header riso-screen-only"><Link to="/drafts" className="riso-owner">Gentrit Rashiti</Link><p>Frontend & mobile developer.<br />Now full stack.</p><nav aria-label="Riso navigation"><a href="#riso-index">All projects <span>{projects.length}</span></a><a href="#riso-about">About / Contact</a><Link to="/drafts">All drafts<Arrow /></Link></nav></header>
     <main>
       <div className="riso-workspace">

@@ -159,11 +159,12 @@ function Review() {
   const [theme, setTheme] = useState(() => initial.get('theme') === 'light' ? 'light' : 'dark')
   const [motion, setMotion] = useState(() => initial.get('motion') === 'reduce' ? 'reduce' : 'full')
   const [graphics, setGraphics] = useState(() => initial.get('graphics') === 'off' ? 'off' : 'on')
+  const [speed, setSpeed] = useState(() => initial.get('speed') === '0.1' ? '0.1' : '1')
   const [path, setPath] = useState(() => initial.get('page')?.startsWith('/') ? initial.get('page')! : '/')
   useEffect(() => {
-    const params = new URLSearchParams({ review: '1', width: String(width), theme, motion, graphics, page: path })
+    const params = new URLSearchParams({ review: '1', width: String(width), theme, motion, graphics, speed, page: path })
     history.replaceState(null, '', `${location.pathname}?${params}`)
-  }, [width, theme, motion, graphics, path])
+  }, [width, theme, motion, graphics, speed, path])
   const frame = useRef<HTMLIFrameElement>(null)
   const [gestureResult, setGestureResult] = useState('')
   function testSwipe() {
@@ -185,12 +186,13 @@ function Review() {
       <button type="button" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} className="min-h-11 border border-hairline px-3">Theme: {theme}</button>
       <button type="button" onClick={() => setMotion(motion === 'full' ? 'reduce' : 'full')} className="min-h-11 border border-hairline px-3">Motion: {motion}</button>
       <button type="button" onClick={() => setGraphics(graphics === 'on' ? 'off' : 'on')} className="min-h-11 border border-hairline px-3">WebGL: {graphics}</button>
-      <select aria-label="Review page" value={path} onChange={e => setPath(e.target.value)} className="min-h-11 border border-hairline bg-panel-1 px-3"><option value="/">Home</option><option value="/work/bayyinah-tv">Bayyinah TV</option><option value="/work/read-to-feed">Read to Feed</option><option value="/work/care-platform">Care platform</option><option value="/work/incentiv">Incentiv</option><option value="/work/viva-fresh">Viva Fresh</option><option value="/missing-channel">No signal</option><option value="/drafts">Draft picker</option><optgroup label="Live drafts">{['hybrid', 'studio', 'desktop', 'canvas', 'index', 'blueprint', 'savefile', 'zine', 'issue', 'wall', 'riso', 'dither', 'swiss', 'orbit', 'primetime', 'desk'].map(id => <option key={id} value={`/drafts/${id}`}>{id}</option>)}</optgroup></select>
+      <button type="button" onClick={() => setSpeed(speed === '1' ? '0.1' : '1')} className="min-h-11 border border-hairline px-3">Speed: {speed === '1' ? '100%' : '10%'}</button>
+      <select aria-label="Review page" value={path} onChange={e => setPath(e.target.value)} className="min-h-11 border border-hairline bg-panel-1 px-3"><option value="/">Home</option><option value="/work/bayyinah-tv">Bayyinah TV</option><option value="/work/read-to-feed">Read to Feed</option><option value="/work/care-platform">Care platform</option><option value="/work/incentiv">Incentiv</option><option value="/work/viva-fresh">Viva Fresh</option><option value="/missing-channel">No signal</option><option value="/drafts">Draft picker</option><optgroup label="Live drafts">{['diff', 'fjalekryq', 'linja', 'bitrate', 'aisle', 'facing-pages', 'ledger', 'deal', 'lap', 'lab', 'hybrid', 'studio', 'desktop', 'canvas', 'index', 'blueprint', 'savefile', 'zine', 'issue', 'wall', 'riso', 'dither', 'swiss', 'orbit', 'primetime', 'desk'].map(id => <option key={id} value={`/drafts/${id}`}>{id}</option>)}</optgroup></select>
       <button type="button" onClick={() => setPath(path === '/' ? '/work/bayyinah-tv' : '/')} className="min-h-11 border border-hairline px-3">Page: {path === '/' ? 'Home' : 'Project'}</button>
     </div>
     {path === '/' && width === 375 && <button type="button" onClick={testSwipe} className="mb-4 min-h-11 border border-hairline px-3">Test touch swipe</button>}
     <output className="mb-2 block label">{gestureResult}</output>
-    <iframe ref={frame} key={`${width}-${theme}-${motion}-${graphics}-${path}`} title="Portfolio review" src={`${path}?review=1&theme=${theme}&motion=${motion}&graphics=${graphics}`} style={{ width: width + 0.5, height: 812.5 }} className="outline outline-hairline" />
+    <iframe ref={frame} key={`${width}-${theme}-${motion}-${graphics}-${speed}-${path}`} title="Portfolio review" src={`${path}?review=1&theme=${theme}&motion=${motion}&graphics=${graphics}&speed=${speed}`} style={{ width: width + 0.5, height: 812.5 }} className="outline outline-hairline" />
   </main>
 }
 

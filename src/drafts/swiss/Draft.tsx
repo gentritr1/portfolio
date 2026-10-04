@@ -1,3 +1,6 @@
+import { OldCareFile } from '../../components/portfolio/OldCareFile'
+import { OutlineName } from '../../components/portfolio/OutlineName'
+import { OldDraftMotion } from '../../components/portfolio/OldDraftMotion'
 import { useEffect, useRef, useState } from "react";
 import { projects } from "../../content/projects";
 import { links } from "../../content/links";
@@ -55,6 +58,7 @@ export default function Draft() {
   }, []);
   return (
     <div className="draft-swiss">
+      <OldDraftMotion />
       <title>In formation — Gentrit Rashiti</title>
       <header className="sw-header">
         <a href="/drafts">Gentrit Rashiti</a>
@@ -95,7 +99,7 @@ export default function Draft() {
               </svg>
             </button>
           </div>
-          <h1 aria-label="Gentrit Rashiti" key={reset}>
+          <h1 aria-label="Gentrit Rashiti" key={reset}><OutlineName>
             {["GENTRIT", "RASHITI"].map((name, row) => (
               <span className="sw-name-line" aria-hidden="true" key={name}>
                 {name.split("").map((letter, i) => (
@@ -115,7 +119,7 @@ export default function Draft() {
                 ))}
               </span>
             ))}
-          </h1>
+          </OutlineName></h1>
           <div className="sw-hero-bottom">
             <p>
               Web. Mobile.
@@ -176,7 +180,7 @@ export default function Draft() {
             <p>Care-management platform · 2023–26</p>
           </div>
           <article>
-            <p>{care.summary}</p>
+            <OldCareFile slug={care.slug} /><p>{care.summary}</p>
             <blockquote>
               Vue to React.
               <br />
@@ -211,7 +215,7 @@ export default function Draft() {
                 </svg>
               </summary>
               <div>
-                <p>{p.summary}</p>
+                <OldCareFile slug={p.slug} /><p>{p.summary}</p>
                 <p>{p.stack.join(" · ")}</p>
                 <nav>
                   {p.links.map((l) => (
@@ -251,7 +255,7 @@ export default function Draft() {
             <nav>
               <a href={links.linkedin}>LinkedIn</a>
               <a href={links.github}>GitHub</a>
-              <a href={links.cv}>Download CV</a>
+              <a href={links.cv} download>Download CV</a>
             </nav>
           </div>
         </section>

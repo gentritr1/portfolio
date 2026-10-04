@@ -1,3 +1,6 @@
+import { OldCareFile } from '../../components/portfolio/OldCareFile'
+import { OldDraftMotion } from '../../components/portfolio/OldDraftMotion'
+import { transitionOldDraft } from '../../components/portfolio/oldDraftTransition'
 import { useCallback, useEffect, useRef, useState } from "react";
 import { currentYear, projects } from "../../content/projects";
 import { links } from "../../content/links";
@@ -37,7 +40,7 @@ export default function Draft() {
   const snaxx = objects[0].project;
 
   const select = useCallback((index: number) => {
-    setActive(index);
+    transitionOldDraft(() => setActive(index));
     scene.current?.select(index);
     requestAnimationFrame(() => {
       heading.current?.focus({ preventScroll: true });
@@ -94,6 +97,7 @@ export default function Draft() {
 
   return (
     <div className="draft-desk">
+      <OldDraftMotion />
       <title>At work — Gentrit Rashiti</title>
       <header className="dk-header">
         <a href="/drafts">Gentrit Rashiti</a>
@@ -302,7 +306,7 @@ export default function Draft() {
                 <Arrow />
               </summary>
               <div className="dk-work-detail">
-                <p>{project.summary}</p>
+                <OldCareFile slug={project.slug} /><p>{project.summary}</p>
                 <dl>
                   <div>
                     <dt>Role</dt>

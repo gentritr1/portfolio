@@ -1,15 +1,18 @@
+import { OldDraftMotion } from '../../components/portfolio/OldDraftMotion'
+import { transitionOldDraft } from '../../components/portfolio/oldDraftTransition'
 import { lazy, Suspense, useState } from 'react'
 import { links } from '../../content/links'
 import CanvasStage from './CanvasStage'
 import './canvas.css'
 
-const ReadPage = lazy(() => import('./ReadPage'))
+const loadReadPage = () => import('./ReadPage')
+const ReadPage = lazy(loadReadPage)
 
 export default function Draft() {
   const [reading, setReading] = useState(false)
   const [destination, setDestination] = useState<string | null>(null)
 
-  function read(section = 'dc-read') {
+  async function read(section = 'dc-read') {
     const target = reading ? document.getElementById(section) : null
     if (target) {
       target.tabIndex = -1
@@ -17,18 +20,20 @@ export default function Draft() {
       target.scrollIntoView({ behavior: 'instant', block: 'start' })
       return
     }
-    setDestination(section)
-    setReading(true)
+    await loadReadPage()
+    transitionOldDraft(() => { setDestination(section); setReading(true) })
   }
   function canvas() {
-    setReading(false)
-    setDestination(null)
-    window.scrollTo(0, 0)
-    requestAnimationFrame(() => document.querySelector<HTMLElement>('.draft-canvas .dc-viewport')?.focus({ preventScroll: true }))
+    transitionOldDraft(() => {
+      setReading(false); setDestination(null)
+      window.scrollTo(0, 0)
+      requestAnimationFrame(() => document.querySelector<HTMLElement>('.draft-canvas .dc-viewport')?.focus({ preventScroll: true }))
+    })
   }
 
   return (
     <div className="draft-canvas" data-mode={reading ? 'read' : 'canvas'}>
+      <OldDraftMotion />
       <header className="dc-header">
         <a className="dc-brand" href="/drafts">Gentrit Rashiti<span>Canvas</span></a>
         <nav aria-label="Portfolio navigation">

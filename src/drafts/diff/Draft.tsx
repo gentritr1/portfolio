@@ -8,10 +8,19 @@ import {
   type PointerEvent,
 } from "react";
 import { flushSync } from "react-dom";
+import {
+  AnimatePresence,
+  LayoutGroup,
+  animate,
+  motion,
+  useMotionValue,
+} from "motion/react";
 import { projects, type Project } from "../../content/projects";
 import { caseNarratives } from "../../content/caseNarratives";
 import { links } from "../../content/links";
 import { checkParity, legacyProjects, type ParityResult } from "./parity";
+import { dur, ease, spring } from "./motion";
+import CareFile from "./CareFile";
 import "./diff.css";
 
 const count = projects.length;
@@ -52,6 +61,7 @@ interface SheetProps {
   results: ParityResult[];
   running: boolean;
   mismatch: boolean;
+  reduced: boolean;
   onSelect: (slug: string | null) => void;
 }
 
@@ -60,11 +70,13 @@ function Detail({
   result,
   legacy,
   onClose,
+  reduced,
 }: {
   project: Project;
   result?: ParityResult;
   legacy: boolean;
   onClose: () => void;
+  reduced: boolean;
 }) {
   const story = caseNarratives[project.slug];
   return (
@@ -84,6 +96,7 @@ function Detail({
         <div className="diff-story">
           <h3>{project.kind}</h3>
           <p>{story?.story.product ?? project.summary}</p>
+          {project.slug === "care-platform" && <CareFile reduced={reduced} />}
           {story && <p>{story.story.built}</p>}
           {story && <p>{story.story.result}</p>}
           {project.channel === "healthcare" && (
@@ -152,8 +165,10 @@ function Sheet({
   results,
   running,
   mismatch,
+  reduced,
   onSelect,
 }: SheetProps) {
+  const [cvRequested, setCvRequested] = useState(false);
   const checked = results.filter((result) => result.passed).length;
   return (
     <div
@@ -170,7 +185,14 @@ function Sheet({
         </a>
         <span className="diff-location">Kosovo · Remote</span>
         <nav aria-label="Contact">
-          <a href={links.cv}>CV</a>
+          <a
+            href={links.cv}
+            download
+            onClick={() => setCvRequested(true)}
+            aria-label={cvRequested ? "CV download requested" : "Download CV"}
+          >
+            {cvRequested ? "Requested" : "CV"}
+          </a>
           <a href={`mailto:${links.email}`}>
             Email
             <Arrow />
@@ -257,8 +279,11 @@ function Sheet({
               ? "Missing title — test fixture"
               : project.name;
           return (
-            <div
+            <motion.div
               className="diff-project"
+              layout
+              layoutId={`${legacy ? "legacy" : "current"}-diff-project-${project.slug}`}
+              transition={reduced ? { duration: 0.01 } : spring.ui}
               data-open={opened}
               data-checked={!!result}
               data-failed={result?.passed === false}
@@ -319,23 +344,50 @@ function Sheet({
                   ))}
                 </span>
               </button>
-              {opened && (
-                <div
-                  id={legacy ? undefined : `diff-case-${project.slug}`}
-                  className="diff-case"
-                  role="region"
-                  aria-label={`${project.name} details`}
-                  tabIndex={legacy ? undefined : -1}
-                >
-                  <Detail
-                    project={project}
-                    result={result}
-                    legacy={legacy}
-                    onClose={() => onSelect(null)}
-                  />
-                </div>
-              )}
-            </div>
+              <AnimatePresence initial={false}>
+                {opened && (
+                  <motion.div
+                    key="case"
+                    initial={{
+                      height: 0,
+                      opacity: 0,
+                      y: reduced ? 0 : 8,
+                      filter: reduced ? "blur(0px)" : "blur(4px)",
+                    }}
+                    animate={{
+                      height: "auto",
+                      opacity: 1,
+                      y: 0,
+                      filter: "blur(0px)",
+                    }}
+                    exit={{
+                      height: 0,
+                      opacity: 0,
+                      y: reduced ? 0 : 8,
+                      filter: reduced ? "blur(0px)" : "blur(4px)",
+                    }}
+                    transition={{
+                      duration: reduced ? 0.01 : dur.panel,
+                      ease: ease.sheet,
+                    }}
+                    style={{ overflow: "hidden" }}
+                    id={legacy ? undefined : `diff-case-${project.slug}`}
+                    className="diff-case"
+                    role="region"
+                    aria-label={`${project.name} details`}
+                    tabIndex={legacy ? undefined : -1}
+                  >
+                    <Detail
+                      project={project}
+                      result={result}
+                      legacy={legacy}
+                      onClose={() => onSelect(null)}
+                      reduced={reduced}
+                    />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
           );
         })}
       </section>
@@ -373,8 +425,13 @@ function Sheet({
             GitHub
             <Arrow />
           </a>
-          <a href={links.cv}>
-            Download CV
+          <a
+            href={links.cv}
+            download
+            onClick={() => setCvRequested(true)}
+            aria-live="polite"
+          >
+            {cvRequested ? "CV download requested" : "Download CV"}
             <Arrow />
           </a>
         </nav>
@@ -396,6 +453,7 @@ function Sheet({
 export default function Draft() {
   const root = useRef<HTMLDivElement>(null);
   const [seam, setSeam] = useState(38);
+  const seamMotion = useMotionValue(38);
   const [manual, setManual] = useState(false);
   const [selected, setSelected] = useState<string | null>(null);
   const [results, setResults] = useState<ParityResult[]>([]);
@@ -404,12 +462,21 @@ export default function Draft() {
   const [reduced, setReduced] = useState(false);
   const [discover, setDiscover] = useState(true);
   const drag = useRef(false);
+  const dragSample = useRef({ value: 38, time: 0, velocity: 0 });
   const selectedRef = useRef<string | null>(null);
   const returnFocus = useRef<HTMLButtonElement | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const runId = useRef(0);
   const passed = results.filter((result) => result.passed).length;
   const failed = results.some((result) => !result.passed);
+
+  useEffect(() => {
+    const unsubscribe = seamMotion.on("change", setSeam);
+    return () => {
+      unsubscribe();
+      seamMotion.stop();
+    };
+  }, [seamMotion]);
 
   useEffect(() => {
     const preference = matchMedia("(prefers-reduced-motion: reduce)");
@@ -431,7 +498,8 @@ export default function Draft() {
     runId.current++;
     clearTimeout(timer.current);
     setRunning(false);
-  }, []);
+    seamMotion.stop();
+  }, [seamMotion]);
 
   const select = useCallback(
     (slug: string | null) => {
@@ -458,13 +526,8 @@ export default function Draft() {
             (trigger ?? returnFocus.current)?.focus({ preventScroll: true });
           }
         });
-      if (!reduced && document.startViewTransition) {
-        const transition = document.startViewTransition(change);
-        void transition.updateCallbackDone.then(focusSelection, focusSelection);
-      } else {
-        change();
-        focusSelection();
-      }
+      change();
+      focusSelection();
     },
     [reduced],
   );
@@ -478,7 +541,7 @@ export default function Draft() {
     const id = runId.current;
     setManual(true);
     setResults([]);
-    setSeam(100);
+    seamMotion.jump(100);
     setRunning(true);
     let index = 0;
     const next = () => {
@@ -490,7 +553,7 @@ export default function Draft() {
       );
       setResults((previous) => [...previous, result]);
       index++;
-      setSeam(100 - (index / count) * 100);
+      seamMotion.jump(100 - (index / count) * 100);
       if (index === count) {
         setRunning(false);
         return;
@@ -498,7 +561,7 @@ export default function Draft() {
       timer.current = setTimeout(next, reduced ? 24 : 155);
     };
     timer.current = setTimeout(next, reduced ? 0 : 220);
-  }, [mismatch, reduced, running, stop]);
+  }, [mismatch, reduced, running, stop, seamMotion]);
 
   useEffect(() => {
     const onKey = (event: globalThis.KeyboardEvent) => {
@@ -525,16 +588,44 @@ export default function Draft() {
     return () => removeEventListener("keydown", onKey);
   }, [runParity, select]);
 
-  function changeSeam(value: number) {
+  function changeSeam(value: number, settle = false) {
     stop();
     setManual(true);
-    setSeam(Math.max(0, Math.min(100, value)));
+    const next = Math.max(0, Math.min(100, value));
+    if (settle)
+      animate(seamMotion, next, reduced ? { duration: 0.01 } : spring.ui);
+    else seamMotion.set(next);
   }
 
   function movePointer(event: PointerEvent<HTMLDivElement>) {
     if (!drag.current || !root.current) return;
     const box = root.current.getBoundingClientRect();
-    changeSeam(((event.clientX - box.left) / box.width) * 100);
+    const value = ((event.clientX - box.left) / box.width) * 100;
+    const sample = dragSample.current;
+    const dt = event.timeStamp - sample.time;
+    if (dt > 0 && dt < 100)
+      sample.velocity =
+        ((0.7 * (value - sample.value)) / dt) * 1000 + 0.3 * sample.velocity;
+    else sample.velocity = 0;
+    sample.time = event.timeStamp;
+    sample.value = value;
+    changeSeam(value);
+  }
+
+  function releaseSeam(event: PointerEvent<HTMLDivElement>) {
+    if (!drag.current) return;
+    drag.current = false;
+    const sample = dragSample.current;
+    const velocity = event.timeStamp - sample.time > 100 ? 0 : sample.velocity;
+    const target = Math.max(
+      0,
+      Math.min(100, Math.round((seamMotion.get() + velocity * 0.2) / 5) * 5),
+    );
+    animate(
+      seamMotion,
+      target,
+      reduced ? { duration: 0.01 } : { ...spring.ui, velocity },
+    );
   }
 
   function seamKey(event: KeyboardEvent<HTMLDivElement>) {
@@ -547,7 +638,7 @@ export default function Draft() {
     else if (event.key === "End") value = 100;
     else return;
     event.preventDefault();
-    changeSeam(value);
+    changeSeam(value, true);
   }
 
   const sheetProps = {
@@ -556,6 +647,7 @@ export default function Draft() {
     results,
     running,
     mismatch,
+    reduced,
     onSelect: select,
   };
   return (
@@ -568,152 +660,163 @@ export default function Draft() {
       style={{ "--diff-position": `${seam}%` } as CSSProperties}
     >
       <title>DIFF — Gentrit Rashiti</title>
-      <a className="diff-skip" href="#diff-project-list">
-        Skip to projects
-      </a>
-      <main id="diff-project-list" className="diff-documents">
-        <Sheet {...sheetProps} />
-        <Sheet {...sheetProps} legacy />
-      </main>
-      <div className="diff-seam" aria-hidden="true" />
-      <div
-        className="diff-seam-control"
-        role="slider"
-        tabIndex={0}
-        aria-label="Migration seam. Move between the legacy and current portfolio."
-        aria-valuemin={0}
-        aria-valuemax={100}
-        aria-valuenow={Math.round(seam)}
-        aria-valuetext={`${Math.round(seam)} percent legacy, ${Math.round(100 - seam)} percent current`}
-        aria-orientation="horizontal"
-        aria-describedby="diff-seam-help"
-        onFocus={() => setManual(true)}
-        onKeyDown={seamKey}
-        onPointerDown={(event) => {
-          drag.current = true;
-          event.currentTarget.setPointerCapture(event.pointerId);
-          movePointer(event);
-        }}
-        onPointerMove={movePointer}
-        onPointerUp={() => {
-          drag.current = false;
-        }}
-        onPointerCancel={() => {
-          drag.current = false;
-        }}
-        onLostPointerCapture={() => {
-          drag.current = false;
-        }}
-      >
-        <span aria-hidden="true">
-          <svg viewBox="0 0 30 18">
-            <path d="m8 4-5 5 5 5M22 4l5 5-5 5M12 3v12M18 3v12" />
-          </svg>
-        </span>
-        <b aria-hidden="true">drag</b>
-      </div>
+      <LayoutGroup id="diff">
+        <a className="diff-skip" href="#diff-project-list">
+          Skip to projects
+        </a>
+        <main id="diff-project-list" className="diff-documents">
+          <Sheet {...sheetProps} />
+          <Sheet {...sheetProps} legacy />
+        </main>
+        <div className="diff-seam" aria-hidden="true" />
+        <div
+          className="diff-seam-control"
+          role="slider"
+          tabIndex={0}
+          aria-label="Migration seam. Move between the legacy and current portfolio."
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuenow={Math.round(seam)}
+          aria-valuetext={`${Math.round(seam)} percent legacy, ${Math.round(100 - seam)} percent current`}
+          aria-orientation="horizontal"
+          aria-describedby="diff-seam-help"
+          onFocus={() => setManual(true)}
+          onKeyDown={seamKey}
+          onPointerDown={(event) => {
+            drag.current = true;
+            event.currentTarget.setPointerCapture(event.pointerId);
+            movePointer(event);
+          }}
+          onPointerMove={movePointer}
+          onPointerUp={releaseSeam}
+          onPointerCancel={() => {
+            drag.current = false;
+          }}
+          onLostPointerCapture={() => {
+            drag.current = false;
+          }}
+        >
+          <motion.span
+            aria-hidden="true"
+            whileHover={{ scale: reduced ? 1 : 1.07 }}
+            whileTap={{
+              scale: reduced ? 1 : 0.96,
+              rotateX: reduced ? 0 : -7.5,
+            }}
+            transition={reduced ? { duration: 0.01 } : spring.ui}
+          >
+            <svg viewBox="0 0 30 18">
+              <path d="m8 4-5 5 5 5M22 4l5 5-5 5M12 3v12M18 3v12" />
+            </svg>
+          </motion.span>
+          <b aria-hidden="true">drag</b>
+        </div>
 
-      <aside className="diff-runner" aria-label="Portfolio parity controls">
-        <div className="diff-runner-top">
-          <button type="button" className="diff-run" onClick={runParity}>
-            <span className="diff-run-symbol" aria-hidden="true">
-              <svg viewBox="0 0 12 14">
-                <path
-                  d={running ? "M2 1h3v12H2ZM8 1h3v12H8Z" : "M2 1l9 6-9 6Z"}
-                />
-              </svg>
-            </span>
-            {running
-              ? "Pause parity"
-              : results.length === count
-                ? "Run again"
-                : "Run parity"}
-            <kbd>P</kbd>
-          </button>
-          <p className="diff-result" aria-live="polite" aria-atomic="true">
-            {running
-              ? `Checking ${number(Math.min(results.length + 1, count))}/${count}`
-              : results.length === count
-                ? failed
-                  ? `${passed}/${count} equal · 1 blocked`
-                  : `${count}/${count} equal`
-                : results.length
-                  ? `${passed}/${count} equal · paused`
-                  : `${count} project pairs`}
-            <span>
+        <aside className="diff-runner" aria-label="Portfolio parity controls">
+          <div className="diff-runner-top">
+            <button type="button" className="diff-run" onClick={runParity}>
+              <span className="diff-run-symbol" aria-hidden="true">
+                <svg viewBox="0 0 12 14">
+                  <path
+                    d={running ? "M2 1h3v12H2ZM8 1h3v12H8Z" : "M2 1l9 6-9 6Z"}
+                  />
+                </svg>
+              </span>
               {running
-                ? "Comparing five fields per project"
+                ? "Pause parity"
+                : results.length === count
+                  ? "Run again"
+                  : "Run parity"}
+              <kbd>P</kbd>
+            </button>
+            <p className="diff-result" aria-live="polite" aria-atomic="true">
+              {running
+                ? `Checking ${number(Math.min(results.length + 1, count))}/${count}`
                 : results.length === count
                   ? failed
-                    ? "The missing title prevents parity."
-                    : "140 field comparisons passed."
-                  : "Recreation · local data comparison"}
-            </span>
-          </p>
-          <button
-            type="button"
-            className="diff-mismatch"
-            aria-pressed={mismatch}
-            onClick={() => {
-              stop();
-              setMismatch(!mismatch);
-              setResults([]);
-            }}
+                    ? `${passed}/${count} equal · 1 blocked`
+                    : `${count}/${count} equal`
+                  : results.length
+                    ? `${passed}/${count} equal · paused`
+                    : `${count} project pairs`}
+              <span>
+                {running
+                  ? "Comparing five fields per project"
+                  : results.length === count
+                    ? failed
+                      ? "The missing title prevents parity."
+                      : "140 field comparisons passed."
+                    : "Recreation · local data comparison"}
+              </span>
+            </p>
+            <button
+              type="button"
+              className="diff-mismatch"
+              aria-pressed={mismatch}
+              onClick={() => {
+                stop();
+                setMismatch(!mismatch);
+                setResults([]);
+              }}
+            >
+              {mismatch ? "Restore title" : "Test a mismatch"}
+              <span>
+                {mismatch
+                  ? "Demo mismatch is active"
+                  : "See a parity gate catch it"}
+              </span>
+            </button>
+            <button
+              type="button"
+              className="diff-reset"
+              onClick={() => changeSeam(38)}
+            >
+              Compare<span>v1 / v2</span>
+            </button>
+          </div>
+          <div
+            className="diff-parity-strip"
+            aria-label="Jump to a project pair"
           >
-            {mismatch ? "Restore title" : "Test a mismatch"}
+            {projects.map((project, index) => {
+              const result = results.find((item) => item.slug === project.slug);
+              return (
+                <button
+                  key={project.slug}
+                  type="button"
+                  data-state={
+                    result
+                      ? result.passed
+                        ? "pass"
+                        : "fail"
+                      : running && results.length === index
+                        ? "active"
+                        : "pending"
+                  }
+                  data-selected={selected === project.slug}
+                  onClick={() => select(project.slug)}
+                  aria-label={`Open project ${index + 1}: ${project.name}${result ? (result.passed ? ", parity equal" : ", parity differs") : ""}`}
+                  title={project.name}
+                >
+                  <span>{number(index + 1)}</span>
+                  {result ? (
+                    <Check failed={!result.passed} />
+                  ) : (
+                    <span className="diff-strip-dash" />
+                  )}
+                </button>
+              );
+            })}
+          </div>
+          <p id="diff-seam-help" className="diff-runner-help">
             <span>
-              {mismatch
-                ? "Demo mismatch is active"
-                : "See a parity gate catch it"}
+              Drag the seam · arrows adjust · P runs parity · Esc returns
             </span>
-          </button>
-          <button
-            type="button"
-            className="diff-reset"
-            onClick={() => changeSeam(38)}
-          >
-            Compare<span>v1 / v2</span>
-          </button>
-        </div>
-        <div className="diff-parity-strip" aria-label="Jump to a project pair">
-          {projects.map((project, index) => {
-            const result = results.find((item) => item.slug === project.slug);
-            return (
-              <button
-                key={project.slug}
-                type="button"
-                data-state={
-                  result
-                    ? result.passed
-                      ? "pass"
-                      : "fail"
-                    : running && results.length === index
-                      ? "active"
-                      : "pending"
-                }
-                data-selected={selected === project.slug}
-                onClick={() => select(project.slug)}
-                aria-label={`Open project ${index + 1}: ${project.name}${result ? (result.passed ? ", parity equal" : ", parity differs") : ""}`}
-                title={project.name}
-              >
-                <span>{number(index + 1)}</span>
-                {result ? (
-                  <Check failed={!result.passed} />
-                ) : (
-                  <span className="diff-strip-dash" />
-                )}
-              </button>
-            );
-          })}
-        </div>
-        <p id="diff-seam-help" className="diff-runner-help">
-          <span>
-            Drag the seam · arrows adjust · P runs parity · Esc returns
-          </span>
-          <span>Swipe 28 pairs below · tap one to open it</span>
-          <span>Legacy and current contain the same work.</span>
-        </p>
-      </aside>
+            <span>Swipe 28 pairs below · tap one to open it</span>
+            <span>Legacy and current contain the same work.</span>
+          </p>
+        </aside>
+      </LayoutGroup>
     </div>
   );
 }
