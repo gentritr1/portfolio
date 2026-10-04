@@ -14,7 +14,7 @@ import { projects } from "../../content/projects";
 import { chapters } from "./content";
 import { Page, type PageMetrics, type ReadingPosition } from "./Page";
 import { snapshotSpread } from "./snapshot";
-import { spring } from "./motion";
+import { ease, spring } from "./motion";
 import type { PageCurl } from "./curl";
 import "./facing-pages.css";
 
@@ -60,6 +60,7 @@ function FlipIcon() {
 
 export default function Draft() {
   const [opened, setOpened] = useState(false);
+  const [freshOpen, setFreshOpen] = useState(false);
   const [position, setPosition] = useState<ReadingPosition>(firstPage);
   const [fontSize, setFontSize] = useState(17);
   const [rtl, setRtl] = useState(false);
@@ -86,6 +87,7 @@ export default function Draft() {
   const leafFront = useRef<HTMLDivElement>(null);
   const leafBack = useRef<HTMLDivElement>(null);
   const reader = useRef<HTMLDivElement>(null);
+  const book = useRef<HTMLDivElement>(null);
   const curl = useRef<PageCurl | null>(null);
   const cssAnimation = useRef<Animation | null>(null);
   const currentTurn = useRef<Turn | null>(null);
@@ -310,6 +312,10 @@ export default function Draft() {
 
   function openBook(chapter = "all") {
     cancelTurn();
+    if (!opened) {
+      setFreshOpen(true);
+      window.setTimeout(() => setFreshOpen(false), 1600);
+    }
     setOpened(true);
     setPosition({ chapter, project: null, page: 0 });
     setStatus(
@@ -439,6 +445,7 @@ export default function Draft() {
         className="draft-facing-pages"
         onKeyDown={bookKeys}
         data-open={opened}
+        data-fresh-open={freshOpen}
       >
         <title>Facing Pages — Gentrit Rashiti</title>
         <h1 className="fp-sr">Facing Pages — Gentrit Rashiti</h1>
@@ -502,12 +509,23 @@ export default function Draft() {
             </motion.button>
           </div>
           <motion.div
+            ref={book}
             className="fp-book"
             data-rtl={rtl}
             data-renderer={reduced ? "reduced" : renderer}
             data-turning={turning}
-            animate={{ rotateY: reduced ? 0 : drag }}
-            transition={reduced ? { duration: 0.01 } : spring.ui}
+            initial={reduced ? false : { opacity: 0, y: 28, rotateX: 9 }}
+            animate={{ rotateY: reduced ? 0 : drag, opacity: 1, y: 0, rotateX: 0 }}
+            transition={
+              reduced
+                ? { duration: 0.01 }
+                : {
+                    default: spring.ui,
+                    opacity: { duration: 0.5, ease: ease.out },
+                    y: { duration: 0.9, ease: ease.arrive },
+                    rotateX: { duration: 1.1, ease: ease.arrive },
+                  }
+            }
             onPointerDown={startSwipe}
             onPointerMove={moveSwipe}
             onPointerUp={endSwipe}
@@ -561,19 +579,35 @@ export default function Draft() {
               className="fp-cover"
               onClick={() => openBook()}
               aria-label="Open Facing Pages, the 28-project contents"
-              initial={reduced ? false : { rotateY: -8 }}
               aria-hidden={opened}
               tabIndex={opened ? -1 : 0}
               animate={
                 reduced
                   ? { opacity: opened ? 0 : 1, rotateY: 0 }
-                  : { rotateY: opened ? -178 : 0, opacity: 1 }
+                  : { rotateY: opened ? -176 : 0, opacity: opened ? 0 : 1 }
               }
               transition={
                 reduced
                   ? { duration: 0.01 }
-                  : { type: "spring", duration: 0.5, bounce: 0.03 }
+                  : opened
+                    ? {
+                        rotateY: { duration: 1.1, ease: ease.story },
+                        opacity: { delay: 1.0, duration: 0.25, ease: ease.out },
+                      }
+                    : {
+                        rotateY: { duration: 0.85, ease: ease.story },
+                        opacity: { duration: 0.01 },
+                      }
               }
+              onUpdate={(latest) => {
+                const turn = Math.min(1, Math.abs(Number(latest.rotateY ?? 0)) / 176);
+                book.current?.style.setProperty("--fp-turn", turn.toFixed(3));
+              }}
+              onPointerMove={(event) => {
+                const box = event.currentTarget.getBoundingClientRect();
+                const x = ((event.clientX - box.left) / box.width) * 100;
+                event.currentTarget.style.setProperty("--fp-sheen", x.toFixed(1) + "%");
+              }}
               style={{ pointerEvents: opened ? "none" : "auto" }}
             >
               <span className="fp-cover-front">

@@ -46,7 +46,7 @@ const boardNames: Record<string, string> = {
   "chatbot-runtime": "CHATBOT KIT",
   "chatbot-runtime-web": "CHATBOT WEB",
   "epub-reader-prototype": "EPUB READER",
-  "donation-app": "GOOD DEEDS",
+  "donation-app": "SADAQAH",
   "coaching-app": "COACHING",
   "fuel-loyalty-app": "FUEL LOYALTY",
   "member-portal": "MEMBER WEB",
