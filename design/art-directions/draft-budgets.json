@@ -1,0 +1,110 @@
+{
+  "method": "Decimal kB gzip. Initial graph includes entry and every static import. Each draft includes picker-shell static dependencies, the draft and all its dynamic graphics dependencies, excluding only files already in the initial graph. CSS is counted separately; public imagery and fonts are excluded from the JavaScript chunk budget.",
+  "baselineCommit": "89c40c4",
+  "baseline": {
+    "entry": 87.62,
+    "initialJS": 106.75
+  },
+  "final": {
+    "entry": 20.13,
+    "initialJS": 101.84
+  },
+  "drafts": [
+    {
+      "id": "hybrid",
+      "js": 59.59,
+      "css": 3.88,
+      "total": 63.47
+    },
+    {
+      "id": "studio",
+      "js": 39.21,
+      "css": 5.11,
+      "total": 44.32
+    },
+    {
+      "id": "desktop",
+      "js": 11.43,
+      "css": 5.55,
+      "total": 16.98
+    },
+    {
+      "id": "canvas",
+      "js": 17.72,
+      "css": 5.38,
+      "total": 23.1
+    },
+    {
+      "id": "index",
+      "js": 23.17,
+      "css": 3.73,
+      "total": 26.9
+    },
+    {
+      "id": "blueprint",
+      "js": 29.87,
+      "css": 4.8,
+      "total": 34.67
+    },
+    {
+      "id": "savefile",
+      "js": 10.33,
+      "css": 4.45,
+      "total": 14.78
+    },
+    {
+      "id": "zine",
+      "js": 11.42,
+      "css": 4.93,
+      "total": 16.35
+    },
+    {
+      "id": "issue",
+      "js": 7.5,
+      "css": 3.68,
+      "total": 11.18
+    },
+    {
+      "id": "wall",
+      "js": 27.56,
+      "css": 4.24,
+      "total": 31.8
+    },
+    {
+      "id": "riso",
+      "js": 8.58,
+      "css": 4.58,
+      "total": 13.16
+    },
+    {
+      "id": "dither",
+      "js": 12.22,
+      "css": 4.66,
+      "total": 16.88
+    },
+    {
+      "id": "swiss",
+      "js": 7.52,
+      "css": 3.37,
+      "total": 10.89
+    },
+    {
+      "id": "orbit",
+      "js": 38.43,
+      "css": 4.43,
+      "total": 42.86
+    },
+    {
+      "id": "primetime",
+      "js": 9,
+      "css": 4.92,
+      "total": 13.92
+    },
+    {
+      "id": "desk",
+      "js": 29.76,
+      "css": 4.57,
+      "total": 34.33
+    }
+  ]
+}

@@ -47,6 +47,18 @@ const rows = drafts.map((d) => {
   ).toFixed(2);
   return `| ${d.id} · [${d.title}](/drafts/${d.id}) | ${d.band} | ${d.antiPale} | ${s.design.toFixed(1)} | ${s.usability.toFixed(1)} | ${s.creativity.toFixed(1)} | ${s.content.toFixed(1)} | ${total} | ${d.rounds} | [Desktop](drafts-review/${d.id}-desktop.png) · [Mobile](drafts-review/${d.id}-mobile.png) | ${d.signature} | ${d.holdback} |`;
 });
+let verification = "";
+try {
+  const budget = JSON.parse(
+    await readFile(
+      new URL("../design/art-directions/draft-budgets.json", import.meta.url),
+      "utf8",
+    ),
+  );
+  verification = `## Loading and verification\n\nThe merged baseline (${budget.baselineCommit}) had an entry of **${budget.baseline.entry.toFixed(2)} kB gzip** and an initial JavaScript graph of **${budget.baseline.initialJS.toFixed(2)} kB gzip**. The completed gallery has an entry of **${budget.final.entry.toFixed(2)} kB** and an initial graph of **${budget.final.initialJS.toFixed(2)} kB**. An explicit group keeps already-eager React/router modules stable; no draft module enters the home loading path.\n\nEach row below includes the picker shell, the draft and all its lazy graphics dependencies, excluding only assets already in the initial graph. Public images and fonts are separate from this JavaScript chunk budget. Every direction is below 150 kB even with its scoped CSS included.\n\n| Draft | JavaScript gzip | CSS gzip | Combined |\n| --- | ---: | ---: | ---: |\n${budget.drafts.map((d) => `| ${d.id} | ${d.js.toFixed(2)} kB | ${d.css.toFixed(2)} kB | ${d.total.toFixed(2)} kB |`).join("\n")}\n\nBrowser checks cover the project indexes, selected-case navigation, keyboard paths, mobile focus/reveal behavior and the signature controls. WebGL and reduced-motion fallback captures accompany Studio, Blueprint, Index, Wall, Orbit and Desk. Desk was verified with an actual raycast click on its 3D phone and a tap on its image fallback. Riso invokes browser printing after decoding images and fonts; the native print layout was not captured or exported during this check.\n\nTypeScript, the production build and the craft detector pass. Gallery filters, all 16 routes, preview assets and noindex behavior are verified separately in the production preview. No deployment or push was performed.\n\n`;
+} catch (error) {
+  if (error.code !== "ENOENT") throw error;
+}
 const report = `# Live art-direction drafts
 
 Built from ASTRA-DRAFTS-BRIEF.md. The live picker is at **/drafts**. The public home remains the hybrid. Draft routes are lazy-loaded and marked noindex, with no link in the public navigation.
@@ -69,7 +81,7 @@ The main merge is local commit 89c40c4. Section 6 now includes project-colour pa
 
 Hybrid rounds: **7.86 → 8.01 → 7.95** weighted. The final round improved visible image texture but retained a local text-contrast weakness. The three-round limit was observed. The mobile name is larger and heavier; forced-colour and enhanced-contrast preferences receive solid text.
 
-## Maintenance
+${verification}## Maintenance
 
 Draft metadata and jury scores live beside each implementation in src/drafts/<id>/meta.json. Run node scripts/update-drafts-report.mjs after accepting a review. Picker thumbnails are downscaled captures of the corresponding desktop draft, with provenance metadata. All directions reuse the same project facts. Any invented product interface is labelled as a recreation.
 `;

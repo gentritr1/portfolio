@@ -43,22 +43,22 @@ Each row below includes the picker shell, the draft and all its lazy graphics de
 
 | Draft | JavaScript gzip | CSS gzip | Combined |
 | --- | ---: | ---: | ---: |
-| hybrid | 59.54 kB | 3.88 kB | 63.42 kB |
-| studio | 39.16 kB | 5.11 kB | 44.27 kB |
-| desktop | 11.37 kB | 5.55 kB | 16.92 kB |
-| canvas | 17.66 kB | 5.37 kB | 23.03 kB |
-| index | 23.11 kB | 3.73 kB | 26.84 kB |
-| blueprint | 29.82 kB | 4.80 kB | 34.62 kB |
-| savefile | 10.27 kB | 4.45 kB | 14.72 kB |
-| zine | 11.37 kB | 4.93 kB | 16.30 kB |
-| issue | 7.44 kB | 3.68 kB | 11.12 kB |
-| wall | 27.51 kB | 4.24 kB | 31.75 kB |
-| riso | 8.53 kB | 4.57 kB | 13.10 kB |
-| dither | 12.17 kB | 4.66 kB | 16.83 kB |
-| swiss | 7.47 kB | 3.37 kB | 10.84 kB |
-| orbit | 38.38 kB | 4.42 kB | 42.80 kB |
-| primetime | 8.95 kB | 4.92 kB | 13.87 kB |
-| desk | 29.69 kB | 4.55 kB | 34.24 kB |
+| hybrid | 59.59 kB | 3.88 kB | 63.47 kB |
+| studio | 39.21 kB | 5.11 kB | 44.32 kB |
+| desktop | 11.43 kB | 5.55 kB | 16.98 kB |
+| canvas | 17.72 kB | 5.38 kB | 23.10 kB |
+| index | 23.17 kB | 3.73 kB | 26.90 kB |
+| blueprint | 29.87 kB | 4.80 kB | 34.67 kB |
+| savefile | 10.33 kB | 4.45 kB | 14.78 kB |
+| zine | 11.42 kB | 4.93 kB | 16.35 kB |
+| issue | 7.50 kB | 3.68 kB | 11.18 kB |
+| wall | 27.56 kB | 4.24 kB | 31.80 kB |
+| riso | 8.58 kB | 4.58 kB | 13.16 kB |
+| dither | 12.22 kB | 4.66 kB | 16.88 kB |
+| swiss | 7.52 kB | 3.37 kB | 10.89 kB |
+| orbit | 38.43 kB | 4.43 kB | 42.86 kB |
+| primetime | 9.00 kB | 4.92 kB | 13.92 kB |
+| desk | 29.76 kB | 4.57 kB | 34.33 kB |
 
 Browser checks cover the project indexes, selected-case navigation, keyboard paths, mobile focus/reveal behavior and the signature controls. WebGL and reduced-motion fallback captures accompany Studio, Blueprint, Index, Wall, Orbit and Desk. Desk was verified with an actual raycast click on its 3D phone and a tap on its image fallback. Riso invokes browser printing after decoding images and fonts; the native print layout was not captured or exported during this check.
 

@@ -2,6 +2,16 @@
 export function applyReviewPreferences() {
   const params = new URLSearchParams(location.search)
   if (!params.has('review')) return
+  if (params.get('graphics') === 'off') {
+    const original = HTMLCanvasElement.prototype.getContext
+    Object.defineProperty(HTMLCanvasElement.prototype, 'getContext', {
+      configurable: true,
+      value(this: HTMLCanvasElement, type: string, options?: unknown) {
+        if (['webgl', 'webgl2', 'experimental-webgl'].includes(type)) return null
+        return Reflect.apply(original, this, [type, options])
+      },
+    })
+  }
   document.documentElement.dataset.reviewCls = '0'
   let cls = 0
   const observer = new PerformanceObserver((list) => {
@@ -27,15 +37,13 @@ export function applyReviewPreferences() {
   const reduced = params.get('motion') === 'reduce'
   const nativeMatchMedia = window.matchMedia.bind(window)
   window.matchMedia = (query) => {
-    const result = nativeMatchMedia(query)
-    if (!query.includes('prefers-reduced-motion')) return result
-    return new Proxy(result, {
-      get(target, property) {
-        if (property === 'matches') return query.includes('no-preference') ? !reduced : reduced
-        const value = Reflect.get(target, property, target)
-        return typeof value === 'function' ? value.bind(target) : value
-      },
-    })
+    const forcedQuery = query.replace(
+      /\(prefers-reduced-motion:\s*(reduce|no-preference)\)/g,
+      (_, preference: string) => (preference === 'reduce') === reduced
+        ? '(min-width: 0px)'
+        : '(min-width: 999999px)',
+    )
+    return nativeMatchMedia(forcedQuery)
   }
   if (reduced) {
     const style = document.createElement('style')
