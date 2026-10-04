@@ -465,22 +465,6 @@ export const projects: Project[] = [
     featured: {
       order: 6,
       monitor: 'gallery',
-      story: {
-        product:
-          'Dukagjini Bookstore is the shopping app of a book publisher, for iOS and Android. Readers search the catalogue, browse top categories and books on sale, keep favourite lists, and buy books with promo codes at checkout. The app is live in the App Store and on Google Play, and the screenshots on this page come from its public store listing.',
-        built:
-          'The app is built in React Native, with Redux for the app state and Firebase Messaging for push notifications. A notification opens the right screen through a deep link. The book-detail header animates as the page scrolls, and modals close with a swipe. Search, category lists, favourite lists and a checkout with promo codes complete the shopping flow on both platforms.',
-        result:
-          'Dukagjini Bookstore is live in the App Store and on Google Play, and both listings are linked on this page. One React Native codebase ships the app to iPhone and Android. Readers search books, browse categories and sales, keep favourites and check out with promo codes, and push notifications with deep links bring them back to a book.',
-      },
-      facts: [
-        { label: 'Role', value: 'Mobile' },
-        { label: 'Years', value: '2021–22' },
-        { label: 'Platforms', value: 'iOS, Android' },
-        { label: 'Stack', value: 'React Native, Redux, Firebase Messaging' },
-        { label: 'Features', value: 'Search, categories, sales, favourite lists, promo-code checkout, push deep links' },
-        { label: 'Motion', value: 'Animated book-detail header, swipe-to-close modals' },
-      ],
     },
   },
   {
