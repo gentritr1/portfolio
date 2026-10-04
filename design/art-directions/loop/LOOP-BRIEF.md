@@ -42,4 +42,14 @@ The owner wants many directions, kept as live drafts, iterated round after round
 
 | Round | Directions | Reviewer verdict | Carried forward |
 | --- | --- | --- | --- |
-| 1 | specimen, brief, orbit-index, changelog | pending | |
+| 1 | specimen, brief, orbit-index, changelog | changelog 52, brief 51, orbit-index 46, specimen 46 (of 70). See round-1-review.md | changelog frame, brief strike-and-insert, orbit-index Work column, specimen citation rule |
+| 2 | release-brief, strike-index, cited-claims, decision-record, margin-notes, tenant-switch | pending | |
+
+## Rules added after round 1
+
+- Capture at least one mid-animation frame for every claimed motion (pause the animations at a set time with document.getAnimations(), or sample frames). Two end states that look the same are not evidence.
+- Light grounds in round 2 (round 1 used dark three times; dark + one accent is a slop marker).
+- One accent. A per-item colour only where the colour is the content.
+- No strike where there is no real problem. If a sentence has no constraint, write it plain.
+- The phone first screen shows work, not only words.
+- Builders over-scored "original" by 1.5–2 points in round 1. Score it strictly.
