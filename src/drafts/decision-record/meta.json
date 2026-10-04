@@ -1,0 +1,26 @@
+{
+  "id": "decision-record",
+  "title": "DECISION RECORD",
+  "band": "Loop 2",
+  "rule": "the portfolio is indexed by decisions, not by projects",
+  "description": "Ten decisions from five years of web and mobile work, written as decision records: Context, Decision, Consequence, a year, a scope and a status. The work sits under each record as evidence.",
+  "signature": "Public Sans with one mono for ids and years, on white paper, with one green that only means Accepted. A dense decision log on the left, the open record on the right. Open a record whose Context states a number and that number leaves the Context sentence and lands in the Consequence, counting on the way (16 → 2 queries, React Native 0.63 → 0.81). A superseded record is joined to the record that replaced it by a 1 px bracket in the log gutter, drawn from the open record toward the other. Keyboard and reduced motion change state with no travel.",
+  "caseSlug": "care-platform",
+  "mechanisms": [
+    "M1",
+    "M5",
+    "M9"
+  ],
+  "slopCount": 0,
+  "rounds": 3,
+  "loopScores": {
+    "straightToThePoint": 8,
+    "notOverwhelming": 7,
+    "harmony": 7.5,
+    "meaningfulMotion": 7.5,
+    "actionsAndSeniority": 8,
+    "original": 6,
+    "hooks": 6
+  },
+  "holdback": "Lowest: hooks people and original, 6/10 each. The memorable moment (the 16 leaves the Context sentence and lands in the Consequence as 2) only plays when a visitor opens 0009 or 0003; the first screen shows a calm log, the open 0010 record and a 1 px bracket that draws to 0004, which is easy to miss. Visually the page is a master-detail reader (list left, record right), close to a docs or mail layout; the idea (a portfolio indexed by decisions) is new, the frame is not. The live care recreation also brings its own teal palette and type into the record, a second design language beside the one green."
+}

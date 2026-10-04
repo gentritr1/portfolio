@@ -1,0 +1,23 @@
+{
+  "id": "margin-notes",
+  "title": "MARGIN NOTES",
+  "band": "Loop 2",
+  "rule": "the work is the page; every fact is a note pinned to the pixel that shows it",
+  "description": "No hero. A one-line identity, then the live care recreation, with the facts set in the right margin as notes. Focus a note and a hairline draws to the part of the screen that proves it.",
+  "signature": "Public Sans and JetBrains Mono on warm paper, one magenta ink for the hairline system only (numbered markers, the line, the outline). Five plates: care platform, Design System v2, Bayyinah TV, Read to Feed (live recreations) and a public-screens plate (Viva Fresh, Dukagjini Bookstore, Incentiv). Each pinned note sits level with its target; hover, tab or tap draws a 1 px hairline from the note to the part (180 ms, ease-out, routed through the gutter, or over and under the screen when other controls sit to the right), then a 1 px outline fades in. Hovering a pinned part of the screen lights its note. Facts with no part on screen (16 to 2 queries, parity-tested rewrite, releases) sit under 'Not on this screen' with no pointer. The org-switch note reads the screen: 'Now: Harbor Health → Patient 2093, UTC−8'. The first note of a plate draws once when the plate comes into view. Phone: notes below the screen, numbered markers on it; a tap outlines the part and scrolls it into view when it is off screen. Reduced motion: no draw, no fade.",
+  "caseSlug": "care-platform",
+  "mechanisms": ["M1", "M2", "M5", "M9"],
+  "slopCount": 0,
+  "creativeGates": "pass",
+  "rounds": 3,
+  "loopScores": {
+    "straightToThePoint": 8,
+    "notOverwhelming": 7,
+    "harmony": 7,
+    "meaningfulMotion": 8,
+    "actionsAndSeniority": 7,
+    "original": 6,
+    "hooks": 6.5
+  },
+  "holdback": "Lowest: original, 6/10. Callout lines on product screens are a common documentation and launch-page device; the differences here (live screens, a note that reads the screen, a reverse hover link, an honest 'Not on this screen' list) are real but quiet, so a visitor can read the page as annotated screenshots. Hooks is close behind at 6.5: the best moment (switch the organization and note 1 rewrites itself) needs one click on the recreation. Harmony is 7 because each recreation keeps its own product palette (teal, red, amber, blue) next to the single magenta ink. Several pinned notes on Bayyinah TV and Read to Feed are feature lines, not decisions."
+}

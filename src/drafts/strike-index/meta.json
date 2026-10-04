@@ -1,0 +1,27 @@
+{
+  "rule": "the list is the work, and the list talks back",
+  "id": "strike-index",
+  "title": "Strike Index",
+  "band": "Loop 2",
+  "description": "Twelve projects as one dense, keyboard-first index on warm paper. Each row is one sentence. Rows with a real constraint are corrected to the result when selected; the other rows stay plain.",
+  "signature": "Proof correction. Select a row (hover, tap or arrow key). Where the row had a real constraint, an ink-blue line strikes it (260 ms) and the shipped result writes in after it (clip reveal, 340 ms, 220 ms delay). The edit always ends the sentence and its space is reserved, so no other word moves. Corrected rows stay corrected and a tally counts them, so the index fills with blue as it is read. The proof panel (desktop, sticky) or the opened row (phone) swaps with no travel. Reduced motion switches state with no transition.",
+  "caseSlug": "care-platform",
+  "antiPale": "one ink blue on warm paper, and the blue grows as rows are read",
+  "scores": {
+    "design": 7.5,
+    "usability": 8,
+    "creativity": 5.5,
+    "content": 7.5
+  },
+  "loopScores": {
+    "straightToThePoint": 8,
+    "notOverwhelming": 7,
+    "harmony": 7,
+    "meaningfulMotion": 7,
+    "actionsAndSeniority": 7,
+    "original": 5,
+    "hooks": 6
+  },
+  "rounds": 3,
+  "holdback": "Original, 5 of 10. The skeleton is a known one: a statement top-left, a dense index, a sticky preview on the right. That is the designeer.xyz and orbit-index frame moved to paper. The strike is carried over from brief. The new part is small: the edit always ends the sentence, so nothing moves, and corrected rows stay blue. Hooks is 6: a visitor who only scrolls on a phone sees one correction (row 1); the rest needs a tap. Five of twelve rows are plain because they have no real constraint, so the index reads half as a feature list."
+}

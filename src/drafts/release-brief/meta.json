@@ -1,0 +1,23 @@
+{
+  "id": "release-brief",
+  "title": "RELEASE BRIEF",
+  "band": "Loop 2",
+  "rule": "one sentence moves; every clause cites its proof",
+  "description": "One document on uncoated paper. The statement at the top is set one clause per line, each clause with a mono reference to the note that proves it. A year control under it rewrites the statement to what was true in that year; the notes of that year sit under it with the first plate open.",
+  "signature": "Strike-and-insert on one line only. Move the year control (drag, click a year, or the 'Earlier' link at the end of each year's notes) and each clause of 'Gentrit Rashiti builds a multi-tenant platform, from the design system to the API behind it.' is struck in vermilion and the words of that year write in after it on the same line, staggered 70 ms per line. The struck words are always the 2026 words, so the state depends only on the year: at 2021 it reads '~~a multi-tenant platform,~~ mobile apps, ~~from the design system~~ from the first screen ~~to the API behind it.~~ to the store release.' A return to 2026 lifts the strike. A leaving clause folds while the new one writes in with the same timing, so a line is never wider than the clauses that stay, and no word crosses a line. The notes cross-fade in 200 ms. Keyboard and reduced motion switch state with no travel. Phone: the same control under the statement; the struck words fold away after the rewrite so each clause keeps one line at 375 px.",
+  "caseSlug": "care-platform",
+  "mechanisms": ["M1", "M2", "M5", "M7"],
+  "slopCount": 0.5,
+  "creativeGates": "pass",
+  "rounds": 3,
+  "loopScores": {
+    "straightToThePoint": 8,
+    "notOverwhelming": 8,
+    "harmony": 8,
+    "meaningfulMotion": 8,
+    "actionsAndSeniority": 7,
+    "original": 6,
+    "hooks": 7
+  },
+  "holdback": "Lowest: original, 6/10. The new part is the sentence that strikes the present and writes the past on the same line, path-independent. The frame around it is familiar: a large statement at the top (near slop marker 1), a horizontal timeline slider, and case rows with text left and a picture right. The rail moved from the left edge to under the statement on purpose: one control on desktop and phone, next to the sentence it changes. Actions and seniority is 7: the statement shows range, but only some notes state a solved problem (16 queries to 2); most notes describe what was built."
+}

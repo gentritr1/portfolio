@@ -1,0 +1,20 @@
+{
+  "id": "cited-claims",
+  "title": "Cited Claims",
+  "band": "Loop 2",
+  "rule": "every claim is a query the index can answer",
+  "description": "Three claims about the work sit above an index of all 30 projects. Selecting a claim keeps only the projects that prove it and marks the exact words in each that prove it.",
+  "signature": "Rows that do not prove the selected claim fold away (grid rows, 240 ms, ease-out) while the proof rows keep their order; the tally counts down with the fold as a CSS integer transition, and the cited words are marked as the fold ends. The counts in the claims are computed from the content rows: rewrites from the rows whose line says rebuilt, store apps from mobile rows with both store links, the design-system numbers from its readouts.",
+  "caseSlug": "design-system-react",
+  "rounds": 3,
+  "loopScores": {
+    "straightToThePoint": 8,
+    "notOverwhelming": 7,
+    "harmony": 7.5,
+    "meaningfulMotion": 7,
+    "actionsAndSeniority": 7.5,
+    "original": 5.5,
+    "hooks": 6.5
+  },
+  "holdback": "Lowest: original (5.5). The new part is behaviour: each claim is a query, and the page proves it by removing everything else and marking the cited words. The look is not new: a paper ground, a highlighter accent, dense index rows and a sticky preview on the right are the orbit-index layout on light paper, and a highlighter on cream is a known editorial device. Hooks is next (6.5): at rest the page is a calm static list, and the moment needs one click; the 40 px claims and their 'n projects' counts invite it but do not show it. Motion: the folding rows fade before they finish collapsing, so the eye reads a closing gap more than rows leaving, and on the phone a two-line claim highlights both line fragments at once."
+}
