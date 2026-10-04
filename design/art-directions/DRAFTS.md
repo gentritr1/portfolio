@@ -10,7 +10,7 @@ The 16 previous directions retain their Design, Usability and Content scores for
 
 For new drafts, the anti-pale, slop ≤2 and M2 gates precede scoring. The new no-giant-name rule takes precedence over the previous name-size requirement. Maximum three rounds per new draft. Weights remain Design 40%, Usability 30%, Creativity 20%, Content 10%.
 
-## Reviewed directions (22)
+## Reviewed directions (23)
 
 | Draft | Band | Rule | Mechanisms | Slop | Gates | D | U | C | Content | Weighted | Rounds | Captures | Remaining holdback |
 | --- | --- | --- | --- | ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- |
@@ -20,6 +20,7 @@ For new drafts, the anti-pale, slop ≤2 and M2 gates precede scoring. The new n
 | [BITRATE](/drafts/bitrate) | Crafted | the quality menu renders the whole site | M1, M2, M3, M5, M9 | 0 | pass | 7.9 | 8.0 | 8.0 | 8.4 | 8.00 | 1 | [1440](drafts-review/bitrate-desktop.png) · [375](drafts-review/bitrate-mobile.png) | The quality transformation earns the additional M5 and a modest Creativity increase to 8.0. The default still remains familiar player chrome around a screenshot, and the desktop career scrubber sits below the first viewport. The deliberate low-quality mode substantially reduces factual density, though Show all facts provides a visible recovery path. The concept is distinctive and usable; it is not at a 9-level composition or observed motion-craft bar. |
 | [Aisle 7](/drafts/aisle) | Fun | scan to basket; the receipt is the CV | M1, M2, M3, M5, M9 | 0 | pass | 8.3 | 7.9 | 8.6 | 8.3 | 8.24 | 2 | [1440](drafts-review/aisle-desktop.png) · [375](drafts-review/aisle-mobile.png) | The desktop remains deliberately dense, and all 28 products require horizontal shelf browsing or search. Phone exposes fewer products at once and uses the receipt as an additional step in the case-reading path. The useful shortlist artefact is established, while printed output, laser/paper-feed timing, sound and interruption quality remain unobserved. These limitations keep the result below a 9-level experience without warranting another bounded repair. |
 | [Facing Pages](/drafts/facing-pages) | Crafted | the bilingual book | M1, M2, M3, M5, M6, M9 | 0 | pass | 8.3 | 8.0 | 8.4 | 8.3 | 8.23 | 2 | [1440](drafts-review/facing-pages-desktop.png) · [375](drafts-review/facing-pages-mobile.png) | Tiny supporting phone-cover facts, the pagination cost of the book frame, sequential rather than facing languages on phone, and unobserved page-curl feel and performance keep this below a 9-level experience. |
+| [LEDGER](/drafts/ledger) | Professional | 28 dense rows, each one live | M1, M3, M5, M9 | 0 | pass under later density brief | 8.0 | 8.4 | 7.7 | 8.4 | 8.10 | 2 | [1440](drafts-review/ledger-desktop.png) · [375](drafts-review/ledger-mobile.png) | Repeated schematic miniatures limit the novelty; enlarged canvas lettering is soft. The later LEDGER density spec overrides the older large-type/colour-area gate. Physical mid-range-phone performance remains unverified. |
 | [Index × Preview](/drafts/hybrid) | Professional | select a row, reveal its work | M5 | 3 | slop fail | 7.9 | 7.9 | 6.2 | 8.2 | 7.59 | 3 | [1440](drafts-review/hybrid-desktop.png) · [375](drafts-review/hybrid-mobile.png) | Solid-ink Bayyinah TV is now clear in both replacement captures. This resolves the active-name defect without changing the creative assessment: the familiar index-and-preview composition exposes projects, but offers little author-specific narrative in either first viewport. On mobile the large identity and generic role copy still precede the work. |
 | [Studio Shot](/drafts/studio) | Crafted | the phone fan | None earned | 4 | slop fail, M2 fail | 8.3 | 8.1 | 5.7 | 8.3 | 7.72 | 1 | [1440](drafts-review/studio-desktop.png) · [375](drafts-review/studio-mobile.png) | Both captures are dominated by a conventional product-ad phone fan and identity. Collection, reader and progress labels describe the pictured screens without making the studio metaphor necessary to understanding or navigating the work. Real rendered geometry does not make this capture distinguishable from a stock device mockup. |
 | [Gentrit Desktop](/drafts/desktop) | Fun | projects open as windows | M5, M9 | 3 | slop fail, M2 fail | 8.2 | 7.9 | 6.4 | 8.3 | 7.76 | 2 | [1440](drafts-review/desktop-desktop.png) · [375](drafts-review/desktop-mobile.png) | The visible project tabs and Incentiv facts provide more information than Studio or Hybrid. However, launchers select documents and window controls manage their shell; removing desktop styling and window movement leaves a conventional selector and reading panel. Mobile makes that underlying structure particularly clear. |
@@ -47,28 +48,29 @@ Baseline 889e02f: entry **20.19 kB gzip**, initial JS graph **101.86 kB**. Curre
 
 | Draft | JS gzip | CSS gzip | Combined |
 | --- | ---: | ---: | ---: |
-| aisle | 63.23 kB | 7.54 kB | 70.77 kB |
-| bitrate | 70.02 kB | 6.56 kB | 76.58 kB |
-| blueprint | 79.30 kB | 6.23 kB | 85.53 kB |
-| canvas | 66.90 kB | 6.81 kB | 73.71 kB |
-| desk | 79.12 kB | 6.13 kB | 85.25 kB |
-| desktop | 62.67 kB | 7.03 kB | 69.70 kB |
-| diff | 67.85 kB | 6.58 kB | 74.43 kB |
-| dither | 61.15 kB | 6.25 kB | 67.40 kB |
-| facing-pages | 85.21 kB | 6.87 kB | 92.08 kB |
-| fjalekryq | 62.46 kB | 5.55 kB | 68.01 kB |
-| hybrid | 67.14 kB | 4.53 kB | 71.67 kB |
-| index | 72.50 kB | 5.30 kB | 77.80 kB |
-| issue | 57.45 kB | 5.41 kB | 62.86 kB |
-| linja | 77.25 kB | 4.14 kB | 81.39 kB |
-| orbit | 87.70 kB | 6.00 kB | 93.70 kB |
-| primetime | 57.97 kB | 6.51 kB | 64.48 kB |
-| riso | 57.54 kB | 6.14 kB | 63.69 kB |
-| savefile | 59.29 kB | 6.02 kB | 65.31 kB |
-| studio | 88.24 kB | 6.53 kB | 94.77 kB |
-| swiss | 57.20 kB | 4.96 kB | 62.16 kB |
-| wall | 84.40 kB | 5.80 kB | 90.20 kB |
-| zine | 60.07 kB | 6.37 kB | 66.44 kB |
+| aisle | 63.58 kB | 7.54 kB | 71.12 kB |
+| bitrate | 70.36 kB | 6.56 kB | 76.93 kB |
+| blueprint | 79.65 kB | 6.23 kB | 85.88 kB |
+| canvas | 67.25 kB | 6.81 kB | 74.06 kB |
+| desk | 79.47 kB | 6.13 kB | 85.59 kB |
+| desktop | 63.02 kB | 7.03 kB | 70.05 kB |
+| diff | 68.19 kB | 6.58 kB | 74.78 kB |
+| dither | 61.50 kB | 6.25 kB | 67.74 kB |
+| facing-pages | 85.56 kB | 6.87 kB | 92.43 kB |
+| fjalekryq | 62.81 kB | 5.55 kB | 68.36 kB |
+| hybrid | 67.48 kB | 4.53 kB | 72.02 kB |
+| index | 72.84 kB | 5.30 kB | 78.14 kB |
+| issue | 57.79 kB | 5.41 kB | 63.20 kB |
+| ledger | 65.32 kB | 3.55 kB | 68.87 kB |
+| linja | 77.59 kB | 4.14 kB | 81.73 kB |
+| orbit | 88.04 kB | 6.00 kB | 94.04 kB |
+| primetime | 58.31 kB | 6.51 kB | 64.82 kB |
+| riso | 57.89 kB | 6.14 kB | 64.03 kB |
+| savefile | 59.63 kB | 6.02 kB | 65.66 kB |
+| studio | 88.59 kB | 6.53 kB | 95.12 kB |
+| swiss | 57.55 kB | 4.96 kB | 62.51 kB |
+| wall | 84.74 kB | 5.80 kB | 90.55 kB |
+| zine | 60.42 kB | 6.37 kB | 66.78 kB |
 
 ## Verification and limits
 

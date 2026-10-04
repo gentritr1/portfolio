@@ -1,0 +1,124 @@
+{
+  "id": "ledger",
+  "reviewer": "creative_jury_a",
+  "status": "final after round 2",
+  "rule": "every project is one live ledger row",
+  "scope": "Independent capture jury. Reviewer did not build LEDGER. Directly inspected desktop 1440×812, phone 375×812 and the filtered inline-case capture. No browser calls or source edits. Source confirms mechanisms; root's runtime reports are identified separately.",
+  "workflowNote": "Impeccable-informed, single-reviewer capture assessment under the assigned jury scope, not a complete dual-agent Impeccable critique. Questions skipped: the explicit task requests scores and concrete bounded repairs, with no new design-direction interview. Root owns the separate browser evidence.",
+  "rounds": [
+    {
+      "round": 1,
+      "captures": ["ledger-desktop.png", "ledger-mobile.png", "ledger-case-mobile.png"],
+      "gates": {
+        "antiPale": "pass only under the newer direction-specific density exception",
+        "literalLegacyAntiPale": "fail",
+        "antiPaleRationale": "The original ASTRA-DRAFTS-BRIEF requires display type near 10% viewport height and a large colour, image or 3D moment. This capture has neither. CREATIVE-CONSULT §3.8 explicitly specifies cream, one 13px mono scale, 14 visible rows and colour only in cells/hover. The later, more specific direction is therefore the authority. The warm paper and dense all-work composition meet that direction, but must not be reported as literally passing the older display-size/colour-area conditions.",
+        "temporalQualification": "Source uses an active shared requestAnimationFrame scheduler for visible cells, so first-two-second motion is implemented. This reviewer has not watched playback and awards no temporal or motion-craft mechanism from that fact alone.",
+        "slop": "pass",
+        "slopCount": 0,
+        "slopCauses": [],
+        "slopRationale": "The numbered rows contain dates, platform, concrete facts and distinct miniatures, rather than generic selected-work arrows. There is no giant personal name, decorative fake HUD, screenshot card grid or costume scene. One visible heading font leak is an implementation defect, not enough to count the entire direction as the shared-display-face slop marker.",
+        "m2": "not-applicable",
+        "m2Rationale": "LEDGER is a literal structured work index, not a fictional scene through which visitors must navigate. The table, search and inline cases are the actual interface. The miniatures are additional evidence and are not falsely credited as indispensable navigation; removing them would leave a usable ledger. No M2 credit is awarded."
+      },
+      "scores": { "design": 7.8, "usability": 8.4, "creativity": 7.7, "content": 8.4 },
+      "weightedTotal": 8.02,
+      "scoreEvidence": {
+        "design": "Fourteen complete desktop rows fit with clear column alignment, strong ink contrast and a coherent paper ground. The phone groups years/platform/fact under each project without visible page overflow. The one-face rule leaks at the intro and case headings, and compressed cell canvases make their labels and geometry less carefully resolved than the table itself.",
+        "usability": "The work begins immediately and is directly scannable. The phone case capture shows FJALË search returning 1/28 rows and the factual case opening in place, with visible Close case and Clear & close actions. Root separately reports keyboard opening/focus and zero phone overflow. Small mono case prose and the clipped Live recreation phone header prevent treating it as frictionless.",
+        "creativity": "A coherent, useful density rule replaces the earlier giant-name template. The live-cell column is real and project-specific in places, but several first-screen cells reuse schematic player, book, grid or barcode forms. Their stills mostly classify work rather than reveal a surprising project behaviour. It earns 7.7, not an automatic 8 because it is a new direction or has 28 running canvases.",
+        "content": "The first desktop screen exposes project names, years, platforms and meaningful facts including 31 ADRs, 16→2 queries, 34 components and 34 routes. The FJALË case gives product behaviour, offline support, dictionary scale and implementation context. Invented-data miniatures are clearly labelled. Some miniature labels are illustrative categories rather than additional evidence, which is correctly separated from factual row copy."
+      },
+      "mechanisms": ["M1", "M3", "M5", "M9"],
+      "mechanismEvidence": {
+        "M1": "One dense row per project, fixed columns, one intended type scale, inline case expansion and a consistent live-cell column control the composition. The heading-font defect makes the one-face implementation incomplete but does not erase the clear row rule.",
+        "M3": "Source confirms authored canvas drawings with real time-dependent state and a shared scheduler, rather than animated image files or a decorative filter. Credit is for honest live reconstruction, not for implementing the full products inside each cell.",
+        "M5": "The captured filtered state identifies FJALË and opens its substantial case within the ledger. Search and row selection therefore reveal real project information. Enlargement exists in source but no expanded-cell capture was supplied at this round.",
+        "M9": "Rows and the opened case contain the owner's actual projects, migration numbers, years, platforms, Albanian word-game facts and explicit recreation labels."
+      },
+      "withheldMechanisms": {
+        "M2": "A literal ledger does not need a fictional-metaphor dependency claim.",
+        "M4": "Mono density alone does not demonstrate a singular personal obsession.",
+        "M6": "Type is the information structure, not the picture.",
+        "M7": "Stills do not establish a felt rhythm across live cells.",
+        "M8": "No observed weight or sound.",
+        "M10": "Clear neutral copy, without a separately distinctive authorial voice.",
+        "M11": "Keyboard and scheduling implementation are confirmed, but this reviewer has not inspected slowed interruptions or measured frame quality on a physical mid-range phone."
+      },
+      "lowestCategory": "creativity",
+      "lowestCategoryHoldback": "Repeated schematic miniature forms and the conventional table/search/case model limit the novelty of the information relationship. Keep this honest holdback; a new concept or a 28-cell rebuild is not justified merely to force an 8.",
+      "repairNeeded": true,
+      "concreteRepairs": [
+        {
+          "priority": 2,
+          "title": "Keep headings in the ledger's only face",
+          "evidence": "Every project, in working order and the opened FJALË case title visibly use a proportional sans. The local h1/h2 reset sets size and weight but not family; the global heading rule supplies Archivo.",
+          "repair": "Set the scoped ledger h1/h2 font-family to inherit while retaining the existing 13px scale and two weights.",
+          "acceptance": "Canonical desktop and inline-case phone captures show those headings in the same Martian Mono family as the rows."
+        },
+        {
+          "priority": 2,
+          "title": "Use a complete phone cell-column label",
+          "evidence": "The 375px captures cut Live recreation at the right edge, despite the page itself fitting the viewport.",
+          "repair": "Use the already planned short Live label at phone width.",
+          "acceptance": "The phone column label is fully visible without changing the grid's overall width."
+        }
+      ],
+      "holdback": "The dense table is the strength. The miniatures currently behave more like small schematic explanations than unusually revealing live product fragments, and their squash/compression weakens image legibility. The phone case prose also inherits the deliberately tight mono setting. None of the stills establishes the unusually high motion/performance bar on which this direction depends.",
+      "calibration": "C7.7 sits below BITRATE/LINJA 8.0, whose demonstrated quality transformation and disc/Morse material establish stronger distinctive identities. It remains above a merely styled project list because all rows carry factual detail and actual live renderers. Usability can exceed Creativity; usefulness is not a reason to inflate novelty.",
+      "captureNote": "These scores refer to the initial inspected captures, before canonical replacement for the heading font and Live-label corrections."
+    },
+    {
+      "round": 2,
+      "captures": ["ledger-desktop.png", "ledger-mobile.png", "ledger-expanded-mobile.png"],
+      "supportingCapture": "ledger-case-mobile.png",
+      "captureQualification": "The inline-case capture is the round-1 state and still supplies search/content evidence. The new shared scoped h1/h2 inheritance rule confirms its title correction in source; the intro correction is directly visible in both replacement canonical captures.",
+      "gates": {
+        "antiPale": "pass only under the explicit CREATIVE-CONSULT §3.8 density exception",
+        "literalLegacyAntiPale": "fail",
+        "antiPaleRationale": "The later instruction for one small mono scale, warm cream, 14 rows and cell-only colour overrides the older large-display/30%-colour recipe for this direction. The exception remains explicit; no new large type or saturated field is claimed.",
+        "slop": "pass",
+        "slopCount": 0,
+        "slopCauses": [],
+        "m2": "not-applicable",
+        "m2Rationale": "The ledger is the literal data structure. Its useful miniatures supplement navigation and are not claimed to be a compulsory metaphor."
+      },
+      "scores": { "design": 8.0, "usability": 8.4, "creativity": 7.7, "content": 8.4 },
+      "weightedTotal": 8.10,
+      "resolvedIssues": [
+        "The replacement intro uses the same Martian Mono family as the rows; the scoped heading rule now explicitly inherits family for h1 and h2.",
+        "The phone column header reads Live in full and the row grid remains within the 375px viewport.",
+        "The additional phone capture shows a focused enlarged care miniature, the complete selected row and the next rows reflowing below it. Root separately verified Enter pinning and zero overflow."
+      ],
+      "scoreRationale": "Design rises to 8.0 because the single-face constraint is visibly restored and the clipped label is fixed. The expanded state confirms a usable part of the existing rule, but adds no new project behaviour or factual relationship; Creativity stays 7.7. Usability and Content retain their previous evidence-based values.",
+      "mechanisms": ["M1", "M3", "M5", "M9"],
+      "additionalMechanismEvidence": "The expanded miniature is now visible and contained within the phone layout. It makes the illustrative vital trace easier to inspect, while the real engineering fact stays in the row. This reinforces existing M1/M3/M5 evidence rather than adding an unseen motion mechanism.",
+      "withheldMechanisms": ["M2", "M4", "M6", "M7", "M8", "M10", "M11"],
+      "lowestCategory": "creativity",
+      "repairNeeded": false,
+      "holdback": "The miniature vocabulary remains schematic and sometimes repeated; the enlarged low-resolution trace and lettering are visibly soft. The phone case prose is deliberately dense. The table is unusually useful and coherent, but the visual states do not establish the novel information relationships of the strongest first-five directions or exceptional observed motion/performance. Keep the honest 7.7 Creativity rather than rebuilding to meet a target number.",
+      "nextStep": "Keep the direction at round two. No third repair round is required. Root may continue its separate runtime and physical-device verification."
+    }
+  ],
+  "latestRound": 2,
+  "scores": { "design": 8.0, "usability": 8.4, "creativity": 7.7, "content": 8.4 },
+  "finalScores": { "design": 8.0, "usability": 8.4, "creativity": 7.7, "content": 8.4 },
+  "weightedTotal": 8.10,
+  "antiPale": "pass with explicit CREATIVE-CONSULT §3.8 density exception; literal older test fails",
+  "slopCount": 0,
+  "m2": "not-applicable",
+  "mechanisms": ["M1", "M3", "M5", "M9"],
+  "runtimeLimitations": [
+    "Reported IAB 120fps is browser evidence, not verification of 60fps on a physical mid-range phone.",
+    "All 28 canvas cells, one scheduler, offscreen pausing, search and keyboard opening are source/root runtime confirmations; the reviewer has not directly watched motion playback.",
+    "The final expanded-cell still establishes its resulting layout, not physical feel. No unseen care-folder flip, timing or interruption receives creative credit."
+  ],
+  "detector": {
+    "scope": "src/drafts/ledger; run once after the independent visual judgment",
+    "findingCount": 22,
+    "classification": "One font alias warning, nineteen palette advisories and two radius advisories against the shared home DESIGN.md. The Ledger Mono alias resolves to the brief's Martian font; cream/ink and isolated folder paper colours follow the local direction. These are scoped vocabulary exceptions, not evidence that LEDGER should inherit the home palette. The visible h1/h2 font leak was found manually, not by this scan."
+  },
+  "repairNeeded": false,
+  "holdback": "The miniature vocabulary remains schematic and sometimes repeated; the enlarged low-resolution trace and lettering are visibly soft. The phone case prose is deliberately dense. The table is unusually useful and coherent, but the visual states do not establish the novel information relationships of the strongest first-five directions or exceptional observed motion/performance. Keep the honest 7.7 Creativity rather than rebuilding to meet a target number.",
+  "nextStep": "Retain both rounds and finish at round 2. Do not rebuild the concept or manufacture a higher Creativity score. Root owns remaining runtime and physical-device checks."
+}
