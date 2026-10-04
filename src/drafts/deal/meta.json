@@ -1,0 +1,27 @@
+{
+  "rule": "the project cards are the navigation",
+  "id": "deal",
+  "title": "Deal",
+  "band": "Fun",
+  "description": "A hand of five real projects on red felt. Move the cards, flip their facts and spread all 28 into a labelled arc.",
+  "signature": "A hand-rolled Verlet table deals at 60ms intervals. Throws preserve release velocity, predict their landing and return off-table cards to the deck; real CSS card backs hold the facts.",
+  "caseSlug": "za",
+  "rounds": 2,
+  "holdback": "The phone fan hides most other names behind the selected card, and the full deck then exposes only one or two projects at a time. Its selected-project actions may refer to a card outside the current horizontal view, so the In your hand label matters. The care card's bare 31 lacks a unit until flipped. Playing-card grammar is familiar and the opened cases are conventional; exceptional physics or interruption craft has not been observed. These limit the score without requiring another repair round.",
+  "scores": {
+    "design": 8,
+    "usability": 7.9,
+    "creativity": 7.8,
+    "content": 8
+  },
+  "mechanisms": [
+    "M1",
+    "M2",
+    "M5",
+    "M9"
+  ],
+  "slopCount": 0,
+  "m2": "pass",
+  "antiPale": "pass",
+  "creativeGates": "pass"
+}

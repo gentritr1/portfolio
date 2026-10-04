@@ -1,0 +1,239 @@
+{
+  "id": "deal",
+  "reviewer": "creative_jury_b",
+  "status": "final-round-2; no further repair required",
+  "rule": "the project cards are the navigation",
+  "scope": "Independent review by an agent that did not build DEAL. Desktop, phone, case and all-projects captures were inspected directly. Source confirms the relationship between the visible controls and project data. Root reports functional keyboard tests; physical feel, timing and interruption quality have not been independently observed.",
+  "rounds": [
+    {
+      "round": 1,
+      "captures": [
+        "drafts-review/deal-desktop.png",
+        "drafts-review/deal-mobile.png",
+        "drafts-review/deal-case-mobile.png",
+        "drafts-review/deal-all-mobile.png"
+      ],
+      "captureQualification": "Default desktop and phone captures were settled. The original all-projects capture was transitional, with scattered cards and a colliding title; a settled replacement in round 2 establishes that this was capture timing, not a persistent layout defect. The original case capture put its heading near y675; root subsequently measured heading y661 and case panel y573, confirming the low reading position.",
+      "scores": {
+        "design": 8.0,
+        "usability": 7.5,
+        "creativity": 7.8,
+        "content": 8.0
+      },
+      "scoreStatus": "Pre-repair judgment. Usability issue subsequently confirmed by root; final scores are recorded in round 2.",
+      "weightedTotal": 7.81,
+      "antiPale": "pass",
+      "antiPaleEvidence": {
+        "visibleComposition": "pass",
+        "rationale": "A saturated red field dominates both viewports. The large cream headline and physical hand of cards create a distinct table composition. The owner's name remains in a small chip rack. Five named projects and their facts appear on desktop; the selected Za! card supplies 2–8 players on the phone. The phone title is smaller relative to its viewport than the desktop title, but the large card hand remains the central visual moment.",
+        "temporalEvidence": "Source starts the initial finite card deal immediately, with 60ms card staggering and a separate arrival transition. Its existence is confirmed; timing quality and physics feel are not inferred from stills."
+      },
+      "slopCount": 0,
+      "slopCauses": [],
+      "slopRationale": "The fan consists of the actual navigation cards, not device mockups. Suit marks and inverted corner numbers are the functional playing-card grammar. There is no giant owner name, generic role-only hero, screenshot mockup, decorative HUD, glass layout or unrelated effect. Fraunces with Archivo Narrow establishes a different composition from the earlier shared grotesk skeleton.",
+      "m2": "pass",
+      "m2Evidence": "Selecting a card determines the selected-project actions and opened case. Dealing changes the available hand; Show all 28 exposes the full project deck. Removing the cards removes the project-selection workflow. Source confirms one shared selected-project state, and root reports the keyboard selection/opening path works.",
+      "mechanisms": [
+        "M1",
+        "M2",
+        "M5",
+        "M9"
+      ],
+      "mechanismEvidence": {
+        "M1": "The deck, five-card hand, suits, selected-card controls and small identity chip rack follow the same table rule. The project itself is the card, rather than an image placed beside an ordinary work list.",
+        "M2": "Card selection, dealing and full-deck browsing are the navigation. The explicit Flip for facts and Open project buttons act on that same selected card.",
+        "M5": "The case capture reveals Za!'s multiplayer-card-game identity and factual explanation beyond the front-face player count. Source also confirms that the reverse face holds the fact label, project line and stack, but a flipped-face capture has not yet been reviewed.",
+        "M9": "Za!'s 2–8 players, Bayyinah's 34 routes, Read to Feed's approximately 14 releases and FJALË's 21k words are specific to the documented work. Project years and the Kosovo identity line provide further real context."
+      },
+      "withheldMechanisms": [
+        "M3",
+        "M4",
+        "M6",
+        "M7",
+        "M8",
+        "M10",
+        "M11"
+      ],
+      "withheldRationale": {
+        "M3": "Source has real CSS front/back faces and a custom card solver. The reviewed settled images show front faces only; a genuine flipped state or physical interaction has not been seen, so this remains implementation evidence rather than an earned visible-material mechanism.",
+        "M4": "The owner's Za! project is a credible source for the idea, but the captures do not establish a sustained personal obsession beyond translating a card game into portfolio navigation.",
+        "M6": "Project lettering is prominent but the picture is primarily the card objects and suit symbols; the letters do not generate the spatial composition as in the crossword.",
+        "M7": "The stagger and finite deal exist in source, but felt pacing cannot be assessed from these stills.",
+        "M8": "A hand-rolled Verlet solver is present. Code complexity is not evidence of convincing mass, release or collision feel.",
+        "M10": "Your move, Deal again and In your hand are clear conventional card-table language, not an independently distinctive authorial voice.",
+        "M11": "Keyboard functionality reported by root is useful verification, but does not prove that shared transitions and interruptions look right at 10 percent speed."
+      },
+      "lowestCategory": "usability",
+      "repairNeeded": true,
+      "verificationNeeded": [
+        {
+          "title": "Confirm settled case placement on the phone",
+          "evidence": "The case title appears near y675 in the 812px-tall capture; most of the view still shows the prior hand and controls. Open project calls scrollIntoView on the shared-layout title in the first animation frame, when its projected position can still be near the old card title.",
+          "requestedVerification": "After opening and allowing the transition to settle, confirm whether the case heading and useful body text are brought into view. If placement remains low, scroll to a stable case container or non-animated anchor rather than the moving title.",
+          "acceptanceEvidence": "A settled 375px capture after Open project shows the case heading and substantive project facts without a further manual scroll."
+        },
+        {
+          "title": "Replace the transitional all-projects capture",
+          "evidence": "The supplied all-projects still shows scattered cards and overlapping selected title/fact text. Source restarts the physics layout and staggers 28 arrivals when spreading the deck, so the still alone cannot distinguish transitional geometry from a persistent fault.",
+          "requestedVerification": "Capture the all-projects state after card transforms and shared-title transitions have settled; verify horizontal browsing and keyboard selection through all 28.",
+          "acceptanceEvidence": "A settled phone capture shows readable, separated cards in the full-deck row, with an explicit selected-project action."
+        }
+      ],
+      "holdback": "The desktop hand is clear and composed; on the phone it deliberately hides most other project names behind the selected card. Show all 28 is therefore essential. The bare 31 on the care card lacks a unit until the card is flipped. The metaphor mainly changes how existing cases are reached, using familiar playing-card grammar; the stills do not establish exceptional motion craft. The case landing and all-projects geometry need settled verification before usability is final.",
+      "calibration": "7 is a good personal site, 8 is distinctive and 9 is Site of the Day. DEAL earns 7.8 Creativity for a coherent functional rule and specific project data. Its visible composition is more conventional than LINJA's disc material or BITRATE's demonstrated information transformation, both currently 8.0, and it explains less of the owner's working method than DIFF at 8.2. FJALËKRYQ's 8.4 more thoroughly turns language into the whole map; AISLE's 8.6 produces a useful chosen-work document. Those comparisons use their established independent review judgments, not a new review of drafts this reviewer helped build. No score is increased for unobserved physics.",
+      "captureHistoryNote": "Canonical all-projects and case phone files were replaced for round 2. This round preserves the observations and scores from the original captures.",
+      "concreteLowestIssue": {
+        "priority": 2,
+        "title": "Bring the opened phone case into reading position",
+        "evidence": "Open project focused the case title, but the settled title remained near y661 and the case panel near y573. Most of the phone viewport still showed the previous hand and controls. The first-frame scroll targeted the title while its shared layout projection was moving from the card.",
+        "requestedRepair": "Scroll a stable case panel or non-animated anchor after the case has committed; retain focus on the heading.",
+        "acceptanceEvidence": "After Open project and settling, the phone shows the case heading and substantive project facts without another manual scroll."
+      }
+    },
+    {
+      "round": 2,
+      "captures": [
+        "drafts-review/deal-desktop.png",
+        "drafts-review/deal-mobile.png",
+        "drafts-review/deal-case-mobile.png",
+        "drafts-review/deal-all-mobile.png"
+      ],
+      "captureQualification": "Desktop and default phone remain unchanged. Replacement all-projects and case phone captures were inspected directly. The full deck is settled and legible; the opened case now begins near the top of the viewport.",
+      "scores": {
+        "design": 8.0,
+        "usability": 7.9,
+        "creativity": 7.8,
+        "content": 8.0
+      },
+      "scoreStatus": "Final after one bounded usability repair and settled-state confirmation.",
+      "weightedTotal": 7.93,
+      "antiPale": "pass",
+      "antiPaleEvidence": {
+        "visibleComposition": "pass",
+        "rationale": "A saturated red field dominates both viewports. The large cream headline and physical hand of cards create a distinct table composition. The owner's name remains in a small chip rack. Five named projects and their facts appear on desktop; the selected Za! card supplies 2–8 players on the phone. The phone title is smaller relative to its viewport than the desktop title, but the large card hand remains the central visual moment.",
+        "temporalEvidence": "Source starts the initial finite card deal immediately, with 60ms card staggering and a separate arrival transition. Its existence is confirmed; timing quality and physics feel are not inferred from stills."
+      },
+      "slopCount": 0,
+      "slopCauses": [],
+      "slopRationale": "The fan consists of the actual navigation cards, not device mockups. Suit marks and inverted corner numbers are the functional playing-card grammar. There is no giant owner name, generic role-only hero, screenshot mockup, decorative HUD, glass layout or unrelated effect. Fraunces with Archivo Narrow establishes a different composition from the earlier shared grotesk skeleton.",
+      "m2": "pass",
+      "m2Evidence": "Selecting a card determines the selected-project actions and opened case. Dealing changes the available hand; Show all 28 exposes the full project deck. Removing the cards removes the project-selection workflow. Source confirms one shared selected-project state, and root reports the keyboard selection/opening path works.",
+      "mechanisms": [
+        "M1",
+        "M2",
+        "M5",
+        "M9"
+      ],
+      "mechanismEvidence": {
+        "M1": "The deck, five-card hand, suits, selected-card controls and small identity chip rack follow the same table rule. The project itself is the card, rather than an image placed beside an ordinary work list.",
+        "M2": "Card selection, dealing and full-deck browsing are the navigation. The explicit Flip for facts and Open project buttons act on that same selected card.",
+        "M5": "The settled case reveals Za!'s server-authoritative Node/WebSocket game model, lobby, bots, ownership and public product image beyond the front-face 2–8-player fact. These are actual information changes from project selection. Source also confirms reverse-face facts, but no flipped-face capture was reviewed.",
+        "M9": "Za!'s 2–8 players, Bayyinah's 34 routes, Read to Feed's approximately 14 releases and FJALË's 21k words are specific to the documented work. Project years and the Kosovo identity line provide further real context."
+      },
+      "withheldMechanisms": [
+        "M3",
+        "M4",
+        "M6",
+        "M7",
+        "M8",
+        "M10",
+        "M11"
+      ],
+      "withheldRationale": {
+        "M3": "Source has real CSS front/back faces and a custom card solver. The reviewed settled images show front faces only; a genuine flipped state or physical interaction has not been seen, so this remains implementation evidence rather than an earned visible-material mechanism.",
+        "M4": "The owner's Za! project is a credible source for the idea, but the captures do not establish a sustained personal obsession beyond translating a card game into portfolio navigation.",
+        "M6": "Project lettering is prominent but the picture is primarily the card objects and suit symbols; the letters do not generate the spatial composition as in the crossword.",
+        "M7": "The stagger and finite deal exist in source, but felt pacing cannot be assessed from these stills.",
+        "M8": "A hand-rolled Verlet solver is present. Code complexity is not evidence of convincing mass, release or collision feel.",
+        "M10": "Your move, Deal again and In your hand are clear conventional card-table language, not an independently distinctive authorial voice.",
+        "M11": "Keyboard functionality reported by root is useful verification, but does not prove that shared transitions and interruptions look right at 10 percent speed."
+      },
+      "lowestCategory": "usability",
+      "repairNeeded": false,
+      "holdback": "The phone fan hides most other names behind the selected card, and the full deck then exposes only one or two projects at a time. Its selected-project actions may refer to a card outside the current horizontal view, so the In your hand label matters. The care card's bare 31 lacks a unit until flipped. Playing-card grammar is familiar and the opened cases are conventional; exceptional physics or interruption craft has not been observed. These limit the score without requiring another repair round.",
+      "calibration": "Retain D8.0/C7.8/Content8.0. Fixing the confirmed case landing raises Usability from 7.5 to 7.9 because the direct Open project action now delivers a readable case immediately. It does not change the concept's originality or factual content. The separate cluster second look retains DEAL 7.8 versus LINJA/BITRATE 8.0 for the specific visible distinctions recorded below, without scoring an unobserved physics feature list.",
+      "concreteLowestIssue": null,
+      "repairVerification": [
+        {
+          "issue": "Opening a phone case left its title near the bottom of the viewport.",
+          "result": "resolved",
+          "evidence": "The replacement image places the cream case panel around y93 and the heading around y181, with the entire explanatory paragraph, Owner role, Node · WebSocket stack, Website link and start of the public screenshot visible. Root reports heading focus is retained. Source now scrolls the stable case panel after the case state commits."
+        },
+        {
+          "issue": "Original all-projects capture contained scattered cards and a colliding title.",
+          "result": "capture-timing artifact resolved; no implementation repair needed",
+          "evidence": "The replacement shows separated full-deck cards with readable centre-card title, fact and year. Root reports all bodies settled with moving=0. Full deck, 28 on the table and Back to five are visible; the selected-card actions remain available."
+        }
+      ],
+      "supportingInteractionEvidence": {
+        "visible": "The full-deck capture displays readable cards in a horizontally browsable row. The case capture shows the selected Za! project with its full factual paragraph, role, stack and public image.",
+        "rootVerified": "Root reports functional keyboard tests and all-28 reachability. After the bounded scroll repair, it measured case panel y92.6 and heading y180.6 with focus on the heading, compared with y573/y661 before repair. It also reports moving=0 for the settled full deck.",
+        "limitation": "The reviewer inspected stills and source only. Drag mass, release feel, rapid interruption, ten-percent-speed transitions, touch-scroll behaviour and frame rate are not independently established by this review."
+      }
+    }
+  ],
+  "latestRound": 2,
+  "finalScores": {
+    "design": 8.0,
+    "usability": 7.9,
+    "creativity": 7.8,
+    "content": 8.0
+  },
+  "repairNeeded": false,
+  "nextStep": "Review complete after two rounds and one bounded case-scroll repair. Root may copy finalScores, mechanisms, slopCount, M2 and holdback into the draft metadata and report. No additional repair or score-spreading round is warranted by the reviewed evidence.",
+  "clusterSecondLook": {
+    "trigger": "DEAL 7.8, LINJA 8.0 and BITRATE 8.0 occupy an inclusive 0.2 Creativity band.",
+    "completed": true,
+    "scope": "A second comparative inspection of actual captures; no implementation repair and no changes to the other drafts or their Design, Usability and Content scores.",
+    "captures": [
+      "drafts-review/deal-desktop.png",
+      "drafts-review/deal-mobile.png",
+      "drafts-review/deal-case-mobile.png",
+      "drafts-review/linja-desktop.png",
+      "drafts-review/linja-mobile.png",
+      "drafts-review/bitrate-desktop.png",
+      "drafts-review/bitrate-mobile.png",
+      "drafts-review/bitrate-240p-desktop.png",
+      "drafts-review/bitrate-2023-mobile.png"
+    ],
+    "reconsideredCreativity": {
+      "deal": 7.8,
+      "linja": 8.0,
+      "bitrate": 8.0
+    },
+    "separatingRationale": "DEAL has the clearest physical-object composition and its cards carry real project selection, but playing-card faces, suit grouping and a dealt hand remain a familiar wrapper for choosing cases. LINJA transforms both typography and imagery into one visible disc material and connects an alternate input to Morse Trainer. Its phone image is sparse and its timetable falls below the board, limiting the advantage to 0.2. BITRATE uses more conventional player chrome than DEAL uses table composition, but the 240p capture visibly changes both image detail and factual-feed density, while the 2023 capture changes project, colour and matching facts. That demonstrated information transformation earns its 0.2 advantage over DEAL. LINJA and BITRATE remain tied: stronger material authorship in one, stronger visibly demonstrated information changes in the other.",
+    "whyNoArtificialSpread": "The second look retains the scores. Neither unobserved physical craft nor the count of implemented features justifies moving DEAL to 8 or promoting the other drafts. A larger numerical separation would overstate the modest visible difference between three coherent but differently limited directions."
+  },
+  "weightedTotal": 7.93,
+  "antiPale": "pass",
+  "slopCount": 0,
+  "slopCauses": [],
+  "m2": "pass",
+  "mechanisms": [
+    "M1",
+    "M2",
+    "M5",
+    "M9"
+  ],
+  "holdback": "The phone fan hides most other names behind the selected card, and the full deck then exposes only one or two projects at a time. Its selected-project actions may refer to a card outside the current horizontal view, so the In your hand label matters. The care card's bare 31 lacks a unit until flipped. Playing-card grammar is familiar and the opened cases are conventional; exceptional physics or interruption craft has not been observed. These limit the score without requiring another repair round.",
+  "metaInstructions": {
+    "rule": "the project cards are the navigation",
+    "scores": {
+      "design": 8.0,
+      "usability": 7.9,
+      "creativity": 7.8,
+      "content": 8.0
+    },
+    "mechanisms": [
+      "M1",
+      "M2",
+      "M5",
+      "M9"
+    ],
+    "slopCount": 0,
+    "m2": "pass",
+    "rounds": 2,
+    "holdback": "The phone fan hides most other names behind the selected card, and the full deck then exposes only one or two projects at a time. Its selected-project actions may refer to a card outside the current horizontal view, so the In your hand label matters. The care card's bare 31 lacks a unit until flipped. Playing-card grammar is familiar and the opened cases are conventional; exceptional physics or interruption craft has not been observed. These limit the score without requiring another repair round.",
+    "ownership": "Reviewer saved this report only; root owns meta.json and DRAFTS.md updates."
+  }
+}
