@@ -6,13 +6,13 @@
   "description": "A padded card table: five real projects dealt from the dealer's deck, drag and throw them, flip a card for its facts, or spread all 28 in a labelled fan.",
   "signature": "A hand-rolled Verlet table deals face-down cards at 60 ms intervals that spin, land with a felt puff and turn face up. Drags tilt with pointer speed, hand their release velocity to the spring and snap to a predicted landing; Spread cascades the whole deck into a suit-labelled fan.",
   "caseSlug": "za",
-  "rounds": 2,
-  "holdback": "Phone spread shows only the cards around the selected one; swipe is the way through 28. Typographic cards (no public screenshot) are richer than before but still less vivid than court cards with a picture. The opened case is a conventional sheet below the table.",
+  "rounds": 3,
+  "holdback": "The opened case is a conventional sheet under the table; typographic cards are less vivid than picture cards; extra cards vanish rather than fly home when the spread gathers.",
   "scores": {
-    "design": 8,
-    "usability": 7.9,
-    "creativity": 7.8,
-    "content": 8
+    "design": 8.4,
+    "usability": 8.0,
+    "creativity": 8.5,
+    "content": 8.2
   },
   "mechanisms": [
     "M1",
@@ -23,5 +23,6 @@
   "slopCount": 0,
   "m2": "pass",
   "antiPale": "pass",
-  "creativeGates": "pass"
+  "creativeGates": "pass",
+  "polished": true
 }
