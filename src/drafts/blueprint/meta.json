@@ -1,4 +1,5 @@
 {
+  "rule": "separate the device into layers",
   "id": "blueprint",
   "title": "Blueprint",
   "band": "Crafted",
@@ -8,10 +9,20 @@
   "scores": {
     "design": 8.1,
     "usability": 8,
-    "creativity": 8.1,
+    "creativity": 6.1,
     "content": 8.3
   },
   "antiPale": "pass",
   "rounds": 2,
-  "holdback": "Simplified blue hardware and the broad cyan field feel more like a clear technical diagram than a finished product sculpture."
+  "holdback": "The composition is more deliberate than Studio and avoids a giant personal name. Its actual labels explain display glass, public web screen and laptop base, however, rather than the project's architecture. Assemble and Explode manipulate a prop; project navigation and understanding survive its removal. The visible separation is not evidence of the owner's software layers.",
+  "previousCreativity": 8.1,
+  "mechanisms": [],
+  "slopCount": 3,
+  "slopCauses": [
+    "Exploded laptop is the main visual device.",
+    "Generic role statement supplies the opening developer story.",
+    "Shared Archivo display treatment."
+  ],
+  "m2": "fail",
+  "creativeGates": "slop fail, M2 fail"
 }

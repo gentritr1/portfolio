@@ -1,92 +1,56 @@
-import { readdir, readFile, writeFile } from "node:fs/promises";
+import { readdir, readFile, writeFile } from 'node:fs/promises';
 
-const order = [
-  "hybrid",
-  "studio",
-  "desktop",
-  "canvas",
-  "index",
-  "blueprint",
-  "savefile",
-  "zine",
-  "issue",
-  "wall",
-  "riso",
-  "dither",
-  "swiss",
-  "orbit",
-  "primetime",
-  "desk",
-];
-const folders = await readdir(new URL("../src/drafts/", import.meta.url), {
-  withFileTypes: true,
-});
+const order = ['diff', 'fjalekryq', 'linja', 'bitrate', 'aisle', 'facing-pages', 'ledger', 'deal', 'lap', 'hybrid', 'studio', 'desktop', 'canvas', 'index', 'blueprint', 'savefile', 'zine', 'issue', 'wall', 'riso', 'dither', 'swiss', 'orbit', 'primetime', 'desk'];
+const root = new URL('../', import.meta.url);
+const folders = await readdir(new URL('src/drafts/', root), { withFileTypes: true });
 const drafts = [];
-for (const folder of folders.filter((entry) => entry.isDirectory())) {
-  let source;
+for (const folder of folders.filter(entry => entry.isDirectory())) {
   try {
-    source = await readFile(
-      new URL(`../src/drafts/${folder.name}/meta.json`, import.meta.url),
-      "utf8",
-    );
-  } catch (error) {
-    if (error.code === "ENOENT") continue;
-    throw error;
-  }
-  const meta = JSON.parse(source);
-  if (meta.scores) drafts.push(meta);
+    const meta = JSON.parse(await readFile(new URL(`src/drafts/${folder.name}/meta.json`, root), 'utf8'));
+    if (meta.scores) drafts.push(meta);
+  } catch (error) { if (error.code !== 'ENOENT') throw error; }
 }
 drafts.sort((a, b) => order.indexOf(a.id) - order.indexOf(b.id));
-const rows = drafts.map((d) => {
+const rows = drafts.map(d => {
   const s = d.scores;
-  const total = (
-    s.design * 0.4 +
-    s.usability * 0.3 +
-    s.creativity * 0.2 +
-    s.content * 0.1
-  ).toFixed(2);
-  return `| ${d.id} · [${d.title}](/drafts/${d.id}) | ${d.band} | ${d.antiPale} | ${s.design.toFixed(1)} | ${s.usability.toFixed(1)} | ${s.creativity.toFixed(1)} | ${s.content.toFixed(1)} | ${total} | ${d.rounds} | [Desktop](drafts-review/${d.id}-desktop.png) · [Mobile](drafts-review/${d.id}-mobile.png) | ${d.signature} | ${d.holdback} |`;
+  const total = (s.design * .4 + s.usability * .3 + s.creativity * .2 + s.content * .1).toFixed(2);
+  const gates = d.creativeGates ?? 'Awaiting creative review';
+  return `| [${d.title}](/drafts/${d.id}) | ${d.band} | ${d.rule ?? '—'} | ${(d.mechanisms ?? []).join(', ') || 'None earned'} | ${d.slopCount ?? '—'} | ${gates} | ${s.design.toFixed(1)} | ${s.usability.toFixed(1)} | ${s.creativity.toFixed(1)} | ${s.content.toFixed(1)} | ${total} | ${d.rounds} | [1440](drafts-review/${d.id}-desktop.png) · [375](drafts-review/${d.id}-mobile.png) | ${d.holdback} |`;
 });
-let verification = "";
+let verification = '';
 try {
-  const budget = JSON.parse(
-    await readFile(
-      new URL("../design/art-directions/draft-budgets.json", import.meta.url),
-      "utf8",
-    ),
-  );
-  verification = `## Loading and verification\n\nThe merged baseline (${budget.baselineCommit}) had an entry of **${budget.baseline.entry.toFixed(2)} kB gzip** and an initial JavaScript graph of **${budget.baseline.initialJS.toFixed(2)} kB gzip**. The completed gallery has an entry of **${budget.final.entry.toFixed(2)} kB** and an initial graph of **${budget.final.initialJS.toFixed(2)} kB**. An explicit group keeps already-eager React/router modules stable; no draft module enters the home loading path.\n\nEach row below includes the picker shell, the draft and all its lazy graphics dependencies, excluding only assets already in the initial graph. Public images and fonts are separate from this JavaScript chunk budget. Every direction is below 150 kB even with its scoped CSS included.\n\n| Draft | JavaScript gzip | CSS gzip | Combined |\n| --- | ---: | ---: | ---: |\n${budget.drafts.map((d) => `| ${d.id} | ${d.js.toFixed(2)} kB | ${d.css.toFixed(2)} kB | ${d.total.toFixed(2)} kB |`).join("\n")}\n\nBrowser checks cover the project indexes, selected-case navigation, keyboard paths, mobile focus/reveal behavior and the signature controls. WebGL and reduced-motion fallback captures accompany Studio, Blueprint, Index, Wall, Orbit and Desk. Desk was verified with an actual raycast click on its 3D phone and a tap on its image fallback. Riso invokes browser printing after decoding images and fonts; the native print layout was not captured or exported during this check.\n\nTypeScript, the production build and the craft detector pass. Gallery filters, all 16 routes, preview assets and noindex behavior are verified separately in the production preview. No deployment or push was performed.\n\n`;
-} catch (error) {
-  if (error.code !== "ENOENT") throw error;
-}
+  const budget = JSON.parse(await readFile(new URL('design/art-directions/draft-budgets.json', root), 'utf8'));
+  verification = `## Measured loading budget\n\nBaseline ${budget.baselineCommit}: entry **${budget.baseline.entry.toFixed(2)} kB gzip**, initial JS graph **${budget.baseline.initialJS.toFixed(2)} kB**. Current measurement: entry **${budget.final.entry.toFixed(2)} kB**, initial graph **${budget.final.initialJS.toFixed(2)} kB**. Measurement date and coverage are recorded in draft-budgets.json. Public images and self-hosted fonts are separate transfers. Each row includes the lazy picker shell and the draft's recursive graphics imports; already-loaded initial modules are excluded.\n\n| Draft | JS gzip | CSS gzip | Combined |\n| --- | ---: | ---: | ---: |\n${budget.drafts.map(d => `| ${d.id} | ${d.js.toFixed(2)} kB | ${d.css.toFixed(2)} kB | ${d.total.toFixed(2)} kB |`).join('\n')}\n\n`;
+} catch (error) { if (error.code !== 'ENOENT') throw error; }
 const report = `# Live art-direction drafts
 
-Built from ASTRA-DRAFTS-BRIEF.md. The live picker is at **/drafts**. The public home remains the hybrid. Draft routes are lazy-loaded and marked noindex, with no link in the public navigation.
+The live picker is **/drafts**. The creative round follows ASTRA-CREATIVE-BRIEF.md and CREATIVE-CONSULT.md. The public home remains the hybrid. Drafts are lazy-loaded and noindex.
 
 ## Review method
 
-Each draft is captured at 1440 px and 375 px, then judged by a non-builder against the brief. Scores are Design 40%, Usability 30%, Creativity 20%, Content 10%. The energy check precedes scoring. The lowest material issue is repaired, up to three rounds. Scores below the requested bar are retained honestly at that limit; they are not approval claims.
+Fresh non-builders judge actual 1440 px and 375 px captures. Creativity uses M1–M11: 7 is a good personal site, 8 is distinctive, 9 is Site of the Day. Mechanisms are earned by visible evidence, with source used only to confirm a technique. Still images do not prove sound, physical weight, pacing or performance. Those require separate interaction checks.
 
-Screenshots use the local review frame. Reduced-motion and no-WebGL paths are implemented; browser interactions and bundle sizes are checked separately. No physical-device frame-rate or Android benchmark is claimed.
+The 16 previous directions retain their Design, Usability and Content scores for historical comparison; their Creativity scores have been replaced. Failed slop or metaphor gates remain explicit. A numerical score on a failed draft is diagnostic, not an approval. Old costumes receive no new repair rounds. Their proposed rule describes the current implementation, not a claim that the new law is satisfied. Full itemized reviews and the second-pass separation rationale are in creative-review-a.json and creative-review-b.json.
 
-## Reviewed drafts (${drafts.length}/16)
+For new drafts, the anti-pale, slop ≤2 and M2 gates precede scoring. The new no-giant-name rule takes precedence over the previous name-size requirement. Maximum three rounds per new draft. Weights remain Design 40%, Usability 30%, Creativity 20%, Content 10%.
 
-| Draft | Band | Energy | D | U | C | Content | Weighted | Rounds | Screenshots | Signature motion | Remaining holdback |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-${rows.join("\n")}
+## Reviewed directions (${drafts.length})
 
-## Hybrid repair history
+| Draft | Band | Rule | Mechanisms | Slop | Gates | D | U | C | Content | Weighted | Rounds | Captures | Remaining holdback |
+| --- | --- | --- | --- | ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- |
+${rows.join('\n')}
 
-The main merge is local commit 89c40c4. Section 6 now includes project-colour page floods, screenshot-filled active names, eager populated case-study surfaces with a GPU-ready crossfade, and a colour-sorted work wall with real-name posters for projects without public imagery. Hover reveals resolve from coarse dither to the decoded image.
+## Part A repairs
 
-Hybrid rounds: **7.86 → 8.01 → 7.95** weighted. The final round improved visible image texture but retained a local text-contrast weakness. The three-round limit was observed. The mobile name is larger and heavier; forced-colour and enhanced-contrast preferences receive solid text.
+Merged origin/main locally at 889e02f. Hybrid's active project names now use solid ink; the screenshot-fill effect was removed. Wall's pictured tiles have embedded image previews at first render, independent of full-resolution image loading. Poster names use natural word wrapping and fitted type. These repairs address legibility and loading; they do not turn the old compositions into new concepts.
 
-${verification}## Maintenance
+${verification}## Verification and limits
 
-Draft metadata and jury scores live beside each implementation in src/drafts/<id>/meta.json. Run node scripts/update-drafts-report.mjs after accepting a review. Picker thumbnails are downscaled captures of the corresponding desktop draft, with provenance metadata. All directions reuse the same project facts. Any invented product interface is labelled as a recreation.
+TypeScript, production builds and the craft detector run before each local draft commit. Browser checks and capture evidence accompany the drafts. A 60 fps mid-range-phone target is not a physical-device result; no such benchmark is claimed. Sound defaults off and persists. Reduced-motion and no-WebGL paths remain available. Care data is labelled as an invented recreation. No city, traffic count or business metric is invented.
+
+## Maintenance
+
+Metadata lives in src/drafts/<id>/meta.json, with rule first. Run node scripts/update-drafts-report.mjs after review. Thumbnails derive from corresponding desktop captures. Every direction uses the same confirmed project facts. No push or deployment is part of this work.
 `;
-await writeFile(
-  new URL("../design/art-directions/DRAFTS.md", import.meta.url),
-  report,
-);
+await writeFile(new URL('design/art-directions/DRAFTS.md', root), report);
 console.log(`Updated ${drafts.length} reviewed drafts`);

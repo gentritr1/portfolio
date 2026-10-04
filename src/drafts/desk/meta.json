@@ -1,4 +1,5 @@
 {
+  "rule": "the project object",
   "id": "desk",
   "title": "At work",
   "band": "Experimental",
@@ -8,10 +9,22 @@
   "scores": {
     "design": 8,
     "usability": 7.9,
-    "creativity": 8.1,
+    "creativity": 6,
     "content": 8.2
   },
   "antiPale": "pass",
   "rounds": 2,
-  "holdback": "Simple materials and limited contact shading make the desktop scene feel like an early geometric model."
+  "holdback": "The monitor/phone/book associations are more meaningful than Orbit's blob, and the visible objects and duplicate row controls select project information. However, removing the desk leaves the same project choices operational. Flat lighting, weak contact shading, and the device arrangement read as an early scene prototype; the mobile fallback becomes a collage above a normal list. Real geometry alone does not earn material-honesty credit.",
+  "previousCreativity": 8.1,
+  "mechanisms": [
+    "M5"
+  ],
+  "slopCount": 3,
+  "slopCauses": [
+    "The 3D desk is removable while its ordinary project selector remains.",
+    "The generic frontend/mobile/full-stack line provides the first viewport's career story.",
+    "The Archivo display face is shared with most reviewed directions."
+  ],
+  "m2": "fail",
+  "creativeGates": "slop fail, M2 fail"
 }

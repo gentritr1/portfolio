@@ -166,12 +166,6 @@ export function IndexPreview({
       <div className="index-preview-note" key={`${project.slug}-copy`}>
         <p
           className="index-preview-project"
-          data-name={project.name}
-          style={
-            {
-              "--name-image": `url("${art?.images.at(-1) ?? ""}")`,
-            } as CSSProperties
-          }
         >
           {project.name}
         </p>

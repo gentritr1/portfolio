@@ -1,4 +1,5 @@
 {
+  "rule": "choose a project slot and try its work",
   "id": "savefile",
   "title": "Save File",
   "band": "Fun",
@@ -8,10 +9,24 @@
   "scores": {
     "design": 8.2,
     "usability": 7.9,
-    "creativity": 8.1,
+    "creativity": 7.4,
     "content": 8.1
   },
   "antiPale": "pass",
   "rounds": 2,
-  "holdback": "The dense level grid gives project names less emphasis than their numbers."
+  "holdback": "The strongest capture in this subset: the desktop grid exposes all 28 projects and the FJALË panel makes Albanian language, the Ë key and real guess feedback tangible. The playable panel remains prominent on mobile. Source confirms the visible game is functional. The site map itself is still ordinary project selection with pixel styling; neither game rules nor save state determine its navigation.",
+  "previousCreativity": 8.1,
+  "mechanisms": [
+    "M3",
+    "M5",
+    "M6",
+    "M9"
+  ],
+  "slopCount": 2,
+  "slopCauses": [
+    "Oversized personal name precedes the work.",
+    "Retro game styling remains a costume for the project-navigation grid."
+  ],
+  "m2": "fail",
+  "creativeGates": "M2 fail"
 }

@@ -1,4 +1,5 @@
 {
+  "rule": "the project channel",
   "id": "primetime",
   "title": "Primetime",
   "band": "Fun",
@@ -8,10 +9,21 @@
   "scores": {
     "design": 8.2,
     "usability": 7.8,
-    "creativity": 8.1,
+    "creativity": 6.3,
     "content": 8.2
   },
   "antiPale": "pass",
   "rounds": 1,
-  "holdback": "The full remote sits below the first mobile viewport; the visible television arrows preserve immediate channel browsing."
+  "holdback": "The cabinet and remote are recognizable and consistently drawn, and channel selection reveals actual work. But the numbered remote duplicates previous/next browsing and a searchable guide rather than establishing a necessary navigation system. On mobile the remote is mostly below the viewport while the same browsing remains available through television arrows. No timing, sound, or physical-weight credit can be established from the captures.",
+  "previousCreativity": 8.1,
+  "mechanisms": [
+    "M5"
+  ],
+  "slopCount": 2,
+  "slopCauses": [
+    "The retro television and remote act as a browsing costume.",
+    "The Archivo display face is shared with most reviewed directions."
+  ],
+  "m2": "fail",
+  "creativeGates": "M2 fail"
 }

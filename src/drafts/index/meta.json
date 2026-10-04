@@ -1,4 +1,5 @@
 {
+  "rule": "the active project becomes the image",
   "id": "index",
   "title": "Work in focus",
   "band": "Professional",
@@ -8,10 +9,23 @@
   "scores": {
     "design": 8.2,
     "usability": 8.1,
-    "creativity": 8.1,
+    "creativity": 6.8,
     "content": 8.1
   },
   "antiPale": "pass",
   "rounds": 2,
-  "holdback": "The row-and-preview structure is conventional, and product imagery arrives low on mobile."
+  "holdback": "The compact identity lets projects lead, and the selected title is genuinely a graphic surface. Four years of reading, about 14 releases and the React Native version change supply specific evidence on desktop. The remaining structure is a familiar list with a preview; mobile postpones the image and most of the engineering facts.",
+  "previousCreativity": 8.1,
+  "mechanisms": [
+    "M5",
+    "M6",
+    "M9"
+  ],
+  "slopCount": 2,
+  "slopCauses": [
+    "Angled device imagery repeats the familiar product-mockup treatment.",
+    "Shared Archivo display treatment."
+  ],
+  "m2": "not-applicable",
+  "creativeGates": "visual gates pass; motion separate"
 }

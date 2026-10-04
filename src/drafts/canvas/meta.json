@@ -1,4 +1,5 @@
 {
+  "rule": "work arranged on artboards",
   "id": "canvas",
   "title": "A working canvas",
   "band": "Experimental",
@@ -8,10 +9,23 @@
   "scores": {
     "design": 8.1,
     "usability": 7.7,
-    "creativity": 8.2,
+    "creativity": 6.7,
     "content": 8.3
   },
   "antiPale": "pass",
   "rounds": 1,
-  "holdback": "Mobile canvas controls and the partially visible care artboard make exploration less immediate than the linear reading mode."
+  "holdback": "The labelled care recreation is substantial owner-specific material: actual clinic, day and unit controls render the visible chart. It earns more than the surrounding canvas chrome. The artboards do not communicate a necessary spatial relationship, and the existing reading mode demonstrates that the work survives removal of the canvas metaphor. On mobile the giant identity pushes most of the valuable chart below the viewport.",
+  "previousCreativity": 8.2,
+  "mechanisms": [
+    "M3",
+    "M5",
+    "M9"
+  ],
+  "slopCount": 2,
+  "slopCauses": [
+    "Giant name with trailing full stop consumes the main artboard.",
+    "Shared Archivo display treatment."
+  ],
+  "m2": "fail",
+  "creativeGates": "M2 fail"
 }

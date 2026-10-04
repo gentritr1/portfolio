@@ -1,110 +1,111 @@
 {
-  "method": "Decimal kB gzip. Initial graph includes entry and every static import. Each draft includes picker-shell static dependencies, the draft and all its dynamic graphics dependencies, excluding only files already in the initial graph. CSS is counted separately; public imagery and fonts are excluded from the JavaScript chunk budget.",
-  "baselineCommit": "89c40c4",
+  "measuredAt": "2026-10-04T00:31:47.951Z",
+  "baselineCommit": "889e02f",
   "baseline": {
-    "entry": 87.62,
-    "initialJS": 106.75
+    "entry": 20.189,
+    "initialJS": 101.863
   },
   "final": {
-    "entry": 20.13,
-    "initialJS": 101.84
+    "entry": 20.139,
+    "initialJS": 101.813
   },
   "drafts": [
     {
-      "id": "hybrid",
-      "js": 59.59,
-      "css": 3.88,
-      "total": 63.47
-    },
-    {
-      "id": "studio",
-      "js": 39.21,
-      "css": 5.11,
-      "total": 44.32
-    },
-    {
-      "id": "desktop",
-      "js": 11.43,
-      "css": 5.55,
-      "total": 16.98
+      "id": "blueprint",
+      "js": 32.887,
+      "css": 4.79,
+      "total": 37.677
     },
     {
       "id": "canvas",
-      "js": 17.72,
-      "css": 5.38,
-      "total": 23.1
-    },
-    {
-      "id": "index",
-      "js": 23.17,
-      "css": 3.73,
-      "total": 26.9
-    },
-    {
-      "id": "blueprint",
-      "js": 29.87,
-      "css": 4.8,
-      "total": 34.67
-    },
-    {
-      "id": "savefile",
-      "js": 10.33,
-      "css": 4.45,
-      "total": 14.78
-    },
-    {
-      "id": "zine",
-      "js": 11.42,
-      "css": 4.93,
-      "total": 16.35
-    },
-    {
-      "id": "issue",
-      "js": 7.5,
-      "css": 3.68,
-      "total": 11.18
-    },
-    {
-      "id": "wall",
-      "js": 27.56,
-      "css": 4.24,
-      "total": 31.8
-    },
-    {
-      "id": "riso",
-      "js": 8.58,
-      "css": 4.58,
-      "total": 13.16
-    },
-    {
-      "id": "dither",
-      "js": 12.22,
-      "css": 4.66,
-      "total": 16.88
-    },
-    {
-      "id": "swiss",
-      "js": 7.52,
-      "css": 3.37,
-      "total": 10.89
-    },
-    {
-      "id": "orbit",
-      "js": 38.43,
-      "css": 4.43,
-      "total": 42.86
-    },
-    {
-      "id": "primetime",
-      "js": 9,
-      "css": 4.92,
-      "total": 13.92
+      "js": 20.606,
+      "css": 5.357,
+      "total": 25.963
     },
     {
       "id": "desk",
-      "js": 29.76,
-      "css": 4.57,
-      "total": 34.33
+      "js": 32.816,
+      "css": 4.566,
+      "total": 37.382000000000005
+    },
+    {
+      "id": "desktop",
+      "js": 14.351,
+      "css": 5.544,
+      "total": 19.895
+    },
+    {
+      "id": "dither",
+      "js": 15.083,
+      "css": 4.645,
+      "total": 19.728
+    },
+    {
+      "id": "hybrid",
+      "js": 62.522,
+      "css": 3.873,
+      "total": 66.395
+    },
+    {
+      "id": "index",
+      "js": 26.169,
+      "css": 3.723,
+      "total": 29.892
+    },
+    {
+      "id": "issue",
+      "js": 10.388,
+      "css": 3.676,
+      "total": 14.064
+    },
+    {
+      "id": "orbit",
+      "js": 41.394,
+      "css": 4.417,
+      "total": 45.811
+    },
+    {
+      "id": "primetime",
+      "js": 11.905,
+      "css": 4.911,
+      "total": 16.816
+    },
+    {
+      "id": "riso",
+      "js": 11.47,
+      "css": 4.565,
+      "total": 16.035
+    },
+    {
+      "id": "savefile",
+      "js": 13.221,
+      "css": 4.434,
+      "total": 17.655
+    },
+    {
+      "id": "studio",
+      "js": 42.208,
+      "css": 5.095,
+      "total": 47.303
+    },
+    {
+      "id": "swiss",
+      "js": 10.42,
+      "css": 3.365,
+      "total": 13.785
+    },
+    {
+      "id": "wall",
+      "js": 36.206,
+      "css": 4.296,
+      "total": 40.502
+    },
+    {
+      "id": "zine",
+      "js": 14.282,
+      "css": 4.911,
+      "total": 19.192999999999998
     }
-  ]
+  ],
+  "labMoves": []
 }

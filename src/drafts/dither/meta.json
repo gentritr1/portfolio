@@ -1,4 +1,5 @@
 {
+  "rule": "one-bit to colour",
   "id": "dither",
   "title": "Work in colour",
   "band": "Experimental",
@@ -8,10 +9,23 @@
   "scores": {
     "design": 8.1,
     "usability": 7.9,
-    "creativity": 8.1,
+    "creativity": 6.8,
     "content": 8.4
   },
   "antiPale": "pass",
   "rounds": 1,
-  "holdback": "The initial care image is muted, so its colour reveal is less dramatic than the other project images."
+  "holdback": "The Bayer dots are visible and confirmed as a real image conversion. Selection reveals the project and its colour image; the desktop care statement specifically names route-by-route migration with parity tests. However, the huge name and generic career line occupy the familiar hero scaffold. The most personal explanation slips below the first mobile viewport, leaving the technique more prominent than its meaning.",
+  "previousCreativity": 8.1,
+  "mechanisms": [
+    "M3",
+    "M5",
+    "M9"
+  ],
+  "slopCount": 2,
+  "slopCauses": [
+    "Giant first-and-last name with a trailing full stop.",
+    "The Archivo display face is shared with most reviewed directions."
+  ],
+  "m2": "not-applicable",
+  "creativeGates": "visual gates pass; motion separate"
 }

@@ -1,4 +1,5 @@
 {
+  "rule": "the resetting letter grid",
   "id": "swiss",
   "title": "In formation",
   "band": "Professional",
@@ -8,10 +9,22 @@
   "scores": {
     "design": 8.2,
     "usability": 8,
-    "creativity": 8.2,
+    "creativity": 7,
     "content": 8.2
   },
   "antiPale": "pass",
   "rounds": 2,
-  "holdback": "On mobile, Reset the type has more emphasis than it needs ahead of the route to the work."
+  "holdback": "The alternating cream tiles, displaced baselines, and letter proportions genuinely turn type into the image. This survives the mobile adaptation better than several other concepts. But the invention is spent on the owner's name; no project material or distinctive engineering fact enters the first viewport. Reset the type changes composition without revealing information. It earns M6, not M5 or an inferred physics mechanism.",
+  "previousCreativity": 8.2,
+  "mechanisms": [
+    "M6"
+  ],
+  "slopCount": 3,
+  "slopCauses": [
+    "Oversized first-and-last name occupies most of the first viewport.",
+    "The frontend/mobile/full-stack line is the only substantive career story in the first viewport.",
+    "The Archivo display face is shared with most reviewed directions."
+  ],
+  "m2": "not-applicable",
+  "creativeGates": "slop fail"
 }

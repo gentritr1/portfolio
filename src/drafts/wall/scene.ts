@@ -135,7 +135,7 @@ export function createWallScene(root: HTMLElement): WallScene | null {
       finally { pending.delete(image) }
     }
     root.querySelectorAll<HTMLElement>('[data-wall-image]').forEach(host => {
-      const image = host.querySelector('img')
+      const image = host.querySelector<HTMLImageElement>('[data-wall-full]')
       if (!image) return
       const loaded = () => { void add(host, image) }
       image.addEventListener('load', loaded)

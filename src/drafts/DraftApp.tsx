@@ -3,6 +3,10 @@ import { Link, Route, Routes, useParams } from "react-router";
 import "./picker.css";
 
 interface DraftMeta {
+  rule?: string;
+  mechanisms?: string[];
+  slopCount?: number;
+  creativeGates?: string;
   id: string;
   title: string;
   band: "Professional" | "Crafted" | "Fun" | "Experimental";
@@ -21,6 +25,7 @@ interface DraftMeta {
 }
 const bands = ["Professional", "Crafted", "Fun", "Experimental"] as const;
 const sequence = [
+  "diff", "fjalekryq", "linja", "bitrate", "aisle", "facing-pages", "ledger", "deal", "lap",
   "hybrid",
   "studio",
   "desktop",
@@ -171,7 +176,8 @@ function Picker() {
             )}
             <details>
               <summary>Motion & review notes</summary>
-              <p>{d.signature}</p>
+              <p>{d.rule ? `Rule: ${d.rule}. ` : ""}{d.signature}</p>
+              {d.creativeGates && <p>Creative gates: {d.creativeGates}. Slop markers: {d.slopCount}. Mechanisms: {d.mechanisms?.join(", ") || "none earned"}.</p>}
               <p>
                 {d.holdback ||
                   "Review notes will appear after the first jury pass."}

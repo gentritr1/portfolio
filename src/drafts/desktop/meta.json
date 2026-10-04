@@ -1,4 +1,5 @@
 {
+  "rule": "projects open as windows",
   "id": "desktop",
   "title": "Gentrit Desktop",
   "band": "Fun",
@@ -8,10 +9,23 @@
   "scores": {
     "design": 8.2,
     "usability": 7.9,
-    "creativity": 8.1,
+    "creativity": 6.4,
     "content": 8.3
   },
   "antiPale": "pass",
   "rounds": 2,
-  "holdback": "Mobile reading requires navigating both the page and the app window\u2019s scrolling area."
+  "holdback": "The visible project tabs and Incentiv facts provide more information than Studio or Hybrid. However, launchers select documents and window controls manage their shell; removing desktop styling and window movement leaves a conventional selector and reading panel. Mobile makes that underlying structure particularly clear.",
+  "previousCreativity": 8.1,
+  "mechanisms": [
+    "M5",
+    "M9"
+  ],
+  "slopCount": 3,
+  "slopCauses": [
+    "Giant name with trailing full stop.",
+    "OS costume around conventional project documents.",
+    "Shared Archivo display treatment."
+  ],
+  "m2": "fail",
+  "creativeGates": "slop fail, M2 fail"
 }

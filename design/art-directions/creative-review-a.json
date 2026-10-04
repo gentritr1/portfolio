@@ -1,0 +1,165 @@
+{
+  "reviewer": "creative_jury_a",
+  "method": "Independent capture review. Original assigned desktop and mobile captures inspected with view_image. Hybrid replacement captures re-inspected at 1440×812 and 375×812. Source read only to confirm visible mechanisms. No browser interaction used.",
+  "scoreScope": "Creativity only. Existing Design, Usability and Content scores remain unchanged. Numbers are diagnostic where a gate fails.",
+  "reviews": [
+    {
+      "id": "hybrid",
+      "status": "final",
+      "rule": "select a row, reveal its work",
+      "creativity": 6.2,
+      "mechanisms": [
+        "M5"
+      ],
+      "slopCount": 3,
+      "slopCauses": [
+        "Oversized first-and-last-name hero, especially on mobile.",
+        "Generic role statement and stack inventory supply the opening story.",
+        "Shared Archivo display treatment."
+      ],
+      "m2": "not-applicable",
+      "holdback": "Solid-ink Bayyinah TV is now clear in both replacement captures. This resolves the active-name defect without changing the creative assessment: the familiar index-and-preview composition exposes projects, but offers little author-specific narrative in either first viewport. On mobile the large identity and generic role copy still precede the work.",
+      "captureEvidence": "Replacement canonical desktop and mobile captures visibly show Bayyinah TV in continuous cream ink; screenshot fill and outline noise are gone."
+    },
+    {
+      "id": "studio",
+      "rule": "the phone fan",
+      "creativity": 5.7,
+      "mechanisms": [],
+      "slopCount": 4,
+      "slopCauses": [
+        "Giant name with trailing full stop.",
+        "Generic role statement is the only substantive opening story.",
+        "Device mockups arranged in a fan.",
+        "Shared Archivo display treatment."
+      ],
+      "m2": "fail",
+      "holdback": "Both captures are dominated by a conventional product-ad phone fan and identity. Collection, reader and progress labels describe the pictured screens without making the studio metaphor necessary to understanding or navigating the work. Real rendered geometry does not make this capture distinguishable from a stock device mockup."
+    },
+    {
+      "id": "desktop",
+      "rule": "projects open as windows",
+      "creativity": 6.4,
+      "mechanisms": [
+        "M5",
+        "M9"
+      ],
+      "slopCount": 3,
+      "slopCauses": [
+        "Giant name with trailing full stop.",
+        "OS costume around conventional project documents.",
+        "Shared Archivo display treatment."
+      ],
+      "m2": "fail",
+      "holdback": "The visible project tabs and Incentiv facts provide more information than Studio or Hybrid. However, launchers select documents and window controls manage their shell; removing desktop styling and window movement leaves a conventional selector and reading panel. Mobile makes that underlying structure particularly clear."
+    },
+    {
+      "id": "canvas",
+      "rule": "work arranged on artboards",
+      "creativity": 6.7,
+      "mechanisms": [
+        "M3",
+        "M5",
+        "M9"
+      ],
+      "slopCount": 2,
+      "slopCauses": [
+        "Giant name with trailing full stop consumes the main artboard.",
+        "Shared Archivo display treatment."
+      ],
+      "m2": "fail",
+      "holdback": "The labelled care recreation is substantial owner-specific material: actual clinic, day and unit controls render the visible chart. It earns more than the surrounding canvas chrome. The artboards do not communicate a necessary spatial relationship, and the existing reading mode demonstrates that the work survives removal of the canvas metaphor. On mobile the giant identity pushes most of the valuable chart below the viewport."
+    },
+    {
+      "id": "index",
+      "rule": "the active project becomes the image",
+      "creativity": 6.8,
+      "mechanisms": [
+        "M5",
+        "M6",
+        "M9"
+      ],
+      "slopCount": 2,
+      "slopCauses": [
+        "Angled device imagery repeats the familiar product-mockup treatment.",
+        "Shared Archivo display treatment."
+      ],
+      "m2": "not-applicable",
+      "holdback": "The compact identity lets projects lead, and the selected title is genuinely a graphic surface. Four years of reading, about 14 releases and the React Native version change supply specific evidence on desktop. The remaining structure is a familiar list with a preview; mobile postpones the image and most of the engineering facts."
+    },
+    {
+      "id": "blueprint",
+      "rule": "separate the device into layers",
+      "creativity": 6.1,
+      "mechanisms": [],
+      "slopCount": 3,
+      "slopCauses": [
+        "Exploded laptop is the main visual device.",
+        "Generic role statement supplies the opening developer story.",
+        "Shared Archivo display treatment."
+      ],
+      "m2": "fail",
+      "holdback": "The composition is more deliberate than Studio and avoids a giant personal name. Its actual labels explain display glass, public web screen and laptop base, however, rather than the project's architecture. Assemble and Explode manipulate a prop; project navigation and understanding survive its removal. The visible separation is not evidence of the owner's software layers."
+    },
+    {
+      "id": "savefile",
+      "rule": "choose a project slot and try its work",
+      "creativity": 7.4,
+      "mechanisms": [
+        "M3",
+        "M5",
+        "M6",
+        "M9"
+      ],
+      "slopCount": 2,
+      "slopCauses": [
+        "Oversized personal name precedes the work.",
+        "Retro game styling remains a costume for the project-navigation grid."
+      ],
+      "m2": "fail",
+      "holdback": "The strongest capture in this subset: the desktop grid exposes all 28 projects and the FJALË panel makes Albanian language, the Ë key and real guess feedback tangible. The playable panel remains prominent on mobile. Source confirms the visible game is functional. The site map itself is still ordinary project selection with pixel styling; neither game rules nor save state determine its navigation."
+    },
+    {
+      "id": "zine",
+      "rule": "cut type and work into crossing bands",
+      "creativity": 7,
+      "mechanisms": [
+        "M6",
+        "M9"
+      ],
+      "slopCount": 4,
+      "slopCauses": [
+        "Giant name with trailing full stop.",
+        "Generic role statement supplies the opening developer story.",
+        "Decorative project-name marquees.",
+        "Shared Archivo display treatment."
+      ],
+      "m2": "fail",
+      "holdback": "The diagonal bands, cropped Albanian grocery screens and cut-out surname create an actual composition rather than a simple colour swap. Yet the project-name bands are decorative spans, not navigation, and partly obscure the work on both sizes. The visible acid-zine language is familiar, while the author's particular contribution to Viva Fresh remains outside the first viewport."
+    }
+  ],
+  "calibration": {
+    "scale": "7 good personal site; 8 distinctive; 9 Site of the Day.",
+    "firstRescore": "The initial middle cluster around 6.5 was re-evaluated. Hybrid separates downward because its opening is generic; the replacement's solid lettering fixes recognition but does not add a creative mechanism. Desktop earns its position through immediately readable project facts and tabs. Canvas earns more through a genuine care recreation, despite the oversized identity and removable canvas shell. Index narrowly exceeds Canvas because its project-led composition and concrete release history survive more clearly in the captured presentation.",
+    "combinedSecondLook": {
+      "trigger": "Combined provisional jury scores place Canvas 6.7, Index and Dither 6.8, and Zine and Swiss 7.0 in a close middle group.",
+      "additionalCapturesInspected": [
+        "swiss-desktop.png",
+        "swiss-mobile.png",
+        "dither-desktop.png",
+        "dither-mobile.png"
+      ],
+      "decision": "Retain this review's 6.7, 6.8 and 7.0 after a second look. Close scores reflect different strengths at a similar creative level, not identical concepts. Do not force an 8 or 9 merely to widen the spread.",
+      "separatingRationale": [
+        "Canvas 6.7: the visible live care chart is stronger owner-specific material than the surrounding shell, but the oversized identity, generic canvas tools and incomplete mobile chart weaken the central proposition.",
+        "Index 6.8 versus Dither 6.8: Index gives its space to project names and concrete release evidence, with the selected title as an image. Dither visibly transforms screenshots into a material treatment and shows care-migration copy, but a giant conventional identity block remains. Their equal total balances information-led originality against image-treatment originality; it does not imply the same mechanism.",
+        "Zine 7.0 versus Swiss 7.0: Zine achieves a deliberately collaged whole with opposing bands, cut-out type and Albanian product imagery. Swiss turns letters into its graphic composition more completely, but shows no project material in the opening view. Both are strong cover compositions whose organising idea does not yet determine the portfolio's information structure.",
+        "Save File 7.4 is above this middle group because the specific Albanian mini-game remains usable and visually central on desktop and mobile; it makes a piece of the author's work observable rather than merely framing it."
+      ]
+    },
+    "spread": "Assigned scores span 5.7–7.4. Combined provisional scores supplied by the other reviewer span at least 5.4–7.7. No artificial high score was introduced.",
+    "withheld": "No M7, M8 or M11 awarded: static captures cannot establish pacing, physical weight, audio or interruption craft. Real 3D source alone does not earn M3 when the visible result remains a generic device mockup.",
+    "gates": "All assigned captures visibly clear the dark-and-pale colour condition. Temporal anti-pale requirements remain unverified from stills. Slop counts above two and failed M2 tests are explicit gate failures rather than being erased by numerical scores.",
+    "preservation": "No Design, Usability or Content values are changed. No costume repair round is recommended."
+  }
+}

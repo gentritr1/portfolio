@@ -7,7 +7,6 @@ import {
   useState,
   type KeyboardEvent,
   type PointerEvent,
-  type CSSProperties,
 } from "react";
 import { flushSync } from "react-dom";
 import { useNavigate, useSearchParams } from "react-router";
@@ -15,7 +14,6 @@ import { About } from "../components/home/About";
 import { IndexPreview } from "../components/portfolio/IndexPreview";
 import {
   selectedSlugs,
-  indexArt,
   indexGrounds,
 } from "../components/portfolio/indexArt";
 import { TransitionLink } from "../components/TransitionLink";
@@ -230,12 +228,6 @@ export function HomePage() {
                         <span className="index-row-main">
                           <span
                             className="index-project-name"
-                            data-name={project.name}
-                            style={
-                              {
-                                "--name-image": `url("${indexArt[project.slug]?.images.at(-1) ?? project.media.shot?.src ?? ""}")`,
-                              } as CSSProperties
-                            }
                           >
                             {project.name}
                           </span>

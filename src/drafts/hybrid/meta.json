@@ -1,17 +1,30 @@
 {
+  "rule": "select a row, reveal its work",
   "id": "hybrid",
   "title": "Index × Preview",
   "band": "Professional",
-  "description": "The existing hybrid, with project-colour floods and image-filled typography.",
-  "signature": "Selecting a project floods the page with its colour as its screenshot reveals inside the name.",
+  "description": "The existing project index, with colour floods and readable solid-ink names.",
+  "signature": "Selecting a project floods the page with its colour and reveals its public imagery.",
   "caseSlug": "bayyinah-tv",
   "scores": {
     "design": 7.9,
     "usability": 7.9,
-    "creativity": 8,
+    "creativity": 6.2,
     "content": 8.2
   },
   "antiPale": "pass",
   "rounds": 3,
-  "holdback": "Image-filled active names lose contrast where their crop matches the page colour. Retained after the three-round limit."
+  "holdback": "Solid-ink Bayyinah TV is now clear in both replacement captures. This resolves the active-name defect without changing the creative assessment: the familiar index-and-preview composition exposes projects, but offers little author-specific narrative in either first viewport. On mobile the large identity and generic role copy still precede the work.",
+  "previousCreativity": 8,
+  "mechanisms": [
+    "M5"
+  ],
+  "slopCount": 3,
+  "slopCauses": [
+    "Oversized first-and-last-name hero, especially on mobile.",
+    "Generic role statement and stack inventory supply the opening story.",
+    "Shared Archivo display treatment."
+  ],
+  "m2": "not-applicable",
+  "creativeGates": "slop fail"
 }

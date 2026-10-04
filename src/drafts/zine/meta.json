@@ -1,4 +1,5 @@
 {
+  "rule": "cut type and work into crossing bands",
   "id": "zine",
   "title": "The work, cut together",
   "band": "Experimental",
@@ -8,10 +9,24 @@
   "scores": {
     "design": 8.2,
     "usability": 7.9,
-    "creativity": 8.3,
+    "creativity": 7,
     "content": 8.3
   },
   "antiPale": "pass",
   "rounds": 1,
-  "holdback": "Mobile introduces the product imagery relatively late, and the bands obscure some of it; the direct Viva Fresh link preserves access."
+  "holdback": "The diagonal bands, cropped Albanian grocery screens and cut-out surname create an actual composition rather than a simple colour swap. Yet the project-name bands are decorative spans, not navigation, and partly obscure the work on both sizes. The visible acid-zine language is familiar, while the author's particular contribution to Viva Fresh remains outside the first viewport.",
+  "previousCreativity": 8.3,
+  "mechanisms": [
+    "M6",
+    "M9"
+  ],
+  "slopCount": 4,
+  "slopCauses": [
+    "Giant name with trailing full stop.",
+    "Generic role statement supplies the opening developer story.",
+    "Decorative project-name marquees.",
+    "Shared Archivo display treatment."
+  ],
+  "m2": "fail",
+  "creativeGates": "slop fail, M2 fail"
 }

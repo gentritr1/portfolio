@@ -31,12 +31,14 @@
 .draft-wall-span-4 { grid-column: span 4; }
 .draft-wall-project { display: block; width: 100%; height: 100%; padding: 0; position: relative; text-align: left; overflow: hidden; isolation: auto; }
 .draft-wall-project:focus-visible { outline: 4px solid #fc5429 !important; outline-offset: -4px; }
-.draft-wall-media { display: block; position: absolute; inset: 0; overflow: hidden; background: var(--wall-ground); color: var(--wall-ink); animation: draft-wall-arrive 1200ms cubic-bezier(.16,1,.3,1) both; }
+.draft-wall-media { display: block; position: absolute; inset: 0; overflow: hidden; container-type: inline-size; background: var(--wall-ground); color: var(--wall-ink); animation: draft-wall-arrive 1200ms cubic-bezier(.16,1,.3,1) both; }
 .draft-wall-tile:nth-child(even) .draft-wall-media { animation-name: draft-wall-arrive-up; }
-.draft-wall-media > img { display: block; width: 100%; height: 100%; object-fit: cover; opacity: 0; }
+.draft-wall-media > img { display: block; position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; }
+.draft-wall-media > img.draft-wall-preview { opacity: 1; }
 .draft-wall-media > img[data-ready='true'] { opacity: 1; }
 .draft-wall-poster { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: space-between; padding: 25px 22px 65px; }
-.draft-wall-poster strong { display: block; font-size: clamp(27px, 3.6vw, 64px); line-height: .98; letter-spacing: -.04em; font-weight: 610; overflow-wrap: anywhere; }
+.draft-wall-poster strong { display: block; font-size: clamp(27px, 3.6vw, 64px); line-height: .98; letter-spacing: -.04em; font-weight: 610; hyphens: auto; overflow-wrap: normal; }
+.draft-wall-poster strong.draft-wall-poster-fit { font-size: clamp(14px, 12cqw, 40px); }
 .draft-wall-poster strong > span { display: block; }
 .draft-wall-poster > span { font-size: 12px; line-height: 1.45; }
 .draft-wall-tile:nth-child(3n) .draft-wall-poster strong { margin-top: auto; }

@@ -1,4 +1,5 @@
 {
+  "rule": "the feature spread",
   "id": "issue",
   "title": "The working issue",
   "band": "Professional",
@@ -8,10 +9,22 @@
   "scores": {
     "design": 8.3,
     "usability": 8.1,
-    "creativity": 8.1,
+    "creativity": 7.4,
     "content": 8.2
   },
   "antiPale": "pass",
   "rounds": 2,
-  "holdback": "At 375 px, the split spread makes the product image small and the pull quote narrow."
+  "holdback": "The enormous serif Shipped and asymmetric spread produce a coherent composition, while the visible 16 security and tenant-isolation tests supply personal substance. The feature controls reveal different project facts. However, removing the book styling leaves a standard three-item carousel and ordinary index. Mobile retains the two-page split at a scale that weakens the editorial idea.",
+  "previousCreativity": 8.1,
+  "mechanisms": [
+    "M5",
+    "M6",
+    "M9"
+  ],
+  "slopCount": 1,
+  "slopCauses": [
+    "The displayed surname retains the checklist's trailing full stop."
+  ],
+  "m2": "fail",
+  "creativeGates": "M2 fail"
 }

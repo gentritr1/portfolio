@@ -1,4 +1,5 @@
 {
+  "rule": "the image wall",
   "id": "wall",
   "title": "The Wall",
   "band": "Crafted",
@@ -8,10 +9,22 @@
   "scores": {
     "design": 8.1,
     "usability": 8,
-    "creativity": 8.2,
+    "creativity": 7.1,
     "content": 8.2
   },
   "antiPale": "pass",
   "rounds": 2,
-  "holdback": "The large identity band masks substantial imagery, and small mobile captions favour browsing over quick comparison."
+  "holdback": "The replacement desktop capture visibly establishes real Bayer dithering, confirmed by the shader, and the mobile capture now fills the frame with public project imagery. Visible colour/year/category controls give the wall a useful browsing purpose. This earns a modest increase over the provisional resolved-colour review, but the orange identity band still masks substantial work; on mobile it interrupts the first project pair. Material treatment and useful sorting do not yet make a distinctive information structure.",
+  "previousCreativity": 8.2,
+  "mechanisms": [
+    "M3",
+    "M5"
+  ],
+  "slopCount": 2,
+  "slopCauses": [
+    "Oversized first-and-last-name identity dominates and obscures the work.",
+    "The Archivo display face is shared with most reviewed directions."
+  ],
+  "m2": "not-applicable",
+  "creativeGates": "visual gates pass; motion separate"
 }

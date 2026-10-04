@@ -1,0 +1,161 @@
+{
+  "reviewer": "creative_jury_b",
+  "method": "Independent review of all eight assigned desktop and mobile captures using view_image. Replacement Wall captures re-inspected at 1440×812 and 375×812. Source read only to confirm visible mechanisms. No browser interaction used. Cross-group calibration also read creative-review-a.json; A's scores are preserved.",
+  "scoreScope": "Creativity only. Existing Design, Usability and Content scores remain unchanged. Numbers are diagnostic where a gate fails.",
+  "reviews": [
+    {
+      "id": "issue",
+      "rule": "the feature spread",
+      "creativity": 7.4,
+      "mechanisms": [
+        "M5",
+        "M6",
+        "M9"
+      ],
+      "slopCount": 1,
+      "slopCauses": [
+        "The displayed surname retains the checklist's trailing full stop."
+      ],
+      "m2": "fail",
+      "holdback": "The enormous serif Shipped and asymmetric spread produce a coherent composition, while the visible 16 security and tenant-isolation tests supply personal substance. The feature controls reveal different project facts. However, removing the book styling leaves a standard three-item carousel and ordinary index. Mobile retains the two-page split at a scale that weakens the editorial idea."
+    },
+    {
+      "id": "wall",
+      "rule": "the image wall",
+      "creativity": 7.1,
+      "mechanisms": [
+        "M3",
+        "M5"
+      ],
+      "slopCount": 2,
+      "slopCauses": [
+        "Oversized first-and-last-name identity dominates and obscures the work.",
+        "The Archivo display face is shared with most reviewed directions."
+      ],
+      "m2": "not-applicable",
+      "holdback": "The replacement desktop capture visibly establishes real Bayer dithering, confirmed by the shader, and the mobile capture now fills the frame with public project imagery. Visible colour/year/category controls give the wall a useful browsing purpose. This earns a modest increase over the provisional resolved-colour review, but the orange identity band still masks substantial work; on mobile it interrupts the first project pair. Material treatment and useful sorting do not yet make a distinctive information structure."
+    },
+    {
+      "id": "riso",
+      "rule": "the printable poster",
+      "creativity": 7.7,
+      "mechanisms": [
+        "M3",
+        "M5",
+        "M6",
+        "M9"
+      ],
+      "slopCount": 1,
+      "slopCauses": [
+        "The Archivo display face is shared with most reviewed directions."
+      ],
+      "m2": "not-applicable",
+      "holdback": "A visible Print this poster control produces an actual project artifact, confirmed by the print stylesheet. The large project title and separated ink edges make the poster legible as a concept on both sizes; the mobile capture also exposes the specific 972 KB to 337 KB result. It remains a familiar poster layout with a conventional index, and the misregistration is too slight to make the material treatment unmistakable. Strongest of this group, below distinctive-site territory."
+    },
+    {
+      "id": "dither",
+      "rule": "one-bit to colour",
+      "creativity": 6.8,
+      "mechanisms": [
+        "M3",
+        "M5",
+        "M9"
+      ],
+      "slopCount": 2,
+      "slopCauses": [
+        "Giant first-and-last name with a trailing full stop.",
+        "The Archivo display face is shared with most reviewed directions."
+      ],
+      "m2": "not-applicable",
+      "holdback": "The Bayer dots are visible and confirmed as a real image conversion. Selection reveals the project and its colour image; the desktop care statement specifically names route-by-route migration with parity tests. However, the huge name and generic career line occupy the familiar hero scaffold. The most personal explanation slips below the first mobile viewport, leaving the technique more prominent than its meaning."
+    },
+    {
+      "id": "swiss",
+      "rule": "the resetting letter grid",
+      "creativity": 7,
+      "mechanisms": [
+        "M6"
+      ],
+      "slopCount": 3,
+      "slopCauses": [
+        "Oversized first-and-last name occupies most of the first viewport.",
+        "The frontend/mobile/full-stack line is the only substantive career story in the first viewport.",
+        "The Archivo display face is shared with most reviewed directions."
+      ],
+      "m2": "not-applicable",
+      "holdback": "The alternating cream tiles, displaced baselines, and letter proportions genuinely turn type into the image. This survives the mobile adaptation better than several other concepts. But the invention is spent on the owner's name; no project material or distinctive engineering fact enters the first viewport. Reset the type changes composition without revealing information. It earns M6, not M5 or an inferred physics mechanism."
+    },
+    {
+      "id": "orbit",
+      "rule": "the refracting orb",
+      "creativity": 5.4,
+      "mechanisms": [
+        "M3",
+        "M5"
+      ],
+      "slopCount": 3,
+      "slopCauses": [
+        "A liquid blob has no demonstrated relationship to the owner's work.",
+        "Oversized identity with the checklist's trailing full stop.",
+        "The Archivo display face is shared with most reviewed directions."
+      ],
+      "m2": "fail",
+      "holdback": "The source confirms genuine ray-marched refraction matching the visibly distorted image, and selecting a thumbnail changes the displayed project. That real optical technique does not make the concept specific: the orb distorts the reading interface while the useful previews remain tiny. Removing it leaves the project selectors, description, and Explore project link intact. Both captures emphasize the treatment over understanding the work."
+    },
+    {
+      "id": "primetime",
+      "rule": "the project channel",
+      "creativity": 6.3,
+      "mechanisms": [
+        "M5"
+      ],
+      "slopCount": 2,
+      "slopCauses": [
+        "The retro television and remote act as a browsing costume.",
+        "The Archivo display face is shared with most reviewed directions."
+      ],
+      "m2": "fail",
+      "holdback": "The cabinet and remote are recognizable and consistently drawn, and channel selection reveals actual work. But the numbered remote duplicates previous/next browsing and a searchable guide rather than establishing a necessary navigation system. On mobile the remote is mostly below the viewport while the same browsing remains available through television arrows. No timing, sound, or physical-weight credit can be established from the captures."
+    },
+    {
+      "id": "desk",
+      "rule": "the project object",
+      "creativity": 6,
+      "mechanisms": [
+        "M5"
+      ],
+      "slopCount": 3,
+      "slopCauses": [
+        "The 3D desk is removable while its ordinary project selector remains.",
+        "The generic frontend/mobile/full-stack line provides the first viewport's career story.",
+        "The Archivo display face is shared with most reviewed directions."
+      ],
+      "m2": "fail",
+      "holdback": "The monitor/phone/book associations are more meaningful than Orbit's blob, and the visible objects and duplicate row controls select project information. However, removing the desk leaves the same project choices operational. Flat lighting, weak contact shading, and the device arrangement read as an early scene prototype; the mobile fallback becomes a collage above a normal list. Real geometry alone does not earn material-honesty credit."
+    }
+  ],
+  "calibration": {
+    "scale": "7 good personal site; 8 distinctive; 9 Site of the Day.",
+    "wallFinalization": "Wall was provisionally 6.9 with only M5 because the original captures showed resolved colour. The replacement desktop visibly establishes Bayer dithering, earning M3, and the replacement mobile removes the unexplained black margins. Final Creativity is 7.1. The rise credits newly observed evidence; the large identity interruption still prevents a stronger score.",
+    "mechanismCalibration": "Desk's provisional M3 was removed on the combined second look: source-confirmed geometry alone is not a material-honesty achievement in a generic device scene. Orbit retains M3 narrowly for the visibly refracted public screenshot and confirmed optical shader, without receiving a higher creativity score for that technique. Riso earns M3 through an actual printable artifact; Dither and Wall through visible, source-confirmed Bayer conversion.",
+    "firstRescore": "Re-scored the initial 6.8–7.0 cluster. Swiss had the strongest standalone type composition; Wall prioritized actual work but interrupted it with identity; Dither had the strongest personal technical fact but the most conventional hero scaffold. The differences were retained rather than inventing high scores. Wall was subsequently finalized at 7.1 only after replacement capture evidence.",
+    "combinedSecondLook": {
+      "performed": true,
+      "basis": "B's directly inspected captures, including both Wall replacements, compared with the independent evidence and final scores in creative-review-a.json. A's captures were not re-inspected by B; A's scores remain unchanged.",
+      "trigger": "The combined jury contains overlapping close groups at 6.0–6.4 and 6.7–7.1. These were deliberately reconsidered under the requirement to explain any three or more scores within 0.2.",
+      "decision": "Retain the final numeric scores after comparing the different strengths. The close totals are defensible; no 8 or 9 is introduced to manufacture separation.",
+      "separatingRationale": [
+        "Desk 6.0, Blueprint 6.1, Hybrid 6.2: Desk maps projects to familiar physical objects but looks unfinished and repeats them in a normal list. A finds Blueprint's composition more deliberate while its labels explain hardware rather than software. Hybrid is more directly useful, but its index-and-preview structure and opening narrative are generic. These are small differences within a modest creative tier.",
+        "Hybrid 6.2, Primetime 6.3, Desktop 6.4: Hybrid's directness does not add a distinctive organizing rule. Primetime applies its visual metaphor more coherently, but the remote duplicates browsing. A's Desktop review observes more immediate project facts and tabs, which gives its otherwise removable OS shell a slight advantage.",
+        "Canvas 6.7, Index 6.8, Dither 6.8: A identifies Canvas's care recreation as its real contribution, weakened by the surrounding tool shell and mobile composition. Index lets project names and release history lead, whereas Dither has a genuine image transformation and migration fact but retains the giant-name scaffold. Equal scores balance different strengths rather than identical mechanisms.",
+        "Dither 6.8, Zine 7.0, Swiss 7.0: Dither's material effect and owner-specific copy are stronger than its overall composition. A finds Zine's crossing bands and Albanian product imagery more compositionally authored, though obscuring. Swiss commits most completely to letters as imagery, but devotes that invention to identity rather than work.",
+        "Zine 7.0, Swiss 7.0, Wall 7.1: Zine and Swiss form memorable covers without making their visual rule determine the portfolio's information structure. Wall now visibly couples real dither material with immediate work imagery and sorting; its oversized band prevents a larger advantage.",
+        "Issue 7.4 and Save File 7.4 reach similar totals through different strengths: Issue's serif spread makes a real project fact editorially prominent, while A's Save File makes the Albanian mini-game itself observable. Riso 7.7 exceeds them because its central concept produces a useful artifact and remains coherent on both captured sizes, but it is still short of an 8."
+      ]
+    },
+    "spread": "B's final scores span 5.4–7.7. The combined final jury also spans 5.4–7.7. No artificial high scores were introduced.",
+    "withheld": "No M7, M8 or M11 awarded from still captures. M9 requires substantive personal evidence rather than names, dates and generic project categories alone. Wall's actual loading sequence is not inferred from a still image.",
+    "gates": "All assigned captures visibly clear the colour portion of the anti-pale check. Automatic motion remains unverified from stills. Slop counts above two and failed M2 tests remain explicit gate failures; numerical scores do not override them.",
+    "preservation": "Design, Usability and Content values remain unchanged. No costume repair round is recommended."
+  }
+}

@@ -1,4 +1,5 @@
 {
+  "rule": "the refracting orb",
   "id": "orbit",
   "title": "Liquid Orbit",
   "band": "Crafted",
@@ -8,10 +9,23 @@
   "scores": {
     "design": 8.1,
     "usability": 8,
-    "creativity": 8.2,
+    "creativity": 5.4,
     "content": 8.2
   },
   "antiPale": "pass",
   "rounds": 1,
-  "holdback": "Refraction sacrifices screenshot legibility, and the small orbiting previews offer limited product detail before opening a case."
+  "holdback": "The source confirms genuine ray-marched refraction matching the visibly distorted image, and selecting a thumbnail changes the displayed project. That real optical technique does not make the concept specific: the orb distorts the reading interface while the useful previews remain tiny. Removing it leaves the project selectors, description, and Explore project link intact. Both captures emphasize the treatment over understanding the work.",
+  "previousCreativity": 8.2,
+  "mechanisms": [
+    "M3",
+    "M5"
+  ],
+  "slopCount": 3,
+  "slopCauses": [
+    "A liquid blob has no demonstrated relationship to the owner's work.",
+    "Oversized identity with the checklist's trailing full stop.",
+    "The Archivo display face is shared with most reviewed directions."
+  ],
+  "m2": "fail",
+  "creativeGates": "slop fail, M2 fail"
 }

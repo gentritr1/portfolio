@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperti
 import { projects, findProject, type Project } from '../../content/projects'
 import { links } from '../../content/links'
 import { wallAssets, wallPosters, wallColour, wallYear } from '../../components/portfolio/wallAssets'
+import { wallPreviews } from './previews'
 import type { WallScene } from './scene'
 import './wall.css'
 
@@ -16,9 +17,13 @@ function TileImage({ project, eager }: { project: Project; eager: boolean }) {
   const poster = wallPosters[project.slug]
   const [ready, setReady] = useState(false)
   const colour = asset?.fallback ?? { background: poster?.background ?? '#ed5934', ink: poster?.ink ?? '#24170e' }
+  const imageStyle: CSSProperties = { objectPosition: `${(asset?.position?.[0] ?? .5) * 100}% ${(asset?.position?.[1] ?? .5) * 100}%`, transform: `scale(${asset?.zoom ?? 1})`, transformOrigin: `${(asset?.position?.[0] ?? .5) * 100}% ${(asset?.position?.[1] ?? .5) * 100}%` }
   return <span className="draft-wall-media" data-wall-image={asset ? project.slug : undefined} data-zoom={asset?.zoom ?? 1} data-origin-x={asset?.position?.[0] ?? .5} data-origin-y={asset?.position?.[1] ?? .5} style={{ '--wall-ground': colour.background, '--wall-ink': colour.ink } as CSSProperties}>
-    <span className="draft-wall-poster" aria-hidden="true"><strong>{asset ? project.name : (poster?.lines ?? [project.name]).map(line => <span key={line}>{line}</span>)}</strong>{!asset && <span>{project.kind}<br />{project.years ?? project.group}</span>}</span>
-    {asset && <img src={asset.src} alt="" loading={eager ? 'eager' : 'lazy'} fetchPriority={eager ? 'high' : 'auto'} decoding="async" data-ready={ready} style={{ objectPosition: `${(asset.position?.[0] ?? .5) * 100}% ${(asset.position?.[1] ?? .5) * 100}%`, transform: `scale(${asset.zoom ?? 1})`, transformOrigin: `${(asset.position?.[0] ?? .5) * 100}% ${(asset.position?.[1] ?? .5) * 100}%` }} onLoad={event => { void event.currentTarget.decode().then(() => setReady(true)).catch(() => {}) }} />}
+    <span className="draft-wall-poster" aria-hidden="true" lang="en"><strong className={project.slug === 'dukagjini-bookstore' ? 'draft-wall-poster-fit' : undefined}>{asset ? project.name : (poster?.lines ?? [project.name]).map(line => <span key={line}>{line}</span>)}</strong>{!asset && <span>{project.kind}<br />{project.years ?? project.group}</span>}</span>
+    {asset && <>
+      <img className="draft-wall-preview" src={wallPreviews[project.slug]} alt="" aria-hidden="true" decoding="sync" style={imageStyle} />
+      <img src={asset.src} alt="" loading={eager ? 'eager' : 'lazy'} fetchPriority={eager ? 'high' : 'auto'} decoding="async" data-wall-full="true" data-ready={ready} style={imageStyle} onLoad={event => { void event.currentTarget.decode().then(() => setReady(true)).catch(() => {}) }} />
+    </>}
   </span>
 }
 

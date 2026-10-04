@@ -1,4 +1,5 @@
 {
+  "rule": "the printable poster",
   "id": "riso",
   "title": "Riso",
   "band": "Fun",
@@ -8,10 +9,23 @@
   "scores": {
     "design": 8.2,
     "usability": 8.1,
-    "creativity": 8,
+    "creativity": 7.7,
     "content": 8.2
   },
   "antiPale": "pass",
   "rounds": 2,
-  "holdback": "Ink misregistration is a subtle signature, and the narrow mobile crop trades interface detail for poster impact."
+  "holdback": "A visible Print this poster control produces an actual project artifact, confirmed by the print stylesheet. The large project title and separated ink edges make the poster legible as a concept on both sizes; the mobile capture also exposes the specific 972 KB to 337 KB result. It remains a familiar poster layout with a conventional index, and the misregistration is too slight to make the material treatment unmistakable. Strongest of this group, below distinctive-site territory.",
+  "previousCreativity": 8,
+  "mechanisms": [
+    "M3",
+    "M5",
+    "M6",
+    "M9"
+  ],
+  "slopCount": 1,
+  "slopCauses": [
+    "The Archivo display face is shared with most reviewed directions."
+  ],
+  "m2": "not-applicable",
+  "creativeGates": "visual gates pass; motion separate"
 }
