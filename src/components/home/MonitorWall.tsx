@@ -229,7 +229,7 @@ export function MonitorWall({ activeSlug, onSelect, beforeTransition, tuningCame
           role="tablist"
           aria-label="Featured channels"
           onKeyDown={onTabKey}
-          className="-mx-gutter flex snap-x snap-mandatory scroll-px-gutter overflow-x-auto border-y border-hairline px-gutter sm:mx-0 sm:grid sm:grid-cols-5 sm:overflow-visible sm:px-0"
+          className="-mx-gutter flex snap-x snap-mandatory scroll-px-gutter overflow-x-auto border-y border-hairline px-gutter sm:mx-0 sm:grid sm:grid-cols-3 lg:grid-cols-6 sm:overflow-visible sm:px-0"
         >
           {featuredProjects.map((project, i) => {
             const selected = project.slug === activeSlug

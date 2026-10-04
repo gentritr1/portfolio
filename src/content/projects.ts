@@ -462,6 +462,26 @@ export const projects: Project[] = [
       shot: { src: '/mobile/thumbs/bookstore.webp', alt: 'Dukagjini Bookstore store screenshot: foreign books list with ratings and prices' },
       galleries: [dukagjiniGallery],
     },
+    featured: {
+      order: 6,
+      monitor: 'gallery',
+      story: {
+        product:
+          'Dukagjini Bookstore is the shopping app of a book publisher, for iOS and Android. Readers search the catalogue, browse top categories and books on sale, keep favourite lists, and buy books with promo codes at checkout. The app is live in the App Store and on Google Play, and the screenshots on this page come from its public store listing.',
+        built:
+          'The app is built in React Native, with Redux for the app state and Firebase Messaging for push notifications. A notification opens the right screen through a deep link. The book-detail header animates as the page scrolls, and modals close with a swipe. Search, category lists, favourite lists and a checkout with promo codes complete the shopping flow on both platforms.',
+        result:
+          'Dukagjini Bookstore is live in the App Store and on Google Play, and both listings are linked on this page. One React Native codebase ships the app to iPhone and Android. Readers search books, browse categories and sales, keep favourites and check out with promo codes, and push notifications with deep links bring them back to a book.',
+      },
+      facts: [
+        { label: 'Role', value: 'Mobile' },
+        { label: 'Years', value: '2021–22' },
+        { label: 'Platforms', value: 'iOS, Android' },
+        { label: 'Stack', value: 'React Native, Redux, Firebase Messaging' },
+        { label: 'Features', value: 'Search, categories, sales, favourite lists, promo-code checkout, push deep links' },
+        { label: 'Motion', value: 'Animated book-detail header, swipe-to-close modals' },
+      ],
+    },
   },
   {
     slug: 'chatbot-runtime',
@@ -510,8 +530,8 @@ export const projects: Project[] = [
   },
   {
     slug: 'donation-app',
-    name: 'Donation and good-deeds app',
-    kind: 'Mobile app',
+    name: 'Sadaqah app for Islamic Relief USA',
+    kind: 'Donation app',
     channel: 'reading',
     group: 'Agency work',
     years: '2021–22',
@@ -519,7 +539,7 @@ export const projects: Project[] = [
     stack: ['React Native', 'Redux Toolkit', 'Stripe', 'Firebase'],
     line: 'Donations and subscriptions with Stripe, badges, guided tasks and video',
     summary:
-      'A React Native app for donations and good deeds, on iOS and Android. People donate or subscribe through Stripe, follow guided tasks, earn badges, and watch video inside the app. Redux Toolkit holds the app state, with Firebase alongside.',
+      'Sadaqah is a donation and good-deeds app for Islamic Relief USA, built in React Native for iOS and Android by a small team. People donate or subscribe through Stripe, follow guided tasks, earn badges with their progress, and watch video inside the app. Work on the team covered the payment and subscription screens, including cancelling a subscription, the badges, in-app web views and the Android builds. The app is no longer in the stores.',
     links: [],
     media: { thumb: 'donation-ring' },
   },

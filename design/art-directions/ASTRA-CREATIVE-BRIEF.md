@@ -96,3 +96,11 @@ Do not use the 3D moves to dress up a costume draft. Each move must serve the dr
 - Drafts 1–5 built, scored and in the picker; 6–9 built where the budget allows, each recorded honestly.
 - `/drafts/lab` shows the 17 moves.
 - The build passes, and `DRAFTS.md` is updated.
+
+## 9. Content change on main (owner, 2026-10-04): merge before Part A
+
+- **Dukagjini Bookstore is now featured** (`featured.order: 6`, `monitor: 'gallery'`, three public App Store frames). On main its `story` and `facts` sit in `projects.ts`. Your branch keeps them in `caseNarratives.ts`. When you merge, move them there. Then give the drafts that show featured work a Dukagjini case too. Its warm store art (pink, mint, navy) suits `facing-pages`, `aisle` and `riso`. You may reorder the featured list so that it sits with the other mobile apps.
+- **The donation app is now named** "Sadaqah app for Islamic Relief USA" (slug unchanged: `donation-app`).
+  - It was a team project: say "work on the team covered…", never "built".
+  - It is no longer in the stores and has no archived listing, so it has **no screenshots and no recreation**. Show it only as a row with its abstract thumbnail. Never draw a copy of the charity's branded UI.
+- The channel strip on main is now 3 columns on tablet and 6 on desktop.
