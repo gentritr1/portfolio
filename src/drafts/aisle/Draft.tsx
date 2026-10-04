@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { AnimatePresence, LayoutGroup, animate, motion } from 'motion/react'
+import { useLocation } from 'react-router'
 import { CareFile } from './CareFile'
 import { ThermalReceipt } from './ThermalReceipt'
 import { receiptText } from './receiptText'
@@ -88,6 +89,7 @@ function ProductBox({ item, index, enterDelay, settled, inBasket, scanning, redu
 }
 
 export default function Draft() {
+  const { pathname } = useLocation()
   const [basket, setBasket] = useState(readBasket)
   const [inFlight, setInFlight] = useState<string[]>([])
   const [soundEnabled, setSoundEnabled] = useState(readSound)
@@ -344,8 +346,9 @@ export default function Draft() {
   }
 
   let shelfOrder = 0
+  const home = pathname === '/'
   return <LayoutGroup id="aisle"><main className="draft-aisle" ref={root} data-settled={settled}>
-    <title>Aisle 7 — Gentrit Rashiti</title>
+    <title>{home ? 'Gentrit Rashiti — web, mobile & full stack' : 'Aisle 7 — Gentrit Rashiti'}</title>
     <a className="as-skip" href="#as-shelves">Go to the project shelves</a>
     <div className="as-store">
       <header className="as-talker">
@@ -354,7 +357,7 @@ export default function Draft() {
           <motion.span className="as-aisle-line" initial={reduced ? false : { clipPath: 'inset(0 100% 0 0)' }} animate={{ clipPath: 'inset(0 0% 0 0)' }} transition={reduced ? { duration: .01 } : { duration: .5, ease: ease.arrive, delay: .12 }}><span>Gentrit Rashiti</span><i aria-hidden="true">—</i><span>Web · Mobile · Full stack</span></motion.span>
         </h1>
         <div className="as-talker-tools">
-          <a href="/drafts"><Arrow back />All aisles</a>
+          {home ? <a href={links.cv} download>CV <Arrow /></a> : <a href="/drafts"><Arrow back />All aisles</a>}
           <button type="button" aria-pressed={soundEnabled && !reduced} disabled={reduced} onClick={toggleSound}>Sound {soundEnabled && !reduced ? 'on' : 'off'}<span className="as-sound-dot" aria-hidden="true" /></button>
         </div>
       </header>

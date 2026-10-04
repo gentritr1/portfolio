@@ -5,9 +5,9 @@ import { Masthead } from "./components/Masthead";
 import { ScrollToTop } from "./components/ScrollToTop";
 import { featuredProjects } from "./content/projects";
 import { caseStudyPage } from "./lib/routes";
-import { HomePage } from "./pages/HomePage";
 const NoSignalPage = lazy(() => import("./pages/NoSignalPage"));
 const DraftApp = lazy(() => import("./drafts/DraftApp"));
+const AisleHome = lazy(() => import("./drafts/aisle/Draft"));
 
 const CaseStudyPage = caseStudyPage.Component;
 
@@ -23,6 +23,15 @@ function CaseStudyRoute() {
 
 export default function App() {
   const { pathname } = useLocation();
+  if (pathname === "/")
+    return (
+      <>
+        <ScrollToTop />
+        <Suspense fallback={<div className="min-h-[100svh] bg-[#ffd400]" />}>
+          <AisleHome />
+        </Suspense>
+      </>
+    );
   if (pathname === "/drafts" || pathname.startsWith("/drafts/"))
     return (
       <>
@@ -52,7 +61,6 @@ export default function App() {
       <main id="main">
         <Suspense fallback={<div className="min-h-[100svh]" />}>
           <Routes>
-            <Route path="/" element={<HomePage />} />
             <Route path="/work/:slug" element={<CaseStudyRoute />} />
             <Route path="*" element={<NoSignalPage />} />
           </Routes>
