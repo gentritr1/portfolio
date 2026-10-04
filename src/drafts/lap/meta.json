@@ -1,0 +1,27 @@
+{
+  "rule": "the project names are the track",
+  "id": "lap",
+  "title": "LAP",
+  "band": "Experimental",
+  "description": "A spline-following hover racer through extruded project names, with a direct sector board for all 28 cases.",
+  "signature": "Real font meshes form the barriers. A glyph MSDF atlas melts the selected name into the next; Kosovo solar position drives the sun and sky.",
+  "caseSlug": "futurisma",
+  "holdback": "The project-name meshes are roadside scenery around an independently defined spline. Sector arrows, the selected Open action and the complete HTML sector board still select and open the work when the track scene is removed, so the central rule does not carry navigation. On the phone, the barriers retreat to tiny horizon marks while dark sky occupies much of the scene; the readable project caption and controls do most of the work. Real geometry, an MSDF atlas and solar calculations do not overcome that structural limit. Keep the honest night state; no invented sunset or fourth repair round is requested.",
+  "scores": {
+    "design": 6.5,
+    "usability": 7.4,
+    "creativity": 6.6,
+    "content": 7.7
+  },
+  "scoreStatus": "diagnostic — M2 and phone anti-pale gates fail",
+  "mechanisms": [
+    "M3",
+    "M6",
+    "M9"
+  ],
+  "slopCount": 2,
+  "m2": "fail",
+  "antiPale": "fail",
+  "rounds": 3,
+  "creativeGates": "M2 fail; phone anti-pale fail — diagnostic"
+}

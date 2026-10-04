@@ -1,0 +1,169 @@
+{
+  "id": "lap",
+  "reviewer": "creative_jury_b",
+  "status": "diagnostic-final-round-3; gates fail; no fourth repair round",
+  "rule": "the project names are the track",
+  "scope": "Fresh independent capture review by an agent that did not build LAP. The final 1440×812 and 375×812 captures were inspected directly. Source was read to confirm the visible material and the removal test. No browser interaction, driving feel, frame-rate measurement, solar-accuracy measurement or case-state capture was performed by this reviewer.",
+  "approved": false,
+  "scoresAreDiagnostic": true,
+  "scoreMeaning": "These numbers describe the reviewed result for comparison. They are not an approval and do not override either failed gate.",
+  "rounds": [
+    {
+      "round": 1,
+      "source": "Root-reported implementation history",
+      "scope": "Initial framing round. This reviewer did not inspect that historical capture.",
+      "scores": null
+    },
+    {
+      "round": 2,
+      "source": "Root-reported implementation history",
+      "scope": "Selection/momentum and phone-framing repairs. This reviewer did not inspect the pre-repair state and does not invent a before score.",
+      "scores": null
+    },
+    {
+      "round": 3,
+      "source": "Independent final capture assessment",
+      "captures": [
+        "drafts-review/lap-desktop.png",
+        "drafts-review/lap-mobile.png"
+      ],
+      "scores": {
+        "design": 6.5,
+        "usability": 7.4,
+        "creativity": 6.6,
+        "content": 7.7
+      },
+      "weightedTotal": 6.91,
+      "scoresAreDiagnostic": true,
+      "antiPale": "fail on the reviewed phone composition",
+      "m2": "fail",
+      "slopCount": 2,
+      "repairNeeded": false,
+      "holdback": "The project-name meshes are roadside scenery around an independently defined spline. Sector arrows, the selected Open action and the complete HTML sector board still select and open the work when the track scene is removed, so the central rule does not carry navigation. On the phone, the barriers retreat to tiny horizon marks while dark sky occupies much of the scene; the readable project caption and controls do most of the work. Real geometry, an MSDF atlas and solar calculations do not overcome that structural limit. Keep the honest night state; no invented sunset or fourth repair round is requested."
+    }
+  ],
+  "latestRound": 3,
+  "finalScores": {
+    "design": 6.5,
+    "usability": 7.4,
+    "creativity": 6.6,
+    "content": 7.7
+  },
+  "weightedTotal": 6.91,
+  "gates": {
+    "antiPale": {
+      "result": "fail",
+      "desktop": "The large extruded BAYYINAH TV geometry supplies a substantial typographic/3D moment. The layout differs from the old giant-owner-name scaffold. Desktop alone clears the large-moment portion.",
+      "mobile": "At 375×812 the roadside names become tiny marks at the horizon. The separate readable name caption is roughly 35–40px high, well below the brief's approximately 81px display-type threshold, and the small racer does not replace that with a strong 3D moment. Most of the central scene is dark sky.",
+      "temporal": "Source starts a finite 1.1-second camera arrival and a gentle racer hover when motion is enabled. Their existence is confirmed; the stills cannot establish timing or feel.",
+      "nightQualification": "The captures explicitly report Kosovo local time and Sun below the horizon. Source derives the sky from the supplied real date and Kosovo coordinates. Night is intentional and is not treated as a broken or fake sunset. The failed phone composition gate is about scale and visual impact in that legitimate state, not a request to falsify the clock."
+    },
+    "slop": {
+      "result": "pass",
+      "count": 2,
+      "limit": 2
+    },
+    "m2": {
+      "result": "fail",
+      "evidence": "The top All 28 sectors link, previous/next sector buttons, selected Open Bayyinah TV action and HTML project board remain operational without either WebGL scene. Source choose() changes active state before calling the optional scene; openCase() opens the data-driven case independently. The named glyphs are placed beside a separately defined spline and are not used to determine the road, routing, hit-testing or project opening.",
+      "accessibilityQualification": "An accessible alternate path is useful and is not by itself the defect. The primary metaphor also lacks a necessary relationship between its letter shapes and its navigation: removing the name barriers leaves the same driving and sector-selection model. The visible instruction Choose a sector, or drive accurately describes this optional scene."
+    }
+  },
+  "antiPale": "fail",
+  "m2": "fail",
+  "m2Evidence": "Removing the project-name track leaves a complete project-navigation interface. The glyphs are roadside markers on a separate road, not the route or project-selection mechanism.",
+  "slopCount": 2,
+  "slopCauses": [
+    "The captured night presentation reads as a dark field with one dominant gold accent. Its solar origin is honest, but the visible palette still matches that checklist marker.",
+    "The low-poly racing-game scene acts as a removable costume around a conventional project selector and case list; it fails the functional-metaphor test."
+  ],
+  "slopNotCounted": "The small owner name is appropriately restrained. The sector counter and Kosovo clock describe real state, so they are not labelled fake HUDs. The sky is driven by actual time and has a purpose; it is not counted as a meaningless gradient blob. The new Big Shoulders/Martian pairing is not the earlier shared grotesk display treatment.",
+  "mechanisms": [
+    "M3",
+    "M6",
+    "M9"
+  ],
+  "mechanismEvidence": {
+    "M3": "The desktop visibly presents project letterforms with depth and perspective. Source assembles actual glyph-outline vertex, normal and index data into the displayed meshes, rather than faking extrusion with a text shadow. This narrow material credit does not award a point for every graphics technique. The static MSDF caption is visible, but the name-melting animation itself is unobserved.",
+    "M6": "On desktop the project-name geometry is the central image instead of a product screenshot or oversized owner name. The letters genuinely have spatial form. This is much weaker on the phone, where the same barriers are too distant to carry the composition.",
+    "M9": "The visible Bayyinah material states 34 routes, English and Arabic, live streams, the project kind and 2023–26 dates. Kosovo local time is labelled as Kosovo and the solar calculation uses Kosovo coordinates without inventing a city or locating the visitor."
+  },
+  "withheldMechanisms": [
+    "M1",
+    "M2",
+    "M4",
+    "M5",
+    "M7",
+    "M8",
+    "M10",
+    "M11"
+  ],
+  "withheldRationale": {
+    "M1": "The declared rule is not pushed through the whole experience: names are roadside signs, while the road and full project index are independent structures.",
+    "M2": "The removal test fails for both the name barriers and the complete track scene.",
+    "M4": "Source connects the circuit to Futurisma, but that personal explanation is below the supplied captures. A project association alone does not establish an obsession in the observed first view.",
+    "M5": "Source links sector changes to new facts, and root reports selection repairs. Both reviewed captures show the same initial Bayyinah sector; no changed information state was supplied, so that interaction is not additionally awarded from a feature list.",
+    "M7": "The real clock and implemented arrival do not establish a felt beat in a still.",
+    "M8": "Throttle, steering and momentum code exist, but no convincing mass or driving feel has been independently observed.",
+    "M10": "The visible copy is functional sector and driving language rather than a distinctive sustained personal voice.",
+    "M11": "Root reports bounded selection and momentum repairs. The stills do not demonstrate ten-percent-speed transition quality, rapid interruption or frame rate."
+  },
+  "captureAssessment": {
+    "desktop": "The first screen clearly reads as a circuit, with a visible racer, road, giant project-letter markers and a separate factual project caption. Controls are legible and the Open Bayyinah TV action is explicit. Much of the upper view is an empty, low-contrast sky field; multiple names overlap in depth, and the repeated Bayyinah labels weaken the hierarchy. The racer and scene lighting look like a functional prototype rather than a finished art-directed environment.",
+    "mobile": "The header, all-sector link, current-sector facts and explicit Open action fit the viewport. The board begins just below the scene. The central track labels are small and low-contrast, while the caption and buttons become the meaningful interface. The large empty sky weakens the claimed name-as-track idea. The 40px phone Pause motion minimum found in CSS also falls below the 44px target requirement; the main Open and driving buttons are larger.",
+    "content": "Bayyinah's route count, bilingual interface and streaming context are real facts in the first viewport. Source confirms all 28 data-backed case entries, roles, years, stacks and public links. The full board and opened cases are not visible in the supplied final captures, so they receive no unobserved visual-polish credit.",
+    "preservedStrengths": "Small identity, truthful time-of-day state, legible direct project action, source-confirmed real type meshes, and a useful accessible route to all projects."
+  },
+  "scoreRationale": {
+    "design": "6.5: coherent circuit direction and a distinct type pairing, held back by empty-space allocation, subdued scene readability, overlapping distant names and weak phone scale.",
+    "usability": "7.4: the clear Open action, sector controls and all-project board preserve a usable recruiter path; the optional driving model and tiny scene labels add little to comprehension, and the phone pause target is undersized. Browser performance and the repaired selection behaviour are root-reported, not independently exercised.",
+    "creativity": "6.6: real name geometry and specific local/project data raise it above a generic low-poly room, but the route and work remain an ordinary selector with an optional game scene. Technical effort is not a substitute for a functional organizing rule.",
+    "content": "7.7: the initial Bayyinah facts are concrete and the source provides factual cases for all 28 projects. The central visual space teaches little about the work, and no detailed case capture was supplied."
+  },
+  "clusterSecondLook": {
+    "performed": true,
+    "trigger": "LAP 6.6 joins the existing Canvas 6.7 / Index 6.8 / Dither 6.8 cluster within an inclusive 0.2 band.",
+    "capturesReinspected": [
+      "drafts-review/lap-desktop.png",
+      "drafts-review/lap-mobile.png",
+      "drafts-review/canvas-desktop.png",
+      "drafts-review/index-desktop.png",
+      "drafts-review/dither-desktop.png"
+    ],
+    "reconsideredCreativity": {
+      "lap": 6.6,
+      "canvas": 6.7,
+      "index": 6.8,
+      "dither": 6.8
+    },
+    "decision": "Retain LAP 6.6 after the second look. Existing other-draft scores and all their Design/Usability/Content scores remain unchanged.",
+    "separatingRationale": "LAP moves further from the old hero scaffold and makes actual project letters spatial, but its scene contributes less directly useful work evidence than Canvas's visible care recreation. Canvas therefore retains a narrow 0.1 edge despite its oversized identity and removable editor shell. Index presents several project names and the approximately 14-release React Native history directly, while Dither visibly transforms public work images and presents the parity-migration explanation. Those two have more immediate informational consequence than LAP's optional circuit and retain a modest 0.2 advantage. None of the four deserves a higher tier merely for a longer implementation list.",
+    "noArtificialSpread": "The close scores reflect different moderate strengths with substantive limitations. This comparison does not manufacture an 8, lower another direction to create space, or treat a diagnostic score as a gate pass."
+  },
+  "holdback": "The project-name meshes are roadside scenery around an independently defined spline. Sector arrows, the selected Open action and the complete HTML sector board still select and open the work when the track scene is removed, so the central rule does not carry navigation. On the phone, the barriers retreat to tiny horizon marks while dark sky occupies much of the scene; the readable project caption and controls do most of the work. Real geometry, an MSDF atlas and solar calculations do not overcome that structural limit. Keep the honest night state; no invented sunset or fourth repair round is requested.",
+  "repairNeeded": false,
+  "gateRemediationRequiredForApproval": true,
+  "additionalRepairRoundAllowed": false,
+  "nextStep": "Keep LAP in the gallery as a diagnostic experimental draft with explicit failed gates. Stop after the third round as requested. Preserve the real night/solar behaviour; do not start a fourth cosmetic repair round or represent these scores as approval.",
+  "metaInstructions": {
+    "rule": "the project names are the track",
+    "scores": {
+      "design": 6.5,
+      "usability": 7.4,
+      "creativity": 6.6,
+      "content": 7.7
+    },
+    "scoreStatus": "diagnostic — M2 and phone anti-pale gates fail",
+    "mechanisms": [
+      "M3",
+      "M6",
+      "M9"
+    ],
+    "slopCount": 2,
+    "m2": "fail",
+    "antiPale": "fail",
+    "rounds": 3,
+    "holdback": "The project-name meshes are roadside scenery around an independently defined spline. Sector arrows, the selected Open action and the complete HTML sector board still select and open the work when the track scene is removed, so the central rule does not carry navigation. On the phone, the barriers retreat to tiny horizon marks while dark sky occupies much of the scene; the readable project caption and controls do most of the work. Real geometry, an MSDF atlas and solar calculations do not overcome that structural limit. Keep the honest night state; no invented sunset or fourth repair round is requested.",
+    "ownership": "Reviewer saved this report only. Root owns metadata and gallery-report updates."
+  }
+}

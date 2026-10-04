@@ -111,5 +111,88 @@
     "functional": "Settled28-card spread has moving=0 and readable faces. Open case after repair moves case fromy573 to93, headingfrom661to181; focush2. Native page scroll over table advanced scrollY543.",
     "reducedMotion": "375px forced reduce/noGL flip + keyboard open case preserve state, titlefocus, zero overflow.",
     "limits": "Page scroll gesture verified in desktop phone viewport, not physical touch hardware. Actual engine settle/snap/return tests also recorded by builder."
+  },
+  "lap": {
+    "reportedBy": "root",
+    "recordedBy": "creative_jury_b",
+    "method": "The runtime results below were supplied by root from its in-app browser checks. The recording reviewer did not operate the browser. Source verification is listed separately and is not represented as a runtime pass.",
+    "sourceVerification": {
+      "verifiedBy": "creative_jury_b, read-only source inspection",
+      "geometry": "The renderer assembles actual glyph mesh position, normal and index data. The name renderer loads the real RGB MSDF atlas. Geometry and solar calculations are implementation evidence, not a frame-rate or motion-quality measurement.",
+      "selection": "Ordinary sector selection updates the selected project independently of the optional scene. Physical sector crossings update selection only while driving is requested.",
+      "fallback": "The HTML sector board and data-backed case content remain independent of WebGL. Reduced state is supplied through the Motion hook; the scene and name renderer have reduced paths and cleanup."
+    },
+    "captures": {
+      "reportedBy": "root",
+      "desktop": {
+        "width": 1440,
+        "height": 812,
+        "path": "drafts-review/lap-desktop.png"
+      },
+      "phone": {
+        "width": 375,
+        "height": 812,
+        "path": "drafts-review/lap-mobile.png"
+      },
+      "timeOfDay": "Both canonical captures use the truthful Kosovo night state. No sunset time was substituted."
+    },
+    "runtimeObservations": {
+      "reportedBy": "root",
+      "selectionRetarget": "After the camera-retarget repair, Next selected Futurisma and Previous selected Bayyinah; each remained selected while the camera retargeted.",
+      "keyboardDrive": {
+        "sequence": "Enter Drive, then ArrowUp; ArrowRight, then Escape.",
+        "afterArrowUp": {
+          "domPosition": 1.31,
+          "domSpeed": 0.14
+        },
+        "afterEscape": {
+          "driveAriaPressed": false
+        },
+        "qualification": "These are reported DOM-state observations, not a physical-device speed or frame-rate measurement."
+      }
+    },
+    "tenPercent": {
+      "reportedBy": "root",
+      "tested": true,
+      "method": "Equivalent 10% development clock, not a literal DevTools Animations timeline scrub.",
+      "caseEntry": {
+        "opacity": 0.11286,
+        "blurPx": 3.54856,
+        "translateYPx": 7.0982
+      },
+      "interruptedExit": {
+        "opacity": 0.140241,
+        "blurPx": 3.43903,
+        "translateYPx": 6.87579
+      },
+      "qualification": "Root sampled these in-flight entry and interrupted-exit states. They document intermediate motion values; this recorder did not independently judge the full animated path."
+    },
+    "reducedMotion": {
+      "reportedBy": "root",
+      "method": "Forced reduced state after the review-query shorthand regular-expression correction.",
+      "observedLabels": [
+        "Static lap",
+        "Kosovo 12:26",
+        "Static solar noon"
+      ],
+      "qualification": "This is a forced reduced-motion test. Native operating-system preference changes were not measured.",
+      "earlierObservationCorrection": "Earlier reduced observations made before the shorthand-regex correction established CSS-forced stillness only. They did not verify that the Motion reduced-motion hook had entered its reduced state."
+    },
+    "noWebGL": {
+      "reportedBy": "root",
+      "stageDataReady": false,
+      "functional": "All 28 cases remained usable. The care file still exposed 31 ADRs, parity and the 16→2 query facts."
+    },
+    "phone": {
+      "reportedBy": "root",
+      "viewportWidth": 375,
+      "horizontalOverflowPx": 0
+    },
+    "limitations": [
+      "No native physical-phone FPS measurement.",
+      "No live operating-system reduced-motion preference-change measurement.",
+      "The 10% check used equivalent slowed playback rather than a literal DevTools timeline.",
+      "These functional observations do not override the independent LAP review’s failed M2 and phone anti-pale gates."
+    ]
   }
 }

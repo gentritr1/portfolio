@@ -31,3 +31,16 @@ SOFTWARE.
 ## Fonts
 
 Self-hosted creative draft fonts, source revisions, modifications, and individual SIL Open Font License notices are recorded in `public/fonts/creative/SOURCES.md` and the license files alongside the fonts.
+
+## LAP geometry, distance fields and solar position
+
+LAP ships generated glyph geometry and an RGB multi-channel distance-field atlas in `public/lap/`. The exact license notices are distributed beside those assets:
+
+| Component | Use | License and distributed notice |
+|---|---|---|
+| SunCalc 1.9.0 | The adapted solar-position subset in `src/drafts/lap/solar.ts` calculates the Kosovo sun direction and solar noon. | BSD-2-Clause, copyright 2014 Vladimir Agafonkin. [Full SunCalc notice](public/lap/SunCalc-LICENSE.txt). |
+| Earcut 3.0.2 | Build-time triangulation of glyph front and back faces, including outline holes. | ISC, copyright 2024 Mapbox. [Full Earcut notice](public/lap/Earcut-LICENSE.txt). |
+| MSDFgen 1.12 | Build-time edge colouring and generation of the RGB glyph distance fields in `names-msdf.png`. | MIT, copyright 2014–2024 Viktor Chlumsky. [Full MSDFgen notice](public/lap/MSDFgen-LICENSE.txt). |
+| Big Shoulders Display | Font outlines at weight 700 supply the extruded glyphs and distance-field atlas. | SIL Open Font License 1.1, copyright 2019 The Big Shoulders Project Authors. [Full font notice](public/lap/BigShouldersDisplay-OFL.txt). |
+
+Earcut and MSDFgen are offline build inputs; their implementations are not imported into the production application. The generated runtime assets are `glyphs.bin`, `glyphs.json` and `names-msdf.png`. Pinned tool versions and reproduction steps are documented in [the LAP asset build notes](scripts/lap-assets/README.md). The font's pinned upstream source, subset details and original OFL are recorded in [the creative font sources](public/fonts/creative/SOURCES.md).

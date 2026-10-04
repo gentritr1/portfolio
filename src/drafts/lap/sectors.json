@@ -1,0 +1,114 @@
+[
+  {
+    "slug": "bayyinah-tv",
+    "name": "BAYYINAH TV"
+  },
+  {
+    "slug": "futurisma",
+    "name": "FUTURISMA"
+  },
+  {
+    "slug": "care-platform",
+    "name": "CARE-MANAGEMENT PLATFORM"
+  },
+  {
+    "slug": "care-api",
+    "name": "CARE-MANAGEMENT API"
+  },
+  {
+    "slug": "design-system-react",
+    "name": "DESIGN SYSTEM, REACT"
+  },
+  {
+    "slug": "design-system-vue",
+    "name": "DESIGN SYSTEM, VUE"
+  },
+  {
+    "slug": "design-dashboard",
+    "name": "DESIGN DASHBOARD (PROTOTYPE)"
+  },
+  {
+    "slug": "bayyinah-institute",
+    "name": "BAYYINAH INSTITUTE WEBSITE"
+  },
+  {
+    "slug": "read-to-feed",
+    "name": "READ TO FEED"
+  },
+  {
+    "slug": "viva-fresh",
+    "name": "VIVA FRESH"
+  },
+  {
+    "slug": "dukagjini-bookstore",
+    "name": "DUKAGJINI BOOKSTORE"
+  },
+  {
+    "slug": "chatbot-runtime",
+    "name": "CHATBOT RUNTIME LIBRARY"
+  },
+  {
+    "slug": "chatbot-runtime-web",
+    "name": "CHATBOT RUNTIME, WEB PORT"
+  },
+  {
+    "slug": "epub-reader-prototype",
+    "name": "EPUB READER PROTOTYPE"
+  },
+  {
+    "slug": "donation-app",
+    "name": "DONATION AND GOOD-DEEDS APP"
+  },
+  {
+    "slug": "coaching-app",
+    "name": "COACHING APP"
+  },
+  {
+    "slug": "fuel-loyalty-app",
+    "name": "FUEL-STATION LOYALTY APP"
+  },
+  {
+    "slug": "incentiv",
+    "name": "INCENTIV"
+  },
+  {
+    "slug": "member-portal",
+    "name": "MEMBER PORTAL, WEB"
+  },
+  {
+    "slug": "ai-dashboard",
+    "name": "SMART BUSINESS DASHBOARD WITH AI"
+  },
+  {
+    "slug": "snaxx-tech",
+    "name": "SNAXX TECH"
+  },
+  {
+    "slug": "offday",
+    "name": "OFFDAY"
+  },
+  {
+    "slug": "geo-guesser",
+    "name": "GEO GUESSER WORLD 3D"
+  },
+  {
+    "slug": "fjale",
+    "name": "FJALË"
+  },
+  {
+    "slug": "za",
+    "name": "ZA!"
+  },
+  {
+    "slug": "morse-trainer",
+    "name": "MORSE TRAINER"
+  },
+  {
+    "slug": "secret-dictator",
+    "name": "SECRET DICTATOR"
+  },
+  {
+    "slug": "open-source-forks",
+    "name": "OPEN-SOURCE FORKS"
+  }
+]
