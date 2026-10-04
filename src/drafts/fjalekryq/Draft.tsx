@@ -1,21 +1,27 @@
-import { useEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type PointerEvent } from 'react'
-import { AnimatePresence, LayoutGroup, motion } from 'motion/react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent, type PointerEvent } from 'react'
+import { LayoutGroup, animate, motion } from 'motion/react'
+import { flushSync } from 'react-dom'
 import { CareFile } from './CareFile'
 import { dur, ease, spring } from './motion'
-import { flushSync } from 'react-dom'
 import { projects } from '../../content/projects'
 import { links } from '../../content/links'
-import { crosswordCells, crosswordColumns, crosswordRows, crosswordWords } from './crossword'
+import { crosswordCells, crosswordColumns, crosswordRows, crosswordWords, type CrosswordWord } from './crossword'
 import { createLetterPhysics } from './letterPhysics'
 import './fjalekryq.css'
 
-const cellSize = 34
+const cellSize = 44
+const enterStep = 40
+const enterStart = 80
 const boardWidth = crosswordColumns * cellSize
 const boardHeight = crosswordRows * cellSize
 const allAnswers = crosswordWords.map(word => word.slug)
 const wordBySlug = new Map(crosswordWords.map(word => [word.slug, word]))
 const projectBySlug = new Map(projects.map(project => [project.slug, project]))
-const featuredClues = ['bayyinah-tv', 'read-to-feed', 'morse-trainer']
+const cellKey = (row: number, col: number) => row + '-' + col
+const cellAt = (word: CrosswordWord, index: number) => cellKey(word.row + (word.direction === 'down' ? index : 0), word.col + (word.direction === 'across' ? index : 0))
+const cellByKey = new Map(crosswordCells.map(cell => [cellKey(cell.row, cell.col), cell]))
+const columns = (['across', 'down'] as const).map(direction => ({ direction, words: crosswordWords.filter(item => item.direction === direction) }))
+const flourishKey = (() => { const fjale = wordBySlug.get('fjale')!; return cellAt(fjale, fjale.answer.length - 1) })()
 const specificClues: Record<string, string> = {
   fjale: 'A daily Albanian word game. A 21k-word dictionary, an archive, and play that works offline.',
   'bayyinah-tv': 'A video-learning platform rebuilt across 34 routes. English, Arabic, and live streams.',
@@ -23,10 +29,30 @@ const specificClues: Record<string, string> = {
   'care-platform': 'A Vue-to-React migration, route by route. Parity tests and 31 architecture decisions.',
   'care-api': 'A multi-tenant Laravel API. One billing report went from 16 queries to 2.',
   'morse-trainer': 'Learn the rhythm of Morse with spaced repetition and Farnsworth timing.',
+  'donation-app': 'Donations and subscriptions with Stripe, badges, guided tasks and video, for iOS and Android.',
 }
 const answerKey = (value: string) => value.toLocaleUpperCase().replace(/Ë/g, 'E').replace(/[^A-Z]/g, '')
 const cleanAnswer = (value: string) => value.toLocaleUpperCase().replace(/[^A-ZË]/g, '')
 const clueFor = (slug: string) => specificClues[slug] ?? projectBySlug.get(slug)!.line
+
+/** The crossing words of a completed answer, each cell delayed by its distance from the crossing. */
+function crossWave(slug: string) {
+  const done = wordBySlug.get(slug)!
+  const own = new Set(Array.from(done.answer, (_, index) => cellAt(done, index)))
+  const base = done.answer.length * 35 + 200
+  const delays = new Map<string, number>()
+  own.forEach(key => cellByKey.get(key)!.wordIds.filter(id => id !== slug).forEach(id => {
+    const other = wordBySlug.get(id)!
+    const crossing = Array.from(other.answer, (_, index) => cellAt(other, index)).indexOf(key)
+    Array.from(other.answer).forEach((_, index) => {
+      const target = cellAt(other, index)
+      if (own.has(target)) return
+      const delay = base + Math.abs(index - crossing) * 35
+      delays.set(target, Math.min(delays.get(target) ?? delay, delay))
+    })
+  }))
+  return delays
+}
 
 interface Camera { x: number; y: number; scale: number }
 interface Gesture { x: number; y: number; distance: number; camera: Camera }
@@ -42,28 +68,35 @@ function constrainCamera(camera: Camera, width: number, height: number): Camera 
 }
 
 function Arrow({ back = false }: { back?: boolean }) {
-  return <svg viewBox="0 0 24 24" width="23" height="23" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.6" style={back ? { transform: 'rotate(180deg)' } : undefined}><path d="M4 12h15M12 5l7 7-7 7" /></svg>
+  return <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.8" style={back ? { transform: 'rotate(180deg)' } : undefined}><path d="M4 12h15M12 5l7 7-7 7" /></svg>
+}
+
+function Tiles({ text }: { text: string }) {
+  return <span className="fk-tiles" aria-hidden="true">{text.split(' ').map(part => <span key={part}>{Array.from(part).map((letter, index) => <i key={index}>{letter}</i>)}</span>)}</span>
 }
 
 export default function Draft() {
   const [active, setActive] = useState('fjale')
+  const [preview, setPreview] = useState<string[]>([])
   const [solving, setSolving] = useState(false)
   const [solved, setSolved] = useState(() => new Set(allAnswers))
   const [answer, setAnswer] = useState('')
-  const [message, setMessage] = useState('Select a word or read a clue. Every answer opens a project.')
+  const [message, setMessage] = useState('')
   const [caseOpen, setCaseOpen] = useState(false)
   const [completed, setCompleted] = useState('')
-  const [query, setQuery] = useState('')
-  const [cvRequested, setCvRequested] = useState(false)
-  const [camera, setCamera] = useState<Camera>({ x: 0, y: 0, scale: .65 })
+  const [intro, setIntro] = useState(true)
+  const [camera, setCamera] = useState<Camera>({ x: 0, y: 0, scale: .9 })
   const [reduced, setReduced] = useState(() => matchMedia('(prefers-reduced-motion: reduce)').matches)
   const viewport = useRef<HTMLDivElement>(null)
   const board = useRef<HTMLDivElement>(null)
-  const panel = useRef<HTMLElement>(null)
+  const side = useRef<HTMLElement>(null)
   const input = useRef<HTMLInputElement>(null)
+  const eKey = useRef<HTMLSpanElement>(null)
   const physics = useRef<ReturnType<typeof createLetterPhysics> | null>(null)
   const completionTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const completionToken = useRef(0)
   const cameraRef = useRef(camera)
+  const cameraTarget = useRef(camera)
   const activeRef = useRef(active)
   const fitScale = useRef(.65)
   const pointers = useRef(new Map<number, { x: number; y: number }>())
@@ -73,13 +106,11 @@ export default function Draft() {
   const dragSample = useRef({ x: 0, y: 0, time: 0, vx: 0, vy: 0 })
   const word = wordBySlug.get(active)!
   const project = projectBySlug.get(active)!
-  const galleryImage = active === 'care-platform'
-    ? { src: '/signal-posters/healthcare.avif', alt: 'Care-management interface recreation with invented data' }
-    : project.media.galleries?.[0]?.items[0] ?? project.media.shot
-  const visibleWords = crosswordWords.filter(item => {
-    const itemProject = projectBySlug.get(item.slug)!
-    return (itemProject.name + ' ' + clueFor(item.slug) + ' ' + item.answer).toLocaleLowerCase().includes(query.trim().toLocaleLowerCase())
-  })
+  const wave = useMemo(() => completed ? crossWave(completed) : null, [completed])
+  const previewCells = useMemo(() => new Set(preview.flatMap(slug => { const item = wordBySlug.get(slug)!; return Array.from(item.answer, (_, index) => cellAt(item, index)) })), [preview])
+  const gallery = project.media.galleries?.[0]
+  const images = active === 'care-platform' ? [] : gallery ? gallery.items.slice(0, gallery.aspect === 'phone' ? 3 : 1) : project.media.shot ? [project.media.shot] : []
+  const openLabel = project.featured ? 'Open the case' : 'Open the project'
 
   useEffect(() => { activeRef.current = active }, [active])
 
@@ -90,32 +121,56 @@ export default function Draft() {
     return () => preference.removeEventListener('change', change)
   }, [])
 
-  useEffect(() => {
+  function fitCamera(node: HTMLDivElement) {
+    const width = node.clientWidth
+    const height = node.clientHeight
+    fitScale.current = Math.min(width / boardWidth, height / boardHeight)
+    const scale = Math.max(fitScale.current, width < 600 ? .64 : .9)
+    const fitted = constrainCamera({ scale, x: width / 2 - boardWidth * scale / 2, y: height / 2 - boardHeight * scale / 2 }, width, height)
+    cameraRef.current = fitted
+    cameraTarget.current = fitted
+    setCamera(fitted)
+    return fitted
+  }
+
+  useLayoutEffect(() => {
     if (!viewport.current || !board.current) return
     const node = viewport.current
+    const surface = board.current
     const letters = createLetterPhysics(node)
     physics.current = letters
+    const start = fitCamera(node)
+    let width = node.clientWidth
+    let height = node.clientHeight
     const observer = new ResizeObserver(() => {
+      if (node.clientWidth === width && node.clientHeight === height) return
+      width = node.clientWidth
+      height = node.clientHeight
       cancelAnimationFrame(cameraFrame.current)
-      const width = node.clientWidth
-      const height = node.clientHeight
-      fitScale.current = Math.min(width / boardWidth, height / boardHeight)
-      const scale = width < 600 ? Math.max(fitScale.current, .7) : fitScale.current
-      const selected = wordBySlug.get(activeRef.current)!
-      const cx = (selected.col + (selected.direction === 'across' ? selected.answer.length / 2 : .5)) * cellSize
-      const cy = (selected.row + (selected.direction === 'down' ? selected.answer.length / 2 : .5)) * cellSize
-      const fitted = constrainCamera({ scale, x: width / 2 - cx * scale, y: height / 2 - cy * scale }, width, height)
-      cameraRef.current = fitted
-      setCamera(fitted)
+      fitCamera(node)
     })
     observer.observe(node)
-    const arrival = requestAnimationFrame(() => {
-      board.current?.querySelectorAll<HTMLElement>('[data-letter]').forEach((letter, index) => {
-        letters.drop(letter, (index % 17) * 13, 15 + (index % 4) * 4)
-      })
+    const cellPixels = cellSize * start.scale
+    const diagonal = (row: number, col: number) => Math.max(0, Math.round((col * cellPixels + start.x) / cellPixels)) + Math.max(0, Math.round((row * cellPixels + start.y) / cellPixels))
+    let last = 0
+    const fjale = wordBySlug.get('fjale')!
+    surface.style.setProperty('--fk-flood-delay', enterStart + diagonal(fjale.row, fjale.col + fjale.answer.length) * enterStep + 260 + 'ms')
+    surface.querySelectorAll<HTMLElement>('[data-letter]').forEach(letter => {
+      const key = letter.dataset.letter!
+      if (key === flourishKey) return
+      const [row, col] = key.split('-').map(Number)
+      const delay = enterStart + diagonal(row, col) * enterStep
+      last = Math.max(last, delay)
+      letters.drop(letter, delay, 36)
     })
+    const flourish = surface.querySelector<HTMLElement>('[data-letter="' + flourishKey + '"]')
+    if (flourish) letters.drop(flourish, last + 180, 120, () => {
+      const tile = flourish.parentElement
+      if (tile && !matchMedia('(prefers-reduced-motion: reduce)').matches) animate(tile, { scale: [1.24, 1], rotate: [-9, 0] }, spring.play)
+    })
+    const introTimer = setTimeout(() => setIntro(false), last + 900)
     return () => {
-      cancelAnimationFrame(arrival)
+      clearTimeout(introTimer)
       cancelAnimationFrame(cameraFrame.current)
       observer.disconnect()
       letters.dispose()
@@ -131,11 +186,12 @@ export default function Draft() {
 
   function settleCamera(target: Camera, velocity = { x: 0, y: 0 }) {
     cancelAnimationFrame(cameraFrame.current)
+    cameraTarget.current = target
     if (reduced) { moveCamera(target); return }
     let previous = 0
     let vx = velocity.x
     let vy = velocity.y
-    // Preserve release velocity; the spring converges on the predicted cell edge.
+    // Release velocity carries into the spring; it converges on the predicted cell edge.
     function step(time: number) {
       const dt = previous ? Math.min((time - previous) / 1000, .024) : 1 / 60
       previous = time
@@ -161,61 +217,88 @@ export default function Draft() {
     settleCamera(constrainCamera({ ...current, x: node.clientWidth / 2 - cx * current.scale, y: node.clientHeight / 2 - cy * current.scale }, node.clientWidth, node.clientHeight))
   }
 
-  function selectWord(slug: string) {
+  function cancelCompletion() {
+    completionToken.current += 1
     if (completionTimer.current) clearTimeout(completionTimer.current)
+    setCompleted('')
+  }
+
+  function selectWord(slug: string) {
+    cancelCompletion()
     setActive(slug)
     setAnswer('')
-    setCompleted('')
     setCaseOpen(false)
     centerWord(slug)
     const selected = wordBySlug.get(slug)!
-    setMessage('Clue ' + selected.number + ' ' + selected.direction + '. ' + clueFor(slug))
+    setMessage(selected.number + ' ' + selected.direction + ', ' + selected.answer.length + ' letters. ' + projectBySlug.get(slug)!.name + '. ' + clueFor(slug))
   }
 
   function transitionCase(slug: string, open: boolean) {
     const update = () => {
       setActive(slug)
       setCaseOpen(open)
+      setPreview([])
+      const stage = side.current
+      if (!stage) return
+      const top = stage.getBoundingClientRect().top
+      const header = matchMedia('(max-width: 760px)').matches ? 0 : 64
+      if (top < header || top > innerHeight * .8) scrollTo({ top: scrollY + top - header, behavior: 'instant' })
     }
     if (!reduced && typeof document.startViewTransition === 'function') {
       document.startViewTransition(() => flushSync(update))
     } else update()
   }
 
-  function openCase(slug = active, scroll = false) {
+  function openCase(slug = active) {
     centerWord(slug)
     transitionCase(slug, true)
-    if (scroll || matchMedia('(max-width: 760px)').matches) requestAnimationFrame(() => panel.current?.scrollIntoView({ block: 'start', behavior: reduced ? 'instant' : 'smooth' }))
+    setMessage(projectBySlug.get(slug)!.name + ' is open.')
   }
 
   function completeWord(slug: string) {
     setSolved(current => new Set([...current, slug]))
     setCompleted(slug)
-    setMessage(projectBySlug.get(slug)!.name + ' solved. Opening the project.')
+    setMessage(projectBySlug.get(slug)!.name + ' solved.')
+    const crossing = crossWave(slug)
+    const end = Math.max(wordBySlug.get(slug)!.answer.length * 35 + 360, ...crossing.values()) + 380
     if (completionTimer.current) clearTimeout(completionTimer.current)
+    const token = completionToken.current
     completionTimer.current = setTimeout(() => {
+      if (token !== completionToken.current) return
       openCase(slug)
       setCompleted('')
-    }, reduced ? 0 : 620)
+    }, reduced ? 0 : Math.min(end, 1600))
+  }
+
+  function landingHeight(row: number) {
+    const target = cameraTarget.current
+    return (row * cellSize * target.scale + target.y) / target.scale + cellSize
+  }
+
+  function pressE() {
+    if (!eKey.current || reduced) return
+    animate(eKey.current, { scale: [.94, 1] }, { duration: dur.tap, ease: ease.out })
   }
 
   function changeAnswer(value: string) {
     const cleaned = cleanAnswer(value).slice(0, 24)
+    cancelCompletion()
     if (!solving) {
       setSolving(true)
       setSolved(new Set())
     }
     setAnswer(cleaned)
     setCaseOpen(false)
+    if (cleaned.endsWith('Ë') && cleaned.length > answer.length) pressE()
     if (!cleaned) {
-      setMessage('Read a clue, then type its answer. Spaces and accents are optional.')
+      setMessage('Answer cleared.')
       return
     }
     const normalized = answerKey(cleaned)
     const matches = crosswordWords.filter(item => answerKey(item.answer).startsWith(normalized))
     const next = matches.find(item => item.slug === active) ?? matches[0]
     if (!next) {
-      setMessage('No answer starts with “' + cleaned + '”. Try another spelling, or reveal the selected answer.')
+      setMessage('No answer starts with ' + cleaned + '.')
       return
     }
     if (next.slug !== active) {
@@ -225,19 +308,22 @@ export default function Draft() {
     const index = cleaned.length - 1
     const row = next.row + (next.direction === 'down' ? index : 0)
     const col = next.col + (next.direction === 'across' ? index : 0)
+    const complete = answerKey(next.answer) === normalized && matches.length === 1
+    const token = completionToken.current
+    const land = complete ? () => { if (token === completionToken.current) completeWord(next.slug) } : undefined
     requestAnimationFrame(() => {
       const letter = board.current?.querySelector<HTMLElement>('[data-letter="' + row + '-' + col + '"]')
-      if (letter) physics.current?.drop(letter, 0, 38)
+      if (letter && cleaned.length > answer.length) physics.current?.drop(letter, 0, landingHeight(row), land)
+      else land?.()
     })
-    setMessage('Clue ' + next.number + ' ' + next.direction + '. ' + cleaned.length + ' of ' + next.answer.length + ' letters.')
-    if (answerKey(next.answer) === normalized && matches.length === 1) completeWord(next.slug)
+    setMessage(next.number + ' ' + next.direction + ', ' + cleaned.length + ' of ' + next.answer.length + ' letters.')
   }
 
   function submitAnswer() {
     const matching = crosswordWords.find(item => answerKey(item.answer) === answerKey(answer))
     if (matching && answer) completeWord(matching.slug)
     else if (!answer) openCase()
-    else setMessage('That answer is not complete. Use the clue, or reveal its answer.')
+    else setMessage('Not complete yet. ' + word.answer.length + ' letters.')
   }
 
   useEffect(() => {
@@ -246,11 +332,12 @@ export default function Draft() {
       if (target.closest('input, textarea, select, [contenteditable="true"]') || event.metaKey || event.ctrlKey || event.altKey || event.isComposing) return
       if (/^[a-zA-ZëË]$/.test(event.key)) {
         event.preventDefault()
-        const start = caseOpen ? '' : answer
-        changeAnswer(start + event.key)
+        changeAnswer((caseOpen ? '' : answer) + event.key)
       } else if (event.key === 'Backspace' && answer) {
         event.preventDefault()
         changeAnswer(answer.slice(0, -1))
+      } else if (event.key === 'Escape' && caseOpen) {
+        transitionCase(active, false)
       }
     }
     document.addEventListener('keydown', typeAnywhere)
@@ -258,14 +345,13 @@ export default function Draft() {
   })
 
   function toggleSolve() {
-    if (completionTimer.current) clearTimeout(completionTimer.current)
+    cancelCompletion()
     const next = !solving
     setSolving(next)
     setSolved(next ? new Set() : new Set(allAnswers))
     setAnswer('')
-    setCompleted('')
     setCaseOpen(false)
-    setMessage(next ? 'The board is yours. Choose a clue and type an answer. Spaces and accents are optional.' : 'All 28 answers are visible. Select a word to explore its project.')
+    setMessage(next ? 'The board is empty. Type an answer.' : 'All 28 answers are visible.')
     if (next) requestAnimationFrame(() => input.current?.focus({ preventScroll: true }))
   }
 
@@ -278,9 +364,6 @@ export default function Draft() {
     } else if (event.key === 'Enter') {
       event.preventDefault()
       submitAnswer()
-    } else if (event.key === 'Escape') {
-      setAnswer('')
-      transitionCase(active, false)
     } else if (event.key === '+' || event.key === '=') {
       event.preventDefault()
       zoomBy(1.25)
@@ -297,14 +380,9 @@ export default function Draft() {
     const current = cameraRef.current
     const scale = Math.max(fitScale.current, Math.min(1.5, current.scale * multiplier))
     const ratio = scale / current.scale
-    moveCamera(constrainCamera({ scale, x: node.clientWidth / 2 - (node.clientWidth / 2 - current.x) * ratio, y: node.clientHeight / 2 - (node.clientHeight / 2 - current.y) * ratio }, node.clientWidth, node.clientHeight))
-  }
-
-  function fitBoard() {
-    const node = viewport.current
-    if (!node) return
-    cancelAnimationFrame(cameraFrame.current)
-    moveCamera(constrainCamera({ scale: fitScale.current, x: 0, y: 0 }, node.clientWidth, node.clientHeight))
+    const next = constrainCamera({ scale, x: node.clientWidth / 2 - (node.clientWidth / 2 - current.x) * ratio, y: node.clientHeight / 2 - (node.clientHeight / 2 - current.y) * ratio }, node.clientWidth, node.clientHeight)
+    cameraTarget.current = next
+    moveCamera(next)
   }
 
   function resetGesture() {
@@ -358,6 +436,7 @@ export default function Draft() {
     const sample = dragSample.current
     const elapsed = Math.max(8, time - sample.time) / 1000
     dragSample.current = { x: constrained.x, y: constrained.y, time, vx: (constrained.x - sample.x) / elapsed, vy: (constrained.y - sample.y) / elapsed }
+    cameraTarget.current = constrained
     moveCamera(constrained)
   }
 
@@ -385,57 +464,76 @@ export default function Draft() {
     viewport.current?.focus({ preventScroll: true })
   }
 
-  return <LayoutGroup id="fjalekryq"><main className="draft-fjalekryq">
+  const enter = (index: number) => ({ '--i': index } as CSSProperties)
+
+  return <LayoutGroup id="fjalekryq"><main className="draft-fjalekryq" data-intro={intro} data-case={caseOpen}>
     <title>Fjalëkryq — Gentrit Rashiti</title>
     <a className="fk-skip" href="#fk-clues">Read all 28 project clues</a>
-    <header className="fk-header"><a href="/drafts" className="fk-owner">Gentrit Rashiti</a><p>Kosovo · Web, mobile & full stack</p><nav aria-label="Portfolio"><a href="#fk-about">About</a><a href={links.cv} onClick={() => { setCvRequested(true); setMessage('CV requested. Your crossword stays here.') }}>{cvRequested ? 'CV requested' : 'CV'}</a><a href={'mailto:' + links.email}>Email <Arrow /></a></nav></header>
-    <div className="fk-title-row"><h1 lang="sq">Fjalëkryq<span>.</span></h1><p>Different work.<br />A few things in common.</p><button className="fk-solve-toggle" type="button" aria-pressed={solving} onClick={toggleSolve}>{solving ? 'Show every answer' : 'Solve it yourself'}<span aria-hidden="true">{solving ? '28' : 'Ë'}</span></button></div>
-    <div className="fk-layout" data-case={caseOpen}>
-      <section className="fk-puzzle" aria-label="Crossword project map">
-        <div className="fk-board-bar"><p>{solving ? solved.size + ' / 28 solved' : '28 projects, connected'}</p><a href="#fk-clues">Read the clues <Arrow /></a></div>
-        <p className="fk-mobile-clue"><strong>{project.name}</strong> {clueFor(active)}</p>
-        <button className="fk-mobile-open" type="button" onClick={() => openCase()}>Open {project.name}<Arrow /></button>
-        <div className="fk-board-viewport" ref={viewport} tabIndex={0} role="group" aria-label="Crossword. Arrow keys select a word; Enter opens its project. Type an answer to solve." onKeyDown={boardKeys} onPointerDown={startPointer} onPointerMove={movePointer} onPointerUp={endPointer} onPointerCancel={endPointer}>
+    <header className="fk-header">
+      <p className="fk-setter"><span className="fk-setter-label">Set by</span><Tiles text="GENTRIT RASHITI" /><span className="fk-sr">Gentrit Rashiti</span><span className="fk-setter-enum">(7, 7)</span><span className="fk-setter-clue">Web, mobile and full-stack developer, Kosovo</span></p>
+      <nav aria-label="Portfolio"><a href="#fk-about">About</a><a href={links.cv}>CV</a><a href={'mailto:' + links.email}>Email</a></nav>
+    </header>
+    <div className="fk-stage">
+      <section className="fk-board-column" aria-label="Crossword project map">
+        <div className="fk-board-bar">
+          <h1 lang="sq">Fjalëkryq<span>.</span></h1>
+          <p>{solving ? solved.size + ' / 28 solved' : '28 projects, connected'}</p>
+          <button className="fk-solve-toggle" type="button" aria-pressed={solving} onClick={toggleSolve}>{solving ? 'Show every answer' : 'Solve it yourself'}<span ref={eKey} aria-hidden="true">{solving ? '28' : 'Ë'}</span></button>
+        </div>
+        <div className="fk-board-viewport" ref={viewport} tabIndex={0} role="group" aria-label="Crossword. Arrow keys select a word, Enter opens its project, typing solves." onKeyDown={boardKeys} onPointerDown={startPointer} onPointerMove={movePointer} onPointerUp={endPointer} onPointerCancel={endPointer} onPointerLeave={() => setPreview([])}>
           <div className="fk-board" ref={board} style={{ width: boardWidth, height: boardHeight, transform: 'translate(' + camera.x + 'px,' + camera.y + 'px) scale(' + camera.scale + ')' }}>
-            <motion.div className="fk-active-word" layout layoutId="fk-active-word" layoutDependency={active} aria-hidden="true" style={{ left: word.col * cellSize, top: word.row * cellSize, width: (word.direction === 'across' ? word.answer.length : 1) * cellSize, height: (word.direction === 'down' ? word.answer.length : 1) * cellSize }} transition={reduced ? { duration: .01 } : spring.ui} />
+            <motion.div className="fk-active-word" data-direction={word.direction} layout layoutId="fk-active-word" layoutDependency={active} aria-hidden="true" style={{ left: word.col * cellSize, top: word.row * cellSize, width: (word.direction === 'across' ? word.answer.length : 1) * cellSize, height: (word.direction === 'down' ? word.answer.length : 1) * cellSize }} transition={reduced ? { duration: .01 } : spring.ui}><span /></motion.div>
             {crosswordCells.map(cell => {
+              const key = cellKey(cell.row, cell.col)
               const selected = cell.wordIds.includes(active)
               const index = selected ? (word.direction === 'across' ? cell.col - word.col : cell.row - word.row) : -1
               const typed = selected && index < answer.length && answerKey(word.answer).startsWith(answerKey(answer))
               const revealed = !solving || cell.wordIds.some(slug => solved.has(slug)) || typed
               const waveWord = completed && cell.wordIds.includes(completed) ? wordBySlug.get(completed)! : null
               const waveIndex = waveWord ? (waveWord.direction === 'across' ? cell.col - waveWord.col : cell.row - waveWord.row) : 0
-              return <button type="button" key={cell.row + '-' + cell.col} className="fk-cell" title={cell.wordIds.map(clueFor).join(' / ')} tabIndex={-1} data-selected={selected} data-typed={typed} data-complete={Boolean(waveWord)} aria-label={cell.wordIds.map(slug => { const item = wordBySlug.get(slug)!; return item.number + ' ' + item.direction + ', ' + projectBySlug.get(slug)!.name }).join('; ')} onClick={event => chooseCell(cell.wordIds, event.timeStamp)} onDoubleClick={() => openCase(cell.wordIds.includes(active) ? active : cell.wordIds[0])} style={{ left: cell.col * cellSize, top: cell.row * cellSize, '--fk-wave-delay': waveIndex * 35 + 'ms' } as CSSProperties}>
-                {cell.number && <small>{cell.number}</small>}<span data-letter={cell.row + '-' + cell.col} aria-hidden="true">{revealed ? cell.letter : ''}</span>
+              const crossDelay = !waveWord ? wave?.get(key) : undefined
+              return <button type="button" key={key} className="fk-cell" tabIndex={-1} data-selected={selected} data-preview={!selected && previewCells.has(key)} data-complete={Boolean(waveWord)} data-cross={crossDelay !== undefined} aria-label={cell.wordIds.map(slug => { const item = wordBySlug.get(slug)!; return item.number + ' ' + item.direction + ', ' + projectBySlug.get(slug)!.name }).join('; ')} onPointerEnter={() => setPreview(cell.wordIds)} onClick={event => chooseCell(cell.wordIds, event.timeStamp)} onDoubleClick={() => openCase(cell.wordIds.includes(active) ? active : cell.wordIds[0])} style={{ left: cell.col * cellSize, top: cell.row * cellSize, '--fk-wave-delay': waveIndex * 35 + 'ms', '--fk-cross-delay': (crossDelay ?? 0) + 'ms' } as CSSProperties}>
+                {cell.number && <small>{cell.number}</small>}<span data-letter={key} aria-hidden="true">{revealed ? cell.letter : ''}</span>
               </button>
             })}
           </div>
         </div>
-        <div className="fk-board-controls"><span>Drag to explore. Pinch to zoom.</span><div><button type="button" aria-label="Zoom out" onClick={() => zoomBy(.8)}><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h12" /></svg></button><button type="button" onClick={fitBoard}>Fit all</button><button type="button" aria-label="Zoom in" onClick={() => zoomBy(1.25)}><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h12M10 4v12" /></svg></button></div></div>
-        <form className="fk-answer-form" onSubmit={event => { event.preventDefault(); submitAnswer() }}><label htmlFor="fk-answer">Try an answer</label><div><input ref={input} id="fk-answer" autoComplete="off" autoCapitalize="characters" spellCheck={false} value={answer} placeholder={solving ? word.answer.length + ' letters' : 'Type FJALË, or any project'} onChange={event => changeAnswer(event.target.value)} onFocus={event => event.currentTarget.select()} /><button type="button" lang="sq" aria-label="Add the Albanian letter Ë" onClick={() => { changeAnswer(answer + 'Ë'); input.current?.focus() }}>Ë</button><button type="submit" aria-label={answer ? 'Check answer' : 'Open selected project'}><Arrow /></button></div></form>
-        <p className="fk-status" role="status" aria-live="polite" aria-atomic="true">{message}</p>
+        <div className="fk-answer-bar">
+          <p className="fk-current" aria-hidden="true">{project.media.shot && <img className="fk-current-shot" src={project.media.shot.src} alt="" />}<span className="fk-current-number">{word.number}</span><span className="fk-current-position">{word.direction}<br />{word.answer.length} letters</span><span className="fk-current-clue"><b>{project.name}</b> {clueFor(active)}</span></p>
+          <form className="fk-answer-form" onSubmit={event => { event.preventDefault(); submitAnswer() }}>
+            <label htmlFor="fk-answer" className="fk-answer-for"><span aria-hidden="true">{word.number}{word.direction === 'across' ? 'A' : 'D'}</span><span className="fk-sr">Answer for {word.number} {word.direction}</span></label>
+            <input ref={input} id="fk-answer" autoComplete="off" autoCapitalize="characters" spellCheck={false} value={answer} placeholder={'_ '.repeat(word.answer.length).trim()} onChange={event => changeAnswer(event.target.value)} onFocus={event => event.currentTarget.select()} />
+            <button type="button" className="fk-e" lang="sq" aria-label="Add the Albanian letter Ë" onClick={() => { changeAnswer(answer + 'Ë'); input.current?.focus() }}>Ë</button>
+            <button type="submit" className="fk-check" aria-label={answer ? 'Check answer' : 'Open ' + project.name}><Arrow /></button>
+          </form>
+          {!caseOpen && <button className="fk-open-project" type="button" aria-label={'Open ' + project.name} onClick={() => openCase()}>{openLabel}<Arrow /></button>}
+        </div>
+        <p className="fk-sr" role="status" aria-live="polite" aria-atomic="true">{message}</p>
       </section>
-      <aside className="fk-clue-panel" ref={panel} aria-labelledby="fk-current-title">
-        <div className="fk-clue-position"><span>{word.number}</span><p>{word.direction}<br />{word.answer.length} letters</p>{caseOpen && <button type="button" onClick={() => transitionCase(active, false)} aria-label="Back to the clue"><Arrow back /></button>}</div>
-        <motion.h2 layout="position" layoutId={'fk-project-' + active} id="fk-current-title" style={{ viewTransitionName: 'fk-project-title' }} transition={reduced ? { duration: .01 } : spring.ui}>{project.name}</motion.h2>
-        <p className="fk-feature-clue">{clueFor(active)}</p>
-        <AnimatePresence mode="popLayout" initial={false}>{caseOpen ? <motion.div key={'case-' + active} className="fk-case-content" initial={{ opacity: 0, y: 8, filter: 'blur(4px)' }} animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }} exit={{ opacity: 0, y: -8, filter: 'blur(4px)' }} transition={reduced ? { duration: .01 } : { duration: dur.panel, ease: ease.arrive }}>
-          <p>{project.summary}</p>
-          <dl><div><dt>Year</dt><dd>{project.years ?? 'Independent work'}</dd></div><div><dt>Work</dt><dd>{project.role}</dd></div><div><dt>Made with</dt><dd>{project.stack.join(' · ')}</dd></div></dl>
-          {active === 'care-platform' ? <CareFile reduced={reduced} /> : galleryImage && <figure><img src={galleryImage.src} alt={galleryImage.alt} loading="lazy" /><figcaption>{active === 'care-platform' ? 'Recreation · invented data' : 'Public project image'}</figcaption></figure>}
-          <div className="fk-project-links">{project.featured && <a href={'/work/' + active}>Read the full case <Arrow /></a>}{project.links.map(link => <a key={link.href} href={link.href} target="_blank" rel="noreferrer">{link.label}<Arrow /></a>)}</div>
-        </motion.div> : <motion.div key="clues" initial={{ opacity: 0, y: 8, filter: 'blur(4px)' }} animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }} exit={{ opacity: 0, y: -8, filter: 'blur(4px)' }} transition={reduced ? { duration: .01 } : { duration: dur.ui, ease: ease.out }}>
-          <button className="fk-open-project" type="button" onClick={() => openCase()}>Open {project.name}<Arrow /></button>
-          {solving && !solved.has(active) && <button className="fk-reveal" type="button" onClick={() => { setSolved(current => new Set([...current, active])); setAnswer(''); setMessage(project.name + ' revealed. ' + word.answer.length + ' letters.') }}>Reveal this answer</button>}
-          <div className="fk-neighbour-clues"><h3>A few more connections</h3>{featuredClues.filter(slug => slug !== active).map(slug => { const item = wordBySlug.get(slug)!; return <button key={slug} type="button" onClick={() => selectWord(slug)}><span>{item.number}<small>{item.direction}</small></span><p>{clueFor(slug)}</p><Arrow /></button> })}</div>
-        </motion.div>}</AnimatePresence>
+      <aside className="fk-side" ref={side} aria-label={caseOpen ? project.name : 'Clues'}>
+        {caseOpen ? <article className="fk-case" aria-labelledby="fk-case-title">
+          <div className="fk-case-head"><button type="button" onClick={() => transitionCase(active, false)} aria-label="Back to the clues"><Arrow back /></button><span>{word.number} {word.direction} · {word.answer.length} letters{project.years ? ' · ' + project.years : ''}</span></div>
+          <h2 id="fk-case-title" style={{ viewTransitionName: 'fk-case-title' }}>{project.name}</h2>
+          <p className="fk-case-lede" style={{ viewTransitionName: 'fk-case-clue' }}>{clueFor(active)}</p>
+          <motion.div className="fk-case-body" initial={reduced ? false : { opacity: 0, y: 8, filter: 'blur(4px)' }} animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }} transition={reduced ? { duration: .01 } : { duration: dur.panel, ease: ease.arrive, delay: .12 }}>
+            <p>{project.summary}</p>
+            <dl><div><dt>Year</dt><dd>{project.years ?? 'Independent work'}</dd></div><div><dt>Work</dt><dd>{project.role}</dd></div><div><dt>Made with</dt><dd>{project.stack.join(' · ')}</dd></div></dl>
+            {active === 'care-platform' ? <CareFile reduced={reduced} /> : images.length > 0 && <figure className="fk-case-media" data-count={images.length}>{images.map(image => <img key={image.src} src={image.src} alt={image.alt} loading="lazy" />)}<figcaption>{gallery ? gallery.title : 'Public project image'}</figcaption></figure>}
+            <div className="fk-project-links">{project.featured && <a href={'/work/' + active}>Read the full case <Arrow /></a>}{project.links.map(link => <a key={link.href} href={link.href} target="_blank" rel="noreferrer">{link.label}<Arrow /></a>)}</div>
+          </motion.div>
+        </article> : <section className="fk-clues" id="fk-clues" aria-label="Clues: the 28 projects">
+          {columns.map(column => <div key={column.direction} className="fk-clue-list"><h2>{column.direction}</h2><ol>{column.words.map((item, index) => {
+            const itemProject = projectBySlug.get(item.slug)!
+            const current = item.slug === active
+            return <li key={item.slug} style={enter(index + (column.direction === 'down' ? 1 : 0))}><button type="button" className="fk-clue" data-active={current} data-preview={preview.includes(item.slug)} aria-current={current ? 'true' : undefined} aria-label={item.number + ' ' + item.direction + ', ' + itemProject.name + '. ' + (current ? 'Selected. Press again to open.' : 'Select on the board.')} onClick={() => current ? openCase(item.slug) : selectWord(item.slug)} onPointerEnter={() => setPreview([item.slug])} onPointerLeave={() => setPreview([])} onFocus={() => setPreview([item.slug])} onBlur={() => setPreview([])}>
+              <span className="fk-clue-number">{item.number}</span>
+              <span className="fk-clue-body"><b style={current ? { viewTransitionName: 'fk-case-title' } : undefined}>{itemProject.name}</b><span className="fk-clue-text" style={current ? { viewTransitionName: 'fk-case-clue' } : undefined}>{clueFor(item.slug)} <span className="fk-enum">({item.answer.length}){itemProject.featured ? ' · case' : ''}</span></span></span>
+              {current && <Arrow />}
+            </button></li>
+          })}</ol></div>)}
+        </section>}
       </aside>
     </div>
-    <section className="fk-clues" id="fk-clues" aria-labelledby="fk-clues-heading">
-      <div className="fk-clues-heading"><h2 id="fk-clues-heading">Across & down.</h2><p>The clues are the work.<br />Every one opens a project.</p><label><span>Find a clue</span><input type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder="A project, a tool, a detail…" /></label></div>
-      <div className="fk-clue-columns">{(['across', 'down'] as const).map(direction => <div key={direction}><h3>{direction}</h3><ol>{visibleWords.filter(item => item.direction === direction).map(item => <li key={item.slug} value={item.number}><button type="button" className={item.slug === active ? 'fk-clue-active' : ''} onClick={() => openCase(item.slug, true)} aria-label={'Open ' + projectBySlug.get(item.slug)!.name + ', clue ' + item.number + ' ' + direction}><span className="fk-clue-number">{item.number}</span><div><p>{clueFor(item.slug)}</p><span>{projectBySlug.get(item.slug)!.name} <span aria-hidden="true">/</span> {item.answer.length} letters</span></div><Arrow /></button></li>)}</ol></div>)}</div>
-      {!visibleWords.length && <p className="fk-empty">No clue matches “{query}”. <button type="button" onClick={() => setQuery('')}>Show all 28</button></p>}
-    </section>
-    <footer id="fk-about" className="fk-footer"><div><h2>Gentrit Rashiti</h2><p>Frontend & mobile developer, now full stack.<br />5+ years, from the first screen to release.<br />Based in Kosovo. Working remotely.</p></div><p lang="sq">Fjalëkryq <span lang="en">means crossword.<br />The Ë belongs here.</span></p><nav aria-label="Contact"><a href={'mailto:' + links.email}>Email <Arrow /></a><a href={links.github}>GitHub <Arrow /></a><a href={links.linkedin}>LinkedIn <Arrow /></a><a href={links.cv} onClick={() => { setCvRequested(true); setMessage('CV requested. Your crossword stays here.') }}>{cvRequested ? 'CV requested' : 'Download CV'} <Arrow /></a><a href="/drafts">All art directions <Arrow /></a></nav></footer>
+    <footer id="fk-about" className="fk-footer"><div><h2>Gentrit Rashiti</h2><p>Frontend and mobile developer, now full stack. 5+ years, from the first screen to the release. Based in Kosovo, working remotely.</p></div><p lang="sq">Fjalëkryq <span lang="en">means crossword. The Ë belongs here.</span></p><nav aria-label="Contact"><a href={'mailto:' + links.email}>Email <Arrow /></a><a href={links.github}>GitHub <Arrow /></a><a href={links.linkedin}>LinkedIn <Arrow /></a><a href={links.cv}>Download CV <Arrow /></a><a href="/drafts">All art directions <Arrow /></a></nav></footer>
   </main></LayoutGroup>
 }
