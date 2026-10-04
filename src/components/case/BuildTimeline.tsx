@@ -25,6 +25,11 @@ const milestones: Record<string, Milestone[]> = {
     { title: 'Grocery orders and delivery', detail: 'Online ordering with delivery slots and address search on a map.' },
     { title: 'Loyalty and saved products', detail: 'A loyalty programme and wishlist complete the shopping experience.' },
   ],
+  'dukagjini-bookstore': [
+    { title: 'React Native shop', detail: 'A book shop for a publisher on iOS and Android, with Redux for the app state.' },
+    { title: 'Search, categories and favourites', detail: 'Book search, top categories, books on sale and favourite lists.' },
+    { title: 'Checkout and notifications', detail: 'Checkout with promo codes, and Firebase push notifications with deep links.' },
+  ],
   incentiv: [
     { title: 'Next.js application foundation', detail: 'App Router, TypeScript and RTK Query support the dashboard, with public and private route middleware.' },
     { title: 'Sign-in and onboarding', detail: 'Passkey and external-wallet sign-in interfaces, with animated onboarding.' },

@@ -25,6 +25,11 @@ const systems: Record<string, { title: string; layers: Layer[] }> = {
     { title: 'The order', stack: 'Redux Toolkit', description: 'Online grocery orders with delivery slots, from product selection to checkout.' },
     { title: 'The delivery', stack: 'Maps · Firebase', description: 'Address search on a map connects an order to its delivery location.' },
   ] },
+  'dukagjini-bookstore': { title: 'A bookshop\nin the pocket.', layers: [
+    { title: 'The shop', stack: 'React Native · Redux', description: 'Search, top categories, books on sale and favourite lists, on iOS and Android.' },
+    { title: 'The order', stack: 'Checkout · Promo codes', description: 'A checkout with promo codes completes the shopping flow on both platforms.' },
+    { title: 'The return', stack: 'Firebase Messaging · Deep links', description: 'Push notifications open the right screen. An animated book header and swipe-to-close modals finish the details.' },
+  ] },
   incentiv: { title: 'A clear view\nof a smart wallet.', layers: [
     { title: 'The interface', stack: 'Next.js 14 · TypeScript', description: 'Dashboard cards, assets and a balance popup with a QR address.' },
     { title: 'The data', stack: 'RTK Query · next-intl', description: 'A typed frontend with English and French translations. The wallet and blockchain layer was built by teammates.' },

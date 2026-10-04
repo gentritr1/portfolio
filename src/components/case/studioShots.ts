@@ -11,6 +11,9 @@ import groceryProductsPreview from './studio-previews/grocery-products.webp?inli
 import groceryCartPreview from './studio-previews/grocery-cart.webp?inline'
 import incentivPortalPreview from './studio-previews/incentiv-portal.webp?inline'
 import incentivHomePreview from './studio-previews/incentiv-home.webp?inline'
+import bookstoreHomePreview from './studio-previews/bookstore-home.webp?inline'
+import bookstoreBooksPreview from './studio-previews/bookstore-books.webp?inline'
+import bookstoreFavouritesPreview from './studio-previews/bookstore-favourites.webp?inline'
 
 export interface StudioShot {
   src: string
@@ -55,6 +58,14 @@ export const studioShots: Record<string, StudioComposition> = {
       { src: '/mobile/grocery-1.webp', preview: groceryCategoriesPreview, alt: 'Viva Fresh product categories from the public App Store listing' },
       { src: '/mobile/grocery-2.webp', preview: groceryProductsPreview, alt: 'Viva Fresh fresh products from the public App Store listing' },
       { src: '/mobile/grocery-3.webp', preview: groceryCartPreview, alt: 'Viva Fresh shopping cart from the public App Store listing' },
+    ],
+  },
+  'dukagjini-bookstore': {
+    title: 'Dukagjini Bookstore', colour: '#2c5288', device: 'phone', platform: 'iOS · Android',
+    shots: [
+      { src: '/mobile/bookstore-1.webp', preview: bookstoreHomePreview, alt: 'Dukagjini Bookstore home with book search and top categories, from the public App Store listing', crop: [0.135, 0.4, 0.73, 0.6] },
+      { src: '/mobile/bookstore-2.webp', preview: bookstoreBooksPreview, alt: 'Dukagjini Bookstore foreign books list with ratings and prices, from the public App Store listing', crop: [0.135, 0.4, 0.73, 0.6] },
+      { src: '/mobile/bookstore-3.webp', preview: bookstoreFavouritesPreview, alt: 'Dukagjini Bookstore favourites and categories sheet, from the public App Store listing', crop: [0.135, 0.4, 0.73, 0.6] },
     ],
   },
   incentiv: {
