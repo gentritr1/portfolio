@@ -10,10 +10,11 @@ The 16 previous directions retain their Design, Usability and Content scores for
 
 For new drafts, the anti-pale, slop ≤2 and M2 gates precede scoring. The new no-giant-name rule takes precedence over the previous name-size requirement. Maximum three rounds per new draft. Weights remain Design 40%, Usability 30%, Creativity 20%, Content 10%.
 
-## Reviewed directions (16)
+## Reviewed directions (17)
 
 | Draft | Band | Rule | Mechanisms | Slop | Gates | D | U | C | Content | Weighted | Rounds | Captures | Remaining holdback |
 | --- | --- | --- | --- | ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- |
+| [DIFF](/drafts/diff) | Professional | the migration seam | M1, M2, M3, M4, M5, M9 | 0 | pass | 8.1 | 8.0 | 8.2 | 8.4 | 8.12 | 2 | [1440](drafts-review/diff-desktop.png) · [375](drafts-review/diff-mobile.png) | The fixed mobile runner still takes a substantial share of the viewport, so the first screen shows only one project row and the seam handle overlaps the evidence card. The legacy/current treatment is also visually restrained. These limit immediacy and spectacle, but no longer obscure the primary statement or first project. Keep the draft at round two rather than adding another repair cycle. |
 | [Index × Preview](/drafts/hybrid) | Professional | select a row, reveal its work | M5 | 3 | slop fail | 7.9 | 7.9 | 6.2 | 8.2 | 7.59 | 3 | [1440](drafts-review/hybrid-desktop.png) · [375](drafts-review/hybrid-mobile.png) | Solid-ink Bayyinah TV is now clear in both replacement captures. This resolves the active-name defect without changing the creative assessment: the familiar index-and-preview composition exposes projects, but offers little author-specific narrative in either first viewport. On mobile the large identity and generic role copy still precede the work. |
 | [Studio Shot](/drafts/studio) | Crafted | the phone fan | None earned | 4 | slop fail, M2 fail | 8.3 | 8.1 | 5.7 | 8.3 | 7.72 | 1 | [1440](drafts-review/studio-desktop.png) · [375](drafts-review/studio-mobile.png) | Both captures are dominated by a conventional product-ad phone fan and identity. Collection, reader and progress labels describe the pictured screens without making the studio metaphor necessary to understanding or navigating the work. Real rendered geometry does not make this capture distinguishable from a stock device mockup. |
 | [Gentrit Desktop](/drafts/desktop) | Fun | projects open as windows | M5, M9 | 3 | slop fail, M2 fail | 8.2 | 7.9 | 6.4 | 8.3 | 7.76 | 2 | [1440](drafts-review/desktop-desktop.png) · [375](drafts-review/desktop-mobile.png) | The visible project tabs and Incentiv facts provide more information than Studio or Hybrid. However, launchers select documents and window controls manage their shell; removing desktop styling and window movement leaves a conventional selector and reading panel. Mobile makes that underlying structure particularly clear. |
@@ -41,22 +42,23 @@ Baseline 889e02f: entry **20.19 kB gzip**, initial JS graph **101.86 kB**. Curre
 
 | Draft | JS gzip | CSS gzip | Combined |
 | --- | ---: | ---: | ---: |
-| blueprint | 32.89 kB | 4.79 kB | 37.68 kB |
-| canvas | 20.61 kB | 5.36 kB | 25.96 kB |
-| desk | 32.82 kB | 4.57 kB | 37.38 kB |
-| desktop | 14.35 kB | 5.54 kB | 19.89 kB |
-| dither | 15.08 kB | 4.64 kB | 19.73 kB |
-| hybrid | 62.52 kB | 3.87 kB | 66.39 kB |
-| index | 26.17 kB | 3.72 kB | 29.89 kB |
-| issue | 10.39 kB | 3.68 kB | 14.06 kB |
-| orbit | 41.39 kB | 4.42 kB | 45.81 kB |
-| primetime | 11.90 kB | 4.91 kB | 16.82 kB |
-| riso | 11.47 kB | 4.57 kB | 16.04 kB |
-| savefile | 13.22 kB | 4.43 kB | 17.66 kB |
-| studio | 42.21 kB | 5.09 kB | 47.30 kB |
-| swiss | 10.42 kB | 3.37 kB | 13.79 kB |
-| wall | 36.21 kB | 4.30 kB | 40.50 kB |
-| zine | 14.28 kB | 4.91 kB | 19.19 kB |
+| blueprint | 33.34 kB | 4.79 kB | 38.13 kB |
+| canvas | 21.06 kB | 5.36 kB | 26.41 kB |
+| desk | 33.26 kB | 4.57 kB | 37.83 kB |
+| desktop | 14.80 kB | 5.54 kB | 20.34 kB |
+| diff | 16.75 kB | 6.33 kB | 23.08 kB |
+| dither | 15.53 kB | 4.64 kB | 20.18 kB |
+| hybrid | 62.97 kB | 3.87 kB | 66.84 kB |
+| index | 26.62 kB | 3.72 kB | 30.34 kB |
+| issue | 10.84 kB | 3.68 kB | 14.51 kB |
+| orbit | 41.84 kB | 4.42 kB | 46.26 kB |
+| primetime | 12.35 kB | 4.91 kB | 17.26 kB |
+| riso | 11.92 kB | 4.57 kB | 16.48 kB |
+| savefile | 13.67 kB | 4.43 kB | 18.10 kB |
+| studio | 42.66 kB | 5.09 kB | 47.75 kB |
+| swiss | 10.87 kB | 3.37 kB | 14.23 kB |
+| wall | 36.65 kB | 4.30 kB | 40.95 kB |
+| zine | 14.73 kB | 4.91 kB | 19.64 kB |
 
 ## Verification and limits
 

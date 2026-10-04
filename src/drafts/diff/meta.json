@@ -1,0 +1,29 @@
+{
+  "rule": "the migration seam",
+  "id": "diff",
+  "title": "DIFF",
+  "band": "Professional",
+  "description": "Two versions of the same portfolio. Drag the seam, compare the work, and run a real local parity check.",
+  "signature": "A draggable and keyboard-controlled seam clips matching legacy and current documents. Twenty-eight project pairs compare five real fields sequentially; a deliberate mismatch blocks that pair. Rows flip on a true 3D backface. Mobile scroll drives the seam in CSS, with a complete current-version fallback.",
+  "caseSlug": "care-platform",
+  "holdback": "The fixed mobile runner still takes a substantial share of the viewport, so the first screen shows only one project row and the seam handle overlaps the evidence card. The legacy/current treatment is also visually restrained. These limit immediacy and spectacle, but no longer obscure the primary statement or first project. Keep the draft at round two rather than adding another repair cycle.",
+  "scores": {
+    "design": 8.1,
+    "usability": 8.0,
+    "creativity": 8.2,
+    "content": 8.4
+  },
+  "rounds": 2,
+  "antiPale": "pass",
+  "mechanisms": [
+    "M1",
+    "M2",
+    "M3",
+    "M4",
+    "M5",
+    "M9"
+  ],
+  "slopCount": 0,
+  "m2": "pass",
+  "creativeGates": "pass"
+}

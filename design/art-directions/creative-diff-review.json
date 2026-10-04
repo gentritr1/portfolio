@@ -1,0 +1,164 @@
+{
+  "id": "diff",
+  "reviewer": "creative_jury_a",
+  "status": "final after round 2",
+  "rule": "the migration seam",
+  "scope": "Independent visual review. Reviewer did not build DIFF. Scores use actual desktop, mobile and parity-failure captures; source was read only to confirm the visible comparison mechanism and diagnose the clipping.",
+  "rounds": [
+    {
+      "round": 1,
+      "captures": [
+        "drafts-review/diff-desktop.png",
+        "drafts-review/diff-mobile.png",
+        "drafts-review/diff-parity.png"
+      ],
+      "scores": {
+        "design": 7,
+        "usability": 7.1,
+        "creativity": 8,
+        "content": 8.4
+      },
+      "weightedTotal": 7.37,
+      "antiPale": "provisional pass",
+      "antiPaleEvidence": {
+        "visibleComposition": "pass",
+        "rationale": "The large task-specific headline, two contrasting version fields, green evidence block and parity strip establish a distinct composition. The opening is not graphite with a token accent, a giant personal name or the shared name-plus-screenshot skeleton. The desktop display type is approximately 9.4% of viewport height, within the brief's approximate 10% threshold.",
+        "limitation": "The stills cannot verify autonomous movement within the first two seconds or the quality of a signature motion. Mobile is visually quieter and less generously scaled than desktop; the fixed runner crowds its first viewport."
+      },
+      "slopCount": 0,
+      "slopCauses": [],
+      "slopRationale": "The v1/v2 labels and parity controls describe actual comparison state rather than decorative fake HUD labels. Numbered project rows contain substantive migration descriptions, dates and parity state. Unique Hubot/Mona/JetBrains typography avoids the shared Archivo display treatment.",
+      "m2": "pass",
+      "m2Evidence": "The migration comparison performs a real function: the seam reveals two versions, and the runner identifies a deliberately changed field and marks one project pair as blocked. Removing that mechanism removes the comparison the page exists to demonstrate. Direct access to project details remains available as a useful reading path.",
+      "mechanisms": [
+        "M1",
+        "M2",
+        "M3",
+        "M4",
+        "M5",
+        "M9"
+      ],
+      "mechanismEvidence": {
+        "M1": "The two-version rule extends from identity and headline through project rows and field-level detail. The round-1 alignment defect weakens its execution but does not make the rule decorative.",
+        "M2": "The seam and project-pair strip carry the actual migration-comparison workflow, including a meaningful failed state.",
+        "M3": "The displayed parity result comes from five actual local field comparisons per project; source confirms the visible controls are not playing a canned success sequence.",
+        "M4": "Route-by-route rewrites and preserving behaviour are the subject of the page, grounded in the owner's documented work rather than a generic development aesthetic.",
+        "M5": "The parity-failure capture visibly reports '27/28 equal · 1 blocked', explains 'The missing title prevents parity', and singles out pair 02 in red. The interaction therefore changes what the visitor knows.",
+        "M9": "31 architecture decisions, 16→2 report queries and 34 Nuxt 3 routes are visible, project-labelled facts confirmed against CONTENT.md. The 28-pair local model is explicitly distinguished from care-platform routes."
+      },
+      "withheldMechanisms": {
+        "M6": "Large text alone is not enough to establish type as image.",
+        "M7": "A completed parity screenshot proves the resulting information, not the perceived timing or cadence.",
+        "M8": "No physical weight or sound is evidenced.",
+        "M10": "The writing is clear and purpose-specific, but these captures do not yet establish a sufficiently individual voice to award a separate mechanism.",
+        "M11": "Keyboard support and real row-flip source are useful implementation evidence, but easing, interruption behaviour and frame quality are not visible in these stills."
+      },
+      "lowestCategory": "design",
+      "repairNeeded": true,
+      "concreteLowestIssue": {
+        "priority": 1,
+        "title": "Align the two documents' text geometry",
+        "evidence": "At the default desktop seam, the legacy headline ends visibly at 'Keep the beh…', while the remainder of the current headline lies on a different line entirely behind the legacy overlay. The explanation and project-table baselines are also vertically offset across the seam, producing detached rows and large empty fragments. In the parity capture at the current-version endpoint, the full headline has three lines, confirming the different wrap.",
+        "cause": "The legacy and current headline weights have different advance widths and wrap differently inside the same grid. Since the clipped documents share no reserved headline height, every following section becomes misaligned.",
+        "requestedRepair": "Use identical explicit line geometry for both versions and keep subsequent section/table baselines aligned. Retain the stylistic contrast through colour or treatments that do not alter document flow.",
+        "acceptanceEvidence": "At 38% and nearby seam positions on desktop, the complete headline is readable as one continuous statement; each heading and project row crosses the seam on the same baseline. The mobile headline remains intact."
+      },
+      "secondaryIssue": {
+        "priority": 2,
+        "title": "Reduce the fixed runner's mobile footprint",
+        "evidence": "The runner occupies roughly the bottom quarter of the 375×812 capture. Only one project title and part of its description are visible above it, despite the work being the core navigation.",
+        "requestedRepair": "Compact the actions into a horizontal row plus the parity strip while retaining 44px touch targets and visible result feedback.",
+        "acceptanceEvidence": "The default mobile view exposes a complete project row and its fact without the runner covering it; the 28-pair strip and main run action remain immediately usable."
+      },
+      "holdback": "A distinctive, owner-specific mechanism has arrived, but misaligned desktop text makes the seam read as a rendering defect. The mobile control tray then takes too much of the opening screen. Repair alignment and tray footprint before treating the visual execution as an 8.",
+      "calibration": "Creativity 8.0 is earned by an actual comparison model tied to documented migration work, stronger than the earlier decorative costumes. Design and Usability remain lower because the captures show concrete reading defects. No motion score is inferred from the feature list.",
+      "captureNote": "Round-1 scores refer to the pixels inspected before the canonical desktop/mobile paths were replaced with round-2 captures. The parity-failure capture remains evidence of the comparison mechanism."
+    },
+    {
+      "round": 2,
+      "captures": [
+        "drafts-review/diff-desktop.png",
+        "drafts-review/diff-mobile.png"
+      ],
+      "supportingCapture": "drafts-review/diff-parity.png",
+      "scores": {
+        "design": 8.1,
+        "usability": 8.0,
+        "creativity": 8.2,
+        "content": 8.4
+      },
+      "weightedTotal": 8.12,
+      "antiPale": "pass",
+      "antiPaleEvidence": {
+        "visibleComposition": "pass",
+        "rationale": "The large action-specific headline, green evidence block, paired version fields and full-width project comparison form a distinct first-screen composition. It avoids the prior shared giant-name and screenshot skeleton. The desktop typography provides the large graphic moment required by the original anti-pale rule.",
+        "temporalEvidence": "The source defines a 1200ms opening seam sweep, supporting the first-two-seconds motion gate. This reviewer has not watched it play and awards no pacing or motion-craft mechanism from the implementation alone.",
+        "mobileQualification": "Mobile remains quieter and denser than desktop; its green evidence panel, continuous seam and visible project row preserve the direction. This is retained as a holdback, not hidden in the score."
+      },
+      "slopCount": 0,
+      "slopCauses": [],
+      "slopRationale": "Version labels and parity controls express real comparison state. The rows contain facts and parity results, and the type pairing is unique within the gallery.",
+      "m2": "pass",
+      "m2Evidence": "The seam and project-pair controls are the interface to the local migration comparison. The supporting failure capture visibly singles out a changed title and a blocked pair. Removing this mechanism removes a substantive comparison function, while direct project reading remains available.",
+      "mechanisms": [
+        "M1",
+        "M2",
+        "M3",
+        "M4",
+        "M5",
+        "M9"
+      ],
+      "mechanismEvidence": {
+        "M1": "The migration rule now stays visually coherent across identity, headline, explanation and project-table rows; both versions align as one document.",
+        "M2": "The two-version comparison and pair strip carry the demonstrated workflow rather than merely decorating project links.",
+        "M3": "The displayed parity state is backed by actual local comparisons of five fields for each of 28 project pairs, clearly labelled as a recreation.",
+        "M4": "Preserving behaviour during framework migration is the owner-specific subject of the whole opening.",
+        "M5": "The inspected parity capture identifies 27 equal pairs, one blocked pair and the missing title that causes the mismatch. That is new information revealed by an action.",
+        "M9": "The prominent 31 architecture decisions, 16-to-2 report queries and 34 Nuxt 3 routes are project-labelled facts checked against CONTENT.md. The local 28-pair model is not presented as a claim about 28 healthcare routes."
+      },
+      "withheldMechanisms": [
+        "M6",
+        "M7",
+        "M8",
+        "M10",
+        "M11"
+      ],
+      "withheldRationale": "Large text alone is not type-as-image; the stills do not establish animation cadence, weight/audio, authorial voice or interruption/frame craft. Browser checks reported by the implementer support functionality but do not substitute for an observed motion review.",
+      "resolvedIssues": [
+        {
+          "title": "Aligned document geometry",
+          "evidence": "In the replacement desktop capture, Change the code and Keep the behaviour are complete continuous lines across the seam. The explanation rules, table heading and both visible project rows share their baselines across the legacy/current boundary. The earlier detached current-side fragments are gone."
+        },
+        {
+          "title": "Complete mobile project row",
+          "evidence": "The replacement 375px capture shows the complete care-management project title and its three-line migration fact above the fixed runner. The key action and 44px parity cells remain visible."
+        }
+      ],
+      "lowestCategory": "usability",
+      "repairNeeded": false,
+      "holdback": "The fixed mobile runner still takes a substantial share of the viewport, so the first screen shows only one project row and the seam handle overlaps the evidence card. The legacy/current treatment is also visually restrained. These limit immediacy and spectacle, but no longer obscure the primary statement or first project. Keep the draft at round two rather than adding another repair cycle.",
+      "calibration": "Design 8.1 reflects the repaired alignment and clear typography; Usability 8.0 reflects direct project/evidence links plus a readable first mobile row, with density retained as a limitation. Creativity rises from 8.0 to 8.2 because the same substantive comparison rule is now visible without a rendering defect. Content remains 8.4 because its factual strength and transparent recreation labelling are unchanged. This is distinctive, not yet a Site-of-the-Day execution."
+    }
+  ],
+  "latestRound": 2,
+  "nextStep": "Retain the draft and proceed with the gallery. No third repair round is required by this review.",
+  "finalScores": {
+    "design": 8.1,
+    "usability": 8.0,
+    "creativity": 8.2,
+    "content": 8.4
+  },
+  "weightedTotal": 8.12,
+  "antiPale": "pass",
+  "slopCount": 0,
+  "m2": "pass",
+  "mechanisms": [
+    "M1",
+    "M2",
+    "M3",
+    "M4",
+    "M5",
+    "M9"
+  ],
+  "holdback": "The fixed mobile runner still takes a substantial share of the viewport, so the first screen shows only one project row and the seam handle overlaps the evidence card. The legacy/current treatment is also visually restrained. These limit immediacy and spectacle, but no longer obscure the primary statement or first project. Keep the draft at round two rather than adding another repair cycle."
+}
