@@ -31,7 +31,7 @@ The upstream variable defaults are not always regular: Hubot starts at width 80 
 
 ## Character coverage
 
-Every delivered file retains `Ë ë Ç ç`. The subset requests Basic Latin, Latin-1, common punctuation, currency and the arrow block; only characters present in the original font are kept. No glyphs were copied between families. The files are deliberately not exhaustive Latin Extended, Greek, Cyrillic or Arabic subsets.
+Every delivered file retains `Ë ë Ç ç`. The subset requests Basic Latin, Latin-1, common punctuation, currency and the arrow block; only characters present in the original font are kept. No glyphs were copied between families. The Latin subsets are deliberately not exhaustive Latin Extended, Greek, Cyrillic or Arabic subsets. The complete Amiri files added below are an exception: they preserve all upstream glyphs and character mappings.
 
 | Family | Ë / ë / Ç / ç | ← ↑ → ↓ | ↗ | ✓ |
 | --- | --- | --- | --- | --- |
@@ -152,3 +152,69 @@ U+2713-2714,U+FEFF,U+FFFD
 - License: [exact upstream OFL 1.1](https://raw.githubusercontent.com/google/fonts/9710da1eacb3be272583c3224dcb70f9da6eadbb/ofl/courierprime/OFL.txt) · [included copy](CourierPrime-OFL.txt)
 - Source SHA-256: `72f793376f8e2841656bf21d77a5de010f2929bd6956a22ee848ad0c7eb978af`
 - Local WOFF2 SHA-256: `e73c41403397f52a7b0c1d869cb85a88b3a21fb0aeaf9bd3fcc52460ce9da3a8`
+
+
+## Additional editorial and display families
+
+Added on 2026-10-04 from the same pinned official Google Fonts revision. These four upstream license notices declare no Reserved Font Names; their original internal family names are retained. Each exact upstream OFL 1.1 license is included beside its assets.
+
+| CSS family | File | Bytes | Weight | Other retained axes |
+| --- | --- | ---: | --- | --- |
+| `Literata` | [Literata-Latin.woff2](Literata-Latin.woff2) | 161,160 | 200–900 | `opsz` 7–72 |
+| `Amiri` | [Amiri-Regular.woff2](Amiri-Regular.woff2) | 149,120 | 400 | Static |
+| `Amiri` | [Amiri-Bold.woff2](Amiri-Bold.woff2) | 140,184 | 700 | Static |
+| `Archivo Narrow` | [ArchivoNarrow-Latin.woff2](ArchivoNarrow-Latin.woff2) | 20,612 | 400–700 | None |
+| `Big Shoulders Display` | [BigShouldersDisplay-Latin.woff2](BigShouldersDisplay-Latin.woff2) | 48,020 | 100–900 | None |
+
+Use `font-style: normal`, `font-display: swap`, and the weight values above. Literata supports `font-optical-sizing: auto`. Big Shoulders Display defaults to weight 100 internally; select the intended CSS weight explicitly.
+
+Literata, Archivo Narrow and Big Shoulders Display use the exact Unicode request listed in Reproduction notes above, with all shaping features and naming records preserved and hinting removed. Their complete variable axes are retained; none are frozen. Each file was reopened and checked for `Ë ë Ç ç`.
+
+**Amiri retains its complete upstream character maps, glyph orders, hinting, OpenType shaping and positioning tables.** The TTFs were losslessly packaged as WOFF2, with timestamp recalculation disabled; no Arabic subset was made. Regular retains 6,710 glyphs and 1,699 mapped codepoints; Bold retains 6,551 glyphs and 1,548 mapped codepoints. Both contain Arabic letters, combining marks, contextual forms, ligatures, and the upstream Quranic shaping support. The regular and bold upstream coverage differs; “complete” means all glyphs present in each original, not every Unicode Arabic character. Both also preserve `Ë ë Ç ç`. Verification compared all original character mappings and glyph orders, plus compiled `GSUB`, `GPOS` and `GDEF` tables byte-for-byte after WOFF2 reopening.
+
+Generated with fontTools 4.66.1. For the Latin families use the existing subset reproduction settings; for Amiri load `TTFont(..., recalcTimestamp=False)`, set `flavor = "woff2"`, and save without subsetting or instancing.
+
+### Literata
+
+- Repository: [google/fonts](https://github.com/google/fonts)
+- Revision: `9710da1eacb3be272583c3224dcb70f9da6eadbb`
+- Source TTF: [ofl/literata/Literata[opsz,wght].ttf](https://raw.githubusercontent.com/google/fonts/9710da1eacb3be272583c3224dcb70f9da6eadbb/ofl/literata/Literata%5Bopsz%2Cwght%5D.ttf)
+- License: [exact upstream OFL 1.1](https://raw.githubusercontent.com/google/fonts/9710da1eacb3be272583c3224dcb70f9da6eadbb/ofl/literata/OFL.txt) · [included copy](Literata-OFL.txt)
+- Source SHA-256: `b41138c9373112f32abb589cc22e8674b06ed4048b0c513be922bdd26f274440`
+- Local WOFF2 SHA-256: `26d4f0c315d4a3422e92cdf5e978a59406bf27f5b8317d61dc8c75494ee7a440`
+
+### Amiri Regular
+
+- Repository: [google/fonts](https://github.com/google/fonts)
+- Revision: `9710da1eacb3be272583c3224dcb70f9da6eadbb`
+- Source TTF: [ofl/amiri/Amiri-Regular.ttf](https://raw.githubusercontent.com/google/fonts/9710da1eacb3be272583c3224dcb70f9da6eadbb/ofl/amiri/Amiri-Regular.ttf)
+- License: [exact upstream OFL 1.1](https://raw.githubusercontent.com/google/fonts/9710da1eacb3be272583c3224dcb70f9da6eadbb/ofl/amiri/OFL.txt) · [included copy](Amiri-OFL.txt)
+- Source SHA-256: `ab391c4147d054c48976e98322ad0eefe1427aa0e0502a12a4c75d80a70cfcd7`
+- Local WOFF2 SHA-256: `c89b5cd2d54bfaa574cc656b17503e03794eb712b02a6b61e47419081857ad9d`
+
+### Amiri Bold
+
+- Repository: [google/fonts](https://github.com/google/fonts)
+- Revision: `9710da1eacb3be272583c3224dcb70f9da6eadbb`
+- Source TTF: [ofl/amiri/Amiri-Bold.ttf](https://raw.githubusercontent.com/google/fonts/9710da1eacb3be272583c3224dcb70f9da6eadbb/ofl/amiri/Amiri-Bold.ttf)
+- License: [exact upstream OFL 1.1](https://raw.githubusercontent.com/google/fonts/9710da1eacb3be272583c3224dcb70f9da6eadbb/ofl/amiri/OFL.txt) · [included copy](Amiri-OFL.txt)
+- Source SHA-256: `cfccb794268e7d573d857e6d6a67f89cf8a053e8ffd85dfa0c8ec1bb36fc4827`
+- Local WOFF2 SHA-256: `36975d0b69a8a45c33c478006e725725b0c0c57eebeed36be2b3f41705a00c2c`
+
+### Archivo Narrow
+
+- Repository: [google/fonts](https://github.com/google/fonts)
+- Revision: `9710da1eacb3be272583c3224dcb70f9da6eadbb`
+- Source TTF: [ofl/archivonarrow/ArchivoNarrow[wght].ttf](https://raw.githubusercontent.com/google/fonts/9710da1eacb3be272583c3224dcb70f9da6eadbb/ofl/archivonarrow/ArchivoNarrow%5Bwght%5D.ttf)
+- License: [exact upstream OFL 1.1](https://raw.githubusercontent.com/google/fonts/9710da1eacb3be272583c3224dcb70f9da6eadbb/ofl/archivonarrow/OFL.txt) · [included copy](ArchivoNarrow-OFL.txt)
+- Source SHA-256: `adbe027f625c8393ae0f6e174e32e233dda485bc3eda5153ce428275394ef97f`
+- Local WOFF2 SHA-256: `fb5f4e2bb04b376acf4d7a52e2235d61b066aa0c545a131a6a8612dfa8f8e0f7`
+
+### Big Shoulders Display
+
+- Repository: [google/fonts](https://github.com/google/fonts)
+- Revision: `9710da1eacb3be272583c3224dcb70f9da6eadbb`
+- Source TTF: [ofl/bigshouldersdisplay/BigShouldersDisplay[wght].ttf](https://raw.githubusercontent.com/google/fonts/9710da1eacb3be272583c3224dcb70f9da6eadbb/ofl/bigshouldersdisplay/BigShouldersDisplay%5Bwght%5D.ttf)
+- License: [exact upstream OFL 1.1](https://raw.githubusercontent.com/google/fonts/9710da1eacb3be272583c3224dcb70f9da6eadbb/ofl/bigshouldersdisplay/OFL.txt) · [included copy](BigShouldersDisplay-OFL.txt)
+- Source SHA-256: `60e208dc276a1c35fc5b62e94f9fb959c40c11783a9eb7548175c14b1fbeb720`
+- Local WOFF2 SHA-256: `15074c27bc66b3e886e3fa51e0a0b32ef691df7ccd5bd9c5da3b3e42f7392d8a`

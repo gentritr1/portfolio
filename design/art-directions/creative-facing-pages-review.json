@@ -1,0 +1,156 @@
+{
+  "id": "facing-pages",
+  "reviewer": "draft_jury",
+  "status": "final-round-2; no further repair required",
+  "rule": "the bilingual book",
+  "scope": "Independent review by an agent that did not build Facing Pages. The saved 1440px desktop and 375px phone covers, desktop contents, settled English phone contents and Arabic phone contents were inspected directly. Source corroborates the reading mechanism. Implementer runtime checks are identified separately. No frame-rate, timing, translation-quality or animation-feel claim is inferred from stills.",
+  "rounds": [
+    {
+      "round": 1,
+      "stage": "pre-score source and accessibility repair",
+      "scores": null,
+      "weightedTotal": null,
+      "repairNeeded": true,
+      "issues": [
+        {
+          "title": "Add a purposeful first-load arrival",
+          "evidence": "The initial implementation opened at a static cover state, leaving the brief's movement-within-two-seconds gate unsupported.",
+          "repair": "The cover now makes a finite spring arrival from minus eight degrees. Reduced motion skips the rotation."
+        },
+        {
+          "title": "Restore usable desktop contents targets",
+          "evidence": "The compact desktop contents rule used approximately 27px rows. This made fitting the contents take precedence over the required 44px interaction targets.",
+          "repair": "Contents targets now have a 44px minimum, and real measured pagination accommodates the additional height."
+        }
+      ],
+      "roundAccounting": "These bounded corrections were completed before numerical capture scoring. They count as the first repair round; no earlier scores have been invented."
+    },
+    {
+      "round": 2,
+      "captures": [
+        "drafts-review/facing-pages-desktop.png",
+        "drafts-review/facing-pages-mobile.png",
+        "drafts-review/facing-pages-contents-desktop.png",
+        "drafts-review/facing-pages-contents-mobile.png",
+        "drafts-review/facing-pages-arabic-mobile.png"
+      ],
+      "captureScope": "The English phone contents file was replaced with a settled state after an earlier capture showed the opening cover obscuring its left side. Only the settled replacement informs the final layout score. The curl supplement is not used to judge the bend or its quality: it visibly shows a nearly closed cover, although the implementer separately verified an active WebGL turn.",
+      "antiPale": "pass",
+      "antiPaleEvidence": {
+        "visibleComposition": "pass",
+        "rationale": "Oxblood fills the first viewports. The large cream English title and Arabic lettering form the image, with the owner name secondary and the chapter tabs built into the book edge. Desktop is a wide cloth-bound cover; phone is a tall volume with vertical tabs. Both are recognisably one book rather than another flood-colour name-and-screenshot layout.",
+        "readingSurfaceException": "The cream interior is the explicitly specified paper reading surface, revealed through the saturated cover. It supports bilingual text, columns, folios and actual pagination. Its paleness follows the book rule and is not a generic pale landing page.",
+        "temporalEvidence": "Source confirms the finite spring arrival from minus eight degrees, with a reduced-motion branch. The source and implementer's runtime checks establish a page-turn mechanism; these stills do not establish its felt timing or smoothness."
+      },
+      "slopCount": 0,
+      "slopCauses": [],
+      "slopRationale": "The cloth texture is the pinned book-cover material, not a grain overlay applied to an unrelated layout. Chapter tabs, spine, paper, folios and reading controls all perform the same reading rule. There is no giant owner name, decorative HUD, unrelated device scene or conventional project grid appended below the metaphor.",
+      "m2": "pass",
+      "m2Evidence": "Contents, chapter tabs, page turns, font-size reflow and language order are the actual path through the projects. The captures show the same contents as an English/Arabic desktop spread and separate readable English and Arabic phone pages. Increasing the type size changes the real column count and page count, according to source and implementer verification. Removing the reader removes the browsing and reading workflow; it is more than a cover wrapped around a carousel.",
+      "scores": {
+        "design": 8.3,
+        "usability": 8.0,
+        "creativity": 8.4,
+        "content": 8.3
+      },
+      "weightedTotal": 8.23,
+      "mechanisms": [
+        "M1",
+        "M2",
+        "M3",
+        "M5",
+        "M6",
+        "M9"
+      ],
+      "mechanismEvidence": {
+        "M1": "Cover, spine, chapter tabs, English/Arabic spreads, reading controls, folios and project chapters follow one bilingual-book constraint. Phone retains that rule while showing one language at a time.",
+        "M2": "The reader carries project navigation through its contents, chapters, page progress, language switch and type-size controls. These are necessary operations of the site rather than decorative gestures around ordinary project links.",
+        "M3": "Pagination uses actual CSS columns measured after layout, font readiness and image loading. Source snapshots the real DOM with same-origin fonts and images into two textures and bends a 64-segment plane around a cylinder. The mechanism is real; the available curl still is not sufficient evidence of its visual quality.",
+        "M5": "Opening chapters and turning pages exposes project information; changing type size changes how much information fits on a page; changing language exposes the corresponding Arabic or English reading surface. These interactions change what the visitor can read.",
+        "M6": "The oversized Literata title and Amiri lettering are the cover's principal image. Its composition survives without a project screenshot or decorative hero illustration.",
+        "M9": "The cover immediately connects the format to Bayyinah's 34 routes and English/Arabic support and Read to Feed's PDF, EPUB and ISBN work; desktop also exposes FJALE's Albanian dictionary. The bilingual reader therefore comes from the owner's actual material. Source uses canonical project facts and labels the care example as an invented-data recreation."
+      },
+      "withheldMechanisms": [
+        "M4",
+        "M7",
+        "M8",
+        "M10",
+        "M11"
+      ],
+      "withheldRationale": "The reading format is grounded in real work but does not establish a singular personal obsession. The copy is clear and factual without a distinct personal voice. Stills and source cannot establish felt pacing, physical weight, interruption smoothness or frame-rate quality. Runtime reports demonstrate functioning transitions and fallbacks without independently earning these experiential mechanisms.",
+      "repairsVerified": [
+        {
+          "issue": "Static first-load cover",
+          "result": "resolved in source",
+          "evidence": "The cover motion element uses an initial minus-eight-degree rotation and a finite spring arrival; reduced motion disables it. Its temporal appearance was not independently observed by this reviewer."
+        },
+        {
+          "issue": "Small desktop contents targets",
+          "result": "resolved",
+          "visualEvidence": "The replacement desktop contents has clearly separated rows in both languages and a three-page readout. The settled phone contents has eight complete, readable rows with clear previous/next controls and a four-page readout.",
+          "sourceEvidence": "The dense contents rules now preserve min-height: 44px, including the short-desktop override."
+        }
+      ],
+      "runtimeEvidenceSuppliedByImplementer": [
+        "Changing desktop text size from 17px to 20px changed the measured page count from two to three before the final 44px target correction; the final screenshot independently shows three pages at its current layout.",
+        "An active turn reported data-renderer=webgl and data-turning=true. An opposite Previous action retained the active turn while reversing from page two.",
+        "The Arabic phone state had English hidden, Arabic visible and order zero, with no 375px horizontal overflow.",
+        "Forced reduced-motion/no-WebGL operation opened the Bayyinah case in a readable state with no 375px horizontal overflow."
+      ],
+      "lowestCategory": "usability",
+      "concreteLowestIssue": null,
+      "repairNeeded": false,
+      "holdback": "The phone cover makes its supporting project facts very small, while the book frame and chapter edge reserve space that a plain reader could give to text. All 28 contents entries require three desktop or four phone pages in the shown layout, and phone compares the languages sequentially rather than side by side. The typography and complete reader are distinctive; the page-curl feel, texture fidelity during a turn and performance are not independently demonstrated by the supplied stills. These limits keep the result below a 9-level experience without justifying another bounded repair.",
+      "calibration": "Design 8.3 reflects a resolved bilingual publication composition across desktop and phone, with restrained factual cover details. Usability 8.0 reflects the readable repaired contents and explicit reading controls, limited by the cost of pagination and narrow phone paper. Creativity 8.4 is earned by an actual reflowing bilingual reading environment tied to the owner's reader work, not by the existence of a curl shader. Content 8.3 reflects specific first-viewport facts and the complete project chapters; detailed Arabic linguistic quality was not independently assessed.",
+      "remainingRounds": 1
+    }
+  ],
+  "scores": {
+    "design": 8.3,
+    "usability": 8.0,
+    "creativity": 8.4,
+    "content": 8.3
+  },
+  "weightedTotal": 8.23,
+  "antiPale": "pass",
+  "slopCount": 0,
+  "m2": "pass",
+  "mechanisms": [
+    "M1",
+    "M2",
+    "M3",
+    "M5",
+    "M6",
+    "M9"
+  ],
+  "repairNeeded": false,
+  "latestRound": 2,
+  "nextStep": "Accept after the bounded second round, retain the stated holdback and proceed with the gallery. Numerical scores meet the Crafted target. Do not represent still-image scoring as a frame-rate or motion-quality certification.",
+  "holdback": "Tiny supporting phone-cover facts, the pagination cost of the book frame, sequential rather than facing languages on phone, and unobserved page-curl feel and performance keep this below a 9-level experience.",
+  "creativityClusterSecondLook": {
+    "trigger": "FACING PAGES 8.4, FJALEKRYQ 8.4 and AISLE 8.6 fall within 0.2.",
+    "reviewerIndependence": "This reviewer did not build any of these three drafts.",
+    "capturesInspected": [
+      "drafts-review/fjalekryq-desktop.png",
+      "drafts-review/fjalekryq-mobile.png",
+      "drafts-review/aisle-desktop.png",
+      "drafts-review/aisle-mobile.png",
+      "drafts-review/facing-pages-desktop.png",
+      "drafts-review/facing-pages-mobile.png",
+      "drafts-review/facing-pages-contents-desktop.png",
+      "drafts-review/facing-pages-contents-mobile.png",
+      "drafts-review/facing-pages-arabic-mobile.png"
+    ],
+    "scoresAfterSecondLook": {
+      "facing-pages": 8.4,
+      "fjalekryq": 8.4,
+      "aisle": 8.6
+    },
+    "distinctions": {
+      "fjalekryq": "The letter grid makes project relationships into the picture and the map. The Albanian title, prominent E-dieresis and actual FJALE word-game facts make the rule personal. The phone presents one selected clue above a larger, cropped puzzle instead of shrinking the entire board. Its originality lies in a specific language-and-word structure; the eventual output is still reading a chosen project.",
+      "facing-pages": "The cover is visually quieter and the book archetype is familiar. Its equal 8.4 is earned differently: the English and Arabic reading surfaces, actual text-size repagination and project chapters make the format a complete working reader rooted in two real projects. It has less surprising geometry than the crossword but a more consequential text-reading operation. Neither is clearly more creative overall at the shown level.",
+      "aisle": "The shelf structure and selected package visibly generate a personalised receipt. That user-owned shortlist is an additional useful artefact, so the metaphor changes the outcome beyond selecting or reading a project. This warrants the modest 0.2 lead. The source of the idea remains tied to real retail and scanner work; the lead is not a reward for brighter colour or more effects."
+    },
+    "decision": "Retain the genuine tie and the 0.2 separation. A second inspection finds different strengths, not evidence for an artificial numerical spread. Motion feel remains uncredited across these still-based comparisons."
+  }
+}

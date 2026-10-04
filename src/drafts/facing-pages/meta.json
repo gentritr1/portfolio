@@ -1,0 +1,29 @@
+{
+  "rule": "the bilingual book",
+  "id": "facing-pages",
+  "title": "Facing Pages",
+  "band": "Crafted",
+  "description": "Twenty-eight projects in an English–Arabic book. Change the type size and the pages reflow; turn the spread to read from the other side.",
+  "signature": "Measured CSS-column pagination, English/Arabic facing pages, and a 64-segment cylinder page curl captured from the actual DOM. A CSS 3D binding remains when graphics are unavailable.",
+  "caseSlug": "read-to-feed",
+  "rounds": 2,
+  "holdback": "Tiny supporting phone-cover facts, the pagination cost of the book frame, sequential rather than facing languages on phone, and unobserved page-curl feel and performance keep this below a 9-level experience.",
+  "scores": {
+    "design": 8.3,
+    "usability": 8,
+    "creativity": 8.4,
+    "content": 8.3
+  },
+  "antiPale": "pass",
+  "mechanisms": [
+    "M1",
+    "M2",
+    "M3",
+    "M5",
+    "M6",
+    "M9"
+  ],
+  "slopCount": 0,
+  "m2": "pass",
+  "creativeGates": "pass"
+}
