@@ -1,5 +1,4 @@
 import {
-  useEffect,
   useLayoutEffect,
   useRef,
   useState,
@@ -13,9 +12,20 @@ import type { ChannelKey } from "../../content/channels";
 import { links } from "../../content/links";
 import { wallAssets } from "../../components/portfolio/wallAssets";
 import { CareFile } from "./CareFile";
-import { deck, nextHand, projectBySlug, projectFact, suits } from "./data";
-import { createCardTable, type CardTable } from "./physics";
+import {
+  art,
+  deck,
+  nextHand,
+  projectBySlug,
+  projectFact,
+  rankOf,
+  spreadOrder,
+  suitOrder,
+  suits,
+} from "./data";
+import { createCardTable, type CardPosition, type CardTable } from "./physics";
 import { dur, ease, spring } from "./motion";
+import { riffle, wakeSound } from "./sound";
 import "./deal.css";
 
 function Suit({
@@ -69,172 +79,211 @@ function Arrow({ back = false }: { back?: boolean }) {
   );
 }
 
+function CardBack() {
+  return (
+    <>
+      <span className="dl-back-field" aria-hidden="true" />
+      <span className="dl-medallion" aria-hidden="true">
+        <b>GR</b>
+      </span>
+    </>
+  );
+}
+
 interface PlayingCardProps {
   project: Project;
-  index: number;
   selected: boolean;
   flipped: boolean;
+  landed: boolean;
+  play: boolean;
   caseOpen: boolean;
   reduced: boolean;
-  select: () => void;
-  flip: () => void;
+  eager: boolean;
   node: (node: HTMLDivElement | null) => void;
   faceNode: (node: HTMLButtonElement | null) => void;
+  select: () => void;
+  flip: () => void;
+  hover: (on: boolean) => void;
   start: (event: PointerEvent<HTMLButtonElement>) => void;
   move: (event: PointerEvent<HTMLButtonElement>) => void;
   end: (event: PointerEvent<HTMLButtonElement>, cancel?: boolean) => void;
-  keyboard: (event: KeyboardEvent<HTMLButtonElement>, handle: boolean) => void;
+  keyboard: (event: KeyboardEvent<HTMLButtonElement>) => void;
 }
 
 function PlayingCard({
   project,
-  index,
   selected,
   flipped,
+  landed,
+  play,
   caseOpen,
   reduced,
-  select,
-  flip,
+  eager,
   node,
   faceNode,
+  select,
+  flip,
+  hover,
   start,
   move,
   end,
-  keyboard: onKey,
+  keyboard,
 }: PlayingCardProps) {
   const suit = suits[project.channel];
   const fact = projectFact(project);
+  const rank = rankOf(project.slug);
+  const picture = art[project.slug];
+  const faceDown = flipped || !landed;
+  const [firstTurn, setFirstTurn] = useState(!landed);
+  const factSize =
+    fact.value.length > 10 ? "s" : fact.value.length > 6 ? "m" : "l";
   return (
     <div
       ref={node}
       className="dl-body"
       data-selected={selected}
       data-project={project.slug}
-      style={
-        {
-          "--dl-suit": suit.ink,
-          zIndex: selected ? 50 : index + 1,
-        } as CSSProperties
-      }
+      style={{ "--dl-suit": suit.ink } as CSSProperties}
     >
-      <motion.div
-        className="dl-card-arrival"
-        initial={
-          reduced ? false : { opacity: 0, scale: 0.86, filter: "blur(4px)" }
-        }
-        animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-        transition={
-          reduced
-            ? { duration: 0.01 }
-            : {
-                duration: 0.45,
-                delay: Math.min(index, 8) * 0.06,
-                ease: ease.pop,
-              }
-        }
-      >
-        <motion.button
+      <span className="dl-shadow" aria-hidden="true" />
+      <span className="dl-puff" aria-hidden="true" />
+      <div className="dl-lift">
+        <button
           ref={faceNode}
           type="button"
           className="dl-card"
-          aria-label={`${project.name}, ${project.years ?? "independent work"}. ${flipped ? "Facts showing" : "Project face"}. Enter opens project; F flips; arrows choose a card.`}
+          aria-label={`${project.name}. ${rank} of ${suit.name}, ${project.kind}, ${project.years ?? "independent work"}.${flipped ? ` ${fact.value}, ${fact.label}. ${project.line}.` : ""}`}
+          aria-describedby="dl-keys"
           aria-pressed={selected}
           tabIndex={selected ? 0 : -1}
           onClick={select}
           onDoubleClick={flip}
           onFocus={select}
-          onKeyDown={(event) => onKey(event, false)}
-          whileHover={reduced ? undefined : { y: -5 }}
-          whileFocus={reduced ? undefined : { y: -5 }}
-          whileTap={reduced ? undefined : { scale: 0.98 }}
-          transition={reduced ? { duration: 0.01 } : spring.ui}
+          onKeyDown={keyboard}
+          onPointerEnter={(event) => {
+            if (event.pointerType === "mouse") hover(true);
+          }}
+          onPointerLeave={(event) => {
+            if (event.pointerType === "mouse") hover(false);
+          }}
+          onPointerDown={start}
+          onPointerMove={move}
+          onPointerUp={(event) => end(event)}
+          onPointerCancel={(event) => end(event, true)}
         >
           <motion.span
             className="dl-card-turn"
-            animate={{ rotateY: flipped ? 180 : 0 }}
-            transition={reduced ? { duration: 0.01 } : spring.ui}
+            initial={landed ? false : { rotateY: 180 }}
+            animate={{ rotateY: faceDown ? 180 : 0 }}
+            transition={
+              reduced
+                ? { duration: 0.01 }
+                : play && firstTurn
+                  ? spring.play
+                  : spring.ui
+            }
+            onAnimationComplete={() => {
+              if (landed && firstTurn) setFirstTurn(false);
+            }}
           >
-            <span className="dl-card-front" aria-hidden={flipped}>
-              <span className="dl-corner">
-                <b>{suit.number}</b>
+            <span className="dl-face" aria-hidden="true">
+              <span className="dl-index">
+                <b>{rank}</b>
                 <Suit channel={project.channel} />
               </span>
-              <span className="dl-suit-name">{suit.name}</span>
-              <Suit channel={project.channel} className="dl-centre-suit" />
+              <span className="dl-index dl-index-end">
+                <b>{rank}</b>
+                <Suit channel={project.channel} />
+              </span>
+              <span className="dl-strip-name">{project.name}</span>
+              {picture ? (
+                <span className="dl-art dl-art-picture">
+                  <img
+                    src={picture.src}
+                    alt=""
+                    style={{
+                      objectPosition: picture.position,
+                      transformOrigin: picture.position,
+                      scale: String(picture.zoom ?? 1),
+                    }}
+                    loading={eager ? "eager" : "lazy"}
+                    decoding="async"
+                    draggable={false}
+                  />
+                </span>
+              ) : (
+                <span className="dl-art dl-art-type" data-size={factSize}>
+                  <Suit channel={project.channel} className="dl-art-pip" />
+                  <strong>{fact.value}</strong>
+                  <small>{fact.label}</small>
+                </span>
+              )}
               <motion.span
-                className="dl-card-title"
-                data-long={project.name.length > 23}
+                className="dl-face-name"
+                data-long={project.name.length > 22}
                 layoutId={caseOpen ? undefined : `dl-title-${project.slug}`}
                 transition={reduced ? { duration: 0.01 } : spring.ui}
               >
                 {project.name}
               </motion.span>
-              <span className="dl-card-fact">{fact.value}</span>
-              <span className="dl-card-year">
-                {project.years ?? "Independent work"}
-              </span>
-              <span className="dl-corner dl-corner-end">
-                <b>{suit.number}</b>
-                <Suit channel={project.channel} />
+              {picture && <span className="dl-face-fact">{fact.value}</span>}
+              <span className="dl-face-meta">
+                {project.kind} · {project.years ?? "Independent"}
               </span>
             </span>
-            <span className="dl-card-back" aria-hidden={!flipped}>
-              <span className="dl-back-heading">
-                <Suit channel={project.channel} />
-                <b>{project.name}</b>
+            <span className="dl-back" aria-hidden="true">
+              <CardBack />
+              <span className="dl-plate" data-show={flipped}>
+                <span className="dl-plate-head">
+                  <Suit channel={project.channel} />
+                  <b>
+                    {rank} · {suit.name}
+                  </b>
+                </span>
+                <strong>{fact.value}</strong>
+                <span className="dl-plate-label">{fact.label}</span>
+                <span className="dl-plate-line">{project.line}</span>
+                <span className="dl-plate-stack">
+                  {project.stack.slice(0, 3).join(" · ")}
+                </span>
               </span>
-              <strong>{fact.value}</strong>
-              <span>{fact.label}</span>
-              <p>{project.line}</p>
-              <span className="dl-back-stack">
-                {project.stack.slice(0, 3).join(" / ")}
-              </span>
-              <small>Enter opens the complete project.</small>
             </span>
           </motion.span>
-        </motion.button>
-        <button
-          className="dl-drag-handle"
-          type="button"
-          aria-label={`Drag ${project.name}; arrow keys move it`}
-          tabIndex={selected ? 0 : -1}
-          onFocus={select}
-          onPointerDown={start}
-          onPointerMove={move}
-          onPointerUp={(event) => end(event)}
-          onPointerCancel={(event) => end(event, true)}
-          onLostPointerCapture={(event) => end(event, true)}
-          onKeyDown={(event) => onKey(event, true)}
-        >
-          <span aria-hidden="true">⋮⋮</span> Drag to move
         </button>
-      </motion.div>
+      </div>
     </div>
   );
 }
+
+const chips = [
+  { label: "CV", href: links.cv, tone: "cream", download: true },
+  { label: "Email", href: `mailto:${links.email}`, tone: "ink" },
+  { label: "GitHub", href: links.github, tone: "cobalt" },
+  { label: "LinkedIn", href: links.linkedin, tone: "forest" },
+] as const;
 
 export default function Draft() {
   const [hand, setHand] = useState(() => nextHand(0));
   const [showAll, setShowAll] = useState(false);
   const [selected, setSelected] = useState("za");
   const [flipped, setFlipped] = useState(new Set<string>());
+  const [landed, setLanded] = useState(new Set<string>());
   const [caseSlug, setCaseSlug] = useState<string | null>(null);
-  const [size, setSize] = useState({ width: 1200, narrow: false });
+  const [size, setSize] = useState({ width: 0, height: 0 });
   const [reduced, setReduced] = useState(
     () => matchMedia("(prefers-reduced-motion: reduce)").matches,
   );
-  const [cvDone, setCvDone] = useState(false);
+  const [sound, setSound] = useState(false);
   const [dealNumber, setDealNumber] = useState(1);
-  const [message, setMessage] = useState(
-    "Five projects dealt. Za! is selected. Flip it for facts or open the project.",
-  );
-  const [help, setHelp] = useState(false);
-  const scroll = useRef<HTMLDivElement>(null);
-  const table = useRef<HTMLDivElement>(null);
+  const [message, setMessage] = useState("");
+  const felt = useRef<HTMLDivElement>(null);
   const cardNodes = useRef(new Map<string, HTMLElement>());
   const faceNodes = useRef(new Map<string, HTMLButtonElement>());
   const engine = useRef<CardTable | null>(null);
   const offset = useRef(0);
+  const dealStamp = useRef(0);
+  const hovered = useRef<string | null>(null);
+  const suppressClick = useRef(false);
   const caseHeading = useRef<HTMLHeadingElement>(null);
   const casePanel = useRef<HTMLElement>(null);
   const returnRef = useRef<(id: string) => void>(() => undefined);
@@ -252,21 +301,48 @@ export default function Draft() {
     lastAt: number;
     velocityX: number;
     velocityY: number;
+    started: boolean;
   } | null>(null);
-  const cardWidth = size.narrow ? 174 : 202;
-  const cardHeight = size.narrow ? 260 : 286;
-  const height = size.narrow ? 374 : 454;
-  const tableWidth = showAll ? hand.length * (cardWidth + 28) + 80 : size.width;
+  const swipe = useRef<{
+    pointer: number;
+    startX: number;
+    startY: number;
+    from: number;
+    position: number;
+    lastX: number;
+    lastAt: number;
+    velocity: number;
+    active: boolean;
+  } | null>(null);
+
+  const width = size.width;
+  const height = size.height;
+  const narrow = width > 0 && width < 640;
+  const cardWidth = narrow ? 200 : 212;
+  const cardHeight = narrow ? 282 : 298;
+  const deckPoint = narrow
+    ? { x: 46, y: 162, angle: -12 }
+    : { x: 150, y: 214, angle: -10 };
   const selectedProject = projectBySlug.get(selected) ?? deck[0];
   const activeCase = caseSlug ? projectBySlug.get(caseSlug)! : null;
+  const lastDealt = showAll ? null : hand[hand.length - 1];
+  const spreadCentre = 0.48;
 
-  useEffect(() => {
-    const element = scroll.current;
+  useLayoutEffect(() => {
+    const element = felt.current;
     if (!element) return;
-    const observer = new ResizeObserver((entries) => {
-      const width = entries[0].contentRect.width;
-      setSize({ width, narrow: width < 700 });
-    });
+    const measure = () => {
+      const box = element.getBoundingClientRect();
+      setSize((current) =>
+        Math.abs(current.width - box.width) < 1 &&
+        Math.abs(current.height - box.height) < 1
+          ? current
+          : { width: box.width, height: box.height },
+      );
+    };
+    measure();
+    dealStamp.current = performance.now();
+    const observer = new ResizeObserver(measure);
     observer.observe(element);
     const preference = matchMedia("(prefers-reduced-motion: reduce)");
     const change = () => setReduced(preference.matches);
@@ -291,88 +367,131 @@ export default function Draft() {
   }, [hand, selected]);
 
   useLayoutEffect(() => {
-    if (!table.current) return;
+    if (!felt.current || !width) return;
     engine.current = createCardTable({
-      element: table.current,
+      element: felt.current,
       nodes: cardNodes.current,
-      width: tableWidth,
+      width,
       height,
       cardWidth,
       cardHeight,
       reduced,
       onReturn: (id) => returnRef.current(id),
+      onLand: (id) =>
+        setLanded((current) =>
+          current.has(id) ? current : new Set(current).add(id),
+        ),
     });
     return () => {
       engine.current?.dispose();
       engine.current = null;
     };
-  }, [tableWidth, height, cardWidth, cardHeight, reduced]);
+  }, [width, height, cardWidth, cardHeight, reduced]);
 
-  useLayoutEffect(() => {
-    const centre = tableWidth / 2;
-    const span = size.narrow
-      ? Math.max(
-          34,
-          (tableWidth - cardWidth - 40) / Math.max(1, hand.length - 1),
-        )
-      : Math.min(
-          cardWidth * 0.99,
-          (tableWidth - cardWidth - 240) / Math.max(1, hand.length - 1),
-        );
-    const positions = hand.map((id, index) => {
-      const t = hand.length === 1 ? 0 : (index / (hand.length - 1)) * 2 - 1;
-      if (showAll)
+  function positions(fanAt?: number): CardPosition[] {
+    const count = hand.length;
+    const chosen = Math.max(0, hand.indexOf(selected));
+    const hover = hovered.current ? hand.indexOf(hovered.current) : -1;
+    if (narrow) {
+      const centre = fanAt ?? chosen;
+      const baseY = height * 0.535;
+      return hand.map((id, index) => {
+        const k = index - centre;
+        const distance = Math.abs(k);
+        const side = Math.sign(k);
+        const near = Math.min(distance, 1);
         return {
           id,
-          x: 40 + cardWidth / 2 + index * (cardWidth + 28),
-          y: height / 2 + 30 * t * t,
-          angle: t * 5,
+          x: width / 2 + side * (near * 64 + Math.max(0, distance - 1) * 24),
+          y: baseY + Math.min(distance, 4) ** 1.25 * 9 - (1 - near) * 18,
+          angle: Math.max(-18, Math.min(18, k * 6)),
+          z: 200 - Math.round(distance * 10),
+          fade: Math.max(0, Math.min(1, 4.2 - distance)),
         };
+      });
+    }
+    if (showAll) {
+      const theta = (22 * Math.PI) / 180;
+      const half = (width - 220 - cardWidth) / 2;
+      const radius = half / Math.sin(theta);
+      const centreY = height * spreadCentre;
+      return hand.map((id, index) => {
+        const a = -theta + (2 * theta * index) / Math.max(1, count - 1);
+        let x = width / 2 + radius * Math.sin(a);
+        let y = centreY + radius * (1 - Math.cos(a));
+        const lift = id === selected ? 76 : index === hover ? 26 : 0;
+        x += Math.sin(a) * lift;
+        y -= Math.cos(a) * lift;
+        if (hover >= 0 && index !== hover) x += index < hover ? -12 : 12;
+        return {
+          id,
+          x,
+          y,
+          angle: (a * 180) / Math.PI,
+          z: id === selected ? 120 : index === hover ? 110 : index + 1,
+        };
+      });
+    }
+    const span = Math.min(
+      cardWidth * 0.94,
+      (width - cardWidth - 380) / Math.max(1, count - 1),
+    );
+    return hand.map((id, index) => {
+      const t = count === 1 ? 0 : (index / (count - 1)) * 2 - 1;
+      let x = width / 2 + (index - (count - 1) / 2) * span;
+      if (hover >= 0 && index !== hover) x += index < hover ? -18 : 18;
+      const y =
+        height * 0.545 +
+        Math.abs(t) * 34 -
+        (id === selected ? 16 : 0) -
+        (index === hover ? 8 : 0);
       return {
         id,
-        x: centre + (index - (hand.length - 1) / 2) * span,
-        y: height / 2 + 16 + Math.abs(t) * (size.narrow ? 21 : 39),
-        angle: t * (size.narrow ? 14 : 11),
+        x,
+        y,
+        angle: t * 10,
+        z: index === hover ? 110 : id === selected ? 100 : index + 1,
       };
     });
-    engine.current?.layout(positions, true);
-  }, [
-    hand,
-    showAll,
-    tableWidth,
-    height,
-    cardWidth,
-    cardHeight,
-    reduced,
-    size.narrow,
-  ]);
+  }
+
+  useLayoutEffect(() => {
+    if (!width) return;
+    const fresh = performance.now() - dealStamp.current < 400;
+    engine.current?.layout(positions(), {
+      from: fresh ? deckPoint : undefined,
+      stagger: showAll ? 0.024 : 0.06,
+      gather: fresh,
+    });
+  }, [hand, showAll, selected, width, height, cardWidth, cardHeight, reduced]);
+
+  function relayout() {
+    engine.current?.layout(positions());
+  }
 
   function choose(id: string, focus = false) {
     setSelected(id);
-    if (focus) {
-      faceNodes.current.get(id)?.focus({ preventScroll: true });
-      if (showAll)
-        cardNodes.current.get(id)?.scrollIntoView({
-          block: "nearest",
-          inline: "center",
-          behavior: reduced ? "instant" : "smooth",
-        });
-    }
+    if (focus) faceNodes.current.get(id)?.focus({ preventScroll: true });
   }
 
   function flip(id: string) {
+    const turning = !flipped.has(id);
     setFlipped((current) => {
       const next = new Set(current);
       if (next.has(id)) next.delete(id);
       else next.add(id);
       return next;
     });
-    const fact = projectFact(projectBySlug.get(id)!);
-    setMessage(`${projectBySlug.get(id)!.name}. ${fact.value}, ${fact.label}.`);
+    const project = projectBySlug.get(id)!;
+    const fact = projectFact(project);
+    setMessage(
+      turning
+        ? `${project.name}, facts: ${fact.value}, ${fact.label}. ${project.line}.`
+        : `${project.name}, face up.`,
+    );
   }
 
   function openProject(id: string) {
-    if (!hand.includes(id)) setHand((current) => [...current.slice(0, 4), id]);
     setCaseSlug(id);
     setSelected(id);
   }
@@ -381,8 +500,6 @@ export default function Draft() {
     if (!caseSlug) return;
     const frame = requestAnimationFrame(() => {
       caseHeading.current?.focus({ preventScroll: true });
-      // The shared title still occupies the card while its layout morph begins.
-      // Scroll the stable case panel so reading starts at the case itself.
       casePanel.current?.scrollIntoView({
         block: "start",
         behavior: reduced ? "instant" : "smooth",
@@ -395,7 +512,7 @@ export default function Draft() {
     setCaseSlug(null);
     requestAnimationFrame(() => {
       faceNodes.current.get(selected)?.focus({ preventScroll: true });
-      scroll.current?.scrollIntoView({
+      felt.current?.scrollIntoView({
         block: "center",
         behavior: reduced ? "instant" : "smooth",
       });
@@ -405,58 +522,85 @@ export default function Draft() {
   function dealAgain() {
     offset.current = (offset.current + 5) % deck.length;
     const next = nextHand(offset.current);
+    dealStamp.current = performance.now();
+    hovered.current = null;
     setShowAll(false);
     setHand(next);
     setSelected(next[2]);
     setFlipped(new Set());
+    setLanded(new Set());
     setDealNumber((value) => value + 1);
+    if (sound) riffle(5, 0.06);
     setMessage(
       `A new hand of five projects. ${projectBySlug.get(next[2])!.name} is selected.`,
     );
-    if (scroll.current) scroll.current.scrollLeft = 0;
   }
 
   function spread() {
+    dealStamp.current = performance.now();
+    hovered.current = null;
     if (showAll) {
+      const next = nextHand(offset.current);
       setShowAll(false);
-      setHand(nextHand(offset.current));
-      setSelected(nextHand(offset.current)[2]);
-      setMessage("Back to a hand of five.");
+      setHand(next);
+      setSelected(next.includes(selected) ? selected : next[2]);
+      setMessage("The deck is gathered. A hand of five is on the table.");
     } else {
       setShowAll(true);
-      setHand(deck.map((project) => project.slug));
+      setHand(spreadOrder);
+      if (sound) riffle(28, 0.024);
       setMessage(
-        "All 28 project cards are spread in an arc. Scroll sideways or use the arrow keys to choose.",
+        `All 28 project cards are spread in suit order. ${selectedProject.name} is pulled out. Use the arrow keys to choose another.`,
       );
     }
-    if (scroll.current) scroll.current.scrollLeft = 0;
+  }
+
+  function toggleSound() {
+    if (!sound) wakeSound();
+    setSound(!sound);
   }
 
   function startDrag(id: string, event: PointerEvent<HTMLButtonElement>) {
-    if (event.button !== 0) return;
-    const body = engine.current?.grab(id);
-    if (!body) return;
-    event.preventDefault();
-    event.currentTarget.setPointerCapture(event.pointerId);
-    choose(id);
+    if (narrow || event.button !== 0) return;
     drag.current = {
       id,
       pointer: event.pointerId,
       startX: event.clientX,
       startY: event.clientY,
-      originX: body.x,
-      originY: body.y,
+      originX: 0,
+      originY: 0,
       lastX: event.clientX,
       lastY: event.clientY,
       lastAt: event.timeStamp,
       velocityX: 0,
       velocityY: 0,
+      started: false,
     };
   }
 
   function moveDrag(event: PointerEvent<HTMLButtonElement>) {
     const current = drag.current;
     if (!current || current.pointer !== event.pointerId) return;
+    if (!current.started) {
+      if (
+        Math.hypot(
+          event.clientX - current.startX,
+          event.clientY - current.startY,
+        ) < 5
+      )
+        return;
+      const body = engine.current?.grab(current.id);
+      if (!body) return;
+      current.started = true;
+      current.originX = body.x;
+      current.originY = body.y;
+      try {
+        event.currentTarget.setPointerCapture(event.pointerId);
+      } catch {
+        /* A synthetic pointer cannot be captured. */
+      }
+      choose(current.id);
+    }
     const now = event.timeStamp;
     const elapsed = Math.max(1, now - current.lastAt) / 1000;
     current.velocityX =
@@ -472,7 +616,7 @@ export default function Draft() {
       current.id,
       current.originX + event.clientX - current.startX,
       current.originY + event.clientY - current.startY,
-      event.clientX - current.startX,
+      current.velocityX,
     );
   }
 
@@ -480,11 +624,14 @@ export default function Draft() {
     const current = drag.current;
     if (!current || current.pointer !== event.pointerId) return;
     drag.current = null;
+    if (!current.started) return;
+    suppressClick.current = true;
     const stale = event.timeStamp - current.lastAt > 100;
+    const limit = (value: number) => Math.max(-4500, Math.min(4500, value));
     const thrown = engine.current?.release(
       current.id,
-      cancel || stale ? 0 : Math.max(-4500, Math.min(4500, current.velocityX)),
-      cancel || stale ? 0 : Math.max(-4500, Math.min(4500, current.velocityY)),
+      cancel || stale ? 0 : limit(current.velocityX),
+      cancel || stale ? 0 : limit(current.velocityY),
     );
     if (event.currentTarget.hasPointerCapture(event.pointerId))
       event.currentTarget.releasePointerCapture(event.pointerId);
@@ -495,42 +642,132 @@ export default function Draft() {
     );
   }
 
-  function cardKey(
-    id: string,
-    event: KeyboardEvent<HTMLButtonElement>,
-    handle: boolean,
-  ) {
-    if (
-      ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)
-    ) {
+  function swipeStart(event: PointerEvent<HTMLDivElement>) {
+    if (!narrow || !hand.length) return;
+    const from = Math.max(0, hand.indexOf(selected));
+    swipe.current = {
+      pointer: event.pointerId,
+      startX: event.clientX,
+      startY: event.clientY,
+      from,
+      position: from,
+      lastX: event.clientX,
+      lastAt: event.timeStamp,
+      velocity: 0,
+      active: false,
+    };
+  }
+
+  function swipeMove(event: PointerEvent<HTMLDivElement>) {
+    const current = swipe.current;
+    if (!current || current.pointer !== event.pointerId) return;
+    const dx = event.clientX - current.startX;
+    if (!current.active) {
+      if (
+        Math.abs(dx) < 8 ||
+        Math.abs(dx) < Math.abs(event.clientY - current.startY)
+      )
+        return;
+      current.active = true;
+      try {
+        event.currentTarget.setPointerCapture(event.pointerId);
+      } catch {
+        /* A synthetic pointer cannot be captured. */
+      }
+    }
+    const elapsed = Math.max(1, event.timeStamp - current.lastAt) / 1000;
+    current.velocity =
+      current.velocity * 0.3 +
+      ((event.clientX - current.lastX) / elapsed) * 0.7;
+    current.lastX = event.clientX;
+    current.lastAt = event.timeStamp;
+    current.position = Math.max(
+      -0.4,
+      Math.min(hand.length - 0.6, current.from - dx / 64),
+    );
+    engine.current?.layout(positions(current.position));
+  }
+
+  function swipeEnd(event: PointerEvent<HTMLDivElement>) {
+    const current = swipe.current;
+    if (!current || current.pointer !== event.pointerId) return;
+    swipe.current = null;
+    if (!current.active) return;
+    suppressClick.current = true;
+    const stale = event.timeStamp - current.lastAt > 100;
+    const predicted =
+      current.position - (stale ? 0 : current.velocity * 0.2) / 64;
+    const index = Math.max(0, Math.min(hand.length - 1, Math.round(predicted)));
+    const id = hand[index];
+    if (id === selected) relayout();
+    else choose(id);
+    setMessage(`${projectBySlug.get(id)!.name} is in front.`);
+  }
+
+  function cardKey(id: string, event: KeyboardEvent<HTMLButtonElement>) {
+    const key = event.key;
+    if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(key)) {
       event.preventDefault();
       if (
-        handle ||
-        event.shiftKey ||
-        ["ArrowUp", "ArrowDown"].includes(event.key)
+        !narrow &&
+        (event.shiftKey || key === "ArrowUp" || key === "ArrowDown")
       ) {
         engine.current?.nudge(
           id,
-          event.key === "ArrowLeft" ? -24 : event.key === "ArrowRight" ? 24 : 0,
-          event.key === "ArrowUp" ? -24 : event.key === "ArrowDown" ? 24 : 0,
+          key === "ArrowLeft" ? -24 : key === "ArrowRight" ? 24 : 0,
+          key === "ArrowUp" ? -24 : key === "ArrowDown" ? 24 : 0,
         );
         setMessage(`${projectBySlug.get(id)!.name} moved.`);
-      } else {
-        const next =
-          (hand.indexOf(id) +
-            (event.key === "ArrowRight" ? 1 : -1) +
-            hand.length) %
-          hand.length;
-        choose(hand[next], true);
+        return;
       }
-    } else if (event.key.toLowerCase() === "f" || event.key === " ") {
+      const direction = key === "ArrowRight" || key === "ArrowDown" ? 1 : -1;
+      const next = (hand.indexOf(id) + direction + hand.length) % hand.length;
+      choose(hand[next], true);
+    } else if (key === "Enter" || key === " " || key.toLowerCase() === "f") {
       event.preventDefault();
       flip(id);
-    } else if (event.key === "Enter") {
+    } else if (key.toLowerCase() === "o") {
       event.preventDefault();
       openProject(id);
     }
   }
+
+  const suitLabels =
+    showAll && !narrow && width
+      ? suitOrder.map((channel) => {
+          const indexes = spreadOrder
+            .map((slug, index) => [slug, index] as const)
+            .filter(([slug]) => projectBySlug.get(slug)!.channel === channel)
+            .map(([, index]) => index);
+          const middle = (indexes[0] + indexes[indexes.length - 1]) / 2;
+          const theta = (22 * Math.PI) / 180;
+          const half = (width - 220 - cardWidth) / 2;
+          const radius = half / Math.sin(theta);
+          const a = -theta + (2 * theta * middle) / (spreadOrder.length - 1);
+          const below =
+            cardHeight / 2 + 28 + (suitOrder.indexOf(channel) % 2 ? 26 : 0);
+          const along = -(cardWidth / 2 - 20);
+          const x =
+            width / 2 +
+            radius * Math.sin(a) -
+            Math.sin(a) * below +
+            Math.cos(a) * along;
+          const y =
+            height * spreadCentre +
+            radius * (1 - Math.cos(a)) +
+            Math.cos(a) * below +
+            Math.sin(a) * along;
+          return {
+            channel,
+            x,
+            y,
+            angle: (a * 180) / Math.PI,
+            count: indexes.length,
+          };
+        })
+      : [];
+
+  const remaining = deck.length - (showAll ? deck.length : hand.length);
 
   return (
     <LayoutGroup id="deal">
@@ -538,6 +775,7 @@ export default function Draft() {
       <main
         className="draft-deal"
         lang="en"
+        data-narrow={narrow}
         style={
           {
             "--dl-card-width": `${cardWidth}px`,
@@ -545,182 +783,225 @@ export default function Draft() {
           } as CSSProperties
         }
       >
-        <header className="dl-header">
-          <a href="/drafts">
-            <Arrow back />
-            All art directions
-          </a>
-          <p>
-            DEAL <span>28 projects / six suits</span>
-          </p>
-          <button
-            onClick={() => setHelp((value) => !value)}
-            aria-expanded={help}
-          >
-            How to play <span aria-hidden="true">?</span>
-          </button>
-        </header>
-        <div className="dl-intro">
-          <h1>Your move.</h1>
-          <p>
-            Pick a project.
-            <br />
-            Flip the card. Read the work.
-          </p>
-          <div className="dl-deal-actions">
-            <motion.button
-              whileTap={reduced ? undefined : { scale: 0.96, rotateX: -8 }}
-              transition={spring.ui}
-              onClick={dealAgain}
-            >
-              Deal again <Arrow />
-            </motion.button>
-            <button onClick={spread} aria-pressed={showAll}>
-              {showAll ? "Back to five" : "Show all 28"}{" "}
-              <span aria-hidden="true">↗</span>
-            </button>
-          </div>
-        </div>
-        <AnimatePresence>
-          {help && (
-            <motion.aside
-              className="dl-help"
-              initial={{ opacity: 0, y: 8, filter: "blur(4px)" }}
-              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-              exit={{ opacity: 0, y: -8, filter: "blur(4px)" }}
-              transition={{ duration: reduced ? 0.01 : dur.ui, ease: ease.out }}
-            >
-              <p>
-                <strong>On the table:</strong> select a card, then flip or open
-                it. Double-click also flips. Use the handle to drag; a throw
-                beyond the edge returns the card to the deck.
-              </p>
-              <p>
-                <strong>With keys:</strong> ← → choose; Shift + arrows move; F
-                or Space flips; Enter opens. Drag handles also move with arrows.
-                Scroll normally everywhere outside a handle.
-              </p>
-            </motion.aside>
-          )}
-        </AnimatePresence>
-        <div
-          ref={scroll}
-          className="dl-table-scroll"
-          data-all={showAll}
-          aria-label={
-            showAll
-              ? `${hand.length} cards in a horizontally scrollable arc`
-              : "A hand of project cards"
-          }
-        >
-          <div
-            ref={table}
-            className="dl-table"
-            style={{ width: tableWidth, height }}
-          >
-            <span className="dl-table-line" aria-hidden="true" />
-            {!showAll && (
+        <a className="dl-exit" href="/drafts" aria-label="All art directions">
+          <Arrow back />
+          <span>Drafts</span>
+        </a>
+        <section className="dl-table" aria-label="The card table">
+          <div className="dl-rim">
+            <nav className="dl-tray" aria-label="The dealer's chips">
+              {chips.map((chip) => (
+                <a
+                  key={chip.label}
+                  className="dl-chip"
+                  data-tone={chip.tone}
+                  href={chip.href}
+                  {...("download" in chip ? { download: true } : {})}
+                  {...(chip.href.startsWith("http")
+                    ? { target: "_blank", rel: "noreferrer" }
+                    : {})}
+                >
+                  <span>{chip.label}</span>
+                </a>
+              ))}
               <button
-                className="dl-deck"
-                onClick={dealAgain}
-                aria-label="Deal five different project cards"
+                type="button"
+                className="dl-chip"
+                data-tone="mustard"
+                aria-pressed={sound}
+                aria-label="Card sound"
+                onClick={toggleSound}
               >
-                <span className="dl-deck-pattern">
-                  <Suit channel="personal" />
-                  <span>DEAL</span>
-                  <Suit channel="reading" />
-                </span>
-                <span className="dl-deck-count">
-                  {deck.length - hand.length} in deck
+                <span>
+                  Sound
+                  <small>{sound ? "On" : "Off"}</small>
                 </span>
               </button>
-            )}
-            {hand.map((id, index) => (
-              <PlayingCard
-                key={`${dealNumber}-${id}`}
-                project={projectBySlug.get(id)!}
-                index={index}
-                selected={selected === id}
-                flipped={flipped.has(id)}
-                caseOpen={caseSlug === id}
-                reduced={reduced}
-                select={() => choose(id)}
-                flip={() => flip(id)}
-                node={(node) => {
-                  if (node) cardNodes.current.set(id, node);
-                  else cardNodes.current.delete(id);
-                }}
-                faceNode={(node) => {
-                  if (node) faceNodes.current.set(id, node);
-                  else faceNodes.current.delete(id);
-                }}
-                start={(event) => startDrag(id, event)}
-                move={moveDrag}
-                end={endDrag}
-                keyboard={(event, handle) => cardKey(id, event, handle)}
-              />
-            ))}
-            {!hand.length && (
-              <div className="dl-empty">
-                <p>Back in the deck.</p>
-                <button onClick={dealAgain}>
-                  Deal five more <Arrow />
+            </nav>
+            <div
+              ref={felt}
+              className="dl-felt"
+              data-all={showAll}
+              onPointerDown={swipeStart}
+              onPointerMove={swipeMove}
+              onPointerUp={swipeEnd}
+              onPointerCancel={() => (swipe.current = null)}
+            >
+              <h1 className="dl-printing">
+                <svg viewBox="0 0 1000 230" aria-hidden="true">
+                  <path
+                    id="dl-arc-name"
+                    d="M110 46 Q500 178 890 46"
+                    fill="none"
+                  />
+                  <path
+                    id="dl-arc-line"
+                    d="M190 112 Q500 222 810 112"
+                    fill="none"
+                  />
+                  <path className="dl-rule" d="M160 84 Q500 206 840 84" />
+                  <path className="dl-rule" d="M206 140 Q500 246 794 140" />
+                  <text className="dl-print-name">
+                    <textPath
+                      href="#dl-arc-name"
+                      startOffset="50%"
+                      textAnchor="middle"
+                    >
+                      Gentrit Rashiti
+                    </textPath>
+                  </text>
+                  <text className="dl-print-line">
+                    <textPath
+                      href="#dl-arc-line"
+                      startOffset="50%"
+                      textAnchor="middle"
+                    >
+                      Web · mobile · full stack — Kosovo
+                    </textPath>
+                  </text>
+                </svg>
+                <span className="dl-sr">
+                  Gentrit Rashiti, web, mobile and full-stack developer in
+                  Kosovo. 28 projects dealt as playing cards in six suits.
+                </span>
+              </h1>
+              <button
+                type="button"
+                className="dl-deck"
+                data-empty={remaining === 0}
+                style={{ left: deckPoint.x, top: deckPoint.y }}
+                onClick={dealAgain}
+                aria-label={`Deal five different project cards. ${remaining} cards in the deck.`}
+              >
+                <span className="dl-deck-cards" aria-hidden="true">
+                  <span />
+                  <span />
+                  <span />
+                  <span className="dl-deck-top">
+                    <CardBack />
+                  </span>
+                </span>
+                <span className="dl-deck-mark" aria-hidden="true">
+                  Deal <b>{remaining}</b>
+                </span>
+              </button>
+              <AnimatePresence>
+                {suitLabels.map((label, index) => (
+                  <motion.span
+                    key={label.channel}
+                    className="dl-suit-label"
+                    aria-hidden="true"
+                    style={{ left: label.x, top: label.y, rotate: label.angle }}
+                    initial={
+                      reduced ? false : { opacity: 0, filter: "blur(4px)" }
+                    }
+                    animate={{ opacity: 1, filter: "blur(0px)" }}
+                    exit={{ opacity: 0, filter: "blur(4px)" }}
+                    transition={{
+                      duration: reduced ? 0.01 : dur.panel,
+                      delay: reduced ? 0 : 0.5 + index * 0.05,
+                      ease: ease.out,
+                    }}
+                  >
+                    <Suit channel={label.channel} />
+                    {suits[label.channel].name}
+                    <b>{label.count}</b>
+                  </motion.span>
+                ))}
+              </AnimatePresence>
+              <div
+                className="dl-hand"
+                role="group"
+                aria-label={
+                  showAll
+                    ? "All 28 project cards, spread in suit order"
+                    : "A hand of five project cards"
+                }
+              >
+                {hand.map((id) => (
+                  <PlayingCard
+                    key={`${dealNumber}-${id}`}
+                    project={projectBySlug.get(id)!}
+                    selected={selected === id}
+                    flipped={flipped.has(id)}
+                    landed={landed.has(id)}
+                    play={id === lastDealt && dealNumber === 1}
+                    caseOpen={caseSlug === id}
+                    reduced={reduced}
+                    eager={!showAll}
+                    node={(node) => {
+                      if (node) cardNodes.current.set(id, node);
+                      else cardNodes.current.delete(id);
+                    }}
+                    faceNode={(node) => {
+                      if (node) faceNodes.current.set(id, node);
+                      else faceNodes.current.delete(id);
+                    }}
+                    select={() => {
+                      if (suppressClick.current) {
+                        suppressClick.current = false;
+                        return;
+                      }
+                      choose(id);
+                    }}
+                    flip={() => flip(id)}
+                    hover={(on) => {
+                      if (on) hovered.current = id;
+                      else if (hovered.current === id) hovered.current = null;
+                      relayout();
+                    }}
+                    start={(event) => startDrag(id, event)}
+                    move={moveDrag}
+                    end={endDrag}
+                    keyboard={(event) => cardKey(id, event)}
+                  />
+                ))}
+              </div>
+              <div className="dl-spots">
+                <button
+                  type="button"
+                  className="dl-spot"
+                  onClick={() => flip(selected)}
+                  disabled={!hand.length}
+                  aria-label={`${flipped.has(selected) ? "Show the face of" : "Flip for the facts of"} ${selectedProject.name}`}
+                >
+                  <small>Flip</small>
+                  <span>{flipped.has(selected) ? "Face" : "Facts"}</span>
+                </button>
+                <button
+                  type="button"
+                  className="dl-spot dl-spot-open"
+                  onClick={() => openProject(selected)}
+                  disabled={!hand.length}
+                  aria-label={`Open ${selectedProject.name}`}
+                >
+                  <small>Open</small>
+                  <span>{selectedProject.name}</span>
+                </button>
+                <button
+                  type="button"
+                  className="dl-spot"
+                  onClick={spread}
+                  aria-pressed={showAll}
+                  aria-label={
+                    showAll
+                      ? "Gather the deck into a hand of five"
+                      : "Spread all 28 cards"
+                  }
+                >
+                  <small>{showAll ? "Gather" : "Spread"}</small>
+                  <span>{showAll ? "Five" : "All 28"}</span>
                 </button>
               </div>
-            )}
-          </div>
-        </div>
-        <div className="dl-table-foot">
-          <p>
-            {showAll
-              ? "The full deck. Scroll sideways to explore."
-              : "Drag the handle to move. Double-click a card to flip."}
-          </p>
-          <span>{hand.length} on the table</span>
-        </div>
-        <section className="dl-selection" aria-label="Selected card">
-          <div>
-            <Suit channel={selectedProject.channel} />
-            <div>
-              <small>In your hand</small>
-              <strong>{selectedProject.name}</strong>
             </div>
           </div>
-          <div className="dl-selection-actions">
-            <button onClick={() => flip(selected)} disabled={!hand.length}>
-              {flipped.has(selected) ? "Show face" : "Flip for facts"}{" "}
-              <span aria-hidden="true">↻</span>
-            </button>
-            <button
-              className="dl-open"
-              onClick={() => openProject(selected)}
-              disabled={!hand.length}
-            >
-              Open project <Arrow />
-            </button>
-          </div>
         </section>
-        <div className="dl-chip-rack">
-          <span className="dl-chip" aria-hidden="true">
-            <Suit channel="personal" />
-          </span>
-          <div>
-            <strong>Gentrit Rashiti</strong>
-            <span>Dealer · Web, mobile & full stack · Kosovo</span>
-          </div>
-          <a
-            href={links.cv}
-            download
-            onClick={() => {
-              setCvDone(true);
-              setMessage("CV download requested.");
-            }}
-          >
-            {cvDone ? "CV requested" : "Take the CV"} <Arrow />
-          </a>
-        </div>
+        <p id="dl-keys" className="dl-sr">
+          Left and right arrows choose a card. Enter, Space or F flips it. O
+          opens the project. Shift with an arrow moves the card on the table.
+        </p>
         <p
-          className="dl-status"
+          className="dl-sr"
           role="status"
           aria-live="polite"
           aria-atomic="true"
@@ -733,6 +1014,9 @@ export default function Draft() {
               ref={casePanel}
               className="dl-case"
               key={activeCase.slug}
+              style={
+                { "--dl-suit": suits[activeCase.channel].ink } as CSSProperties
+              }
               initial={{ opacity: 0, y: 8, filter: "blur(4px)" }}
               animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
               exit={{ opacity: 0, y: -8, filter: "blur(4px)" }}
@@ -745,15 +1029,22 @@ export default function Draft() {
               }}
               aria-labelledby="dl-case-title"
             >
+              <span className="dl-index" aria-hidden="true">
+                <b>{rankOf(activeCase.slug)}</b>
+                <Suit channel={activeCase.channel} />
+              </span>
+              <span className="dl-index dl-index-end" aria-hidden="true">
+                <b>{rankOf(activeCase.slug)}</b>
+                <Suit channel={activeCase.channel} />
+              </span>
               <div className="dl-case-head">
                 <span>
-                  <Suit channel={activeCase.channel} />
-                  {suits[activeCase.channel].name} /{" "}
-                  {activeCase.years ?? "Independent work"}
+                  {rankOf(activeCase.slug)} of {suits[activeCase.channel].name}{" "}
+                  · {activeCase.years ?? "Independent work"}
                 </span>
-                <button onClick={closeCase}>
+                <button type="button" onClick={closeCase}>
                   <Arrow back />
-                  Return to the table
+                  Back to the table
                 </button>
               </div>
               <div className="dl-case-body">
@@ -822,41 +1113,6 @@ export default function Draft() {
             </motion.section>
           )}
         </AnimatePresence>
-        <footer className="dl-footer">
-          <div>
-            <h2>A hand from Za!</h2>
-            <p>
-              A multiplayer card game for 2–8 players, built with a
-              server-authoritative game loop. Its cards become a way through
-              this portfolio.
-            </p>
-            <button onClick={() => openProject("za")}>
-              Read the Za! project <Arrow />
-            </button>
-          </div>
-          <div className="dl-suits" aria-label="Six project suits">
-            {(Object.keys(suits) as ChannelKey[]).map((channel) => (
-              <span
-                key={channel}
-                style={{ "--dl-suit": suits[channel].ink } as CSSProperties}
-              >
-                <Suit channel={channel} />
-                {suits[channel].name}
-              </span>
-            ))}
-          </div>
-          <nav aria-label="Contact">
-            <a href={`mailto:${links.email}`}>
-              Email <Arrow />
-            </a>
-            <a href={links.linkedin}>
-              LinkedIn <Arrow />
-            </a>
-            <a href={links.github}>
-              GitHub <Arrow />
-            </a>
-          </nav>
-        </footer>
       </main>
     </LayoutGroup>
   );

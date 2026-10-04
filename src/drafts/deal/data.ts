@@ -13,7 +13,15 @@ export const suits: Record<
   personal: { name: "Independent", number: "06", ink: "#22231d" },
 };
 
-const opening = ["care-platform", "bayyinah-tv", "za", "read-to-feed", "fjale"];
+export const suitOrder = Object.keys(suits) as ChannelKey[];
+
+const opening = [
+  "care-platform",
+  "bayyinah-tv",
+  "za",
+  "dukagjini-bookstore",
+  "read-to-feed",
+];
 export const deck = [
   ...opening.map((slug) => projects.find((project) => project.slug === slug)!),
   ...projects.filter((project) => !opening.includes(project.slug)),
@@ -21,6 +29,87 @@ export const deck = [
 export const projectBySlug = new Map(
   deck.map((project) => [project.slug, project]),
 );
+
+/** The full spread groups the deck by suit, in suit order. */
+export const spreadOrder = suitOrder.flatMap((channel) =>
+  projects
+    .filter((project) => project.channel === channel)
+    .map((project) => project.slug),
+);
+
+const rankNames = [
+  "A",
+  "2",
+  "3",
+  "4",
+  "5",
+  "6",
+  "7",
+  "8",
+  "9",
+  "10",
+  "J",
+  "Q",
+  "K",
+];
+const ranks = new Map<string, string>();
+for (const channel of suitOrder)
+  projects
+    .filter((project) => project.channel === channel)
+    .forEach((project, index) => ranks.set(project.slug, rankNames[index]));
+export const rankOf = (slug: string) => ranks.get(slug) ?? "A";
+
+/** Public screenshots only. Each crop is the card's picture, framed like a court card. */
+export const art: Record<
+  string,
+  { src: string; position: string; zoom?: number }
+> = {
+  "bayyinah-tv": {
+    src: "/showcase/bayyinah/store-01.webp",
+    position: "50% 6%",
+  },
+  "bayyinah-institute": {
+    src: "/showcase/bayyinah/org-01.webp",
+    position: "50% 38%",
+    zoom: 1.6,
+  },
+  "read-to-feed": { src: "/mobile/reading-1.webp", position: "50% 6%" },
+  "viva-fresh": { src: "/mobile/grocery-1.webp", position: "50% 6%" },
+  "dukagjini-bookstore": {
+    src: "/mobile/bookstore-1.webp",
+    position: "50% 7%",
+  },
+  incentiv: {
+    src: "/showcase/incentiv/web-01.webp",
+    position: "70% 55%",
+    zoom: 1.3,
+  },
+  "snaxx-tech": {
+    src: "/personal/shots/snaxx-desktop.webp",
+    position: "50% 42%",
+    zoom: 1.2,
+  },
+  offday: {
+    src: "/personal/shots/offday-app-desktop.webp",
+    position: "40% 30%",
+    zoom: 1.5,
+  },
+  fjale: {
+    src: "/personal/shots/fjale-desktop.webp",
+    position: "37% 52%",
+    zoom: 1.5,
+  },
+  za: {
+    src: "/personal/shots/za-desktop.webp",
+    position: "50% 14%",
+    zoom: 2.3,
+  },
+  "morse-trainer": {
+    src: "/personal/shots/morse-desktop.webp",
+    position: "62% 55%",
+    zoom: 1.9,
+  },
+};
 
 const facts: Record<string, [string, string]> = {
   "care-platform": ["31", "architecture decisions"],
@@ -33,7 +122,10 @@ const facts: Record<string, [string, string]> = {
   "member-portal": ["Sign in", "protected member routes"],
   "read-to-feed": ["≈14 releases", "React Native 0.63 → 0.81"],
   "viva-fresh": ["Loyalty", "groceries and delivery"],
-  "dukagjini-bookstore": ["iOS + Android", "books on the go"],
+  "dukagjini-bookstore": [
+    "iOS + Android",
+    "search, favourites, promo checkout",
+  ],
   "chatbot-runtime": ["Message queue", "scripted conversations"],
   "chatbot-runtime-web": ["Web port", "typed conversation runtime"],
   "epub-reader-prototype": ["EPUB", "download, read and resize"],

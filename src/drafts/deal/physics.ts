@@ -3,17 +3,23 @@ export interface CardPosition {
   x: number;
   y: number;
   angle: number;
+  z: number;
+  fade?: number;
 }
 interface Body extends CardPosition {
   previousX: number;
   previousY: number;
+  previousAngle: number;
   targetX: number;
   targetY: number;
   targetAngle: number;
   baseAngle: number;
+  tilt: number;
   readyAt: number;
   held: boolean;
   thrown: boolean;
+  free: boolean;
+  landed: boolean;
   resting: number;
 }
 interface TableOptions {
@@ -25,10 +31,19 @@ interface TableOptions {
   cardHeight: number;
   reduced: boolean;
   onReturn: (id: string) => void;
+  onLand: (id: string) => void;
+}
+export interface LayoutOptions {
+  /** New cards leave this point one by one. Existing cards travel from where they are. */
+  from?: { x: number; y: number; angle: number };
+  stagger?: number;
+  /** A placed card keeps its place until a deal or a spread gathers it. */
+  gather?: boolean;
 }
 
 const step = 1 / 120;
 const frameTime = 1 / 60;
+const stiffness = 350 * step * step;
 const clamp = (value: number, low: number, high: number) =>
   Math.max(low, Math.min(high, value));
 
@@ -41,18 +56,38 @@ export function createCardTable(options: TableOptions) {
   let visible = true;
   let disposed = false;
   const radius = Math.min(options.cardWidth * 0.29, 56);
+  const damping = Math.exp(-30 * step);
 
-  function draw(body: Body) {
+  function draw(body: Body, now: number) {
     const node = options.nodes.get(body.id);
     if (!node) return;
     node.style.transform = `translate3d(${body.x - options.cardWidth / 2}px,${body.y - options.cardHeight / 2}px,0) rotate(${body.angle}deg)`;
+    node.style.zIndex = String(body.held ? 300 : body.z);
+    const waiting = now < body.readyAt;
+    const fade = body.fade ?? 1;
+    node.style.opacity = waiting ? "0" : String(fade);
+    node.style.visibility = waiting || fade < 0.02 ? "hidden" : "visible";
     node.dataset.moving = String(body.held || body.resting < 12);
-    node.dataset.thrown = String(body.thrown);
+    node.dataset.held = String(body.held);
+  }
+
+  function land(body: Body) {
+    if (body.landed) return;
+    body.landed = true;
+    const node = options.nodes.get(body.id);
+    if (node) node.dataset.landed = "true";
+    options.onLand(body.id);
   }
 
   function integrate(now: number) {
     for (const body of bodies.values()) {
-      if (body.held || now < body.readyAt) continue;
+      if (body.held) {
+        body.angle += (body.baseAngle + body.tilt - body.angle) * 0.2;
+        body.previousAngle = body.angle;
+        body.tilt *= 0.93;
+        continue;
+      }
+      if (now < body.readyAt) continue;
       if (body.thrown) {
         const velocityX = (body.x - body.previousX) * 0.985;
         const velocityY = (body.y - body.previousY) * 0.985;
@@ -73,48 +108,48 @@ export function createCardTable(options: TableOptions) {
         }
         continue;
       }
-      const velocityX = (body.x - body.previousX) * Math.exp(-35 * step);
-      const velocityY = (body.y - body.previousY) * Math.exp(-35 * step);
-      const nextX =
-        body.x + velocityX + (body.targetX - body.x) * 350 * step * step;
-      const nextY =
-        body.y + velocityY + (body.targetY - body.y) * 350 * step * step;
+      const velocityX = (body.x - body.previousX) * damping;
+      const velocityY = (body.y - body.previousY) * damping;
+      const velocityAngle = (body.angle - body.previousAngle) * damping;
       body.previousX = body.x;
       body.previousY = body.y;
-      body.x = nextX;
-      body.y = nextY;
-      body.angle += (body.targetAngle - body.angle) * 0.14;
+      body.previousAngle = body.angle;
+      body.x += velocityX + (body.targetX - body.x) * stiffness;
+      body.y += velocityY + (body.targetY - body.y) * stiffness;
+      body.angle += velocityAngle + (body.targetAngle - body.angle) * stiffness;
+      const distance = Math.hypot(body.targetX - body.x, body.targetY - body.y);
+      if (!body.landed && distance < 6) land(body);
       const settled =
-        Math.hypot(body.targetX - body.x, body.targetY - body.y) < 0.2 &&
+        distance < 0.2 &&
         Math.hypot(velocityX, velocityY) < 0.03 &&
         Math.abs(body.targetAngle - body.angle) < 0.1;
       body.resting = settled ? body.resting + 1 : 0;
       if (body.resting > 12) {
         body.x = body.previousX = body.targetX;
         body.y = body.previousY = body.targetY;
-        body.angle = body.targetAngle;
+        body.angle = body.previousAngle = body.targetAngle;
       }
     }
-    // Circle separation is deliberately smaller than the card: a hand can overlap,
-    // while a moved card still transfers an impulse to its immediate neighbour.
+    // Only a held card pushes. The circle is smaller than the card, so a hand
+    // can overlap while a dragged card still shoulders its neighbour aside.
     const current = [...bodies.values()];
     for (let i = 0; i < current.length; i++)
       for (let j = i + 1; j < current.length; j++) {
         const a = current[i],
           b = current[j];
         if (
+          (!a.held && !b.held) ||
           a.thrown ||
           b.thrown ||
-          now < a.readyAt ||
-          now < b.readyAt ||
-          (!a.held && !b.held && a.resting > 12 && b.resting > 12)
+          !a.landed ||
+          !b.landed
         )
           continue;
         const dx = b.x - a.x,
           dy = b.y - a.y;
         const distance = Math.hypot(dx, dy);
-        // Only separate card centres if their resting layout also has room. This
-        // keeps the intentionally overlapping phone fan from fighting the solver.
+        // Separate only where the resting layout also has room, so an
+        // overlapping fan does not fight the solver.
         if (
           distance >= radius * 2 ||
           Math.hypot(b.targetX - a.targetX, b.targetY - a.targetY) < radius * 2
@@ -153,7 +188,7 @@ export function createCardTable(options: TableOptions) {
     }
     let active = false;
     for (const body of bodies.values()) {
-      draw(body);
+      draw(body, time);
       active ||=
         body.thrown || body.held || body.readyAt > time || body.resting <= 12;
     }
@@ -166,46 +201,68 @@ export function createCardTable(options: TableOptions) {
       frame = requestAnimationFrame(tick);
   }
 
-  function layout(positions: CardPosition[], animate: boolean) {
+  function layout(
+    positions: CardPosition[],
+    layoutOptions: LayoutOptions = {},
+  ) {
+    const { from, stagger = 0.06, gather = false } = layoutOptions;
     const ids = new Set(positions.map((position) => position.id));
     for (const id of bodies.keys()) if (!ids.has(id)) bodies.delete(id);
     const now = performance.now();
-    positions.forEach((position, index) => {
+    let order = 0;
+    for (const position of positions) {
       const existing = bodies.get(position.id);
-      const startX =
-        animate && !options.reduced
-          ? Math.min(90, options.width * 0.2)
-          : position.x;
-      const startY = animate && !options.reduced ? 100 : position.y;
-      const body: Body = existing ?? {
+      if (existing) {
+        existing.z = position.z;
+        existing.fade = position.fade;
+        if (gather) existing.free = false;
+        if (existing.held || existing.thrown || existing.free) {
+          draw(existing, now);
+          continue;
+        }
+        existing.targetX = position.x;
+        existing.targetY = position.y;
+        existing.targetAngle = existing.baseAngle = position.angle;
+        existing.resting = 0;
+        if (options.reduced) {
+          existing.x = existing.previousX = position.x;
+          existing.y = existing.previousY = position.y;
+          existing.angle = existing.previousAngle = position.angle;
+          existing.resting = 20;
+        }
+        draw(existing, now);
+        continue;
+      }
+      const flying = Boolean(from) && !options.reduced;
+      const start = flying && from ? from : position;
+      const body: Body = {
         ...position,
-        x: startX,
-        y: startY,
-        previousX: startX,
-        previousY: startY,
+        x: start.x,
+        y: start.y,
+        angle: start.angle,
+        previousX: start.x,
+        previousY: start.y,
+        // A dealt card leaves the deck already turning.
+        previousAngle: start.angle + (flying ? 1.4 : 0),
         targetX: position.x,
         targetY: position.y,
         targetAngle: position.angle,
         baseAngle: position.angle,
+        tilt: 0,
         held: false,
         thrown: false,
-        readyAt: now + (animate ? index * 60 : 0),
-        resting: 0,
+        free: false,
+        landed: !flying,
+        readyAt: flying ? now + order * stagger * 1000 : 0,
+        resting: flying ? 0 : 20,
       };
-      body.targetX = position.x;
-      body.targetY = position.y;
-      body.targetAngle = body.baseAngle = position.angle;
-      body.thrown = false;
-      body.resting = 0;
-      if (options.reduced) {
-        body.x = body.previousX = position.x;
-        body.y = body.previousY = position.y;
-        body.angle = position.angle;
-        body.resting = 20;
-      }
+      if (flying) order += 1;
       bodies.set(position.id, body);
-      draw(body);
-    });
+      const node = options.nodes.get(position.id);
+      if (node) node.dataset.landed = flying ? "false" : "still";
+      if (!flying) options.onLand(position.id);
+      draw(body, now);
+    }
     wake();
   }
 
@@ -217,18 +274,21 @@ export function createCardTable(options: TableOptions) {
     body.previousX = body.x;
     body.previousY = body.y;
     body.resting = 0;
+    body.tilt = 0;
+    draw(body, performance.now());
+    wake();
     return { x: body.x, y: body.y };
   }
 
-  function move(id: string, x: number, y: number, dragX: number) {
+  /** The tilt follows pointer speed, not distance, and rights itself when the pointer stops. */
+  function move(id: string, x: number, y: number, velocityX: number) {
     const body = bodies.get(id);
     if (!body) return;
     body.x = body.previousX = x;
     body.y = body.previousY = y;
-    body.angle = options.reduced
-      ? body.baseAngle
-      : body.baseAngle + clamp(dragX * 0.06, -24, 24);
-    draw(body);
+    if (!options.reduced)
+      body.tilt = body.tilt * 0.5 + clamp(velocityX * 0.009, -16, 16) * 0.5;
+    draw(body, performance.now());
     wake();
   }
 
@@ -245,27 +305,30 @@ export function createCardTable(options: TableOptions) {
         predictedY < -30 ||
         predictedY > options.height + 30);
     body.thrown = thrown;
+    body.free = !thrown;
     body.previousX = body.x - velocityX * step;
     body.previousY = body.y - velocityY * step;
     body.targetX = clamp(
-      Math.round(predictedX / 16) * 16,
+      Math.round(predictedX / 8) * 8,
       options.cardWidth / 2 + 12,
       options.width - options.cardWidth / 2 - 12,
     );
     body.targetY = clamp(
-      Math.round(predictedY / 16) * 16,
+      Math.round(predictedY / 8) * 8,
       options.cardHeight / 2 + 16,
-      options.height - options.cardHeight / 2 - 36,
+      options.height - options.cardHeight / 2 - 16,
     );
     body.targetAngle = body.baseAngle;
+    body.tilt = 0;
     body.readyAt = 0;
     body.resting = 0;
     if (options.reduced) {
       body.x = body.previousX = body.targetX;
       body.y = body.previousY = body.targetY;
+      body.angle = body.previousAngle = body.targetAngle;
       body.resting = 20;
-      draw(body);
     }
+    draw(body, performance.now());
     wake();
     return thrown;
   }
@@ -274,7 +337,7 @@ export function createCardTable(options: TableOptions) {
     const body = bodies.get(id);
     if (!body) return;
     grab(id);
-    move(id, body.x + dx, body.y + dy, dx);
+    move(id, body.x + dx, body.y + dy, 0);
     release(id, 0, 0);
   }
 
