@@ -65,3 +65,7 @@ The loop runs on its own until the weekly reset (2026-10-05 07:00 UTC). For each
 5. Log the round here and start the next round.
 
 Status: round 2 is published (gallery version 6) and its reels are in `brag-output-loop2/`. Round 2 review: done (round-2-review.md). Round 3: brief in ROUND-3-BRIEF.md, theme set by the owner: scroll motion, big cards, new layouts, catchy colour and type.
+
+## Convergence goal (owner, 2026-10-05)
+
+Combine the best parts of all directions into drafts that aim for a near-perfect score (63+ of 70). From round 3, most new drafts are deliberate combinations of proven parts. From round 4, the top two drafts by review score stay and get polished in place each round against the reviewer's defect list; their score is tracked per round. New combinations are still added beside them.
