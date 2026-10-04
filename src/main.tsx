@@ -12,12 +12,13 @@ const Router = hashRouting ? HashRouter : BrowserRouter
 if (hashRouting) {
   document.addEventListener('click', (event) => {
     const anchor = (event.target as Element | null)?.closest?.('a[href^="/"]')
-    if (!anchor || event.defaultPrevented || event.button !== 0 || anchor.hasAttribute('download')) return
+    if (!anchor || event.button !== 0 || anchor.hasAttribute('download')) return
     const href = anchor.getAttribute('href') ?? ''
     if (href.startsWith('//') || /\.[a-z0-9]{2,5}$/i.test(href.split(/[?#]/)[0])) return
     event.preventDefault()
+    event.stopPropagation()
     window.location.hash = href
-  })
+  }, true)
 }
 
 createRoot(document.getElementById('root')!).render(
