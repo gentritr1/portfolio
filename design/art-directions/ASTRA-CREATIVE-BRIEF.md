@@ -1,6 +1,6 @@
 # Brief for Astra, round 2: creative, not only loud
 
-Read `CREATIVE-CONSULT.md` in this folder first. It holds the full detail: the creativity checklist (§1), the critique of your 16 drafts (§2), the nine new directions (§3) and the 3D and motion moves (§4). This brief tells you what to do with it.
+Read `CREATIVE-CONSULT.md` (the ideas) and `ASTRA-MOTION-CRAFT.md` (how every interaction moves) in this folder first. It holds the full detail: the creativity checklist (§1), the critique of your 16 drafts (§2), the nine new directions (§3) and the 3D and motion moves (§4). This brief tells you what to do with it.
 
 ## 1. Where the gallery stands
 
