@@ -1,0 +1,93 @@
+{
+  "id": "bitrate",
+  "reviewer": "creative_jury_a",
+  "status": "final-round-1; supporting states reviewed",
+  "rule": "the quality menu renders the site, and the career is a scrubber",
+  "scope": "Fresh reviewer did not build BITRATE. Actual desktop and phone captures inspected; source read only to confirm visible controls and implementation honesty.",
+  "rounds": [
+    {
+      "round": 1,
+      "captures": [
+        "drafts-review/bitrate-desktop.png",
+        "drafts-review/bitrate-mobile.png",
+        "drafts-review/bitrate-240p-desktop.png",
+        "drafts-review/bitrate-2023-mobile.png"
+      ],
+      "scores": {
+        "design": 7.9,
+        "usability": 8.0,
+        "creativity": 8.0,
+        "content": 8.4
+      },
+      "weightedTotal": 8.0,
+      "antiPale": "pass",
+      "antiPaleEvidence": "The large saturated orange player field is the central composition; the white factual side feed provides an asymmetric counterweight. Phone retains the player, open action and timeline rather than becoming a generic name hero.",
+      "slopCount": 0,
+      "slopCauses": [],
+      "slopRationale": "The local-reel and factual-feed labels prevent fake live traffic or invented chat. The dark surround and orange accent support the player material; they are not enough by themselves to count the dark-accent-generic-fade pattern.",
+      "m2": "pass",
+      "m2Evidence": "Visible player, quality and career controls correspond to actual screenshot rendering and project selection. Removing the player/timeline changes the navigation and quality workflow. Source confirms canvas sampling and year state rather than a costume over an unchanged link grid.",
+      "mechanisms": [
+        "M1",
+        "M2",
+        "M3",
+        "M5",
+        "M9"
+      ],
+      "mechanismEvidence": {
+        "M1": "A consistent player/reel/factual-feed rule organises project selection and viewing.",
+        "M2": "Career timeline, selected project and player controls carry functional browsing.",
+        "M3": "Source confirms actual canvas downsampling and posterization from the visible quality menu. The capture shows the rendering surface rather than a fake browser mockup.",
+        "M9": "Visible Bayyinah facts include the Nuxt 3 rebuild, 34 routes, 270+ components, 25 stores, AWS IVS, HLS, subscriptions and bilingual work. The local-recreation disclaimer is explicit.",
+        "M5": "The 240p capture visibly coarsens the actual public image, alters type/colour and contracts the feed to one line; it also offers Show all facts. The 2023 phone capture moves the timeline marker to Grocery, replaces Bayyinah with Viva Fresh and supplies matching delivery, loyalty and address-search facts. Interaction changes information and demonstrates the rendering rule."
+      },
+      "withheldMechanisms": [
+        "M4",
+        "M6",
+        "M7",
+        "M8",
+        "M10",
+        "M11"
+      ],
+      "withheldRationale": "The additional states establish the quality and year transformations, not their temporal feel. No credit is assigned for the claimed 300ms buffer, release spring, interruption quality, or reel rhythm without direct motion inspection. Professional streaming work alone is not independently a personal-obsession mechanism; screenshots remain the primary image.",
+      "lowestCategory": "creativity",
+      "repairNeeded": false,
+      "concreteLowestIssue": null,
+      "holdback": "The quality transformation earns the additional M5 and a modest Creativity increase to 8.0. The default still remains familiar player chrome around a screenshot, and the desktop career scrubber sits below the first viewport. The deliberate low-quality mode substantially reduces factual density, though Show all facts provides a visible recovery path. The concept is distinctive and usable; it is not at a 9-level composition or observed motion-craft bar.",
+      "calibration": "Final C8.0 sits below DIFF C8.2 and FJALËKRYQ C8.4. BITRATE turns real rendering quality and a useful career timeline into interaction, which separates it from Primetime’s C6.3 television costume. DIFF exposes engineering parity as its composition, and FJALËKRYQ makes personal-language type the site map. BITRATE’s more familiar default player structure and hidden desktop timeline justify its lower score. Supporting captures earn the 0.2 increase by showing the promised transformation; route novelty and source claims do not.",
+      "initialScoresBeforeSupportingCaptures": {
+        "design": 7.9,
+        "usability": 8.0,
+        "creativity": 7.8,
+        "content": 8.4
+      },
+      "initialWeightedTotal": 7.96,
+      "supportingEvidence": {
+        "visible": "At 240p the player is visibly block sampled and the factual feed collapses. At 2023 the player, project title, highlighted timeline year and pinned facts consistently switch to Viva Fresh.",
+        "implementerVerified": "Root reports an actual 240×135 phone canvas, 28 plus undated chapter access, project open/close, premium preview controls, and velocity-based timeline settling. These functional checks support operability, but do not add motion-craft points.",
+        "roundAccounting": "These are supporting states for round 1, not a repair round; the initial provisional assessment is preserved."
+      }
+    }
+  ],
+  "latestRound": 1,
+  "finalScores": {
+    "design": 7.9,
+    "usability": 8.0,
+    "creativity": 8.0,
+    "content": 8.4
+  },
+  "weightedTotal": 8.0,
+  "antiPale": "pass",
+  "slopCount": 0,
+  "m2": "pass",
+  "mechanisms": [
+    "M1",
+    "M2",
+    "M3",
+    "M5",
+    "M9"
+  ],
+  "holdback": "The quality transformation earns the additional M5 and a modest Creativity increase to 8.0. The default still remains familiar player chrome around a screenshot, and the desktop career scrubber sits below the first viewport. The deliberate low-quality mode substantially reduces factual density, though Show all facts provides a visible recovery path. The concept is distinctive and usable; it is not at a 9-level composition or observed motion-craft bar.",
+  "nextStep": "Review complete after one round and supporting interaction captures. No concrete repair is required by the reviewed evidence.",
+  "repairNeeded": false
+}
