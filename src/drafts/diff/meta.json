@@ -3,8 +3,8 @@
   "id": "diff",
   "title": "DIFF",
   "band": "Professional",
-  "description": "One portfolio in two eras. Left of the seam it is a 2021 page; right of it, the current one. Run parity and the seam carries all 28 pairs across.",
-  "signature": "The seam is a time machine: a 2021-era v1 (Arial, blue underlined links, bordered zebra tables) is clipped against the designed v2 band by band, and the seam's rest line is the v2 alignment edge. The 28 rows flip v1 to v2 in real 3D as the seam crosses their step; drag hands its velocity to a spring that settles on a predicted step. Run parity sweeps the seam right to left in a test-runner rhythm, ticks a 28-segment bar, then flashes the page green and re-counts the numbers; Test a mismatch stops at pair 02, paints that row red and shakes the handle. Phone uses a v1|v2 switch that wipes the seam across in 300 ms.",
+  "description": "One portfolio in two eras. Left of the seam it is a 2021 page; right of it, the current one. Run parity and the seam carries all 30 pairs across.",
+  "signature": "The seam is a time machine: a 2021-era v1 (Arial, blue underlined links, bordered zebra tables) is clipped against the designed v2 band by band, and the seam's rest line is the v2 alignment edge. The 30 rows flip v1 to v2 in real 3D as the seam crosses their step; drag hands its velocity to a spring that settles on a predicted step. Run parity sweeps the seam right to left in a test-runner rhythm, ticks a 30-segment bar, then flashes the page green and re-counts the numbers; Test a mismatch stops at pair 02, paints that row red and shakes the handle. Phone uses a v1|v2 switch that wipes the seam across in 300 ms.",
   "caseSlug": "care-platform",
   "holdback": "No real screenshots in the first viewport; the v1 statement band leaves a tall white gap.",
   "scores": {

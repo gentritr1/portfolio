@@ -15,9 +15,9 @@ export interface CrosswordCell {
   number?: number
 }
 
-// An authored, connected 28-answer crossword. All intersections share an actual letter.
+// An authored, connected 30-answer crossword. All intersections share an actual letter.
 // Short entries identify the full project name in the clue; Ë stays an Albanian letter.
-export const crosswordRows = 21
+export const crosswordRows = 23
 export const crosswordColumns = 31
 
 export const crosswordWords: CrosswordWord[] = [
@@ -214,12 +214,20 @@ export const crosswordWords: CrosswordWord[] = [
     "number": 21
   },
   {
+    "slug": "form",
+    "answer": "FORM",
+    "row": 14,
+    "col": 4,
+    "direction": "across",
+    "number": 22
+  },
+  {
     "slug": "viva-fresh",
     "answer": "VIVAFRESH",
     "row": 15,
     "col": 17,
     "direction": "across",
-    "number": 22
+    "number": 23
   },
   {
     "slug": "ai-dashboard",
@@ -227,7 +235,15 @@ export const crosswordWords: CrosswordWord[] = [
     "row": 16,
     "col": 5,
     "direction": "across",
-    "number": 23
+    "number": 24
+  },
+  {
+    "slug": "offbeat",
+    "answer": "OFFBEAT",
+    "row": 16,
+    "col": 12,
+    "direction": "down",
+    "number": 25
   },
   {
     "slug": "read-to-feed",
@@ -235,7 +251,7 @@ export const crosswordWords: CrosswordWord[] = [
     "row": 17,
     "col": 16,
     "direction": "across",
-    "number": 24
+    "number": 26
   },
   {
     "slug": "futurisma",
@@ -243,7 +259,7 @@ export const crosswordWords: CrosswordWord[] = [
     "row": 18,
     "col": 0,
     "direction": "across",
-    "number": 25
+    "number": 27
   }
 ]
 

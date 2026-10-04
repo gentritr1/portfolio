@@ -3,7 +3,7 @@
   "id": "facing-pages",
   "title": "Facing Pages",
   "band": "Crafted",
-  "description": "Twenty-eight projects in an English–Arabic book. Change the type size and the pages reflow; turn the spread to read from the other side.",
+  "description": "Thirty projects in an English–Arabic book. Change the type size and the pages reflow; turn the spread to read from the other side.",
   "signature": "Measured CSS-column pagination, English/Arabic facing pages, and a 64-segment cylinder page curl captured from the actual DOM. A CSS 3D binding remains when graphics are unavailable.",
   "caseSlug": "read-to-feed",
   "rounds": 3,

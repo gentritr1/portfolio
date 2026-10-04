@@ -84,6 +84,16 @@ export const art: Record<
     position: "70% 55%",
     zoom: 1.3,
   },
+  offbeat: {
+    src: "/personal/shots/offbeat-home-desktop.webp",
+    position: "72% 43%",
+    zoom: 1.6,
+  },
+  form: {
+    src: "/personal/shots/form-home-desktop.webp",
+    position: "71% 50%",
+    zoom: 1.5,
+  },
   "snaxx-tech": {
     src: "/personal/shots/snaxx-desktop.webp",
     position: "50% 42%",
@@ -137,6 +147,8 @@ const facts: Record<string, [string, string]> = {
   fjale: ["21k words", "Albanian dictionary"],
   za: ["2–8 players", "server-authoritative multiplayer"],
   "morse-trainer": ["Farnsworth", "Morse timing and practice"],
+  offbeat: ["8 steps", "Web Audio drum machine"],
+  form: ["3", "mathematical sculptures"],
   "snaxx-tech": ["972 → 337 KB", "image assets"],
   offday: ["16 tests", "security and tenant isolation"],
   "geo-guesser": ["Google Play", "a published geography game"],

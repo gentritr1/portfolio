@@ -54,6 +54,8 @@ const signs: Record<string, [string, string, string]> = {
   "morse-trainer": ["MORSE TRAINER", "·-", "FARNSWORTH"],
   za: ["ZA!", "2-8", "PLAYERS"],
   "snaxx-tech": ["SNAXX TECH", "337KB", "IMAGES"],
+  offbeat: ["OFFBEAT", "8", "STEP DRUMS"],
+  form: ["FORM", "3", "SCULPTURES"],
   "care-api": ["CARE API", "16→2", "QUERIES"],
   "design-system-react": ["DESIGN SYS REACT", "34", "COMPONENTS"],
   "design-system-vue": ["DESIGN SYS VUE", "FIGMA", "TO TOKENS"],
@@ -94,9 +96,13 @@ const cards: Record<
   Exclude<Mode, "route">,
   [string, string, string, string, string]
 > = {
-  work: ["W", "WORK", ".--", "28", "LINES BELOW"],
+  work: ["W", "WORK", ".--", String(projects.length), "LINES BELOW"],
   contact: ["C", "CONTACT", "-.-.", "@", "EMAIL + CV"],
   help: ["?", "THE KEY", "..--..", "", ""],
+};
+const conceptArt: Record<string, { src: string; recreation?: boolean }> = {
+  offbeat: { src: "/personal/shots/offbeat-home-desktop.webp" },
+  form: { src: "/personal/shots/form-home-desktop.webp" },
 };
 const NARROW = "(max-width: 650px)";
 const REDUCED = "(prefers-reduced-motion: reduce)";
@@ -256,7 +262,7 @@ export default function Draft() {
   const shown = preview ?? index,
     selected = routes[shown],
     arriving = routes[index],
-    art = wallAssets[arriving.slug]?.src ? wallAssets[arriving.slug] : undefined;
+    art = wallAssets[arriving.slug]?.src ? wallAssets[arriving.slug] : conceptArt[arriving.slug];
   const live = useRef({ shown, mode, narrow, boot, preview });
   live.current = { shown, mode, narrow, boot, preview };
 
@@ -426,7 +432,7 @@ export default function Draft() {
     }
     setAnnouncement(
       next === "work"
-        ? "Work: the timetable below lists 28 lines."
+        ? `Work: the timetable below lists ${projects.length} lines.`
         : next === "contact"
           ? "Contact details are open below the board."
           : "Key: W is dot dash dash, C is dash dot dash dot.",

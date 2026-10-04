@@ -150,7 +150,7 @@ export default function Draft() {
                 );
               }}
             >
-              All 28 projects <span aria-hidden="true">+</span>
+              All {projects.length} projects <span aria-hidden="true">+</span>
             </button>
           </div>
           <aside className="di-preview" aria-label={`${current.name} preview`}>
@@ -219,7 +219,7 @@ export default function Draft() {
             aria-expanded={all}
             onClick={() => setAll(!all)}
           >
-            <h2>All 28 projects</h2>
+            <h2>All {projects.length} projects</h2>
             <span>{all ? "Close" : "Open index"}</span>
           </button>
           {all && (

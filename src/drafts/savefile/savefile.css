@@ -32,7 +32,7 @@
 .draft-savefile .savefile-select-header h2 { font-size: 43px; line-height: .9; }
 .draft-savefile .savefile-select-header input { width: 155px; min-height: 44px; border: 1px solid #fff9d98c; background: transparent; color: var(--sf-cream); padding: 9px 12px; font: 12px 'Archivo', sans-serif; }
 .draft-savefile .savefile-select-header input::placeholder { color: #e4e8fc; }
-.draft-savefile .savefile-level-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 7px; }
+.draft-savefile .savefile-level-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 7px; }
 .draft-savefile .savefile-level-grid > button { position: relative; min-height: 95px; text-align: left; display: flex; flex-direction: column; justify-content: space-between; padding: 10px 8px; background: #2449eb; color: var(--sf-cream); border: 1px solid #8498f7; animation: savefile-level-open 720ms steps(5,end) var(--level-delay) backwards; }
 .draft-savefile .savefile-level-grid > button:hover { background: #3559f5; }
 .draft-savefile .savefile-level-grid > button[aria-pressed=true] { background: var(--sf-lime); border-color: var(--sf-lime); color: var(--sf-ink); }

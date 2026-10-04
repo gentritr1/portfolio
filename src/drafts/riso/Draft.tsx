@@ -112,14 +112,14 @@ export default function Draft() {
 
   return <div className="draft-riso" style={{ '--spring-ui': spring.ui.easing } as CSSProperties}>
     <OldDraftMotion />
-    <h1 className="riso-sr-only">Gentrit Rashiti: 28 project posters, 2021 to 2026</h1>
+    <h1 className="riso-sr-only">Gentrit Rashiti: {projects.length} project posters, 2021 to 2026</h1>
     <header className="rh riso-screen-only">
       <div className="rh-slug">
         <Register />
         <Link to="/drafts" className="rh-name">Gentrit Rashiti</Link>
         <span className="rh-field rh-job"><span className="rh-key">Job</span>{pad(index + 1)}/{projects.length} {project.name}</span>
         <span className="rh-field rh-inks"><span className="rh-key">Inks</span><i className="rh-swatch rh-swatch--blue" />Blue 0078BF <i className="rh-swatch rh-swatch--pink" />Fluo pink FF48B0</span>
-        <span className="rh-field rh-paper"><span className="rh-key">Stock</span>Natural 90 g/m² · 28 posters, 2021–26</span>
+        <span className="rh-field rh-paper"><span className="rh-key">Stock</span>Natural 90 g/m² · {projects.length} posters, 2021–26</span>
       </div>
       <nav aria-label="Riso"><a href="#riso-contact">Contact<Arrow direction="down" /></a><Link to="/drafts">All drafts<Arrow /></Link></nav>
     </header>

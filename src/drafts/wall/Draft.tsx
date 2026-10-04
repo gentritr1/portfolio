@@ -4,13 +4,28 @@ import { OldDraftMotion } from '../../components/portfolio/OldDraftMotion'
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import { projects, findProject, type Project } from '../../content/projects'
 import { links } from '../../content/links'
-import { wallAssets, wallPosters, wallColour, wallYear } from '../../components/portfolio/wallAssets'
+import { wallAssets as sharedAssets, wallPosters, wallYear, type WallAsset } from '../../components/portfolio/wallAssets'
 import { wallPreviews } from './previews'
 import type { WallScene } from './scene'
 import './wall.css'
 
 type Sort = 'selection' | 'colour' | 'year' | 'category'
-const lead = ['bayyinah-tv', 'incentiv', 'read-to-feed', 'viva-fresh', 'snaxx-tech', 'dukagjini-bookstore', 'bayyinah-institute', 'offday', 'fjale', 'za', 'morse-trainer', 'geo-guesser', 'care-platform']
+const lead = ['bayyinah-tv', 'incentiv', 'read-to-feed', 'viva-fresh', 'snaxx-tech', 'offbeat', 'dukagjini-bookstore', 'bayyinah-institute', 'offday', 'form', 'fjale', 'za', 'morse-trainer', 'geo-guesser', 'care-platform']
+const wallAssets: Record<string, WallAsset> = {
+  ...sharedAssets,
+  offbeat: { src: '/personal/shots/offbeat-home-desktop.webp', aspect: 1.05, colour: 1.2, position: [0.86, 0.45], zoom: 1, fallback: { background: '#ff5b3a', ink: '#121212' } },
+  form: { src: '/personal/shots/form-home-desktop.webp', aspect: 0.9, colour: 2.4, position: [0.72, 0.5], zoom: 1, fallback: { background: '#2b2420', ink: '#f3e7dc' } },
+}
+const spanPattern = [3, 4, 2, 3, 4, 2, 3, 3]
+const spans = (() => {
+  const list = projects.map((_, index) => spanPattern[index % spanPattern.length])
+  let rowStart = 0, width = 0
+  list.forEach((span, index) => { width += span; if (width === 12) { rowStart = index + 1; width = 0 } })
+  const rest = list.length - rowStart
+  for (let index = rowStart; index < list.length; index++) list[index] = 12 / rest
+  return list
+})()
+const wallColour = (project: Project) => wallAssets[project.slug]?.colour ?? wallPosters[project.slug]?.colour ?? 100
 const incentiv = findProject('incentiv')!
 
 function Arrow() { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="M5 19 19 5M5 5h14v14" /></svg> }
@@ -111,14 +126,14 @@ export default function Draft() {
       <OldDraftMotion />
     <a href="#wall-case" className="draft-wall-skip">Skip to the featured case</a>
     <header className="draft-wall-header"><a href="#wall-top" className="draft-wall-name">Gentrit Rashiti</a><nav aria-label="Wall navigation"><a href="#wall-about">About</a><a href="#wall-contact">Contact<Arrow /></a>{!reduced && <button type="button" aria-pressed={paused} aria-label={paused ? 'Resume motion' : 'Pause motion'} onClick={() => setPaused(value => !value)}>{paused ? 'Resume' : 'Pause'}</button>}</nav><div className="draft-wall-sorting" role="group" aria-label="Sort the work">{(['selection', 'colour', 'year', 'category'] as Sort[]).map(value => <button type="button" key={value} aria-pressed={sort === value} onClick={() => changeSort(value)}>{value === 'selection' ? 'Selected' : value[0].toUpperCase() + value.slice(1)}</button>)}</div></header>
-    <section className="draft-wall-gallery" id="wall-top" aria-label="All 28 projects">
+    <section className="draft-wall-gallery" id="wall-top" aria-label={`All ${projects.length} projects`}>
       <div className="draft-wall-identity"><h1 aria-label="Gentrit Rashiti"><span>Gentrit</span><span>Rashiti</span></h1><p>Frontend & mobile developer, now full stack.</p></div>
-      <div className="draft-wall-grid" ref={gridRef} role="list" onPointerLeave={() => expand(null)}><AnimatePresence mode="popLayout">{ordered.map((project, index) => <motion.div layout transition={reduced || paused ? { duration: .01 } : { type: "spring", stiffness: 350, damping: 35 }} onLayoutAnimationStart={() => sceneRef.current?.refresh(450)} data-expanded={expanded === project.slug} className={`draft-wall-tile draft-wall-span-${[3, 4, 2, 3, 4, 2, 3, 3][index % 8]}`} data-wall-tile={project.slug} key={project.slug} role="listitem"><button className="draft-wall-project" type="button" aria-label={`Explore ${project.name}`} onClick={event => openProject(project, event.currentTarget)} onFocus={() => { expand(project.slug); sceneRef.current?.activate(project.slug) }} onBlur={event => { sceneRef.current?.leave(); if (!gridRef.current?.contains(event.relatedTarget as Node)) expand(null) }} onPointerEnter={event => { if (event.pointerType === 'mouse') expand(project.slug) }} onPointerMove={event => {
+      <div className="draft-wall-grid" ref={gridRef} role="list" onPointerLeave={() => expand(null)}><AnimatePresence mode="popLayout">{ordered.map((project, index) => <motion.div layout transition={reduced || paused ? { duration: .01 } : { type: "spring", stiffness: 350, damping: 35 }} onLayoutAnimationStart={() => sceneRef.current?.refresh(450)} data-expanded={expanded === project.slug} className={`draft-wall-tile draft-wall-span-${spans[index]}`} data-wall-tile={project.slug} key={project.slug} role="listitem"><button className="draft-wall-project" type="button" aria-label={`Explore ${project.name}`} onClick={event => openProject(project, event.currentTarget)} onFocus={() => { expand(project.slug); sceneRef.current?.activate(project.slug) }} onBlur={event => { sceneRef.current?.leave(); if (!gridRef.current?.contains(event.relatedTarget as Node)) expand(null) }} onPointerEnter={event => { if (event.pointerType === 'mouse') expand(project.slug) }} onPointerMove={event => {
         if (event.pointerType !== 'mouse') return
         const box = event.currentTarget.getBoundingClientRect()
         sceneRef.current?.activate(project.slug, (event.clientX - box.left) / box.width, (event.clientY - box.top) / box.height)
       }} onPointerLeave={() => sceneRef.current?.leave()}><TileImage project={project} eager={index < 8} />{wallAssets[project.slug]?.recreation && <span className="draft-wall-provenance">Recreation · invented data</span>}<span className="draft-wall-caption"><span>{project.name}</span><span>{project.years ?? project.group}<Arrow /></span></span></button></motion.div>)}</AnimatePresence></div>
-      <div className="draft-wall-gallery-foot"><p>28 projects. Web, mobile, APIs and libraries.</p>{!reduced && <button type="button" aria-pressed={paused} onClick={() => setPaused(value => !value)}>{paused ? 'Resume motion' : 'Pause motion'}</button>}<p role="status" className="draft-wall-sr-only">{announcement}</p></div>
+      <div className="draft-wall-gallery-foot"><p>{projects.length} projects. Web, mobile, APIs and libraries.</p>{!reduced && <button type="button" aria-pressed={paused} onClick={() => setPaused(value => !value)}>{paused ? 'Resume motion' : 'Pause motion'}</button>}<p role="status" className="draft-wall-sr-only">{announcement}</p></div>
     </section>
 
     <article className="draft-wall-case" id="wall-case" aria-labelledby="wall-case-title"><div className="draft-wall-case-heading"><h2 id="wall-case-title">Incentiv.</h2><p>Smart-wallet dashboard<br />2024 · Frontend, UI layer</p></div><div className="draft-wall-case-image"><img src="/showcase/incentiv/web-03.webp" alt="Incentiv’s public portal sign-in screen; no wallet is connected" loading="lazy" /><p>Public portal · sign-in screen</p></div><div className="draft-wall-case-copy"><h3>The wallet’s<br />front door.</h3><div><p>{incentiv.summary}</p><p>Passkeys and external wallets open the sign-in flow. Animated onboarding, asset lists, a balance popup with a QR address and private-route middleware connect the rest of the interface. English and French translations use next-intl.</p><p className="draft-wall-case-scope">Teammates built the wallet and blockchain layer.</p><div className="draft-wall-case-links">{incentiv.links.map(link => <a key={link.href} href={link.href} target="_blank" rel="noopener noreferrer">{link.label}<Arrow /></a>)}</div></div></div></article>

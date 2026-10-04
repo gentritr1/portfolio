@@ -132,7 +132,7 @@ export default function Draft() {
                 <path d="M12 3v18m-7-7 7 7 7-7" />
               </svg>
             </a>
-            <span>5+ years · 28 projects</span>
+            <span>5+ years · {projects.length} projects</span>
           </div>
         </section>
         <section className="sw-work" id="sw-work">
@@ -202,7 +202,7 @@ export default function Draft() {
         <section className="sw-index" id="sw-index">
           <header>
             <h2>All work.</h2>
-            <p>28 projects, 2021–26</p>
+            <p>{projects.length} projects, 2021–26</p>
           </header>
           {projects.map((p) => (
             <details key={p.slug}>

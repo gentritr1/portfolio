@@ -78,7 +78,7 @@
 .draft-fjalekryq .fk-open-project:hover{background:var(--fk-ink)}
 .draft-fjalekryq .fk-open-project:focus-visible{outline-color:var(--fk-ink)}
 
-/* Clue column: the 28 projects, set as a newspaper puzzle */
+/* Clue column: the 30 projects, set as a newspaper puzzle */
 .draft-fjalekryq .fk-side{min-width:0;border-left:2px solid var(--fk-ink);padding:24px 24px 64px;scroll-margin-top:var(--fk-header)}
 .draft-fjalekryq .fk-clues{display:grid;grid-template-columns:1fr 1fr;gap:24px}
 .draft-fjalekryq .fk-clue-list>h2{font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;padding-bottom:8px;border-bottom:2px solid var(--fk-ink)}

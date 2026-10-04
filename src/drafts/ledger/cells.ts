@@ -725,6 +725,57 @@ const offday: Draw = ({ c, col, t }) => {
   }
 };
 
+const offbeat: Draw = ({ c, col, t }) => {
+  const beat = t * 3.7;
+  const step = Math.floor(beat) % 8;
+  const pattern = ["10001000", "00100010", "10111011", "10010100"];
+  pattern.forEach((row, r) => {
+    for (let s = 0; s < 8; s++) {
+      const x = 8 + s * 13;
+      const y = 6 + r * 10;
+      if (row[s] === "1") round(c, x, y, 11, 7, 1.5, s === step ? PAPER : col);
+      else faded(c, 0.14, () => round(c, x, y, 11, 7, 1.5, PAPER));
+    }
+  });
+  rect(c, 8 + step * 13, 45, 11, 1.5, PAPER);
+  const hit = pattern[0][step] === "1" ? 1 - (beat % 1) : 0;
+  c.lineWidth = 1;
+  faded(c, 0.25 + hit * 0.5, () => ring(c, 138, 24, 15 + hit * 3, col));
+  dot(c, 138, 24, 9 + hit * 2.5, col);
+  dot(c, 138, 24, 3, INK);
+};
+
+const form: Draw = ({ c, col, t }) => {
+  const a = t * 0.7;
+  const point = (u: number) => {
+    const x = Math.sin(u) + 2 * Math.sin(2 * u);
+    const y = Math.cos(u) - 2 * Math.cos(2 * u);
+    const z = -Math.sin(3 * u);
+    return [40 + (x * Math.cos(a) + z * Math.sin(a)) * 5.5, 24 + y * 5.5] as const;
+  };
+  c.lineJoin = "round";
+  for (const [width, fill, alpha] of [[4, col, 1], [1, PAPER, 0.55]] as const) {
+    faded(c, alpha, () => {
+      c.beginPath();
+      for (let i = 0; i <= 120; i++) {
+        const [x, y] = point((i / 120) * Math.PI * 2);
+        if (i) c.lineTo(x, y);
+        else c.moveTo(x, y);
+      }
+      c.lineWidth = width;
+      c.strokeStyle = fill;
+      c.stroke();
+    });
+  }
+  label(c, "3", 84, 25, col, 16);
+  faded(c, 0.75, () => label(c, "SCULPTURES", 98, 25, PAPER));
+  const active = Math.floor(t / 3) % 3;
+  c.lineWidth = 1;
+  for (let i = 0; i < 3; i++)
+    if (i === active) dot(c, 88 + i * 10, 36, 3, col);
+    else faded(c, 0.5, () => ring(c, 88 + i * 10, 36, 2.5, PAPER));
+};
+
 const geo: Draw = ({ c, col, t }) => {
   c.lineWidth = 1;
   faded(c, 0.2, () => {
@@ -1011,6 +1062,8 @@ const draws: Record<string, Draw> = {
   incentiv: wallet,
   "member-portal": portal,
   "ai-dashboard": documentChat,
+  offbeat,
+  form,
   "snaxx-tech": snaxx,
   offday,
   "geo-guesser": geo,

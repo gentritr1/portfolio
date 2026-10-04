@@ -154,7 +154,7 @@ export function HomePage() {
           <div className="work-toolbar">
             <WorkHeading id="work-title">
               {all || view === "wall" ? "All work" : "Selected work"}
-              <span>{all || view === "wall" ? "28" : "08"}</span>
+              <span>{String(all || view === "wall" ? projects.length : selectedProjects.length).padStart(2, "0")}</span>
             </WorkHeading>
             <div
               className="work-view-switch"
@@ -289,7 +289,7 @@ export function HomePage() {
                     className="text-action"
                     onClick={() => setAll((value) => !value)}
                   >
-                    {all ? "Back to selected work" : "View all 28 projects"}
+                    {all ? "Back to selected work" : `View all ${projects.length} projects`}
                     <ArrowRightIcon size={18} aria-hidden />
                   </button>
                   <span>↑ ↓ to explore · Enter to open</span>

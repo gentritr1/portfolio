@@ -548,9 +548,9 @@ export default function Draft() {
     } else {
       setShowAll(true);
       setHand(spreadOrder);
-      if (sound) riffle(28, 0.024);
+      if (sound) riffle(deck.length, 0.024);
       setMessage(
-        `All 28 project cards are spread in suit order. ${selectedProject.name} is pulled out. Use the arrow keys to choose another.`,
+        `All ${deck.length} project cards are spread in suit order. ${selectedProject.name} is pulled out. Use the arrow keys to choose another.`,
       );
     }
   }
@@ -862,7 +862,7 @@ export default function Draft() {
                 </svg>
                 <span className="dl-sr">
                   Gentrit Rashiti, web, mobile and full-stack developer in
-                  Kosovo. 28 projects dealt as playing cards in six suits.
+                  Kosovo. {deck.length} projects dealt as playing cards in six suits.
                 </span>
               </h1>
               <button
@@ -914,7 +914,7 @@ export default function Draft() {
                 role="group"
                 aria-label={
                   showAll
-                    ? "All 28 project cards, spread in suit order"
+                    ? `All ${deck.length} project cards, spread in suit order`
                     : "A hand of five project cards"
                 }
               >
@@ -986,11 +986,11 @@ export default function Draft() {
                   aria-label={
                     showAll
                       ? "Gather the deck into a hand of five"
-                      : "Spread all 28 cards"
+                      : `Spread all ${deck.length} cards`
                   }
                 >
                   <small>{showAll ? "Gather" : "Spread"}</small>
-                  <span>{showAll ? "Five" : "All 28"}</span>
+                  <span>{showAll ? "Five" : `All ${deck.length}`}</span>
                 </button>
               </div>
             </div>

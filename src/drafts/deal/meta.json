@@ -3,7 +3,7 @@
   "id": "deal",
   "title": "Deal",
   "band": "Fun",
-  "description": "A padded card table: five real projects dealt from the dealer's deck, drag and throw them, flip a card for its facts, or spread all 28 in a labelled fan.",
+  "description": "A padded card table: five real projects dealt from the dealer's deck, drag and throw them, flip a card for its facts, or spread all 30 in a labelled fan.",
   "signature": "A hand-rolled Verlet table deals face-down cards at 60 ms intervals that spin, land with a felt puff and turn face up. Drags tilt with pointer speed, hand their release velocity to the spring and snap to a predicted landing; Spread cascades the whole deck into a suit-labelled fan.",
   "caseSlug": "za",
   "rounds": 3,

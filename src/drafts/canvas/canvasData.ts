@@ -58,5 +58,13 @@ export function makeClusters(viewWidth: number): Cluster[] {
         { id: 'offday', title: 'Offday', caption: 'Public owner capture · 2026', x: 340, y: 640, width: 850, height: 530, src: '/personal/shots/offday-app-desktop.webp', alt: 'Offday team calendar and time-off approvals', background: '#b797fb' },
       ],
     },
+    {
+      id: 'concepts', title: 'Concept sites', description: 'Two fictional brands, made as portfolio concepts: a speaker and a sculpture show.',
+      x: 3600, y: 1520, width: 760, height: 960,
+      frames: [
+        { id: 'offbeat', title: 'OFFBEAT', caption: 'Speaker brand concept · 2026', x: 0, y: 0, width: 760, height: 475, src: '/personal/shots/offbeat-home-desktop.webp', alt: 'OFFBEAT home: a hot-orange portable speaker in 3D beside the line Plays your songs. Makes its own.', background: '#121212' },
+        { id: 'form', title: 'FORM', caption: 'Sculpture exhibition concept · 2026', x: 120, y: 560, width: 640, height: 400, src: '/personal/shots/form-home-desktop.webp', alt: 'FORM home: a copper trefoil sculpture beside the title Objects of imagination.', background: '#1b1917' },
+      ],
+    },
   ]
 }

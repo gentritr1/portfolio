@@ -30,6 +30,8 @@ const specificClues: Record<string, string> = {
   'care-api': 'A multi-tenant Laravel API. One billing report went from 16 queries to 2.',
   'morse-trainer': 'Learn the rhythm of Morse with spaced repetition and Farnsworth timing.',
   'donation-app': 'Donations and subscriptions with Stripe, badges, guided tasks and video, for iOS and Android.',
+  offbeat: 'A fictional speaker brand. A 3D speaker in four finishes and a working eight-step drum machine.',
+  form: 'A fictional sculpture show. Three mathematical forms in WebGL, and a typed word cast as a sculpture.',
 }
 const answerKey = (value: string) => value.toLocaleUpperCase().replace(/Ë/g, 'E').replace(/[^A-Z]/g, '')
 const cleanAnswer = (value: string) => value.toLocaleUpperCase().replace(/[^A-ZË]/g, '')
@@ -351,7 +353,7 @@ export default function Draft() {
     setSolved(next ? new Set() : new Set(allAnswers))
     setAnswer('')
     setCaseOpen(false)
-    setMessage(next ? 'The board is empty. Type an answer.' : 'All 28 answers are visible.')
+    setMessage(next ? 'The board is empty. Type an answer.' : `All ${allAnswers.length} answers are visible.`)
     if (next) requestAnimationFrame(() => input.current?.focus({ preventScroll: true }))
   }
 
@@ -468,7 +470,7 @@ export default function Draft() {
 
   return <LayoutGroup id="fjalekryq"><main className="draft-fjalekryq" data-intro={intro} data-case={caseOpen}>
     <title>Fjalëkryq — Gentrit Rashiti</title>
-    <a className="fk-skip" href="#fk-clues">Read all 28 project clues</a>
+    <a className="fk-skip" href="#fk-clues">Read all {allAnswers.length} project clues</a>
     <header className="fk-header">
       <p className="fk-setter"><span className="fk-setter-label">Set by</span><Tiles text="GENTRIT RASHITI" /><span className="fk-sr">Gentrit Rashiti</span><span className="fk-setter-enum">(7, 7)</span><span className="fk-setter-clue">Web, mobile and full-stack developer, Kosovo</span></p>
       <nav aria-label="Portfolio"><a href="#fk-about">About</a><a href={links.cv}>CV</a><a href={'mailto:' + links.email}>Email</a></nav>
@@ -477,8 +479,8 @@ export default function Draft() {
       <section className="fk-board-column" aria-label="Crossword project map">
         <div className="fk-board-bar">
           <h1 lang="sq">Fjalëkryq<span>.</span></h1>
-          <p>{solving ? solved.size + ' / 28 solved' : '28 projects, connected'}</p>
-          <button className="fk-solve-toggle" type="button" aria-pressed={solving} onClick={toggleSolve}>{solving ? 'Show every answer' : 'Solve it yourself'}<span ref={eKey} aria-hidden="true">{solving ? '28' : 'Ë'}</span></button>
+          <p>{solving ? `${solved.size} / ${allAnswers.length} solved` : `${allAnswers.length} projects, connected`}</p>
+          <button className="fk-solve-toggle" type="button" aria-pressed={solving} onClick={toggleSolve}>{solving ? 'Show every answer' : 'Solve it yourself'}<span ref={eKey} aria-hidden="true">{solving ? allAnswers.length : 'Ë'}</span></button>
         </div>
         <div className="fk-board-viewport" ref={viewport} tabIndex={0} role="group" aria-label="Crossword. Arrow keys select a word, Enter opens its project, typing solves." onKeyDown={boardKeys} onPointerDown={startPointer} onPointerMove={movePointer} onPointerUp={endPointer} onPointerCancel={endPointer} onPointerLeave={() => setPreview([])}>
           <div className="fk-board" ref={board} style={{ width: boardWidth, height: boardHeight, transform: 'translate(' + camera.x + 'px,' + camera.y + 'px) scale(' + camera.scale + ')' }}>
@@ -521,7 +523,7 @@ export default function Draft() {
             {active === 'care-platform' ? <CareFile reduced={reduced} /> : images.length > 0 && <figure className="fk-case-media" data-count={images.length}>{images.map(image => <img key={image.src} src={image.src} alt={image.alt} loading="lazy" />)}<figcaption>{gallery ? gallery.title : 'Public project image'}</figcaption></figure>}
             <div className="fk-project-links">{project.featured && <a href={'/work/' + active}>Read the full case <Arrow /></a>}{project.links.map(link => <a key={link.href} href={link.href} target="_blank" rel="noreferrer">{link.label}<Arrow /></a>)}</div>
           </motion.div>
-        </article> : <section className="fk-clues" id="fk-clues" aria-label="Clues: the 28 projects">
+        </article> : <section className="fk-clues" id="fk-clues" aria-label={`Clues: the ${allAnswers.length} projects`}>
           {columns.map(column => <div key={column.direction} className="fk-clue-list"><h2>{column.direction}</h2><ol>{column.words.map((item, index) => {
             const itemProject = projectBySlug.get(item.slug)!
             const current = item.slug === active

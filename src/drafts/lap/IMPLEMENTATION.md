@@ -5,7 +5,7 @@ Source stable for root browser review. No router, report generator, budget JSON,
 ## What is real
 
 - OGL camera and hover racer follow an arc-length-resampled closed Catmull–Rom circuit. Project text barriers are actual front/back/side glyph meshes, triangulated offline from Big Shoulders Display. The first sector is BAYYINAH TV.
-- Wheel impulses and touch movement pass measured input velocity into a 350/35 spring; release coasts toward its target. Steering has a separate bounded lane spring. Driving mode captures wheel/touch only after explicit activation, and Escape restores ordinary page scrolling. The 28 sector links always remain available.
+- Wheel impulses and touch movement pass measured input velocity into a 350/35 spring; release coasts toward its target. Steering has a separate bounded lane spring. Driving mode captures wheel/touch only after explicit activation, and Escape restores ordinary page scrolling. The 30 sector links always remain available.
 - `getKosovoSun(date, staticNoon)` computes solar azimuth/altitude at Kosovo coordinates from the actual instant. `kosovoClock` formats Europe/Belgrade. Reduced motion uses the calculated solar noon for that date and renders a static scene. Nighttime truthfully has the sun below the horizon, so a bright sunset disc is not guaranteed at every visitor time.
 - `createNameMorph(host, names, reduced)` uses the 29.6 kB genuine RGB glyph MSDF atlas. It composes name distance fields, interpolates distances and thresholds them. Interrupted transitions capture the displayed field before retargeting. No blur masquerades as MSDF.
 - Cases retain enter/exit presence, share the sector title, restore focus and expose the full factual content. The care case includes a reversible confidential file with an explicitly labelled invented-data recreation. CV has pressed and requested states.
@@ -14,7 +14,7 @@ Source stable for root browser review. No router, report generator, budget JSON,
 ## Reuse interfaces for the lab
 
 - `solar.ts`: `getKosovoSun`, `kosovoSolarNoon`, `kosovoClock`, and `solarSkyFragment`. The shader expects `sunDirection`, `heading` and `aspect` uniforms.
-- `msdf.ts`: `createNameMorph(host, names, reduced)` returning `set(index, instant?)` and `dispose()`, plus the distance-interpolation fragment source. Supply names whose glyphs are in the built atlas; the 28 exported sector names are the intended set.
+- `msdf.ts`: `createNameMorph(host, names, reduced)` returning `set(index, instant?)` and `dispose()`, plus the distance-interpolation fragment source. Supply names whose glyphs are in the built atlas; the 30 exported sector names are the intended set.
 
 ## Verification performed
 
@@ -31,7 +31,7 @@ Source stable for root browser review. No router, report generator, budget JSON,
 - Previous/next sector and rapid nonadjacent `.lp-sector-link` selection: inspect the name interpolation and its interruption at `?review=1&speed=0.1`. Confirm the field transition does not become a simple alpha crossfade on the WebGL path.
 - `.lp-sector-link`, `.lp-case`, `.lp-care-file`: open/close/reverse, keyboard focus restoration and reduced motion. The visible file is a recreation, not a private product screenshot.
 - Change reduced-motion preference while selected on a non-first sector; selection must survive and the scene must become static solar noon.
-- `?nogl=1`: inspect static fallback, name crossfade and all 28 cases. Pause the scene, leave the viewport, switch tab visibility; check `.lp-scene[data-paused]` and that updates stop.
+- `?nogl=1`: inspect static fallback, name crossfade and all 30 cases. Pause the scene, leave the viewport, switch tab visibility; check `.lp-scene[data-paused]` and that updates stop.
 - Read-only graph measurement after the combined production build. 60fps on a physical mid-range phone remains unverified; a desktop browser's refresh-rate sample is not a substitute.
 
 ## Honest limits

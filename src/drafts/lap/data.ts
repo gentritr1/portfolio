@@ -16,6 +16,8 @@ const highlights: Record<string, string> = {
   "care-api": "One billing report: 16 queries → 2.",
   fjale: "21,000 Albanian words. An archive. Offline play.",
   "morse-trainer": "Spaced repetition and Farnsworth timing.",
+  offbeat: "Eight steps of Web Audio. Four finishes.",
+  form: "Three mathematical sculptures. Words cast as forms.",
 };
 export const sectors = names.map((item, index) => {
   const project = projects.find((project) => project.slug === item.slug)!;

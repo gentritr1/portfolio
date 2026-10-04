@@ -29,6 +29,8 @@
 .draft-wall-span-2 { grid-column: span 2; }
 .draft-wall-span-3 { grid-column: span 3; }
 .draft-wall-span-4 { grid-column: span 4; }
+.draft-wall-span-6 { grid-column: span 6; }
+.draft-wall-span-12 { grid-column: span 12; }
 .draft-wall-project { display: block; width: 100%; height: 100%; padding: 0; position: relative; text-align: left; overflow: hidden; isolation: auto; }
 .draft-wall-project:focus-visible { outline: 4px solid #fc5429 !important; outline-offset: -4px; }
 .draft-wall-media { display: block; position: absolute; inset: 0; overflow: hidden; container-type: inline-size; background: var(--wall-ground); color: var(--wall-ink); animation: draft-wall-arrive 1200ms cubic-bezier(.16,1,.3,1) both; }

@@ -659,7 +659,7 @@ export default function Draft() {
                   aria-controls="bit-chapters"
                 >
                   <Icon name="list" />
-                  28 projects
+                  {projects.length} projects
                 </button>
               </div>
               <label className="bit-scrubber">
@@ -793,7 +793,7 @@ export default function Draft() {
                         aria-pressed={allChapters}
                         onClick={() => setAllChapters(true)}
                       >
-                        All 28
+                        All {projects.length}
                       </button>
                       <button
                         aria-pressed={!allChapters && year === null}

@@ -114,7 +114,7 @@ export default function Draft() {
     [cvDone, setCvDone] = useState(false),
     [clock, setClock] = useState(() => new Date()),
     [message, setMessage] = useState(
-      "All 28 projects can be opened from the sector board.",
+      `All ${sectors.length} projects can be opened from the sector board.`,
     );
   const host = useRef<HTMLDivElement>(null),
     nameHost = useRef<HTMLDivElement>(null),
@@ -278,7 +278,7 @@ export default function Draft() {
         </a>
         <span className="lp-role">Web · mobile · full stack</span>
         <nav>
-          <a href="#lap-sectors">All 28 sectors</a>
+          <a href="#lap-sectors">All {sectors.length} sectors</a>
           <a
             href={links.cv}
             download
@@ -385,7 +385,7 @@ export default function Draft() {
             }}
           />
           <div className="lp-sector-status">
-            <span>SECTOR {sector.number} / 28</span>
+            <span>SECTOR {sector.number} / {sectors.length}</span>
             <span>
               {sector.project.kind} · {sector.project.years ?? "Independent"}
             </span>
@@ -556,7 +556,7 @@ export default function Draft() {
           <header>
             <h2 id="lap-board-heading">The sector board.</h2>
             <p>A lap through the work. No driving required.</p>
-            <span>28 projects</span>
+            <span>{sectors.length} projects</span>
           </header>
           <LayoutGroup id="lap-cases">
             <ol>

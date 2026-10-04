@@ -322,7 +322,7 @@ export default function Draft() {
     setPosition({ chapter, project: null, page: 0 });
     setStatus(
       chapter === "all"
-        ? "Contents open. All 28 projects are in this book."
+        ? `Contents open. All ${projects.length} projects are in this book.`
         : (chapters.find((item) => item.id === chapter)?.en ?? "Contents") +
             " chapter open.",
     );
@@ -490,7 +490,7 @@ export default function Draft() {
               Close book
             </button>
             <button type="button" onClick={() => openBook()}>
-              Contents <span>28</span>
+              Contents <span>{projects.length}</span>
             </button>
             <div className="fp-type-controls" aria-label="Text size">
               <button
@@ -599,7 +599,7 @@ export default function Draft() {
               type="button"
               className="fp-cover"
               onClick={() => openBook()}
-              aria-label="Open Facing Pages, the 28-project contents"
+              aria-label={`Open Facing Pages, the ${projects.length}-project contents`}
               aria-hidden={opened}
               tabIndex={opened ? -1 : 0}
               animate={
@@ -661,7 +661,7 @@ export default function Draft() {
                 </span>
                 <span className="fp-open-label">
                   Open the book <Arrow />
-                  <small>28 projects · 5 chapters</small>
+                  <small>{projects.length} projects · {chapters.length} chapters</small>
                 </span>
               </span>
               <span className="fp-cover-back" aria-hidden="true">

@@ -20,6 +20,8 @@ const material: Record<string, [string, string]> = {
   incentiv: ["Passkeys · balance · QR", "#d0b3ff"],
   "member-portal": ["Protected routes", "#b3f0d9"],
   "ai-dashboard": ["PDF → document chat", "#ffc8e8"],
+  offbeat: ["8-step Web Audio drum machine", "#ff9a7a"],
+  form: ["3 sculptures · word-cast forms", "#e8b48a"],
   "snaxx-tech": ["Images: 972 → 337 KB", "#ffe08a"],
   offday: ["16 security & tenant tests", "#9fd8ff"],
   "geo-guesser": ["Published on Google Play", "#a8f0a0"],
