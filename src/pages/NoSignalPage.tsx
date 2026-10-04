@@ -1,48 +1,83 @@
-import { ArrowLeftIcon } from '../components/ShellIcons'
-import { useLocation } from 'react-router'
-import { Container } from '../components/Container'
-import { SignalDot } from '../components/SignalDot'
-import { TransitionLink } from '../components/TransitionLink'
-import { SignalStack } from '../components/signal-stack/SignalStack'
-import { channelOrder } from '../content/channels'
+import type { CSSProperties } from 'react'
+import { Link, useLocation } from 'react-router'
+import { motion, useReducedMotion } from 'motion/react'
+import { links } from '../content/links'
+import { findProject } from '../content/projects'
+import { productBySlug } from '../drafts/aisle/products'
+import './aisle-case.css'
 
-/** A quiet stack losing its broadcast, with an immediate still for reduced motion. */
+const suggestions = ['bayyinah-tv', 'read-to-feed', 'dukagjini-bookstore']
+
+function Arrow({ back = false }: { back?: boolean }) {
+  return (
+    <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" fill="none" style={back ? { transform: 'rotate(180deg)' } : undefined}>
+      <path d="M2 8h11M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.6" />
+    </svg>
+  )
+}
+
+/** An empty spot on the shelf: the address has no product. */
 export default function NoSignalPage() {
   const { pathname } = useLocation()
+  const reduced = Boolean(useReducedMotion())
 
   return (
-    <section aria-labelledby="no-signal-title" className="pt-12 sm:pt-20">
-      <title>No signal, Gentrit Rashiti</title>
-      <Container>
-        <div className="relative h-56 overflow-hidden rounded-panel border border-hairline bg-panel-1 sm:h-72">
-          <SignalStack channels={channelOrder} active="streaming" lostSignal className="size-full" />
-          <span aria-hidden className="absolute bottom-4 left-4 label text-ink-3">404 / Broadcast ended</span>
-        </div>
+    <main className="aisle-case ac-404" aria-labelledby="ac-404-title">
+      <title>Out of stock — Gentrit Rashiti</title>
+      <header className="ac-talker">
+        <Link to="/" className="ac-mark" aria-label="Aisle 7, back to the shelf">AISLE <em>7</em></Link>
+        <p className="ac-talker-line"><span>Gentrit Rashiti</span><i aria-hidden="true">—</i><span>Web · Mobile · Full stack</span></p>
+        <nav className="ac-tools" aria-label="Site">
+          <Link to="/"><Arrow back />Back to the shelf</Link>
+          <a href={links.cv} download>CV <Arrow /></a>
+        </nav>
+      </header>
 
-        <div className="mt-10 grid gap-6 md:grid-cols-12">
-          <div className="min-w-0 md:col-span-7">
-            <h1 id="no-signal-title" className="text-h1 text-ink">
-              No signal
-            </h1>
-            <p className="mt-3 flex min-w-0 items-center gap-2 label text-ink-3">
-              <SignalDot tone="off" />
-              <span className="truncate">{pathname}</span>
-            </p>
-          </div>
-          <div className="md:col-span-5 md:pt-3">
-            <p className="max-w-[46ch] text-ink-2">
-              There’s no page at this address. Explore the work to find a project.
-            </p>
-            <TransitionLink
-              to="/#work"
-              className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-sm border border-hairline-strong px-4 label text-ink transition-[background-color,border-color] duration-200 ease-out hover:border-transparent hover:bg-panel-2"
-            >
-              <ArrowLeftIcon size={14} aria-hidden />
-              Back to the work
-            </TransitionLink>
-          </div>
+      <section className="ac-404-shelf">
+        <div className="ac-404-copy">
+          <h1 id="ac-404-title">This shelf is empty.</h1>
+          <p className="ac-404-path"><span>Item not found:</span> <code>{pathname}</code></p>
+          <p>There is no product at this address. Every project is on the main shelf.</p>
+          <Link to="/" className="ac-404-button">Back to the shelf <Arrow /></Link>
         </div>
-      </Container>
-    </section>
+        <div className="ac-404-spot" aria-hidden="true">
+          <div className="ac-404-outline" />
+          <div className="ac-404-edge" />
+          <motion.p
+            className="ac-tag ac-404-tag"
+            initial={reduced ? false : { rotate: 14 }}
+            animate={{ rotate: 0 }}
+            transition={reduced ? { duration: 0.01 } : { type: 'spring', duration: 1.1, bounce: 0.55, delay: 0.25 }}
+          >
+            <strong>404</strong>
+            <span>Out of stock</span>
+          </motion.p>
+        </div>
+      </section>
+
+      <section className="ac-404-try" aria-labelledby="ac-404-try-title">
+        <h2 id="ac-404-try-title" className="ac-heading">Try instead</h2>
+        <ul>
+          {suggestions.map((slug) => {
+            const project = findProject(slug)
+            const pack = productBySlug.get(slug)?.pack
+            if (!project || !pack) return null
+            return (
+              <li key={slug}>
+                <Link
+                  to={`/work/${slug}`}
+                  className="ac-404-box"
+                  style={{ '--ac-next-field': pack.field, '--ac-next-ink': pack.ink } as CSSProperties}
+                >
+                  <strong>{project.name}</strong>
+                  <span>{project.kind}</span>
+                  <Arrow />
+                </Link>
+              </li>
+            )
+          })}
+        </ul>
+      </section>
+    </main>
   )
 }
