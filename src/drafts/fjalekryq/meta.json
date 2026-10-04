@@ -1,0 +1,30 @@
+{
+  "rule": "the crossword is the site map",
+  "id": "fjalekryq",
+  "title": "Fjalëkryq",
+  "band": "Fun",
+  "description": "Twenty-eight projects cross paths in one Albanian-inspired crossword. Read the clues, open the work, or solve it yourself.",
+  "signature": "Typed letters fall into real intersecting answers with two Verlet bounces. A completed word flips in a wave and its clue becomes the project.",
+  "caseSlug": "fjale",
+  "rounds": 2,
+  "holdback": "The phone necessarily crops the connected map, so its overall structure is less immediately apparent than on desktop and the clue fallback carries more of the navigation. Compressed grid tokens also require selection to explain the work. The visible case is clear but largely conventional once opened. These are limits below a 9-level experience, not reasons for another repair round.",
+  "scores": {
+    "design": 8.3,
+    "usability": 8.1,
+    "creativity": 8.4,
+    "content": 8.2
+  },
+  "antiPale": "pass",
+  "mechanisms": [
+    "M1",
+    "M2",
+    "M3",
+    "M4",
+    "M5",
+    "M6",
+    "M9"
+  ],
+  "slopCount": 0,
+  "m2": "pass",
+  "creativeGates": "pass"
+}

@@ -1,0 +1,175 @@
+{
+  "id": "fjalekryq",
+  "reviewer": "creative_jury_a",
+  "status": "final-round-2; no further repair required",
+  "rule": "the crossword is the site map",
+  "scope": "Independent visual review by an agent that did not build the draft. Desktop, mobile, and solved/opened captures inspected directly. Source read only to confirm mechanisms; browser interaction verification supplied by the implementer is distinguished from visible evidence.",
+  "rounds": [
+    {
+      "round": 1,
+      "captures": [
+        "drafts-review/fjalekryq-desktop.png",
+        "drafts-review/fjalekryq-mobile.png"
+      ],
+      "scores": {
+        "design": 8.3,
+        "usability": 7.6,
+        "creativity": 8.4,
+        "content": 8.2
+      },
+      "weightedTotal": 8.1,
+      "antiPale": "pass",
+      "antiPaleEvidence": {
+        "visibleComposition": "pass",
+        "rationale": "The mustard field dominates both viewports, the cream letter map supplies the central image, and the cobalt selected answer links visibly to its clue. The large crossword title is not an oversized personal-name hero. This is a distinct composition rather than the prior name-and-screenshot skeleton.",
+        "temporalEvidence": "Source confirms an initial requestAnimationFrame drops the visible letters on arrival. The stills do not establish how convincing those falls feel, so no physics or timing craft mechanism is awarded."
+      },
+      "slopCount": 0,
+      "slopCauses": [],
+      "slopRationale": "The crossword cells perform navigation and answer entry rather than decorative bento-card layout. Numbering identifies real across/down entries. The type pairing is distinct, and the trailing period belongs to the crossword title rather than a giant personal name.",
+      "m2": "pass",
+      "m2Evidence": "The real intersecting answers are the project map; selecting an entry reveals its clue, and a complete answer opens the corresponding project. Removing the crossword removes the answer/selection workflow. The clue list is the equivalent textual representation and useful alternate navigation.",
+      "mechanisms": [
+        "M1",
+        "M2",
+        "M3",
+        "M4",
+        "M5",
+        "M6",
+        "M9"
+      ],
+      "mechanismEvidence": {
+        "M1": "All 28 project entries are expressed through one across/down answer-and-clue system, with the selected word, clue number and project linked.",
+        "M2": "Words and clues carry project selection and opening. The board is not merely a picture behind ordinary project cards.",
+        "M3": "Source confirms that visible cells share actual intersection letters and that entry/solve state operates on the same project-word map. The material is a working crossword rather than a simulated screenshot.",
+        "M4": "The owner's Albanian word game becomes the organising idea for the entire portfolio, extending a personal interest into the site's behaviour.",
+        "M5": "Selecting a word supplies a specific project clue; the visible FJALË clue explains its dictionary, archive and offline behaviour. Source confirms answer completion opens that project's case.",
+        "M6": "The connected project-name letters are the dominant image on both sizes. Removing product screenshots leaves the composition intact.",
+        "M9": "The Albanian title, Ë key and FJALË's 21k-word dictionary are specific to the author's work. The visible neighbouring clue also gives Bayyinah's 34-route bilingual streaming context."
+      },
+      "withheldMechanisms": [
+        "M7",
+        "M8",
+        "M10",
+        "M11"
+      ],
+      "withheldRationale": "The source implements finite Verlet falls and completion transitions, but still captures cannot prove timing, physical feel or transition/interruption craft. The concise copy supports the concept without independently establishing a strong personal voice.",
+      "lowestCategory": "usability",
+      "repairNeeded": true,
+      "concreteLowestIssue": {
+        "priority": 2,
+        "title": "Expose the selected mobile project's open action",
+        "evidence": "The first mobile viewport shows the FJALË clue and the blue selected answer but no labelled Open FJALË action. A single tile tap only selects. The actual opening paths are an undisclosed double tap, the answer form's unlabeled visual arrow, or the full clue-panel button below the first viewport.",
+        "requestedRepair": "Add a visible labelled Open {selected project} action beside or below the mobile selected clue, with a 44px target. Keep it linked to the same selected-word state.",
+        "acceptanceEvidence": "At 375px, a visitor can read the selected project's clue and activate a clearly labelled project action without scrolling or guessing a gesture."
+      },
+      "secondaryIssue": {
+        "priority": 2,
+        "title": "Restore the mobile Solve target height",
+        "evidence": "The mobile Solve it yourself control is visibly compressed; source sets its minimum height to 38px below 430px, below the brief's 44px requirement.",
+        "requestedRepair": "Keep the compact presentation but make its actual target at least 44px tall.",
+        "acceptanceEvidence": "The mobile capture and browser bounds confirm a 44px target."
+      },
+      "holdback": "The desktop map and serif clue panel are coherent and memorable, but mobile makes opening the selected project less obvious than solving or panning. The default phone crop also shows only part of the connected structure, making the clue fallback essential.",
+      "calibration": "Compared with DIFF's final D8.1/U8.0/C8.2/Content8.4, FJALËKRYQ earns higher Design and Creativity for a stronger typographic image and a personal-language rule that is also navigation. It earns lower Usability for the obscured mobile open path, and slightly lower Content because compressed grid tokens need their clues to identify the projects fully. Its 8.4 Creativity is earned by functional composition and specificity, not by novelty of route or the unobserved animation claims.",
+      "captureHistoryNote": "Round 1 was assessed before the canonical mobile capture was replaced by round 2. Desktop remains unchanged. Scores and observed issues are retained as reviewed."
+    },
+    {
+      "round": 2,
+      "captures": [
+        "drafts-review/fjalekryq-desktop.png",
+        "drafts-review/fjalekryq-mobile.png",
+        "drafts-review/fjalekryq-solved.png"
+      ],
+      "captureScope": "Desktop is unchanged from round 1. The replacement mobile and additional solved/opened capture were inspected directly.",
+      "scores": {
+        "design": 8.3,
+        "usability": 8.1,
+        "creativity": 8.4,
+        "content": 8.2
+      },
+      "weightedTotal": 8.25,
+      "antiPale": "pass",
+      "antiPaleEvidence": {
+        "visibleComposition": "pass",
+        "rationale": "The mustard field, cream letter map, cobalt selected answer and contrasting serif clue remain a distinct composition at both sizes. The phone now makes its selected project action as explicit as its puzzle controls.",
+        "temporalEvidence": "Source confirms arrival letter falls. No additional timing or physics-quality credit is inferred from these still images."
+      },
+      "slopCount": 0,
+      "slopCauses": [],
+      "slopRationale": "The tiles, clue numbers, answer field and selected accent each serve the working crossword. The added blue action is a direct project control and does not introduce a decorative card system or fake instrumentation.",
+      "m2": "pass",
+      "m2Evidence": "The selected word controls a real project clue and case. The solved capture shows FJALE in the field, the explicit FJALË solved state, and the opened FJALË case with additional project facts and screenshot. The crossword therefore supplies an alternative answer-driven navigation path as well as selection.",
+      "mechanisms": [
+        "M1",
+        "M2",
+        "M3",
+        "M4",
+        "M5",
+        "M6",
+        "M9"
+      ],
+      "mechanismEvidence": {
+        "M1": "A single across/down answer-and-clue rule connects all 28 projects; the repair leaves this rule intact.",
+        "M2": "The crossword directly links selection and completed answers to their project cases. The clue fallback exposes the same content.",
+        "M3": "Real shared intersection letters, entry state and project mapping confirm a functioning crossword material. The visible solved result corroborates that this is not a static illustration.",
+        "M4": "The Albanian word-game project supplies the portfolio-wide interaction model and distinctive language identity.",
+        "M5": "The solved/opened capture reveals information beyond the short clue: installable PWA behaviour, daily five-letter checks, Albanian input, archive, offline support, implementation, year and ownership. Root also reports browser verification of accent-tolerant FJALE completion and the direct Open action.",
+        "M6": "Connected letterforms supply the primary image independently of product screenshots. The blue word and numbered cells remain legible within the phone crop.",
+        "M9": "The actual FJALË project, Ë input, Albanian dictionary and 28 authored project answers make the content specific to this portfolio."
+      },
+      "withheldMechanisms": [
+        "M7",
+        "M8",
+        "M10",
+        "M11"
+      ],
+      "withheldRationale": "Static evidence cannot establish the quality of motion timing, letter weight, sound, or transition interruption. Clear factual copy alone does not independently earn a voice mechanism.",
+      "repairVerification": [
+        {
+          "issue": "Selected mobile project had no labelled open action in the first viewport.",
+          "result": "resolved",
+          "evidence": "The replacement phone capture shows a full-width blue Open FJALË action directly beneath its clue and above the board. The visible label and arrow provide an immediate next step. Root reports that activating it opens the factual case."
+        },
+        {
+          "issue": "Mobile Solve target was 38px tall.",
+          "result": "resolved",
+          "evidence": "The replacement capture shows the enlarged 44px Solve control; root reports its target was increased to 44px."
+        }
+      ],
+      "supportingInteractionEvidence": {
+        "visible": "The solved capture contains the entered FJALE answer, FJALË solved message, open case title, full description, Year 2026, Work Owner, Made with Vanilla JS · PWA, and product screenshot.",
+        "implementerVerified": "Root reports Solve → FJALE → FJALË solved → correct case opens, and the direct labelled Open action opens the same case.",
+        "limitation": "The stills corroborate the information transition and final state, not the animated path or physical quality of falling letters."
+      },
+      "lowestCategory": "usability",
+      "repairNeeded": false,
+      "concreteLowestIssue": null,
+      "holdback": "The phone necessarily crops the connected map, so its overall structure is less immediately apparent than on desktop and the clue fallback carries more of the navigation. Compressed grid tokens also require selection to explain the work. The visible case is clear but largely conventional once opened. These are limits below a 9-level experience, not reasons for another repair round.",
+      "calibration": "DIFF remains D8.1/U8.0/C8.2/Content8.4. FJALËKRYQ is D8.3/U8.1/C8.4/Content8.2: its letter map and serif clue create a stronger typographic composition, and the personal Albanian word-game idea also performs navigation. The repaired direct mobile action earns the usability increase without increasing Creativity. DIFF retains the stronger immediately visible engineering evidence and comparative factual density. The 0.2 Creativity separation is based on the stronger personal rule and type-as-image composition, not route novelty or unobserved physics."
+    }
+  ],
+  "latestRound": 2,
+  "finalScores": {
+    "design": 8.3,
+    "usability": 8.1,
+    "creativity": 8.4,
+    "content": 8.2
+  },
+  "weightedTotal": 8.25,
+  "antiPale": "pass",
+  "slopCount": 0,
+  "m2": "pass",
+  "mechanisms": [
+    "M1",
+    "M2",
+    "M3",
+    "M4",
+    "M5",
+    "M6",
+    "M9"
+  ],
+  "holdback": "The phone necessarily crops the connected map, so its overall structure is less immediately apparent than on desktop and the clue fallback carries more of the navigation. Compressed grid tokens also require selection to explain the work. The visible case is clear but largely conventional once opened. These are limits below a 9-level experience, not reasons for another repair round.",
+  "nextStep": "Review complete after two rounds. Retain the visible mobile action and clue fallback; no additional repair round is warranted by the reviewed evidence.",
+  "repairNeeded": false
+}
