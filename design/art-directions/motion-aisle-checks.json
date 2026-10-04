@@ -1,0 +1,101 @@
+{
+  "draft": "aisle",
+  "date": "2026-10-04",
+  "status": "source and root browser verified; print output not physically rendered",
+  "reviewer": "creative_jury_b (implementation/source verification; not independent visual scoring)",
+  "sourceChecks": [
+    {
+      "check": "TypeScript",
+      "status": "pass",
+      "evidence": "npx tsc -p tsconfig.app.json --noEmit completed with no output after the motion changes."
+    },
+    {
+      "check": "Scoped lint",
+      "status": "pass",
+      "evidence": "npx oxlint src/drafts/aisle src/drafts/fjalekryq completed with no output."
+    },
+    {
+      "check": "28 projects",
+      "status": "pass",
+      "evidence": "Three shelf arrays contain exactly 28 unique slugs and match src/content/projects.ts. All 28 have fact labels."
+    },
+    {
+      "check": "Scanner states",
+      "status": "source-confirmed",
+      "evidence": "ProductBox derives idle, preview, scanning and in-basket. Hover and focus preview the box; native button Enter/Space invokes scan. Pending scans are deduplicated; reset cancels them."
+    },
+    {
+      "check": "Receipt data and actions",
+      "status": "source-confirmed",
+      "evidence": "Selected projects populate semantic article/ordered-list receipt with role, years, factual label, summary line, stack, contact and Europe/Belgrade date. Remove, reset, text download and window.print are wired."
+    },
+    {
+      "check": "Receipt motion",
+      "status": "source-confirmed",
+      "evidence": "AnimatePresence popLayout preserves line exits. New lines reveal clipPath inset over 1.1 seconds using the story curve, with opacity/8px offset/4px blur. Inner feed has a finite steps() jitter."
+    },
+    {
+      "check": "Three-face box geometry",
+      "status": "source-confirmed",
+      "evidence": "Front translateZ(10px), 20px side rotateY(90deg), and 20px top rotateX(90deg), with preserve-3d and hidden backfaces. Box lift and tag flip use spring stiffness350/damping35."
+    },
+    {
+      "check": "Case open/close",
+      "status": "source-confirmed",
+      "evidence": "Project title shares layoutId with the inline case heading; case enters/exits through opacity, offset and blur. A Close label button exists. Care case includes a preview/lift/flip folder and labeled invented recreation."
+    },
+    {
+      "check": "Receipt interruption",
+      "status": "source-confirmed; needs browser",
+      "evidence": "Drawer reads current computed transform/opacity/filter before canceling its preceding animation, then animates to the next state. Native modal close is deferred until exit finishes."
+    },
+    {
+      "check": "Reduced motion and sound",
+      "status": "source-confirmed",
+      "evidence": "Motion durations collapse to .01s, scanner delay to10ms, CSS durations to .01s. Audio is off by default, persists opt-in, is disabled/stopped under reduced motion and is suppressed while document.hidden."
+    },
+    {
+      "check": "Print CSS",
+      "status": "source-confirmed; needs print preview",
+      "evidence": "Named @page aisle-receipt uses size80mm 297mm with4mm margins. Printable content is72mm; surrounding shelves, controls and case are excluded. Closed mobile dialog is forced visible for print. Receipt items avoid page breaks; reveal opacity/filter/clip/transform are removed."
+    },
+    {
+      "check": "Metadata",
+      "status": "pass",
+      "evidence": "rule is first property; no scores were invented."
+    }
+  ],
+  "sizes": {
+    "sourceGzipBytes": 16001,
+    "bundledChunkGzipBytes": null,
+    "note": "Source aggregate only; root production build must establish lazy chunk budget."
+  },
+  "browserChecks": {
+    "scanner": "Pointer scan and Enter keyboard scan changed basket to02. Existing item scan is deduplicated; removal changed total to01.",
+    "tenPercent": {
+      "scan": "SCANNING visible before done; review now scales timers as well as animation clocks.",
+      "drawerEnter": {
+        "opacity": 0.288517,
+        "blurPx": 2.84593,
+        "translateX": 22.7675
+      },
+      "interruptedClose": {
+        "opacity": 0.287257,
+        "blurPx": 2.85097,
+        "translateX": 22.8078
+      },
+      "result": "Closing continues from the sampled in-flight focus and position, without jumping to an endpoint."
+    },
+    "case": "Receipt Read the label opens matching Care-management platform inline facts.",
+    "phone": "375px, no horizontal page overflow; shelves scroll horizontally. Native dialog receipt has labelled close and focus return.",
+    "repair": "Desktop names12px, units10px, recreationlabel10px. Fixed mobile\u2192desktop top-layer dialog handling. Receipt-to-case moves focus after drawer exit.",
+    "print": "Semantic selected-work receipt. Source has named80mm\u00d7297mm pages with4mm margins/72mm content, controls removed, black ink, completed motion frames. Actual print/PDF rendering not claimed.",
+    "reduced": "375px reduced-motion receipt opens modal with correct two projects; resizing to1440 releases modal top layer and returns304px inline basket, verified via rendered DOM."
+  },
+  "limitations": [
+    "CUA createBrowserTab(iab) returned Browser is not available: iab. CUA inventory contained zero browsers. No browser actions, screenshots, overflow measurements or printed output were verified by this agent.",
+    "Root resumed browser ownership; tab5 was not accessed or closed.",
+    "The existing slow-clock utility slows rAF and browser animations; scan completion currently uses a220ms wall-clock timeout. The scanner state delay itself therefore does not become2.2seconds in speed0.1 review mode. Inspect this distinction during the slow-motion browser check.",
+    "No visual creativity score is supplied by the builder. Independent jury should inspect the new desktop/mobile captures."
+  ]
+}

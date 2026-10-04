@@ -1,0 +1,177 @@
+{
+  "id": "aisle",
+  "reviewer": "draft_jury",
+  "status": "final-round-2; no further repair required",
+  "rule": "scan to basket; the receipt is the CV",
+  "scope": "Independent review by an agent that did not build AISLE. Desktop 1440px, phone 375px and the selected-work receipt capture were inspected directly. Source corroborates the mechanism. Implementer runtime checks are identified separately; no browser, print-output, timing or frame-rate claim is inferred from stills.",
+  "rounds": [
+    {
+      "round": 1,
+      "captures": [
+        "drafts-review/aisle-desktop.png",
+        "drafts-review/aisle-mobile.png",
+        "drafts-review/aisle-receipt-mobile.png"
+      ],
+      "antiPale": "pass",
+      "antiPaleEvidence": {
+        "visibleComposition": "pass",
+        "rationale": "Yellow occupies most of both first viewports, with red factual shelf tags, condensed black shelf-talker typography and a cream receipt. Desktop combines three horizontal product shelves with an actual checkout column; phone gives one shelf a larger scale and fixes the shortlist action to the bottom. This is a retail selection composition, not a personal-name hero with recoloured cards.",
+        "temporalEvidence": "Source gives the product boxes an immediate spring settle from a translated, rotated position, respecting reduced motion. The stills cannot establish the quality of that arrival or its pacing."
+      },
+      "slopCount": 0,
+      "slopCauses": [],
+      "slopRationale": "The repeated boxes are the selectable inventory, their red tags are project facts, and the receipt is the user's actual selection. These serve the stated rule rather than behaving as a decorative bento grid, fake dashboard or retro-device costume. The owner name stays small, and the type pairing is distinct.",
+      "m2": "pass",
+      "m2Evidence": "The supplemental phone capture shows Bayyinah TV and the care platform as two receipt entries, each with dates, role, facts, description and a Read the label action. Scanning changes the selected-work document and its total; removing an item changes that document. Removing the shelf-to-basket mechanism removes the useful shortlist-and-export workflow. This is a functional result of the metaphor, not just project links wearing packaging.",
+      "scores": {
+        "design": 8.3,
+        "usability": 7.4,
+        "creativity": 8.6,
+        "content": 8.3
+      },
+      "weightedTotal": 8.09,
+      "mechanisms": [
+        "M1",
+        "M2",
+        "M3",
+        "M5",
+        "M9"
+      ],
+      "mechanismEvidence": {
+        "M1": "Inventory shelves, fact tags, scanning states, basket totals and a dated receipt all obey the retail-selection rule. The desktop and phone reorganise that same workflow rather than appending an unrelated project list.",
+        "M2": "The visitor creates a personal shortlist by scanning project boxes. The receipt is generated from that basket and supports review, removal and export. Its selected state is visible in the supplemental capture, and the implementer verified keyboard scanning and removal.",
+        "M3": "The boxes have actual front, side and top CSS faces. The receipt is real structured HTML generated from the chosen projects, with text-download code and a named 80mm print stylesheet. The export implementation is present; a printed or saved-PDF result was not independently inspected.",
+        "M5": "Scanning a product moves its substantive facts onto a personalised receipt. The supplemental state adds dates, role, stack and description beyond the initial price-tag fact; Read the label opens its fuller case.",
+        "M9": "The visible inventory uses real Bayyinah routes and EN/AR support, care architecture decisions and query changes, Read to Feed's React Native upgrades, FJALE's Albanian dictionary and Za's player count. The supermarket/scanner idea is grounded in Viva Fresh and Read to Feed's barcode feature, which the source explicitly explains."
+      },
+      "withheldMechanisms": [
+        "M4",
+        "M6",
+        "M7",
+        "M8",
+        "M10",
+        "M11"
+      ],
+      "withheldRationale": "The concept grows from real projects but does not establish a personal obsession. The condensed branding and fact tags are strong typography, while the project packaging and receipt remain the primary image, so type-as-image is not separately awarded. Stills cannot establish the laser timing, spring feel, paper-feed rhythm, optional beep or interruption craft. The retail copy is coherent without yet reading as a singular personal voice.",
+      "runtimeEvidenceSuppliedByImplementer": [
+        "Keyboard Enter scanned projects and produced basket total 02.",
+        "Removing Bayyinah changed the total to 01.",
+        "The phone receipt drawer closes.",
+        "The phone introduction's missing word space is already being corrected as a simple typo."
+      ],
+      "lowestCategory": "usability",
+      "repairNeeded": true,
+      "concreteLowestIssue": {
+        "priority": 2,
+        "title": "Restore readable project labels and factual units on desktop",
+        "evidence": "At 1440px the three shelves are compressed into shallow boxes. The large red-tag numbers are legible, but their units become fine print, as do the project names and the care recreation label. Source corroborates 10px project names, 7px fact units, 6px metadata/recreation labels and 79px box height under the short-desktop rule. Reading a number without its unit weakens the five-second recruiter path.",
+        "requestedRepair": "Increase desktop project names to approximately 12px and core fact units to 10-11px, with the recreation label clearly readable around 10px. Adjust the compact shelf geometry as needed to retain complete labels. Keep the three-shelf and receipt composition; no redesign is needed.",
+        "acceptanceEvidence": "A replacement 1440px capture makes the project name, number and unit readable together, including the care recreation label, without clipping or colliding with the shelf tags."
+      },
+      "minorCorrection": {
+        "title": "Separate the two mobile instruction sentences",
+        "evidence": "The initial phone capture reads Scan the work.Build your shortlist.",
+        "status": "Acknowledged by the implementer and being fixed; retain a literal space when the line break is hidden."
+      },
+      "holdback": "AISLE turns browsing into a useful selected-work artefact, but desktop currently sacrifices legibility to show all three shelves. The phone has clearer packaging at the cost of more horizontal browsing. Its physical qualities and print fidelity remain unproven by the available stills; this review does not establish Site-of-the-Day motion craft.",
+      "calibration": "Creativity 8.6 is higher than FJALEKRYQ 8.4, DIFF 8.2 and LINJA 8.0 because this metaphor creates a useful user-owned output: a personalised, exportable project shortlist. It also visibly governs the entire browsing and detail workflow. FJALEKRYQ is more personal in its language and letter structure, DIFF has a precise comparison operation, and LINJA has stronger display material; AISLE earns its higher mark from the completeness and practical consequence of its rule, not the number of animations. Usability is deliberately below the Fun target because the desktop's factual text is too small.",
+      "remainingRounds": 2,
+      "captureHistoryNote": "Round 1 was assessed before the canonical desktop and phone captures were replaced by round-2 states. Its scores and observed defects are retained; the two-item receipt supplement remains applicable."
+    },
+    {
+      "round": 2,
+      "captures": [
+        "drafts-review/aisle-desktop.png",
+        "drafts-review/aisle-mobile.png",
+        "drafts-review/aisle-receipt-mobile.png"
+      ],
+      "captureScope": "Replacement desktop and phone captures inspected directly. The desktop now has care selected, with its receipt visible; the phone has Bayyinah selected. The earlier two-item receipt supplement is retained as supporting workflow evidence, not presented as a new round-2 capture.",
+      "antiPale": "pass",
+      "antiPaleEvidence": {
+        "visibleComposition": "pass",
+        "rationale": "The yellow inventory field, red factual tags, condensed black shelf labels and cream receipt retain the clear retail composition. All three desktop shelves are visible. Larger product text preserves rather than replaces the visual rule.",
+        "temporalEvidence": "Source gives the product boxes an immediate spring settle from a translated, rotated position, respecting reduced motion. The stills cannot establish the quality of that arrival or its pacing."
+      },
+      "slopCount": 0,
+      "slopCauses": [],
+      "slopRationale": "The repeated boxes are the selectable inventory, their red tags are project facts, and the receipt is the user's actual selection. These serve the stated rule rather than behaving as a decorative bento grid, fake dashboard or retro-device costume. The owner name stays small, and the type pairing is distinct.",
+      "m2": "pass",
+      "m2Evidence": "The replacement desktop visibly pairs the care product's IN BASKET state with a one-item care receipt and active print action. The phone pairs the Bayyinah IN BASKET state with a shortlist count of one. The prior receipt supplement shows two selected projects and their review/remove actions. The metaphor continues to create a real selected-work document.",
+      "scores": {
+        "design": 8.3,
+        "usability": 7.9,
+        "creativity": 8.6,
+        "content": 8.3
+      },
+      "weightedTotal": 8.24,
+      "mechanisms": [
+        "M1",
+        "M2",
+        "M3",
+        "M5",
+        "M9"
+      ],
+      "mechanismEvidence": {
+        "M1": "Inventory shelves, fact tags, scanning states, basket totals and a dated receipt all obey the retail-selection rule. The desktop and phone reorganise that same workflow rather than appending an unrelated project list.",
+        "M2": "The visitor creates a personal shortlist by scanning project boxes. The receipt is generated from that basket and supports review, removal and export. Its selected state is visible in the supplemental capture, and the implementer verified keyboard scanning and removal.",
+        "M3": "The boxes have actual front, side and top CSS faces. The receipt is real structured HTML generated from the chosen projects, with text-download code and a named 80mm print stylesheet. The export implementation is present; a printed or saved-PDF result was not independently inspected.",
+        "M5": "Scanning a product moves its substantive facts onto a personalised receipt. The supplemental state adds dates, role, stack and description beyond the initial price-tag fact; Read the label opens its fuller case.",
+        "M9": "The visible inventory uses real Bayyinah routes and EN/AR support, care architecture decisions and query changes, Read to Feed's React Native upgrades, FJALE's Albanian dictionary and Za's player count. The supermarket/scanner idea is grounded in Viva Fresh and Read to Feed's barcode feature, which the source explicitly explains."
+      },
+      "withheldMechanisms": [
+        "M4",
+        "M6",
+        "M7",
+        "M8",
+        "M10",
+        "M11"
+      ],
+      "withheldRationale": "The concept grows from real projects but does not establish a personal obsession. The condensed branding and fact tags are strong typography, while the project packaging and receipt remain the primary image, so type-as-image is not separately awarded. Stills cannot establish the laser timing, spring feel, paper-feed rhythm, optional beep or interruption craft. The retail copy is coherent without yet reading as a singular personal voice.",
+      "repairsVerified": [
+        {
+          "issue": "Desktop core factual text too small",
+          "result": "resolved",
+          "visualEvidence": "The replacement desktop makes project names, dates, tag units and the care recreation label readable together. The care title wraps cleanly, and its invented-data label is legible above it. The three-shelf arrangement and receipt remain intact.",
+          "sourceEvidence": "Desktop overrides set project names to 12px, fact units to 10px, recreation labels to 10px and package metadata to 9px."
+        },
+        {
+          "issue": "Mobile instruction sentences joined without a space",
+          "result": "resolved",
+          "visualEvidence": "The phone now reads Scan the work. Build your shortlist. with a visible separating space."
+        }
+      ],
+      "runtimeEvidenceSuppliedByImplementer": [
+        "Keyboard scanning, basket total changes, item removal and phone drawer close remain verified from round 1.",
+        "The modal-to-desktop responsive transition was repaired.",
+        "Opening a case from the receipt now transfers focus to the case destination."
+      ],
+      "lowestCategory": "usability",
+      "concreteLowestIssue": null,
+      "repairNeeded": false,
+      "holdback": "The desktop remains deliberately dense, and all 28 products require horizontal shelf browsing or search. Phone exposes fewer products at once and uses the receipt as an additional step in the case-reading path. The useful shortlist artefact is established, while printed output, laser/paper-feed timing, sound and interruption quality remain unobserved. These limitations keep the result below a 9-level experience without warranting another bounded repair.",
+      "calibration": "Design 8.3, Creativity 8.6 and Content 8.3 are unchanged because the same complete retail-selection rule and factual material were already present. Usability rises from 7.4 to 7.9 because the core desktop labels and units are readable and the mobile instructions are repaired. The remaining density and browsing cost prevent a larger uplift. The first-round comparison explains the distinctive useful output; no new comparative scores for other drafts are issued by this reviewer.",
+      "remainingRounds": 1
+    }
+  ],
+  "scores": {
+    "design": 8.3,
+    "usability": 7.9,
+    "creativity": 8.6,
+    "content": 8.3
+  },
+  "weightedTotal": 8.24,
+  "antiPale": "pass",
+  "slopCount": 0,
+  "m2": "pass",
+  "mechanisms": [
+    "M1",
+    "M2",
+    "M3",
+    "M5",
+    "M9"
+  ],
+  "repairNeeded": false,
+  "nextStep": "Accept after two rounds, retain the stated holdback, and proceed with the gallery. A separate reviewer who did not build any of the first five drafts will perform their comparative Creativity calibration.",
+  "latestRound": 2,
+  "holdback": "The desktop remains deliberately dense, and all 28 products require horizontal shelf browsing or search. Phone exposes fewer products at once and uses the receipt as an additional step in the case-reading path. The useful shortlist artefact is established, while printed output, laser/paper-feed timing, sound and interruption quality remain unobserved. These limitations keep the result below a 9-level experience without warranting another bounded repair."
+}

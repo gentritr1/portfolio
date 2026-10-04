@@ -1,0 +1,28 @@
+{
+  "rule": "scan to basket; the receipt is the CV",
+  "id": "aisle",
+  "title": "Aisle 7",
+  "band": "Fun",
+  "description": "Twenty-eight projects on three shelves. Scan the work you want, then print a real receipt of your shortlist.",
+  "signature": "Three-face project boxes meet a scanner sweep. Each scan adds real project facts to a thermal receipt, ready for 80 mm printing.",
+  "caseSlug": "read-to-feed",
+  "rounds": 2,
+  "holdback": "The desktop remains deliberately dense, and all 28 products require horizontal shelf browsing or search. Phone exposes fewer products at once and uses the receipt as an additional step in the case-reading path. The useful shortlist artefact is established, while printed output, laser/paper-feed timing, sound and interruption quality remain unobserved. These limitations keep the result below a 9-level experience without warranting another bounded repair.",
+  "scores": {
+    "design": 8.3,
+    "usability": 7.9,
+    "creativity": 8.6,
+    "content": 8.3
+  },
+  "antiPale": "pass",
+  "mechanisms": [
+    "M1",
+    "M2",
+    "M3",
+    "M5",
+    "M9"
+  ],
+  "slopCount": 0,
+  "m2": "pass",
+  "creativeGates": "pass"
+}
