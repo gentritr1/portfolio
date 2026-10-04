@@ -27,7 +27,7 @@ export default function BoardMove({ active, reduced }: LabMoveProps) {
       scale,
     );
     if (cols === 72) putText(bits, cols, "6912", 24, 65);
-    board.current?.set(bits, instant, [cols / 2, cols === 144 ? 24 : 48]);
+    board.current?.set(bits, { instant, seed: [cols / 2, cols === 144 ? 24 : 48] });
   }
   useEffect(() => {
     if (!active || !host.current) return;
