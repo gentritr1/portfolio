@@ -43,7 +43,7 @@ The owner wants many directions, kept as live drafts, iterated round after round
 | Round | Directions | Reviewer verdict | Carried forward |
 | --- | --- | --- | --- |
 | 1 | specimen, brief, orbit-index, changelog | changelog 52, brief 51, orbit-index 46, specimen 46 (of 70). See round-1-review.md | changelog frame, brief strike-and-insert, orbit-index Work column, specimen citation rule |
-| 2 | release-brief, strike-index, cited-claims, decision-record, margin-notes, tenant-switch | pending | |
+| 2 | release-brief, strike-index, cited-claims, decision-record, margin-notes, tenant-switch | decision-record 52, margin-notes 51, release-brief 50, strike-index 47, cited-claims 46, tenant-switch 46 (of 70). See round-2-review.md | decision-record log and Results, margin-notes hairline, strike-index edit mechanics, release-brief year rewrite |
 
 ## Rules added after round 1
 
@@ -64,4 +64,4 @@ The loop runs on its own until the weekly reset (2026-10-05 07:00 UTC). For each
 4. Commit and push `drafts-polish` and `main` (as gentritr1), publish the drafts gallery, and make a 12 s vertical reel for each new draft (`brag-output-loopN/`).
 5. Log the round here and start the next round.
 
-Status: round 2 is published (gallery version 6) and its reels are in `brag-output-loop2/`. Round 2 review: running.
+Status: round 2 is published (gallery version 6) and its reels are in `brag-output-loop2/`. Round 2 review: done (round-2-review.md). Round 3: brief in ROUND-3-BRIEF.md, theme set by the owner: scroll motion, big cards, new layouts, catchy colour and type.
