@@ -27,6 +27,8 @@ export const legacyProjects: LegacyProject[] = projects.map((project) => ({
   public_links: project.links.map((link) => [link.label, link.href]),
 }));
 
+export const driftedTitle = (title: string) => title.replace("-", " ");
+
 export function checkParity(
   legacy: LegacyProject,
   current: Project,
@@ -35,7 +37,10 @@ export function checkParity(
   const fields: ParityResult["fields"] = [
     {
       name: "title",
-      passed: (mismatch ? "" : legacy.project_title) === current.name,
+      passed:
+        (mismatch
+          ? driftedTitle(legacy.project_title)
+          : legacy.project_title) === current.name,
     },
     { name: "description", passed: legacy.description === current.summary },
     { name: "role", passed: legacy.project_role === current.role },
