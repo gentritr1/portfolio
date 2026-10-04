@@ -268,6 +268,8 @@ const fjaleLink: PublicLink = { label: 'Website', href: 'https://xn--fjal-opa.co
 const zaLink: PublicLink = { label: 'Website', href: 'https://za-game.onrender.com/' }
 const morseLink: PublicLink = { label: 'Website', href: 'https://morse-code-amber.vercel.app/' }
 const githubLink: PublicLink = { label: 'GitHub', href: 'https://github.com/gentritr1' }
+const offbeatLink: PublicLink = { label: 'GitHub', href: 'https://github.com/gentritr1/offbeat' }
+const formLink: PublicLink = { label: 'GitHub', href: 'https://github.com/gentritr1/form' }
 
 /* ---------- Projects ---------- */
 
@@ -605,6 +607,65 @@ export const projects: Project[] = [
       'A smart business dashboard for a digital-transformation client. Its AI features help staff with daily work: a headshot generator that turns uploaded photos into professional profile photos, and a workplace assistant that answers questions about uploaded PDF documents. The React frontend covers the dashboard and both AI flows, from photo upload to generated headshots and from PDF upload to a chat about the document. Some backend features were added in Python with FastAPI.',
     links: [],
     media: { thumb: 'doc-chat', recreation: 'doc-chat' },
+  },
+  {
+    slug: 'offbeat',
+    name: 'OFFBEAT',
+    kind: 'Speaker brand concept',
+    channel: 'personal',
+    group: 'Personal',
+    years: '2026',
+    role: 'Owner',
+    stack: ['Next.js 16', 'React 19', 'TypeScript', 'Three.js', 'Web Audio'],
+    line: 'Fictional speaker concept: 3D model, exploded view, working drum-machine studio',
+    summary:
+      'OFFBEAT is a fictional portable-speaker brand, made as a portfolio concept with Next.js 16, React 19, TypeScript and Three.js. A custom 3D speaker turns by drag or arrow keys, with four finishes and an exploded view of its parts. The sound studio is a working eight-step Web Audio drum machine with presets, tempo and swing; a groove shares as a link or downloads as a WAV loop.',
+    links: [offbeatLink],
+    media: {
+      shot: { src: '/personal/shots/thumbs/offbeat.webp', alt: 'OFFBEAT home: a hot-orange portable speaker in 3D beside the line Plays your songs. Makes its own.' },
+      galleries: [
+        {
+          title: 'OFFBEAT',
+          aspect: 'web',
+          links: [offbeatLink],
+          items: [
+            web('/personal/shots/offbeat-home-desktop.webp', 'OFFBEAT home: a hot-orange portable speaker in 3D with finish swatches and the line Plays your songs. Makes its own.', 'The speaker'),
+            web('/personal/shots/offbeat-studio-desktop.webp', 'OFFBEAT sound studio: an eight-step drum machine with kick, snare, hi-hat and bass rows, tempo, volume and a swing dial', 'Sound studio'),
+            web('/personal/shots/offbeat-design-desktop.webp', 'OFFBEAT By design: the speaker pulled apart into its grille, two drivers and the body', 'By design'),
+            phone('/personal/shots/offbeat-phone.webp', 'OFFBEAT home on a phone with the 3D speaker', 'On a phone'),
+          ],
+        },
+      ],
+    },
+  },
+  {
+    slug: 'form',
+    name: 'FORM',
+    kind: 'Sculpture exhibition concept',
+    channel: 'personal',
+    group: 'Personal',
+    years: '2026',
+    role: 'Owner',
+    stack: ['WebGL', 'Vanilla JS'],
+    line: 'Fictional sculpture exhibition: three mathematical forms, live materials, word-cast sculptures',
+    summary:
+      'FORM is a fictional digital sculpture exhibition with no runtime dependencies. Three original mathematical sculptures, a trefoil knot, a ring and a folded surface, render live in WebGL in copper, chrome and porcelain. Visitors turn them with inertia, twist the surface with a handle, and type a word to cast a sculpture; a link restores the exact study, and a poster downloads as a PNG.',
+    links: [formLink],
+    media: {
+      shot: { src: '/personal/shots/thumbs/form.webp', alt: 'FORM home: a copper trefoil sculpture beside the title Objects of imagination.' },
+      galleries: [
+        {
+          title: 'FORM',
+          aspect: 'web',
+          links: [formLink],
+          items: [
+            web('/personal/shots/form-home-desktop.webp', 'FORM home: a copper trefoil knot sculpture, the title Objects of imagination. and material swatches', 'The exhibition'),
+            web('/personal/shots/form-studio-desktop.webp', 'FORM collection: the Trefoil in copper and the Orbit in chrome, each with its formula and notes', 'The collection'),
+            phone('/personal/shots/form-phone.webp', 'FORM home on a phone with the copper trefoil', 'On a phone'),
+          ],
+        },
+      ],
+    },
   },
   {
     slug: 'snaxx-tech',

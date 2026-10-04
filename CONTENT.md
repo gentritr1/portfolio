@@ -203,6 +203,8 @@ Render as a compact, scannable index (not cards): grouped by employer, each row 
 | Smart business dashboard with AI | — | Frontend · FastAPI | React, Python/FastAPI | Business dashboard with AI headshot generation and a PDF-to-chat assistant | #ai |
 
 ### Personal
+| OFFBEAT, speaker brand concept (added by owner 2026-10-04) | 2026 | Owner | Next.js 16, React 19, TypeScript, Three.js, Web Audio | Fictional portable-speaker concept: 3D model, exploded view, working drum-machine studio; repo github.com/gentritr1/offbeat, not hosted | — |
+| FORM, sculpture exhibition concept (added by owner 2026-10-04) | 2026 | Owner | WebGL, vanilla JS | Fictional sculpture exhibition: three mathematical forms, live materials, word-cast sculptures; repo github.com/gentritr1/form, not hosted | — |
 | Studio website | 2026 | Owner | React 19, Vite, three.js, Tailwind | 3D hero, cinemagraph loop and strict CSP; images 972 KB → 337 KB | #personal |
 | Time-off app | 2026 | Owner | Next.js 16, SQLite, Zod, Playwright | Multi-tenant time off with approvals, team calendar, AI assistant, 16 security tests | #personal |
 | Open-source forks | 2022 | Maintainer | React Native | Forks of epubjs-react-native and react-native-pdf, used in a production reading app | #personal |

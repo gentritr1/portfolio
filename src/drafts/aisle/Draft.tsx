@@ -363,7 +363,7 @@ export default function Draft() {
       </header>
       <div className="as-store-controls" data-search={searchOpen || !!query}>
         <nav aria-label="Choose a shelf">
-          {[{ id: 'all', label: 'All 28' }, ...shelves.map(shelf => ({ id: shelf.id, label: shelfLabels[shelf.id] }))].map(tab => <button key={tab.id} type="button" aria-pressed={filter === tab.id} onClick={() => setFilter(tab.id)}>
+          {[{ id: 'all', label: `All ${aisleProducts.length}` }, ...shelves.map(shelf => ({ id: shelf.id, label: shelfLabels[shelf.id] }))].map(tab => <button key={tab.id} type="button" aria-pressed={filter === tab.id} onClick={() => setFilter(tab.id)}>
             {tab.label}{filter === tab.id && <motion.span className="as-tab-mark" layoutId="as-tab-mark" transition={reduced ? { duration: .01 } : spring.ui} />}
           </button>)}
         </nav>
@@ -387,7 +387,7 @@ export default function Draft() {
             </div>
           </motion.section>
         })}
-        {!matchCount && <div className="as-empty"><h2>Empty shelf.</h2><p>No project matches “{query}”.</p><button type="button" onClick={() => { setQuery(''); setFilter('all'); setSearchOpen(false) }}>Restock all 28 <Arrow /></button></div>}
+        {!matchCount && <div className="as-empty"><h2>Empty shelf.</h2><p>No project matches “{query}”.</p><button type="button" onClick={() => { setQuery(''); setFilter('all'); setSearchOpen(false) }}>Restock all {aisleProducts.length} <Arrow /></button></div>}
         <section className="as-readout" aria-label="Scanner display">
           <span>{scanning.includes(inspected) ? 'SCANNING' : basket.includes(inspected) ? 'IN YOUR BASKET' : 'ON THE SHELF'} · GR / {selected.reference}</span>
           <h2>{selected.project.name}</h2>
