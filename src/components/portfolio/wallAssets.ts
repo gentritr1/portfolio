@@ -43,7 +43,7 @@ export const wallPosters: Record<string, WallPoster> = {
   'chatbot-runtime': { background: '#5c34d8', ink: '#fffaf0', colour: 6.1, lines: ['Chatbot', 'runtime', 'library'] },
   'chatbot-runtime-web': { background: '#b797fb', ink: '#221244', colour: 6.3, lines: ['Chatbot', 'runtime,', 'web port'] },
   'epub-reader-prototype': { background: '#f1d63d', ink: '#292308', colour: 3.8, lines: ['EPUB', 'reader', 'prototype'] },
-  'donation-app': { background: '#ff733b', ink: '#39190b', colour: 2.7, lines: ['Donation', 'and good-', 'deeds app'] },
+  'donation-app': { background: '#ff733b', ink: '#39190b', colour: 2.7, lines: ['Sadaqah', 'for Islamic', 'Relief USA'] },
   'coaching-app': { background: '#cef43b', ink: '#233006', colour: 7.5, lines: ['Coaching', 'app'] },
   'fuel-loyalty-app': { background: '#ffb800', ink: '#322208', colour: 3.4, lines: ['Fuel-station', 'loyalty app'] },
   'member-portal': { background: '#2b4ae6', ink: '#fffaf0', colour: 11.8, lines: ['Member', 'portal,', 'web'] },
