@@ -1,0 +1,94 @@
+.lm15 {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto auto auto;
+  gap: 7px;
+  color: #171913;
+  font:
+    14px/1.4 Arial,
+    sans-serif;
+}
+.lm15-screen {
+  background: #e96438;
+  min-height: 0;
+  overflow: hidden;
+}
+.lm15 .bit-reel {
+  position: relative;
+  height: 100%;
+}
+.lm15 .bit-reel canvas,
+.lm15 .bit-reel-fallback,
+.lm15-screen > img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.lm15 .bit-reel-fallback {
+  position: absolute;
+  inset: 0;
+}
+.lm15-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 0;
+}
+.lm15 button {
+  min-height: 44px;
+  border: 1px solid #171913;
+  border-radius: 0;
+  padding: 8px 12px;
+  background: #fffdf4;
+  color: #171913;
+  cursor: pointer;
+  font: inherit;
+  transition:
+    background-color 150ms cubic-bezier(0.215, 0.61, 0.355, 1),
+    transform 150ms cubic-bezier(0.215, 0.61, 0.355, 1);
+}
+.lm15 button:focus-visible {
+  outline: 3px solid #1f4bff;
+  outline-offset: 3px;
+}
+.lm15 button:active:not(:disabled) {
+  transform: translateY(1px);
+  background: #eadcbe;
+}
+.lm15 button:disabled {
+  cursor: default;
+  opacity: 0.65;
+}
+.lm15-controls > span {
+  margin-left: auto;
+  font: 12px monospace;
+}
+.lm15-caption {
+  margin: 0;
+  font-size: 12px;
+}
+.lm15-note {
+  margin: 0;
+  font-size: 11px;
+}
+@media (hover: hover) and (pointer: fine) {
+  .lm15 button:hover:not(:disabled) {
+    background: #f2d79b;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lm15 button {
+    transition-duration: 10ms;
+  }
+  .lm15 button:active {
+    transform: none;
+  }
+}
+
+.lm15[data-reduced="true"] button {
+  transition-duration: 10ms;
+}
+.lm15[data-reduced="true"] button:active {
+  transform: none;
+}

@@ -1,0 +1,151 @@
+.lm10 {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: 8px;
+  font:
+    14px/1.45 Arial,
+    sans-serif;
+  color: #1d2517;
+}
+.lm10 * {
+  box-sizing: border-box;
+}
+.lm10-project {
+  padding: 20px;
+  background: #e7d745;
+  border: 1px solid #a29230;
+  min-height: 0;
+  overflow: auto;
+  scrollbar-width: thin;
+}
+.lm10-top {
+  position: sticky;
+  top: -20px;
+  z-index: 1;
+  background: #e7d745;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 44px;
+}
+.lm10-top > span {
+  font: 11px monospace;
+}
+.lm10 h3 {
+  display: table;
+  font-size: 60px;
+  line-height: 1;
+  margin: 20px 0 12px;
+  letter-spacing: -0.07em;
+  view-transition-class: lm10-title;
+}
+.lm10[data-open="true"] h3 {
+  font-size: 40px;
+  margin-top: 12px;
+}
+.lm10-project > p {
+  max-width: 48ch;
+  font-size: 15px;
+  margin: 0 0 20px;
+}
+.lm10 button,
+.lm10-project > a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 9px 12px;
+  border: 1px solid #1d2517;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  border-radius: 0;
+  cursor: pointer;
+  text-decoration: none;
+  transition:
+    background-color 150ms cubic-bezier(0.215, 0.61, 0.355, 1),
+    transform 150ms cubic-bezier(0.215, 0.61, 0.355, 1);
+}
+.lm10 :is(button, a, h3):focus-visible {
+  outline: 3px solid #1f4bff;
+  outline-offset: 3px;
+}
+.lm10 button:active,
+.lm10-project > a:active {
+  transform: translateY(1px);
+  background: #fffdf4;
+}
+.lm10 dl {
+  margin: 16px 0;
+}
+.lm10 dl > div {
+  display: flex;
+  gap: 20px;
+  border-top: 1px solid #1d251744;
+  padding: 8px 0;
+  font-size: 12px;
+}
+.lm10 dt {
+  min-width: 64px;
+}
+.lm10 dd {
+  margin: 0;
+}
+.lm10-project > img {
+  display: block;
+  width: 100%;
+  max-height: 240px;
+  object-fit: cover;
+  object-position: top;
+  margin-bottom: 14px;
+}
+.lm10-status {
+  font-size: 11px;
+  min-height: 2.8em;
+  margin: 0;
+}
+@keyframes lm10-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+@keyframes lm10-out {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(8px);
+    filter: blur(4px);
+  }
+}
+@media (hover: hover) and (pointer: fine) {
+  .lm10 :is(button, a):hover {
+    background: #fffdf4;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lm10 :is(button, a) {
+    transition-duration: 10ms;
+  }
+  .lm10 :is(button, a):active {
+    transform: none;
+  }
+}
+
+.lm10[data-reduced="true"] :is(button, a) {
+  transition-duration: 10ms;
+}
+.lm10[data-reduced="true"] :is(button, a):active {
+  transform: none;
+}

@@ -1,0 +1,152 @@
+.lm02 {
+  --lm02-out: cubic-bezier(0.215, 0.61, 0.355, 1);
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) 48px 29px;
+  background: #2e4f5e;
+  color: #fffdf5;
+  overflow: hidden;
+}
+.lm02-scene {
+  position: relative;
+  min-height: 0;
+  overflow: hidden;
+}
+.lm02-scene > canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.lm02-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.lm02-dom {
+  box-sizing: border-box;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 240px;
+  height: 160px;
+  transform-origin: 0 0;
+  pointer-events: auto;
+  background: #fffaf0;
+  color: #22251f;
+  padding: 12px 14px;
+  font-family: Georgia, serif;
+  /* Camera projection maps depth as well as position; CSS face culling would hide this reader. */
+  backface-visibility: visible;
+}
+.lm02-dom > strong {
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 24px;
+}
+.lm02-dom > p {
+  height: 40px;
+  margin: 5px 0 6px !important;
+  line-height: 1.2;
+}
+.lm02-reader-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid #c7c5b7;
+  padding-top: 3px;
+}
+.lm02-reader-controls button {
+  font-family: inherit;
+  font-size: 19px;
+  min-width: 68px;
+  min-height: 50px !important;
+  border: 0;
+  background: #e8e6d6;
+  color: #22251f;
+  transition:
+    background 0.22s var(--lm02-out),
+    transform 0.15s var(--lm02-out);
+}
+.lm02-reader-controls output {
+  font-family: Arial, sans-serif;
+  font-size: 12px;
+}
+.lm02-reader-controls button:hover,
+.lm02-reader-controls button:focus-visible {
+  background: #cfd6bf;
+}
+.lm02-reader-controls button:active {
+  transform: translateY(1px) scale(0.97);
+}
+.lm02-reader-controls button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.lm02-pin {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+}
+.lm02-pin-0 {
+  left: 0;
+  top: 0;
+}
+.lm02-pin-1 {
+  left: 100%;
+  top: 0;
+}
+.lm02-pin-2 {
+  left: 100%;
+  top: 100%;
+}
+.lm02-pin-3 {
+  left: 0;
+  top: 100%;
+}
+.lm02-angles {
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+  padding: 2px 8px;
+}
+.lm02-angles button {
+  min-height: 44px;
+  min-width: 70px;
+  border: 1px solid #9dadab;
+  background: #344b53;
+  color: #fffaf0;
+  padding: 5px 13px;
+  font-size: 12px;
+  transition:
+    background 0.22s var(--lm02-out),
+    transform 0.15s var(--lm02-out);
+}
+.lm02-angles button:hover:not(:disabled),
+.lm02-angles button:focus-visible {
+  background: #50707b;
+}
+.lm02-angles button[aria-pressed="true"] {
+  background: #ffe0a3;
+  color: #273c43;
+}
+.lm02-angles button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.lm02-status {
+  font-size: 10px !important;
+  text-align: center;
+  line-height: 29px;
+  color: #ecf1e7;
+  white-space: nowrap;
+}
+.lm02[data-renderer="flat"] .lm02-dom {
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 8px 12px 25px #152b3540;
+}
+.lm02[data-reduced="true"] * {
+  transition-duration: 0.01s !important;
+}

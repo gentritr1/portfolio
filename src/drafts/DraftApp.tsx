@@ -72,6 +72,7 @@ function Picker() {
       <title>Live art directions — Gentrit Rashiti</title>
       <header>
         <a href="/">Gentrit Rashiti</a>
+        <a href="/drafts/lab">Motion lab ↗</a>
         <a href="mailto:gentrit.rashiti2@gmail.com">Email</a>
       </header>
       <div className="draft-picker-intro">

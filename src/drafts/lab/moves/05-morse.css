@@ -1,0 +1,84 @@
+.lm05 {
+  --lm05-out: cubic-bezier(0.215, 0.61, 0.355, 1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 15px;
+  background: #1d281f;
+  color: #e8ecb9;
+}
+.lm05-signal {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  min-height: 42px;
+}
+.lm05-signal i {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #5f7152;
+}
+.lm05-signal span {
+  font: 30px/1.2 monospace;
+  min-width: 115px;
+  letter-spacing: 4px;
+}
+.lm05[data-down="true"] .lm05-signal i {
+  background: #f6d84c;
+  box-shadow: 0 0 20px #f6d84c66;
+}
+.lm05 button {
+  border: 1px solid #718365;
+  background: #33452e;
+  color: inherit;
+  padding: 0 14px;
+  transition:
+    background 0.15s var(--lm05-out),
+    transform 0.15s var(--lm05-out),
+    box-shadow 0.15s var(--lm05-out);
+}
+.lm05 .lm05-key {
+  min-width: 180px;
+  min-height: 58px;
+  border-bottom: 6px solid #0f180e;
+  border-radius: 5px;
+  box-shadow: 0 4px 0 #101710;
+  font-weight: bold;
+  touch-action: none;
+  user-select: none;
+}
+.lm05 button:is(:hover, :focus-visible) {
+  background: #4c603f;
+  transform: translateY(-2px);
+}
+.lm05 button:active,
+.lm05[data-down="true"] .lm05-key {
+  transform: perspective(400px) rotateX(-8deg) translateY(3px);
+  box-shadow: none;
+  background: #637745;
+}
+.lm05-controls {
+  display: flex;
+  gap: 8px;
+}
+.lm05 button[aria-pressed="true"] {
+  background: #d7db97;
+  color: #1d281f;
+}
+.lm05 output {
+  font-size: 12px;
+  text-align: center;
+  min-height: 34px;
+  line-height: 1.4;
+}
+.lm05 p {
+  font-size: 10px;
+  margin: 0;
+}
+.lm05[data-reduced="true"] button {
+  transition-duration: 0.01s;
+  transform: none;
+}

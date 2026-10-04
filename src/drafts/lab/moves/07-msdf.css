@@ -1,0 +1,103 @@
+@font-face {
+  font-family: Lab07 Display;
+  src: url("/fonts/creative/BigShouldersDisplay-Latin.woff2") format("woff2");
+  font-weight: 100 900;
+  font-display: swap;
+}
+.lm07 {
+  --lm07-out: cubic-bezier(0.215, 0.61, 0.355, 1);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 18px;
+  padding: 18px 12px;
+  background: #2b1a4a;
+  color: #ffefd1;
+}
+.lm07-type {
+  height: 125px;
+  position: relative;
+}
+.lm07-canvas {
+  width: 100%;
+  height: 100%;
+}
+.lm07-canvas canvas {
+  width: 100%;
+  height: 100%;
+}
+.lm07-fallback {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  align-items: center;
+  justify-items: center;
+  font:
+    700 clamp(32px, 5vw, 55px)/1 "Lab07 Display",
+    sans-serif;
+}
+.lm07-fallback span {
+  grid-area: 1/1;
+  white-space: nowrap;
+}
+.lm07-old {
+  animation: lm07-out 0.3s var(--lm07-out) both;
+}
+.lm07-new {
+  animation: lm07-in 0.3s var(--lm07-out) both;
+}
+.lm07-controls {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+}
+.lm07 button {
+  border: 1px solid #b78685;
+  padding: 0 10px;
+  color: inherit;
+  background: #462641;
+  transition:
+    transform 0.15s var(--lm07-out),
+    background 0.22s var(--lm07-out);
+  font-size: 12px;
+}
+.lm07 button:is(:hover, :focus-visible) {
+  transform: translateY(-2px);
+  background: #684045;
+}
+.lm07 button:active {
+  transform: translateY(1px);
+}
+.lm07 button[aria-pressed="true"] {
+  background: #ff7a1a;
+  border-color: #ff7a1a;
+  color: #211722;
+}
+.lm07 output,
+.lm07 p {
+  text-align: center;
+  font-size: 11px;
+  margin: 0;
+  line-height: 1.4;
+}
+.lm07[data-reduced="true"] :is(button, span) {
+  animation-duration: 0.01s;
+  transition-duration: 0.01s;
+  transform: none;
+}
+@keyframes lm07-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes lm07-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}

@@ -1,0 +1,78 @@
+.lm04 {
+  --lm04-out: cubic-bezier(0.215, 0.61, 0.355, 1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  padding: 15px;
+  background: #e3e7d7;
+  color: #252b20;
+}
+.lm04-grains {
+  display: grid;
+  grid-template-columns: repeat(8, 13px);
+  gap: 6px;
+}
+.lm04-grains i {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: #4d6541;
+}
+.lm04-grains i[data-play="true"] {
+  animation: lm04-impulse 0.22s var(--lm04-out) var(--grain-delay) both;
+}
+.lm04-controls {
+  display: flex;
+  gap: 7px;
+}
+.lm04 button {
+  padding: 0 10px;
+  border: 1px solid #66735b;
+  background: #f4f5eb;
+  color: inherit;
+  transition:
+    transform 0.15s var(--lm04-out),
+    background 0.22s var(--lm04-out);
+}
+.lm04 button:is(:hover, :focus-visible) {
+  transform: translateY(-2px);
+  background: #c9d5b9;
+}
+.lm04 button:active {
+  transform: perspective(500px) rotateX(-8deg);
+}
+.lm04 button[aria-pressed="true"] {
+  background: #304e2b;
+  color: #fff;
+}
+.lm04 output {
+  font-size: 12px;
+  line-height: 1.5;
+  text-align: center;
+  max-width: 40ch;
+  min-height: 36px;
+}
+.lm04[data-reduced="true"] i {
+  animation: none;
+  background: #4d6541;
+}
+.lm04[data-reduced="true"] button {
+  transition-duration: 0.01s;
+  transform: none;
+}
+@keyframes lm04-impulse {
+  0% {
+    transform: scaleY(0.15);
+    background: #eead22;
+  }
+  50% {
+    transform: scaleY(1);
+    background: #eead22;
+  }
+  100% {
+    transform: scaleY(1);
+    background: #4d6541;
+  }
+}

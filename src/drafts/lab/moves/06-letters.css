@@ -1,0 +1,66 @@
+.lm06 {
+  --lm06-out: cubic-bezier(0.215, 0.61, 0.355, 1);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-direction: column;
+  gap: 20px;
+  padding: 24px 12px;
+  background: #b23725;
+  color: #fff4dd;
+}
+.lm06-cells {
+  display: flex;
+  margin-top: 80px;
+  margin-bottom: 10px;
+  gap: 3px;
+}
+.lm06-cell {
+  position: relative;
+  width: 44px;
+  height: 48px;
+  border: 1px solid #f9d4b0;
+  border-bottom-width: 3px;
+}
+.lm06-cell small {
+  position: absolute;
+  left: 3px;
+  top: 2px;
+  font-size: 8px;
+}
+.lm06-cell span {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  font-family: Georgia, serif;
+  font-size: 30px;
+  line-height: 1;
+  font-weight: 700;
+}
+.lm06 button {
+  background: #fff0d8;
+  color: #822717;
+  border: 1px solid #fff0d8;
+  padding: 0 18px;
+  transition:
+    background 0.22s var(--lm06-out),
+    transform 0.15s var(--lm06-out);
+}
+.lm06 button:is(:hover, :focus-visible) {
+  transform: translateY(-2px);
+  background: #ffdc80;
+}
+.lm06 button:active {
+  transform: translateY(2px);
+}
+.lm06 output {
+  font-size: 12px;
+  min-height: 34px;
+  text-align: center;
+  line-height: 1.5;
+}
+.lm06[data-reduced="true"] button {
+  transition-duration: 0.01s;
+  transform: none;
+}

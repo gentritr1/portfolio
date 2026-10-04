@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { AnimatePresence, LayoutGroup, motion } from 'motion/react'
 import { CareFile } from './CareFile'
+import { Receipt } from './Receipt'
+import { receiptText } from './receiptText'
 import { dur, ease, spring } from './motion'
 import { links } from '../../content/links'
 import { aisleProducts, productBySlug, shelves } from './products'
@@ -45,22 +47,6 @@ function ProductBox({ item, index, inBasket, scanning, reduced, detailActive, sc
     </motion.span>
     <motion.span className="as-shelf-tag" animate={{ rotateX: inBasket ? 180 : scanning ? -12 : 0 }} transition={transition}><span className="as-tag-front"><strong>{item.fact.value}</strong><span>{scanning ? 'SCANNING…' : item.fact.label}</span></span><span className="as-tag-back"><CheckIcon /><strong>IN BASKET</strong><span>Scan saved</span></span></motion.span>
   </motion.button>
-}
-
-function Receipt({ items, date, reduced, remove, inspect }: { items: AisleProduct[]; date: Date; reduced: boolean; remove: (slug: string) => void; inspect: (slug: string) => void }) {
-  const dateLabel = new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Belgrade', dateStyle: 'medium' }).format(date)
-  return <article className="as-receipt" id="as-receipt" aria-label="Printable selected-work CV">
-    <header><h2>GENTRIT RASHITI</h2><p>WEB · MOBILE · FULL STACK<br />Kosovo · Working remotely</p><p className="as-receipt-purpose">SELECTED WORK</p><time dateTime={date.toISOString()}>{dateLabel}</time></header>
-    <ol className="as-receipt-items"><AnimatePresence mode="popLayout">{items.map((item, index) => <motion.li layout key={item.project.slug} initial={{ opacity: 0, y: 8, filter: 'blur(4px)', clipPath: 'inset(0 0 100% 0)' }} animate={{ opacity: 1, y: 0, filter: 'blur(0px)', clipPath: 'inset(0 0 0% 0)' }} exit={{ opacity: 0, y: -8, filter: 'blur(4px)' }} transition={reduced ? { duration: .01 } : { duration: dur.ui, ease: ease.out, clipPath: { duration: dur.story, ease: ease.story }, layout: spring.ui }}><div className="as-feed-content">
-      <div className="as-receipt-item-title"><span>{String(index + 1).padStart(2, '0')}</span><h3>{item.project.name}</h3><button className="as-screen-only" type="button" aria-label={'Remove ' + item.project.name + ' from basket'} onClick={() => remove(item.project.slug)}><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 5 10 10M5 15 15 5" /></svg></button></div>
-      <p className="as-receipt-years">{item.project.years ?? 'Independent work'} / {item.project.role}</p>
-      <p className="as-receipt-fact">{item.fact.value} {item.fact.label}</p><p>{item.project.line}</p><p className="as-receipt-stack">{item.project.stack.slice(0, 5).join(' / ')}</p>
-      {item.project.links[0] && <a className="as-receipt-url" href={item.project.links[0].href}>{item.project.links[0].href}</a>}
-      <button type="button" className="as-receipt-inspect as-screen-only" onClick={() => inspect(item.project.slug)}>Read the label <Arrow /></button>
-    </div></motion.li>)}</AnimatePresence></ol>{!items.length && <div className="as-receipt-empty"><BasketIcon /><h3>Nothing scanned. Yet.</h3><p>Pick a box from the shelves.<br />Its work goes on this receipt.</p><p>Scan a few.<br />Print your shortlist.</p></div>}
-    <dl className="as-receipt-total"><dt>TOTAL</dt><dd>{String(items.length).padStart(2, '0')} PROJECT{items.length === 1 ? '' : 'S'}</dd></dl>
-    <footer><p>5+ years, from first screen to release.</p><p>React · React Native · Vue · Nuxt<br />Laravel · FastAPI</p><a href={'mailto:' + links.email}>{links.email}</a><a href={links.github}>{links.githubLabel}</a><p>THANK YOU FOR LOOKING.</p></footer>
-  </article>
 }
 
 export default function Draft() {
@@ -218,28 +204,7 @@ export default function Draft() {
 
   function downloadReceipt() {
     if (!items.length) return
-    const lines = [
-      'GENTRIT RASHITI — SELECTED WORK',
-      'Web · Mobile · Full stack',
-      'Kosovo · Working remotely',
-      new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Belgrade', dateStyle: 'long' }).format(receiptDate),
-      '',
-      ...items.flatMap((item, index) => [
-        String(index + 1).padStart(2, '0') + ' / ' + item.project.name,
-        (item.project.years ?? 'Independent work') + ' / ' + item.project.role,
-        item.fact.value + ' ' + item.fact.label,
-        item.project.line,
-        'Technology: ' + item.project.stack.join(', '),
-        ...item.project.links.map(link => link.label + ': ' + link.href),
-        '',
-      ]),
-      'TOTAL: ' + items.length + ' projects',
-      '5+ years, from first screen to release.',
-      links.email,
-      links.github,
-      links.linkedin,
-    ]
-    const url = URL.createObjectURL(new Blob([lines.join('\n')], { type: 'text/plain;charset=utf-8' }))
+    const url = URL.createObjectURL(new Blob([receiptText(items, receiptDate)], { type: 'text/plain;charset=utf-8' }))
     const anchor = document.createElement('a')
     anchor.href = url
     anchor.download = 'Gentrit-Rashiti-shortlist.txt'

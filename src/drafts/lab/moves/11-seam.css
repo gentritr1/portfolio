@@ -1,0 +1,149 @@
+.lm11 {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: 8px;
+  font:
+    14px/1.4 Arial,
+    sans-serif;
+  color: #171913;
+}
+.lm11 * {
+  box-sizing: border-box;
+}
+.lm11-instruction {
+  font-size: 12px;
+  margin: 0 0 10px;
+}
+.lm11-scroll {
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  border: 1px solid #35553d;
+  scroll-timeline-name: --lm11-scroll;
+  scroll-timeline-axis: block;
+  scrollbar-color: #35553d #f3efe6;
+}
+.lm11-scroll:focus-visible {
+  outline: 3px solid #1f4bff;
+  outline-offset: 3px;
+}
+.lm11-story {
+  height: 820px;
+  position: relative;
+  background: #daf0d8;
+}
+.lm11-sticky {
+  position: sticky;
+  top: 0;
+  height: 240px;
+  overflow: hidden;
+  isolation: isolate;
+}
+.lm11-version {
+  position: absolute;
+  inset: 0;
+  padding: 20px;
+  background: #dadbd3;
+  color: #2f3b2f;
+}
+.lm11-version > span {
+  font: 11px monospace;
+  text-transform: uppercase;
+}
+.lm11-version h3 {
+  font-size: clamp(22px, 4vw, 32px);
+  letter-spacing: -0.04em;
+  line-height: 1.1;
+  margin: 12px 0 18px;
+}
+.lm11-version dl {
+  margin: 0;
+}
+.lm11-version dl > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  border-top: 1px solid #35553d55;
+  padding: 6px 0;
+  font-size: 12px;
+}
+.lm11-version dd {
+  margin: 0;
+}
+.lm11-version > p {
+  font-size: 12px;
+  max-width: 36ch;
+  margin: 14px 0 0;
+}
+.lm11-new {
+  background: #16c172;
+  color: #092e1b;
+  clip-path: inset(0);
+}
+.lm11-seam {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  display: none;
+}
+.lm11-seam > span {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 2px;
+  background: #092e1b;
+}
+.lm11-end {
+  position: absolute;
+  bottom: 0;
+  margin: 0;
+  padding: 9px 20px;
+  font: 11px monospace;
+}
+.lm11-caption {
+  font-size: 11px;
+  margin: 0;
+}
+.lm11-fallback {
+  display: inline;
+}
+@supports (animation-timeline: scroll()) {
+  .lm11-fallback {
+    display: none;
+  }
+  .lm11[data-active="true"][data-reduced="false"] .lm11-new {
+    animation: lm11-wipe linear both;
+    animation-timeline: --lm11-scroll;
+    animation-duration: auto;
+  }
+  .lm11[data-active="true"][data-reduced="false"] .lm11-seam {
+    display: block;
+    animation: lm11-line linear both;
+    animation-timeline: --lm11-scroll;
+    animation-duration: auto;
+  }
+}
+@keyframes lm11-wipe {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+@keyframes lm11-line {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lm11 .lm11-new {
+    animation: none !important;
+    clip-path: inset(0);
+  }
+  .lm11 .lm11-seam {
+    display: none !important;
+  }
+}

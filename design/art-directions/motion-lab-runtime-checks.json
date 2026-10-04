@@ -1,0 +1,782 @@
+{
+  "reviewDate": "2026-10-04",
+  "reviewer": "root",
+  "scope": "In-app browser. Actual DOM observations, not physical-device performance.",
+  "normalPhone": [
+    {
+      "clipped": [],
+      "data": {
+        "reduced": "false",
+        "renderer": "webgl"
+      },
+      "id": "01",
+      "overflow": 0
+    },
+    {
+      "clipped": [],
+      "data": {
+        "reduced": "false",
+        "renderer": "webgl-dom"
+      },
+      "id": "02",
+      "overflow": 0
+    },
+    {
+      "clipped": [],
+      "data": {
+        "reduced": "false"
+      },
+      "id": "03",
+      "overflow": 0
+    },
+    {
+      "clipped": [],
+      "data": {
+        "reduced": "false"
+      },
+      "id": "04",
+      "overflow": 0
+    },
+    {
+      "clipped": [],
+      "data": {
+        "down": "false",
+        "reduced": "false"
+      },
+      "id": "05",
+      "overflow": 0
+    },
+    {
+      "clipped": [],
+      "data": {
+        "reduced": "false"
+      },
+      "id": "06",
+      "overflow": 0
+    },
+    {
+      "clipped": [],
+      "data": {
+        "engine": "msdf",
+        "reduced": "false"
+      },
+      "id": "07",
+      "overflow": 0
+    },
+    {
+      "clipped": [],
+      "data": {
+        "engine": "curl",
+        "reduced": "false",
+        "turning": "false"
+      },
+      "id": "08",
+      "overflow": 0
+    },
+    {
+      "clipped": [],
+      "data": {
+        "quality": "1080p"
+      },
+      "id": "09",
+      "overflow": 0
+    },
+    {
+      "clipped": [],
+      "data": {
+        "open": "false",
+        "reduced": "false"
+      },
+      "id": "10",
+      "overflow": 0
+    },
+    {
+      "clipped": [],
+      "data": {
+        "active": "true",
+        "reduced": "false"
+      },
+      "id": "11",
+      "overflow": 0
+    },
+    {
+      "clipped": [],
+      "data": {
+        "reduced": "false"
+      },
+      "id": "12",
+      "overflow": 0
+    },
+    {
+      "clipped": [],
+      "data": {
+        "grid": "128",
+        "pressureIterations": "20",
+        "reduced": "false",
+        "renderer": "webgl"
+      },
+      "id": "13",
+      "overflow": 0
+    },
+    {
+      "clipped": [],
+      "data": {
+        "reduced": "false"
+      },
+      "id": "14",
+      "overflow": 0
+    },
+    {
+      "clipped": [],
+      "data": {
+        "reduced": "false"
+      },
+      "id": "15",
+      "overflow": 0
+    },
+    {
+      "clipped": [],
+      "data": {
+        "reduced": "false"
+      },
+      "id": "16",
+      "overflow": 0
+    },
+    {
+      "clipped": [],
+      "data": {
+        "reduced": "false"
+      },
+      "id": "17",
+      "overflow": 0
+    }
+  ],
+  "reducedPhoneBeforeNavigationRepair": [
+    {
+      "controls": [
+        {
+          "inside": true,
+          "text": "Bayyinah"
+        },
+        {
+          "inside": true,
+          "text": "FJALË"
+        },
+        {
+          "inside": true,
+          "text": "Light on"
+        }
+      ],
+      "data": {
+        "reduced": "true",
+        "renderer": "webgl"
+      },
+      "id": "01",
+      "overflow": 477,
+      "text": "BayyinahFJALËLight onStatic light · reduced motion"
+    },
+    {
+      "controls": [
+        {
+          "inside": true,
+          "text": "Left"
+        },
+        {
+          "inside": true,
+          "text": "Front"
+        },
+        {
+          "inside": true,
+          "text": "Right"
+        }
+      ],
+      "data": {
+        "reduced": "true",
+        "renderer": "flat"
+      },
+      "id": "02",
+      "overflow": 477,
+      "text": "Read to FeedA reading app for PDF and EPUB.A−14A+LeftFrontRightFlat reader · reduced motion"
+    },
+    {
+      "controls": [
+        {
+          "inside": true,
+          "text": "FJALË"
+        },
+        {
+          "inside": true,
+          "text": "LINJA"
+        },
+        {
+          "inside": true,
+          "text": "MORSE"
+        }
+      ],
+      "data": {
+        "reduced": "true"
+      },
+      "id": "03",
+      "overflow": 477,
+      "text": "FJALËLINJAMORSEFJALË · 72 × 96 · 6,912 discs · final frame"
+    },
+    {
+      "controls": [
+        {
+          "inside": true,
+          "text": "Enable sound"
+        },
+        {
+          "inside": true,
+          "text": "Play 64 flips"
+        }
+      ],
+      "data": {
+        "reduced": "true"
+      },
+      "id": "04",
+      "overflow": 477,
+      "text": "Enable soundPlay 64 flipsSound off. Choose enable to listen."
+    },
+    {
+      "controls": [
+        {
+          "inside": true,
+          "text": "Hold key"
+        },
+        {
+          "inside": true,
+          "text": "Play W · .--"
+        },
+        {
+          "inside": true,
+          "text": "Sound off"
+        }
+      ],
+      "data": {
+        "down": "false",
+        "reduced": "true"
+      },
+      "id": "05",
+      "overflow": 477,
+      "text": "· − −Hold keyPlay W · .--Sound offTry W, or hold the key to send a letter.60 ms dit · 180 ms dah · 420 ms pause"
+    },
+    {
+      "controls": [
+        {
+          "inside": true,
+          "text": "Drop the letters"
+        }
+      ],
+      "data": {
+        "reduced": "true"
+      },
+      "id": "06",
+      "overflow": 477,
+      "text": "1F2J3A4L5ËDrop the lettersFive letters. Five fixed cells."
+    },
+    {
+      "controls": [
+        {
+          "inside": true,
+          "text": "Bayyinah"
+        },
+        {
+          "inside": true,
+          "text": "FUTURISMA"
+        },
+        {
+          "inside": true,
+          "text": "FJALË"
+        }
+      ],
+      "data": {
+        "engine": "msdf",
+        "reduced": "true"
+      },
+      "id": "07",
+      "overflow": 477,
+      "text": "BayyinahFUTURISMAFJALËBAYYINAH TV · distance-field morphRGB edge distances → median → mix → threshold"
+    },
+    {
+      "controls": [
+        {
+          "inside": true,
+          "text": "Turn page →"
+        }
+      ],
+      "data": {
+        "engine": "css",
+        "reduced": "true",
+        "turning": "false"
+      },
+      "id": "08",
+      "overflow": 477,
+      "text": "LS playback and live chat.One reading direction at a time.GENTRIT · PROJECT NOTESTurn page →Turn the page. Press again to reverse."
+    },
+    {
+      "controls": [
+        {
+          "inside": true,
+          "text": "Auto1080p720p480p240p"
+        }
+      ],
+      "data": {
+        "quality": "1080p"
+      },
+      "id": "09",
+      "overflow": 477,
+      "text": "Render quality Auto1080p720p480p240p16 colour levelsLanding page · public website. At phone widths, only the player is posterised."
+    },
+    {
+      "controls": [
+        {
+          "inside": true,
+          "text": "Open project ↗"
+        }
+      ],
+      "data": {
+        "open": "false",
+        "reduced": "true"
+      },
+      "id": "10",
+      "overflow": 477,
+      "text": "FJALË / 2026FJALË21k Albanian words. One daily puzzle.Open project ↗Open the project; its title keeps its place in the transition."
+    },
+    {
+      "controls": [],
+      "data": {
+        "active": "true",
+        "reduced": "true"
+      },
+      "id": "11",
+      "overflow": 477,
+      "text": "l illustration using real care-platform facts. Scroll timelines unavailable: final state shown. Reduced motion: final state shown."
+    },
+    {
+      "controls": [
+        {
+          "inside": true,
+          "text": "Archivo width axis"
+        },
+        {
+          "inside": true,
+          "text": "Reset"
+        }
+      ],
+      "data": {
+        "reduced": "true"
+      },
+      "id": "12",
+      "overflow": 477,
+      "text": "Archivo / genuine width axisBAYYINAHTVwdth 100.0Resting width 100Use the slider to change the width directly.Reset"
+    },
+    {
+      "controls": [
+        {
+          "inside": true,
+          "text": "Bayyinah TV34 routes · English / Arabic+"
+        },
+        {
+          "inside": true,
+          "text": "Read to FeedPDF · EPUB · ISBN+"
+        },
+        {
+          "inside": true,
+          "text": "FJALË21k Albanian words+"
+        },
+        {
+          "inside": true,
+          "text": "Clear"
+        }
+      ],
+      "data": {
+        "grid": "128",
+        "pressureIterations": "20",
+        "reduced": "true",
+        "renderer": "static"
+      },
+      "id": "13",
+      "overflow": 477,
+      "text": "inah TV34 routes · English / Arabic+Read to FeedPDF · EPUB · ISBN+FJALË21k Albanian words+Static row colours · reduced motionClear"
+    },
+    {
+      "controls": [
+        {
+          "inside": true,
+          "text": "Visitor clock"
+        },
+        {
+          "inside": true,
+          "text": "Solar noon"
+        }
+      ],
+      "data": {
+        "reduced": "true"
+      },
+      "id": "14",
+      "overflow": 477,
+      "text": "Kosovo · 42.6° N, 20.9° ENESWNVisitor clockSolar noonStatic calculated noon · 43.1° altitude180.3° bearing · sun above the horizon"
+    },
+    {
+      "controls": [
+        {
+          "inside": true,
+          "text": "Automatic cuts off"
+        },
+        {
+          "inside": true,
+          "text": "Next frame →"
+        }
+      ],
+      "data": {
+        "reduced": "true"
+      },
+      "id": "15",
+      "overflow": 477,
+      "text": " cuts offNext frame →01 / 04Landing page · public websiteHard cut every 2 seconds · 120 ms additive colour bleed · motion reduced."
+    },
+    {
+      "controls": [
+        {
+          "inside": true,
+          "text": null
+        },
+        {
+          "inside": true,
+          "text": null
+        },
+        {
+          "inside": true,
+          "text": null
+        },
+        {
+          "inside": true,
+          "text": "Print / save PDF"
+        },
+        {
+          "inside": true,
+          "text": "Download text"
+        }
+      ],
+      "data": {
+        "reduced": "true"
+      },
+      "id": "16",
+      "overflow": 477,
+      "text": "OKING.Print / save PDFDownload textChoose the work to put on your receipt.80 mm paper width. Long receipts can use multiple pages."
+    },
+    {
+      "controls": [
+        {
+          "inside": true,
+          "text": "FJALË21k Albanian words"
+        },
+        {
+          "inside": true,
+          "text": "Za!2–8 players"
+        },
+        {
+          "inside": true,
+          "text": "Motion reduced"
+        },
+        {
+          "inside": true,
+          "text": "Step one update"
+        }
+      ],
+      "data": {
+        "reduced": "true"
+      },
+      "id": "17",
+      "overflow": 477,
+      "text": "playersBot ABot BBot CMotion reducedStep one updateSelected: FJALËLocal bots only. No live visitors, server or network connection."
+    }
+  ],
+  "forcedReducedNoGraphicsPhone": [
+    {
+      "data": {
+        "reduced": "true",
+        "renderer": "static"
+      },
+      "force": "reduce",
+      "id": "01",
+      "overflow": 0,
+      "text": "BayyinahFJALËLight onStatic image · graphics unavailable",
+      "width": 375
+    },
+    {
+      "data": {
+        "reduced": "true",
+        "renderer": "flat"
+      },
+      "force": "reduce",
+      "id": "02",
+      "overflow": 0,
+      "text": "Read to FeedA reading app for PDF and EPUB.A−14A+LeftFrontRightFlat reader · reduced motion",
+      "width": 375
+    },
+    {
+      "data": {
+        "reduced": "true"
+      },
+      "force": "reduce",
+      "id": "03",
+      "overflow": 0,
+      "text": "FJALËLINJAMORSEFJALË · 72 × 96 · 6,912 discs · final frame",
+      "width": 375
+    },
+    {
+      "data": {
+        "reduced": "true"
+      },
+      "force": "reduce",
+      "id": "04",
+      "overflow": 0,
+      "text": "Enable soundPlay 64 flipsSound off. Choose enable to listen.",
+      "width": 375
+    },
+    {
+      "data": {
+        "down": "false",
+        "reduced": "true"
+      },
+      "force": "reduce",
+      "id": "05",
+      "overflow": 0,
+      "text": " − −Hold keyPlay W · .--Sound offTry W, or hold the key to send a letter.60 ms dit · 180 ms dah · 420 ms pause",
+      "width": 375
+    },
+    {
+      "data": {
+        "reduced": "true"
+      },
+      "force": "reduce",
+      "id": "06",
+      "overflow": 0,
+      "text": "1F2J3A4L5ËDrop the lettersFive letters. Five fixed cells.",
+      "width": 375
+    },
+    {
+      "data": {
+        "engine": "fallback",
+        "reduced": "true"
+      },
+      "force": "reduce",
+      "id": "07",
+      "overflow": 0,
+      "text": "AYYINAH TVBayyinahFUTURISMAFJALËBAYYINAH TV · cross-fade fallbackRGB edge distances → median → mix → threshold",
+      "width": 375
+    },
+    {
+      "data": {
+        "engine": "css",
+        "reduced": "true",
+        "turning": "false"
+      },
+      "force": "reduce",
+      "id": "08",
+      "overflow": 0,
+      "text": " chat.One reading direction at a time.GENTRIT · PROJECT NOTESTurn page →Turn the page. Press again to reverse.",
+      "width": 375
+    },
+    {
+      "data": {
+        "quality": "1080p"
+      },
+      "force": "reduce",
+      "id": "09",
+      "overflow": 0,
+      "text": "080p720p480p240p16 colour levelsLanding page · public website. At phone widths, only the player is posterised.",
+      "width": 375
+    },
+    {
+      "data": {
+        "open": "false",
+        "reduced": "true"
+      },
+      "force": "reduce",
+      "id": "10",
+      "overflow": 0,
+      "text": " Albanian words. One daily puzzle.Open project ↗Open the project; its title keeps its place in the transition.",
+      "width": 375
+    },
+    {
+      "data": {
+        "active": "true",
+        "reduced": "true"
+      },
+      "force": "reduce",
+      "id": "11",
+      "overflow": 0,
+      "text": " real care-platform facts. Scroll timelines unavailable: final state shown. Reduced motion: final state shown.",
+      "width": 375
+    },
+    {
+      "data": {
+        "reduced": "true"
+      },
+      "force": "reduce",
+      "id": "12",
+      "overflow": 0,
+      "text": "ivo / genuine width axisBAYYINAHTVwdth 100.0Resting width 100Use the slider to change the width directly.Reset",
+      "width": 375
+    },
+    {
+      "data": {
+        "grid": "128",
+        "pressureIterations": "20",
+        "reduced": "true",
+        "renderer": "static"
+      },
+      "force": "reduce",
+      "id": "13",
+      "overflow": 0,
+      "text": "nglish / Arabic+Read to FeedPDF · EPUB · ISBN+FJALË21k Albanian words+Static row colours · reduced motionClear",
+      "width": 375
+    },
+    {
+      "data": {
+        "reduced": "true"
+      },
+      "force": "reduce",
+      "id": "14",
+      "overflow": 0,
+      "text": ".9° ENESWNVisitor clockSolar noonStatic calculated noon · 43.1° altitude180.3° bearing · sun above the horizon",
+      "width": 375
+    },
+    {
+      "data": {
+        "reduced": "true"
+      },
+      "force": "reduce",
+      "id": "15",
+      "overflow": 0,
+      "text": "→01 / 04Landing page · public websiteHard cut every 2 seconds · 120 ms additive colour bleed · motion reduced.",
+      "width": 375
+    },
+    {
+      "data": {
+        "reduced": "true"
+      },
+      "force": "reduce",
+      "id": "16",
+      "overflow": 0,
+      "text": "DFDownload textChoose the work to put on your receipt.80 mm paper width. Long receipts can use multiple pages.",
+      "width": 375
+    },
+    {
+      "data": {
+        "reduced": "true"
+      },
+      "force": "reduce",
+      "id": "17",
+      "overflow": 0,
+      "text": " CMotion reducedStep one updateSelected: FJALËLocal bots only. No live visitors, server or network connection.",
+      "width": 375
+    }
+  ],
+  "limits": [
+    "The initial reduced-phone pass found 477 px page overflow from escaped hidden navigation labels. A position:relative repair subsequently returned zero overflow in all 17 normal and all 17 forced-reduced/no-graphics phone checks.",
+    "No real printer/PDF output, physical phone FPS, sample-accurate audio timing or live operating-system preference change was measured.",
+    "The print action entered a native blocking workflow; browser automation could not inspect that sheet or confirm afterprint cancellation. The agent-owned test tab was closed."
+  ],
+  "phoneProjection": {
+    "actual": [
+      [
+        20.541519165039062,
+        33.090484619140625
+      ],
+      [
+        285.76342010498047,
+        36.17543029785156
+      ],
+      [
+        274.57845306396484,
+        191.02101135253903
+      ],
+      [
+        36.85472106933594,
+        222.0797882080078
+      ]
+    ],
+    "expected": [
+      [
+        20.54151939446898,
+        33.0904743153035
+      ],
+      [
+        285.8403867596604,
+        36.17541982592487
+      ],
+      [
+        274.64079529482063,
+        191.126432070713
+      ],
+      [
+        36.854558321522546,
+        222.2363144880395
+      ]
+    ],
+    "maxCoordinateError": 0.15652628003169866,
+    "overflow": 0,
+    "readerSize": "15",
+    "width": 375
+  },
+  "phoneCase": {
+    "backInside": true,
+    "caseHeight": 300,
+    "caseScrollHeight": 686,
+    "focus": "FJALË",
+    "overflow": 0,
+    "width": 375
+  },
+  "globalPause": {
+    "active": 0,
+    "canvases": 0
+  },
+  "finalNavigation": {
+    "gallery": {
+      "url": "http://127.0.0.1:5173/drafts",
+      "articles": 25,
+      "uniqueDirectionLinks": 25,
+      "motionLabLinkPresent": true,
+      "actualCssWidth": 1600,
+      "horizontalOverflow": 0
+    },
+    "lab": {
+      "url": "http://127.0.0.1:5173/drafts/lab",
+      "tiles": 17,
+      "jumpLinks": 17,
+      "actualCssWidthAfterViewportReset": 873,
+      "horizontalOverflow": 0
+    },
+    "productionRegression": "Home opened the Bayyinah TV case with its recreation. An unknown-project URL showed No Signal and a working back link. AISLE keyboard scan0→1, receipt open and remove1→0 passed with disabled exports when empty; see motion-new-drafts-checks.json."
+  },
+  "css3dFaceRepair": {
+    "defect": "The single HTML reader plane was present in the DOM but culled by CSS backface visibility. Earlier coordinate checks alone did not establish visible pixels.",
+    "fix": "Keep the camera matrix; explicitly render the HTML front plane with backface-visibility:visible.",
+    "browserEvidence": {
+      "front": "Visible reader verified in screenshot at default CSS width873.",
+      "left": {
+        "actualCssWidth": 873,
+        "readerTextAfterPointer": 15,
+        "maxCornerErrorPx": 0.11705359155871778
+      },
+      "right": {
+        "actualCssWidth": 873,
+        "readerTextAfterKeyboard": 15,
+        "maxCornerErrorPx": 0.1072728849321872
+      },
+      "phone": {
+        "actualCssWidth": 375,
+        "actualCssHeight": 812,
+        "readerTextAfterKeyboard": 15,
+        "maxCornerErrorPx": 0.12115497063637878,
+        "horizontalOverflow": 0,
+        "visiblePixels": true
+      }
+    },
+    "scope": "Pointer and keyboard controls, camera alignment and actual screenshots. No physical-device speed claim."
+  }
+}
