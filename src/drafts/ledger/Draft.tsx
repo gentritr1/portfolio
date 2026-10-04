@@ -1,5 +1,14 @@
-import { useEffect, useRef, useState, type CSSProperties } from "react";
 import {
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+  type KeyboardEvent,
+} from "react";
+import {
+  animate,
   AnimatePresence,
   LayoutGroup,
   motion,
@@ -7,403 +16,500 @@ import {
 } from "motion/react";
 import { caseNarratives } from "../../content/caseNarratives";
 import { links } from "../../content/links";
-import { createScheduler } from "./cells";
+import { registerCell } from "./cells";
 import { rows, type LedgerRow } from "./data";
 import { dur, ease, spring } from "./motion";
-import CareFile from "./CareFile";
 import "./ledger.css";
+
+/** These timings must match the posting keyframes in ledger.css. */
+const STEP = 22;
+const LEAD = 160;
+const CELL_LAG = 200;
+const pad = (value: number) => String(value).padStart(2, "0");
+
+function Arrow() {
+  return (
+    <svg viewBox="0 0 16 16" aria-hidden="true">
+      <path d="M3 13 13 3M5 3h8v8" />
+    </svg>
+  );
+}
+
+function LiveCell({
+  row,
+  open,
+  pinned,
+  delay,
+  reduced,
+  onPreview,
+  onPin,
+}: {
+  row: LedgerRow;
+  open: boolean;
+  pinned: boolean;
+  delay: number;
+  reduced: boolean;
+  onPreview: (on: boolean) => void;
+  onPin: () => void;
+}) {
+  const canvas = useRef<HTMLCanvasElement>(null);
+  const firstDelay = useRef(delay);
+  useEffect(
+    () =>
+      registerCell(
+        canvas.current!,
+        row.project.slug,
+        row.colour,
+        row.order,
+        firstDelay.current,
+      ),
+    [row],
+  );
+  const shot = row.project.media.shot;
+  return (
+    <motion.button
+      layout
+      type="button"
+      className="ld-cell"
+      data-open={open}
+      aria-pressed={pinned}
+      aria-label={`${pinned ? "Shrink" : "Enlarge"} the ${row.project.name} live recreation`}
+      onPointerEnter={(event) => event.pointerType === "mouse" && onPreview(true)}
+      onFocus={() => onPreview(true)}
+      onBlur={() => onPreview(false)}
+      onClick={onPin}
+      whileTap={reduced ? undefined : { scale: 0.97 }}
+      transition={reduced ? { duration: 0.01 } : spring.ui}
+    >
+      <canvas ref={canvas} aria-hidden="true" />
+      {shot && (
+        <img
+          className="ld-shot"
+          src={shot.src}
+          alt=""
+          decoding="async"
+          style={{ animationDelay: `${-((row.order * 2.3) % 12)}s` }}
+        />
+      )}
+    </motion.button>
+  );
+}
 
 function Case({
   row,
-  onClose,
   reduced,
+  onClose,
 }: {
   row: LedgerRow;
-  onClose: () => void;
   reduced: boolean;
+  onClose: () => void;
 }) {
   const { project } = row;
-  const story = caseNarratives[project.slug];
+  const narrative = caseNarratives[project.slug];
+  const paragraphs = narrative
+    ? [narrative.story.product, narrative.story.built, narrative.story.result]
+    : [project.summary];
+  const facts = narrative?.facts ?? [
+    { label: "Role", value: project.role },
+    { label: "Years", value: project.years ?? "Not dated" },
+    { label: "Stack", value: project.stack.join(", ") },
+  ];
+  const shots = (project.media.galleries ?? [])
+    .flatMap((gallery) => gallery.items)
+    .slice(0, 6);
+  const readouts = project.featured?.readouts;
+  const quiet = reduced ? { duration: 0.01 } : undefined;
   return (
-    <motion.article
+    <motion.div
       className="ld-case"
-      tabIndex={-1}
-      aria-label={`${project.name} case`}
-      initial={{
-        opacity: 0,
-        y: reduced ? 0 : 8,
-        filter: reduced ? "blur(0px)" : "blur(4px)",
-      }}
-      animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-      exit={{
-        opacity: 0,
-        y: reduced ? 0 : 8,
-        filter: reduced ? "blur(0px)" : "blur(4px)",
-      }}
-      transition={{ duration: reduced ? 0.01 : dur.panel, ease: ease.sheet }}
+      id={`ld-case-${project.slug}`}
+      role="region"
+      aria-labelledby={`ld-name-${project.slug}`}
+      initial={{ height: 0 }}
+      animate={{ height: "auto" }}
+      exit={{ height: 0 }}
+      transition={quiet ?? { duration: dur.panel, ease: ease.sheet }}
     >
-      <header>
-        <motion.h2
-          layoutId={`ld-title-${project.slug}`}
-          transition={reduced ? { duration: 0.01 } : spring.ui}
-        >
-          {project.name}
-        </motion.h2>
-        <button onClick={onClose}>Close case</button>
-      </header>
-      <div className="ld-case-copy">
-        <div>
-          <p>{story?.story.product ?? project.summary}</p>
-          {story && <p>{story.story.built}</p>}
-          {project.slug === "care-platform" && <CareFile reduced={reduced} />}
+      <motion.div
+        className="ld-case-inner ld-grid"
+        initial={{ opacity: 0, y: reduced ? 0 : 8, filter: reduced ? "none" : "blur(4px)" }}
+        animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+        exit={{ opacity: 0, y: reduced ? 0 : 8, filter: reduced ? "none" : "blur(4px)" }}
+        transition={quiet ?? { duration: dur.panel, ease: ease.arrive, delay: 0.05 }}
+      >
+        <div className="ld-case-story">
+          {paragraphs.map((text) => (
+            <p key={text.slice(0, 24)}>{text}</p>
+          ))}
         </div>
-        <dl>
-          <div>
-            <dt>Role</dt>
-            <dd>{project.role}</dd>
+        <div className="ld-case-side">
+          {readouts && (
+            <dl className="ld-readouts">
+              {readouts.map((readout) => (
+                <div key={readout.label}>
+                  <dt>{readout.label}</dt>
+                  <dd>
+                    {readout.value}
+                    {readout.to && ` → ${readout.to}`}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          )}
+          <dl className="ld-facts">
+            {facts.map((fact) => (
+              <div key={fact.label}>
+                <dt>{fact.label}</dt>
+                <dd>{fact.value}</dd>
+              </div>
+            ))}
+          </dl>
+          <div className="ld-case-actions">
+            {project.links.map((link) => (
+              <a href={link.href} key={link.href} target="_blank" rel="noreferrer">
+                {link.label}
+                <Arrow />
+              </a>
+            ))}
+            <button type="button" onClick={onClose}>
+              Close
+            </button>
           </div>
-          <div>
-            <dt>Years</dt>
-            <dd>{project.years ?? "Not specified"}</dd>
-          </div>
-          <div>
-            <dt>Stack</dt>
-            <dd>{project.stack.join(" / ")}</dd>
-          </div>
-        </dl>
-      </div>
-      <nav>
-        {project.links.map((link) => (
-          <a href={link.href} key={link.href} target="_blank" rel="noreferrer">
-            {link.label}
-            <svg viewBox="0 0 16 16" aria-hidden="true">
-              <path d="M3 13 13 3M4 3h9v9" />
-            </svg>
-          </a>
-        ))}
-      </nav>
-    </motion.article>
+          {shots.length > 0 && (
+            <ul className="ld-shots" aria-label={`${project.name} screenshots`}>
+              {shots.map((shot) => (
+                <li key={shot.src} data-tall={shot.height > shot.width}>
+                  <img
+                    src={shot.src}
+                    alt={shot.alt}
+                    width={shot.width}
+                    height={shot.height}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </motion.div>
+    </motion.div>
   );
 }
 
 export default function Draft() {
   const reduced = Boolean(useReducedMotion());
   const [query, setQuery] = useState("");
-  const [searchOpen, setSearchOpen] = useState(false);
-  const [activeIndex, setActiveIndex] = useState(0);
+  const [cursor, setCursor] = useState<string | null>(null);
+  const [barOn, setBarOn] = useState(false);
   const [hovered, setHovered] = useState<string | null>(null);
   const [pinned, setPinned] = useState<string | null>(null);
-  const [caseSlug, setCaseSlug] = useState<string | null>(null);
-  const [cvRequested, setCvRequested] = useState(false);
+  const [openSlug, setOpenSlug] = useState<string | null>(null);
+  const [posting, setPosting] = useState(true);
   const root = useRef<HTMLDivElement>(null);
-  const search = useRef<HTMLInputElement>(null);
-  const skewFrame = useRef(0);
-  const scrollState = useRef({ y: 0, time: 0, skew: 0 });
-  const matching = rows.filter((row) =>
-    `${row.project.name} ${row.project.years} ${row.platform} ${row.fact} ${row.project.stack.join(" ")}`
-      .toLocaleLowerCase()
-      .includes(query.toLocaleLowerCase()),
+  const list = useRef<HTMLOListElement>(null);
+  const find = useRef<HTMLInputElement>(null);
+  const tally = useRef<HTMLElement>(null);
+  const barColour = useRef(rows[0].colour);
+
+  const needle = query.trim().toLocaleLowerCase();
+  const matching = useMemo(
+    () => rows.filter((row) => row.search.includes(needle)),
+    [needle],
   );
-  const expanded = hovered ?? pinned;
+  const cursorRow = rows.find((row) => row.project.slug === cursor);
+
+  useLayoutEffect(() => {
+    if (cursorRow) barColour.current = cursorRow.colour;
+  });
 
   useEffect(() => {
-    const scheduler = createScheduler();
-    const stops: Array<() => void> = [];
-    root.current
-      ?.querySelectorAll<HTMLCanvasElement>("[data-cell]")
-      .forEach((canvas) => {
-        const row = rows.find(
-          (item) => item.project.slug === canvas.dataset.cell,
-        )!;
-        stops.push(scheduler.register(canvas, row.kind, row.colour));
-      });
-    return () => {
-      stops.forEach((stop) => stop());
-      scheduler.destroy();
-    };
-  }, [query]);
-
-  useEffect(() => {
-    if (searchOpen) search.current?.focus();
-  }, [searchOpen]);
-
-  useEffect(() => {
-    const key = (event: KeyboardEvent) => {
-      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
-        event.preventDefault();
-        setSearchOpen((value) => !value);
-      }
-      if (event.key === "Escape") {
-        setCaseSlug(null);
-        setSearchOpen(false);
-        setPinned(null);
-        setHovered(null);
-      }
-    };
-    const decay = () => {
-      scrollState.current.skew *= 0.95;
-      if (Math.abs(scrollState.current.skew) < 0.01)
-        scrollState.current.skew = 0;
-      root.current?.style.setProperty(
-        "--ld-skew",
-        `${scrollState.current.skew}deg`,
-      );
-      skewFrame.current = scrollState.current.skew
-        ? requestAnimationFrame(decay)
-        : 0;
-    };
-    const scroll = () => {
-      if (reduced) return;
-      const now = performance.now(),
-        y = window.scrollY;
-      const velocity =
-        (y - scrollState.current.y) /
-        Math.max(16, now - scrollState.current.time);
-      scrollState.current = {
-        y,
-        time: now,
-        skew: Math.max(-3, Math.min(3, velocity * 0.65)),
-      };
-      if (!skewFrame.current) skewFrame.current = requestAnimationFrame(decay);
-    };
-    document.addEventListener("keydown", key);
-    window.addEventListener("scroll", scroll, { passive: true });
-    return () => {
-      document.removeEventListener("keydown", key);
-      window.removeEventListener("scroll", scroll);
-      cancelAnimationFrame(skewFrame.current);
-    };
+    if (reduced) {
+      setPosting(false);
+      return;
+    }
+    const total = LEAD + rows.length * STEP + CELL_LAG + 320;
+    const clock = animate(0, total, {
+      duration: total / 1000,
+      ease: "linear",
+      onUpdate: (time) => {
+        if (tally.current)
+          tally.current.textContent = pad(
+            Math.max(0, Math.min(rows.length, Math.floor((time - LEAD) / STEP) + 1)),
+          );
+      },
+      onComplete: () => setPosting(false),
+    });
+    return () => clock.stop();
   }, [reduced]);
 
-  function openCase(row: LedgerRow) {
-    setCaseSlug((value) =>
-      value === row.project.slug ? null : row.project.slug,
-    );
-    requestAnimationFrame(() =>
-      root.current
-        ?.querySelector<HTMLElement>(
-          `.ld-item[data-slug="${row.project.slug}"] .ld-case`,
-        )
-        ?.focus({ preventScroll: true }),
-    );
+  const nameButton = (slug: string) =>
+    root.current?.querySelector<HTMLButtonElement>(`#ld-name-${slug}`);
+
+  useEffect(() => {
+    const onKey = (event: globalThis.KeyboardEvent) => {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+        event.preventDefault();
+        find.current?.focus();
+        find.current?.select();
+      } else if (
+        event.key === "/" &&
+        !(document.activeElement instanceof HTMLInputElement)
+      ) {
+        event.preventDefault();
+        find.current?.focus();
+      } else if (event.key === "Escape") {
+        setPinned(null);
+        setHovered(null);
+        setOpenSlug((slug) => {
+          if (slug && root.current?.contains(document.activeElement))
+            requestAnimationFrame(() => nameButton(slug)?.focus());
+          return null;
+        });
+      }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, []);
+
+  function point(slug: string) {
+    setCursor(slug);
+    setBarOn(true);
   }
-  function closeCase(row: LedgerRow) {
-    setCaseSlug(null);
+  function step(direction: 1 | -1) {
+    if (!matching.length) return;
+    const at = matching.findIndex((row) => row.project.slug === cursor);
+    const next =
+      at < 0
+        ? direction === 1
+          ? 0
+          : matching.length - 1
+        : Math.max(0, Math.min(matching.length - 1, at + direction));
+    const slug = matching[next].project.slug;
+    point(slug);
     root.current
-      ?.querySelector<HTMLButtonElement>(
-        `.ld-item[data-slug="${row.project.slug}"] .ld-name`,
-      )
-      ?.focus({ preventScroll: true });
+      ?.querySelector(`[data-slug="${slug}"]`)
+      ?.scrollIntoView({ block: "nearest", behavior: reduced ? "auto" : "smooth" });
   }
-  function moveRow(index: number) {
-    const next = Math.max(0, Math.min(matching.length - 1, index));
-    setActiveIndex(next);
-    root.current
-      ?.querySelector<HTMLButtonElement>(
-        `.ld-item[data-slug="${matching[next]?.project.slug}"] .ld-name`,
-      )
-      ?.focus();
+  function toggleCase(slug: string) {
+    setOpenSlug((value) => (value === slug ? null : slug));
+  }
+  function leaveList(next: EventTarget | null) {
+    if (
+      !(next instanceof Node) ||
+      !(list.current?.contains(next) || find.current === next)
+    )
+      setBarOn(false);
+  }
+
+  function onFindKey(event: KeyboardEvent<HTMLInputElement>) {
+    if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+      event.preventDefault();
+      step(event.key === "ArrowDown" ? 1 : -1);
+    } else if (event.key === "Enter") {
+      event.preventDefault();
+      const target =
+        matching.find((row) => row.project.slug === cursor) ?? matching[0];
+      if (target) {
+        point(target.project.slug);
+        toggleCase(target.project.slug);
+      }
+    } else if (event.key === "Escape") {
+      event.stopPropagation();
+      if (query) setQuery("");
+      else find.current?.blur();
+    }
+  }
+
+  function onNameKey(event: KeyboardEvent<HTMLButtonElement>, index: number) {
+    if (event.key !== "ArrowDown" && event.key !== "ArrowUp") return;
+    event.preventDefault();
+    const next = matching[index + (event.key === "ArrowDown" ? 1 : -1)];
+    if (next) nameButton(next.project.slug)?.focus();
+    else if (event.key === "ArrowUp") find.current?.focus();
   }
 
   return (
-    <div className="draft-ledger" ref={root} data-reduced={reduced}>
+    <div
+      className="draft-ledger"
+      ref={root}
+      data-posting={posting && !reduced ? "" : undefined}
+    >
       <title>LEDGER — Gentrit Rashiti</title>
-      <header className="ld-header">
-        <a href="/drafts">LEDGER / Gentrit Rashiti</a>
-        <span>Web · mobile · full stack / Kosovo</span>
-        <nav>
-          <button
-            onClick={() => setSearchOpen((value) => !value)}
-            aria-expanded={searchOpen}
-          >
-            Search <kbd>⌘K</kbd>
-          </button>
-          <a href={links.cv} download onClick={() => setCvRequested(true)}>
-            {cvRequested ? "CV requested" : "Download CV"}
+      <header className="ld-head ld-grid">
+        <span className="ld-no">00</span>
+        <div className="ld-who">
+          <h1>Gentrit Rashiti</h1>
+          <span className="ld-sub">Frontend & mobile developer → full stack</span>
+        </div>
+        <span className="ld-years">2021–26</span>
+        <span className="ld-platform">Kosovo</span>
+        <p className="ld-fact">Frontend & mobile developer → full stack</p>
+        <nav className="ld-actions" aria-label="Contact">
+          <a href={links.cv} download>
+            CV ↓
           </a>
           <a href={`mailto:${links.email}`}>Email</a>
         </nav>
       </header>
-      <main>
-        <div className="ld-intro">
-          <h1>Every project, in working order.</h1>
-          <p>28 projects. Open a row to read; focus a live cell to enlarge.</p>
-          <span>Miniatures are recreations with invented data.</span>
-        </div>
-        <AnimatePresence initial={false}>
-          {searchOpen && (
-            <motion.form
-              className="ld-search"
-              initial={{ opacity: 0, y: 8, filter: "blur(4px)" }}
-              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-              exit={{ opacity: 0, y: 8, filter: "blur(4px)" }}
-              transition={{
-                duration: reduced ? 0.01 : dur.ui,
-                ease: ease.arrive,
-              }}
-              onSubmit={(event) => {
-                event.preventDefault();
-                if (matching[activeIndex]) openCase(matching[activeIndex]);
-              }}
-            >
-              <label htmlFor="ld-query">Find in the ledger</label>
-              <input
-                id="ld-query"
-                ref={search}
-                value={query}
-                onChange={(event) => {
-                  setQuery(event.target.value);
-                  setActiveIndex(0);
-                }}
-                onKeyDown={(event) => {
-                  if (event.key === "ArrowDown" || event.key === "ArrowUp") {
-                    event.preventDefault();
-                    setActiveIndex((index) =>
-                      Math.max(
-                        0,
-                        Math.min(
-                          matching.length - 1,
-                          index + (event.key === "ArrowDown" ? 1 : -1),
-                        ),
-                      ),
-                    );
-                  }
-                }}
-                placeholder="Project, year, platform or stack"
-              />
-              <button type="submit" disabled={!matching.length}>
-                Open selected
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setQuery("");
-                  setSearchOpen(false);
-                }}
-              >
-                Clear & close
-              </button>
-              <span role="status">{matching.length} / 28 rows</span>
-            </motion.form>
-          )}
-        </AnimatePresence>
-        <div className="ld-columns" aria-hidden="true">
-          <span>No.</span>
-          <span>Project</span>
-          <span>Years</span>
-          <span>Platform</span>
-          <span>Product fact</span>
-          <span>
-            <span className="ld-wide-label">Live recreation</span>
-            <span className="ld-narrow-label">Live</span>
-          </span>
-        </div>
+
+      <div className="ld-band ld-grid" role="search">
+        <span className="ld-no" aria-hidden="true">
+          No.
+        </span>
+        <label className="ld-find">
+          <svg viewBox="0 0 16 16" aria-hidden="true">
+            <circle cx="7" cy="7" r="4.5" />
+            <path d="m10.5 10.5 3.5 3.5" />
+          </svg>
+          <span className="ld-hidden">Find a project</span>
+          <input
+            ref={find}
+            value={query}
+            placeholder="Project"
+            autoComplete="off"
+            spellCheck={false}
+            onChange={(event) => {
+              setQuery(event.target.value);
+              const first = rows.find((row) =>
+                row.search.includes(event.target.value.trim().toLocaleLowerCase()),
+              );
+              if (first) point(first.project.slug);
+            }}
+            onFocus={() => {
+              setBarOn(true);
+              if (!cursor && matching[0]) setCursor(matching[0].project.slug);
+            }}
+            onBlur={(event) => leaveList(event.relatedTarget)}
+            onKeyDown={onFindKey}
+            aria-controls="ld-rows"
+          />
+          <kbd aria-hidden="true">⌘K</kbd>
+        </label>
+        <span className="ld-years" aria-hidden="true">
+          Years
+        </span>
+        <span className="ld-platform" aria-hidden="true">
+          Platform
+        </span>
+        <span className="ld-fact" aria-hidden="true">
+          Product fact
+        </span>
+        <span className="ld-live" aria-hidden="true">
+          <span className="ld-long">Live recreation</span>
+          <span className="ld-short">Live</span>*
+        </span>
+      </div>
+      <p className="ld-hidden" role="status">
+        {matching.length} of {rows.length} projects
+      </p>
+
+      <main className="ld-sheet">
+        {posting && !reduced && (
+          <div className="ld-ruler" aria-hidden="true" />
+        )}
         <LayoutGroup id="ledger">
-          <ol className="ld-rows">
+          <ol
+            className="ld-rows"
+            id="ld-rows"
+            ref={list}
+            onPointerLeave={(event) => {
+              if (event.pointerType !== "mouse") return;
+              setHovered(null);
+              if (!list.current?.contains(document.activeElement)) setBarOn(false);
+            }}
+            onBlur={(event) => leaveList(event.relatedTarget)}
+          >
             <AnimatePresence mode="popLayout" initial={false}>
               {matching.map((row, index) => {
-                const selected = caseSlug === row.project.slug;
+                const slug = row.project.slug;
+                const isOpen = openSlug === slug;
+                const cellOpen = hovered === slug || pinned === slug;
                 return (
                   <motion.li
-                    layout
-                    key={row.project.slug}
+                    layout="position"
+                    key={slug}
                     className="ld-item"
-                    data-slug={row.project.slug}
-                    data-expanded={expanded === row.project.slug}
-                    data-selected={searchOpen && activeIndex === index}
-                    style={{ "--ld-colour": row.colour } as CSSProperties}
-                    initial={{
-                      opacity: 0,
-                      y: reduced ? 0 : 8,
-                      filter: reduced ? "blur(0px)" : "blur(4px)",
+                    data-slug={slug}
+                    data-case={isOpen}
+                    data-cell-open={cellOpen}
+                    style={{ "--c": row.colour, "--i": row.order } as CSSProperties}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={
+                      reduced
+                        ? { duration: 0.01 }
+                        : { layout: spring.ui, opacity: { duration: dur.ui, ease: ease.out } }
+                    }
+                    onPointerEnter={(event) => {
+                      if (event.pointerType === "mouse") point(slug);
                     }}
-                    animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                    exit={{
-                      opacity: 0,
-                      y: reduced ? 0 : 8,
-                      filter: reduced ? "blur(0px)" : "blur(4px)",
+                    onPointerLeave={(event) => {
+                      if (event.pointerType === "mouse")
+                        setHovered((value) => (value === slug ? null : value));
                     }}
-                    transition={reduced ? { duration: 0.01 } : spring.ui}
+                    onFocus={() => point(slug)}
                   >
-                    <div className="ld-row">
-                      <span className="ld-index">{row.index}</span>
-                      <button
-                        className="ld-name"
-                        aria-expanded={selected}
-                        onClick={() => openCase(row)}
-                        onKeyDown={(event) => {
-                          if (
-                            event.key === "ArrowDown" ||
-                            event.key === "ArrowUp"
-                          ) {
-                            event.preventDefault();
-                            moveRow(
-                              index + (event.key === "ArrowDown" ? 1 : -1),
-                            );
+                    <div className="ld-row ld-grid">
+                      {cursor === slug && (
+                        <motion.span
+                          layoutId="ld-bar"
+                          className="ld-bar"
+                          aria-hidden="true"
+                          initial={{ backgroundColor: barColour.current, opacity: 0 }}
+                          animate={{ backgroundColor: row.colour, opacity: barOn ? 1 : 0 }}
+                          transition={
+                            reduced
+                              ? { duration: 0.01 }
+                              : {
+                                  layout: spring.ui,
+                                  backgroundColor: { duration: dur.ui, ease: ease.out },
+                                  opacity: { duration: dur.tap, ease: ease.out },
+                                }
                           }
-                        }}
+                        />
+                      )}
+                      <span className="ld-no">{row.index}</span>
+                      <button
+                        type="button"
+                        className="ld-name"
+                        id={`ld-name-${slug}`}
+                        aria-expanded={isOpen}
+                        aria-controls={`ld-case-${slug}`}
+                        onClick={() => toggleCase(slug)}
+                        onKeyDown={(event) => onNameKey(event, index)}
                       >
-                        {selected ? (
-                          <span>{row.project.name}</span>
-                        ) : (
-                          <motion.span
-                            layoutId={`ld-title-${row.project.slug}`}
-                            transition={
-                              reduced ? { duration: 0.01 } : spring.ui
-                            }
-                          >
-                            {row.project.name}
-                          </motion.span>
-                        )}
-                        <span className="ld-mobile-facts">
-                          {row.project.years ?? "Undated"} · {row.platform}
-                          <br />
-                          {row.fact}
+                        <span className="ld-title">{row.project.name}</span>
+                        <span className="ld-sub">
+                          {row.project.years ?? "—"} · {row.platform}
                         </span>
+                        <span className="ld-sub">{row.fact}</span>
                       </button>
-                      <span className="ld-year">
-                        {row.project.years ?? "—"}
-                      </span>
+                      <span className="ld-years">{row.project.years ?? "—"}</span>
                       <span className="ld-platform">{row.platform}</span>
                       <span className="ld-fact">{row.fact}</span>
-                      <motion.button
-                        layout
-                        className="ld-cell"
-                        aria-label={`${pinned === row.project.slug ? "Unpin" : "Enlarge"} ${row.project.name} live recreation`}
-                        aria-pressed={pinned === row.project.slug}
-                        onMouseEnter={() => setHovered(row.project.slug)}
-                        onMouseLeave={() => setHovered(null)}
-                        onFocus={() => setHovered(row.project.slug)}
-                        onBlur={() => setHovered(null)}
-                        onClick={() =>
-                          setPinned((value) =>
-                            value === row.project.slug
-                              ? null
-                              : row.project.slug,
-                          )
+                      <LiveCell
+                        row={row}
+                        open={cellOpen}
+                        pinned={pinned === slug}
+                        delay={posting && !reduced ? LEAD + row.order * STEP + CELL_LAG : 0}
+                        reduced={reduced}
+                        onPreview={(on) =>
+                          setHovered((value) => (on ? slug : value === slug ? null : value))
                         }
-                        whileTap={{ scale: reduced ? 1 : 0.98 }}
-                        transition={reduced ? { duration: 0.01 } : spring.ui}
-                      >
-                        <canvas
-                          width={160}
-                          height={64}
-                          data-cell={row.project.slug}
-                          aria-hidden="true"
-                        />
-                        <span className="ld-cell-instruction">
-                          {pinned === row.project.slug
-                            ? "Pinned · click to release"
-                            : "Click to pin"}
-                        </span>
-                      </motion.button>
+                        onPin={() => setPinned((value) => (value === slug ? null : slug))}
+                      />
                     </div>
                     <AnimatePresence initial={false}>
-                      {selected && (
+                      {isOpen && (
                         <Case
                           row={row}
-                          onClose={() => closeCase(row)}
                           reduced={reduced}
+                          onClose={() => {
+                            setOpenSlug(null);
+                            nameButton(slug)?.focus();
+                          }}
                         />
                       )}
                     </AnimatePresence>
@@ -414,21 +520,45 @@ export default function Draft() {
           </ol>
         </LayoutGroup>
         {!matching.length && (
-          <p className="ld-empty">
-            No matching project.{" "}
-            <button onClick={() => setQuery("")}>Show all 28</button>
+          <p className="ld-empty ld-grid">
+            <span className="ld-no">—</span>
+            <span>
+              No entry matches “{query.trim()}”.{" "}
+              <button type="button" onClick={() => setQuery("")}>
+                Show all {rows.length}
+              </button>
+            </span>
           </p>
         )}
+        <p className="ld-note ld-grid">
+          <span className="ld-no">*</span>
+          <span>
+            Live recreations use invented data. Screenshots come from public
+            store and web pages.
+          </span>
+          <a href="/drafts">All art directions</a>
+        </p>
       </main>
-      <footer className="ld-footer">
-        <span>End of ledger / {matching.length} rows</span>
-        <a href={links.linkedin} target="_blank" rel="noreferrer">
-          LinkedIn
-        </a>
-        <a href={links.github} target="_blank" rel="noreferrer">
-          GitHub
-        </a>
-        <a href="/drafts">All art directions</a>
+
+      <footer className="ld-total ld-grid">
+        <span className="ld-no">Σ</span>
+        <span className="ld-count">
+          <strong>
+            {posting && !reduced ? <span ref={tally}>00</span> : pad(matching.length)}
+          </strong>{" "}
+          of {rows.length} entries
+        </span>
+        <span className="ld-years">2021–26</span>
+        <span className="ld-platform">Remote</span>
+        <span className="ld-fact">5+ years · two platform rewrites</span>
+        <nav className="ld-actions" aria-label="Profiles">
+          <a href={links.github} target="_blank" rel="noreferrer">
+            GitHub
+          </a>
+          <a href={links.linkedin} target="_blank" rel="noreferrer">
+            LinkedIn
+          </a>
+        </nav>
       </footer>
     </div>
   );

@@ -3,10 +3,10 @@
   "id": "ledger",
   "title": "LEDGER",
   "band": "Professional",
-  "description": "One aligned table of the work, with a live miniature in every row. Search, enlarge and read in place.",
-  "signature": "A single clock drives 28 invented miniatures, pausing hidden cells. The focused cell expands while the ledger reflows; each case opens in its row.",
+  "description": "One aligned ledger of the work on a vermilion ground, with a live miniature in every row. Find, enlarge and read in place.",
+  "signature": "A ruler posts the 28 entries top to bottom while the total counts up; each miniature starts when its row lands. One clock drives 28 crisp, device-pixel canvases and pauses hidden cells. A focus bar takes the colour of the row it glides to, a cell grows 3× while it runs, and each case opens in its row.",
   "caseSlug": "care-platform",
-  "holdback": "Repeated schematic miniatures limit the novelty; enlarged canvas lettering is soft. The later LEDGER density spec overrides the older large-type/colour-area gate. Physical mid-range-phone performance remains unverified.",
+  "holdback": "Miniatures are drawn, not real product screens, except the nine rows that alternate with a public screenshot crop. One face at one size keeps the hierarchy flat by design. Physical mid-range-phone performance remains unverified.",
   "scores": {
     "design": 8.0,
     "usability": 8.4,

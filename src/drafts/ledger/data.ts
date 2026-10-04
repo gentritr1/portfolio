@@ -1,71 +1,43 @@
 import { projects } from "../../content/projects";
 
-export type CellKind =
-  | "vitals"
-  | "queries"
-  | "components"
-  | "tokens"
-  | "calls"
-  | "stream"
-  | "support"
-  | "reader"
-  | "basket"
-  | "books"
-  | "chat"
-  | "queue"
-  | "epub"
-  | "donate"
-  | "calendar"
-  | "loyalty"
-  | "wallet"
-  | "signin"
-  | "document"
-  | "images"
-  | "leave"
-  | "map"
-  | "letters"
-  | "cards"
-  | "morse"
-  | "race"
-  | "town"
-  | "forks";
-const material: Record<string, [CellKind, string, string]> = {
-  "care-platform": ["vitals", "31 ADRs · parity tested", "#75BAE7"],
-  "care-api": ["queries", "Report queries: 16 → 2", "#A3C7EC"],
-  "design-system-react": ["components", "34 accessible components", "#A5B7FB"],
-  "design-system-vue": ["tokens", "Figma → code tokens", "#91CFB2"],
-  "design-dashboard": ["calls", "Call activity · demo data", "#AAC5EB"],
-  "bayyinah-tv": ["stream", "34 routes · EN / AR", "#EEAD78"],
-  "bayyinah-institute": ["support", "Mission & support", "#E3BB93"],
-  "read-to-feed": ["reader", "RN 0.63 → 0.81", "#B9CE90"],
-  "viva-fresh": ["basket", "Delivery slots & loyalty", "#E7BD67"],
-  "dukagjini-bookstore": ["books", "Books · iOS & Android", "#D8AB90"],
-  "chatbot-runtime": ["chat", "Scripted conversations", "#C0BCD9"],
-  "chatbot-runtime-web": ["queue", "Typed web runtime", "#AEBFD5"],
-  "epub-reader-prototype": ["epub", "Download, read, resize", "#C4CD9F"],
-  "donation-app": ["donate", "Stripe subscriptions", "#D7BBE3"],
-  "coaching-app": ["calendar", "Daily calendar & reactions", "#E9BAAC"],
-  "fuel-loyalty-app": ["loyalty", "ARM64 simulator support", "#D2C389"],
-  incentiv: ["wallet", "Passkeys · balance · QR", "#C8BAEB"],
-  "member-portal": ["signin", "Protected routes", "#ACC2CE"],
-  "ai-dashboard": ["document", "PDF → document chat", "#B8BFEE"],
-  "snaxx-tech": ["images", "Image KB: 972 → 337", "#BECAA1"],
-  offday: ["leave", "16 security & tenant tests", "#B7CFDF"],
-  "geo-guesser": ["map", "Published on Google Play", "#B5CEB2"],
-  fjale: ["letters", "21k Albanian words", "#99BEDD"],
-  za: ["cards", "2–8 players · WebSocket", "#ECAF9D"],
-  "morse-trainer": ["morse", "Farnsworth timing", "#DFC473"],
-  futurisma: ["race", "7 circuits · weather · tides", "#EBA983"],
-  "secret-dictator": ["town", "AI opponents · 3D town", "#C5B5D0"],
-  "open-source-forks": ["forks", "Production EPUB / PDF forks", "#ACBFD2"],
+const material: Record<string, [string, string]> = {
+  "care-platform": ["31 ADRs · parity tested", "#7cc7ff"],
+  "care-api": ["Report queries: 16 → 2", "#ffe45c"],
+  "design-system-react": ["34 accessible components", "#b8b1ff"],
+  "design-system-vue": ["Figma → code tokens", "#6fe3a8"],
+  "design-dashboard": ["Call activity · demo data", "#ffc2df"],
+  "bayyinah-tv": ["34 routes · EN / AR", "#ffd166"],
+  "bayyinah-institute": ["One-page Next.js site", "#9ff0e6"],
+  "read-to-feed": ["RN 0.63 → 0.81", "#c6f27a"],
+  "viva-fresh": ["Delivery slots & loyalty", "#f5c6ff"],
+  "dukagjini-bookstore": ["Deep links · checkout", "#a7e0ff"],
+  "chatbot-runtime": ["Scripted conversations", "#fff27a"],
+  "chatbot-runtime-web": ["Typed web runtime", "#c4b8ff"],
+  "epub-reader-prototype": ["Download, read, resize", "#b8f2c0"],
+  "donation-app": ["Stripe subscriptions · badges", "#ffd0b0"],
+  "coaching-app": ["Daily calendar & reactions", "#8ee8ff"],
+  "fuel-loyalty-app": ["ARM64 simulator support", "#e6f56b"],
+  incentiv: ["Passkeys · balance · QR", "#d0b3ff"],
+  "member-portal": ["Protected routes", "#b3f0d9"],
+  "ai-dashboard": ["PDF → document chat", "#ffc8e8"],
+  "snaxx-tech": ["Images: 972 → 337 KB", "#ffe08a"],
+  offday: ["16 security & tenant tests", "#9fd8ff"],
+  "geo-guesser": ["Published on Google Play", "#a8f0a0"],
+  fjale: ["21k Albanian words", "#f9f07a"],
+  za: ["2–8 players · WebSocket", "#ffb3c7"],
+  "morse-trainer": ["Farnsworth timing", "#ffe066"],
+  futurisma: ["7 circuits · weather · tides", "#9ce6ff"],
+  "secret-dictator": ["AI opponents · 3D town", "#dcc2ff"],
+  "open-source-forks": ["Production EPUB / PDF forks", "#c3f5a8"],
 };
+
 export const rows = projects.map((project, index) => {
-  const [kind, fact, colour] = material[project.slug];
+  const [fact, colour] = material[project.slug];
   return {
     project,
-    kind,
     fact,
     colour,
+    order: index,
     index: String(index + 1).padStart(2, "0"),
     platform:
       project.role.includes("Mobile") || project.role === "Maintainer"
@@ -73,6 +45,16 @@ export const rows = projects.map((project, index) => {
         : project.slug === "care-api"
           ? "API"
           : "Web",
+    search: [
+      project.name,
+      project.kind,
+      project.years ?? "",
+      project.line,
+      project.stack.join(" "),
+      fact,
+    ]
+      .join(" ")
+      .toLocaleLowerCase(),
   };
 });
 export type LedgerRow = (typeof rows)[number];
