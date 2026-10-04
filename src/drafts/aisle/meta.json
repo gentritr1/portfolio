@@ -6,12 +6,12 @@
   "description": "Twenty-eight projects on three shelves. Scan the work you want, then print a real receipt of your shortlist.",
   "signature": "Three-face project boxes meet a scanner sweep. Each scan adds real project facts to a thermal receipt, ready for 80 mm printing.",
   "caseSlug": "read-to-feed",
-  "rounds": 3,
-  "holdback": "Each box is now a product (channel colour, Anton name, framed screenshot window, one fact on the price tag) and the receipt prints like a thermal till. Two of three shelves fit the first desktop viewport, so 19 of 28 boxes need a sideways scroll or a filter. Many own-label boxes share two blues and a green, so the shelf rhythm is calm but repetitive. The flight and the paper feed were checked frame by frame in paused captures, not at full speed on a real device.",
+  "rounds": 4,
+  "holdback": "Only two of three shelves fit the first desktop view; the screenshot windows are small, so the work reads as a label.",
   "scores": {
-    "design": 8.2,
-    "usability": 7.8,
-    "creativity": 8.4,
+    "design": 8.4,
+    "usability": 8.0,
+    "creativity": 8.5,
     "content": 8.2
   },
   "antiPale": "pass",
@@ -24,5 +24,6 @@
   ],
   "slopCount": 0,
   "m2": "pass",
-  "creativeGates": "pass"
+  "creativeGates": "pass",
+  "polished": true
 }

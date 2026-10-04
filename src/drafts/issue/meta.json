@@ -7,14 +7,14 @@
   "signature": "Drag the page corner and the spread turns with your hand; the cover verb and its red change with each feature: Shipped, Streamed, Released, Published.",
   "caseSlug": "offday",
   "scores": {
-    "design": 8.3,
-    "usability": 8.1,
-    "creativity": 7.4,
-    "content": 8.2
+    "design": 8.5,
+    "usability": 8.0,
+    "creativity": 8.2,
+    "content": 8.3
   },
   "antiPale": "pass",
-  "rounds": 2,
-  "holdback": "The enormous serif Shipped and asymmetric spread produce a coherent composition, while the visible 16 security and tenant-isolation tests supply personal substance. The feature controls reveal different project facts. However, removing the book styling leaves a standard three-item carousel and ordinary index. Mobile retains the two-page split at a scale that weakens the editorial idea.",
+  "rounds": 3,
+  "holdback": "The corner curl is a fixed fold; only four projects are features, the rest live in the index.",
   "previousCreativity": 8.1,
   "mechanisms": [
     "M5",
@@ -26,5 +26,6 @@
     "The displayed surname retains the checklist's trailing full stop."
   ],
   "m2": "fail",
-  "creativeGates": "M2 fail"
+  "creativeGates": "M2 fail",
+  "polished": true
 }

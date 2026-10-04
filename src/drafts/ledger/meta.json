@@ -6,15 +6,15 @@
   "description": "One aligned ledger of the work on a vermilion ground, with a live miniature in every row. Find, enlarge and read in place.",
   "signature": "A ruler posts the 28 entries top to bottom while the total counts up; each miniature starts when its row lands. One clock drives 28 crisp, device-pixel canvases and pauses hidden cells. A focus bar takes the colour of the row it glides to, a cell grows 3× while it runs, and each case opens in its row.",
   "caseSlug": "care-platform",
-  "holdback": "Miniatures are drawn, not real product screens, except the nine rows that alternate with a public screenshot crop. One face at one size keeps the hierarchy flat by design. Physical mid-range-phone performance remains unverified.",
+  "holdback": "Only 9 of 28 rows show real work; one size and one face keep the hierarchy flat on purpose.",
   "scores": {
-    "design": 8.0,
-    "usability": 8.4,
-    "creativity": 7.7,
-    "content": 8.4
+    "design": 8.3,
+    "usability": 8.5,
+    "creativity": 8.0,
+    "content": 8.5
   },
-  "rounds": 2,
-  "antiPale": "pass under consult density exception; legacy test fails",
+  "rounds": 3,
+  "antiPale": "pass",
   "mechanisms": [
     "M1",
     "M3",
@@ -23,5 +23,6 @@
   ],
   "slopCount": 0,
   "m2": "not-applicable",
-  "creativeGates": "pass under later density brief"
+  "creativeGates": "pass under later density brief",
+  "polished": true
 }

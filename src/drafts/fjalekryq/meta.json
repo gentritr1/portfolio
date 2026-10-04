@@ -6,12 +6,12 @@
   "description": "Twenty-eight projects cross paths in one Albanian-inspired crossword. Read the clues, open the work, or solve it yourself.",
   "signature": "Typed letters fall into real intersecting answers with two Verlet bounces. A completed word flips in a wave and its clue becomes the project.",
   "caseSlug": "fjale",
-  "rounds": 2,
-  "holdback": "The phone necessarily crops the connected map, so its overall structure is less immediately apparent than on desktop and the clue fallback carries more of the navigation. Compressed grid tokens also require selection to explain the work. The visible case is clear but largely conventional once opened. These are limits below a 9-level experience, not reasons for another repair round.",
+  "rounds": 3,
+  "holdback": "The board is cropped, so the whole site map is never visible at once; the only first-screen image is small.",
   "scores": {
     "design": 8.3,
-    "usability": 8.1,
-    "creativity": 8.4,
+    "usability": 7.9,
+    "creativity": 8.6,
     "content": 8.2
   },
   "antiPale": "pass",
@@ -26,5 +26,6 @@
   ],
   "slopCount": 0,
   "m2": "pass",
-  "creativeGates": "pass"
+  "creativeGates": "pass",
+  "polished": true
 }

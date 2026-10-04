@@ -6,17 +6,25 @@
   "description": "One portfolio in two eras. Left of the seam it is a 2021 page; right of it, the current one. Run parity and the seam carries all 28 pairs across.",
   "signature": "The seam is a time machine: a 2021-era v1 (Arial, blue underlined links, bordered zebra tables) is clipped against the designed v2 band by band, and the seam's rest line is the v2 alignment edge. The 28 rows flip v1 to v2 in real 3D as the seam crosses their step; drag hands its velocity to a spring that settles on a predicted step. Run parity sweeps the seam right to left in a test-runner rhythm, ticks a 28-segment bar, then flashes the page green and re-counts the numbers; Test a mismatch stops at pair 02, paints that row red and shakes the handle. Phone uses a v1|v2 switch that wipes the seam across in 300 ms.",
   "caseSlug": "care-platform",
-  "holdback": "The v1 statement band leaves a tall white gap because the v2 heading sets the band height. The v2 meta column (kind, year, field table) is only seen when the seam moves left of its rest line. The 180 ms green flash is subtle. The first viewport shows real project names and numbers, but real screenshots appear only inside the case details.",
+  "holdback": "No real screenshots in the first viewport; the v1 statement band leaves a tall white gap.",
   "scores": {
     "design": 8.3,
-    "usability": 8.0,
-    "creativity": 8.6,
+    "usability": 8.1,
+    "creativity": 8.5,
     "content": 8.4
   },
-  "rounds": 3,
+  "rounds": 4,
   "antiPale": "pass",
-  "mechanisms": ["M1", "M2", "M3", "M4", "M5", "M9"],
+  "mechanisms": [
+    "M1",
+    "M2",
+    "M3",
+    "M4",
+    "M5",
+    "M9"
+  ],
   "slopCount": 0,
   "m2": "pass",
-  "creativeGates": "pass"
+  "creativeGates": "pass",
+  "polished": true
 }

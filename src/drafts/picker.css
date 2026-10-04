@@ -239,3 +239,15 @@
     transition: none;
   }
 }
+
+.draft-picker .draft-polished {
+  margin-left: 8px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: #1c1a2e;
+  color: #f2ff5c;
+  font-style: normal;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  vertical-align: 1px;
+}

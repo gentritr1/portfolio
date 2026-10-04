@@ -7,14 +7,14 @@
   "signature": "A roller lays the blue plate, then the pink plate lands off register and settles; the pointer moves the registration.",
   "caseSlug": "snaxx-tech",
   "scores": {
-    "design": 8.2,
-    "usability": 8.1,
-    "creativity": 7.7,
-    "content": 8.2
+    "design": 8.5,
+    "usability": 8.0,
+    "creativity": 8.5,
+    "content": 8.3
   },
   "antiPale": "pass",
-  "rounds": 2,
-  "holdback": "A visible Print this poster control produces an actual project artifact, confirmed by the print stylesheet. The large project title and separated ink edges make the poster legible as a concept on both sizes; the mobile capture also exposes the specific 972 KB to 337 KB result. It remains a familiar poster layout with a conventional index, and the misregistration is too slight to make the material treatment unmistakable. Strongest of this group, below distinctive-site territory.",
+  "rounds": 3,
+  "holdback": "Dark sources print as solid blue; mini-poster titles are small; the job ticket keeps a poster-plus-column layout.",
   "previousCreativity": 8,
   "mechanisms": [
     "M3",
@@ -27,5 +27,6 @@
     "The Archivo display face is shared with most reviewed directions."
   ],
   "m2": "not-applicable",
-  "creativeGates": "visual gates pass; motion separate"
+  "creativeGates": "visual gates pass; motion separate",
+  "polished": true
 }

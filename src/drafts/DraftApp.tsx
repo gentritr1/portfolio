@@ -22,10 +22,12 @@ interface DraftMeta {
   antiPale?: string;
   rounds?: number;
   holdback?: string;
+  polished?: boolean;
 }
 const bands = ["Professional", "Crafted", "Fun", "Experimental"] as const;
 const sequence = [
-  "diff", "fjalekryq", "linja", "bitrate", "aisle", "facing-pages", "ledger", "deal", "lap",
+  "aisle", "linja", "diff", "facing-pages", "fjalekryq", "riso", "issue", "ledger", "deal",
+  "bitrate", "lap",
   "hybrid",
   "studio",
   "desktop",
@@ -34,9 +36,7 @@ const sequence = [
   "blueprint",
   "savefile",
   "zine",
-  "issue",
   "wall",
-  "riso",
   "dither",
   "swiss",
   "orbit",
@@ -130,7 +130,10 @@ function Picker() {
             </Link>
             <div className="draft-picker-caption">
               <div>
-                <span>{d.band}</span>
+                <span>
+                  {d.band}
+                  {d.polished && <em className="draft-polished">Polished</em>}
+                </span>
                 <h2>
                   <Link to={`/drafts/${d.id}`}>{d.title}</Link>
                 </h2>

@@ -7,12 +7,12 @@
   "signature": "6,912 instanced discs flip in a spring-driven wave. A 60 ms Morse key decodes work, contact and help; mechanical sound is opt-in.",
   "caseSlug": "morse-trainer",
   "scores": {
-    "design": 8.1,
-    "usability": 8.0,
-    "creativity": 8.0,
-    "content": 8.1
+    "design": 8.3,
+    "usability": 7.9,
+    "creativity": 8.6,
+    "content": 8.0
   },
-  "rounds": 2,
+  "rounds": 3,
   "antiPale": "pass",
   "mechanisms": [
     "M1",
@@ -26,5 +26,6 @@
   "slopCount": 1,
   "m2": "pass",
   "creativeGates": "pass",
-  "holdback": "The low-resolution images still function more as disc patterns than readable product evidence, especially the sparse lower phone board. The large board pushes the full timetable below the first phone screen, although the selected project now has a clear immediate action. This is a distinctive 8-level direction; a Site-of-the-Day motion claim would require directly observing its pacing, physical response, sound and interruptions."
+  "holdback": "The board scrolls away while lower timetable rows are previewed; large glyphs are scaled 5×7 letters and look blocky.",
+  "polished": true
 }
