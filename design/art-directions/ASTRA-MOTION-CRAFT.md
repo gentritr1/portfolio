@@ -97,5 +97,5 @@ Checks before a draft is scored:
 The library is MIT. You may take a component through its registry (`npx shadcn add @uselayouts/<name>`) or read its source and rebuild the pattern. In both cases:
 
 - keep the MIT notice in a `THIRD-PARTY.md` at the repo root;
-- restyle it fully to the draft's rule and type. A stock component left as-is is slop marker 1.2;
+- restyle it fully to the draft's rule and type. A stock component left as-is counts as a slop marker (`CREATIVE-CONSULT.md` §1.2);
 - check its gzip size against the draft's budget.
