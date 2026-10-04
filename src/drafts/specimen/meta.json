@@ -1,0 +1,21 @@
+{
+  "id": "specimen",
+  "title": "Specimen",
+  "band": "Loop 1",
+  "rule": "every value cites the example that proves it",
+  "description": "The person documented like a component: a props table that is the CV, three variants, and examples that prove each value.",
+  "signature": "The variant switch cross-fades the props values and re-documents the usage line, then the examples move to their new order (WAAPI FLIP, 480 ms). A proof name or Expand opens an example in place: the card takes the full row and its canvas is revealed from the old box.",
+  "caseSlug": "design-system-react",
+  "rounds": 3,
+  "mechanisms": ["M1", "M5", "M9", "M11"],
+  "loopScores": {
+    "straightToThePoint": 8,
+    "notOverwhelming": 7,
+    "harmony": 8,
+    "meaningfulMotion": 7,
+    "seniority": 8,
+    "original": 6.5,
+    "hooks": 6
+  },
+  "holdback": "Lowest: hooks (6). The memorable rule, every value cites its proof, only pays off when a visitor selects a proof name or a variant; the first viewport is a calm static table, and a switch made from the top reorders examples below the fold. Original is next (6.5): Literata, mono prop names and one accent on light paper sit near the editorial-reference cluster, and the name is still the largest thing top left. Motion verified by frame sampling in a GPU browser; headless captures only show end states."
+}

@@ -1,0 +1,26 @@
+{
+  "rule": "problem, decision, result: one brief per screen",
+  "id": "brief",
+  "title": "BRIEF",
+  "band": "Loop 1",
+  "description": "Seven design-engineering briefs, one per screen. Each states the problem, the decision taken and the result, next to the work itself.",
+  "signature": "Proof marks. When a brief is fully in view, a blue pencil strikes the constraint in the problem sentence word by word, the remaining words glide apart (FLIP on each word) and the shipped fact writes into the gap. The sentence that stated the problem now states the result, with the old words still legible under the strike. A Problem / Result switch replays it in both directions and interrupts cleanly. Reduced motion switches state with no travel.",
+  "caseSlug": "care-platform",
+  "holdback": "Originality is the lowest point (7): the proof-mark motion is new, but the frame around it (left index rail, text beside a screenshot, light editorial ground) is a familiar portfolio layout. Two decisions (Incentiv, Viva Fresh) read as feature lists more than choices.",
+  "scores": {
+    "design": 8.0,
+    "usability": 8.3,
+    "creativity": 7.6,
+    "content": 8.2
+  },
+  "loopScores": {
+    "straightToThePoint": 8,
+    "notOverwhelming": 8,
+    "harmony": 7.5,
+    "meaningfulMotion": 8,
+    "seniority": 7.5,
+    "original": 7,
+    "hook": 7.5
+  },
+  "rounds": 3
+}

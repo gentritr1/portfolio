@@ -9,7 +9,7 @@ interface DraftMeta {
   creativeGates?: string;
   id: string;
   title: string;
-  band: "Professional" | "Crafted" | "Fun" | "Experimental";
+  band: "Loop 1" | "Professional" | "Crafted" | "Fun" | "Experimental";
   description: string;
   signature: string;
   caseSlug: string;
@@ -24,8 +24,9 @@ interface DraftMeta {
   holdback?: string;
   polished?: boolean;
 }
-const bands = ["Professional", "Crafted", "Fun", "Experimental"] as const;
+const bands = ["Loop 1", "Professional", "Crafted", "Fun", "Experimental"] as const;
 const sequence = [
+  "specimen", "brief", "orbit-index", "changelog",
   "aisle", "linja", "diff", "facing-pages", "fjalekryq", "riso", "issue", "ledger", "deal",
   "bitrate", "lap",
   "hybrid",

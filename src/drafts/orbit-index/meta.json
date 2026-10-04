@@ -1,0 +1,27 @@
+{
+  "rule": "the mark looks at what you look at",
+  "id": "orbit-index",
+  "title": "Orbit Index",
+  "band": "Loop 1",
+  "description": "A dense, keyboard-first index of all 30 projects on a calm dark ground. A halftone mark turns toward the focused row, and a preview glides beside it.",
+  "signature": "The halftone sphere from the site's favicon, drawn live in canvas 2D, turns its light and its ring gap toward the focused row and takes that project's accent. A leader line joins the row to its preview, and a year track in every row shows when the work happened.",
+  "caseSlug": "care-platform",
+  "scores": {
+    "design": 8,
+    "usability": 8.3,
+    "creativity": 6.2,
+    "content": 8
+  },
+  "loopScores": {
+    "straightToThePoint": 8,
+    "notOverwhelming": 7,
+    "harmony": 8,
+    "meaningfulMotion": 8,
+    "actionsAndSeniority": 7,
+    "original": 6,
+    "hooks": 6
+  },
+  "mechanisms": ["M1", "M3", "M5", "M9", "M11"],
+  "rounds": 3,
+  "holdback": "Original, 6 of 10. The page is a near relative of designeer.xyz: dark ground, a dot sphere, dense rows and a slash to search. The year track, the leader line and the favicon-derived mark are its own grammar, but a reviewer can still read it as a better-organised version of the reference. Hooks is also 6: the mark is 120 px and its turn is subtle, so the memorable moment depends on the visitor moving through the list."
+}

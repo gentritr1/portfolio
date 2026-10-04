@@ -1,0 +1,23 @@
+{
+  "id": "changelog",
+  "title": "CHANGELOG",
+  "band": "Loop 1",
+  "rule": "every element is a typeset line of release notes",
+  "description": "A career read as the release history of a well-run product: 1.0 in 2021 to 5.0 in 2026, typed changes in plain verbs, and plates of the work that unfold in place.",
+  "signature": "One serif (Newsreader, roman and italic) on uncoated-paper grey with one vermilion ink. A time ruler on the left is the navigation: majors sit at their real year, minor ticks count the changes, and dragging it folds the releases with a layout spring while the statement ends with the selected release ('Release 1.0 ships the first apps, on iOS and Android'), the 'Shipped to' list loses or gains platforms with a blur-in and a 'new in 3.0' mark, and the readout numeral rolls in the drag direction. Each typed change (Rebuilt, Added, Improved, Shipped, Upgraded, Ported, Maintained) can open a numbered plate in place with a top-down clip reveal: the live care and design-system recreations, or public screenshots. Phone: the ruler docks at the bottom edge and scrubs horizontally. Keyboard and reduced motion change state with no movement.",
+  "caseSlug": "care-platform",
+  "mechanisms": ["M1", "M2", "M5", "M6", "M7", "M9"],
+  "slopCount": 1,
+  "creativeGates": "pass",
+  "rounds": 3,
+  "loopScores": {
+    "straightToThePoint": 8,
+    "notOverwhelming": 8.5,
+    "harmony": 8.5,
+    "meaningfulMotion": 8,
+    "actionsAndSeniority": 8,
+    "original": 7.5,
+    "hooks": 7
+  },
+  "holdback": "Lowest: hooks people, 7/10. The memorable moment (drag the ruler back to 1.0: the statement, the platform list and the notes fold back to 2021) appears only after the visitor touches the ruler. A visitor who only scrolls sees a calm, well-set list with small thumbnails and no single image that stays in memory. Version numbers are structure here, but they sit close to the 'v2.0 caption' slop marker."
+}

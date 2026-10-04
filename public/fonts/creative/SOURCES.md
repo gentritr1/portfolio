@@ -218,3 +218,19 @@ Generated with fontTools 4.66.1. For the Latin families use the existing subset 
 - License: [exact upstream OFL 1.1](https://raw.githubusercontent.com/google/fonts/9710da1eacb3be272583c3224dcb70f9da6eadbb/ofl/bigshouldersdisplay/OFL.txt) · [included copy](BigShouldersDisplay-OFL.txt)
 - Source SHA-256: `60e208dc276a1c35fc5b62e94f9fb959c40c11783a9eb7548175c14b1fbeb720`
 - Local WOFF2 SHA-256: `15074c27bc66b3e886e3fa51e0a0b32ef691df7ccd5bd9c5da3b3e42f7392d8a`
+
+### Newsreader (CHANGELOG draft)
+
+Downloaded on 2026-10-05 from the Google Fonts web service (`fonts.gstatic.com/s/newsreader/v26`, the `latin` subset of the variable family). Upstream design: [productiontype/Newsreader](https://github.com/productiontype/Newsreader), distributed in [google/fonts ofl/newsreader](https://github.com/google/fonts/tree/main/ofl/newsreader). The upstream copyright line names no Reserved Font Name, so the local subsets keep the family name `Newsreader`.
+
+| Local CSS family | File | Bytes | Retained axes | Frozen axes |
+| --- | --- | ---: | --- | --- |
+| `Newsreader` (upright) | [Newsreader-Latin.woff2](Newsreader-Latin.woff2) | 121176 | `wght` 300–650, `opsz` 10–72 | None |
+| `Newsreader` (italic) | [Newsreader-Italic-Latin.woff2](Newsreader-Italic-Latin.woff2) | 43896 | `wght` 400–600 | `opsz` 16 |
+
+- License: [exact upstream OFL 1.1](https://raw.githubusercontent.com/google/fonts/main/ofl/newsreader/OFL.txt) · [included copy](Newsreader-OFL.txt)
+- Source WOFF2 SHA-256 (upright, latin): `01817351be3edfc1714fe6d60ddea6a22a169a5ebd033b50c7f9495e5d9c386a`
+- Source WOFF2 SHA-256 (italic, latin): `a99fb127682b9af538780d21420037452197b0d37dfd273eb108f8a3665d5501`
+- Local WOFF2 SHA-256 (upright): `180c458d2f1576633289cb2f56f75b33d8c5b5d848f909fbde50a87c24e17dd4`
+- Local WOFF2 SHA-256 (italic): `2d787dd5a81973cd2831b07d79dc264315c27d2084d33efcbd24866a1578fc1a`
+- Reduction: fontTools `instantiateVariableFont` limits the axis ranges above; no glyphs or features are removed from the Google latin subset. Coverage keeps `Ë ë Ç ç` and the en dash; there is no `→` glyph, so arrows are drawn as vector icons.
