@@ -1,258 +1,296 @@
-import { OldCareFile } from '../../components/portfolio/OldCareFile'
-import { OldDraftMotion } from '../../components/portfolio/OldDraftMotion'
-import { transitionOldDraft } from '../../components/portfolio/oldDraftTransition'
-import { OutlineName } from '../../components/portfolio/OutlineName'
-import { useState } from "react";
-import { projects } from "../../content/projects";
+import { AnimatePresence, motion, useReducedMotion, type Variants } from "motion/react";
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type RefObject } from "react";
+import { OldCareFile } from "../../components/portfolio/OldCareFile";
+import { OldDraftMotion } from "../../components/portfolio/OldDraftMotion";
 import { links } from "../../content/links";
+import { projects } from "../../content/projects";
+import { Book, type BookControl } from "./Book";
+import { aboutFolio, features, folio, indexFolio, leftFolio, storyFolio } from "./features";
+import { ease } from "./motion";
 import "./issue.css";
 
-const features = [
-  {
-    slug: "offday",
-    title: "Time off.\nTogether.",
-    image: "/personal/shots/offday-dark-desktop.webp",
-    quote: "16 security and tenant-isolation tests.",
-    caption: "Owner’s public capture · Offday",
-    deck: "Employee requests. Manager approvals. One team calendar.",
-  },
-  {
-    slug: "bayyinah-tv",
-    title: "An entire\nplatform.",
-    image: "/showcase/bayyinah/web-01.webp",
-    quote: "34 routes. More than 270 components.",
-    caption: "Public website · Bayyinah TV",
-    deck: "A video-learning platform, rebuilt on Nuxt 3.",
-  },
-  {
-    slug: "read-to-feed",
-    title: "Reading,\nover time.",
-    image: "/mobile/reading-1.webp",
-    quote: "About 14 releases over four years.",
-    caption: "Archived public store frame · Read to Feed",
-    deck: "Books, reading progress and rewards on iOS and Android.",
-  },
-];
 const offday = projects.find((p) => p.slug === "offday")!;
+const NARROW = "(max-width: 800px)";
+
+function useNarrow() {
+  const [narrow, setNarrow] = useState(() => matchMedia(NARROW).matches);
+  useEffect(() => {
+    const query = matchMedia(NARROW);
+    const change = () => setNarrow(query.matches);
+    query.addEventListener("change", change);
+    return () => query.removeEventListener("change", change);
+  }, []);
+  return narrow;
+}
+
+/** Where the cover word crosses the spread, it prints in the ground colour. */
+function usePrintClip(verb: RefObject<HTMLHeadingElement | null>) {
+  useLayoutEffect(() => {
+    const heading = verb.current;
+    const spread = heading?.parentElement?.querySelector<HTMLElement>(".iss-spread");
+    if (!heading || !spread) return;
+    const book = spread.parentElement!;
+    const measure = () => {
+      const top = book.offsetTop - heading.offsetTop;
+      const left = book.offsetLeft - heading.offsetLeft;
+      heading.style.setProperty("--print-top", `${top}px`);
+      heading.style.setProperty("--print-left", `${left}px`);
+      heading.style.setProperty("--print-right", `${heading.offsetWidth - left - book.offsetWidth}px`);
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(heading);
+    observer.observe(spread);
+    return () => observer.disconnect();
+  }, [verb]);
+}
+
+const letter: Variants = {
+  hidden: ({ first }: { first: boolean }) =>
+    first
+      ? { clipPath: "inset(-30% -20% 130% -20%)", y: 40, opacity: 1, filter: "blur(0px)" }
+      : { clipPath: "inset(-30% -20% -40% -20%)", y: 12, opacity: 0, filter: "blur(4px)" },
+  shown: ({ i, first, reduced }: { i: number; first: boolean; reduced: boolean }) => ({
+    clipPath: "inset(-30% -20% -40% -20%)",
+    y: 0,
+    opacity: 1,
+    filter: "blur(0px)",
+    transition: reduced
+      ? { duration: 0.01 }
+      : first
+        ? { duration: 0.9, ease: ease.arrive, delay: 0.45 + i * 0.04 }
+        : { duration: 0.22, ease: ease.arrive, delay: 0.08 + i * 0.018 },
+  }),
+  gone: ({ i, reduced }: { i: number; reduced: boolean }) => ({
+    y: reduced ? 0 : -12,
+    opacity: 0,
+    filter: reduced ? "blur(0px)" : "blur(4px)",
+    transition: { duration: reduced ? 0.01 : 0.15, ease: ease.out, delay: reduced ? 0 : i * 0.01 },
+  }),
+};
+
+const settledWord: Variants = {
+  hidden: { opacity: 1 },
+  shown: { opacity: 1 },
+  gone: ({ reduced }: { reduced: boolean }) => ({
+    y: reduced ? 0 : -12,
+    opacity: 0,
+    filter: reduced ? "blur(0px)" : "blur(4px)",
+    transition: { duration: reduced ? 0.01 : 0.15, ease: ease.out },
+  }),
+};
+
+/** Letters animate one by one, then the word becomes one text run so its kerning pairs return. */
+function Word({ word, first, reduced }: { word: string; first: boolean; reduced: boolean }) {
+  const [settled, setSettled] = useState(reduced);
+  return (
+    <motion.span
+      className="iss-word"
+      initial="hidden"
+      animate="shown"
+      exit="gone"
+      custom={{ reduced }}
+      variants={settled ? settledWord : undefined}
+      onAnimationComplete={(definition) => {
+        if (definition === "shown") setSettled(true);
+      }}
+    >
+      {settled
+        ? word
+        : [...word].map((char, i) => (
+            <motion.span key={i} custom={{ i, first, reduced }} variants={letter}>
+              {char}
+            </motion.span>
+          ))}
+    </motion.span>
+  );
+}
+
+function Verb({ word }: { word: string }) {
+  const reduced = Boolean(useReducedMotion());
+  const [first, setFirst] = useState(true);
+  useEffect(() => setFirst(false), []);
+  return (
+    <span className="iss-verb-slot">
+      <AnimatePresence initial={!reduced}>
+        <Word key={word} word={word} first={first} reduced={reduced} />
+      </AnimatePresence>
+    </span>
+  );
+}
 
 export default function Draft() {
-  const [page, setPage] = useState(0);
-  const feature = features[page];
+  const narrow = useNarrow();
+  const [shown, setShown] = useState(0);
+  const book = useRef<BookControl>(null);
+  const verb = useRef<HTMLHeadingElement>(null);
+  usePrintClip(verb);
+  const feature = features[shown];
   const project = projects.find((p) => p.slug === feature.slug)!;
+
   return (
-    <div className="draft-issue">
+    <div className="draft-issue" style={{ "--ground": feature.ground } as CSSProperties}>
       <OldDraftMotion />
       <title>The working issue — Gentrit Rashiti</title>
-      <header className="iss-header">
-        <a href="/drafts">Gentrit Rashiti</a>
-        <nav>
-          <a href="#iss-index">Index</a>
+      <header className="iss-mast">
+        <p>
+          <a href="/drafts">Gentrit Rashiti</a>
+          <span>Issue 01</span>
+          <span>2021–26</span>
+        </p>
+        <nav aria-label="Sections">
+          <a href="#iss-index">Contents</a>
           <a href="#iss-about">About</a>
           <a href={`mailto:${links.email}`}>Email</a>
         </nav>
-        <span>Selected work, 2021–26</span>
       </header>
       <main>
         <section className="iss-cover" aria-label="The working issue">
-          <h1>Shipped.</h1>
+          <h1 className="iss-verb" ref={verb}>
+            <span className="iss-sr">{feature.verb}</span>
+            <span className="iss-verb-ink" aria-hidden="true">
+              <Verb word={feature.verb} />
+            </span>
+            <span className="iss-verb-print" aria-hidden="true">
+              <Verb word={feature.verb} />
+            </span>
+          </h1>
           <div className="iss-cover-grid">
-            <div className="iss-editor">
-              <h2>
-                <OutlineName>Gentrit
-                <br />
-                <em>Rashiti.</em></OutlineName>
-              </h2>
-              <p>
-                Frontend & mobile developer,
-                <br />
-                now full stack.
-              </p>
-              <p className="iss-location">
-                Kosovo. Working remotely.
-                <br />
-                5+ years, from the first screen to release.
-              </p>
-              <a href={feature.slug === 'offday' ? '#iss-story' : `/work/${feature.slug}`} aria-label={`Read the ${project.name} feature`}>
-                Read the feature
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M4 12h16M13 5l7 7-7 7" />
-                </svg>
+            <nav className="iss-contents" aria-label="Features in this issue">
+              <h2>Contents</h2>
+              <ol>
+                {features.map((f, i) => {
+                  const name = projects.find((p) => p.slug === f.slug)!.name;
+                  return (
+                    <li key={f.slug} style={{ "--i": i } as CSSProperties}>
+                      <button
+                        type="button"
+                        aria-current={i === shown ? "page" : undefined}
+                        onClick={() => book.current?.turnTo(i)}
+                      >
+                        <span className="iss-folio">{folio(leftFolio(i))}</span>
+                        <strong>{name}</strong>
+                        <span className="iss-line">{f.line}</span>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ol>
+              <a className="iss-contents-index" href="#iss-index" style={{ "--i": features.length } as CSSProperties}>
+                <span className="iss-folio">{folio(indexFolio)}</span>
+                <strong>The complete index</strong>
+                <span className="iss-line">{projects.length} projects</span>
               </a>
-            </div>
-            <div className="iss-book">
-              <div className="iss-spread" key={feature.slug}>
-                <article className="iss-page-copy">
-                  <p>
-                    {project.name} · {project.years}
-                  </p>
-                  <h2>
-                    {feature.title.split("\n").map((line) => (
-                      <span key={line}>{line}</span>
-                    ))}
-                  </h2>
-                  <p>{feature.deck}</p>
-                  <blockquote>{feature.quote}</blockquote>
-                  <span className="iss-page-number">
-                    {String(page * 2 + 1).padStart(2, "0")}
-                  </span>
-                </article>
-                <figure className="iss-page-image">
-                  <img src={feature.image} alt={feature.caption} />
-                  <figcaption>{feature.caption}</figcaption>
-                  <span className="iss-page-number">
-                    {String(page * 2 + 2).padStart(2, "0")}
-                  </span>
-                </figure>
-              </div>
-              <div className="iss-turn">
-                <button
-                  type="button"
-                  onClick={() =>
-                    transitionOldDraft(() => setPage((page + features.length - 1) % features.length))
-                  }
-                  aria-label="Previous feature"
-                >
-                  <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M20 12H4m7-7-7 7 7 7" />
-                  </svg>
-                </button>
-                <p aria-live="polite">
-                  {project.name}
-                  <span>
-                    {page + 1} of {features.length}
-                  </span>
-                </p>
-                <button
-                  type="button"
-                  onClick={() => transitionOldDraft(() => setPage((page + 1) % features.length))}
-                  aria-label="Turn to next feature"
-                >
-                  <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M4 12h16M13 5l7 7-7 7" />
-                  </svg>
-                </button>
-              </div>
-            </div>
+            </nav>
+            <Book ref={book} narrow={narrow} onShow={setShown} />
           </div>
+          <p className="iss-sr" role="status">
+            {project.name}, feature {shown + 1} of {features.length}
+          </p>
         </section>
-        <section className="iss-story" id="iss-story">
-          <header>
-            <h2>
-              A little less
-              <br />
-              <em>back and forth.</em>
-            </h2>
-            <p>Offday · Personal project · 2026</p>
+
+        <section className="iss-story" id="iss-story" aria-labelledby="iss-story-title">
+          <header className="iss-section-head">
+            <span className="iss-folio">{folio(storyFolio)}</span>
+            <span>Cover story · Offday · Personal project · 2026</span>
           </header>
+          <h2 id="iss-story-title">
+            A little less
+            <br />
+            <span className="iss-light">back and forth.</span>
+          </h2>
           <div className="iss-story-columns">
             <p className="iss-drop">{offday.summary}</p>
-            <div>
-              <blockquote>
-                16 tests for security and tenant isolation.
-              </blockquote>
-              <p>
-                Employees request leave. Managers approve it. The team calendar
-                shows who is away, with drag-select to pick dates.
-              </p>
-              <p>{offday.stack.join(" · ")}</p>
-              <nav>
-                {offday.links.map((l) => (
-                  <a
-                    key={l.href}
-                    href={l.href}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    {l.label}
-                  </a>
-                ))}
-              </nav>
-            </div>
+            <aside>
+              <blockquote>16 tests for security and tenant isolation.</blockquote>
+              <p className="iss-meta">{offday.stack.join(" · ")}</p>
+            </aside>
           </div>
           <figure>
             <img
-              src="/personal/shots/offday-dark-desktop.webp"
+              src="/personal/shots/offday-app-desktop.webp"
               loading="lazy"
-              alt="Offday team calendar and time-off approvals, captured from the owner’s public app"
+              alt="Offday team calendar in the demo workspace, October leave bars and approval queue"
             />
-            <figcaption>The team calendar. Owner’s public capture.</figcaption>
+            <figcaption>
+              <span>The team calendar, light theme</span>
+              <span>Owner’s public capture</span>
+            </figcaption>
           </figure>
         </section>
-        <section className="iss-index" id="iss-index">
-          <div className="iss-index-heading">
-            <h2>
-              The complete
-              <br />
-              <em>index.</em>
-            </h2>
-            <p>
-              28 projects. The same care,
-              <br />
-              across different kinds of work.
-            </p>
-          </div>
+
+        <section className="iss-index" id="iss-index" aria-labelledby="iss-index-title">
+          <header className="iss-section-head">
+            <span className="iss-folio">{folio(indexFolio)}</span>
+            <span>{projects.length} projects, 2021–26</span>
+          </header>
+          <h2 id="iss-index-title">
+            The complete <span className="iss-light">index.</span>
+          </h2>
           <div className="iss-index-rows">
             {projects.map((p, i) => (
               <details key={p.slug}>
                 <summary>
-                  <span>{String(i + 1).padStart(2, "0")}</span>
+                  <span className="iss-folio">{folio(i + 1)}</span>
                   <strong>{p.name}</strong>
-                  <span>{p.years ?? "—"}</span>
+                  <span className="iss-leader" aria-hidden="true" />
+                  <span className="iss-folio">{p.years ?? "—"}</span>
                 </summary>
                 <div>
-                  <OldCareFile slug={p.slug} /><p>{p.summary}</p>
-                  <p>{p.stack.join(" · ")}</p>
-                  <nav>
-                    {p.links.map((l) => (
-                      <a
-                        key={l.href}
-                        href={l.href}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        {l.label}
-                      </a>
-                    ))}
-                  </nav>
+                  <OldCareFile slug={p.slug} />
+                  <p>{p.summary}</p>
+                  <p className="iss-meta">{p.stack.join(" · ")}</p>
+                  {p.links.length > 0 && (
+                    <nav aria-label={`${p.name} links`}>
+                      {p.links.map((l) => (
+                        <a key={l.href} href={l.href} target="_blank" rel="noreferrer">
+                          {l.label}
+                        </a>
+                      ))}
+                    </nav>
+                  )}
                 </div>
               </details>
             ))}
           </div>
         </section>
-        <section className="iss-about" id="iss-about">
-          <h2>
-            Behind
-            <br />
-            <em>the pages.</em>
+
+        <section className="iss-about" id="iss-about" aria-labelledby="iss-about-title">
+          <header className="iss-section-head">
+            <span className="iss-folio">{folio(aboutFolio)}</span>
+            <span>Editor’s note</span>
+          </header>
+          <h2 id="iss-about-title">
+            Behind <span className="iss-light">the pages.</span>
           </h2>
-          <div>
+          <div className="iss-about-body">
             <p>
-              I'm Gentrit Rashiti, a frontend and mobile developer, now working
-              across the full stack.
+              Gentrit Rashiti makes web and mobile products, from the first screen to release: healthcare,
+              video streaming, e-reading and Web3.
             </p>
             <p>
-              React, Next.js, Vue and Nuxt for the web. React Native on iOS and
-              Android. Laravel and FastAPI behind the interface.
+              Five years and more, and part of two platform rewrites. React, Next.js, Vue and Nuxt on the web.
+              React Native on iOS and Android. Laravel and FastAPI behind the interface.
             </p>
-            <p>
-              Based in Kosovo. Working remotely.
-              <br />
-              Bachelor’s degree · UBT
-            </p>
+            <p className="iss-meta">Based in Kosovo, working remotely · Bachelor’s degree, UBT</p>
+          </div>
+          <div className="iss-about-contact">
             <a className="iss-email" href={`mailto:${links.email}`}>
               {links.email}
             </a>
-            <nav>
+            <nav aria-label="Elsewhere">
               <a href={links.linkedin}>LinkedIn</a>
               <a href={links.github}>GitHub</a>
-              <a href={links.cv} download>Download CV</a>
+              <a href={links.cv} download>
+                Download CV
+              </a>
             </nav>
           </div>
         </section>
       </main>
-      <footer>
+      <footer className="iss-colophon">
         <a href="/drafts">All drafts</a>
-        <span>Gentrit Rashiti · 2026</span>
+        <span>Set in Cormorant Garamond, Literata and JetBrains Mono · Issue 01 · 2026</span>
       </footer>
     </div>
   );
