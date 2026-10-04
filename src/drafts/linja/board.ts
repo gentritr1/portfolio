@@ -8,12 +8,13 @@ attribute float rotation;
 uniform vec2 grid;
 varying vec2 disc;
 varying float face;
-varying float light;
+varying float tilt;
 void main(){
   disc=position;
-  float angle=rotation*3.14159265;
+  float wobble=fract(sin(dot(center,vec2(12.9898,78.233)))*43758.5453)-.5;
+  float angle=rotation*3.14159265+wobble*.05;
   face=cos(angle);
-  light=.72+.28*abs(cos(angle-.30));
+  tilt=sin(angle);
   vec2 local=vec2(position.x,position.y*face)*.43;
   vec2 point=(center+local)/grid;
   gl_Position=vec4(point.x*2.-1.,1.-point.y*2.,0.,1.);
@@ -22,22 +23,29 @@ const fragment = `
 precision highp float;
 varying vec2 disc;
 varying float face;
-varying float light;
+varying float tilt;
 void main(){
   float r=length(disc);
   if(r>1.)discard;
-  vec3 front=vec3(.961,.769,0.);
-  vec3 back=vec3(.055);
-  vec3 ink=mix(back,front,step(0.,face));
-  float edge=1.-smoothstep(.84,1.,r);
-  ink*=light*(.65+.35*edge);
-  // The axle and bevel stay physical at every flip angle.
-  ink*=1.-.10*(1.-smoothstep(.0,.055,abs(disc.y)));
+  float side=face>=0.?1.:-1.;
+  vec3 paint=face>=0.?vec3(.961,.769,0.):vec3(.062,.060,.055);
+  // Screen space: x right, y down, z toward the viewer. The disc turns about its axle.
+  vec3 normal=normalize(side*vec3(0.,-tilt,face)+vec3(disc.x,disc.y*abs(face),0.)*.32);
+  vec3 light=normalize(vec3(-.35,-.6,.72));
+  float diffuse=max(dot(normal,light),0.);
+  float gloss=pow(max(dot(normal,normalize(light+vec3(0.,0.,1.))),0.),36.);
+  vec3 ink=paint*(.38+.72*diffuse)+gloss*(face>=0.?.22:.09);
+  ink*=1.-.38*smoothstep(.8,1.,r);
+  ink*=1.-.16*(1.-smoothstep(.0,.06,abs(disc.y)));
   gl_FragColor=vec4(ink,1.);
 }`;
 export interface Board {
-  set: (bitmap: Uint8Array, instant?: boolean, seed?: [number, number]) => void;
-  pause: (paused: boolean) => void;
+  set: (
+    bitmap: Uint8Array,
+    options?: { instant?: boolean; seed?: [number, number]; step?: number },
+  ) => void;
+  /** Turns single discs at once, without restarting the wave of the others. */
+  paint: (cells: number[], on: boolean) => void;
   dispose: () => void;
 }
 
@@ -55,7 +63,8 @@ export function createBoard(
   const state = new Float32Array(DISC_COUNT).fill(1),
     speed = new Float32Array(DISC_COUNT),
     target = new Float32Array(DISC_COUNT).fill(1),
-    delay = new Float32Array(DISC_COUNT);
+    delay = new Float32Array(DISC_COUNT),
+    jitter = new Float32Array(DISC_COUNT).map(() => Math.random() * 14);
   let renderer: Renderer | undefined,
     geometry: Geometry | undefined,
     program: Program | undefined,
@@ -63,7 +72,6 @@ export function createBoard(
   let ctx: CanvasRenderingContext2D | null = null,
     drawingCanvas = canvas,
     frame = 0,
-    paused = false,
     visible = true,
     disposed = false,
     previous = 0;
@@ -144,7 +152,7 @@ export function createBoard(
     }
   }
   function request() {
-    if (!frame && !paused && visible && !document.hidden && !disposed)
+    if (!frame && visible && !document.hidden && !disposed)
       frame = requestAnimationFrame(tick);
   }
   function tick(now: number) {
@@ -232,15 +240,18 @@ export function createBoard(
   document.addEventListener("visibilitychange", visibility);
   resize();
   return {
-    set(bitmap, instant = false, seed = [0, 0]) {
+    set(bitmap, { instant = false, seed = [0, 0], step = 3.8 } = {}) {
       const now = performance.now();
       for (let i = 0; i < DISC_COUNT; i++) {
-        target[i] = bitmap[i] ? 0 : 1;
-        delay[i] =
-          now +
-          (Math.abs((i % cols) - seed[0]) +
-            Math.abs(Math.floor(i / cols) - seed[1])) *
-            3.8;
+        const next = bitmap[i] ? 0 : 1;
+        if (next !== target[i])
+          delay[i] =
+            now +
+            (Math.abs((i % cols) - seed[0]) +
+              Math.abs(Math.floor(i / cols) - seed[1])) *
+              step +
+            jitter[i];
+        target[i] = next;
         if (instant || reduced) {
           state[i] = target[i];
           speed[i] = 0;
@@ -253,15 +264,19 @@ export function createBoard(
         request();
       }
     },
-    pause(value) {
-      paused = value;
-      if (value) {
-        cancelAnimationFrame(frame);
-        frame = 0;
-      } else {
-        previous = performance.now();
-        request();
+    paint(cells, on) {
+      const now = performance.now();
+      for (const i of cells) {
+        if (i < 0 || i >= DISC_COUNT) continue;
+        target[i] = on ? 0 : 1;
+        delay[i] = now;
+        if (reduced) {
+          state[i] = target[i];
+          speed[i] = 0;
+        }
       }
+      if (reduced) draw();
+      else request();
     },
     dispose() {
       disposed = true;

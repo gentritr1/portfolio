@@ -13,7 +13,7 @@ const glyphs: Record<string, string> = {
   K: "11121418141211",
   L: "1010101010101F",
   M: "111B1515111111",
-  N: "11191915131311",
+  N: "11111915131111",
   O: "0E11111111110E",
   P: "1E11111E101010",
   Q: "0E11111115120D",
@@ -22,7 +22,7 @@ const glyphs: Record<string, string> = {
   T: "1F040404040404",
   U: "1111111111110E",
   V: "11111111110A04",
-  W: "11111115151B11",
+  W: "1111111515150A",
   X: "11110A040A1111",
   Y: "11110A04040404",
   Z: "1F01020408101F",
@@ -54,8 +54,14 @@ const glyphs: Record<string, string> = {
   "→": "0008041F040800",
   "·": "00000004000000",
   _: "0000000000001F",
+  "~": "00000815020000",
+  "↓": "04040404150E04",
 };
 export const DISC_COUNT = 144 * 48;
+/** Board width of a text run: five columns for each glyph and one column between glyphs. */
+export function textWidth(text: string, scale = 1) {
+  return text.length ? (text.length * 6 - 1) * scale : 0;
+}
 export function putText(
   bits: Uint8Array,
   cols: number,
@@ -66,7 +72,8 @@ export function putText(
   invert = false,
 ) {
   for (const char of text.toUpperCase().replace(/[–—]/g, "-")) {
-    const hex = glyphs[char] ?? glyphs["?"];
+    const hex =
+      scale > 1 && char === "0" ? glyphs.O : (glyphs[char] ?? glyphs["?"]);
     for (let row = 0; row < 7; row++)
       for (let col = 0; col < 5; col++) {
         const value =
@@ -133,4 +140,45 @@ export function imageBits(
         : 0;
   }
   return bits;
+}
+
+/** Seven by seven pictograms, as flip-disc signs carry for a service. */
+const icons = {
+  healthcare: "0110110111111111111111111111011111000111000001000",
+  streaming: "0100010001010011111111000001100000111111110100010",
+  reading: "0111110010001001000100100010011111001101100111110",
+  web3: "0011100010001010010011011101100100101000100011100",
+  ai: "1111111100000110101011000001111111101100000100000",
+  personal: "0001000000100011111110111110001110001101101000001",
+} as const;
+export type IconName = keyof typeof icons;
+export function putIcon(
+  bits: Uint8Array,
+  cols: number,
+  name: IconName,
+  x: number,
+  y: number,
+  scale = 2,
+) {
+  const shape = icons[name];
+  for (let i = 0; i < 49; i++)
+    if (shape[i] === "1")
+      fillRect(bits, cols, x + (i % 7) * scale, y + Math.floor(i / 7) * scale, scale, scale);
+}
+/** Draws a Morse pattern as bars: a dit is one unit wide, a dah three, with one unit between marks. */
+export function putPattern(
+  bits: Uint8Array,
+  cols: number,
+  pattern: string,
+  x: number,
+  y: number,
+  unit: number,
+  height: number,
+) {
+  for (const mark of pattern) {
+    const width = mark === "-" ? unit * 3 : unit;
+    fillRect(bits, cols, x, y, width, height);
+    x += width + unit;
+  }
+  return x - unit;
 }
