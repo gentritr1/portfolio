@@ -1,0 +1,924 @@
+@font-face {
+  font-family: "Big Shoulders Display";
+  src: url("/fonts/creative/BigShouldersDisplay-Latin.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Public Sans";
+  src: url("/fonts/creative/PublicSans-Latin.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/*
+ * Only the hue comes from the screen. Lightness and chroma are fixed:
+ * ground L 0.95 C 0.035, ink L 0.30 C 0.11, band L 0.42 C 0.13.
+ */
+:root:has(.sf) {
+  color-scheme: light;
+  scroll-behavior: auto;
+}
+
+/* The specimen's theme change is a view transition. Without this, the whole page cross-fades with it. */
+:root:has(.sf)::view-transition-old(root),
+:root:has(.sf)::view-transition-new(root) {
+  animation: none;
+}
+
+.sf {
+  --sf-k: 1;
+  --sf-g: oklch(0.95 calc(0.035 * var(--sf-k)) var(--sf-h));
+  --sf-ink: oklch(0.3 calc(0.11 * var(--sf-k)) var(--sf-h));
+  --sf-band: oklch(0.42 calc(0.13 * var(--sf-k)) var(--sf-h));
+  --sf-rule: color-mix(in oklab, var(--sf-ink) 30%, transparent);
+  --sf-display: "Big Shoulders Display", "Arial Narrow", sans-serif;
+  --sf-text: "Public Sans", ui-sans-serif, system-ui, sans-serif;
+  --sf-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  /* The frame is 4:5 and never wider than 576 px, so a 576 px store crop is never upscaled. */
+  --sf-fw: min(576px, calc((100dvh - 180px) * 0.8), calc(100vw - 600px));
+  --sf-fh: calc(var(--sf-fw) * 1.25);
+  --sf-wall: max(calc(var(--sf-fw) + 224px), 50vw);
+  position: relative;
+  isolation: isolate;
+  min-height: 100dvh;
+  color: var(--sf-ink);
+  font-family: var(--sf-text);
+  font-size: 17px;
+  line-height: 1.45;
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+  scrollbar-color: var(--sf-ink) var(--sf-g);
+}
+
+.sf[data-neutral] {
+  --sf-k: 0;
+}
+
+.sf ::selection {
+  background: var(--sf-ink);
+  color: var(--sf-g);
+}
+
+.sf :focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.sf a {
+  color: inherit;
+  text-decoration-line: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 5px;
+  text-decoration-color: color-mix(in oklab, currentColor 40%, transparent);
+  transition:
+    text-underline-offset 160ms ease,
+    text-decoration-color 160ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .sf a:hover {
+    text-underline-offset: 3px;
+    text-decoration-color: currentColor;
+  }
+}
+
+.sf-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ---------- Grounds: one layer for each hue ---------- */
+
+.sf-grounds {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.sf-wall-grounds {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.sf-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: oklch(0.95 0.035 var(--lh));
+  opacity: 0;
+  transition: opacity 0s linear 300ms;
+}
+
+.sf-layer[data-on] {
+  z-index: 1;
+  opacity: 1;
+  transition: none;
+}
+
+.sf-wall-grounds .sf-layer {
+  background: oklch(0.42 0.13 var(--lh));
+}
+
+.sf-grounds .sf-layer-none {
+  background: oklch(0.95 0 0);
+}
+
+.sf-wall-grounds .sf-layer-none {
+  background: oklch(0.42 0 0);
+}
+
+/* ---------- Layout: the log at the left, the wall and its frame at the right ---------- */
+
+.sf-main {
+  display: grid;
+  grid-template-columns: minmax(0, 520px) var(--sf-wall);
+  grid-template-areas:
+    "id wall"
+    "log wall";
+  grid-template-rows: auto 1fr;
+  justify-content: space-between;
+  column-gap: 56px;
+  padding-left: max(64px, calc((100vw - var(--sf-wall) - 520px) / 2));
+}
+
+.sf-id {
+  grid-area: id;
+  padding-top: 48px;
+}
+
+.sf-id h1 {
+  margin: 0;
+  font-size: 40px;
+  line-height: 1.1;
+  font-weight: 700;
+  letter-spacing: -0.024em;
+  text-wrap: balance;
+}
+
+.sf-id-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 20px;
+  row-gap: 0;
+  margin: 14px 0 0;
+  font-size: 17px;
+  line-height: 1.4;
+}
+
+.sf-id-links {
+  display: inline-flex;
+  gap: 16px;
+}
+
+.sf-id-links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-weight: 600;
+}
+
+.sf-log {
+  grid-area: log;
+  list-style: none;
+  margin: 20px 0 0;
+  padding: 0 0 32vh;
+}
+
+.sf-wall {
+  grid-area: wall;
+  align-self: start;
+  position: sticky;
+  top: 0;
+  height: 100dvh;
+  isolation: isolate;
+  color: var(--sf-g);
+}
+
+.sf-wall-in {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: var(--sf-fw) 44px;
+  grid-template-rows: var(--sf-fh) auto;
+  grid-template-areas:
+    "frame tray"
+    "caption .";
+  column-gap: 20px;
+  row-gap: 14px;
+  align-content: center;
+  justify-content: center;
+  height: 100%;
+  padding-left: 24px;
+}
+
+/* ---------- A row of the log ---------- */
+
+.sf-row {
+  padding: 24px 0 28px;
+  border-top: 1px solid var(--sf-rule);
+  cursor: default;
+}
+
+.sf-row-head {
+  display: flex;
+  align-items: flex-end;
+  gap: 18px;
+}
+
+.sf-num {
+  flex: none;
+  min-width: 1.05em;
+  font-family: var(--sf-display);
+  font-size: 96px;
+  line-height: 0.78;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+  color: transparent;
+  -webkit-text-stroke: 1.5px var(--sf-ink);
+  transition: color 160ms ease;
+}
+
+.sf-row[data-current] .sf-num {
+  color: var(--sf-ink);
+}
+
+.sf-row-name {
+  min-width: 0;
+  padding-bottom: 2px;
+}
+
+.sf-row-name h2 {
+  margin: 0;
+  font-size: 19px;
+  line-height: 1.2;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+
+.sf-role {
+  margin: 4px 0 0;
+  font-family: var(--sf-display);
+  font-size: 16px;
+  line-height: 1.2;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.sf-line {
+  margin: 16px 0 0;
+  font-size: 21px;
+  line-height: 1.32;
+  font-weight: 500;
+  letter-spacing: -0.012em;
+  text-wrap: pretty;
+}
+
+.sf-result {
+  position: relative;
+  margin: 10px 0 0;
+  font-size: 22px;
+  line-height: 1.45;
+  font-weight: 650;
+  letter-spacing: -0.012em;
+  font-variant-numeric: tabular-nums;
+}
+
+.sf-result mark {
+  margin-left: -7px;
+  padding: 1px 8px 2px 7px;
+  border-radius: 4px;
+  background: transparent;
+  color: inherit;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+.sf-result-arrow {
+  display: inline-block;
+  width: 0.8em;
+  height: 0.8em;
+  margin-right: 0.32em;
+  vertical-align: -0.08em;
+}
+
+.sf-result-ink {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  clip-path: inset(0 100% 0 0);
+  transition:
+    opacity 120ms ease,
+    clip-path 0s linear 120ms;
+}
+
+.sf-result-ink mark {
+  background: var(--sf-ink);
+  color: var(--sf-g);
+}
+
+.sf-row[data-current] .sf-result-ink {
+  opacity: 1;
+  clip-path: inset(0 0 0 0);
+  transition:
+    opacity 0s,
+    clip-path 240ms var(--sf-ease-out);
+}
+
+.sf-foot {
+  margin: 8px 0 0;
+}
+
+.sf-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+/* ---------- The frame ---------- */
+
+.sf-frame {
+  grid-area: frame;
+  position: relative;
+  overflow: hidden;
+  border-radius: 10px;
+  background: var(--sf-g);
+  isolation: isolate;
+}
+
+.sf-plate {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  visibility: hidden;
+}
+
+.sf-plate[data-state="on"] {
+  z-index: 2;
+  visibility: visible;
+}
+
+.sf-plate[data-state="prev"] {
+  z-index: 1;
+  visibility: visible;
+}
+
+.sf[data-instant] .sf-result-ink,
+.sf[data-instant] .sf-num,
+.sf[data-instant] .sf-tray button::before {
+  transition: none;
+}
+
+.sf-wait {
+  position: absolute;
+  inset: 0;
+  background: inherit;
+}
+
+.sf-live {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: var(--world-bg);
+}
+
+.sf-live-in {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
+  container-type: inline-size;
+  background: var(--world-bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 1.6;
+  font-weight: 400;
+  letter-spacing: normal;
+  -webkit-font-smoothing: auto;
+}
+
+.sf-shot {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.sf-shot img {
+  position: absolute;
+  max-width: none;
+  height: auto;
+}
+
+/* The specimen shows its Tokens card and its Alert card, each whole. */
+.sf-live-design-system .dsr-top {
+  display: none;
+}
+
+.sf-live-design-system .dsr-scroll {
+  overflow: hidden;
+}
+
+.sf-live-design-system .dsr-board > :not(.dsr-area-tokens, .dsr-area-alerts) {
+  visibility: hidden;
+}
+
+/* The live room shows its phone layout: the player over the chat. */
+.sf-live-live-room .sf-live-in > div {
+  grid-template-columns: minmax(0, 1fr) !important;
+  grid-template-rows: auto minmax(0, 1fr) !important;
+  gap: 0 !important;
+  padding: 0 !important;
+  background: var(--surface) !important;
+}
+
+/* The reader is shown as a page: no device silhouette, no scan card beside it. */
+.sf-live-reader .sf-live-in > div > :nth-child(2) {
+  display: none;
+}
+
+.sf-live-reader [class*="bg-(--bezel)"] {
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+  --tw-ring-shadow: 0 0 #0000;
+}
+
+/* ---------- Beside and under the frame ---------- */
+
+.sf-tray {
+  grid-area: tray;
+  display: flex;
+  flex-direction: column;
+  align-self: start;
+}
+
+.sf-tray button {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--sf-g);
+  font-family: var(--sf-display);
+  font-size: 15px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+
+.sf-tray button::before {
+  content: "";
+  grid-area: 1 / 1;
+  width: 36px;
+  height: 30px;
+  border-radius: 4px;
+  box-shadow: inset 0 0 0 1px var(--sf-g);
+  transition: background-color 160ms ease;
+}
+
+.sf-tray button span {
+  position: relative;
+  grid-area: 1 / 1;
+}
+
+.sf-tray button[aria-pressed="true"] {
+  color: var(--sf-band);
+}
+
+.sf-tray button[aria-pressed="true"]::before {
+  background: var(--sf-g);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .sf-tray button:hover::before {
+    background: color-mix(in oklab, var(--sf-g) 18%, transparent);
+  }
+
+  .sf-tray button[aria-pressed="true"]:hover::before {
+    background: var(--sf-g);
+  }
+}
+
+.sf-tray button:focus-visible {
+  outline-offset: -2px;
+}
+
+.sf-caption {
+  grid-area: caption;
+  display: grid;
+  row-gap: 2px;
+}
+
+.sf-count {
+  display: none;
+  align-items: baseline;
+  gap: 6px;
+  margin: 0;
+  font-family: var(--sf-display);
+  font-size: 30px;
+  line-height: 1;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.sf-count-of {
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.sf-caption-text,
+.sf-hue {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.35;
+  font-weight: 500;
+}
+
+.sf-hue {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- The hairline ---------- */
+
+.sf-wire {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.sf-wire g {
+  transition: opacity 120ms ease;
+}
+
+.sf-wire g[data-ready="false"] {
+  opacity: 0;
+  transition: none;
+}
+
+.sf-wire path {
+  fill: none;
+  stroke-dasharray: 1;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.sf-wire-line {
+  stroke: var(--sf-ink);
+  stroke-width: 1.5;
+}
+
+.sf-wire-halo {
+  stroke: var(--sf-g);
+  stroke-width: 5;
+}
+
+.sf-wire-ring {
+  fill: none;
+  stroke: var(--sf-ink);
+  stroke-width: 2;
+}
+
+.sf-wire-ring-halo {
+  fill: none;
+  stroke: var(--sf-g);
+  stroke-width: 5;
+}
+
+.sf-wire-dot {
+  fill: var(--sf-ink);
+  stroke: var(--sf-g);
+  stroke-width: 2;
+}
+
+/* ---------- The record: no screen, no hue ---------- */
+
+.sf-record {
+  padding: 96px 64px 0;
+  max-width: 1376px;
+}
+
+.sf-record h2 {
+  margin: 0 0 14px;
+  font-size: 30px;
+  line-height: 1.15;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.sf-record ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--sf-ink);
+}
+
+.sf-record li {
+  border-bottom: 1px solid var(--sf-rule);
+}
+
+.sf-record-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px 260px;
+  align-items: baseline;
+  gap: 24px;
+  padding: 16px 0;
+}
+
+a.sf-record-row {
+  text-decoration: none;
+}
+
+.sf-record-decision {
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.sf-record-project {
+  font-family: var(--sf-display);
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.sf-record-result {
+  font-size: 18px;
+  font-weight: 700;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  a.sf-record-row:hover .sf-record-decision {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+}
+
+.sf-record-more {
+  margin: 16px 0 0;
+  font-weight: 600;
+}
+
+.sf-record-more a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+}
+
+.sf-end {
+  max-width: 1376px;
+  margin-top: 72px;
+  padding: 32px 64px 56px;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.sf-end::before {
+  content: "";
+  display: block;
+  height: 1px;
+  margin-bottom: 20px;
+  background: var(--sf-ink);
+}
+
+.sf-end p {
+  max-width: 68ch;
+  margin: 8px 0 0;
+}
+
+.sf-end .sf-end-links {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 24px;
+  margin: 0;
+}
+
+.sf-end-links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-weight: 600;
+}
+
+/* ---------- Narrow: the frame pins at the top, the log scrolls under it ---------- */
+
+@media (max-width: 1279px) and (min-width: 1024px) {
+  .sf {
+    --sf-wall: calc(var(--sf-fw) + 150px);
+  }
+
+  .sf-main {
+    padding-left: 40px;
+    column-gap: 40px;
+  }
+
+  .sf-wall-in {
+    column-gap: 14px;
+    padding-left: 16px;
+  }
+
+  .sf-id h1 {
+    font-size: 30px;
+  }
+}
+
+@media (max-width: 1023px) {
+  .sf-main {
+    display: flex;
+    flex-direction: column;
+    padding: 0 16px;
+  }
+
+  .sf-id {
+    order: 0;
+    padding-top: 20px;
+  }
+
+  .sf-id h1 {
+    font-size: 26px;
+    line-height: 1.15;
+  }
+
+  .sf-id-line {
+    margin-top: 6px;
+    font-size: 15px;
+    column-gap: 14px;
+  }
+
+  .sf-wall {
+    order: 1;
+    align-self: stretch;
+    z-index: 5;
+    height: auto;
+    margin: 0 -16px;
+  }
+
+  .sf-wall-in {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    grid-template-areas:
+      "frame"
+      "caption";
+    row-gap: 8px;
+    height: auto;
+    padding: 12px 16px 10px;
+  }
+
+  .sf-frame {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    border-radius: 8px;
+  }
+
+  .sf-tray {
+    display: none;
+  }
+
+  .sf-caption {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    column-gap: 12px;
+    align-items: center;
+  }
+
+  .sf-count {
+    display: flex;
+    grid-row: span 2;
+    font-size: 26px;
+  }
+
+  .sf-hue {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .sf-count-of {
+    font-size: 14px;
+  }
+
+  .sf-caption-text,
+  .sf-hue {
+    font-size: 13px;
+  }
+
+  /* Every caption keeps two lines, so the pinned frame keeps one height and the log never jumps. */
+  .sf-caption-text {
+    min-height: 2.7em;
+  }
+
+  .sf-log {
+    order: 2;
+    margin-top: 8px;
+    padding-bottom: 24px;
+  }
+
+  .sf-row {
+    padding: 18px 0 20px;
+  }
+
+  .sf-row:first-child {
+    border-top: 0;
+  }
+
+  .sf-num {
+    font-size: 64px;
+    -webkit-text-stroke-width: 1.2px;
+  }
+
+  .sf-row-head {
+    gap: 12px;
+  }
+
+  .sf-row-name h2 {
+    font-size: 17px;
+  }
+
+  .sf-role {
+    font-size: 14px;
+  }
+
+  .sf-line {
+    margin-top: 12px;
+    font-size: 17px;
+  }
+
+  .sf-result {
+    font-size: 18px;
+    margin-top: 6px;
+  }
+
+  .sf-foot {
+    margin-top: 2px;
+  }
+
+  .sf-record {
+    padding: 56px 16px 0;
+  }
+
+  .sf-record h2 {
+    font-size: 24px;
+  }
+
+  .sf-record-row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2px;
+    padding: 14px 0;
+  }
+
+  .sf-record-result {
+    text-align: left;
+  }
+
+  .sf-end {
+    margin-top: 48px;
+    padding: 24px 16px 48px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Nothing inside a live plate moves on its own. */
+  .sf-live *,
+  .sf-live *::before,
+  .sf-live *::after {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+    transition-duration: 0s !important;
+  }
+
+  .sf-result-ink,
+  .sf-row[data-current] .sf-result-ink,
+  .sf-num,
+  .sf-tray button::before,
+  .sf-wire g,
+  .sf a {
+    transition: none;
+  }
+}
