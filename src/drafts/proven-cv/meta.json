@@ -1,0 +1,25 @@
+{
+  "id": "proven-cv",
+  "title": "PROVEN CV",
+  "band": "Loop 3",
+  "rule": "the CV is the home page, and every claim line carries its proof",
+  "description": "The CV everyone asks for, as real text: five roles, own projects, skills and education. Twelve claim lines end with a numbered marker, and a sticky proof card beside the text shows the evidence for the line being read: the live care recreation, a count, a public page or a store listing. Lines with no marker have no proof on the page.",
+  "signature": "Archivo Narrow for the CV and Gentrit Technical Mono for dates, markers and the proof foot, on cold grey #EEF0F2 with one signal red #C8102E. Scroll at reading speed: the marker that crosses the pin line becomes current, fills red, a hairline draws from it to the proof card (180 ms, transform only; the old one fades in 120 ms) and the card's plate cross-fades to that proof (120 ms). The first card arrives once with a 600 ms clip reveal and the first hairline draws after it (420 ms delay). On a phone a marker opens its proof under its own line (clip, 200 ms), one at a time, and the tapped line holds its position. Keyboard activation jumps the page and changes state with no animation; reduced motion shows end states.",
+  "caseSlug": "care-platform",
+  "mechanisms": [
+    "S2",
+    "S5"
+  ],
+  "slopCount": 0,
+  "rounds": 3,
+  "loopScores": {
+    "straightToThePoint": 8,
+    "notOverwhelming": 7,
+    "harmony": 7,
+    "meaningfulMotion": 8,
+    "actionsAndSeniority": 8,
+    "original": 6,
+    "hooks": 6
+  },
+  "holdback": "Lowest: original and hooks, 6/10 each. The frame is text on the left and a sticky preview on the right, which is the orbit-index and strike-index skeleton again; the new part (a proof pinned to each CV line) lives in an 80 px hairline and a red marker, so the hook is quiet and needs the visitor to scroll. On the phone the scroll relation is gone: proofs open on tap, so the phone page after the first proof is text only. Harmony is 7, not 8: the store plates keep their product palettes, and the Viva Fresh and Bayyinah red frames sit close to the signal red."
+}

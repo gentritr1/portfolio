@@ -1,0 +1,22 @@
+{
+  "id": "same-behaviour",
+  "title": "SAME BEHAVIOUR",
+  "band": "Loop 3",
+  "rule": "the proof is the same screen twice: one control changes both",
+  "description": "One care screen in two frameworks, side by side: the Vue era and the React rewrite. Press one control and both screens change together, and the column between them reads the scenario and its result. Under the pair: the care case with its results, the areas that move, and five other projects as rows.",
+  "signature": "Gentrit Text and Gentrit Technical Mono on near-white, one green that means only the check and the focus ring. Two recreations of the vitals card with invented data come from one component mounted twice; draft CSS scoped by data-era draws the 2023 skin (square controls, uppercase labels, straight lines with point markers, a red limit line) and the 2026 skin (pills, a smooth line in a limit band, mono numbers). A control changes only the parts that differ: a 200 ms cross-fade on each changed part, the check in the column between the plates fades out in 80 ms at the press and fades in (120 ms) after the plates settle at 200 ms. Keyboard presses change state with no transition. On the phone the control row sticks to the bottom inside the pair section, so the pair and the controls share one screen. No scroll motion.",
+  "caseSlug": "care-platform",
+  "mechanisms": ["M2", "M4"],
+  "slopCount": 0,
+  "rounds": 1,
+  "loopScores": {
+    "straightToThePoint": 8,
+    "notOverwhelming": 8,
+    "harmony": 7.5,
+    "meaningfulMotion": 7,
+    "actionsAndSeniority": 7,
+    "original": 7,
+    "hooks": 7
+  },
+  "holdback": "Lowest: hooks, actions and seniority, and meaningful motion, 7/10 each; hooks is the one that holds the draft back. The pair is clear on the first screen at 1440 and 375, but both plates read one shared state, so the green check is a demonstration, not a test result: a technical visitor sees that 'same behaviour' cannot fail here. The only motion is a 200 ms cross-fade and an 80/120 ms check, so the memorable moment is small. Below the first screen the page is a conventional case block and a five-row work list, so seniority rests on one case plus rows. Risk for the owner: CONTENT.md forbids old-vs-new dashboard comparisons of tests, CI, lint and file sizes; this pair shows no metric, only an invented 2023 skin beside a 2026 skin, but the owner should confirm that the side-by-side is allowed."
+}

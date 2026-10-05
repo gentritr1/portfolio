@@ -1,0 +1,22 @@
+{
+  "id": "workspace-rail",
+  "title": "Workspace Rail",
+  "band": "Loop 3",
+  "rule": "the page is one app shell, and scrolling is switching the workspace",
+  "description": "Five workspaces (Vianova, Agency work, Incentiv, AvahiTech, Personal) are five sections of one app shell. Each section owns a sticky one-row header with a workspace switcher and a scoped search; the next section's header pushes the previous one away. Each section opens with one claim, a big card whose plate stays pinned, and three or four decisions with a Result in mono.",
+  "signature": "Libre Franklin and Martian Mono on white, ink only; a tenant tint lives on the switcher chip and the row dots and nowhere else. S4: each section's header is sticky to its section, so scroll position is the workspace, with no animation. S2: the plate is sticky, and each decision row holds at a fixed station beside it (CSS sticky inside a taller slot), so the hairline geometry is static while a row is current. When a row reaches the station (IntersectionObserver on a 1 px line) a 1 px ink hairline with a white halo draws from the row's dot to the pixel that proves it, in three scaled segments (180 ms total, transform only, the last segment ease-out), and a ring appears at the pixel (120 ms); the previous hairline fades in 120 ms. Rows with no pixel on the plate get no hairline. The first row of the care card is current on load and points at the organization switcher; switching the organization re-measures the line without a redraw. Phone: the plate sticks under the header, rows hold under it, and a ring marks the pixel with no line. The switcher (click, arrow keys or Cmd+K) jumps to a section with no travel and opens with no animation from the keyboard; the search finds projects in its workspace and, when nothing matches, offers 'Found in Agency work · 8'. Reduced motion: lines appear at once, nothing moves.",
+  "caseSlug": "care-platform",
+  "mechanisms": ["S2", "S4"],
+  "slopCount": 0,
+  "rounds": 1,
+  "loopScores": {
+    "straightToThePoint": 8,
+    "notOverwhelming": 7,
+    "harmony": 7.5,
+    "meaningfulMotion": 8,
+    "actionsAndSeniority": 8,
+    "original": 6,
+    "hooks": 7
+  },
+  "holdback": "Lowest: original, 6/10. The parts are proven, but the frame is still a sticky screen with a text column beside it, which is the master-detail family; the switcher chip and the scoped search are familiar SaaS controls, so the page can read as a well-made product dashboard. The new part is behaviour: the section header is the workspace switcher and scroll swaps it, and every decision row stops beside the screen and draws a line to its pixel. Not overwhelming is 7: the page is long (6 cards, 18 decisions), and for about 60 px of scroll two headers are visible during a swap. Harmony is 7.5: the dark Bayyinah and Incentiv screenshots and the coloured store screens bring their own palettes beside the white shell. Hooks is 7: on load the only visible moment is one drawn line to the organization switcher; the swap needs a scroll."
+}

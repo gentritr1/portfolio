@@ -1,0 +1,679 @@
+@font-face {
+  font-family: "Gentrit Display";
+  src: url("/fonts/creative/GentritDisplay-Latin.woff2") format("woff2");
+  font-weight: 200 900;
+  font-stretch: 80% 120%;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Gentrit Text";
+  src: url("/fonts/creative/GentritText-Latin.woff2") format("woff2");
+  font-weight: 200 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root:has(.ys) {
+  --ys-ground: #ffffff;
+  --ys-butter: #f8ec7a;
+  --ys-navy: #101c3d;
+  --ys-muted: #3b4663;
+  --ys-line: #e3e4da;
+  --ys-line-strong: #b9bbae;
+  --ys-display: "Gentrit Display", ui-sans-serif, system-ui, sans-serif;
+  --ys-text: "Gentrit Text", ui-sans-serif, system-ui, sans-serif;
+  --ys-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ys-gutter: 16px;
+  --ys-bar-h: 116px;
+  color-scheme: light;
+  background: var(--ys-ground);
+  scrollbar-color: var(--ys-line-strong) var(--ys-ground);
+}
+
+.ys {
+  min-height: 100dvh;
+  background: var(--ys-ground);
+  color: var(--ys-navy);
+  font-family: var(--ys-text);
+  font-size: 17px;
+  line-height: 1.45;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+}
+
+.ys ::selection {
+  background: var(--ys-butter);
+  color: var(--ys-navy);
+}
+
+.ys :focus-visible {
+  outline: 2px solid var(--ys-navy);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.ys a {
+  color: inherit;
+  text-decoration-line: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+  text-decoration-color: var(--ys-line-strong);
+  transition:
+    text-underline-offset 160ms ease,
+    text-decoration-color 160ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .ys a:hover {
+    text-underline-offset: 2px;
+    text-decoration-color: var(--ys-navy);
+  }
+}
+
+.ys-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.ys h1,
+.ys h2,
+.ys p,
+.ys ol,
+.ys figure {
+  margin: 0;
+  padding: 0;
+}
+
+.ys ol {
+  list-style: none;
+}
+
+/* ---------- The statement ---------- */
+
+.ys-bar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--ys-ground);
+}
+
+.ys-bar-in {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+  height: var(--ys-bar-h);
+  padding: 14px var(--ys-gutter) 0;
+}
+
+.ys-say {
+  font-family: var(--ys-display);
+  font-weight: 600;
+  font-stretch: 104%;
+  font-size: 19px;
+  line-height: 22px;
+  letter-spacing: -0.01em;
+}
+
+.ys-lines {
+  display: block;
+}
+
+.ys-line {
+  display: block;
+  white-space: nowrap;
+}
+
+.ys-was {
+  position: relative;
+  transition: color 260ms ease;
+}
+
+.ys-was[data-struck="true"] {
+  color: var(--ys-muted);
+}
+
+.ys-strike {
+  position: absolute;
+  left: -2px;
+  right: -2px;
+  top: 0.56em;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--ys-navy);
+  transform: scaleX(0);
+  transform-origin: left center;
+}
+
+.ys-was[data-struck="true"] .ys-strike {
+  transform: scaleX(1);
+}
+
+.ys-now {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.ys-was:not([hidden]) + .ys-now {
+  margin-left: 0.3em;
+}
+
+/* ---------- The stack ---------- */
+
+.ys .ys-stack {
+  --stack-top: calc(var(--ys-bar-h) + 8px);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 8px var(--ys-gutter) 0;
+}
+
+.ys-card {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px 16px 4px;
+  border: 1px solid var(--ys-line);
+  border-radius: 12px;
+  background: var(--ys-ground);
+  --halo: var(--ys-ground);
+  transition: border-color 160ms ease;
+}
+
+.ys-card::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  z-index: -1;
+  border-radius: inherit;
+  background: var(--ys-butter);
+  opacity: 0;
+  transition: opacity 220ms ease;
+}
+
+.ys-card[data-current] {
+  --halo: var(--ys-butter);
+}
+
+.ys-card[data-current]::before {
+  opacity: 1;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .ys-card:hover {
+    border-color: var(--ys-line-strong);
+  }
+}
+
+.ys-year {
+  font-family: var(--ys-text);
+  font-weight: 800;
+  font-size: 88px;
+  line-height: 0.8;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+  margin-left: -4px;
+}
+
+.ys-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.ys-row {
+  display: flex;
+  flex-direction: column;
+}
+
+.ys-project {
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 500;
+  color: var(--ys-muted);
+}
+
+.ys-decision {
+  font-size: 16px;
+  line-height: 22px;
+  text-wrap: pretty;
+}
+
+.ys-result {
+  margin-top: 2px;
+  font-size: 16px;
+  line-height: 22px;
+  font-weight: 600;
+  text-wrap: pretty;
+}
+
+.ys-figure {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ys-plate {
+  position: relative;
+}
+
+.ys-live {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 10 / 11;
+  overflow: hidden;
+  container-type: inline-size;
+  border: 1px solid var(--ys-line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 1.6;
+  font-variant-numeric: normal;
+}
+
+.ys-wait {
+  position: absolute;
+  inset: 0;
+  background: var(--world-bg, #f4f8f8);
+}
+
+.ys-shot {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  outline: 1px solid rgb(16 28 61 / 0.12);
+  outline-offset: -1px;
+}
+
+.ys-phones {
+  display: flex;
+  gap: 10px;
+}
+
+.ys-phones img {
+  display: block;
+  flex: 1 1 0;
+  min-width: 0;
+  height: auto;
+  border-radius: 8px;
+}
+
+.ys-foot {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: -8px;
+}
+
+.ys-caption {
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--ys-muted);
+}
+
+.ys-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  font-size: 16px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.ys-card .ys-link {
+  text-decoration-color: currentColor;
+  transition:
+    text-underline-offset 160ms ease,
+    transform 160ms var(--ys-ease-out);
+}
+
+.ys-card .ys-link:active {
+  transform: scale(0.97);
+  transition-duration: 160ms, 120ms;
+}
+
+/* ---------- Pin ---------- */
+
+.ys-pin {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.ys-pin path {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.ys-pin-halo {
+  stroke: var(--halo);
+  stroke-width: 4.5;
+}
+
+.ys-pin-line {
+  stroke: var(--ys-navy);
+  stroke-width: 1.5;
+}
+
+.ys-pin-ring {
+  fill: none;
+  stroke: var(--ys-navy);
+  stroke-width: 1.5;
+  paint-order: stroke;
+  filter: drop-shadow(0 0 1.5px #fff) drop-shadow(0 0 1px #fff);
+}
+
+.ys-pin-start {
+  fill: var(--ys-navy);
+}
+
+.ys-pin[data-draw="animate"] path {
+  stroke-dasharray: 1;
+  animation: ys-draw 180ms var(--ys-ease-out) both;
+}
+
+.ys-pin[data-draw="animate"] .ys-pin-ring {
+  animation: ys-ring 120ms var(--ys-ease-out) 160ms both;
+}
+
+@keyframes ys-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes ys-ring {
+  from {
+    opacity: 0;
+  }
+}
+
+/* ---------- Footer ---------- */
+
+.ys-foot-page {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 48px var(--ys-gutter) 56px;
+  font-size: 15px;
+  line-height: 22px;
+}
+
+.ys-foot-links {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 20px;
+}
+
+.ys-foot-links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+
+.ys-foot-note {
+  color: var(--ys-muted);
+  max-width: 62ch;
+}
+
+/* ---------- Tablet ---------- */
+
+@media (min-width: 520px) {
+  .ys-say {
+    font-size: 22px;
+    line-height: 25px;
+  }
+
+  :root:has(.ys) {
+    --ys-bar-h: 130px;
+    --ys-gutter: 24px;
+  }
+}
+
+/* ---------- Desktop: the year cards stack ---------- */
+
+@media (min-width: 1024px) {
+  :root:has(.ys) {
+    --ys-bar-h: 164px;
+    --ys-gutter: max(32px, calc((100vw - 1200px) / 2));
+  }
+
+  .ys-bar-in {
+    padding-top: 20px;
+  }
+
+  .ys-say {
+    font-size: 28px;
+    line-height: 31px;
+    font-stretch: 108%;
+  }
+
+  .ys-side {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+  }
+
+  .ys-years {
+    display: flex;
+  }
+
+  .ys-years a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 52px;
+    min-height: 44px;
+    margin-top: -10px;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--ys-muted);
+    text-decoration-color: transparent;
+  }
+
+  .ys-years a[aria-current="true"] {
+    color: var(--ys-navy);
+    font-weight: 700;
+    text-decoration-color: var(--ys-navy);
+    text-decoration-thickness: 2px;
+  }
+
+  .ys-contact {
+    display: flex;
+    gap: 16px;
+    font-size: 15px;
+  }
+
+  .ys-contact a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+
+  .ys .ys-stack {
+    padding-top: 8px;
+  }
+
+  .ys-card {
+    --card-h: min(600px, calc(100svh - var(--stack-top) - 40px));
+    position: sticky;
+    top: var(--stack-top);
+    display: grid;
+    grid-template-columns: 400px minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    grid-template-areas:
+      "year plate"
+      "rows plate"
+      "rows foot";
+    column-gap: 48px;
+    row-gap: 0;
+    height: var(--card-h);
+    padding: 32px 36px 16px;
+    transform-origin: 50% 0;
+  }
+
+  .ys-year {
+    grid-area: year;
+  }
+
+  .ys-figure {
+    grid-area: plate;
+  }
+
+  .ys-rows {
+    grid-area: rows;
+  }
+
+  .ys-foot {
+    grid-area: foot;
+    margin-top: 0;
+  }
+
+  .ys-year {
+    font-size: 160px;
+    margin-bottom: 18px;
+    margin-left: -8px;
+  }
+
+  .ys-rows {
+    gap: 16px;
+  }
+
+  .ys-decision {
+    font-size: 17px;
+    line-height: 23px;
+  }
+
+  .ys-result {
+    font-size: 17px;
+    line-height: 23px;
+  }
+
+
+  .ys-live {
+    aspect-ratio: 16 / 10;
+  }
+
+  .ys-plate-phones {
+    display: flex;
+    justify-content: flex-start;
+  }
+
+  .ys-phones {
+    gap: 12px;
+    max-width: 100%;
+  }
+
+  .ys-phones img {
+    flex: none;
+    width: auto;
+    height: calc(var(--card-h) - 128px);
+    max-width: calc((100% - 24px) / 3);
+    object-fit: contain;
+  }
+}
+
+/* The covered card shrinks and dims while the next one slides over it. */
+@supports (animation-timeline: view()) {
+  @media (min-width: 1024px) and (prefers-reduced-motion: no-preference) {
+    .ys-stack {
+      timeline-scope: --ys-2, --ys-3, --ys-4, --ys-5, --ys-6;
+    }
+
+    .ys-card:nth-child(2) {
+      view-timeline-name: --ys-2;
+    }
+    .ys-card:nth-child(3) {
+      view-timeline-name: --ys-3;
+    }
+    .ys-card:nth-child(4) {
+      view-timeline-name: --ys-4;
+    }
+    .ys-card:nth-child(5) {
+      view-timeline-name: --ys-5;
+    }
+    .ys-card:nth-child(6) {
+      view-timeline-name: --ys-6;
+    }
+
+    .ys-card:not(:last-child),
+    .ys-card:not(:last-child) > * {
+      animation-name: ys-cover;
+      animation-duration: auto;
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+      animation-range: cover calc(100svh - var(--stack-top) - var(--card-h) - 8px) cover
+        calc(100svh - var(--stack-top));
+    }
+
+    .ys-card:not(:last-child) > * {
+      animation-name: ys-dim;
+    }
+
+    .ys-card:nth-child(1),
+    .ys-card:nth-child(1) > * {
+      animation-timeline: --ys-2;
+    }
+    .ys-card:nth-child(2),
+    .ys-card:nth-child(2) > * {
+      animation-timeline: --ys-3;
+    }
+    .ys-card:nth-child(3),
+    .ys-card:nth-child(3) > * {
+      animation-timeline: --ys-4;
+    }
+    .ys-card:nth-child(4),
+    .ys-card:nth-child(4) > * {
+      animation-timeline: --ys-5;
+    }
+    .ys-card:nth-child(5),
+    .ys-card:nth-child(5) > * {
+      animation-timeline: --ys-6;
+    }
+  }
+}
+
+@keyframes ys-cover {
+  to {
+    transform: scale(0.96);
+  }
+}
+
+@keyframes ys-dim {
+  to {
+    opacity: 0.6;
+  }
+}
+
+.ys[data-instant] .ys-card::before,
+.ys[data-instant] .ys-was {
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ys-card::before,
+  .ys-was,
+  .ys a {
+    transition: none;
+  }
+}
+
+.ys[data-instant] .ys-pin * {
+  animation: none;
+}

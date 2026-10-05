@@ -1,0 +1,26 @@
+{
+  "id": "pinned-decisions",
+  "title": "PINNED DECISIONS",
+  "band": "Loop 3",
+  "rule": "ten decisions, each a big card whose consequence is pinned to the pixel that proves it",
+  "description": "Ten decisions from web and mobile work, newest first, as a stack of big cards. Each card shows the decision, the screen that proves it and one consequence line; a sticky log at the left reads the scroll.",
+  "signature": "Bricolage Grotesque and JetBrains Mono on chalk, with one cobalt for the hairline, the marker, the outline and the current id. The cards stick and stack in log order: the next card covers the current one while the covered card recedes to 0.96 on a scroll-driven timeline. When a card becomes current its one pin fires once: a 180 ms hairline from the consequence to the part of the screen, or a number that leaves its source and counts on its way to the consequence (16 → 2 queries, 460 ms). Keys in the log jump with no travel; reduced motion shows every end state.",
+  "caseSlug": "care-platform",
+  "mechanisms": [
+    "M1",
+    "M5",
+    "M9"
+  ],
+  "slopCount": 0,
+  "rounds": 3,
+  "loopScores": {
+    "straightToThePoint": 8,
+    "notOverwhelming": 8,
+    "harmony": 7,
+    "meaningfulMotion": 8,
+    "actionsAndSeniority": 8,
+    "original": 6,
+    "hooks": 7
+  },
+  "holdback": "Lowest: original, 6/10. A sticky card stack and a log beside an open card are known patterns (a master-detail reader that stacks); the new part is that every card is a decision whose consequence is pinned to the pixel that proves it, and that part carries the page, not the frame. Harmony is 7: each plate keeps its product palette inside its border, so the two dark Bayyinah plates and the beige studio plate sit beside the chalk and cobalt. Three decisions (0009, 0004, 0001) have no public screen, so their plate is the decision record itself; 0004 and 0001 have no motion. The studio line ride arcs over the arrow glyph, and the arrow still touches the moving number for about 60 ms. Hooks is 7: the 16 → 2 ride is one scroll from the first screen, not on it."
+}

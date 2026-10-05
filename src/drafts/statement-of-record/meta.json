@@ -1,0 +1,25 @@
+{
+  "id": "statement-of-record",
+  "title": "STATEMENT OF RECORD",
+  "band": "Loop 3",
+  "rule": "one sentence says who he is, every clause cites a decision, and each decision corrects itself as it is read",
+  "description": "A three-clause statement is the identity line; each clause cites a decision. Ten decisions follow as big cards. A decision with a real constraint shows it with a dotted underline; when the card reaches the reading line the constraint is struck and the result writes in after it. The statement then lives on as a one-line header whose cite lights for the current card, with a tally of corrections.",
+  "signature": "Literata and one technical mono on mint, with forest as the only ink: forest text, forest strike, forest cite pills. Cites hang in a 200 px margin, the same margin that holds each decision id, so the statement and the record share one grid. Motion: S3 statement into header (scroll-linked, 0 to 320 px), S6 correction once per card (strike 260 ms word by word, write-in 340 ms after 220 ms). Keyboard jumps and reduced motion switch state with no travel.",
+  "caseSlug": "care-platform",
+  "mechanisms": [
+    "S3",
+    "S6"
+  ],
+  "slopCount": 0,
+  "rounds": 1,
+  "loopScores": {
+    "straightToThePoint": 8,
+    "notOverwhelming": 8,
+    "harmony": 8,
+    "meaningfulMotion": 8,
+    "actionsAndSeniority": 8,
+    "original": 6,
+    "hooks": 7
+  },
+  "holdback": "Lowest: original, 6/10. Every part is proven elsewhere: the cited statement (release-brief), the edit that ends the sentence (strike-index), the decision ids (decision-record). The frame, ids in a margin beside big figures, reads as a well-set report, not a new form. Known departures and defects: the sentence sits above the plate, not under it as §3.1 says, so that the correction is on the first screen at 1440 and 375; a struck word at the end of a line draws its stroke about 0.28 em past the word; the statement names only the care platform, so mobile work first shows at card 0002, near the end of the page."
+}
