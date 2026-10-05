@@ -9,7 +9,7 @@ interface DraftMeta {
   creativeGates?: string;
   id: string;
   title: string;
-  band: "Loop 4" | "Loop 3" | "Loop 2" | "Loop 1" | "Professional" | "Crafted" | "Fun" | "Experimental";
+  band: "Loop 5" | "Loop 4" | "Loop 3" | "Loop 2" | "Loop 1" | "Professional" | "Crafted" | "Fun" | "Experimental";
   description: string;
   signature: string;
   caseSlug: string;
@@ -24,9 +24,10 @@ interface DraftMeta {
   holdback?: string;
   polished?: boolean;
 }
-const bands = ["Loop 4", "Loop 3", "Loop 2", "Loop 1", "Professional", "Crafted", "Fun", "Experimental"] as const;
+const bands = ["Loop 5", "Loop 4", "Loop 3", "Loop 2", "Loop 1", "Professional", "Crafted", "Fun", "Experimental"] as const;
 const sequence = [
-  "year-stack", "statement-of-record", "rebuilt-twice", "token-source", "both-stores", "added-clauses",
+  "year-stack", "statement-of-record", "token-source", "sampled-ground", "redline", "projector",
+  "both-stores", "rebuilt-twice", "added-clauses",
   "pinned-decisions", "same-behaviour", "workspace-rail", "proven-cv",
   "decision-record", "margin-notes", "release-brief", "strike-index", "cited-claims", "tenant-switch",
   "changelog", "brief", "orbit-index", "specimen",

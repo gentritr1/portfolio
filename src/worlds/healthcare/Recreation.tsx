@@ -570,7 +570,7 @@ export function Recreation({ demoStep }: { demoStep?: number } = {}) {
             >
               {org.patient}
             </motion.p>
-            <Chip tone="accent" className="mt-1.5 px-2 py-1 text-[0.6875rem] @md:text-[0.75rem]">
+            <Chip tone="accent" className="mt-1.5 px-2 py-1 text-[0.6875rem] whitespace-nowrap @md:text-[0.75rem]">
               Care manager
             </Chip>
           </div>
