@@ -700,7 +700,7 @@ function SheetView({ sheet, index, wide, reduced, mounted, drawn, instant, regis
           <div className="sr-top">
             <h1 className="sr-claim">
               Two platform rewrites,
-              <br className="sr-br" /> three apps in both stores.
+              <br className="sr-br" /> mobile apps in both stores.
             </h1>
             <p className="sr-id">
               <span>

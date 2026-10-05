@@ -698,7 +698,7 @@ export default function Draft() {
         <section className="sg-top" aria-labelledby="sg-claim">
           <h1 className="sg-claim" id="sg-claim">
             Part of two platform rewrites,
-            <br className="sg-br" /> three apps shipped to both stores.
+            <br className="sg-br" /> mobile apps shipped to both stores.
           </h1>
           <p className="sg-who">
             <strong className="sg-who-name">Gentrit Rashiti</strong> builds web and mobile apps, from Kosovo.

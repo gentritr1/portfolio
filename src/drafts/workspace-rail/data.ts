@@ -115,7 +115,7 @@ export const workspaces: Workspace[] = [
     name: 'Agency work',
     tint: '#4338CA',
     period: groupPeriods['Agency work'] ?? '2021–26',
-    claim: 'Three apps in both stores.',
+    claim: 'Mobile apps in both stores.',
     cards: [
       {
         id: 'stores',

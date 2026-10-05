@@ -43,7 +43,7 @@ export const lead = {
 
 export const results = [
   "Part of two platform rewrites.",
-  "Three apps shipped to both app stores.",
+  "Mobile apps shipped to both app stores.",
   "One report asked the database 16 times. Now it asks 2.",
 ];
 
