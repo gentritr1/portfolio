@@ -48,7 +48,8 @@ The owner wants many directions, kept as live drafts, iterated round after round
 | 4 | polish: year-stack, statement-of-record; new: rebuilt-twice, token-source, both-stores, added-clauses | year-stack 55 (+1), statement-of-record 54 (+1), token-source 54, both-stores 54, rebuilt-twice 53, added-clauses 52. See round-4-review.md. Six different first screens; chroma 24–65%; original stuck at 7 | polish: year-stack, statement-of-record, token-source |
 | 5 | polish: year-stack, statement-of-record, token-source; new (no stack): sampled-ground, redline, projector | year-stack 56, sampled-ground 56, statement-of-record 55, token-source 55, projector 55, redline 54. See round-5-review.md. Original 8 reached by sampled-ground and redline | polish: sampled-ground, year-stack, projector; new: sampled-review |
 | 6 | polish: sampled-ground, year-stack, projector; new: sampled-review | sampled-ground 57 (+1), projector 56 (+1), year-stack 56 (0, parked), sampled-review 55. See round-6-review.md. Six polish passes: five +1, one 0 | owner choice: projector (ship this week, 4 fixes) or sampled-ground (one more round, 5 fixes); optional round 7: polish sampled-ground + projector, new sampled-frame |
-| 7 | polish: sampled-ground, projector (incl. the four ship fixes); new: sampled-frame | in progress: sampled-ground (self 58) and projector (self 57) done and committed; sampled-frame building | |
+| 7 | polish: sampled-ground, projector (incl. the four ship fixes); new: sampled-frame | Opus critic: sampled-frame 57, sampled-ground 57, projector 56; plain copy 5–6/10. Devil's advocate: no draft opens on a shipped product with a solved problem. See round-7-critic.md, round-7-devil.md | projector stays home and gets the copy pass; sampled-frame is the challenger; sampled-ground parked |
+| 8 | polish: projector (home), sampled-frame; restyle case pages + 404 to the home page; new: two-readers, proof-tiles, then-now (from PORTFOLIO-RESEARCH.md) | pending | |
 
 ## Rules added after round 1
 
@@ -75,9 +76,9 @@ Status: round 2 is published (gallery version 6) and its reels are in `brag-outp
 
 Combine the best parts of all directions into drafts that aim for a near-perfect score (63+ of 70). From round 3, most new drafts are deliberate combinations of proven parts. From round 4, the top two drafts by review score stay and get polished in place each round against the reviewer's defect list; their score is tracked per round. New combinations are still added beside them.
 
-## Resume point (2026-10-05)
+## Resume point (2026-10-05, superseded)
 
-Round 7 is in progress. To continue:
+Round 7 was in progress (now done). To continue:
 
 1. Finish `sampled-frame` (src/drafts/sampled-frame/, spec: round-6-review.md "New direction for round 7", shared builder brief in the session scratchpad BUILDER-R7.md). If the folder is partial, a builder continues it from the files.
 2. Run a fresh Fable review of round 7 (sampled-ground, projector, sampled-frame), write round-7-review.md, update this log.
