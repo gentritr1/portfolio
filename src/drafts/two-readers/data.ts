@@ -75,7 +75,7 @@ const side: Route = { kind: "side" };
 
 export const identity: Record<Reader, { title: string; line: string }> = {
   plain: {
-    title: "Gentrit Rashiti has built web and mobile apps for 5+ years: apps people learn from, shop in and read in.",
+    title: "Gentrit Rashiti has built web and mobile apps for 5+ years: apps people read in, shop in and learn from.",
     line: "Part of two platform rewrites. The server side too, since 2026. Based in Kosovo, working remotely.",
   },
   engineer: {
@@ -104,33 +104,32 @@ export const figure: Record<Reader, { title: string; before: string; after: stri
 export const rows: Row[] = [
   {
     id: "01",
-    project: "Bayyinah TV",
+    project: "Read to Feed",
     plate: {
       kind: "shot",
-      src: "/showcase/bayyinah/web-01.webp",
-      alt: "Bayyinah TV home page: Quran Studies Made Simple, the 7-day free trial button and the learner count",
-      width: 1440,
-      height: 900,
-      crop: { x: 24, y: 140, w: 600, h: 750 },
-      narrow: { x: 24, y: 196, w: 600, h: 450 },
-      dark: true,
+      src: "/mobile/reading-1.webp",
+      alt: "Read to Feed store screenshot: My Books, with 36% read of The Tale of Peter Rabbit and 90% of Anne of Green Gables",
+      width: 780,
+      height: 1689,
+      crop: { x: 38, y: 652, w: 704, h: 880 },
+      narrow: { x: 70, y: 645, w: 640, h: 480 },
     },
-    caption: "Bayyinah TV home page, public.",
+    caption: "Store screenshot, iPhone. Shipped; the listings are now archived.",
     plain: {
-      meta: "Frontend, core team · 2023–26",
-      line: "Version 2 of a video-learning platform, built from nothing: 34 pages.",
-      result: "Members subscribe on the web, iPhone or Android.",
-      target: { kind: "shot", box: { x: 40, y: 522, w: 272, h: 44 } },
+      meta: "Mobile · 2022–25",
+      line: "A reading app for children. About 14 updates shipped to both stores.",
+      result: "It remembers the page in every book.",
+      target: { kind: "shot", box: { x: 330, y: 852, w: 312, h: 54 } },
       route: side,
     },
     engineer: {
-      meta: "Nuxt 3 · Vue 3 · Pinia · AWS IVS · Stripe",
-      line: "Nuxt 3 rebuild from an empty template: 34 pages, 270+ components.",
-      result: "Stripe, Apple and Google subscriptions, with a premium paywall.",
-      target: { kind: "shot", box: { x: 40, y: 522, w: 272, h: 44 } },
+      meta: "React Native · Redux Toolkit · epub.js",
+      line: "PDF and EPUB reader on maintained forks. About 14 releases.",
+      result: "Progress per book, React Native 0.63 to 0.81.",
+      target: { kind: "shot", box: { x: 330, y: 852, w: 312, h: 54 } },
       route: side,
     },
-    link: { href: "/work/bayyinah-tv", name: "Bayyinah TV" },
+    link: { href: "/work/read-to-feed", name: "Read to Feed" },
   },
   {
     id: "02",
@@ -206,6 +205,36 @@ export const rows: Row[] = [
   },
   {
     id: "05",
+    project: "Bayyinah TV",
+    plate: {
+      kind: "shot",
+      src: "/showcase/bayyinah/web-01.webp",
+      alt: "Bayyinah TV home page: Quran Studies Made Simple, the 7-day free trial button and the learner count",
+      width: 1440,
+      height: 900,
+      crop: { x: 24, y: 140, w: 600, h: 750 },
+      narrow: { x: 24, y: 196, w: 600, h: 450 },
+      dark: true,
+    },
+    caption: "Bayyinah TV home page, public.",
+    plain: {
+      meta: "Frontend, core team · 2023–26",
+      line: "Version 2 of a video-learning platform, built from nothing: 34 pages.",
+      result: "Members subscribe on the web, iPhone or Android.",
+      target: { kind: "shot", box: { x: 40, y: 522, w: 272, h: 44 } },
+      route: side,
+    },
+    engineer: {
+      meta: "Nuxt 3 · Vue 3 · Pinia · AWS IVS · Stripe",
+      line: "Nuxt 3 rebuild from an empty template: 34 pages, 270+ components.",
+      result: "Stripe, Apple and Google subscriptions, with a premium paywall.",
+      target: { kind: "shot", box: { x: 40, y: 522, w: 272, h: 44 } },
+      route: side,
+    },
+    link: { href: "/work/bayyinah-tv", name: "Bayyinah TV" },
+  },
+  {
+    id: "06",
     project: "Incentiv",
     plate: {
       kind: "shot",
@@ -236,36 +265,6 @@ export const rows: Row[] = [
     link: { href: "/work/incentiv", name: "Incentiv" },
   },
   {
-    id: "06",
-    project: "Read to Feed",
-    plate: {
-      kind: "shot",
-      src: "/mobile/reading-1.webp",
-      alt: "Read to Feed store screenshot: My Books, with 36% read of The Tale of Peter Rabbit and 90% of Anne of Green Gables",
-      width: 780,
-      height: 1689,
-      crop: { x: 98, y: 646, w: 584, h: 884 },
-      narrow: { x: 98, y: 650, w: 584, h: 465 },
-      fill: "#fefdf9",
-    },
-    caption: "Store screenshot, iPhone. Shipped to both stores.",
-    plain: {
-      meta: "Mobile · 2022–25",
-      line: "A reading app for children. Books open inside the app.",
-      result: "It remembers the page. About 14 updates shipped.",
-      target: { kind: "shot", box: { x: 330, y: 852, w: 312, h: 54 } },
-      route: side,
-    },
-    engineer: {
-      meta: "React Native · Redux Toolkit · epub.js",
-      line: "PDF and EPUB reader on maintained library forks.",
-      result: "Progress per book, React Native 0.63 to 0.81.",
-      target: { kind: "shot", box: { x: 330, y: 852, w: 312, h: 54 } },
-      route: side,
-    },
-    link: { href: "/work/read-to-feed", name: "Read to Feed" },
-  },
-  {
     id: "07",
     project: "Design System v2",
     plate: { kind: "live", key: "design-system", width: 460, narrowWidth: 440 },
@@ -286,34 +285,100 @@ export const rows: Row[] = [
     },
     link: { href: "/work/design-system-react", name: "Design System v2" },
   },
+];
+
+/** The switch, shown working on one real pair of lines before anyone presses it. */
+export const hook = {
+  lead: "Every line on this page is written twice: in plain words, or with the tools named.",
+  plain: "built once for iPhone and Android",
+  engineer: "one React Native codebase",
+};
+
+export interface OwnShot {
+  src: string;
+  alt: string;
+  width: number;
+  height: number;
+  crop: Box;
+}
+
+export interface Own {
+  name: string;
+  /** "Concept" marks a made-up brand. */
+  kind: string;
+  wide: OwnShot;
+  narrow: OwnShot;
+  plain: string;
+  engineer: string;
+  link?: { href: string; label: string };
+}
+
+export const ownIntro: Record<Reader, string> = {
+  plain: "Made outside client work. OFFBEAT and FORM are concepts: their brands are made up.",
+  engineer: "Outside client work. OFFBEAT and FORM are fictional brands, built as concepts.",
+};
+
+export const own: Own[] = [
   {
-    id: "08",
-    project: "Dukagjini Bookstore",
-    plate: {
-      kind: "shot",
-      src: "/mobile/bookstore-1.webp",
-      alt: "Dukagjini Bookstore on iPhone: the home screen with book search and top categories",
+    name: "Offday",
+    kind: "Own project · 2026",
+    wide: {
+      src: "/personal/shots/offday-light-calendar-desktop.webp",
+      alt: "Offday team calendar for October 2026 in the demo workspace, with leave bars, a public holiday and the approval queue",
+      width: 2880,
+      height: 1800,
+      crop: { x: 0, y: 0, w: 2880, h: 1410 },
+    },
+    narrow: {
+      src: "/personal/shots/offday-light-calendar-phone.webp",
+      alt: "Offday team calendar on a phone, with the request button and team counts",
       width: 780,
-      height: 1689,
-      crop: { x: 106, y: 745, w: 568, h: 517 },
-      narrow: { x: 106, y: 840, w: 568, h: 422 },
-      fill: "#ffffff",
+      height: 1688,
+      crop: { x: 0, y: 0, w: 780, h: 840 },
     },
-    caption: "App Store listing, iPhone. Also on Google Play.",
-    plain: {
-      meta: "Mobile · 2021–22",
-      line: "A publisher's bookshop app for iPhone and Android.",
-      result: "Search, sales and checkout, live in both app stores.",
-      target: { kind: "shot", box: { x: 155, y: 1145, w: 470, h: 60 } },
-      route: side,
+    plain: "A time-off app for teams. It finds the dates that give the longest break.",
+    engineer: "Next.js 16, SQLite and Zod. About 200 Playwright tests, tenant isolation included.",
+  },
+  {
+    name: "OFFBEAT",
+    kind: "Concept · 2026",
+    wide: {
+      src: "/personal/shots/offbeat-home-desktop.webp",
+      alt: "OFFBEAT home: a hot-orange portable speaker in 3D with finish swatches and the line Plays your songs. Makes its own.",
+      width: 1440,
+      height: 900,
+      crop: { x: 0, y: 0, w: 1440, h: 836 },
     },
-    engineer: {
-      meta: "React Native · Redux · Firebase Messaging",
-      line: "Push notifications deep-link to the right book.",
-      result: "Search, categories and promo-code checkout on iOS and Android.",
-      target: { kind: "shot", box: { x: 155, y: 1145, w: 470, h: 60 } },
-      route: side,
+    narrow: {
+      src: "/personal/shots/offbeat-phone.webp",
+      alt: "OFFBEAT home on a phone with the 3D speaker",
+      width: 750,
+      height: 1624,
+      crop: { x: 0, y: 930, w: 750, h: 610 },
     },
-    link: { href: "/work/dukagjini-bookstore", name: "Dukagjini Bookstore" },
+    plain: "A made-up speaker brand. Its sound studio is a working drum machine.",
+    engineer: "Next.js 16, Three.js and Web Audio: a 3D speaker and an eight-step drum machine.",
+    link: { href: "https://github.com/gentritr1/offbeat", label: "OFFBEAT on GitHub" },
+  },
+  {
+    name: "FORM",
+    kind: "Concept · 2026",
+    wide: {
+      src: "/personal/shots/form-home-desktop.webp",
+      alt: "FORM home: a copper trefoil knot sculpture, the title Objects of imagination. and material swatches",
+      width: 1440,
+      height: 900,
+      crop: { x: 0, y: 0, w: 1440, h: 836 },
+    },
+    narrow: {
+      src: "/personal/shots/form-phone.webp",
+      alt: "FORM home on a phone with the copper trefoil",
+      width: 750,
+      height: 1624,
+      crop: { x: 0, y: 980, w: 750, h: 644 },
+    },
+    plain: "A made-up sculpture show. Type a word, and it becomes a sculpture.",
+    engineer: "WebGL with no dependencies: three mathematical sculptures, rendered live.",
+    link: { href: "https://github.com/gentritr1/form", label: "FORM on GitHub" },
   },
 ];

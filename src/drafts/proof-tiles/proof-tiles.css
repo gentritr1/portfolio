@@ -99,17 +99,38 @@
   margin: 0 auto;
 }
 
-/* ---------- Head ---------- */
+/* ---------- First screen ---------- */
 
-.pt-head {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 48px;
-  padding: 32px 0 48px;
+/*
+ * Desktop: the lead takes two columns (screen, then words), the side tiles the
+ * third. The words sit at the top (who) and at the bottom (the lead result),
+ * so the result line ends level with the screen.
+ */
+.pt-top {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  column-gap: var(--pt-gap-x);
+  align-items: start;
+  padding-top: 32px;
 }
 
-/* The name is part of the sentence, at text size. */
+.pt-lead {
+  grid-column: span 2;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: auto 1fr auto;
+  grid-template-areas:
+    "screen intro"
+    "screen text"
+    "screen more";
+  column-gap: var(--pt-gap-x);
+  padding-bottom: var(--pt-gap-y);
+}
+
+.pt-intro {
+  grid-area: intro;
+}
+
 .pt-name {
   margin: 0;
   font-size: 28px;
@@ -124,11 +145,11 @@
 }
 
 .pt-name-2 {
-  display: block;
+  display: inline;
 }
 
 .pt-level {
-  margin: 12px 0 0;
+  margin: 16px 0 0;
   color: var(--pt-muted);
   font-size: 16px;
   line-height: 24px;
@@ -136,9 +157,9 @@
 
 .pt-actions {
   display: flex;
-  flex: none;
   align-items: center;
   gap: 16px;
+  margin: 24px 0 0;
 }
 
 .pt-button {
@@ -181,6 +202,182 @@
   }
 }
 
+/* ---------- The lead ---------- */
+
+.pt-lead-text {
+  grid-area: text;
+  align-self: end;
+  margin-top: 32px;
+}
+
+.pt-lead-more {
+  grid-area: more;
+  padding-bottom: 32px;
+}
+
+.pt-lead-project {
+  margin: 0;
+  color: var(--pt-muted);
+  font-size: 13px;
+  line-height: 18px;
+}
+
+.pt-lead-caption {
+  margin: 8px 0 0;
+  font-size: 32px;
+  line-height: 52px;
+  font-weight: 650;
+  font-stretch: 94%;
+  letter-spacing: -0.02em;
+}
+
+.pt-switch-pair {
+  white-space: nowrap;
+}
+
+/* The two platform words are the control. The pressed word carries the proof colour. */
+.pt-switch {
+  display: inline-block;
+  height: 44px;
+  margin: 0;
+  padding: 0 12px;
+  border: 2px solid rgb(17 17 17 / 0.28);
+  border-radius: 22px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  line-height: 40px;
+  letter-spacing: inherit;
+  vertical-align: baseline;
+  cursor: pointer;
+  transition:
+    background-color 150ms var(--pt-ease),
+    border-color 150ms var(--pt-ease);
+}
+
+.pt-switch[aria-pressed="true"] {
+  border-color: var(--pt-accent);
+  background-color: var(--pt-accent);
+  cursor: default;
+}
+
+.pt-switch:active:not([aria-pressed="true"]) {
+  transform: scale(0.97);
+}
+
+.pt .pt-switch:focus-visible {
+  outline-offset: 3px;
+  border-radius: 22px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .pt-switch:not([aria-pressed="true"]):hover {
+    border-color: var(--pt-ink);
+  }
+}
+
+.pt-lead-hint {
+  margin: 8px 0 0;
+  color: var(--pt-muted);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.pt-lead-scope {
+  margin: 16px 0 0;
+  font-size: 17px;
+  line-height: 24px;
+}
+
+.pt-lead-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 24px;
+  margin: 8px 0 0;
+}
+
+.pt-lead-links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 44px;
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+}
+
+.pt-lead-links svg {
+  width: 14px;
+  height: 14px;
+}
+
+.pt-lead-screen {
+  grid-area: screen;
+  margin: 0;
+}
+
+/* Both crops (596 x 866 and 498 x 724 source pixels) share one ratio and are drawn smaller than the source. */
+.pt-screen-box {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 596 / 866;
+  overflow: hidden;
+  border-radius: 8px;
+  background: #f1f1f1;
+  box-shadow: inset 0 0 0 1px var(--pt-rule);
+  isolation: isolate;
+}
+
+.pt-screen-layer {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  visibility: hidden;
+}
+
+.pt-screen-layer[data-leaving] {
+  z-index: 1;
+  visibility: visible;
+}
+
+.pt-screen-layer[data-on] {
+  z-index: 2;
+  visibility: visible;
+}
+
+.pt-screen-layer img {
+  position: absolute;
+  max-width: none;
+  height: auto;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* The wipe edge. It shows only while a switch runs. */
+.pt-screen-edge {
+  position: absolute;
+  z-index: 3;
+  top: 0;
+  bottom: 0;
+  left: -1px;
+  width: 3px;
+  background: var(--pt-accent);
+  box-shadow: 0 0 0 1px rgb(255 255 255 / 0.9);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.pt-lead-label {
+  margin: 8px 0 0;
+  color: var(--pt-muted);
+  font-family: var(--pt-mono);
+  font-size: 12px;
+  line-height: 20px;
+  font-stretch: 87.5%;
+}
+
 /* ---------- Grid ---------- */
 
 /*
@@ -208,35 +405,29 @@
   padding-bottom: var(--pt-pad);
 }
 
-.pt-tile-link {
+.pt-tile-body {
   display: grid;
   grid-row: 2 / -1;
   grid-template-rows: subgrid;
   align-content: start;
 }
 
-.pt-tile[data-lead] {
-  grid-column: 1 / span 2;
-  grid-row: 1 / span 6;
-  display: flex;
-  flex-direction: column;
+/* The side column holds two tiles, one above the other. */
+.pt-grid.pt-side {
+  grid-template-columns: minmax(0, 1fr);
 }
 
-.pt-tile[data-lead] .pt-tile-link {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-}
-
-.pt-tile:nth-child(2) {
+.pt-side .pt-tile:first-child {
   --pt-pad: 32px;
-  grid-column: 3;
-  grid-row: 1 / span 3;
 }
 
-.pt-tile:nth-child(3) {
-  grid-column: 3;
-  grid-row: 4 / span 3;
+/* Own projects are shown larger: two columns, at native pixels or smaller. */
+.pt-grid.pt-grid-own {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.pt-grid-own .pt-media {
+  max-width: none;
 }
 
 /* The whole tile opens the link; the picture itself holds no control. */
@@ -246,6 +437,10 @@
   z-index: 5;
   inset: 0 0 var(--pt-pad);
   border-radius: 8px;
+}
+
+.pt-tile-link {
+  scroll-margin-block: 96px;
 }
 
 .pt-tile-link:focus-visible {
@@ -270,10 +465,6 @@
   box-shadow: inset 0 0 0 1px var(--pt-rule);
   container-type: inline-size;
   isolation: isolate;
-}
-
-.pt-tile[data-lead] .pt-media {
-  max-width: none;
 }
 
 .pt-img {
@@ -359,26 +550,13 @@
   display: block;
   align-self: start;
   margin-top: 12px;
+  max-width: 432px;
   font-stretch: 94%;
   font-size: 18px;
   line-height: 1.3;
   font-weight: 600;
   letter-spacing: -0.01em;
   text-wrap: balance;
-}
-
-.pt-tile[data-lead] .pt-caption {
-  margin-top: 16px;
-  font-size: 24px;
-  line-height: 1.25;
-}
-
-.pt-scope {
-  display: block;
-  margin-top: 4px;
-  color: var(--pt-muted);
-  font-size: 16px;
-  line-height: 1.4;
 }
 
 .pt-meta {
@@ -390,12 +568,6 @@
   margin-top: 4px;
   font-size: 13px;
   line-height: 18px;
-}
-
-.pt-tile[data-lead] .pt-meta {
-  align-self: stretch;
-  margin-top: auto;
-  padding-top: 8px;
 }
 
 .pt-project {
@@ -413,6 +585,10 @@
 .pt-project-name {
   color: var(--pt-ink);
   font-weight: 500;
+}
+
+.pt-role {
+  white-space: nowrap;
 }
 
 .pt-note {
@@ -609,6 +785,40 @@
   animation-play-state: paused !important;
 }
 
+/* ---------- Own projects ---------- */
+
+.pt-own {
+  margin-top: 48px;
+}
+
+.pt-own-head {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  column-gap: var(--pt-gap-x);
+  align-items: end;
+  margin-bottom: 32px;
+}
+
+.pt-own-head h2,
+.pt-index h2 {
+  margin: 0;
+  font-size: 40px;
+  line-height: 1.1;
+  font-weight: 800;
+  font-stretch: 112%;
+  letter-spacing: -0.02em;
+}
+
+.pt-own-head p {
+  grid-column: span 2;
+  max-width: 640px;
+  margin: 0;
+  color: var(--pt-muted);
+  font-size: 17px;
+  line-height: 24px;
+  text-wrap: pretty;
+}
+
 /* ---------- Index ---------- */
 
 .pt-index {
@@ -616,12 +826,7 @@
 }
 
 .pt-index h2 {
-  margin: 0 0 32px;
-  font-size: 40px;
-  line-height: 1.1;
-  font-weight: 800;
-  font-stretch: 112%;
-  letter-spacing: -0.02em;
+  margin-bottom: 32px;
 }
 
 .pt-group + .pt-group {
@@ -730,35 +935,50 @@
 
 /* ---------- Widths ---------- */
 
+/* Between 1200 and 1399 px the columns are narrower than 432 px. */
+@media (min-width: 1200px) and (max-width: 1399px) {
+  .pt-name {
+    font-size: 24px;
+    line-height: 32px;
+  }
+
+  .pt-lead-caption {
+    font-size: 28px;
+    line-height: 48px;
+  }
+}
+
 @media (max-width: 1199px) {
   .pt {
     --pt-gutter: 32px;
     --pt-col: 888px;
   }
 
-  .pt-head {
-    flex-direction: column;
-    gap: 24px;
+  .pt-top {
+    grid-template-columns: minmax(0, 1fr);
   }
 
-  .pt-grid {
+  .pt-lead {
+    grid-column: auto;
+  }
+
+  .pt-grid,
+  .pt-grid.pt-side,
+  .pt-grid.pt-grid-own {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .pt-tile[data-lead] {
-    grid-column: 1 / -1;
-    grid-row: 1;
-  }
-
-  .pt-tile:nth-child(2) {
+  .pt-side .pt-tile:first-child {
     --pt-pad: var(--pt-gap-y);
-    grid-column: 1;
-    grid-row: 2 / span 3;
   }
 
-  .pt-tile:nth-child(3) {
-    grid-column: 2;
-    grid-row: 2 / span 3;
+  .pt-own-head {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 16px;
+  }
+
+  .pt-own-head p {
+    grid-column: auto;
   }
 
   .pt-row {
@@ -771,6 +991,7 @@
   }
 }
 
+/* Phone: who, then the lead result and its switch, then the screen it switches. */
 @media (max-width: 759px) {
   .pt {
     --pt-gutter: 16px;
@@ -778,28 +999,38 @@
     --pt-gap-y: 32px;
   }
 
-  .pt-grid {
+  .pt-top {
+    padding-top: 24px;
+  }
+
+  .pt-lead {
     grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: none;
+    grid-template-areas:
+      "intro"
+      "text"
+      "screen"
+      "more";
   }
 
-  .pt-tile[data-lead],
-  .pt-tile:nth-child(2),
-  .pt-tile:nth-child(3) {
-    grid-column: auto;
-    grid-row: auto / span 3;
+  .pt-lead-text {
+    margin: 32px 0 16px;
   }
 
-  .pt-tile[data-lead] {
-    grid-row: auto;
+  .pt-lead-more {
+    padding-bottom: 0;
+    margin-top: 8px;
   }
 
-  .pt-tile[data-lead] .pt-caption {
-    font-size: 20px;
+  .pt-lead-caption {
+    font-size: 26px;
+    line-height: 48px;
   }
 
-  .pt-head {
-    gap: 16px;
-    padding: 24px 0 32px;
+  .pt-grid,
+  .pt-grid.pt-side,
+  .pt-grid.pt-grid-own {
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .pt-name {
@@ -807,21 +1038,26 @@
     line-height: 30px;
   }
 
-  .pt-name-2 {
-    display: inline;
-  }
-
   .pt-level {
     font-size: 15px;
     line-height: 22px;
   }
 
-  .pt-index {
-    margin-top: 64px;
+  .pt-actions {
+    margin-top: 16px;
   }
 
+  .pt-own-head h2,
   .pt-index h2 {
     font-size: 32px;
+  }
+
+  .pt-own-head p {
+    font-size: 16px;
+  }
+
+  .pt-index {
+    margin-top: 64px;
   }
 
   .pt-row {
@@ -850,8 +1086,13 @@
   .pt,
   .pt-ring::after,
   .pt-proof,
-  .pt-button {
+  .pt-button,
+  .pt-switch {
     transition: none;
+  }
+
+  .pt-switch:active:not([aria-pressed="true"]) {
+    transform: none;
   }
 
   .pt > * {

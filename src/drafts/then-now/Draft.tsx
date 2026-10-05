@@ -6,9 +6,11 @@ import {
   useRef,
   useState,
   useSyncExternalStore,
+  type CSSProperties,
   type FocusEvent,
   type KeyboardEvent,
   type MouseEvent,
+  type ReactNode,
 } from "react";
 import { preload } from "react-dom";
 import { Link } from "react-router";
@@ -58,13 +60,13 @@ function LivePlate() {
   );
 }
 
-function ShotView({ shot, crop }: { shot: Shot; crop: Box }) {
+function ShotView({ shot, crop, load = true }: { shot: Shot; crop: Box; load?: boolean }) {
   return (
     <div
       className="tn-shot"
-      style={{ aspectRatio: `${Math.round(crop.w * shot.width)} / ${Math.round(crop.h * shot.height)}` }}
+      style={{ aspectRatio: `${(crop.w * shot.width).toFixed(1)} / ${(crop.h * shot.height).toFixed(1)}` }}
     >
-      <img
+      {load && <img
         src={shot.src}
         alt={shot.alt}
         width={shot.width}
@@ -76,7 +78,7 @@ function ShotView({ shot, crop }: { shot: Shot; crop: Box }) {
           left: `${(-crop.x / crop.w) * 100}%`,
           top: `${(-crop.y / crop.h) * 100}%`,
         }}
-      />
+      />}
     </div>
   );
 }
@@ -124,6 +126,37 @@ function BillingFigure({ struck }: { struck: boolean }) {
   );
 }
 
+const WEIGHTS = [
+  { tag: "Pictures", from: "972\u00a0KB", to: "337\u00a0KB", ratio: 337 / 972 },
+  { tag: "Whole site", from: "28\u00a0MB", to: "9.5\u00a0MB", ratio: 9.5 / 28 },
+];
+
+/** Two measured weights of the live site, each drawn to scale: the bar shrinks to its new length. */
+function WeightFigure({ struck }: { struck: boolean }) {
+  return (
+    <figure className="tn-fig tn-fig-weight" data-struck={struck || undefined}>
+      {WEIGHTS.map((weight, index) => (
+        <div className="tn-w" key={weight.tag} aria-hidden="true">
+          <span className="tn-fig-tag">{weight.tag}</span>
+          <span className="tn-w-nums">
+            <span className="tn-fig-from">
+              {weight.from}
+              <span className="tn-fig-strike" />
+            </span>
+            <span className="tn-w-to" data-to={index === 0 ? "" : undefined}>
+              {weight.to}
+            </span>
+          </span>
+          <span className="tn-w-track">
+            <span className="tn-w-bar" style={{ "--r": weight.ratio.toFixed(3) } as CSSProperties} />
+          </span>
+        </div>
+      ))}
+      <p className="tn-sr">Pictures: 972 KB before, 337 KB now. The whole site: 28 MB before, 9.5 MB now.</p>
+    </figure>
+  );
+}
+
 /** One measurement at its true ratio: the short bar is 3.4% of the long one. */
 function BundleFigure() {
   return (
@@ -152,6 +185,13 @@ function BundleFigure() {
 function PlateView({ plate, load, narrow, struck }: { plate: Plate; load: boolean; narrow: boolean; struck: boolean }) {
   if (plate.kind === "figure") return plate.which === "billing" ? <BillingFigure struck={struck} /> : <BundleFigure />;
   if (plate.kind === "live") return load ? <LivePlate /> : <div className="tn-wait" />;
+  if (plate.kind === "proof")
+    return (
+      <div className="tn-proof">
+        <ShotView shot={plate.shot} crop={narrow ? plate.shot.narrow : plate.shot.crop} load={load} />
+        <WeightFigure struck={struck} />
+      </div>
+    );
   return (
     <div className={`tn-${plate.kind}`} style={plate.kind === "web" ? { background: plate.ground } : undefined}>
       {load && <ShotView shot={plate.shot} crop={narrow ? plate.shot.narrow : plate.shot.crop} />}
@@ -159,18 +199,18 @@ function PlateView({ plate, load, narrow, struck }: { plate: Plate; load: boolea
   );
 }
 
-/** The struck part of a fixed row's first line. */
+/** The struck parts of a fixed row's first line. */
 function ThenText({ row }: { row: Row }) {
-  if (!row.strike) return row.then;
-  const at = row.then.indexOf(row.strike);
-  if (at < 0) return row.then;
-  return (
-    <>
-      {row.then.slice(0, at)}
-      <span className="tn-hit">{row.strike}</span>
-      {row.then.slice(at + row.strike.length)}
-    </>
-  );
+  const parts: ReactNode[] = [];
+  let rest = row.then;
+  for (const strike of row.strike ?? []) {
+    const at = rest.indexOf(strike);
+    if (at < 0) continue;
+    parts.push(rest.slice(0, at), <span className="tn-hit" key={strike}>{strike}</span>);
+    rest = rest.slice(at + strike.length);
+  }
+  parts.push(rest);
+  return <>{parts}</>;
 }
 
 /* ---------- Hairline ---------- */
@@ -209,7 +249,7 @@ interface Wire {
   split: number;
   start: Point;
   ring: Box & { r: number };
-  tone: "light" | "dark" | "accent";
+  tone: "light" | "dark";
 }
 
 function targetBox(row: Row, plate: HTMLElement, narrow: boolean): Box | null {
@@ -234,7 +274,7 @@ function targetBox(row: Row, plate: HTMLElement, narrow: boolean): Box | null {
   return { x: box.left, y: box.top, w: box.width, h: box.height };
 }
 
-function measureWire(row: Row, rowElement: HTMLElement, plate: HTMLElement, narrow: boolean): Wire | null {
+function measureWire(row: Row, rowElement: HTMLElement, plate: HTMLElement, narrow: boolean, field: number): Wire | null {
   const mark = rowElement.querySelector<HTMLElement>(".tn-now-band mark");
   const target = targetBox(row, plate, narrow);
   if (!mark || !target) return null;
@@ -244,7 +284,7 @@ function measureWire(row: Row, rowElement: HTMLElement, plate: HTMLElement, narr
   const edge = Math.round(p.left);
   const last = fragments[fragments.length - 1];
   const start: Point = [Math.round(last.right + 12), Math.round(last.top + last.height / 2)];
-  const gutter = Math.round(edge - 24);
+  const gutter = Math.round((Math.min(field, edge - 16) + edge) / 2);
   const outside: Point[] = [start, [gutter, start[1]]];
   const inside: Point[] = [];
   if (row.route?.kind === "lane") {
@@ -254,7 +294,7 @@ function measureWire(row: Row, rowElement: HTMLElement, plate: HTMLElement, narr
     outside.push([gutter, lane], [edge, lane]);
     inside.push([edge, lane], [cx, lane], [cx, end]);
   } else {
-    const ty = Math.round(target.y + target.h / 2);
+    const ty = Math.round(row.route?.kind === "level" ? p.top + row.route.y * p.height : target.y + target.h / 2);
     outside.push([gutter, ty], [edge, ty]);
     inside.push([edge, ty], [Math.round(target.x - 8), ty]);
   }
@@ -270,7 +310,7 @@ function measureWire(row: Row, rowElement: HTMLElement, plate: HTMLElement, narr
     split: outLength / Math.max(1, outLength + inLength),
     start,
     ring,
-    tone: row.plate.kind === "figure" ? "accent" : row.plate.kind === "web" && row.plate.dark ? "dark" : "light",
+    tone: row.plate.kind === "web" && row.plate.dark ? "dark" : "light",
   };
 }
 
@@ -282,6 +322,7 @@ export default function Draft() {
   const rootRef = useRef<HTMLDivElement>(null);
   const frameRef = useRef<HTMLDivElement>(null);
   const screenRef = useRef<HTMLDivElement>(null);
+  const fieldRef = useRef<HTMLDivElement>(null);
   const rowRefs = useRef<(HTMLLIElement | null)[]>([]);
   const plateRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [active, setActive] = useState(0);
@@ -455,6 +496,8 @@ export default function Draft() {
   const inRefs = useRef<SVGPathElement[]>([]);
   const ringRef = useRef<SVGRectElement>(null);
   const dotRef = useRef<SVGCircleElement>(null);
+  const lineGradientRef = useRef<SVGLinearGradientElement>(null);
+  const haloGradientRef = useRef<SVGLinearGradientElement>(null);
   const wireIndex = useRef(0);
   const pendingDraw = useRef<Mode | null>(null);
   const armed = useRef(false);
@@ -493,7 +536,8 @@ export default function Draft() {
     const row = rows[index];
     const rowElement = rowRefs.current[index];
     const plate = plateRefs.current[index];
-    const wire = armed.current && rowElement && plate ? measureWire(row, rowElement, plate, narrow) : null;
+    const field = fieldRef.current?.getBoundingClientRect().left ?? window.innerWidth;
+    const wire = armed.current && rowElement && plate ? measureWire(row, rowElement, plate, narrow, field) : null;
     const frameBottom = frameRef.current?.getBoundingClientRect().bottom ?? 0;
     const covered = !narrow && wire && wire.start[1] < 0;
     const hidden = narrow && wire && wire.ring.y + wire.ring.h > frameBottom - 40;
@@ -504,6 +548,11 @@ export default function Draft() {
     group.dataset.ready = "true";
     group.dataset.tone = wire.tone;
     group.dataset.wide = String(!narrow);
+    // The line is accent ink on the paper and white on the accent field. The switch is a hard stop at the field edge.
+    for (const gradient of [lineGradientRef.current, haloGradientRef.current]) {
+      gradient?.setAttribute("x1", String(Math.round(field) - 0.5));
+      gradient?.setAttribute("x2", String(Math.round(field) + 0.5));
+    }
     outRefs.current.forEach((path) => path.setAttribute("d", wire.outside));
     inRefs.current.forEach((path) => path.setAttribute("d", wire.inside));
     dot.setAttribute("cx", String(wire.start[0]));
@@ -656,14 +705,15 @@ export default function Draft() {
     [locate, pinLine, reduced],
   );
 
-  const onLogKey = (event: KeyboardEvent<HTMLOListElement>) => {
+  const onLogKey = (event: KeyboardEvent<HTMLDivElement>) => {
     const step =
       event.key === "ArrowDown" ? 1 : event.key === "ArrowUp" ? -1 : event.key === "Home" ? -99 : event.key === "End" ? 99 : 0;
     if (!step) return;
     event.preventDefault();
     const index = Math.min(rows.length - 1, Math.max(0, shown.index + step));
     jump(index, "instant");
-    rowRefs.current[index]?.querySelector<HTMLElement>(".tn-link")?.focus({ preventScroll: true });
+    const row = rowRefs.current[index];
+    (row?.querySelector<HTMLElement>(".tn-link") ?? row)?.focus({ preventScroll: true });
   };
 
   const onRowFocus = (index: number) => (event: FocusEvent<HTMLLIElement>) => {
@@ -690,6 +740,76 @@ export default function Draft() {
   };
 
   const current = rows[shown.index];
+  const renderRow = (row: Row, index: number) => {
+    const strikeNow = row.kind === "fixed" && isStruck(index);
+    const firstLabel = row.label ?? (row.kind === "shipped" ? "Shipped" : "Then");
+    const secondLabel = row.kind === "own" ? "Detail" : row.kind === "shipped" ? "Result" : "Now";
+    return (
+      <li
+        key={row.id}
+        ref={(element) => {
+          rowRefs.current[index] = element;
+        }}
+        className="tn-row"
+        tabIndex={-1}
+        data-kind={row.kind}
+        data-lead={index === 0 || undefined}
+        data-current={index === shown.index || undefined}
+        data-struck={strikeNow || undefined}
+        data-fresh={(fresh === index && strikeNow) || undefined}
+        onFocus={onRowFocus(index)}
+        onClick={onRowClick(index)}
+      >
+        <h3 className="tn-head">
+          <span className="tn-num" aria-hidden="true">
+            {row.id}
+          </span>
+          <span className="tn-project">{row.project}</span>
+          <span className="tn-role">
+            {row.role} · {row.year}
+          </span>
+        </h3>
+        <p className="tn-then">
+          <span className="tn-label">{firstLabel}</span>
+          <span className="tn-then-text">
+            {row.kind === "fixed" && <span className="tn-sr">Problem, now gone: </span>}
+            <ThenText row={row} />
+          </span>
+        </p>
+        <p className="tn-now">
+          <span className="tn-label">{secondLabel}</span>
+          <span className="tn-now-body">
+            <span className="tn-now-base">
+              <mark>{row.now}</mark>
+            </span>
+            <span className="tn-now-band" aria-hidden="true">
+              <mark>{row.now}</mark>
+            </span>
+          </span>
+        </p>
+        {row.note && <p className="tn-note">{row.note}</p>}
+        {row.link && (
+          <p className="tn-foot">
+            {row.link.external ? (
+              <a className="tn-link" href={row.link.href} target="_blank" rel="noreferrer">
+                {row.link.label}
+                <span className="tn-sr">: {row.project} (opens a new tab)</span>
+                <ArrowUpRightIcon aria-hidden="true" size={16} weight="bold" />
+              </a>
+            ) : (
+              <Link className="tn-link" to={row.link.href}>
+                {row.link.label}
+                <span className="tn-sr">: {row.project}</span>
+                <ArrowRightIcon aria-hidden="true" size={16} weight="bold" />
+              </Link>
+            )}
+          </p>
+        )}
+      </li>
+    );
+  };
+
+
   const isStruck = (index: number) => struck.has(index) && !(index === 0 && firstLoad);
 
   return (
@@ -702,6 +822,7 @@ export default function Draft() {
     >
       <title>Then and now — Gentrit Rashiti</title>
       <main className="tn-main">
+        <div className="tn-field" ref={fieldRef} aria-hidden="true" />
         <header className="tn-id">
           <h1>Gentrit Rashiti builds web and mobile apps, and rebuilds and fixes the ones people already use.</h1>
           <p className="tn-id-line">
@@ -713,69 +834,18 @@ export default function Draft() {
           </p>
         </header>
 
-        <ol className="tn-log" aria-label="Changes, strongest first" onKeyDown={onLogKey}>
-          {rows.map((row, index) => {
-            const strikeNow = row.kind === "fixed" && isStruck(index);
-            return (
-              <li
-                key={row.id}
-                ref={(element) => {
-                  rowRefs.current[index] = element;
-                }}
-                className="tn-row"
-                data-kind={row.kind}
-                data-current={index === shown.index || undefined}
-                data-struck={strikeNow || undefined}
-                data-fresh={(fresh === index && strikeNow) || undefined}
-                onFocus={onRowFocus(index)}
-                onClick={onRowClick(index)}
-              >
-                <h2 className="tn-head">
-                  <span className="tn-num" aria-hidden="true">
-                    {row.id}
-                  </span>
-                  <span className="tn-project">{row.project}</span>
-                  <span className="tn-role">
-                    {row.role} · {row.year}
-                  </span>
-                </h2>
-                <p className="tn-then">
-                  <span className="tn-label">{row.label ?? (row.kind === "shipped" ? "Shipped" : "Then")}</span>
-                  <span className="tn-then-text">
-                    {row.kind === "fixed" && <span className="tn-sr">Problem, now gone: </span>}
-                    <ThenText row={row} />
-                  </span>
-                </p>
-                <p className="tn-now">
-                  <span className="tn-label">{row.kind === "shipped" ? "Result" : "Now"}</span>
-                  <span className="tn-now-body">
-                    <span className="tn-now-base">
-                      <mark>{row.now}</mark>
-                    </span>
-                    <span className="tn-now-band" aria-hidden="true">
-                      <mark>{row.now}</mark>
-                    </span>
-                  </span>
-                </p>
-                {row.note && <p className="tn-note">{row.note}</p>}
-                <p className="tn-foot">
-                  {row.link.external ? (
-                    <a className="tn-link" href={row.link.href} target="_blank" rel="noreferrer">
-                      {row.link.label}
-                      <ArrowUpRightIcon aria-hidden="true" size={16} weight="bold" />
-                    </a>
-                  ) : (
-                    <Link className="tn-link" to={row.link.href}>
-                      {row.link.label}
-                      <span className="tn-sr">: {row.project}</span>
-                      <ArrowRightIcon aria-hidden="true" size={16} weight="bold" />
-                    </Link>
-                  )}
-                </p>
-              </li>
-            );
-          })}
-        </ol>
+        <div className="tn-log" onKeyDown={onLogKey}>
+          <ol className="tn-list" aria-label="Changes to products, strongest first">
+            {rows.map((row, index) => (row.kind === "own" ? null : renderRow(row, index)))}
+          </ol>
+          <section className="tn-group" aria-labelledby="tn-own">
+            <h2 id="tn-own">Own projects</h2>
+            <p>Made outside client work. OFFBEAT and FORM are concepts: the brands do not exist.</p>
+            <ol className="tn-list" aria-label="Own projects">
+              {rows.map((row, index) => (row.kind === "own" ? renderRow(row, index) : null))}
+            </ol>
+          </section>
+        </div>
 
         <aside className="tn-frame-wrap" aria-label="Screen for the current row">
           <div className="tn-frame" ref={frameRef}>
@@ -791,7 +861,7 @@ export default function Draft() {
                       }}
                       className={`tn-plate tn-plate-${row.plate.kind}`}
                       data-state={state}
-                      data-mode={shown.mode}
+                      data-mode={state === "on" && fresh === index ? "animate" : shown.mode}
                       inert={state !== "on" || narrow}
                       aria-hidden={state !== "on"}
                     >
@@ -830,8 +900,8 @@ export default function Draft() {
 
       <footer className="tn-end">
         <p>
-          Gentrit Rashiti. Bachelor's degree, UBT. The vitals card is a recreation with invented data. The two diagrams
-          draw measured results. The other screens come from public pages and store listings.
+          Gentrit Rashiti. Bachelor's degree, UBT. The vitals card is a recreation with invented data. The diagrams draw
+          measured results. Every other screen is a real capture of a public page, a store listing or an own project.
         </p>
         <p className="tn-end-links">
           <a href={`mailto:${links.email}`}>{links.email}</a>
@@ -846,6 +916,16 @@ export default function Draft() {
       </footer>
 
       <svg className="tn-wire" aria-hidden="true">
+        <defs>
+          <linearGradient id="tn-wire-line" ref={lineGradientRef} gradientUnits="userSpaceOnUse" x1="0" x2="1" y1="0" y2="0">
+            <stop offset="0" className="tn-stop-paper-line" />
+            <stop offset="1" className="tn-stop-field-line" />
+          </linearGradient>
+          <linearGradient id="tn-wire-halo" ref={haloGradientRef} gradientUnits="userSpaceOnUse" x1="0" x2="1" y1="0" y2="0">
+            <stop offset="0" className="tn-stop-paper-halo" />
+            <stop offset="1" className="tn-stop-field-halo" />
+          </linearGradient>
+        </defs>
         <g ref={wireRef} data-ready="false">
           {[0, 1].map((layer) => (
             <path

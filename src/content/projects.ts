@@ -640,8 +640,10 @@ export const projects: Project[] = [
           links: [offbeatLink],
           items: [
             web('/personal/shots/offbeat-home-desktop.webp', 'OFFBEAT home: a hot-orange portable speaker in 3D with finish swatches and the line Plays your songs. Makes its own.', 'The speaker'),
-            web('/personal/shots/offbeat-studio-desktop.webp', 'OFFBEAT sound studio: an eight-step drum machine with kick, snare, hi-hat and bass rows, tempo, volume and a swing dial', 'Sound studio'),
+            web('/personal/shots/offbeat-studio-desktop.webp', 'OFFBEAT sound studio while it plays: an eight-step drum machine with kick, snare, hi-hat and bass rows, the playing step in red, tempo, volume and a swing dial', 'Sound studio'),
             web('/personal/shots/offbeat-design-desktop.webp', 'OFFBEAT By design: the speaker pulled apart into its grille, two drivers and the body', 'By design'),
+            web('/personal/shots/offbeat-finish-desktop.webp', 'OFFBEAT finish picker: the speaker in acid yellow, with four finish choices and a Save this finish button', 'Pick a finish'),
+            web('/personal/shots/offbeat-record-desktop.webp', 'OFFBEAT record sleeve: the drum pattern printed as dots on a yellow sleeve, with Download loop, Save sleeve and Share groove buttons', 'Your record'),
             phone('/personal/shots/offbeat-phone.webp', 'OFFBEAT home on a phone with the 3D speaker', 'On a phone'),
           ],
         },
@@ -671,6 +673,8 @@ export const projects: Project[] = [
           items: [
             web('/personal/shots/form-home-desktop.webp', 'FORM home: a copper trefoil knot sculpture, the title Objects of imagination. and material swatches', 'The exhibition'),
             web('/personal/shots/form-studio-desktop.webp', 'FORM collection: the Trefoil in copper and the Orbit in chrome, each with its formula and notes', 'The collection'),
+            web('/personal/shots/form-chrome-desktop.webp', 'FORM home in chrome: the Orbit ring in chrome, and the page accent turns blue to match the material', 'Chrome'),
+            web('/personal/shots/form-cast-desktop.webp', 'FORM word cast: the word velvet cast as a chrome Bloom sculpture in the studio, with its code number and controls', 'Cast a word'),
             phone('/personal/shots/form-phone.webp', 'FORM home on a phone with the copper trefoil', 'On a phone'),
           ],
         },

@@ -16,10 +16,14 @@ import { links } from "../../content/links";
 import { recreations } from "../../lib/recreations";
 import {
   figure,
+  hook,
   identity,
+  own,
+  ownIntro,
   rows,
   type Box,
   type LivePlate,
+  type OwnShot,
   type Plate,
   type Reader,
   type Row,
@@ -246,6 +250,28 @@ function PlateView({
   if (!load || size.w === 0) return <div className="tr-wait" />;
   if (plate.kind === "live") return <LiveView plate={plate} size={size} narrow={narrow} />;
   return <ShotView plate={plate} size={size} narrow={narrow} eager={eager} />;
+}
+
+/* A crop sized by percentages, so the box is known before the image arrives. */
+function OwnView({ shot }: { shot: OwnShot }) {
+  const { crop } = shot;
+  return (
+    <div className="tr-own-shot" style={{ aspectRatio: `${crop.w} / ${crop.h}`, maxWidth: crop.w }}>
+      <img
+        src={shot.src}
+        alt={shot.alt}
+        width={shot.width}
+        height={shot.height}
+        loading="lazy"
+        decoding="async"
+        style={{
+          width: `${(shot.width / crop.w) * 100}%`,
+          left: `${(-crop.x / crop.w) * 100}%`,
+          top: `${(-crop.y / crop.h) * 100}%`,
+        }}
+      />
+    </div>
+  );
 }
 
 /* ---------- Where a result's proof sits ---------- */
@@ -591,7 +617,13 @@ export default function Draft() {
     const plate = plateRefs.current[index];
     const wire = armed.current && !held.current && rowElement && plate ? measureWire(row, wireReader.current, rowElement, plate) : null;
     const bar = rootRef.current?.querySelector(".tr-switch-bar")?.getBoundingClientRect();
-    const offRow = wire && (wire.start[1] < (bar?.bottom ?? 0) + 8 || wire.start[1] > window.innerHeight - 8);
+    const top = (bar?.bottom ?? 0) + 8;
+    const offRow =
+      wire &&
+      (wire.start[1] < top ||
+        wire.start[1] > window.innerHeight - 8 ||
+        wire.ring.y < 8 ||
+        wire.ring.y + wire.ring.h > window.innerHeight - 8);
     if (!wire || offRow) {
       group.dataset.ready = "false";
       return;
@@ -855,6 +887,20 @@ export default function Draft() {
             </p>
           </header>
 
+          <div className="tr-hook">
+            <p className="tr-hook-lead">{hook.lead}</p>
+            <dl className="tr-hook-eg">
+              <div data-v="plain">
+                <dt>Hiring manager reads</dt>
+                <dd>“{hook.plain}”</dd>
+              </div>
+              <div data-v="engineer">
+                <dt>Engineer reads</dt>
+                <dd>{hook.engineer}</dd>
+              </div>
+            </dl>
+          </div>
+
           <div className="tr-switch-bar">
             <div className="tr-switch" role="radiogroup" aria-label="Same facts for" onKeyDown={onSwitchKey}>
               <span className="tr-switch-label" aria-hidden="true">
@@ -876,7 +922,7 @@ export default function Draft() {
             </div>
           </div>
 
-          <ol className="tr-log" aria-label="Eight pieces of work" onKeyDown={onLogKey}>
+          <ol className="tr-log" aria-label="Seven pieces of work" onKeyDown={onLogKey}>
             {rows.map((row, index) => {
               const plate = (
                 <div
@@ -993,11 +1039,46 @@ export default function Draft() {
         )}
       </div>
 
+      <section className="tr-own" aria-labelledby="tr-own-title">
+        <div className="tr-own-in">
+          <header className="tr-own-head">
+            <h2 id="tr-own-title">Own projects</h2>
+            <p>
+              <Pair plain={ownIntro.plain} engineer={ownIntro.engineer} reader={reader} />
+            </p>
+          </header>
+          <ul className="tr-own-list">
+            {own.map((item) => (
+              <li key={item.name} className="tr-own-item">
+                <figure>
+                  <OwnView shot={narrow ? item.narrow : item.wide} />
+                  <figcaption>
+                    <h3>{item.name}</h3>
+                    <p className="tr-own-kind">{item.kind}</p>
+                    <p className="tr-own-line">
+                      <Pair plain={item.plain} engineer={item.engineer} reader={reader} />
+                    </p>
+                    {item.link && (
+                      <p className="tr-own-link">
+                        <a href={item.link.href} target="_blank" rel="noreferrer">
+                          {item.link.label}
+                          <span aria-hidden="true"> ↗</span>
+                        </a>
+                      </p>
+                    )}
+                  </figcaption>
+                </figure>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
       <footer className="tr-end">
         <div className="tr-end-in">
           <p>
             Gentrit Rashiti. Bachelor's degree, UBT. The care and design-system screens are recreations with invented data.
-            The other screens come from public pages and store listings.
+            The other screens come from public pages, store listings and the own projects themselves.
           </p>
           <p className="tr-end-links">
             <a href={`mailto:${links.email}`}>{links.email}</a>

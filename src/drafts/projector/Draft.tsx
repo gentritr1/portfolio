@@ -15,6 +15,7 @@ import { ArrowRightIcon, ArrowUpRightIcon, CheckIcon, XIcon } from "@phosphor-ic
 import { links } from "../../content/links";
 import { recreations } from "../../lib/recreations";
 import { rows, type Box, type Plate, type Row, type Shot, type Target } from "./data";
+import { Own } from "./Own";
 import "./projector.css";
 
 const SETTLE_MS = 160;
@@ -154,8 +155,8 @@ function ReportPlate({ before, after }: { before: number; after: number }) {
           <p className="pj-report-label">{label}</p>
           <p className="pj-report-n">{count}</p>
           <p className="pj-report-cells" aria-hidden="true">
-            {Array.from({ length: count }, (_, i) => (
-              <span key={i} />
+            {Array.from({ length: before }, (_, i) => (
+              <span key={i} data-gone={i >= count || undefined} />
             ))}
           </p>
           <p className="pj-report-end">
@@ -783,10 +784,12 @@ export default function Draft() {
         </aside>
       </main>
 
+      <Own narrow={narrow} reduced={reduced} />
+
       <footer className="pj-end">
         <p>
           Gentrit Rashiti. Bachelor's degree, UBT. The care and design-system screens are recreations with invented
-          data. The other screens are public.
+          data. The other screens are public pages, store listings and own projects.
         </p>
         <p className="pj-end-links">
           <a href={`mailto:${links.email}`}>

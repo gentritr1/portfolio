@@ -7,6 +7,7 @@ import {
   useState,
   useSyncExternalStore,
   type CSSProperties,
+  type FocusEvent,
   type KeyboardEvent,
   type RefObject,
 } from "react";
@@ -19,7 +20,15 @@ import {
 } from "@phosphor-icons/react";
 import { links } from "../../content/links";
 import { recreations } from "../../lib/recreations";
-import { index, tiles, type Box, type Shot, type Tile } from "./data";
+import {
+  index,
+  lead,
+  own,
+  work,
+  type Crop,
+  type Shot,
+  type Tile,
+} from "./data";
 import "./proof-tiles.css";
 
 const fonts = [
@@ -96,11 +105,18 @@ function ringStyle(
   };
 }
 
-/** The narrowest crop that is at least as wide as the tile, so the image is never drawn above its source pixels. */
-function pickCrop(shot: Shot, width: number): Box {
+/**
+ * The narrowest crop that is at least as wide as the tile, so the image is
+ * never drawn above its source pixels. A 2x capture may go 8% under: it still
+ * gives more than one source pixel for each CSS pixel.
+ */
+function pickCrop(shot: Shot, width: number): Crop {
+  const density = shot.density ?? 1;
+  const floor = density > 1 ? width * 0.92 : width - 0.5;
   const sorted = [...shot.crops].sort((a, b) => a.w - b.w);
   return (
-    sorted.find((crop) => crop.w >= width - 0.5) ?? sorted[sorted.length - 1]
+    sorted.find((crop) => crop.w / density >= floor) ??
+    sorted[sorted.length - 1]
   );
 }
 
@@ -114,7 +130,7 @@ function ShotView({
   eager: boolean;
 }) {
   const crop = pickCrop(shot, width);
-  const { mark } = shot;
+  const mark = crop.mark ?? shot.mark;
   const [loaded, setLoaded] = useState(false);
   return (
     <>
@@ -283,26 +299,27 @@ function Caption({
   );
 }
 
-function TileView({
-  tile,
-  eager,
-  current,
-  onEnter,
-  onPress,
-  onFocus,
-  onKeyDown,
-}: {
-  tile: Tile;
-  eager: boolean;
-  current: boolean;
+interface TileEvents {
   onEnter: () => void;
   onPress: () => void;
   onFocus: () => void;
   onKeyDown: (event: KeyboardEvent<HTMLAnchorElement>) => void;
+}
+
+function TileView({
+  tile,
+  eager,
+  current,
+  events,
+}: {
+  tile: Tile;
+  eager: boolean;
+  current: boolean;
+  events: TileEvents;
 }) {
   const mediaRef = useRef<HTMLSpanElement>(null);
   const width = useWidth(mediaRef, 432);
-  const { media } = tile;
+  const { media, link } = tile;
   const ids = {
     caption: `pt-${tile.id}-caption`,
     project: `pt-${tile.id}-project`,
@@ -311,38 +328,41 @@ function TileView({
   const content = (
     <>
       <Caption id={ids.caption} text={tile.caption} proof={tile.proof} />
-      {tile.scope && <span className="pt-scope">{tile.scope}</span>}
       <span className="pt-meta">
         <span className="pt-project">
           <span className="pt-project-line">
             <span id={ids.project} className="pt-project-name">
               {tile.project}
             </span>
-            <span className="pt-role"> · {tile.role} · </span>
-            <span className="pt-year">{tile.year}</span>
+            <span className="pt-role">
+              {" "}
+              · {tile.role} · <span className="pt-year">{tile.year}</span>
+            </span>
           </span>
           {tile.recreation && (
             <span className="pt-note">Recreation · invented data</span>
           )}
         </span>
-        <span id={ids.go} className="pt-go">
-          {tile.link.external ? tile.link.label : "Case"}
-          {tile.link.external ? (
-            <>
-              <span className="pt-sr"> (opens in a new tab)</span>
-              <ArrowUpRightIcon weight="bold" aria-hidden="true" />
-            </>
-          ) : (
-            <ArrowRightIcon weight="bold" aria-hidden="true" />
-          )}
-        </span>
+        {link && (
+          <span id={ids.go} className="pt-go">
+            {link.external ? link.label : "Case"}
+            {link.external ? (
+              <>
+                <span className="pt-sr"> (opens in a new tab)</span>
+                <ArrowUpRightIcon weight="bold" aria-hidden="true" />
+              </>
+            ) : (
+              <ArrowRightIcon weight="bold" aria-hidden="true" />
+            )}
+          </span>
+        )}
       </span>
     </>
   );
   const linkProps = {
-    className: "pt-tile-link",
-    onFocus,
-    onKeyDown,
+    className: "pt-tile-body pt-tile-link",
+    onFocus: events.onFocus,
+    onKeyDown: events.onKeyDown,
     "aria-labelledby": `${ids.caption} ${ids.project} ${ids.go}`,
   };
 
@@ -351,14 +371,13 @@ function TileView({
       className="pt-tile"
       data-id={tile.id}
       data-kind={media.kind}
-      data-lead={tile.scope ? "" : undefined}
       data-dark={tile.dark ? "" : undefined}
       data-current={current ? "" : undefined}
       style={{ "--tile-ground": tile.ground } as CSSProperties}
       onPointerEnter={(event) => {
-        if (event.pointerType === "mouse") onEnter();
+        if (event.pointerType === "mouse") events.onEnter();
       }}
-      onPointerDown={onPress}
+      onPointerDown={events.onPress}
     >
       <span ref={mediaRef} className="pt-media">
         {media.kind === "figure" && <Figure />}
@@ -374,21 +393,190 @@ function TileView({
           <ShotView shot={media.shot} width={width} eager={eager} />
         )}
       </span>
-      {tile.link.external ? (
-        <a
-          href={tile.link.href}
-          target="_blank"
-          rel="noreferrer"
-          {...linkProps}
-        >
+      {!link ? (
+        <span className="pt-tile-body">{content}</span>
+      ) : link.external ? (
+        <a href={link.href} target="_blank" rel="noreferrer" {...linkProps}>
           {content}
         </a>
       ) : (
-        <Link to={tile.link.href} {...linkProps}>
+        <Link to={link.href} {...linkProps}>
           {content}
         </Link>
       )}
     </li>
+  );
+}
+
+/* ---------- The lead: one app, two stores ---------- */
+
+const wipe: KeyframeAnimationOptions = {
+  duration: 300,
+  easing: "cubic-bezier(0.77, 0, 0.175, 1)",
+  fill: "both",
+};
+
+/**
+ * The same Viva Fresh screen from each store listing. The two crops share one
+ * ratio and line up row for row, so a switch shows what changes (the store)
+ * and what stays (the app).
+ */
+function Lead({ reduced }: { reduced: boolean }) {
+  const [shown, setShown] = useState(0);
+  // The layer on top, and the layer under it while a wipe runs.
+  const [layers, setLayers] = useState<{ top: number; under: number | null }>(
+    { top: 0, under: null },
+  );
+  const boxRef = useRef<HTMLDivElement>(null);
+  const layerRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const lineRef = useRef<HTMLSpanElement>(null);
+  const running = useRef<Animation[]>([]);
+  const { platforms } = lead;
+  const current = platforms[shown];
+
+  // The wipe holds its end state until React has moved the layers, then lets go.
+  const settle = (top: number) => {
+    const done = running.current;
+    running.current = [];
+    setLayers({ top, under: null });
+    requestAnimationFrame(() => done.forEach((animation) => animation.cancel()));
+  };
+
+  const choose = (next: number) => {
+    if (next === shown) return;
+    setShown(next);
+    const [reveal, edge] = running.current;
+    // A second press during a wipe plays the same wipe back from where it is.
+    if (reveal && reveal.playState === "running") {
+      reveal.reverse();
+      edge?.reverse();
+      reveal.onfinish = () => settle(next);
+      return;
+    }
+    const layer = layerRefs.current[next];
+    const box = boxRef.current;
+    const line = lineRef.current;
+    if (reduced || !layer || !box || !line) {
+      setLayers({ top: next, under: null });
+      return;
+    }
+    setLayers({ top: next, under: shown });
+    const width = box.getBoundingClientRect().width;
+    const fromRight = next > shown;
+    const wipeIn = layer.animate(
+      {
+        clipPath: fromRight
+          ? ["inset(0 0 0 100%)", "inset(0 0 0 0)"]
+          : ["inset(0 100% 0 0)", "inset(0 0 0 0)"],
+      },
+      wipe,
+    );
+    const lineMove = line.animate(
+      {
+        transform: fromRight
+          ? [`translateX(${width}px)`, "translateX(0)"]
+          : ["translateX(0)", `translateX(${width}px)`],
+        opacity: [1, 1],
+      },
+      { ...wipe, fill: "none" },
+    );
+    running.current = [wipeIn, lineMove];
+    wipeIn.onfinish = () => settle(next);
+  };
+
+  return (
+    <>
+      <div className="pt-lead-text">
+        <p className="pt-lead-project">
+          <span className="pt-project-name">{lead.project}</span>
+          <span className="pt-role">
+            {" "}
+            · {lead.role} · <span className="pt-year">{lead.year}</span>
+          </span>
+        </p>
+        <h2 className="pt-lead-caption">
+          One grocery app, built once for{" "}
+          <span className="pt-switch-pair">
+            {platforms.map((platform, i) => (
+              <span key={platform.id}>
+                {i > 0 && " and "}
+                <button
+                  type="button"
+                  className="pt-switch"
+                  aria-pressed={i === shown}
+                  aria-controls="pt-lead-screen"
+                  onClick={() => choose(i)}
+                >
+                  {platform.label}
+                </button>
+              </span>
+            ))}
+            .
+          </span>
+        </h2>
+        <p className="pt-lead-hint">
+          Press iPhone or Android to switch the store screenshot.
+        </p>
+      </div>
+      <div className="pt-lead-more">
+        <p className="pt-lead-scope">
+          {lead.scope} Live in both app stores.
+        </p>
+        <p className="pt-lead-links">
+          {platforms.map((platform) => (
+            <a
+              key={platform.id}
+              href={platform.href}
+              target="_blank"
+              rel="noreferrer"
+            >
+              {platform.store}
+              <span className="pt-sr"> (opens in a new tab)</span>
+              <ArrowUpRightIcon weight="bold" aria-hidden="true" />
+            </a>
+          ))}
+          <Link to={lead.case} aria-label="Viva Fresh: open the case">
+            Case <ArrowRightIcon weight="bold" aria-hidden="true" />
+          </Link>
+        </p>
+      </div>
+      <figure className="pt-lead-screen" id="pt-lead-screen">
+        <div ref={boxRef} className="pt-screen-box">
+          {platforms.map((platform, i) => (
+            <div
+              key={platform.id}
+              ref={(element) => {
+                layerRefs.current[i] = element;
+              }}
+              className="pt-screen-layer"
+              data-on={i === layers.top ? "" : undefined}
+              data-leaving={i === layers.under ? "" : undefined}
+              aria-hidden={i === shown ? undefined : true}
+            >
+              <img
+                src={platform.src}
+                alt={platform.alt}
+                width={platform.width}
+                height={platform.height}
+                loading="eager"
+                decoding="async"
+                fetchPriority={i === 0 ? "high" : "low"}
+                draggable={false}
+                style={{
+                  width: pct(platform.width / platform.crop.w),
+                  left: pct(-platform.crop.x / platform.crop.w),
+                  top: pct(-platform.crop.y / platform.crop.h),
+                }}
+              />
+            </div>
+          ))}
+          <span ref={lineRef} className="pt-screen-edge" aria-hidden="true" />
+        </div>
+        <figcaption className="pt-lead-label" aria-live="polite">
+          {current.store} screenshot · {current.label}
+        </figcaption>
+      </figure>
+    </>
   );
 }
 
@@ -421,28 +609,32 @@ function nextTile(boxes: DOMRect[], at: number, key: string) {
 
 /* ---------- Page ---------- */
 
+const side = ["billing", "bayyinah-tv"];
+const allTiles = [...work, ...own];
+
 export default function Draft() {
   for (const href of fonts)
     preload(href, { as: "font", type: "font/woff2", crossOrigin: "anonymous" });
 
   const ready = useFontsReady();
   const hover = useMedia("(hover: hover) and (pointer: fine)", true);
+  const reduced = useMedia("(prefers-reduced-motion: reduce)", false);
   const [current, setCurrent] = useState<string | null>(null);
   const [instant, setInstant] = useState(false);
-  const gridRef = useRef<HTMLOListElement>(null);
+  const mainRef = useRef<HTMLElement>(null);
   const pointerRef = useRef(false);
 
-  const tint = tiles.find((tile) => tile.id === current)?.hue;
+  const tint = allTiles.find((tile) => tile.id === current)?.hue;
 
   // On a touch screen, after the first scroll, the tile at the middle of the screen is current.
   useEffect(() => {
-    const grid = gridRef.current;
-    if (!grid || hover) return;
+    const main = mainRef.current;
+    if (!main || hover) return;
     let frame = 0;
     const pick = () => {
       frame = 0;
       const middle = window.innerHeight / 2;
-      const hit = [...grid.querySelectorAll<HTMLElement>(".pt-tile")].find(
+      const hit = [...main.querySelectorAll<HTMLElement>(".pt-tile")].find(
         (element) => {
           const box = element.getBoundingClientRect();
           return box.top <= middle && box.bottom >= middle;
@@ -467,10 +659,10 @@ export default function Draft() {
   }, []);
 
   const moveFocus = useCallback((event: KeyboardEvent<HTMLAnchorElement>) => {
-    const grid = gridRef.current;
-    if (!grid) return;
+    const main = mainRef.current;
+    if (!main) return;
     const items = [
-      ...grid.querySelectorAll<HTMLAnchorElement>(".pt-tile-link"),
+      ...main.querySelectorAll<HTMLAnchorElement>(".pt-tile .pt-tile-link"),
     ];
     const cells = items.map(
       (item) => item.closest<HTMLElement>(".pt-tile") ?? item,
@@ -487,6 +679,42 @@ export default function Draft() {
     cells[at].scrollIntoView({ block: "nearest" });
   }, []);
 
+  const eventsFor = (tile: Tile): TileEvents => ({
+    onEnter: () => choose(tile.id, false),
+    onPress: () => {
+      pointerRef.current = true;
+    },
+    onFocus: () => {
+      if (pointerRef.current) {
+        pointerRef.current = false;
+        return;
+      }
+      choose(tile.id, true);
+    },
+    onKeyDown: moveFocus,
+  });
+
+  const listProps = {
+    onPointerLeave: () => {
+      if (hover) choose(null, false);
+    },
+    onBlur: (event: FocusEvent<HTMLOListElement>) => {
+      const next = event.relatedTarget as Node | null;
+      if (hover && !mainRef.current?.contains(next)) choose(null, true);
+    },
+  };
+
+  const renderTiles = (list: Tile[], eagerCount: number) =>
+    list.map((tile, i) => (
+      <TileView
+        key={tile.id}
+        tile={tile}
+        eager={i < eagerCount}
+        current={current === tile.id}
+        events={eventsFor(tile)}
+      />
+    ));
+
   const style = { "--pt-h": tint ?? 0 } as CSSProperties;
 
   return (
@@ -499,66 +727,62 @@ export default function Draft() {
       <title>Gentrit Rashiti — web and mobile apps</title>
       {ready && (
         <>
-          <header className="pt-head">
-            <div className="pt-intro">
-              <h1 className="pt-name">
-                <strong>Gentrit Rashiti</strong> builds web and mobile apps.{" "}
-                <span className="pt-name-2">
-                  Each result below is shown on the screen that proves it.
-                </span>
-              </h1>
-              <p className="pt-level">
-                5+ years. Part of two platform rewrites. Based in Kosovo,
-                working remotely.
-              </p>
-            </div>
-            <div className="pt-actions">
-              <a className="pt-button" href={links.cv} download>
-                Download CV <ArrowDownIcon weight="bold" aria-hidden="true" />
-              </a>
-              <a className="pt-text-link" href={`mailto:${links.email}`}>
-                Email
-              </a>
-            </div>
-          </header>
+          <main ref={mainRef}>
+            <section className="pt-top" aria-labelledby="pt-name">
+              <div className="pt-lead">
+                <div className="pt-intro">
+                  <h1 id="pt-name" className="pt-name">
+                    <strong>Gentrit Rashiti</strong> builds web and mobile
+                    apps.{" "}
+                    <span className="pt-name-2">
+                      Each result here is shown with its proof.
+                    </span>
+                  </h1>
+                  <p className="pt-level">
+                    5+ years. Part of two platform rewrites. Based in Kosovo,
+                    working remotely.
+                  </p>
+                  <p className="pt-actions">
+                    <a className="pt-button" href={links.cv} download>
+                      Download CV{" "}
+                      <ArrowDownIcon weight="bold" aria-hidden="true" />
+                    </a>
+                    <a className="pt-text-link" href={`mailto:${links.email}`}>
+                      Email
+                    </a>
+                  </p>
+                </div>
+                <Lead reduced={reduced} />
+              </div>
+              <ol className="pt-grid pt-side" {...listProps}>
+                {renderTiles(
+                  side.map((id) => work.find((tile) => tile.id === id)!),
+                  2,
+                )}
+              </ol>
+            </section>
 
-          <main>
-            <h2 className="pt-sr">
-              Work, with the part of each screen that proves it
-            </h2>
-            <ol
-              ref={gridRef}
-              className="pt-grid"
-              onPointerLeave={() => {
-                if (hover) choose(null, false);
-              }}
-              onBlur={(event) => {
-                const next = event.relatedTarget as Node | null;
-                if (hover && !event.currentTarget.contains(next))
-                  choose(null, true);
-              }}
-            >
-              {tiles.map((tile, i) => (
-                <TileView
-                  key={tile.id}
-                  tile={tile}
-                  eager={i < 6}
-                  current={current === tile.id}
-                  onEnter={() => choose(tile.id, false)}
-                  onPress={() => {
-                    pointerRef.current = true;
-                  }}
-                  onFocus={() => {
-                    if (pointerRef.current) {
-                      pointerRef.current = false;
-                      return;
-                    }
-                    choose(tile.id, true);
-                  }}
-                  onKeyDown={moveFocus}
-                />
-              ))}
+            <h2 className="pt-sr">More client and team work</h2>
+            <ol className="pt-grid" {...listProps}>
+              {renderTiles(
+                work.filter((tile) => !side.includes(tile.id)),
+                3,
+              )}
             </ol>
+
+            <section className="pt-own" aria-labelledby="pt-own-title">
+              <div className="pt-own-head">
+                <h2 id="pt-own-title">Own projects</h2>
+                <p>
+                  Made outside client work. Offday is a time-off app for teams,
+                  covered by about 200 automated tests. OFFBEAT and FORM are
+                  concepts: the brands are made up.
+                </p>
+              </div>
+              <ol className="pt-grid pt-grid-own" {...listProps}>
+                {renderTiles(own, 0)}
+              </ol>
+            </section>
 
             <section className="pt-index" aria-labelledby="pt-index-title">
               <h2 id="pt-index-title">All 30 projects</h2>
@@ -637,8 +861,8 @@ export default function Draft() {
             </ul>
             <p className="pt-foot-note">
               The care card and the button card are recreations with invented
-              data. Every other picture is a crop of a public web page or store
-              listing, never enlarged.
+              data. Every other picture is a crop of a public web page, a store
+              listing or a screenshot of an own project, never enlarged.
             </p>
           </footer>
         </>

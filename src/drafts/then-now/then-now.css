@@ -52,6 +52,8 @@
   --tn-rule: rgb(18 18 18 / 0.18);
   --tn-now: #2348d8;
   --tn-on-now: #ffffff;
+  --tn-on-field: rgb(255 255 255 / 0.86);
+  --tn-field-rule: rgb(255 255 255 / 0.5);
   --tn-white: #ffffff;
   --tn-display: "Anton", "Anton Fallback", "Arial Narrow", sans-serif;
   --tn-text: "Literata", "Literata Fallback", Georgia, serif;
@@ -74,6 +76,7 @@
 }
 
 .tn {
+  overflow-x: clip;
   min-height: 100dvh;
   background: var(--tn-paper);
   color: var(--tn-ink);
@@ -136,13 +139,28 @@
     "id frame"
     "log frame";
   grid-template-rows: auto 1fr;
-  column-gap: 64px;
+  column-gap: var(--tn-gap);
+  position: relative;
+  isolation: isolate;
   width: 1344px;
   margin: 0 auto;
+  padding-bottom: 48px;
   /* The frame and its caption fill the first screen with one margin above and below. */
+  --tn-gap: 64px;
   --tn-fw: 640px;
-  --tn-cap: 56px;
+  --tn-cap: 108px;
   --tn-top: clamp(32px, calc((100dvh - var(--tn-fw) * 560 / 640 - var(--tn-cap)) / 2), 96px);
+}
+
+/* The accent field holds the frame: the products sit on the colour of the result. It runs from half the gap to the screen edge. */
+.tn-field {
+  position: absolute;
+  z-index: -1;
+  top: 0;
+  bottom: 0;
+  left: calc(100% - var(--tn-fw) - var(--tn-gap) / 2);
+  right: calc(50% - 50vw);
+  background: var(--tn-now);
 }
 
 .tn-id {
@@ -192,9 +210,47 @@
 
 .tn-log {
   grid-area: log;
+  padding: 0 0 16vh;
+}
+
+.tn-list {
   list-style: none;
   margin: 0;
-  padding: 0 0 16vh;
+  padding: 0;
+}
+
+.tn-group {
+  margin-top: 48px;
+  padding-top: 24px;
+  border-top: 2px solid var(--tn-ink);
+}
+
+.tn-group h2 {
+  margin: 0;
+  font-family: var(--tn-display);
+  font-size: 22px;
+  line-height: 1.1;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.tn-group > p {
+  max-width: 48ch;
+  margin: 8px 0 0;
+  font-size: 16px;
+  line-height: 1.45;
+  color: var(--tn-muted);
+  text-wrap: pretty;
+}
+
+.tn-row:focus {
+  outline: none;
+}
+
+.tn-row:focus-visible {
+  outline: 2px solid var(--tn-now);
+  outline-offset: -2px;
 }
 
 .tn-frame-wrap {
@@ -215,6 +271,9 @@
 
 .tn-row:first-child {
   border-top: 0;
+}
+
+.tn-row[data-lead] {
   padding-top: 32px;
 }
 
@@ -309,6 +368,7 @@
 }
 
 .tn-now mark {
+  white-space: pre-line;
   margin-left: -8px;
   padding: 2px 8px 3px;
   border-radius: 4px;
@@ -377,31 +437,31 @@
 }
 
 /* The first row is the lead: the same parts at display size. */
-.tn-row:first-child .tn-head {
+.tn-row[data-lead] .tn-head {
   font-size: 19px;
 }
 
-.tn-row:first-child .tn-then,
-.tn-row:first-child .tn-now {
+.tn-row[data-lead] .tn-then,
+.tn-row[data-lead] .tn-now {
   margin-top: 16px;
 }
 
-.tn-row:first-child .tn-label {
+.tn-row[data-lead] .tn-label {
   font-size: 18px;
 }
 
-.tn-row:first-child .tn-then-text,
-.tn-row:first-child .tn-now-body {
+.tn-row[data-lead] .tn-then-text,
+.tn-row[data-lead] .tn-now-body {
   text-wrap: balance;
 }
 
-.tn-row:first-child .tn-then-text {
+.tn-row[data-lead] .tn-then-text {
   font-size: 32px;
   line-height: 1.25;
   letter-spacing: -0.015em;
 }
 
-.tn-row:first-child .tn-now-body {
+.tn-row[data-lead] .tn-now-body {
   font-size: 32px;
   line-height: 1.35;
   letter-spacing: -0.02em;
@@ -528,9 +588,9 @@
   height: auto;
 }
 
-/* ---------- The two diagrams ---------- */
+/* ---------- The diagrams ---------- */
 
-/* Sizes are in cqw of the stage, so one rule draws the 640 px wide plate and the phone plate. */
+/* Sizes are in cqw of the stage, so one rule draws the 640 px wide plate and the phone plate. The diagrams are paper on the accent field. */
 .tn-fig {
   position: absolute;
   inset: 0;
@@ -540,10 +600,10 @@
   justify-content: center;
   gap: 5cqw;
   padding: 7.5cqw;
-  background: var(--tn-now);
-  color: var(--tn-on-now);
-  --tn-fig-soft: rgb(255 255 255 / 0.72);
-  --tn-fig-faint: rgb(255 255 255 / 0.5);
+  background: var(--tn-paper);
+  color: var(--tn-ink);
+  --tn-fig-soft: var(--tn-muted);
+  --tn-fig-faint: rgb(18 18 18 / 0.24);
 }
 
 .tn-fig-head {
@@ -616,7 +676,7 @@
 }
 
 .tn-fig-before .tn-fig-dots > span::before {
-  background: var(--tn-on-now);
+  background: var(--tn-ink);
 }
 
 .tn-fig-after .tn-fig-dots > span {
@@ -624,14 +684,14 @@
 }
 
 .tn-fig-after .tn-fig-dots > span::before {
-  background: var(--tn-on-now);
+  background: var(--tn-now);
   opacity: 0;
   transition-delay: 200ms;
 }
 
 .tn-fig-from {
   position: relative;
-  color: var(--tn-on-now);
+  color: var(--tn-ink);
   transition: color 200ms ease;
 }
 
@@ -643,14 +703,14 @@
   height: 1.9cqw;
   margin-top: -0.95cqw;
   border-radius: 2px;
-  background: var(--tn-on-now);
+  background: var(--tn-ink);
   transform: scaleX(0);
   transform-origin: left center;
   transition: transform 200ms var(--tn-ease-out);
 }
 
 .tn-fig-to {
-  color: var(--tn-on-now);
+  color: var(--tn-now);
   clip-path: inset(0 100% 0 0);
   transition: clip-path 260ms var(--tn-ease-out) 200ms;
 }
@@ -660,7 +720,7 @@
 }
 
 .tn-fig-after .tn-fig-end {
-  color: var(--tn-on-now);
+  color: var(--tn-now);
   opacity: 0;
   transition: opacity 200ms ease 200ms;
 }
@@ -691,6 +751,7 @@
   display: grid;
   justify-items: start;
   gap: 2.5cqw;
+  --tn-long: 85cqw;
 }
 
 .tn-fig-bar {
@@ -706,10 +767,6 @@
 }
 
 /* The short bar is drawn at 3.4% of the long one: 96.6% less. */
-.tn-fig-bars {
-  --tn-long: 85cqw;
-}
-
 .tn-fig-bars > .tn-fig-bar {
   width: var(--tn-long);
 }
@@ -723,7 +780,7 @@
 .tn-fig-short .tn-fig-bar {
   flex: none;
   width: calc(var(--tn-long) * 0.034);
-  background: var(--tn-on-now);
+  background: var(--tn-now);
 }
 
 .tn-fig-less {
@@ -733,7 +790,7 @@
   font-family: var(--tn-display);
   font-size: 17cqw;
   line-height: 0.86;
-  color: var(--tn-on-now);
+  color: var(--tn-now);
 }
 
 .tn-fig-less span {
@@ -742,15 +799,104 @@
   text-transform: uppercase;
 }
 
+/* ---------- The lead plate: the live screen over its two measured weights ---------- */
+
+.tn-proof {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--tn-paper);
+}
+
+.tn-proof .tn-shot {
+  flex: none;
+  width: 100%;
+  background: #efe4cf;
+}
+
+.tn-fig-weight {
+  position: relative;
+  inset: auto;
+  flex: 1;
+  gap: 3.75cqw;
+  padding: 6cqw 7.5cqw 0;
+  border-top: 1px solid var(--tn-ink);
+}
+
+/* Each weight: the old number struck, the new one written, and one bar that shrinks to its new length. */
+.tn-w {
+  display: grid;
+  grid-template-columns: 22cqw minmax(0, 1fr);
+  align-items: baseline;
+  column-gap: 3.75cqw;
+  row-gap: 1.875cqw;
+}
+
+.tn-w-nums {
+  display: flex;
+  align-items: baseline;
+  gap: 3.75cqw;
+  font-family: var(--tn-display);
+  font-size: 7.5cqw;
+  line-height: 0.9;
+  font-variant-numeric: tabular-nums;
+}
+
+.tn-w .tn-fig-strike {
+  left: -0.625cqw;
+  right: -0.625cqw;
+  height: 0.625cqw;
+  margin-top: -0.3125cqw;
+}
+
+.tn-w-to {
+  color: var(--tn-now);
+  clip-path: inset(0 100% 0 0);
+  transition: clip-path 260ms var(--tn-ease-out) 200ms;
+}
+
+.tn-w-track {
+  grid-column: 2;
+  position: relative;
+  height: 1.875cqw;
+  border-radius: 2px;
+  box-shadow: inset 0 0 0 1px var(--tn-fig-faint);
+}
+
+.tn-w-bar {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: calc(var(--r) * 100%);
+  border-radius: 2px;
+  background: var(--tn-ink);
+  transform: scaleX(calc(1 / var(--r)));
+  transform-origin: left center;
+  transition:
+    transform 260ms var(--tn-ease-out) 200ms,
+    background-color 200ms ease 200ms;
+}
+
+.tn-fig[data-struck] .tn-w-to {
+  clip-path: inset(0 0 0 0);
+}
+
+.tn-fig[data-struck] .tn-w-bar {
+  transform: none;
+  background: var(--tn-now);
+}
+
 /* ---------- Under the frame ---------- */
 
 /* Every caption keeps two lines, so the tray never moves when the caption changes. */
 .tn-caption {
   display: grid;
-  grid-template-columns: 1fr auto;
-  align-items: start;
-  column-gap: 16px;
+  grid-template-columns: 1fr;
+  row-gap: 4px;
   margin-top: 12px;
+  color: var(--tn-on-field);
 }
 
 .tn-count {
@@ -766,7 +912,7 @@
 
 .tn-count-of {
   font-size: 14px;
-  color: var(--tn-muted);
+  color: var(--tn-on-field);
 }
 
 .tn-caption-text {
@@ -775,11 +921,12 @@
   padding-top: 4px;
   font-size: 15px;
   line-height: 1.35;
-  color: var(--tn-muted);
+  color: var(--tn-on-field);
 }
 
 .tn-tray {
   display: flex;
+  margin-left: -4px;
 }
 
 .tn-tray button {
@@ -791,7 +938,7 @@
   padding: 0;
   border: 0;
   background: none;
-  color: var(--tn-ink);
+  color: var(--tn-on-now);
   font-family: var(--tn-display);
   font-size: 15px;
   letter-spacing: 0.04em;
@@ -805,7 +952,7 @@
   width: 36px;
   height: 28px;
   border-radius: 4px;
-  box-shadow: inset 0 0 0 1px var(--tn-rule);
+  box-shadow: inset 0 0 0 1px var(--tn-field-rule);
   transition: background-color 160ms ease;
 }
 
@@ -815,25 +962,26 @@
 }
 
 .tn-tray button[aria-pressed="true"] {
-  color: var(--tn-on-now);
+  color: var(--tn-now);
 }
 
 .tn-tray button[aria-pressed="true"]::before {
-  background: var(--tn-now);
+  background: var(--tn-on-now);
   box-shadow: none;
 }
 
 @media (hover: hover) and (pointer: fine) {
   .tn-tray button:hover::before {
-    background: rgb(18 18 18 / 0.08);
+    background: rgb(255 255 255 / 0.16);
   }
 
   .tn-tray button[aria-pressed="true"]:hover::before {
-    background: var(--tn-now);
+    background: var(--tn-on-now);
   }
 }
 
 .tn-tray button:focus-visible {
+  outline-color: var(--tn-on-now);
   outline-offset: -2px;
 }
 
@@ -866,13 +1014,33 @@
 }
 
 .tn-wire-line {
-  stroke: var(--tn-now);
+  stroke: url(#tn-wire-line);
   stroke-width: 1.5;
 }
 
 .tn-wire-halo {
-  stroke: var(--tn-paper);
+  stroke: url(#tn-wire-halo);
   stroke-width: 5;
+}
+
+.tn-stop-paper-line {
+  stop-color: var(--tn-now);
+}
+
+.tn-stop-field-line {
+  stop-color: var(--tn-on-now);
+}
+
+.tn-stop-paper-halo {
+  stop-color: var(--tn-paper);
+}
+
+.tn-stop-field-halo {
+  stop-color: var(--tn-now);
+}
+
+.tn-wire-in.tn-wire-line {
+  stroke: var(--tn-now);
 }
 
 .tn-wire-in.tn-wire-halo {
@@ -889,13 +1057,9 @@
   fill: var(--tn-now);
 }
 
-.tn-wire g:is([data-tone="dark"], [data-tone="accent"]) .tn-wire-in.tn-wire-line,
-.tn-wire g:is([data-tone="dark"], [data-tone="accent"]) .tn-wire-ring {
+.tn-wire g[data-tone="dark"] .tn-wire-in.tn-wire-line,
+.tn-wire g[data-tone="dark"] .tn-wire-ring {
   stroke: var(--tn-white);
-}
-
-.tn-wire g[data-tone="accent"] .tn-wire-in.tn-wire-halo {
-  stroke: var(--tn-now);
 }
 
 .tn-wire g[data-tone="dark"] .tn-wire-in.tn-wire-halo {
@@ -947,31 +1111,18 @@
   }
 
   .tn-main {
-    column-gap: 48px;
+    --tn-gap: 48px;
     --tn-fw: min(640px, 46vw);
   }
 }
 
 @media (max-width: 1279px) {
-  .tn-main {
-    --tn-cap: 108px;
-  }
-
-  .tn-caption {
-    grid-template-columns: 1fr;
-    row-gap: 4px;
-  }
-
-  .tn-tray {
-    margin-left: -4px;
-  }
-
   .tn-id h1 {
     font-size: 26px;
   }
 
-  .tn-row:first-child .tn-then-text,
-  .tn-row:first-child .tn-now-body {
+  .tn-row[data-lead] .tn-then-text,
+  .tn-row[data-lead] .tn-now-body {
     font-size: 26px;
   }
 }
@@ -982,6 +1133,7 @@
   .tn-main {
     display: flex;
     flex-direction: column;
+    padding-bottom: 0;
     margin: 0 16px;
   }
 
@@ -1013,8 +1165,11 @@
     top: 0;
     margin: 0 -16px;
     padding: 12px 16px 8px;
-    background: var(--tn-paper);
-    box-shadow: 0 1px 0 var(--tn-ink);
+    background: var(--tn-now);
+  }
+
+  .tn-field {
+    display: none;
   }
 
   .tn-log {
@@ -1026,25 +1181,38 @@
     padding: 16px 0 16px;
   }
 
-  .tn-row:first-child {
+  .tn-row[data-lead] {
     padding-top: 16px;
   }
 
+  .tn-group {
+    margin-top: 32px;
+    padding-top: 16px;
+  }
+
+  .tn-group h2 {
+    font-size: 18px;
+  }
+
+  .tn-group > p {
+    font-size: 15px;
+  }
+
   .tn-head,
-  .tn-row:first-child .tn-head {
+  .tn-row[data-lead] .tn-head {
     font-size: 16px;
     column-gap: 8px;
   }
 
   .tn-then,
   .tn-now,
-  .tn-row:first-child .tn-then,
-  .tn-row:first-child .tn-now {
+  .tn-row[data-lead] .tn-then,
+  .tn-row[data-lead] .tn-now {
     margin-top: 8px;
   }
 
   .tn-label,
-  .tn-row:first-child .tn-label {
+  .tn-row[data-lead] .tn-label {
     font-size: 13px;
   }
 
@@ -1056,12 +1224,12 @@
     font-size: 18px;
   }
 
-  .tn-row:first-child .tn-then-text {
+  .tn-row[data-lead] .tn-then-text {
     font-size: 20px;
     line-height: 1.3;
   }
 
-  .tn-row:first-child .tn-now-body {
+  .tn-row[data-lead] .tn-now-body {
     font-size: 20px;
   }
 
@@ -1123,6 +1291,20 @@
 
   .tn-fig-less {
     font-size: 13cqw;
+  }
+
+  .tn-fig-weight {
+    gap: 3cqw;
+    padding: 0 6cqw;
+  }
+
+  .tn-w {
+    grid-template-columns: 26cqw minmax(0, 1fr);
+    row-gap: 1.5cqw;
+  }
+
+  .tn-w-nums {
+    font-size: 7cqw;
   }
 
   .tn-caption {

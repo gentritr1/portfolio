@@ -1,11 +1,11 @@
 {
   "id": "two-readers",
   "title": "TWO READERS",
-  "band": "Loop 8",
+  "band": "Loop 9",
   "rule": "one set of facts, two readers: a switch rewrites every line for a hiring manager or for an engineer",
-  "description": "Eight pieces of work in a log beside one fixed frame. It opens on a shipped product: the Bayyinah TV home page, with the free-trial button ringed for 'Members subscribe on the web, iPhone or Android'. Row 02 is the billing report that asked the database 16 times and gave up, and now asks 2 times and finishes. A switch at the top, 'Same facts for: Hiring manager · Engineer', rewrites every line. The hiring-manager view is the default and fully plain; the engineer view names the stack. The same facts, two audiences.",
-  "signature": "Paper #F3EFE6, ink #1B1A17, muted #5E5A52, one vermilion accent #B8311B (5.2:1 on paper). Newsreader for the plain reader, JetBrains Mono for the engineer: the face change is the signal that the reader changed. The two faces load through the FontFace API; the page waits at most 300 ms, and a face that comes later is kept for the next visit, so text never rewraps in view (local Georgia and Menlo stand in). Desktop: a 560 px log (identity, sticky switch bar, rows) and a 4:5 frame (573 x 716 at 1440 x 900), sticky, with a count and caption under it. Row 01 plate is the public Bayyinah TV home page; row 02 is a vermilion card ('16' struck, 16 ticks, 'Gave up'; '2', 2 ticks, 'Finished'). Read to Feed shows its public store screenshot (36% and 90% read); Incentiv, Viva Fresh, Read to Feed and Dukagjini crops end on whole UI parts and stand on a colour sampled from the screen around the crop. Design System v2 shows ready-made buttons and inputs to the hiring manager and the token card to the engineer. Every line is two versions in one grid cell, so a switch never moves the page (CLS 0). Switch: each visible line fades (120 ms, ease-out), then the other reader's words write in with a clip-path wipe (240 ms, ease-out, from 120 ms), top to bottom with a 30 ms stagger; off-screen lines swap at once. The hairline hides at the switch and draws again (180 ms) from the new last word. Rows become current at 42% of the viewport after 160 ms; the plate cross-fades in 200 ms; the line never follows the scroll. Keyboard: arrow keys in the log jump with no travel; the switch is a radio group, and a key switch swaps the words at once. The reader is kept in the URL (?read=engineer). Phone: each row carries its own 4:3 plate with the same ring; the switch bar sticks at the top with its rule inset to the 24 px gutter. Reduced motion: words swap at once, the line appears, nothing plays.",
-  "caseSlug": "care-platform",
+  "description": "Seven pieces of work in a log beside one fixed frame, then the own projects. It opens on a shipped product: the Read to Feed store screenshot (My Books, 36% and 90% read), with 'Read 36%' ringed for 'It remembers the page in every book.' Row 02 is the billing report that asked the database 16 times and gave up, and now asks 2 times and finishes. A vermilion panel above the switch shows the trick before any click: 'Every line on this page is written twice: in plain words, or with the tools named', with one real pair ('built once for iPhone and Android' = 'one React Native codebase'). The switch, 'Same facts for: Hiring manager · Engineer', rewrites every line, the own-projects band included. Own projects: Offday (light team calendar), OFFBEAT and FORM (concepts, GitHub links).",
+  "signature": "Paper #F3EFE6, ink #1B1A17, muted #5E5A52, one vermilion accent #B8311B (5.2:1 on paper). Newsreader for the plain reader, JetBrains Mono for the engineer: the face change is the signal that the reader changed. The two faces load through the FontFace API; the page waits at most 300 ms, and a face that comes later is kept for the next visit, so text never rewraps in view (local Georgia and Menlo stand in). Desktop: a 560 px log (identity, sticky switch bar, rows) and a 4:5 frame (573 x 716 at 1440 x 900), sticky, with a count and caption under it. Row 01 plate is the public Read to Feed store screenshot (crop 704 x 880 source px at 0.81, never upscaled); row 02 is a vermilion card ('16' struck, 16 ticks, 'Gave up'; '2', 2 ticks, 'Finished'). Incentiv and Viva Fresh crops end on whole UI parts and stand on a colour sampled from the screen around the crop. Design System v2 shows ready-made buttons and inputs to the hiring manager and the token card to the engineer. Every line is two versions in one grid cell, so a switch never moves the page (CLS 0). Switch: each visible line fades (120 ms, ease-out), then the other reader's words write in with a clip-path wipe (240 ms, ease-out, from 120 ms), top to bottom with a 30 ms stagger; off-screen lines swap at once. The hairline hides at the switch and draws again (180 ms) from the new last word. Rows become current at 42% of the viewport after 160 ms; the plate cross-fades in 200 ms; the line never follows the scroll. Keyboard: arrow keys in the log jump with no travel; the switch is a radio group, and a key switch swaps the words at once. The reader is kept in the URL (?read=engineer). The hook panel and the switch bar are one vermilion block: the top part (the two-reader sample) scrolls away, the bar sticks. The last row keeps the sticky frame whole (column bottom padding). Own projects: percentage crops with a fixed aspect ratio, lazy, CLS 0; Offday 2880 x 1410 source crop, OFFBEAT and FORM 1440 x 836, phone crops from the phone screenshots. Phone: each row carries its own 4:3 plate with the same ring; the bar hides its label below 1280 px so both buttons stay on one row. Reduced motion: words swap at once, the line appears, nothing plays.",
+  "caseSlug": "read-to-feed",
   "mechanisms": [
     "S2",
     "S5"
@@ -21,17 +21,17 @@
     "original": 7,
     "hooks": 8
   },
-  "holdback": "Lowest: original, 7/10. The switch that rewrites every line is new, but the page around it is projector's log beside a sticky frame, a known scrollytelling layout. Other limits: the hook is still behind a click, so a recruiter who never presses 'Engineer' sees a calm plain page; the engineer h1 keeps the height of the longer plain h1 (about 27 px of extra space); at 1440 the Incentiv and Dukagjini plates show 100 to 160 px of their own card or app colour above and below the crop, because their content is wider than a 4:5 frame and is never upscaled; the Bayyinah TV ring (the free-trial button) proves 'members subscribe on the web', not the iPhone and Android part; in the dev server a dev-only module evaluation (360 to 470 ms) can hold the first reveal past 300 ms, while the production build reveals in 246 to 277 ms with fonts 2.5 s late.",
+  "holdback": "Lowest: original, 7/10. The visible two-reader sample and the switch are new, but the page around them is a log beside a sticky frame, a known scrollytelling layout. Other limits: the vermilion hook panel is the loudest block on the first screen and repeats the accent of the 16 -> 2 plate; at 1024 x 768 the row 01 result and its line fall below the fold (the plate shows); the engineer h1 keeps the height of the longer plain h1 (about 27 px of extra space); the Incentiv plate shows 100 to 160 px of its own card colour above and below the crop at 1440; Offday has no public link, so its row has none.",
   "chroma": {
-    "firstScreen": 1.8,
-    "outsidePlates": 0.8,
+    "firstScreen": 30.4,
+    "outsidePlates": 13.0,
     "plateRect": [
       762,
       64,
       1334,
       780
     ],
-    "method": "scratchpad/chroma6r.mjs logic (review/loop8b/two-readers/chroma-tr.mjs) on review/loop8b/two-readers/final/d-top.png (1440 x 900), captured last. The first plate is now the dark Bayyinah TV page, not the vermilion card."
+    "method": "scratchpad/chroma6r.mjs logic (review/loop9/two-readers/chroma-tr.mjs) on review/loop9/two-readers/final/d-top.png (1440 x 900), captured last. Round 8b: 1.8% / 0.8%. Engineer view: 30.6% / 13.2%."
   },
   "polish": [
     {
@@ -53,6 +53,21 @@
         "Email and footer links are at least 48 x 44 px; no target under 44 px outside inert plates at 375, 390, 540, 1024, 1280, 1440",
         "Fonts: FontFace API with a 300 ms cap, late faces kept for the next visit; CLS 0 with fonts 2.5 s late (was 0.0012)",
         "text-wrap: balance on problem and result lines (no one-word orphans)"
+      ]
+    },
+    {
+      "round": 9,
+      "score": 56,
+      "fixed": [
+        "Own lead: opens on Read to Feed (public store screenshot, 'Read 36%' ringed, 'It remembers the page in every book', 'About 14 updates shipped'); Bayyinah TV moves to row 05 (owner round 9)",
+        "Hook visible without a click: a vermilion panel says 'Every line on this page is written twice: in plain words, or with the tools named' and shows one real pair in both faces; the switch sits in the same block (critic 4, round-9 task)",
+        "First-screen colour: 1.8% -> 30.4% chromatic (13.0% outside the plate)",
+        "Own projects band in both reader views: Offday (light calendar, no dark screen), OFFBEAT and FORM marked 'Concept', one plain line each, GitHub links for OFFBEAT and FORM (44 px targets)",
+        "Seven rows plus three own projects = 10 projects (research rule 20); Dukagjini dropped",
+        "Last row: the sticky frame no longer slides up out of view (was cut by about 100 px at 1440 in rows 07/08)",
+        "Hairline hides when its proof ring is off screen (it ran up to the top edge after a scroll on the last row)",
+        "1024 and phone: switch label hidden below 1280 px, sample stacked, both buttons on one row (no wrapped 'Hiring manager')",
+        "Crops on whole UI parts: Read to Feed phone crop ends between cards; Offday crop ends on the calendar row line and James Wilson's buttons"
       ]
     }
   ]

@@ -6,6 +6,11 @@ export interface Box {
   h: number;
 }
 
+/** A crop can carry its own mark when it shows only part of the proof. */
+export interface Crop extends Box {
+  mark?: Box;
+}
+
 export interface Shot {
   src: string;
   alt: string;
@@ -16,9 +21,11 @@ export interface Shot {
    * The tile uses the narrowest crop that is at least as wide as the tile, so
    * an image is never drawn larger than its source pixels.
    */
-  crops: Box[];
+  crops: Crop[];
   /** The part that proves the caption. */
   mark: Box;
+  /** Source pixels for each CSS pixel. A 2x capture shows at half its source size. */
+  density?: number;
 }
 
 export type Media =
@@ -33,8 +40,6 @@ export interface Tile {
   caption: string;
   /** The words of the caption that the ring proves. They carry the same mark. */
   proof: string;
-  /** The lead tile only: one plain line on the size of the work. */
-  scope?: string;
   /** Role and scope, in plain words. */
   role: string;
   year: string;
@@ -45,16 +50,15 @@ export interface Tile {
   ground: string;
   dark?: boolean;
   recreation?: boolean;
-  link: { href: string; label: string; external?: boolean };
+  link?: { href: string; label: string; external?: boolean };
 }
 
-export const tiles: Tile[] = [
+export const work: Tile[] = [
   {
     id: "bayyinah-tv",
     project: "Bayyinah TV",
-    caption: "Members subscribe on the web, iPhone or Android.",
-    proof: "subscribe",
-    scope: "The second version is a new app: 34 pages, in English and Arabic.",
+    caption: "Members subscribe for $11 a month, on the web or in the apps.",
+    proof: "$11 a month",
     role: "Frontend, core team",
     year: "2023–26",
     media: {
@@ -66,7 +70,6 @@ export const tiles: Tile[] = [
         height: 900,
         crops: [
           { x: 960, y: 102, w: 440, h: 275 },
-          { x: 408, y: 96, w: 1000, h: 625 },
         ],
         mark: { x: 1112, y: 196, w: 140, h: 78 },
       },
@@ -87,28 +90,6 @@ export const tiles: Tile[] = [
     hue: 33,
     ground: "#ff5a36",
     link: { href: "/work/care-platform", label: "Open the case" },
-  },
-  {
-    id: "viva-fresh",
-    project: "Viva Fresh",
-    caption: "Shoppers fill a cart and pay, in Albanian.",
-    proof: "pay, in Albanian",
-    role: "Mobile",
-    year: "2023",
-    media: {
-      kind: "shot",
-      shot: {
-        src: "/mobile/grocery-3.webp",
-        alt: "Viva Fresh cart on iPhone: a product row, the total discount and the Albanian checkout button, VAZHDO ME PAGESEN, 25.11 €",
-        width: 780,
-        height: 1689,
-        crops: [{ x: 94, y: 1095, w: 592, h: 370 }],
-        mark: { x: 103, y: 1387, w: 575, h: 73 },
-      },
-    },
-    hue: 23,
-    ground: "#e3b9b4",
-    link: { href: "/work/viva-fresh", label: "Open the case" },
   },
   {
     id: "care",
@@ -239,6 +220,210 @@ export const tiles: Tile[] = [
     link: { href: "https://bayyinah.org/", label: "bayyinah.org", external: true },
   },
 ];
+
+const offdayAlt = "Offday, light theme, a screenshot of the app with demo data";
+
+/** Own projects. OFFBEAT and FORM are concepts: no real brand or client. */
+export const own: Tile[] = [
+  {
+    id: "offday-approvals",
+    project: "Offday",
+    caption: "Managers approve time off and see who needs cover.",
+    proof: "approve",
+    role: "Owner",
+    year: "2026",
+    media: {
+      kind: "shot",
+      shot: {
+        src: "/personal/shots/offday-light-calendar-desktop.webp",
+        alt: `${offdayAlt}: the Needs your attention list beside the team calendar, with Needs cover, Approve and Decline on each request`,
+        width: 2880,
+        height: 1800,
+        density: 2,
+        crops: [
+          { x: 2241, y: 756, w: 639, h: 399 },
+          { x: 1503, y: 706, w: 1325, h: 828 },
+        ],
+        mark: { x: 2320, y: 998, w: 446, h: 83 },
+      },
+    },
+    hue: 168,
+    ground: "#f7f5f3",
+  },
+  {
+    id: "offday-shifts",
+    project: "Offday",
+    caption: "A shift is flagged when its person is on leave.",
+    proof: "flagged",
+    role: "Owner",
+    year: "2026",
+    media: {
+      kind: "shot",
+      shot: {
+        src: "/personal/shots/offday-light-shifts-desktop.webp",
+        alt: `${offdayAlt}: the Shifts week grid, where Olivia Chen's Monday evening shift is marked Needs cover because she is on vacation`,
+        width: 2880,
+        height: 1800,
+        density: 2,
+        crops: [
+          { x: 547, y: 727, w: 778, h: 487 },
+          { x: 547, y: 507, w: 1584, h: 991 },
+        ],
+        mark: { x: 991, y: 874, w: 317, h: 94 },
+      },
+    },
+    hue: 247,
+    ground: "#ffffff",
+  },
+  {
+    id: "offday-best-dates",
+    project: "Offday",
+    caption: "It finds the longest breaks around public holidays.",
+    proof: "longest breaks",
+    role: "Owner",
+    year: "2026",
+    media: {
+      kind: "shot",
+      shot: {
+        src: "/personal/shots/offday-light-best-dates-desktop.webp",
+        alt: `${offdayAlt}: Find the best dates, which turns 3 days of leave into 6 days off around Veterans Day, Thanksgiving and Christmas`,
+        width: 2880,
+        height: 1800,
+        density: 2,
+        crops: [
+          { x: 1017, y: 922, w: 848, h: 530 },
+          { x: 806, y: 771, w: 1321, h: 825 },
+        ],
+        mark: { x: 1032, y: 1030, w: 818, h: 86 },
+      },
+    },
+    hue: 161,
+    ground: "#f6f4f4",
+  },
+  {
+    id: "offday-drag",
+    project: "Offday",
+    caption: "Drag across the calendar to pick the days off.",
+    proof: "Drag across the calendar",
+    role: "Owner",
+    year: "2026",
+    media: {
+      kind: "shot",
+      shot: {
+        src: "/personal/shots/offday-light-drag-select-desktop.webp",
+        alt: `${offdayAlt}: the November calendar with four days, the 17th to the 20th, selected by a drag, and Veterans Day and Thanksgiving marked`,
+        width: 2880,
+        height: 1800,
+        density: 2,
+        crops: [
+          { x: 776, y: 1008, w: 968, h: 605 },
+          { x: 756, y: 890, w: 1456, h: 910 },
+        ],
+        mark: { x: 776, y: 1179, w: 968, h: 222 },
+      },
+    },
+    hue: 5,
+    ground: "#ffffff",
+  },
+  {
+    id: "offbeat",
+    project: "OFFBEAT, a speaker brand concept",
+    caption: "Its drum machine really plays, in the browser.",
+    proof: "drum machine really plays",
+    role: "Owner",
+    year: "2026",
+    media: {
+      kind: "shot",
+      shot: {
+        src: "/personal/shots/offbeat-studio-desktop.webp",
+        alt: "OFFBEAT sound studio, a concept: an eight-step drum machine with kick, snare, hi-hat and bass rows and three groove presets",
+        width: 1440,
+        height: 900,
+        crops: [
+          { x: 618, y: 465, w: 400, h: 250, mark: { x: 692, y: 488, w: 320, h: 212 } },
+          { x: 600, y: 303, w: 760, h: 475 },
+        ],
+        mark: { x: 698, y: 490, w: 644, h: 210 },
+      },
+    },
+    hue: 113,
+    ground: "#121210",
+    dark: true,
+    link: { href: "https://github.com/gentritr1/offbeat", label: "GitHub", external: true },
+  },
+  {
+    id: "form",
+    project: "FORM, a sculpture show concept",
+    caption: "Each sculpture is drawn live from its formula.",
+    proof: "drawn live from its formula",
+    role: "Owner",
+    year: "2026",
+    media: {
+      kind: "shot",
+      shot: {
+        src: "/personal/shots/form-studio-desktop.webp",
+        alt: "FORM collection, a concept: the copper Trefoil sculpture with its formula, p(t) = ((2 + cos 3t) cos 2t, (2 + cos 3t) sin 2t, sin 3t)",
+        width: 1440,
+        height: 900,
+        crops: [
+          { x: 44, y: 470, w: 520, h: 325 },
+          { x: 44, y: 345, w: 720, h: 450 },
+        ],
+        mark: { x: 50, y: 769, w: 512, h: 20 },
+      },
+    },
+    hue: 50,
+    ground: "#1c1a18",
+    dark: true,
+    link: { href: "https://github.com/gentritr1/form", label: "GitHub", external: true },
+  },
+];
+
+export interface Platform {
+  id: "iphone" | "android";
+  label: string;
+  store: string;
+  href: string;
+  src: string;
+  alt: string;
+  width: number;
+  height: number;
+  /** The screen inside the store frame, cut on whole rows. Both crops share one ratio, so the rows line up. */
+  crop: Box;
+}
+
+/** The lead: one Viva Fresh screen, from each store listing. */
+export const lead = {
+  project: "Viva Fresh",
+  role: "Mobile",
+  year: "2023",
+  scope: "Shoppers fill a cart, pick a delivery slot and pay, in Albanian.",
+  case: "/work/viva-fresh",
+  platforms: [
+    {
+      id: "iphone",
+      label: "iPhone",
+      store: "App Store",
+      href: "https://apps.apple.com/us/app/viva-fresh/id1580739480",
+      src: "/mobile/grocery-1.webp",
+      alt: "Viva Fresh home on iPhone, from the App Store listing: product categories and the latest products, in Albanian",
+      width: 780,
+      height: 1689,
+      crop: { x: 92, y: 374, w: 596, h: 866 },
+    },
+    {
+      id: "android",
+      label: "Android",
+      store: "Google Play",
+      href: "https://play.google.com/store/apps/details?id=com.zs.vivafresh",
+      src: "/mobile/grocery-4.webp",
+      alt: "Viva Fresh home on Android, from the Google Play listing: the same categories and products, in Albanian",
+      width: 780,
+      height: 1387,
+      crop: { x: 138, y: 370, w: 498, h: 724 },
+    },
+  ] satisfies Platform[],
+};
 
 export interface IndexRow {
   name: string;

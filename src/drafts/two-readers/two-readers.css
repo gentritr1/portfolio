@@ -106,11 +106,11 @@
   }
 }
 
-:where(.tr) :is(p, h1, h2, figure) {
+:where(.tr) :is(p, h1, h2, h3, figure) {
   margin: 0;
 }
 
-.tr :is(h1, h2) {
+.tr :is(h1, h2, h3) {
   font-family: inherit;
   color: inherit;
 }
@@ -188,8 +188,10 @@
   padding: 0 var(--tr-pad);
 }
 
+/* The last row reaches the reading line while the sticky frame still fits above the column's end. */
 .tr-col {
   padding-top: var(--tr-top);
+  padding-bottom: max(0px, calc(var(--tr-top) + var(--tr-fh) + var(--tr-cap) - 42dvh - 320px));
   min-width: 0;
 }
 
@@ -235,16 +237,63 @@
   font-weight: 600;
 }
 
-/* ---------- The switch ---------- */
+/* ---------- The switch: one vermilion panel; its top part scrolls away, the bar stays ---------- */
+
+.tr-hook {
+  margin-top: 24px;
+  padding: 24px 24px 8px;
+  border-radius: 12px 12px 0 0;
+  background: var(--tr-accent);
+  color: var(--tr-sheet);
+}
+
+.tr-hook-lead {
+  font-size: 19px;
+  line-height: 1.35;
+  font-weight: 600;
+  text-wrap: balance;
+}
+
+.tr-hook-eg {
+  display: grid;
+  gap: 4px;
+  margin: 12px 0 0;
+}
+
+.tr-hook-eg > div {
+  display: grid;
+  grid-template-columns: 168px minmax(0, 1fr);
+  align-items: baseline;
+  column-gap: 12px;
+}
+
+.tr-hook-eg dt {
+  font-size: 14px;
+  line-height: 1.5;
+  color: rgb(251 249 244 / 0.86);
+}
+
+.tr-hook-eg dd {
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.45;
+}
+
+.tr-hook-eg [data-v="engineer"] dd {
+  font-family: var(--tr-mono);
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
 
 .tr-switch-bar {
   position: sticky;
   top: 0;
   z-index: 5;
-  margin-top: 24px;
-  padding: 12px 0;
-  background: var(--tr-paper);
-  box-shadow: 0 1px 0 var(--tr-rule);
+  padding: 12px 24px 16px;
+  border-radius: 0 0 12px 12px;
+  background: var(--tr-accent);
+  color: var(--tr-sheet);
 }
 
 .tr-switch {
@@ -255,7 +304,6 @@
 
 .tr-switch-label {
   font-size: 16px;
-  color: var(--tr-ink);
 }
 
 .tr-switch button {
@@ -263,10 +311,10 @@
   min-height: 44px;
   margin: 0 0 0 -8px;
   padding: 0 16px;
-  border: 1px solid var(--tr-ink);
+  border: 1px solid var(--tr-sheet);
   border-radius: 999px;
   background: transparent;
-  color: var(--tr-ink);
+  color: var(--tr-sheet);
   font-family: var(--tr-serif);
   font-size: 17px;
   font-weight: 600;
@@ -275,7 +323,6 @@
   transition:
     background-color 160ms var(--tr-ease-out),
     color 160ms var(--tr-ease-out),
-    border-color 160ms var(--tr-ease-out),
     transform 120ms var(--tr-ease-out);
 }
 
@@ -291,14 +338,17 @@
 
 .tr-switch button[aria-checked="true"] {
   z-index: 1;
-  border-color: var(--tr-accent);
-  background: var(--tr-accent);
-  color: var(--tr-sheet);
+  background: var(--tr-sheet);
+  color: var(--tr-accent);
+}
+
+.tr .tr-switch button:focus-visible {
+  outline-color: var(--tr-sheet);
 }
 
 @media (hover: hover) and (pointer: fine) {
   .tr-switch button[aria-checked="false"]:hover {
-    background: rgb(27 26 23 / 0.06);
+    background: rgb(251 249 244 / 0.14);
   }
 }
 
@@ -804,10 +854,125 @@
   stroke: var(--tr-accent);
 }
 
+/* ---------- Own projects ---------- */
+
+.tr-own {
+  padding: 48px var(--tr-pad) 0;
+}
+
+.tr-own-in {
+  max-width: calc(560px + var(--tr-gap) + var(--tr-fw));
+  margin: 0 auto;
+}
+
+.tr-own-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--tr-fw);
+  column-gap: var(--tr-gap);
+  align-items: baseline;
+  padding-top: 48px;
+  border-top: 1px solid var(--tr-ink);
+}
+
+.tr-own-head h2 {
+  font-size: 36px;
+  line-height: 1.16;
+  font-weight: 500;
+  letter-spacing: -0.012em;
+}
+
+.tr-own-head p {
+  font-size: 18px;
+  line-height: 1.45;
+  color: var(--tr-muted);
+}
+
+.tr-own-head .tr-v[data-v="engineer"] {
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.tr-own-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 64px 24px;
+  margin: 48px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tr-own-item:first-child {
+  grid-column: 1 / -1;
+}
+
+.tr-own-shot {
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 0 0 1px var(--tr-ink);
+  isolation: isolate;
+}
+
+.tr-own-shot img {
+  position: absolute;
+  max-width: none;
+  height: auto;
+}
+
+.tr-own-item figcaption {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  column-gap: 16px;
+  align-items: baseline;
+  margin-top: 16px;
+}
+
+.tr-own-item h3 {
+  margin: 0;
+  font-size: 26px;
+  line-height: 1.2;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.tr-own-kind {
+  font-family: var(--tr-mono);
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--tr-muted);
+}
+
+.tr-own-line,
+.tr-own-link {
+  grid-column: 1 / -1;
+}
+
+.tr-own-line {
+  margin-top: 8px;
+  max-width: 560px;
+  font-size: 20px;
+  line-height: 1.4;
+  text-wrap: pretty;
+}
+
+.tr-own-line .tr-v[data-v="engineer"] {
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.tr-own-link a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-size: 17px;
+  font-weight: 600;
+}
+
 /* ---------- The end ---------- */
 
 .tr-end {
-  padding: 48px var(--tr-pad) 64px;
+  padding: 96px var(--tr-pad) 64px;
 }
 
 .tr-end-in {
@@ -846,6 +1011,27 @@
     --tr-pad: 48px;
     --tr-gap: 64px;
   }
+
+  .tr-hook-eg > div {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .tr-hook-eg dt {
+    font-size: 13px;
+    line-height: 1.4;
+  }
+
+  .tr-hook-eg {
+    gap: 8px;
+  }
+
+  .tr-switch-label {
+    display: none;
+  }
+
+  .tr-switch button {
+    white-space: nowrap;
+  }
 }
 
 /* ---------- Phone and tablet: each row carries its own plate ---------- */
@@ -868,6 +1054,7 @@
 
   .tr-col {
     padding-top: 32px;
+    padding-bottom: 0;
   }
 
   .tr-id h1 {
@@ -889,19 +1076,44 @@
     font-size: 13px;
   }
 
-  .tr-switch-bar {
-    margin: 16px -24px 0;
-    padding: 12px 24px;
-    box-shadow: none;
+  .tr-hook {
+    margin-top: 16px;
+    padding: 16px 16px 4px;
   }
 
-  .tr-switch-bar::after {
-    content: "";
-    position: absolute;
-    right: 24px;
-    bottom: 0;
-    left: 24px;
-    border-bottom: 1px solid var(--tr-rule);
+  .tr-hook-lead {
+    font-size: 17px;
+  }
+
+  .tr-hook-eg {
+    margin-top: 8px;
+    gap: 8px;
+  }
+
+  .tr-hook-eg > div {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .tr-hook-eg dt {
+    font-size: 13px;
+    line-height: 1.4;
+  }
+
+  .tr-hook-eg dd {
+    font-size: 16px;
+    line-height: 1.4;
+  }
+
+  .tr-hook-eg [data-v="engineer"] dd {
+    font-size: 14px;
+  }
+
+  .tr-switch-bar {
+    padding: 8px 16px 12px;
+  }
+
+  .tr-switch-label {
+    display: none;
   }
 
   .tr-switch {
@@ -1085,10 +1297,6 @@
     font-size: clamp(12px, 2.8cqw, 15px);
   }
 
-  .tr-end {
-    padding: 48px 24px;
-  }
-
   .tr-end-in {
     display: block;
     max-width: 672px;
@@ -1106,6 +1314,50 @@
 
   .tr-end-links {
     margin-top: 16px;
+  }
+
+  .tr-own {
+    padding: 64px 24px 0;
+  }
+
+  .tr-own-in {
+    max-width: 672px;
+  }
+
+  .tr-own-head {
+    display: block;
+    padding-top: 32px;
+  }
+
+  .tr-own-head h2 {
+    font-size: 28px;
+  }
+
+  .tr-own-head p {
+    margin-top: 12px;
+    font-size: 17px;
+  }
+
+  .tr-own-list {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 48px;
+    margin-top: 32px;
+  }
+
+  .tr-own-item h3 {
+    font-size: 22px;
+  }
+
+  .tr-own-line {
+    font-size: 18px;
+  }
+
+  .tr-own-line .tr-v[data-v="engineer"] {
+    font-size: 14px;
+  }
+
+  .tr-end {
+    padding: 64px 24px 48px;
   }
 }
 

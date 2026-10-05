@@ -1,0 +1,87 @@
+{
+  "id": "personal-studio",
+  "title": "PERSONAL STUDIO",
+  "band": "Loop 9",
+  "rule": "own products lead, shown like a studio's showcase: each product gets a room in its own colour and a large real screen at native pixels; client work follows as a plain index with one result each",
+  "description": "A home page led by the owner's own products. The first screen opens on Offday, a real multi-tenant time-off app, in a crimson room taken from its brand: the light Shifts week grid at native pixels (2x source, 960 x 600), with a ring on the Needs cover shift. Four feature tabs (Shift cover, Best dates, Time to rest, Assistant) each change the screen to the one that shows that feature and ring the part that proves the line. Below it, OFFBEAT (a made-up speaker brand, built as a concept) in an orange room with its drum machine, speaker and exploded view, then FORM and Snaxx Tech as two large plates with one line and a public link each. Client work follows as a compact index of seven rows (Bayyinah TV, care platform, Read to Feed, Viva Fresh, Incentiv, Dukagjini Bookstore, Design System v2): what it is, one plain result, role and years, and a link to the case page. No Vianova screen or recreation is shown; the two Vianova rows are text only.",
+  "signature": "Bricolage Grotesque 800 for the identity line, product names and index names; Libre Franklin for every other line. Both are preloaded, font-display optional, with Arial fallback faces sized to them (size-adjust and ascent/descent overrides) and a 300 ms text wait, so a late face never moves a line. Palette: paper #F4F1EC, ink #15120F, muted #59534B (6.7:1). Two room grounds come from the products: Offday crimson #8A1236 (cream text 8.8:1, muted 6.4:1) and OFFBEAT orange #FF6136 (ink 6.2:1). Spacing scale 4/8/12/16/24/32/48/64/96; 48 px gutters on desktop, 16 px on phone. Desktop 1440: header row with the name and four 44 px links (Own projects, Client work, CV (PDF), Email); the identity line at 40 px on one line; the sub-line with 5+ years, 'Part of two platform rewrites' and 'Client apps live in both app stores'; then the Offday room (304 px text column, 960 x 600 plate). One motion: when a tab changes, the new screen fades in over the old one (opacity 200 ms, cubic-bezier(0.23, 1, 0.32, 1)) and its ring draws in (opacity 160 ms and scale 1.04 to 1 in 200 ms, after 80 ms). A keyboard change (arrows, Home, End) switches at once. Reduced motion: no transition. The plates are positioned in JavaScript from each crop's centre and width; the scale is never above 1, so no screen is drawn above its own pixels. Phone: rooms are full-bleed bands, the tabs are a 2 x 2 grid above an 8:7 plate, and the current feature line sits under the plate.",
+  "caseSlug": "bayyinah-tv",
+  "mechanisms": [
+    "product rooms",
+    "native-pixel crops",
+    "feature switch with proof ring",
+    "plain client index"
+  ],
+  "slopCount": 0,
+  "rounds": 4,
+  "loopScores": {
+    "straightToThePoint": 8,
+    "notOverwhelming": 8,
+    "harmony": 8,
+    "meaningfulMotion": 8,
+    "actionsAndSeniority": 7,
+    "original": 7,
+    "hooks": 8
+  },
+  "holdback": "Lowest: actions and seniority, 7, and original, 7. The page opens on an own product, so a hiring manager meets shipped client work only in the index, about 2,400 px down on desktop; the sub-line ('Part of two platform rewrites. Client apps live in both app stores.') and the header link carry the level above the fold. Product rooms with large screens are a known studio-showcase pattern; the new part is that each feature tab swaps to the real screen that proves it. Other limits: Offday has no public link in the content, so its room has no link; OFFBEAT and Snaxx Tech screens are 1x captures shown at 0.95 to 1.0, so they are a little soft on a 2x display; at some widths between 1024 and 1200 the OFFBEAT drum crop leaves the screen's own dark margin at the right; the Offday crop at 1440 shows 38 px of the app's paper margin at the left of the grid; the Time to rest crop includes the app's own floating help and chat buttons over the card; if a page face misses first paint, that visit keeps the sized Arial fallback (seen in the headless reduced-motion load, final/d-reduced-top-4s.png; the reduced pair 4 s / 8 s is still 0 px apart).",
+  "chroma": {
+    "firstScreen": 20.9,
+    "outsidePlates": 36.0,
+    "plateRects": [
+      [
+        408,
+        274,
+        1368,
+        874
+      ]
+    ],
+    "method": "scratchpad/chroma6r.mjs decode and threshold (review/loop9/personal-studio/chroma-ps.mjs) on review/loop9/personal-studio/final/d-top.png (1440 x 900), captured last. The Offday plate is the only plate on the first screen; the crimson room counts as page."
+  },
+  "craft": {
+    "spacingScale": [
+      4,
+      8,
+      12,
+      16,
+      24,
+      32,
+      48,
+      64,
+      96
+    ],
+    "cls": "0 at 1440, 1280, 1024, 540, 390 and 375 on load and after a fast scroll; 0 with fonts held 2.5 s at 1440 and 375",
+    "widthsChecked": [
+      1440,
+      1280,
+      1024,
+      540,
+      390,
+      375
+    ],
+    "targets": "every visible link and button is at least 44 x 44 px",
+    "phoneEdge": "16 px"
+  },
+  "evidence": {
+    "dir": "scratchpad/review/loop9/personal-studio/final",
+    "motion": [
+      "d-switch-cover-to-dates-000ms.png",
+      "d-switch-cover-to-dates-060ms.png",
+      "d-switch-cover-to-dates-120ms.png",
+      "d-switch-cover-to-dates-180ms.png",
+      "d-switch-cover-to-dates-240ms.png",
+      "d-switch-drums-to-speaker-100ms.png",
+      "m-switch-cover-to-rest-100ms.png"
+    ],
+    "keyboard": [
+      "d-key-tab6-focus-shift-cover.png",
+      "d-key-down-best-dates-030ms.png",
+      "d-key-down-assistant-030ms.png",
+      "d-key-tab-next-focus.png"
+    ],
+    "reducedPairs": [
+      "d-reduced-top-4s.png / d-reduced-top-8s.png: 0 px",
+      "m-reduced-top-4s.png / m-reduced-top-8s.png: 0 px",
+      "m-reduced-top-4s.png / m-top.png: 0 px"
+    ]
+  }
+}

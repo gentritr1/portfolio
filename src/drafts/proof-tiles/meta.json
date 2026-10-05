@@ -1,66 +1,71 @@
 {
   "id": "proof-tiles",
   "title": "PROOF TILES",
-  "band": "Loop 8",
+  "band": "Loop 9",
   "rule": "every tile is a crop of the part that proves its caption, and its caption is a result",
-  "description": "A lead tile and a grid of 16:10 tiles. Each tile is a crop of a public screen, a recreation, or one plain figure, cut on whole UI parts to the part that proves the line under it. A vermilion ring marks that part, and the words it proves carry a vermilion band. The lead tile is a shipped product: the Bayyinah TV pricing page, 'Members subscribe on the web, iPhone or Android.', with the two strongest other results beside it: one billing report, 16 database requests before and 2 after, and the Viva Fresh Albanian checkout.",
-  "signature": "Archivo (the identity sentence at 28 px, weight 500, the name in it at weight 750; results at 18 px, the lead result at 24 px) and Martian Mono for years, numbers and labels, both as font-display optional faces with a preload and a 300 ms cap. Palette: paper #ECECE8, ink #111111, muted #53534D (6.3:1), one accent, vermilion #FF5A36, used only for proof: the billing figure, the rings, the proof bands. Desktop 1440: 'Gentrit Rashiti builds web and mobile apps. / Each result below is shown on the screen that proves it.', then '5+ years. Part of two platform rewrites. Based in Kosovo, working remotely.', Download CV and Email at the right. First screen: the lead tile, 888 x 555 (a 1000 x 625 source crop drawn at 0.89), with its result, one scope line ('The second version is a new app: 34 pages, in English and Arabic.') and its project line; beside it the 16 -> 2 figure and the Viva Fresh checkout, 432 x 270 each. Then rows of three: care organization switch (recreation), Incentiv passkey, Design System v2 button row (recreation); Read to Feed reading progress, Dukagjini search, bayyinah.org store badges; then the index of 30. Each tile is one link, named by its result, project and 'Case'; it sits under the caption and covers the tile with a pseudo-element, so the picture holds no control and the live recreations are inert. The 'Recreation · invented data' label sits under the plate, never on it. Motion, one state change: when a tile becomes current (mouse hover, keyboard focus, or after a scroll on touch, the tile at the middle of the screen), the page ground takes the screen's measured hue (oklch 0.935 0.035 h, background-color 200 ms, cubic-bezier(0.23, 1, 0.32, 1)), a second vermilion ring closes onto the proof (scale 1.12 -> 1 and opacity, 200 ms), and the proof band fills. Nothing in the picture dims. Keyboard: Tab, then arrows (left and right in reading order, up and down to the nearest tile in the next row), Home and End; a keyboard move changes at once. Reduced motion: no fade, no transition. Phone: one column, max 432 px, 16 px gutters; the lead uses a 440 x 275 crop of the price.",
+  "description": "The lead is Viva Fresh, a shipped grocery app: its home screen from the App Store listing, cut inside the store frame, beside the line 'One grocery app, built once for iPhone and Android.' The two platform words are the control. Press Android and the Google Play screenshot of the same screen wipes in over the iPhone one, row for row, so the visitor sees what changes (the store) and what stays (the app). Beside the lead: the 16 -> 2 billing figure and the Bayyinah TV price. Then rows of 16:10 proof tiles (care, Incentiv, Design System v2, Read to Feed, Dukagjini, bayyinah.org), then 'Own projects': four light Offday screens (approvals, shifts that need cover, best dates, drag to pick days), OFFBEAT's drum machine and FORM's formula, larger, in two columns, with GitHub links. Each tile is a crop of the part that proves its caption, with a vermilion ring on that part.",
+  "signature": "Archivo and Martian Mono (font-display optional, preloaded, 300 ms cap). Paper #ECECE8, ink #111111, muted #53534D, one accent vermilion #FF5A36 for proof only (rings, bands, the pressed platform word, the wipe edge). First screen at 1440: column 1 the Viva Fresh screen (432 x 628, a 596 x 866 iPhone crop or a 498 x 724 Android crop, one ratio, drawn smaller than the source); column 2 'Gentrit Rashiti builds web and mobile apps. Each result here is shown with its proof.', '5+ years. Part of two platform rewrites. Based in Kosovo, working remotely.', Download CV, Email, then at the bottom the lead result with the two platform buttons, the scope line and App Store, Google Play and Case links; column 3 the billing figure and the Bayyinah TV price tile. Motion: the platform wipe (clip-path inset on the new layer plus a 3 px vermilion edge moving by transform, 300 ms, cubic-bezier(0.77, 0, 0.175, 1); a second press during a wipe plays it back from where it is; reduced motion swaps at once), and tile feedback (page ground takes the tile hue 200 ms, a halo closes on the ring, the proof band fills). Phone: who, then the lead result and its switch, then the screen it switches, then the store links.",
   "caseSlug": "care-platform",
   "mechanisms": [
     "proof crop",
     "proof mark rhyme",
     "sampled ground",
-    "closing halo"
+    "closing halo",
+    "one app, two stores wipe"
   ],
   "slopCount": 0,
-  "rounds": 2,
+  "rounds": 3,
   "loopScores": {
     "straightToThePoint": 9,
     "notOverwhelming": 8,
     "harmony": 8,
-    "meaningfulMotion": 7,
+    "meaningfulMotion": 8,
     "actionsAndSeniority": 8,
     "original": 7,
-    "hooks": 7
+    "hooks": 8
   },
-  "holdback": "Lowest: meaningful motion, original and hooks, 7 each. The only motion is feedback when a tile becomes current (ground tint, closing halo, band fill); it explains which proof belongs to which words but nothing changes state. A lead tile beside a grid is still a familiar portfolio layout; the proof rule (ring plus band) is the new part, and there is no single moment to remember. Other limits: the Bayyinah TV ring proves 'subscribe' on the web only, not iPhone or Android; the design-system ring proves 'building blocks', not 36 or 20 releases; the Read to Feed crop shows the light-blue edge of the store frame at both sides (the only 16:10 cut that holds two whole book cards); the phone crop of the lead ends inside the first feature row under its check mark (no text is cut); the lead's project line sits about 40 px under its scope line so that it aligns with the Viva Fresh line; on a cold load where a face misses the 300 ms cap, the page keeps the system fallback for that visit (seen once in a headless run under load: Martian Mono fell back).",
+  "holdback": "Lowest: original, 7. Below the lead, the page is still a grid of 16:10 tiles, a layout recruiters know; the new parts are the proof ring on every crop and the platform switch inside the lead sentence. A before/after wipe is a known device; here it compares the same screen from two store listings, which is the claim itself. Other limits: the Viva Fresh crops come from store frames at about 1.6x and are drawn at 0.72 (iPhone) and 0.87 (Android) at 1440, so they are sharp but not phone-size; the Offday approvals phone crop is 639 source px for a 343 px tile (2x source, so 1.86 device px per CSS px, 7% under the 2x line); the FORM crop cuts the top of the sculpture so that the formula line stays whole, and on phone the formula is about 8 px; the best-dates crop shows the blurred page at both sides of the dialog; the 1440 lead column has a 118 px gap between the actions and the lead line, kept so that the lead line ends level with the screen; the phone page is about 10,700 px long (15 tiles and the index of 30); headless capture does not advance animation time, so the interrupt is shown by a log from the real browser pane.",
   "chroma": {
-    "firstScreen": 11.7,
-    "outsidePlates": 0.3,
-    "outsideScreenPlates": 15.4,
+    "firstScreen": 11.0,
+    "outsidePlates": 1.1,
     "plateRects": [
       [
         48,
-        188,
-        936,
-        743
+        32,
+        480,
+        660
       ],
       [
         960,
-        188,
+        32,
         1392,
-        458
+        302
       ],
       [
         960,
-        548,
+        392,
         1392,
-        818
+        662
       ]
     ],
-    "method": "scratchpad/chroma6r.mjs decode and threshold (review/loop8/proof-tiles/chroma-pt.mjs) on review/loop8b/proof-tiles/final/d-top.png (1440 x 900), captured last. outsidePlates counts the billing figure as a plate; outsideScreenPlates counts it as page."
+    "method": "chroma-pt.mjs (same decode and threshold as scratchpad/chroma6r.mjs) on review/loop9/proof-tiles/final/d-top.png (1440 x 900), captured last. outsidePlates counts the billing figure as a plate; with the figure counted as page it is 12.4%."
   },
   "hues": {
-    "method": "OKLCH hue histogram, chroma-weighted, 1 degree bins smoothed over 13 degrees, over each crop in source pixels (review/loop8/proof-tiles/hue.mjs); live tiles use their world accent",
+    "method": "OKLCH hue histogram, chroma-weighted, 1 degree bins smoothed over 13 degrees, over each desktop crop in source pixels (review/loop8/proof-tiles/hue.mjs); live tiles use their world accent",
     "billing": 33,
     "bayyinah-tv": 32,
-    "viva-fresh": 23,
     "care": 185,
     "incentiv": 40,
     "design-system": 253,
     "read-to-feed": 235,
     "dukagjini": 18,
-    "bayyinah-org": 59
+    "bayyinah-org": 59,
+    "offday-approvals": 168,
+    "offday-shifts": 247,
+    "offday-best-dates": 161,
+    "offday-drag": 5,
+    "offbeat": 113,
+    "form": 50
   },
   "polish": [
     {
@@ -81,6 +86,23 @@
         "Email link 44 x 44 (was 39 x 44).",
         "Touch: the ground changes only after the first scroll (was pink on load), from a scroll listener with requestAnimationFrame (was IntersectionObserver, about 0.6 s late).",
         "Arrow keys move by geometry, so up and down work with the lead tile at every width."
+      ]
+    },
+    {
+      "round": 9,
+      "score": 56,
+      "fixed": [
+        "Own lead: the page opens on Viva Fresh (store screenshots, one screen at a time), not on the Bayyinah TV pricing page.",
+        "One memorable moment (critic point 7, builder holdback 'no moment'): the words iPhone and Android in the lead sentence are the switch; the same screen from the other store listing wipes in row for row, with a vermilion edge; interruptible (a second press plays the wipe back), keyboard reachable, instant under reduced motion. Frames d-wipe-to-android-100ms/200ms, d-key-enter-android-120ms, m-wipe-100ms/200ms, d-reduced-android-020ms; log interrupt-real-browser.txt.",
+        "Own projects section with plain label and intro: four light Offday screens (approvals, shifts that need cover, best dates, drag to pick days), OFFBEAT drum machine and FORM formula as 'concept', each with a ring on the proving part, large (660 px, two columns at 1440), GitHub links; no dark Offday screen.",
+        "Header block removed: name, line and actions sit beside the lead screen, so the work is the first thing in view (devil radical alternative, giant-name slop).",
+        "First screen names three projects only (Viva Fresh, the billing report, Bayyinah TV); the other tiles start under the fold (critic calm item, research rule 2).",
+        "Bayyinah TV ring and result now match: 'Members subscribe for $11 a month, on the web or in the apps.' with the ring on the price (devil: ring proved web only).",
+        "Identity line true for every tile: 'Each result here is shown with its proof.' (the billing figure is not a screen).",
+        "Focus on phone: tile links keep 96 px scroll margin, so a focused link never ends flush at the screen edge (critic craft note).",
+        "Meta lines never start with an orphan '· 2026' (role and year kept together).",
+        "Crops: Android crop tightened to exclude the phone frame corner and the scroll bar; 2x captures use a density field so they show at native CSS size.",
+        "1200 to 1399 px: smaller name and lead line so the lead words do not touch the actions."
       ]
     }
   ]
