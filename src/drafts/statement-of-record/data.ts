@@ -11,13 +11,15 @@ export type Plate =
       /** Image size, then the crop box of the app screen inside the store image, in image pixels. */
       image: [number, number];
       crop: [number, number, number, number];
+      /** The result that fills the column beside the store image. */
+      figure: string;
+      unit: string;
     }
   | { kind: "number"; was: string; now: string; unit: string; caption: string };
 
 export type EntryLink =
   | { kind: "case"; slug: string }
-  | { kind: "site"; href: string; label: string }
-  | { kind: "entry"; id: string; label: string };
+  | { kind: "site"; href: string; label: string };
 
 export interface Entry {
   id: string;
@@ -32,12 +34,12 @@ export interface Entry {
   mark?: string;
   plate?: Plate;
   link?: EntryLink;
-  /** Short outcome for the closing record. */
+  /** Short outcome for the closing record. An entry with no plate lives only in the record. */
   result: string;
 }
 
 export const clauses = [
-  { text: "a multi-tenant care platform", stop: ",", cites: "0010", row: 0 },
+  { text: "a multi\u2011tenant care platform", stop: ",", cites: "0010", row: 0 },
   { text: "from the design system", stop: "", cites: "0008", row: 1 },
   { text: "to the API behind it", stop: ",", cites: "0009", row: 1 },
   { text: "and mobile apps in both stores", stop: ".", cites: "0002", row: 2 },
@@ -169,8 +171,7 @@ export const entries: Entry[] = [
     role: "Frontend",
     years: "2023–26",
     head: "The care platform’s features run on Vue (Nuxt 2), in English, German, Spanish and Turkish.",
-    link: { kind: "entry", id: "0010", label: "Superseded by 0010" },
-    result: "4 languages",
+    result: "4 languages, superseded by 0010",
   },
   {
     id: "0003",
@@ -178,17 +179,8 @@ export const entries: Entry[] = [
     slug: "bayyinah-tv",
     role: "Frontend, core team",
     years: "2023–26",
-    head: "Bayyinah TV runs in English and Arabic,",
-    edit: {
-      was: "and Arabic reads right to left.",
-      now: "with a full right-to-left layout.",
-    },
-    link: {
-      kind: "site",
-      href: "https://bayyinahtv.com/",
-      label: "bayyinahtv.com",
-    },
-    result: "English and Arabic, RTL",
+    head: "Bayyinah TV runs in English and Arabic, with a full right-to-left layout.",
+    result: "English and Arabic, full RTL",
   },
   {
     id: "0002",
@@ -205,6 +197,8 @@ export const entries: Entry[] = [
       caption: "App Store listing, home screen",
       image: [780, 1689],
       crop: [88, 352, 605, 890],
+      figure: "iOS and Android",
+      unit: "One React Native codebase",
     },
     link: { kind: "case", slug: "viva-fresh" },
     result: "iOS and Android",
@@ -215,16 +209,14 @@ export const entries: Entry[] = [
     slug: "chatbot-runtime",
     role: "Mobile",
     years: "2022–25",
-    head: "A scripted chat conversation",
-    edit: {
-      was: "can stall or repeat a message.",
-      now: "has stall and duplicate guards on one message queue.",
-    },
-    result: "2 guards",
+    head: "A scripted chat conversation has stall and duplicate guards on one message queue.",
+    result: "Stall, duplicate guards",
   },
 ];
 
-export const constraintCount = entries.filter((entry) => entry.edit).length;
+export const cards = entries.filter((entry) => entry.plate);
+
+export const constraintCount = cards.filter((entry) => entry.edit).length;
 
 export const moreCount =
   projects.length - new Set(entries.map((entry) => entry.slug)).size;

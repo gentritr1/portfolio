@@ -7,15 +7,22 @@ import {
   useState,
   useSyncExternalStore,
   type CSSProperties,
-  type RefObject,
 } from "react";
 import { links } from "../../content/links";
 import { recreations } from "../../lib/recreations";
+import { coreName, semantic } from "../../worlds/design-system/tokens";
 import "./token-source.css";
 
 const EASE_OUT = "cubic-bezier(0.23, 1, 0.32, 1)";
+const EASE_MOVE = "cubic-bezier(0.77, 0, 0.175, 1)";
+const ARRIVE_MS = 280;
 const DRAW_MS = 180;
 const RING_MS = 120;
+/* The specimen board's padding inside the plate, set in token-source.css. */
+const PLATE_PAD = 12;
+/* Room under the pinned plate for its recreation label; token-source.css uses the same 30 px. */
+const LABEL_SPACE = 30;
+const RECREATION = "Recreation · invented data";
 
 type Theme = "light" | "dark";
 
@@ -45,6 +52,11 @@ const TOKEN_VARS: [string, string][] = [
   ["--ts-soft-ink", "--action-soft-text"],
   ["--ts-focus", "--border-focus"],
   ["--ts-band", "--core-cobalt-600"],
+  ["--ts-ground", "--core-stone-0"],
+  ["--ts-plate-ground", "--core-stone-50"],
+  ["--ts-ink", "--core-stone-950"],
+  ["--ts-muted", "--core-stone-600"],
+  ["--ts-line", "--core-stone-200"],
 ];
 
 interface Note {
@@ -62,12 +74,12 @@ const notes: Note[] = [
   {
     id: "tiers",
     figure: "805 tokens",
-    text: "Core, semantic, component. The band above reads a core value and stays when the theme flips. The cards below read roles and follow.",
+    text: "Light or Dark: this page follows. The band reads a core value and stays; the cards read roles and follow.",
     target: {
-      wide: ".dsr-lane-head",
-      narrow: ".dsr-area-tokens .dsr-card-head h3",
+      wide: ".dsr-pipeline",
+      narrow: ".dsr-lane-list > li:nth-child(1) .dsr-core",
     },
-    path: "core → semantic → component",
+    path: "One source → tokens.css · tokens.ts · figma.json",
   },
   {
     id: "roles",
@@ -75,7 +87,7 @@ const notes: Note[] = [
     text: "No component holds a raw colour. Each one reads a role, and the role reads a core value.",
     target: {
       wide: ".dsr-lane-list > li:nth-child(1)",
-      narrow: ".dsr-lane-list > li:nth-child(1)",
+      narrow: ".dsr-lane-list > li:nth-child(1) .dsr-chip-component",
     },
     lane: 0,
   },
@@ -90,11 +102,13 @@ const notes: Note[] = [
     lane: 4,
   },
   {
-    id: "source",
+    id: "releases",
     figure: "20 releases",
-    text: "In about six weeks. One source writes CSS variables, TypeScript modules and a Figma bundle.",
-    target: { wide: ".dsr-pipeline", narrow: ".dsr-pipeline" },
-    path: "tokens.css · tokens.ts · figma.json",
+    text: "In about six weeks. A consumer that imports only the Button loads 96.6% less JavaScript.",
+    target: {
+      wide: '.dsr-alert[data-tone="info"]',
+      narrow: '.dsr-alert[data-tone="info"]',
+    },
   },
 ];
 
@@ -103,10 +117,14 @@ interface Crop {
   alt: string;
   width: number;
   height: number;
-  /** Crop box on the source image: x, y, w, h. A narrow box is used under 640 px. */
+  /** Crop box on the source image: x, y, w, h. The wide box is 2:1; the narrow box (under 1024 px) is 4:3. */
   box: [number, number, number, number];
-  narrowBox?: [number, number, number, number];
+  narrowBox: [number, number, number, number];
+  /** Where the image comes from, shown under the plate. */
+  source: string;
 }
+
+type LiveKey = "care" | "reader";
 
 interface CardData {
   id: string;
@@ -114,11 +132,11 @@ interface CardData {
   role: string;
   name: string;
   result: string;
-  facts?: string;
-  more?: { name: string; years: string }[];
-  plate: { kind: "crop"; crop: Crop } | { kind: "care" };
+  facts: string;
+  plate: { kind: "crop"; crop: Crop } | { kind: "live"; key: LiveKey };
+  /** A store screenshot that replaces a live plate under 640 px. */
+  phoneCrop?: Crop;
   href: string;
-  kind: "phone" | "web";
 }
 
 const cards: CardData[] = [
@@ -128,23 +146,18 @@ const cards: CardData[] = [
     role: "Mobile",
     name: "Read to Feed",
     result: "About 14 releases to both stores, and React Native 0.63 → 0.81.",
-    more: [
-      { name: "Dukagjini Bookstore", years: "2021–22" },
-      { name: "Viva Fresh", years: "2023" },
-    ],
-    plate: {
-      kind: "crop",
-      crop: {
-        src: "/mobile/reading-1.webp",
-        alt: "Read to Feed store screenshot: My Books with reading progress for The Tale of Peter Rabbit and Anne of Green Gables",
-        width: 780,
-        height: 1689,
-        box: [98, 516, 588, 1016],
-        narrowBox: [98, 516, 588, 600],
-      },
+    facts: "PDF and EPUB reader · ISBN barcode scanner · three languages",
+    plate: { kind: "live", key: "reader" },
+    phoneCrop: {
+      src: "/mobile/reading-1.webp",
+      alt: "Read to Feed store screenshot: My Books with reading progress for The Tale of Peter Rabbit",
+      width: 780,
+      height: 1689,
+      box: [98, 516, 588, 600],
+      narrowBox: [98, 516, 588, 600],
+      source: "Public store screenshot",
     },
     href: "/work/read-to-feed",
-    kind: "phone",
   },
   {
     id: "bayyinah-tv",
@@ -162,11 +175,12 @@ const cards: CardData[] = [
         alt: "Bayyinah TV library, Stories tab: filters by prophet and a row of story courses",
         width: 1440,
         height: 900,
-        box: [0, 0, 1440, 900],
+        box: [0, 146, 1440, 720],
+        narrowBox: [50, 146, 960, 720],
+        source: "Public web page",
       },
     },
     href: "/work/bayyinah-tv",
-    kind: "web",
   },
   {
     id: "care-platform",
@@ -177,9 +191,8 @@ const cards: CardData[] = [
       "Moves from Vue to React one route at a time, each after a parity test on both apps.",
     facts:
       "On Design System v2 · four languages · one report from 16 queries to 2",
-    plate: { kind: "care" },
+    plate: { kind: "live", key: "care" },
     href: "/work/care-platform",
-    kind: "web",
   },
 ];
 
@@ -264,15 +277,49 @@ const laneKey = (lanes: Lane[]) => lanes.map((lane) => lane.core).join(" ");
 
 /* ---------- Specimen and passing notes ---------- */
 
+const ROWS = ".dsr-card-head, .dsr-lane-list > li, .dsr-pipeline, .dsr-alert";
+
+/** The inner scroll offset that keeps the target whole, cuts no row at either edge, and sits nearest to the target 12 px under the top. */
+function wholeRowOffset(scroller: HTMLElement, target: HTMLElement) {
+  const box = scroller.getBoundingClientRect();
+  const base = scroller.scrollTop;
+  const h = box.height;
+  const offset = (rect: DOMRect) => rect.top - box.top + base;
+  const t = target.getBoundingClientRect();
+  const want = offset(t) - 12;
+  const rows = [...scroller.querySelectorAll<HTMLElement>(ROWS)].map(
+    (row) => {
+      const rect = row.getBoundingClientRect();
+      return [offset(rect), offset(rect) + rect.height];
+    },
+  );
+  const lo = Math.max(0, Math.ceil(offset(t) + t.height - h + 4));
+  const hi = Math.max(lo, Math.floor(offset(t) - 4));
+  let best = want;
+  let bestScore = Infinity;
+  for (let s = lo; s <= hi; s++) {
+    let cuts = 0;
+    for (const [top, bottom] of rows) {
+      if ((top < s && bottom > s) || (top < s + h && bottom > s + h)) cuts++;
+    }
+    const score = cuts * 10000 + Math.abs(s - want);
+    if (score < bestScore) {
+      bestScore = score;
+      best = s;
+    }
+  }
+  return best;
+}
+
 function Spec({
-  bandRef,
   lanes,
+  theme,
   narrow,
   reduce,
   onTokens,
 }: {
-  bandRef: RefObject<HTMLDivElement | null>;
   lanes: Lane[];
+  theme: Theme;
   narrow: boolean;
   reduce: boolean;
   onTokens: (dsr: HTMLElement) => void;
@@ -281,18 +328,17 @@ function Spec({
   const Specimen = specimen.Component;
   const sectionRef = useRef<HTMLElement>(null);
   const plateRef = useRef<HTMLDivElement>(null);
-  const gradientRef = useRef<SVGLinearGradientElement>(null);
   const noteRefs = useRef<(HTMLLIElement | null)[]>([]);
   const markerRefs = useRef<(HTMLSpanElement | null)[]>([]);
   const pathARefs = useRef<(SVGPathElement | null)[]>([]);
   const pathBRefs = useRef<(SVGPathElement | null)[]>([]);
   const ringRefs = useRef<(HTMLSpanElement | null)[]>([]);
-  const hintRef = useRef<HTMLParagraphElement>(null);
   const listRef = useRef<HTMLOListElement>(null);
   const [current, setCurrent] = useState(0);
   const [ready, setReady] = useState(false);
   const currentRef = useRef(0);
   const drawn = useRef(false);
+  const arrival = useRef<Animation | null>(null);
   const mode = useRef<string | null>(null);
 
   /* Watch the specimen: pause its demo once, and report its tokens whenever its theme changes. */
@@ -334,12 +380,6 @@ function Spec({
       frame = 0;
       const s = section.getBoundingClientRect();
       const p = plate.getBoundingClientRect();
-      const band = bandRef.current?.getBoundingClientRect();
-      if (band && gradientRef.current) {
-        const y = Math.round(band.bottom - s.top);
-        gradientRef.current.setAttribute("y1", String(y));
-        gradientRef.current.setAttribute("y2", String(y + 1));
-      }
       const pinY = window.innerHeight * (narrow ? 0.6 : 0.74);
       let next = 0;
       noteRefs.current.forEach((note, index) => {
@@ -350,6 +390,10 @@ function Spec({
         currentRef.current = next;
         setCurrent(next);
       }
+      /* A row that is still arriving is measured at its end position. */
+      const board = plate.querySelector<HTMLElement>(".dsr-board");
+      const moving = board ? getComputedStyle(board).transform : "none";
+      const lift = moving === "none" ? 0 : new DOMMatrixReadOnly(moving).m42;
       const scroller = plate.querySelector<HTMLElement>(".dsr-scroll");
       const end = narrow
         ? plate.querySelector<HTMLElement>(".dsr-lane-list > li:nth-child(1)")
@@ -358,9 +402,10 @@ function Spec({
         const box = scroller.getBoundingClientRect();
         const height = Math.ceil(
           end.getBoundingClientRect().bottom -
+            lift -
             box.top +
             scroller.scrollTop +
-            (narrow ? 4 : 16),
+            (narrow ? 4 : PLATE_PAD),
         );
         if (Math.abs(plate.offsetHeight - height) > 1) {
           plate.style.height = `${height}px`;
@@ -369,31 +414,33 @@ function Spec({
       }
       const list = listRef.current;
       const last = noteRefs.current[notes.length - 1];
-      if (list && last) {
+      const previous = noteRefs.current[notes.length - 2];
+      if (list && last && previous) {
         const pinTop =
           parseFloat(
             getComputedStyle(section).getPropertyValue("--ts-pin-top"),
           ) || 0;
-        const listGap = narrow ? 14 : 18;
+        const listGap = (narrow ? 14 : 18) + LABEL_SPACE;
+        /* The pin holds until the last note is current and the note before it has faded out above the plate's bottom edge. */
+        const release = Math.min(
+          pinY - 12,
+          pinTop +
+            plate.offsetHeight +
+            LABEL_SPACE +
+            last.offsetTop -
+            previous.offsetTop -
+            2,
+        );
         const length = Math.max(
           0,
           Math.round(
-            plate.offsetHeight +
-              listGap +
-              last.offsetTop -
-              (pinY - pinTop) +
-              12,
+            pinTop + plate.offsetHeight + listGap + last.offsetTop - release,
           ),
         );
         const was =
           parseFloat(section.style.getPropertyValue("--ts-pin-length")) || 0;
         if (Math.abs(was - length) > 1)
           section.style.setProperty("--ts-pin-length", `${length}px`);
-      }
-      const toggle = plate.querySelector<HTMLElement>(".dsr-segment");
-      if (toggle && hintRef.current) {
-        const g = toggle.getBoundingClientRect();
-        hintRef.current.style.transform = `translateX(${Math.round(g.left + g.width / 2 - p.left)}px)`;
       }
       const gutter = p.left - s.left - (narrow ? 8 : 22);
       const plateLeft = p.left - s.left;
@@ -409,7 +456,14 @@ function Spec({
         );
         if (!marker || !a || !b || !ring || !target) return;
         const m = marker.getBoundingClientRect();
-        const t = target.getBoundingClientRect();
+        const raw = target.getBoundingClientRect();
+        const t = {
+          left: raw.left,
+          width: raw.width,
+          height: raw.height,
+          top: raw.top - lift,
+          bottom: raw.bottom - lift,
+        };
         const mx = Math.round(m.left + m.width / 2 - s.left);
         const my = Math.round(m.top + m.height / 2 - s.top);
         const rawY = t.top + t.height / 2 - s.top;
@@ -457,9 +511,9 @@ function Spec({
       resize.disconnect();
       mutation.disconnect();
     };
-  }, [ready, narrow, bandRef]);
+  }, [ready, narrow]);
 
-  /* A note that becomes current draws its wire: the outside run, then the run inside the plate, then the ring. */
+  /* A note that becomes current brings its row into the plate, then draws its wire: the outside run, the run inside the plate, the ring. */
   useLayoutEffect(() => {
     if (!ready) return;
     const a = pathARefs.current[current];
@@ -468,19 +522,36 @@ function Spec({
     const plate = plateRef.current;
     const first = !drawn.current;
     drawn.current = true;
-    if (narrow && plate && !first) {
-      const scroller = plate.querySelector<HTMLElement>(".dsr-scroll");
-      const target = scroller?.querySelector<HTMLElement>(
-        notes[current].target.narrow,
-      );
-      if (scroller && target) {
-        const t = target.getBoundingClientRect();
-        const box = scroller.getBoundingClientRect();
-        if (t.top < box.top + 8 || t.bottom > box.bottom - 8) {
-          scroller.scrollTo({
-            top: current === 0 ? 0 : scroller.scrollTop + t.top - box.top - 52,
-            behavior: reduce ? "auto" : "smooth",
-          });
+    const scroller = plate?.querySelector<HTMLElement>(".dsr-scroll");
+    const target = scroller?.querySelector<HTMLElement>(
+      narrow ? notes[current].target.narrow : notes[current].target.wide,
+    );
+    let arrive = 0;
+    if (scroller && target) {
+      arrival.current?.cancel();
+      const box = scroller.getBoundingClientRect();
+      let top = 0;
+      if (narrow) {
+        top = current === 0 ? 0 : wholeRowOffset(scroller, target);
+      } else {
+        const panel = target.closest<HTMLElement>(".dsr-card");
+        if (panel)
+          top =
+            scroller.scrollTop +
+            panel.getBoundingClientRect().top -
+            box.top -
+            PLATE_PAD;
+      }
+      const shift = Math.round(top - scroller.scrollTop);
+      if (Math.abs(shift) > 1) {
+        scroller.scrollTop = top;
+        const board = scroller.querySelector<HTMLElement>(".dsr-board");
+        if (board && !first && !reduce) {
+          arrival.current = board.animate(
+            [{ transform: `translateY(${shift}px)` }, { transform: "none" }],
+            { duration: ARRIVE_MS, easing: EASE_MOVE },
+          );
+          arrive = ARRIVE_MS;
         }
       }
     }
@@ -491,24 +562,27 @@ function Spec({
     const animations = [
       a.animate([{ strokeDashoffset: 1 }, { strokeDashoffset: 0 }], {
         duration: DRAW_MS * share,
+        delay: arrive,
         easing: "linear",
         fill: "backwards",
       }),
       b.animate([{ strokeDashoffset: 1 }, { strokeDashoffset: 0 }], {
         duration: DRAW_MS * (1 - share),
-        delay: DRAW_MS * share,
+        delay: arrive + DRAW_MS * share,
         easing: EASE_OUT,
         fill: "backwards",
       }),
       ring.animate([{ opacity: 0 }, { opacity: 1 }], {
         duration: RING_MS,
-        delay: DRAW_MS,
+        delay: arrive + DRAW_MS,
         easing: EASE_OUT,
         fill: "backwards",
       }),
     ];
     return () => animations.forEach((animation) => animation.cancel());
   }, [current, ready, reduce, narrow]);
+
+  const info = semantic["status.info"][theme];
 
   return (
     <section
@@ -523,9 +597,7 @@ function Spec({
               <Specimen />
             </Suspense>
           </div>
-          <p className="ts-hint" ref={hintRef} aria-hidden>
-            Light or Dark: this page follows <span>↓</span>
-          </p>
+          <p className="ts-plate-label">{RECREATION}</p>
         </div>
       </div>
       <ol className="ts-notes" ref={listRef}>
@@ -552,7 +624,7 @@ function Spec({
               <code className="ts-path">
                 {lane
                   ? `${lane.component} → ${lane.role} → ${lane.core}`
-                  : note.path}
+                  : (note.path ?? `status.info → ${coreName(info)}`)}
                 {note.id === "focus" && (
                   <>
                     {" → "}
@@ -567,20 +639,6 @@ function Spec({
         })}
       </ol>
       <svg className="ts-wires" aria-hidden data-ready={ready}>
-        <defs>
-          <linearGradient
-            id="ts-wire-ink"
-            ref={gradientRef}
-            gradientUnits="userSpaceOnUse"
-            x1="0"
-            x2="0"
-            y1="0"
-            y2="1"
-          >
-            <stop offset="0" className="ts-stop-band" />
-            <stop offset="1" className="ts-stop-ground" />
-          </linearGradient>
-        </defs>
         {notes.map((note, index) => (
           <g key={note.id} className="ts-wire" data-on={index === current}>
             <path
@@ -617,7 +675,7 @@ function Spec({
 
 /* ---------- Big cards ---------- */
 
-function CropPlate({ crop, eager }: { crop: Crop; eager?: boolean }) {
+function CropPlate({ crop }: { crop: Crop }) {
   const style = (box: [number, number, number, number], prefix: string) => ({
     [`--${prefix}-ratio`]: `${box[2]} / ${box[3]}`,
     [`--${prefix}-w`]: `${(crop.width / box[2]) * 100}%`,
@@ -630,7 +688,7 @@ function CropPlate({ crop, eager }: { crop: Crop; eager?: boolean }) {
       style={
         {
           ...style(crop.box, "wide"),
-          ...style(crop.narrowBox ?? crop.box, "narrow"),
+          ...style(crop.narrowBox, "narrow"),
         } as CSSProperties
       }
     >
@@ -639,25 +697,25 @@ function CropPlate({ crop, eager }: { crop: Crop; eager?: boolean }) {
         alt={crop.alt}
         width={crop.width}
         height={crop.height}
-        loading={eager ? "eager" : "lazy"}
+        loading="lazy"
         decoding="async"
       />
     </div>
   );
 }
 
-function CarePlate() {
+function LivePlate({ name }: { name: LiveKey }) {
   const ref = useRef<HTMLDivElement>(null);
   const [mount, setMount] = useState(false);
-  const care = recreations.care;
-  const Care = care.Component;
+  const live = recreations[name];
+  const Live = live.Component;
   useEffect(() => {
     const element = ref.current;
     if (!element) return;
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          care.load();
+          live.load();
           setMount(true);
           observer.disconnect();
         }
@@ -666,63 +724,69 @@ function CarePlate() {
     );
     observer.observe(element);
     return () => observer.disconnect();
-  }, [care]);
+  }, [live]);
   return (
-    <div className="ts-live" ref={ref} data-world={care.world}>
-      {mount ? (
-        <Suspense fallback={<div className="ts-wait" />}>
-          <Care />
-        </Suspense>
-      ) : (
-        <div className="ts-wait" />
-      )}
+    <div className="ts-live" ref={ref} data-world={live.world}>
+      <div className="ts-live-box">
+        {mount ? (
+          <Suspense fallback={<div className="ts-wait" />}>
+            <Live />
+          </Suspense>
+        ) : (
+          <div className="ts-wait" />
+        )}
+      </div>
     </div>
   );
 }
 
-function Card({ card, surface }: { card: CardData; surface: Lane }) {
+function Card({
+  card,
+  surface,
+  narrow,
+}: {
+  card: CardData;
+  surface: Lane;
+  narrow: boolean;
+}) {
+  const plate =
+    narrow && card.phoneCrop
+      ? ({ kind: "crop", crop: card.phoneCrop } as const)
+      : card.plate;
   return (
     <article
       className="ts-card"
       id={card.id}
-      data-kind={card.kind}
+      data-plate={plate.kind === "crop" ? "crop" : plate.key}
       aria-labelledby={`${card.id}-name`}
     >
-      <div className="ts-card-plate">
-        {card.plate.kind === "care" ? (
-          <CarePlate />
-        ) : (
-          <CropPlate crop={card.plate.crop} />
-        )}
+      <div className="ts-card-media">
+        <div className="ts-card-plate">
+          {plate.kind === "crop" ? (
+            <CropPlate crop={plate.crop} />
+          ) : (
+            <LivePlate name={plate.key} />
+          )}
+        </div>
+        <p className="ts-plate-label">
+          {plate.kind === "crop" ? plate.crop.source : RECREATION}
+        </p>
       </div>
       <div className="ts-card-text">
         <p className="ts-card-meta">
-          <span>
-            {card.role} · {card.years}
-          </span>
-          <code
-            className="ts-card-token"
-            title="The token this card's surface reads"
-          >
-            {surface.component} → {surface.core}
-          </code>
+          {card.role} · {card.years}
         </p>
         <h3 className="ts-card-name" id={`${card.id}-name`}>
           {card.name}
         </h3>
         <p className="ts-card-result">{card.result}</p>
-        {card.facts && <p className="ts-card-facts">{card.facts}</p>}
-        {card.more && (
-          <dl className="ts-more">
-            <dt>Also in both stores</dt>
-            {card.more.map((item) => (
-              <dd key={item.name}>
-                <span>{item.name}</span>
-                <span>{item.years}</span>
-              </dd>
-            ))}
-          </dl>
-        )}
+        <p className="ts-card-facts">{card.facts}</p>
+        <code
+          className="ts-card-token"
+          title="The token this card's surface reads"
+        >
+          {surface.component} → {surface.core}
+        </code>
         <a className="ts-link" href={card.href}>
           Open the case <span aria-hidden>→</span>
         </a>
@@ -735,7 +799,6 @@ function Card({ card, surface }: { card: CardData; surface: Lane }) {
 
 export default function Draft() {
   const rootRef = useRef<HTMLDivElement>(null);
-  const bandRef = useRef<HTMLDivElement>(null);
   const [theme, setTheme] = useState<Theme>("light");
   const [lanes, setLanes] = useState<Lane[]>(FALLBACK_LANES);
   const narrow = useMedia("(max-width: 639px)", false);
@@ -763,9 +826,8 @@ export default function Draft() {
   return (
     <div className="ts" ref={rootRef} data-theme={theme}>
       <title>
-        Gentrit Rashiti — web and mobile, from the token to the release
+        Gentrit Rashiti — every colour from one token source
       </title>
-      <div className="ts-band" ref={bandRef} aria-hidden />
       <header className="ts-head">
         <nav className="ts-top" aria-label="Site">
           <a className="ts-name" href="/">
@@ -778,18 +840,18 @@ export default function Draft() {
           </span>
         </nav>
         <div className="ts-claim">
-          <h1>Web and mobile products, from the token to the release.</h1>
+          <h1>Every colour on this page comes from one token source.</h1>
           <p>
-            5+ years. Part of two platform rewrites. Based in Kosovo, working
-            remotely.
+            Web and mobile products. 5+&nbsp;years. Part of two platform
+            rewrites. Based in Kosovo.
           </p>
         </div>
       </header>
 
       <main>
         <Spec
-          bandRef={bandRef}
           lanes={lanes}
+          theme={theme}
           narrow={narrow}
           reduce={reduce}
           onTokens={onTokens}
@@ -797,7 +859,12 @@ export default function Draft() {
 
         <section className="ts-stack" id="work" aria-label="Work">
           {cards.map((card) => (
-            <Card key={card.id} card={card} surface={surface} />
+            <Card
+              key={card.id}
+              card={card}
+              surface={surface}
+              narrow={narrow}
+            />
           ))}
         </section>
 
@@ -824,9 +891,9 @@ export default function Draft() {
           <a href={links.linkedin}>LinkedIn</a>
         </p>
         <p className="ts-foot-note">
-          The specimen and the care screen are recreations with invented data.
-          The Read to Feed and Bayyinah TV images come from their public store
-          and web pages.
+          The specimen, the reader and the care screen are recreations with
+          invented data. The Bayyinah TV image, and the Read to Feed image on
+          a phone, come from their public web and store pages.
         </p>
       </footer>
     </div>

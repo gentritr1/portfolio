@@ -164,11 +164,6 @@ export const years: Year[] = [
         decision: "Ship a grocery app to iPhone and Android from one codebase.",
         result: "Live in both stores",
       },
-      {
-        project: "Care-management platform",
-        decision: "Build the care platform's features on Vue (Nuxt 2).",
-        result: "Four languages: EN, DE, ES, TR",
-      },
     ],
     plate: {
       kind: "web",
@@ -192,11 +187,6 @@ export const years: Year[] = [
       {
         decision: "Keep releasing while React Native moves from 0.63 to 0.81.",
         result: "About 14 releases to both stores",
-      },
-      {
-        project: "Chatbot runtime library",
-        decision: "Play scripted chat conversations from one React Native package.",
-        result: "Message queue, typing delays, duplicate guards",
       },
     ],
     plate: {
@@ -235,6 +225,47 @@ export const years: Year[] = [
     },
     pin: { target: { kind: "image", box: { x: 0.195, y: 0.675, w: 0.61, h: 0.042 } }, route: { kind: "side" } },
     link: { label: "Open the case", href: "/work/dukagjini-bookstore" },
+  },
+];
+
+export interface RecordRow {
+  year: string;
+  project: string;
+  decision: string;
+  result: string;
+}
+
+/** Results with no screen of their own. Rows, not cards. */
+export const record: RecordRow[] = [
+  {
+    year: "2026",
+    project: "Care-management API",
+    decision: "Rewrite a billing report that timed out.",
+    result: "16 → 2 queries",
+  },
+  {
+    year: "2026",
+    project: "Offday",
+    decision: "Test that each workspace of a multi-tenant time-off app stays apart.",
+    result: "16 isolation tests",
+  },
+  {
+    year: "2026",
+    project: "Snaxx Tech studio site",
+    decision: "Ship a three.js studio site under a strict content security policy.",
+    result: "Images 972 → 337 KB",
+  },
+  {
+    year: "2023",
+    project: "Care-management platform",
+    decision: "Build the care platform's features on Vue (Nuxt 2).",
+    result: "4 languages: EN, DE, ES, TR",
+  },
+  {
+    year: "2022",
+    project: "Chatbot runtime library",
+    decision: "Play scripted chat conversations from one React Native package.",
+    result: "1 reusable package",
   },
 ];
 

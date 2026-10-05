@@ -1,0 +1,28 @@
+{
+  "id": "redline",
+  "title": "REDLINE",
+  "band": "Loop 5",
+  "rule": "the screen is the page; the review is written in its margins, and a note with no marker has no proof",
+  "description": "No card stack and no hero. Three live screens fill the page one after the other, each flanked by two solid redline margins: Bayyinah TV's live room (2023–26), the Design System v2 specimen (2026) and the care platform (2026). Each screen carries four numbered notes in the margins; each note draws a hairline across the margin into the screen and rings the part it is about (the LIVE chip, the quality menu, the Premium switch, the pinned chat note; a token lane, the one-source row, the theme switch, the focus-ring lane; the role chip, an alert, the organization switcher, the timezone line). A sticky review header carries the identity and the three sheets; a record of ten decisions closes the page.",
+  "signature": "Libre Franklin 700 for titles and note heads, Courier Prime for the note bodies, ids and results (arrows fall back to Gentrit Technical Mono), on paper #FFF8F0 with one redline #C2270F (5.6:1 both ways) and ink #1A1714. The red margins are the accent with area; the screens sit on paper 24 px inside them with a 1 px line. Motion: one authored moment per sheet. When a sheet's screen is half in view (the first at load), its four hairlines draw from the note's badge across the margin and into the screen, 180 ms each with cubic-bezier(0.23, 1, 0.32, 1) and a 60 ms stagger, and each ring lands 120 ms after its line (opacity and scale 0.96 to 1); the whole review lands in 600 ms. Hover or focus a note and the other three marks fade to 0.2 in 160 ms; hover a ringed part in the screen and its note lights (two-way). Enter on a note moves focus into the control it is about (for example the quality menu) with no travel. Header cites jump with no travel and draw the sheet at once. The live room's chat runs until eight messages and then stops, so nothing loops at rest; the specimen's demo is paused. Reduced motion: lines and rings appear, nothing moves. Phone: the notes stack in a red block under each screen and numbered pins mark the parts.",
+  "caseSlug": "bayyinah-tv",
+  "mechanisms": ["S2 hairline on arrival", "margin notes", "two-way hover", "record"],
+  "slopCount": 0,
+  "rounds": 1,
+  "chroma": {
+    "firstScreen": 26.3,
+    "outsidePlates": 34.2,
+    "plate": [220, 180, 1220, 645],
+    "source": "chroma.mjs decode and threshold on final/d-top.png, 1440 × 900 (copy at review/loop5/redline/chroma-redline.mjs)"
+  },
+  "loopScores": {
+    "straightToThePoint": 8,
+    "notOverwhelming": 7.5,
+    "harmony": 8,
+    "meaningfulMotion": 8,
+    "actionsAndSeniority": 8,
+    "original": 8,
+    "hooks": 8
+  },
+  "holdback": "Lowest: not overwhelming, 7.5/10. The first screen holds four notes, four rings and the live room, whose player and chat are busy by themselves; the chat runs for about eight seconds before it stops. Original is scored 8 because the frame is new to the loop (a screen reviewed in red margins, no stack, no hero), but an annotated screenshot is a known case-study device, so a reviewer can call it 7. Known limits: the identity is a 20 px header line, not a headline; the care plate keeps its teal and the specimen its cobalt beside the redline; the care 'Vitals' note waits for the chart to draw (about 1.3 s after the sheet arrives) because its marker is the alert dot; on a phone the specimen shows two of its five token lanes so that all four markers fit; controls inside the shared recreations (Mute, the theme segment) are under 44 px."
+}

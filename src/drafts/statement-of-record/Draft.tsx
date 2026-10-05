@@ -14,6 +14,7 @@ import { Link } from "react-router";
 import { links } from "../../content/links";
 import { recreations } from "../../lib/recreations";
 import {
+  cards,
   clauses,
   constraintCount,
   entries,
@@ -191,15 +192,21 @@ function PlateView({ plate }: { plate: Plate }) {
       "--img-y": `${(-y / h) * 100}%`,
     } as CSSProperties;
     return (
-      <div className="sr-screen" style={style}>
-        <img
-          src={plate.src}
-          alt={plate.alt}
-          width={width}
-          height={height}
-          loading="lazy"
-          decoding="async"
-        />
+      <div className="sr-side">
+        <div className="sr-screen" style={style}>
+          <img
+            src={plate.src}
+            alt={plate.alt}
+            width={width}
+            height={height}
+            loading="lazy"
+            decoding="async"
+          />
+        </div>
+        <div className="sr-side-result">
+          <p className="sr-side-figure">{plate.figure}</p>
+          <p className="sr-number-unit">{plate.unit}</p>
+        </div>
       </div>
     );
   }
@@ -222,7 +229,7 @@ interface JumpProps {
   onJump: (id: string, event: MouseEvent<HTMLAnchorElement>) => void;
 }
 
-function EntryLinkView({ entry, onJump }: { entry: Entry } & JumpProps) {
+function EntryLinkView({ entry }: { entry: Entry }) {
   const link = entry.link;
   if (!link) return null;
   if (link.kind === "case") {
@@ -232,25 +239,14 @@ function EntryLinkView({ entry, onJump }: { entry: Entry } & JumpProps) {
       </Link>
     );
   }
-  if (link.kind === "site") {
-    return (
-      <a className="sr-link" href={link.href} target="_blank" rel="noreferrer">
-        {link.label} <span aria-hidden="true">↗</span>
-      </a>
-    );
-  }
   return (
-    <a
-      className="sr-link"
-      href={`#d-${link.id}`}
-      onClick={(event) => onJump(link.id, event)}
-    >
-      {link.label}
+    <a className="sr-link" href={link.href} target="_blank" rel="noreferrer">
+      {link.label} <span aria-hidden="true">↗</span>
     </a>
   );
 }
 
-interface EntryProps extends JumpProps {
+interface EntryProps {
   entry: Entry;
   current: boolean;
   solved: boolean;
@@ -264,7 +260,6 @@ function EntryView({
   solved,
   instant,
   register,
-  onJump,
 }: EntryProps) {
   return (
     <article
@@ -287,7 +282,7 @@ function EntryView({
           {entry.role} · {entry.years}
         </p>
         <div className="sr-margin-link">
-          <EntryLinkView entry={entry} onJump={onJump} />
+          <EntryLinkView entry={entry} />
         </div>
       </div>
       <div className="sr-main">
@@ -302,7 +297,7 @@ function EntryView({
           <p className="sr-role">
             {entry.role} · {entry.years}
           </p>
-          <EntryLinkView entry={entry} onJump={onJump} />
+          <EntryLinkView entry={entry} />
         </div>
       </div>
     </article>
@@ -328,7 +323,7 @@ function Cite({
 }
 
 export default function StatementOfRecord() {
-  const [current, setCurrent] = useState(entries[0].id);
+  const [current, setCurrent] = useState(cards[0].id);
   const [solved, setSolved] = useState<ReadonlySet<string>>(() => new Set());
   const [instant, setInstant] = useState<ReadonlySet<string>>(() => new Set());
   const [settled, setSettled] = useState(false);
@@ -382,7 +377,7 @@ export default function StatementOfRecord() {
           if (record.isIntersecting) seen.add(id);
           else seen.delete(id);
         }
-        const last = [...entries].reverse().find((item) => seen.has(item.id));
+        const last = [...cards].reverse().find((item) => seen.has(item.id));
         if (last) setCurrent(last.id);
       },
       { rootMargin: "-35% 0px -55% 0px" },
@@ -406,7 +401,7 @@ export default function StatementOfRecord() {
     return () => watch.disconnect();
   }, []);
 
-  const entry = entries.find((item) => item.id === current);
+  const entry = cards.find((item) => item.id === current);
   useEffect(() => {
     if (!settled || !entry?.edit || solved.has(entry.id)) return;
     const timer = window.setTimeout(
@@ -452,11 +447,11 @@ export default function StatementOfRecord() {
               </Fragment>
             ))}
           </p>
-          <p className="sr-tally" aria-live="polite">
+          <p className="sr-tally" aria-hidden="true">
             <span className="sr-tally-long">
               {solved.size} of {constraintCount} corrected
             </span>
-            <span className="sr-tally-short" aria-hidden="true">
+            <span className="sr-tally-short">
               {solved.size}/{constraintCount}
             </span>
           </p>
@@ -498,6 +493,21 @@ export default function StatementOfRecord() {
                 </span>
               ))}
             </h1>
+            <div className="sr-top-key">
+              <p className="sr-top-cites">
+                {clauses.map((clause) => (
+                  <Cite
+                    key={clause.cites}
+                    id={clause.cites}
+                    current={current === clause.cites}
+                    onJump={jump}
+                  />
+                ))}
+              </p>
+              <p className="sr-top-tally" aria-live="polite">
+                {solved.size} of {constraintCount} corrected
+              </p>
+            </div>
             <ul className="sr-top-links">
               <li>
                 <a href={links.cv}>CV</a>
@@ -511,7 +521,7 @@ export default function StatementOfRecord() {
 
         <div className="sr-page">
           <div className="sr-entries">
-            {entries.map((item) => (
+            {cards.map((item) => (
               <EntryView
                 key={item.id}
                 entry={item}
@@ -519,7 +529,6 @@ export default function StatementOfRecord() {
                 solved={solved.has(item.id)}
                 instant={instant.has(item.id)}
                 register={register}
-                onJump={jump}
               />
             ))}
           </div>
@@ -527,22 +536,32 @@ export default function StatementOfRecord() {
           <section className="sr-record" aria-labelledby="sr-record-title">
             <h2 id="sr-record-title">The record</h2>
             <ol>
-              {entries.map((item) => (
-                <li key={item.id}>
-                  <a
-                    href={`#d-${item.id}`}
-                    onClick={(event) => jump(item.id, event)}
-                  >
+              {entries.map((item) => {
+                const row = (
+                  <>
                     <span className="sr-record-id">{item.id}</span>
                     <span className="sr-record-name">{item.project}</span>
-                    <span className="sr-record-result">
-                      {item.link?.kind === "entry"
-                        ? `${item.result} · superseded`
-                        : item.result}
-                    </span>
-                  </a>
-                </li>
-              ))}
+                    <span className="sr-record-result">{item.result}</span>
+                  </>
+                );
+                return (
+                  <li key={item.id}>
+                    {item.plate ? (
+                      <a
+                        className="sr-record-row"
+                        href={`#d-${item.id}`}
+                        onClick={(event) => jump(item.id, event)}
+                      >
+                        {row}
+                      </a>
+                    ) : (
+                      <p className="sr-record-row">
+                        {row}
+                      </p>
+                    )}
+                  </li>
+                );
+              })}
             </ol>
             <p className="sr-more">
               {moreCount} more projects, from games to a donations app, are on

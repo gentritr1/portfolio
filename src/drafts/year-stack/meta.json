@@ -1,10 +1,10 @@
 {
   "id": "year-stack",
   "title": "YEAR STACK",
-  "band": "Loop 4",
+  "band": "Loop 5",
   "rule": "the scroll is time; one sentence at the top says what was true in the year under it",
-  "description": "Six years as six big cards, newest first, stacked as a pile with 2026 on top. A sticky sentence at the top, 'Gentrit Rashiti builds a multi-tenant platform, from the design system to the API behind it.', rewrites to the year of the card under it. Each card names two to four decisions with their results and pins one result to the pixel that proves it.",
-  "signature": "Gentrit Display (Hubot Sans) for the statement and Gentrit Text (Mona Sans) for text, the 160 px year numerals and the 14 px year links, on white, with one butter and navy identity: the current year's card is the butter panel, everything else is navy on white. Desktop: the statement is three lines, one clause on each, 'Gentrit Rashiti builds' opens the first; the six year links sit at its right on the last line. When a year earlier than 2026 settles (160 ms after the scroll stops on it), the 2026 words of each clause are struck (260 ms) and that year's words write in after them one whole word at a time (140 ms opacity each, stagger up to 60 ms, 320 ms in all, 30 ms line stagger), so no frame shows a cut glyph. The edit ends its line, so no other word moves; leaving words fade (120 ms) before they give up their width. The stack is in true order: all six cards stick from the first frame, the newer one on top and each older one 12 px lower, so the first screen shows a pile of six. Scroll lifts the newer card off with native scroll and shows the older card under it, still and whole; nothing scales or dims. Each card's first result draws a navy hairline (180 ms, then a 120 ms outline) the first time the card is current; the line runs through the gap between the text and the plate, enters the plate from its left edge along a rule or a clear row, and ends at the part: the organization switcher on the live care recreation (along the plate's own divider), the store badges on bayyinah.org, Passkey on the Incentiv sign-in, the plan switch on Bayyinah TV pricing, a book row with progress on Read to Feed, the search field on Dukagjini Bookstore. Inside a dark plate the line is butter. Every plate ends on a whole row; the store listings are one screen each, cropped inside the phone frame. The year links and arrow keys jump with no travel; a covered card that takes focus comes to the top with no travel. Phone: cards do not stick; the sentence keeps the device, with the first clause struck and the year's whole sentence written under it. Reduced motion: the pile stays (position is not motion), the sentence and hairlines switch with no transition.",
+  "description": "Six years as six big cards, newest first, stacked as a pile with 2026 on top. A sticky sentence at the top, 'Gentrit Rashiti builds a multi-tenant platform, from the design system to the API behind it.', rewrites to the year of the card under it once the newer card's link has gone under it. Each card names two or three decisions with their results and pins one result to the pixel that proves it. Results with no screen close the page as five rows in 'Also on the record'.",
+  "signature": "Gentrit Display (Hubot Sans) for the statement and Gentrit Text (Mona Sans) for text, the 160 px year numerals and the 14 px year links, on white, with one butter and navy identity: the current year's card is the butter panel, everything else is navy on white. Desktop: the statement is three lines, one clause on each, 'Gentrit Rashiti builds' opens the first; the six year links sit at its right on the last line. When a year earlier than 2026 settles (160 ms after the scroll stops on it), the 2026 words of each clause are struck (260 ms) and that year's words write in after them one whole word at a time (140 ms opacity each, stagger up to 60 ms, 320 ms in all, 30 ms line stagger), so no frame shows a cut glyph. The edit ends its line, so no other word moves; leaving words fade (120 ms) before they give up their width. The stack is in true order: all six cards stick from the first frame, the newer one on top and each older one 12 px lower, so the first screen shows a pile of six. Scroll lifts the newer card off with native scroll and shows the older card under it, still and whole; nothing scales or dims. Each slot holds a 72 px dwell, so a card shows whole only after the newer card has gone under the statement, and a card becomes current only when the newer card's link has gone under the statement. Each card's first result draws a navy hairline (180 ms, then a 120 ms outline) the first time the card is current; the line runs through the gap between the text and the plate, enters the plate from its left edge along a rule or a clear row, and ends at the part: the organization switcher on the live care recreation (along the plate's own divider), the store badges on bayyinah.org, Passkey on the Incentiv sign-in, the plan switch on Bayyinah TV pricing, a book row with progress on Read to Feed, the search field on Dukagjini Bookstore. Inside a dark plate the line is butter. Every plate ends on a whole row; the store listings are one screen each, cropped inside the phone frame, flush to the card's right edge, and their decisions take the width the listing leaves (the first row across, the others in two columns). After the stack, 'Also on the record' holds five rows (year, project, decision, result): the 16 → 2 billing report, Offday's 16 isolation tests, Snaxx Tech's 972 → 337 KB, the care platform's Vue years in four languages, and the chatbot runtime package. The year links and arrow keys jump with no travel; a covered card that takes focus comes to the top with no travel. Phone: cards do not stick; the sentence keeps the device at 18 px in three lines: the name and the struck first clause on line one, the year's whole sentence on the two lines under it (92 px header). Reduced motion: the pile stays (position is not motion), the sentence and hairlines switch with no transition.",
   "caseSlug": "care-platform",
   "mechanisms": [
     "S1",
@@ -12,17 +12,17 @@
     "S6"
   ],
   "slopCount": 0,
-  "rounds": 2,
+  "rounds": 3,
   "loopScores": {
     "straightToThePoint": 8,
-    "notOverwhelming": 8,
+    "notOverwhelming": 8.5,
     "harmony": 8.5,
     "meaningfulMotion": 8,
-    "actionsAndSeniority": 8,
-    "original": 7.5,
+    "actionsAndSeniority": 8.5,
+    "original": 7,
     "hooks": 8
   },
-  "holdback": "Lowest: original, 7.5/10. Big year numerals on a coloured panel and a card stack are still close to a timeline template; the pile that is lifted year by year, newest on top, and the sentence that strikes its 2026 words are the new parts. Known limits: the phone crops of the two store listings are narrow, so the 2021 and 2022 plates leave butter space at their right on desktop; the 2026 billing result (16 to 2 queries) moved from the first card to the footer to keep three decisions on the first screen, so the clause 'to the API behind it' has no row on the first card; the year links use Gentrit Text tabular figures, not a mono, to keep one family; the bottom 100 px of the 1440 x 900 first screen is empty ground under the pile.",
+  "holdback": "Lowest: original, 7/10. A sticky card stack with a sentence that reacts to the current card is the loop's house style; polish cannot move that point. Known limits: the 2022 card has two short decisions, so its text column leaves butter between the rows and the store listing (the hairline crosses it); the phone statement is set at 88% width to keep the name and the struck clause on one line, which is narrower than the 108% desktop statement; the record's results use Gentrit Text tabular figures, not a mono, to keep one family; the bottom 100 px of the 1440 x 900 first screen is empty ground under the pile.",
   "chroma": {
     "firstScreen": 34.2,
     "outsidePlates": 43.4,
@@ -32,7 +32,7 @@
       1283,
       597
     ],
-    "method": "scratchpad/chroma.mjs logic on review/loop4/year-stack/final/d-top.png (1440 x 900)"
+    "method": "scratchpad/chroma.mjs logic (copy with this draft's paths: review/loop5/year-stack/chroma-ys.mjs) on review/loop5/year-stack/final/d-top.png (1440 x 900)"
   },
   "polish": [
     {
@@ -46,6 +46,17 @@
         5,
         6,
         7
+      ]
+    },
+    {
+      "round": 5,
+      "score": 56.5,
+      "fixed": [
+        1,
+        2,
+        3,
+        4,
+        5
       ]
     }
   ]

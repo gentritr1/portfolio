@@ -1,0 +1,47 @@
+{
+  "id": "sampled-ground",
+  "title": "SAMPLED GROUND",
+  "band": "Loop 5",
+  "rule": "the page takes its colour from the screen it shows; nobody picks a colour",
+  "description": "Six products from 2023 to 2026, oldest first, as six big side-column cards. Each card's panel and the page ground are computed from the dominant hue of the card's own screen at fixed lightness and chroma, so the page changes colour when the product changes. A hue scale in the bar places the six screens on the colour wheel and moves the page between them. A closing record holds the decisions that have no screen, on a grey ground with no hue.",
+  "signature": "Bricolage Grotesque (700 at 64 px for the claim, 500 for text) and Gentrit Technical Mono for roles, hues and results. First screen: 'Two platform rewrites, three apps in both stores.' with a footnote that names Gentrit Rashiti, Kosovo, and says that the colour of the page is sampled from the screen under it; then the Viva Fresh card: the same cart on iPhone and Android from the two store listings, a maroon panel, and a hairline from the result to the Android total. Palette by construction: ground oklch(0.95 0.035 h), ink oklch(0.30 0.11 h), panel oklch(0.42 0.13 h) with ground-colour type; only h comes from the screen. Measured h: Viva Fresh 23, Bayyinah TV 34 (within 15 degrees of 23, so it keeps ground 023), Incentiv 282, bayyinah.org 62, Design System v2 253, care platform 186. When a card settles as current (160 ms after the scroll stops on it), its ground spreads out of its plate as a circle (clip-path, 280 ms ease-out), the bar's colour follows in 280 ms, and the ring on the hue scale slides to the new hue (transform, 280 ms ease-in-out). The first time a card is current, one hairline draws from its result to the part that proves it (180 ms, then a 120 ms ring): the Android cart total, the pinned chat message, Sign in with passkey, the two store badges, the One source row, the organization switcher. No stack, no sticky card, no correction, no count. The live room is mounted with its demo paused and the specimen pauses its own demo once, so no plate loops. The hue scale is the navigation: a dot jumps to its card; arrow keys move between hues with no travel. Reduced motion and key jumps switch the ground with no spread and draw the hairline whole.",
+  "caseSlug": "viva-fresh",
+  "mechanisms": [
+    "sampled ground",
+    "hue scale",
+    "one pin per card"
+  ],
+  "slopCount": 0,
+  "rounds": 1,
+  "loopScores": {
+    "straightToThePoint": 8,
+    "notOverwhelming": 8,
+    "harmony": 8,
+    "meaningfulMotion": 8,
+    "actionsAndSeniority": 8,
+    "original": 7.5,
+    "hooks": 8
+  },
+  "holdback": "Lowest: original, 7.5/10. The page drops the stack, and the sampled ground, the ground that spreads out of the plate and the hue scale as navigation are new; but the layout under them is still a column of big side-column cards, and colour per project is a known portfolio move until the visitor reads that the hue is measured. Known limits: the Viva Fresh plate is two store screens side by side (iPhone and Android, cropped inside the phone frames) because one portrait listing cannot fill an 880 x 440 slot; the phone plates are 343 x 229 (3:2), not 343 x 258, so the Viva Fresh cart and the live room end on whole rows; the plan's S1 cover between cards is not built, because the coordinator ruled out a card stack as the frame; the bar fades to the new colour while the ground spreads, so the two arrive by different means at the same time; the specimen plate shows only its Tokens card, and the cards under it are hidden.",
+  "hues": {
+    "method": "oklch hue histogram, chroma-weighted, 1 degree bins smoothed over 13 degrees, over the rendered 880 x 440 plate at 1440 x 900 with the hairlines hidden (scratchpad/sg/hue.mjs)",
+    "viva-fresh": 23,
+    "bayyinah-tv": 34,
+    "incentiv": 282,
+    "bayyinah-org": 62,
+    "design-system": 253,
+    "care-platform": 186,
+    "shared": "bayyinah-tv keeps ground 23 (11 degrees from its neighbour)"
+  },
+  "chroma": {
+    "firstScreen": 29.6,
+    "outsidePlates": 33.4,
+    "plateRect": [
+      120,
+      353,
+      1000,
+      793
+    ],
+    "method": "scratchpad/chroma.mjs logic on review/loop5/sampled-ground/final/d-top.png (1440 x 900)"
+  }
+}

@@ -15,7 +15,7 @@ import { useMotionValueEvent, useScroll } from "motion/react";
 import { ArrowUpRightIcon } from "@phosphor-icons/react";
 import { links } from "../../content/links";
 import { recreations } from "../../lib/recreations";
-import { present, sentenceOf, years, type Box, type Plate, type Year } from "./data";
+import { present, record, sentenceOf, years, type Box, type Plate, type Year } from "./data";
 import "./year-stack.css";
 
 const easeOut = "cubic-bezier(0.23, 1, 0.32, 1)";
@@ -170,9 +170,8 @@ function Statement({ says, mode, narrow }: { says: readonly [string, string, str
   if (narrow) {
     return (
       <span className="ys-lines" aria-hidden="true">
-        <span className="ys-line">Gentrit Rashiti builds</span>
         <span className="ys-line">
-          <Struck text={present[0]} struck={!isPresent} mode={mode} delay={0} />
+          Gentrit Rashiti builds <Struck text={present[0]} struck={!isPresent} mode={mode} delay={0} />
         </span>
         <Written
           className="ys-tail"
@@ -425,6 +424,7 @@ function YearCard({
         ref={cardRef}
         id={`y${data.year}`}
         className="ys-card"
+        data-plate={plate.kind}
         data-current={current || undefined}
         role="group"
         aria-labelledby={`ys-year-${data.year}`}
@@ -507,7 +507,9 @@ interface Track {
 /**
  * Wide: every card sticks from the first frame, the newer one on top and each
  * older one a step lower, so the stack shows as a pile. A card stays until its
- * slot ends, then scrolls away and shows the older card under it.
+ * slot ends, then scrolls away and shows the older card under it. Each slot is
+ * one dwell taller than the pile needs, so a card shows whole only after the
+ * newer card has gone under the statement.
  */
 function measureTrack(stack: HTMLElement, wide: boolean, barHeight: number): Track {
   const slots = Array.from(stack.children) as HTMLElement[];
@@ -519,14 +521,36 @@ function measureTrack(stack: HTMLElement, wide: boolean, barHeight: number): Tra
       jumps: tops.map((top) => Math.max(0, top - barHeight - 8)),
     };
   }
-  const stick = parseFloat(getComputedStyle(cards[0]).top) || 0;
-  const step = cards.length > 1 ? (parseFloat(getComputedStyle(cards[1]).top) || stick) - stick : 0;
-  const pitch = cards[0].offsetHeight - step;
-  const base = tops[0] - stick;
+  const stuck = cards.map((card) => parseFloat(getComputedStyle(card).top) || 0);
+  const releases = cards.map((card, k) => tops[0] - stuck[k] + slots[k].offsetHeight - card.offsetHeight);
+  const footInset = parseFloat(getComputedStyle(cards[0]).paddingBottom) || 0;
   return {
-    marks: cards.map((_, k) => (k === 0 ? -Infinity : base + k * pitch - pitch / 2)),
-    jumps: cards.map((_, k) => Math.max(0, base + k * pitch)),
+    // A card is current once the newer card's link has gone under the statement.
+    marks: cards.map((_, k) =>
+      k === 0 ? -Infinity : releases[k - 1] + stuck[k - 1] + cards[k - 1].offsetHeight - barHeight - footInset,
+    ),
+    jumps: releases.map((release) => Math.max(0, release)),
   };
+}
+
+function Record() {
+  return (
+    <section className="ys-record" aria-labelledby="ys-record-title">
+      <h2 className="ys-record-title" id="ys-record-title">
+        Also on the record
+      </h2>
+      <ol className="ys-record-rows">
+        {record.map((row) => (
+          <li className="ys-record-row" key={row.project}>
+            <span className="ys-record-year">{row.year}</span>
+            <span className="ys-record-project">{row.project}</span>
+            <span className="ys-record-decision">{row.decision}</span>
+            <span className="ys-record-result">{row.result}</span>
+          </li>
+        ))}
+      </ol>
+    </section>
+  );
 }
 
 export default function Draft() {
@@ -655,16 +679,11 @@ export default function Draft() {
             />
           ))}
         </ol>
+        <Record />
       </main>
 
       <footer className="ys-foot-page">
-        <p className="ys-foot-who">
-          Gentrit Rashiti. Web and mobile since 2021, full stack since 2026. Bachelor's degree, UBT. Based in Kosovo,
-          working remotely.
-        </p>
-        <p className="ys-foot-who">
-          Also in 2026, on the care-management API: a billing report that timed out went from 16 queries to 2.
-        </p>
+        <p className="ys-foot-who">Gentrit Rashiti. Bachelor's degree, UBT. Based in Kosovo, working remotely.</p>
         <p className="ys-foot-links">
           <a href={`mailto:${links.email}`}>{links.email}</a>
           <a href={links.cv}>Download CV</a>

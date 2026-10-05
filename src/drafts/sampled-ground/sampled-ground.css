@@ -1,0 +1,837 @@
+@font-face {
+  font-family: "Bricolage Grotesque";
+  src: url("/fonts/creative/BricolageGrotesque-Latin.woff2") format("woff2");
+  font-weight: 200 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Gentrit Technical Mono";
+  src: url("/fonts/creative/GentritTechnicalMono-Latin.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/*
+ * Only the hue comes from the screen. Lightness and chroma are fixed here:
+ * ground L 0.95 C 0.035, ink L 0.30 C 0.11, panel L 0.42 C 0.13.
+ */
+:root:has(.sg) {
+  color-scheme: light;
+  background: oklch(0.95 0.035 25);
+}
+
+.sg {
+  --sg-k: 1;
+  --sg-ground: oklch(0.95 calc(0.035 * var(--sg-k)) var(--sg-h));
+  --sg-ink: oklch(0.3 calc(0.11 * var(--sg-k)) var(--sg-h));
+  --sg-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --sg-ease-move: cubic-bezier(0.77, 0, 0.175, 1);
+  --sg-sans: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+  --sg-mono: "Gentrit Technical Mono", ui-monospace, monospace;
+  --sg-px: 2px;
+  --sg-gutter: 16px;
+  --sg-bar-h: 56px;
+  position: relative;
+  isolation: isolate;
+  min-height: 100dvh;
+  color: var(--sg-ink);
+  font-family: var(--sg-sans);
+  font-optical-sizing: auto;
+  font-size: 17px;
+  font-weight: 450;
+  line-height: 1.5;
+  scrollbar-color: var(--sg-ink) var(--sg-ground);
+}
+
+.sg[data-neutral] {
+  --sg-k: 0;
+}
+
+.sg ::selection {
+  background: var(--sg-ink);
+  color: var(--sg-ground);
+}
+
+.sg a {
+  color: inherit;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+  transition: text-underline-offset 160ms ease;
+}
+
+.sg :focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .sg a:hover {
+    text-underline-offset: 2px;
+  }
+}
+
+/* ---------- Grounds: one layer for each distinct hue ---------- */
+
+.sg-grounds {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.sg-ground {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: oklch(0.95 0.035 var(--sg-h));
+  opacity: 0;
+  transition: opacity 0s linear 300ms;
+}
+
+.sg-ground[data-on] {
+  z-index: 1;
+  opacity: 1;
+  transition: none;
+}
+
+.sg-ground-none {
+  background: oklch(0.95 0 0);
+}
+
+/* ---------- Bar ---------- */
+
+.sg-bar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  height: var(--sg-bar-h);
+  background: var(--sg-ground);
+  transition:
+    background-color 280ms var(--sg-ease-out),
+    color 280ms var(--sg-ease-out);
+}
+
+.sg-bar-in {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  height: 100%;
+  padding: 0 var(--sg-gutter);
+}
+
+.sg-bar-name {
+  display: none;
+}
+
+.sg-bar-now {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  margin: 0;
+  font-family: var(--sg-mono);
+  font-size: 12px;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sg-chip {
+  flex: none;
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: oklch(0.42 calc(0.13 * var(--sg-k, 1)) var(--sg-h));
+  box-shadow: 0 0 0 1.5px var(--sg-ground);
+}
+
+.sg-bar-links {
+  display: flex;
+  flex: none;
+  margin: 0;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.sg-bar-links a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 8px;
+}
+
+/* ---------- Hue scale ---------- */
+
+.sg-scale {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-family: var(--sg-mono);
+  font-size: 12px;
+}
+
+.sg-scale-end {
+  line-height: 1;
+  transform: translateY(-11px);
+}
+
+.sg-scale-track {
+  position: relative;
+  width: calc(360 * var(--sg-px));
+  height: 52px;
+}
+
+.sg-scale-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 15px;
+  height: 1px;
+  background: currentColor;
+}
+
+.sg-scale-stop {
+  position: absolute;
+  top: -6px;
+  left: calc(var(--sg-h) * var(--sg-px) - 22px);
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+.sg-scale-stop:focus-visible {
+  outline: none;
+}
+
+.sg-scale-stop:focus-visible .sg-scale-dot {
+  outline: 2px solid currentColor;
+  outline-offset: 7px;
+}
+
+.sg-scale-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: oklch(0.42 0.13 var(--sg-h));
+  box-shadow: 0 0 0 2px var(--sg-ground);
+}
+
+.sg-scale-mark {
+  position: absolute;
+  top: 5px;
+  left: -11px;
+  width: 22px;
+  height: 22px;
+  border: 1.5px solid currentColor;
+  border-radius: 50%;
+  pointer-events: none;
+  transform: translateX(calc(var(--sg-at) * var(--sg-px)));
+  transition:
+    transform 280ms var(--sg-ease-move),
+    opacity 120ms var(--sg-ease-out);
+}
+
+.sg-scale-label {
+  position: absolute;
+  top: 33px;
+  left: 0;
+  white-space: nowrap;
+  line-height: 1;
+  transform: translateX(calc(var(--sg-at) * var(--sg-px) - 6px));
+  transition: transform 280ms var(--sg-ease-move);
+}
+
+.sg-scale-track[data-far] .sg-scale-label {
+  translate: calc(-100% + 12px) 0;
+}
+
+.sg-scale-track[data-none] .sg-scale-mark {
+  opacity: 0;
+}
+
+/* ---------- Claim ---------- */
+
+.sg-top {
+  padding: 20px var(--sg-gutter) 28px;
+}
+
+.sg-claim {
+  margin: 0;
+  font-size: clamp(30px, 8.2vw, 64px);
+  font-weight: 700;
+  line-height: 1.02;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+
+.sg-claim sup {
+  position: relative;
+  top: -1.55em;
+  margin-left: 0.1em;
+  font-family: var(--sg-mono);
+  font-size: 0.3em;
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 0;
+  vertical-align: baseline;
+}
+
+.sg-br {
+  display: none;
+}
+
+.sg-note {
+  display: flex;
+  gap: 10px;
+  max-width: 34rem;
+  margin: 16px 0 0;
+  font-size: 16px;
+  line-height: 1.45;
+}
+
+.sg-note-mark {
+  flex: none;
+  padding-top: 3px;
+  font-family: var(--sg-mono);
+  font-size: 12px;
+}
+
+/* ---------- Cards ---------- */
+
+.sg-cards {
+  display: grid;
+  gap: 40px;
+  margin: 0;
+  padding: 0 var(--sg-gutter);
+  list-style: none;
+}
+
+.sg-card {
+  --sg-c-ground: oklch(0.95 0.035 var(--sg-h));
+  --sg-c-ink: oklch(0.3 0.11 var(--sg-h));
+  --sg-c-panel: oklch(0.42 0.13 var(--sg-h));
+  position: relative;
+  display: grid;
+  overflow: hidden;
+  border-radius: 12px;
+  background: var(--sg-c-panel);
+  color: var(--sg-c-ground);
+  outline: none;
+}
+
+.sg-plate {
+  position: relative;
+  aspect-ratio: 3 / 2;
+  overflow: hidden;
+  background: var(--sg-c-ground);
+}
+
+.sg-live {
+  position: absolute;
+  inset: 0;
+  background: var(--world-bg, var(--sg-c-ground));
+}
+
+.sg-live-in {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
+  overflow: hidden;
+  container-type: inline-size;
+  background: var(--world-bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+/* The specimen plate shows its Tokens card only; the cards under it stay out of view and out of the tab order. */
+.sg-plate .dsr-board > section:not(.dsr-area-tokens) {
+  visibility: hidden;
+}
+
+.sg-wait {
+  position: absolute;
+  inset: 0;
+  background: var(--world-bg, var(--sg-c-ground));
+}
+
+.sg-crop {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+
+.sg-crop img {
+  position: absolute;
+  display: block;
+  max-width: none;
+  height: auto;
+}
+
+.sg-pair {
+  display: flex;
+  gap: 12px;
+  height: 100%;
+  background: var(--sg-c-panel);
+}
+
+.sg-pair .sg-crop {
+  flex: 1 1 0;
+  height: 100%;
+  aspect-ratio: auto;
+  border-radius: 6px;
+}
+
+.sg-column {
+  display: flex;
+  flex-direction: column;
+  padding: 18px 16px 8px;
+}
+
+.sg-name {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: 0;
+}
+
+.sg-line {
+  position: relative;
+  margin: 8px 0 0;
+  padding-left: 16px;
+  font-size: 19px;
+  font-weight: 500;
+  line-height: 1.32;
+  letter-spacing: -0.01em;
+  text-wrap: pretty;
+}
+
+.sg-nowrap {
+  white-space: nowrap;
+}
+
+.sg-dot {
+  position: absolute;
+  left: 0;
+  top: 0.66em;
+  width: 7px;
+  height: 7px;
+  margin-top: -3.5px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.sg-role,
+.sg-hue,
+.sg-caption {
+  margin: 0;
+  font-family: var(--sg-mono);
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+.sg-role {
+  margin-top: 14px;
+}
+
+.sg-hue {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.sg-hue .sg-chip {
+  background: var(--sg-c-ground);
+  box-shadow: none;
+}
+
+.sg-caption {
+  order: 9;
+  margin-top: 4px;
+}
+
+.sg-more {
+  margin: 6px 0 0;
+}
+
+.sg-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  font-size: 16px;
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.sg-link:active {
+  transform: scale(0.985);
+  transition: transform 120ms var(--sg-ease-out);
+}
+
+/* ---------- Pin ---------- */
+
+.sg-pin {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.sg-pin path,
+.sg-pin rect {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.sg-pin-line {
+  stroke-width: 1.5;
+}
+
+.sg-pin-out {
+  stroke: var(--sg-c-ground);
+}
+
+.sg-pin-line.sg-pin-in {
+  stroke: var(--sg-c-ink);
+}
+
+.sg-pin-halo {
+  stroke: #ffffff;
+  stroke-width: 5;
+}
+
+.sg-pin-ring {
+  stroke: var(--sg-c-ink);
+  stroke-width: 1.75;
+  filter: drop-shadow(0 0 1.5px #ffffff) drop-shadow(0 0 1px #ffffff);
+}
+
+.sg-pin[data-draw="animate"] path {
+  stroke-dasharray: 1;
+}
+
+.sg-pin[data-draw="animate"] .sg-pin-out {
+  animation: sg-draw var(--sg-pin-out, 120ms) linear both;
+}
+
+.sg-pin[data-draw="animate"] .sg-pin-in {
+  animation: sg-draw var(--sg-pin-in, 60ms) var(--sg-ease-out) var(--sg-pin-out, 120ms) both;
+}
+
+.sg-pin[data-draw="animate"] .sg-pin-ring {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sg-ring 120ms var(--sg-ease-out) 170ms both;
+}
+
+@keyframes sg-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes sg-ring {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ---------- Record ---------- */
+
+.sg-record {
+  margin: 96px 0 0;
+  padding: 0 var(--sg-gutter);
+}
+
+.sg-record h2 {
+  margin: 0 0 12px;
+  font-size: 28px;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+}
+
+.sg-record ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid currentColor;
+}
+
+.sg-record li {
+  border-bottom: 1px solid color-mix(in oklab, currentColor 30%, transparent);
+}
+
+.sg-record-row {
+  display: grid;
+  gap: 2px;
+  padding: 14px 0;
+  text-decoration: none;
+}
+
+a.sg-record-row {
+  text-decoration: none;
+}
+
+.sg-record-decision {
+  font-size: 17px;
+  font-weight: 500;
+}
+
+.sg-record-project,
+.sg-record-result {
+  font-family: var(--sg-mono);
+  font-size: 13px;
+}
+
+.sg-record-result {
+  font-variant-numeric: tabular-nums;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  a.sg-record-row:hover .sg-record-decision {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+}
+
+.sg-record-more {
+  margin: 16px 0 0;
+  font-weight: 600;
+}
+
+.sg-record-more a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+
+/* ---------- Foot ---------- */
+
+.sg-foot {
+  margin-top: 72px;
+  padding: 0 var(--sg-gutter) 48px;
+  font-size: 15px;
+}
+
+.sg-foot::before {
+  content: "";
+  display: block;
+  height: 1px;
+  margin-bottom: 24px;
+  background: currentColor;
+}
+
+.sg-contact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 20px;
+  margin: 0 0 12px;
+  padding: 0;
+  list-style: none;
+  font-weight: 600;
+}
+
+.sg-contact a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+
+.sg-foot p {
+  max-width: 44rem;
+  margin: 4px 0 0;
+}
+
+/* ---------- Wide ---------- */
+
+@media (min-width: 1024px) {
+  .sg {
+    --sg-gutter: 32px;
+    --sg-bar-h: 72px;
+  }
+
+  .sg-bar-in,
+  .sg-top,
+  .sg-cards,
+  .sg-record,
+  .sg-foot {
+    box-sizing: content-box;
+    max-width: 1264px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .sg-top {
+    padding-top: 12px;
+    padding-bottom: 36px;
+  }
+
+  .sg-br {
+    display: inline;
+  }
+
+  .sg-note {
+    margin-top: 18px;
+    font-size: 18px;
+  }
+
+  .sg-cards {
+    gap: 56px;
+  }
+
+  .sg-card {
+    grid-template-columns: minmax(0, 880fr) 280px;
+    column-gap: 40px;
+    padding: 32px;
+  }
+
+  .sg-plate {
+    aspect-ratio: 2 / 1;
+    border-radius: 6px;
+  }
+
+  .sg-plate-shots {
+    background: var(--sg-c-panel);
+  }
+
+  .sg-pair {
+    background: none;
+  }
+
+  .sg-column {
+    padding: 0;
+  }
+
+  .sg-name {
+    font-size: 16px;
+  }
+
+  .sg-line {
+    margin-top: 10px;
+    font-size: 22px;
+    line-height: 1.3;
+  }
+
+  .sg-role {
+    margin-top: 18px;
+  }
+
+  .sg-more {
+    margin-top: auto;
+  }
+
+  .sg-caption {
+    order: 0;
+    margin-top: 4px;
+  }
+
+  .sg-record {
+    margin-top: 128px;
+  }
+
+  .sg-record-row {
+    grid-template-columns: minmax(0, 1fr) 330px 170px;
+    align-items: baseline;
+    gap: 24px;
+    padding: 16px 0;
+  }
+
+  .sg-record-result {
+    text-align: right;
+  }
+}
+
+@media (min-width: 1280px) {
+  .sg {
+    --sg-px: 2.2px;
+  }
+
+  .sg-bar-name {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    font-size: 15px;
+    font-weight: 600;
+    text-decoration: none;
+  }
+}
+
+@supports (animation-timeline: scroll()) {
+  @media (min-width: 1280px) {
+    .sg-bar-name {
+      animation: sg-name linear both;
+      animation-timeline: scroll(root);
+      animation-range: 200px 260px;
+    }
+  }
+
+  @keyframes sg-name {
+    from {
+      opacity: 0;
+      visibility: hidden;
+    }
+    to {
+      opacity: 1;
+      visibility: visible;
+    }
+  }
+}
+
+/* A jump by key or a reduced-motion visitor changes state with no transition. */
+.sg[data-instant] .sg-ground,
+.sg[data-instant] .sg-bar,
+.sg[data-instant] .sg-scale-mark,
+.sg[data-instant] .sg-scale-label {
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sg-ground,
+  .sg-ground[data-on],
+  .sg-bar,
+  .sg-scale-mark,
+  .sg-scale-label,
+  .sg a,
+  .sg-link:active {
+    transition: none;
+  }
+
+  .sg-pin * {
+    animation: none;
+  }
+
+  .sg-link:active {
+    transform: none;
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "id": "projector",
+  "title": "PROJECTOR",
+  "band": "Loop 5",
+  "rule": "one frame, ten screens: the frame never moves, the log scrolls beside it and decides what the frame shows",
+  "description": "Ten pieces of work as a log of ten rows, newest first, beside one fixed frame. The row at the reading line is the current one; the frame shows its screen, and a hairline runs from the row's result into the frame to the part that proves it. No card stack: the eye stays on one frame while the work changes.",
+  "signature": "Big Shoulders Display for the 96 px row numerals, the number plates and the slide tray, and Public Sans for text, ink #141B06 on a chartreuse field #D9F26B that is the whole page (14.2:1; muted #3E4A14 at 7.7:1). Desktop: a 440 px log at the left with the identity line at its top; an 880 x 560 frame at the right, white with a 1 px ink line, position: sticky, centred in the viewport, with a caption and a ten-slot tray under it. Rows scroll natively; the row whose top passes 42% of the viewport becomes current after it settles for 160 ms, so a passed row never fires. Then the plate cross-fades in 200 ms over the old one (the old plate stays opaque under it, so no dip), the caption swaps, the row's outlined numeral fills (160 ms), its result gets an ink band that wipes in from the left (clip-path, 240 ms; it leaves by opacity in 120 ms), the old hairline fades (120 ms) and the new one draws in 180 ms from the end of the result, through the gutter, into the frame along a clear row, to a ring on the part: the token pipeline row of the specimen, the organization switcher of the care card, the 2 of 16 -> 2, the store badges of bayyinah.org, the Passkey button of the Incentiv sign-in, the Monthly/Annual switch of the Bayyinah TV pricing page, the category row of Viva Fresh, the progress row of the reader, the 1 of the chatbot plate, the search field of Dukagjini Bookstore. The frame unrolls once at load (clip-path, 600 ms); the first line waits for it. Three live plates (specimen, care, reader) mount when their row is first shown, so the care chart draws in view; screenshots load when their row is near; hidden plates are inert. The specimen shows its token table only, drawn at 656 px and scaled to fill the frame, so the plate ends on a whole card; the reader is shown as a page with no device silhouette. Arrow keys in the log, the tray buttons (roving tabindex, Left and Right) and Tab on a row move the current row with no travel and no animation. Phone: the frame pins at the top at 343 px wide over an ink rule, the log scrolls under it; the frame shows plates as pictures. Reduced motion: no unroll, no fade, no wipe, the line appears.",
+  "caseSlug": "care-platform",
+  "mechanisms": [
+    "S2",
+    "S5"
+  ],
+  "slopCount": 0,
+  "rounds": 1,
+  "loopScores": {
+    "straightToThePoint": 8,
+    "notOverwhelming": 8,
+    "harmony": 8,
+    "meaningfulMotion": 8,
+    "actionsAndSeniority": 8,
+    "original": 7.5,
+    "hooks": 8
+  },
+  "holdback": "Lowest: original, 7.5/10. A sticky media frame beside a scrolling text column is a known scrollytelling layout; the new parts are the projector reading of it (outlined slide numerals that fill, a ten-slot tray that is a real control, the frame that unrolls once), the result band and the hairline that runs from each result into the screen, and the chartreuse field. Known limits: on the phone the frame is 343 px wide, so plates read as pictures and are inert; Viva Fresh and Dukagjini Bookstore show two store screens each to fill the frame (Viva Fresh: the same home on iPhone and on Android, which is the claim); the reader's device silhouette and the specimen's other cards are hidden with draft CSS; the chatbot runtime has no case page, so its link opens the project list; the bottom 160 px of the 1440 x 900 first screen under the frame is empty field.",
+  "chroma": {
+    "firstScreen": 59.0,
+    "outsidePlates": 94.5,
+    "plateRect": [
+      520,
+      141,
+      1400,
+      701
+    ],
+    "method": "scratchpad/chroma.mjs logic on review/loop5/projector/final/d-top.png (1440 x 900)"
+  }
+}

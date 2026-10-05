@@ -1,28 +1,50 @@
 {
   "id": "token-source",
   "title": "TOKEN SOURCE",
-  "band": "Loop 4",
-  "rule": "one token source paints the hero specimen and the page around it; flip the specimen's theme and the page's cards follow while the band and the controls stay",
-  "description": "A full-bleed cobalt band with one claim, 'Web and mobile products, from the token to the release.', and the live design-system specimen (invented kit) as the hero plate. Four notes pass under the pinned plate (805 tokens, 36 components, WCAG 2.1 AA floors, 20 releases); each one draws a hairline to the token row it names. Then three big cards in true order (Read to Feed 2022–25, Bayyinah TV 2023–26, the care platform 2026) and a record of ten results.",
-  "signature": "Gentrit Display (Hubot Sans; its sister face draws the digits, because the display zero is barred) with JetBrains Mono for tokens and results, on white, with one cobalt. The page has no palette of its own for its cards: it reads the specimen's computed CSS variables (card.surface, text.primary, action.primary, action.soft, border.focus) and paints with them; the band is core cobalt.600, so it does not flip. The notes read the specimen's own lane text, so 'button.solid.bg → action.primary → cobalt.600' becomes 'cobalt.400' in dark, and each card names the token its surface reads ('card.surface → stone.0 / stone.900'). Motion: S2, the plate pins while the four notes pass; when a note crosses the pin line its hairline draws in 180 ms (the run outside the plate, then the run inside it, white over the band and cobalt below it), a 120 ms ring marks the token row, the previous hairline fades in 120 ms; the line stays tethered while the note scrolls. Theme flip: the specimen's own circular reveal changes the source first; the page's surfaces follow 200 ms later with a 200 ms colour tween (no text cross-fade, no remount, the care chart keeps its state and turns dark through light-dark()). S1: three cards oldest first, so the newer card covers the older one, which scales to 0.96 on a view timeline. Phone: the plate pins at 343 px wide, ends after the first token lane, and scrolls its own content to the row the current note names. Keyboard: 'Work' jumps to the cards with no travel. Reduced motion: hairlines appear with no draw, the flip switches state, no stack scale.",
+  "band": "Loop 5",
+  "rule": "one token source paints the hero specimen and the page around it; flip the specimen's theme and the page follows while the band and the controls stay",
+  "description": "A cobalt band with the claim the page proves, 'Every colour on this page comes from one token source.', and under it, 24 px clear of the band, the live specimen (invented kit) cropped to its Tokens panel, 1200 × 368. Four notes pass under the pinned plate (805 tokens, 36 components, WCAG 2.1 AA, 20 releases); each draws a hairline to the part it names, and the Alert panel arrives in the plate with the '20 releases' note. A note fades as a whole before it reaches the plate. Then three side-column cards in true order (Read to Feed on the live reader, Bayyinah TV, the care platform), each an 880 × 440 plate and a 280 px column, and a record of ten results.",
+  "signature": "Gentrit Display (Hubot Sans; its sister face draws the digits) with JetBrains Mono, one cobalt. The page has no palette of its own: ground, ink, muted text, lines and the band read the specimen's core values (stone.0, stone.950, stone.600, stone.200, cobalt.600), and the notes and cards read its roles (card.surface, text.primary, action.primary, action.soft, border.focus), so the claim is literally true. The first note says the hook: 'Light or Dark: this page follows.' Motion: S2, the plate pins while the notes pass; a note that crosses the pin line draws its hairline in 180 ms and rings its part in 120 ms; the previous hairline fades in 120 ms. Hairlines end at parts: 805 tokens at the 'One source' row, 36 components at the button lane, WCAG 2.1 AA at the focus-ring lane, 20 releases at the 'Release 1.2 is scheduled' alert. When a note's part is in another row, the row arrives first: the board moves 280 ms with cubic-bezier(0.77, 0, 0.175, 1) (transform only), then the hairline draws. A note fades from 1 to 0 over its last 60 px above the pinned plate's bottom edge (view() timeline, @supports guarded); the pin holds until the note before the last one has gone. Theme flip: the specimen's circular reveal changes the source first; the page follows 200 ms later with a 200 ms colour tween; the care chart and the reader keep their state. S1: three cards oldest first, the covered card scales to 0.96 on a view timeline. Phone: the plate ends after the first lane and scrolls itself to the offset that keeps the named part whole and cuts no row; Read to Feed uses its store screenshot there. Keyboard: 'Work' jumps to the cards with no travel. Reduced motion: the plate does not pin, notes do not fade, rows jump, hairlines appear with no draw, the flip switches state, no stack scale.",
   "caseSlug": "design-system-react",
-  "mechanisms": ["S1", "S2"],
-  "slopCount": 0.5,
-  "rounds": 1,
+  "mechanisms": [
+    "S1",
+    "S2"
+  ],
+  "slopCount": 0,
+  "rounds": 2,
   "loopScores": {
     "straightToThePoint": 8,
-    "notOverwhelming": 7.5,
-    "harmony": 8,
+    "notOverwhelming": 8,
+    "harmony": 8.5,
     "meaningfulMotion": 8,
     "actionsAndSeniority": 8,
     "original": 7,
-    "hooks": 7.5
+    "hooks": 8.5
   },
   "chroma": {
-    "firstScreen": 31.1,
-    "outsidePlates": 50.6,
-    "plate": [120, 244, 1320, 670],
-    "source": "chroma.mjs on final/d-top.png, 1440 × 900"
+    "firstScreen": 26.1,
+    "outsidePlates": 38.4,
+    "plate": [
+      120,
+      268,
+      1320,
+      636
+    ],
+    "source": "chroma.mjs method (decode and threshold unchanged) on loop5/token-source/final/d-top.png, 1440 × 900"
   },
-  "holdback": "Lowest: original, 7/10. The hero is a claim on a coloured band with a product plate that overlaps the band's lower edge, which is a known launch-page pattern, and the sticky card stack is a familiar scroll pattern even in true order. What is new is that the page is themed by its own hero: the notes and cards read the specimen's live tokens, the flip changes the source first and the page follows, and the token names on the page change with it. Not overwhelming is 7.5 because the specimen itself is dense (five token lanes and five alerts) on the first screen. Hooks is 7.5 because the flip is one click away but a visitor must try it; the caption at the control ('Light or Dark: this page follows ↓') is the only prompt. Known deviations from the plan: the plate is 1200 × 426, not 1200 × 600, because the specimen's second board row is cut at 600 px and a plate must end on a whole row; the notes pass under the plate, not beside it, so the plate keeps its full 1200 px width; the flip follows with a 200 ms delay so the source visibly changes first. Slop 0.5: the hero is the claim-on-band plus overlapping product shot layout."
+  "holdback": "Lowest: original, 7/10. The frame is still a claim on a colour band, a product plate and a sticky card stack; lifting the plate 24 px off the band removes the launch-page overlap, but the layout a visitor names is the same as round 4. What carries the page is the device: the page is painted by its own hero, the claim says so on the first screen, and the token names on the page change when the source flips. Harmony and hooks are 8.5, not 9: the reader plate is a 512 px scene centred on its own ground, so about 180 px of that ground shows at each side of the 880 px plate, and a visitor must still press Dark to see the hook work. Known limits: during the specimen's 560 ms reveal its view-transition layer paints over the current hairline's inner run and ring (they return at the end of the reveal); the pinned window with the Alert panel lasts 64 px of scroll on desktop and 30 px on the phone before the plate leaves with the last note. Slop 0: the plate no longer overlaps the band.",
+  "polish": [
+    {
+      "round": 5,
+      "score": 56,
+      "fixed": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    }
+  ]
 }
