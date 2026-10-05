@@ -5,7 +5,7 @@ import { featuredProjects } from "./content/projects";
 import { caseStudyPage } from "./lib/routes";
 const NoSignalPage = lazy(() => import("./pages/NoSignalPage"));
 const DraftApp = lazy(() => import("./drafts/DraftApp"));
-const AisleHome = lazy(() => import("./drafts/aisle/Draft"));
+const ProjectorHome = lazy(() => import("./drafts/projector/Draft"));
 
 const CaseStudyPage = caseStudyPage.Component;
 
@@ -25,8 +25,8 @@ export default function App() {
     return (
       <>
         <ScrollToTop />
-        <Suspense fallback={<div className="min-h-[100svh] bg-[#ffd400]" />}>
-          <AisleHome />
+        <Suspense fallback={<div className="min-h-[100svh] bg-[#d9f26b]" />}>
+          <ProjectorHome />
         </Suspense>
       </>
     );

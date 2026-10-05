@@ -10,7 +10,7 @@ import {
   type KeyboardEvent,
   type MouseEvent,
 } from "react";
-import { Link } from "react-router";
+import { Link, useLocation } from "react-router";
 import { ArrowRightIcon, ArrowUpRightIcon } from "@phosphor-icons/react";
 import { links } from "../../content/links";
 import { recreations } from "../../lib/recreations";
@@ -579,10 +579,11 @@ export default function Draft() {
   };
 
   const current = rows[shown.index];
+  const home = useLocation().pathname === "/";
 
   return (
     <div className="pj" ref={rootRef}>
-      <title>Projector — Gentrit Rashiti</title>
+      <title>{home ? "Gentrit Rashiti — web, mobile & full stack" : "Projector — Gentrit Rashiti"}</title>
       <main className="pj-main">
         <header className="pj-id">
           <h1>Gentrit Rashiti builds web and mobile products, from the design system to the API behind them.</h1>
