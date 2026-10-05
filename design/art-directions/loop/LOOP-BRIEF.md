@@ -107,3 +107,7 @@ Every round checks spacing, motion and UX at desktop (1440, 1280, 1024) and phon
 - No more videos (.mp4 reels). Rounds end with push + gallery publish only.
 - Personal work to showcase: Offday (light theme, more screenshots), OFFBEAT and FORM (visually strong). They appear as personal work on the home page and in the drafts.
 - Each draft leads with its own product; no two drafts open on the same screen.
+
+## Resume point (round 9 polish, 2026-10-05)
+
+Polish pass 9b was started on projector, then-now, two-readers, proof-tiles and personal-studio (brief: session scratchpad BUILDER-R9P.md, which is round-9 brief + "Polish pass 9b"; reviews in round-9-critic.md and round-9-devil.md). If the usage limit stopped it, the drafts may hold uncommitted partial edits. To continue: check `git status`, finish each draft's 9b list, run tsc + build, commit, push main and drafts-polish, publish the drafts gallery. No videos. Home stays projector.
