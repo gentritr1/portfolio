@@ -47,7 +47,7 @@ The owner wants many directions, kept as live drafts, iterated round after round
 | 3 | pinned-decisions, statement-of-record, year-stack, workspace-rail, same-behaviour, proven-cv | year-stack 54, statement-of-record 53, pinned-decisions 52, same-behaviour 51, workspace-rail 49, proven-cv 49. See round-3-review.md. All six opened on the care plate; five were pale | polish track: year-stack, statement-of-record |
 | 4 | polish: year-stack, statement-of-record; new: rebuilt-twice, token-source, both-stores, added-clauses | year-stack 55 (+1), statement-of-record 54 (+1), token-source 54, both-stores 54, rebuilt-twice 53, added-clauses 52. See round-4-review.md. Six different first screens; chroma 24–65%; original stuck at 7 | polish: year-stack, statement-of-record, token-source |
 | 5 | polish: year-stack, statement-of-record, token-source; new (no stack): sampled-ground, redline, projector | year-stack 56, sampled-ground 56, statement-of-record 55, token-source 55, projector 55, redline 54. See round-5-review.md. Original 8 reached by sampled-ground and redline | polish: sampled-ground, year-stack, projector; new: sampled-review |
-| 6 | polish: sampled-ground, year-stack, projector; new: sampled-review | pending (plan: round-5-review.md) | |
+| 6 | polish: sampled-ground, year-stack, projector; new: sampled-review | sampled-ground 57 (+1), projector 56 (+1), year-stack 56 (0, parked), sampled-review 55. See round-6-review.md. Six polish passes: five +1, one 0 | owner choice: projector (ship this week, 4 fixes) or sampled-ground (one more round, 5 fixes); optional round 7: polish sampled-ground + projector, new sampled-frame |
 
 ## Rules added after round 1
 
