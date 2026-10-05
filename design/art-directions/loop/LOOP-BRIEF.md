@@ -51,6 +51,7 @@ The owner wants many directions, kept as live drafts, iterated round after round
 | 7 | polish: sampled-ground, projector (incl. the four ship fixes); new: sampled-frame | Opus critic: sampled-frame 57, sampled-ground 57, projector 56; plain copy 5–6/10. Devil's advocate: no draft opens on a shipped product with a solved problem. See round-7-critic.md, round-7-devil.md | projector stays home and gets the copy pass; sampled-frame is the challenger; sampled-ground parked |
 | 8 | polish: projector (home), sampled-frame; restyle case pages + 404 to the home page; new: two-readers, proof-tiles, then-now (from PORTFOLIO-RESEARCH.md) | Critic: then-now 58, projector 57, two-readers 57, sampled-frame 56, case pages 53, proof-tiles 52. Devil ranks proof-tiles first. Both: one message in five skins; projector and sampled-frame too similar. See round-8-critic.md, round-8-devil.md | polish pass 8b done (self-scores: then-now 59, projector 58, two-readers 56, case pages 56, proof-tiles 54). New sameness: four drafts now open on the same Bayyinah TV pricing page; next round gives each draft its own lead product |
 | 9 | projector (home) + personal band; then-now (lead Snaxx Tech), two-readers (lead Read to Feed), proof-tiles (lead Viva Fresh); new: personal-studio | Critic: projector 58, two-readers 57, proof-tiles 55, then-now 55, personal-studio 52. Devil ranks proof-tiles first; both keep projector home if it takes the best ideas of the others. See round-9-critic.md, round-9-devil.md | polish 9b: projector absorbs the best ideas; the other four polish their lists |
+| 10 | divergence: live-objects, kosovo-time, four-languages, the-seam, departures, crossword (DIAGNOSIS §4.4) | pending | |
 
 ## Rules added after round 1
 
@@ -111,3 +112,7 @@ Every round checks spacing, motion and UX at desktop (1440, 1280, 1024) and phon
 ## Resume point (round 9 polish, 2026-10-05)
 
 Polish pass 9b was started on projector, then-now, two-readers, proof-tiles and personal-studio (brief: session scratchpad BUILDER-R9P.md, which is round-9 brief + "Polish pass 9b"; reviews in round-9-critic.md and round-9-devil.md). If the usage limit stopped it, the drafts may hold uncommitted partial edits. To continue: check `git status`, finish each draft's 9b list, run tsc + build, commit, push main and drafts-polish, publish the drafts gallery. No videos. Home stays projector.
+
+## Round 10: divergence round and new rubric (owner, 2026-10-06)
+
+Owner approved DIAGNOSIS.md: score straight to the point, seniority, original, hooks and "type and colour as a designer judges them" (target 9 on original and hooks); calm, harmony and motion become a pass/fail craft gate; hooks and motion are judged live; the jury is calibrated on an anchor set first. Round 10 builds six concepts with no shared layout brief: live-objects (C1), kosovo-time (C2), four-languages (C3), the-seam (C4, from diff), departures (C5, from linja), crossword (C6, from fjalekryq). Home stays projector.
