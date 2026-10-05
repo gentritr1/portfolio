@@ -102,6 +102,15 @@
   background: oklch(0.95 0 0);
 }
 
+/* The bar's own copy of the grounds. It sits at the viewport origin, as the page copy does. */
+.sg-bar-grounds {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
 /* ---------- Bar ---------- */
 
 .sg-bar {
@@ -109,10 +118,6 @@
   top: 0;
   z-index: 10;
   height: var(--sg-bar-h);
-  background: var(--sg-ground);
-  transition:
-    background-color 280ms var(--sg-ease-out),
-    color 280ms var(--sg-ease-out);
 }
 
 .sg-bar-in {
@@ -254,7 +259,6 @@
   white-space: nowrap;
   line-height: 1;
   transform: translateX(calc(var(--sg-at) * var(--sg-px) - 6px));
-  transition: transform 280ms var(--sg-ease-move);
 }
 
 .sg-scale-track[data-far] .sg-scale-label {
@@ -303,6 +307,10 @@
   margin: 16px 0 0;
   font-size: 16px;
   line-height: 1.45;
+}
+
+.sg-note-name {
+  font-weight: 650;
 }
 
 .sg-note-mark {
@@ -387,19 +395,6 @@
   height: auto;
 }
 
-.sg-pair {
-  display: flex;
-  gap: 12px;
-  height: 100%;
-  background: var(--sg-c-panel);
-}
-
-.sg-pair .sg-crop {
-  flex: 1 1 0;
-  height: 100%;
-  aspect-ratio: auto;
-  border-radius: 6px;
-}
 
 .sg-column {
   display: flex;
@@ -424,6 +419,21 @@
   line-height: 1.32;
   letter-spacing: -0.01em;
   text-wrap: pretty;
+}
+
+.sg-result {
+  position: relative;
+  display: block;
+  margin-top: 4px;
+  font-weight: 700;
+  text-wrap: balance;
+}
+
+/* The arrow hangs in the dot's column, so the decision and the result share one left edge. */
+.sg-arrow {
+  position: absolute;
+  right: 100%;
+  padding-right: 0.3em;
 }
 
 .sg-nowrap {
@@ -721,12 +731,21 @@ a.sg-record-row {
     border-radius: 6px;
   }
 
-  .sg-plate-shots {
+  /* A portrait store screen keeps its native ratio and sits flush with the plate's right edge. */
+  .sg-plate-flush {
+    display: flex;
+    justify-content: flex-end;
     background: var(--sg-c-panel);
   }
 
-  .sg-pair {
-    background: none;
+  .sg-plate-flush .sg-crop {
+    width: auto;
+    height: 100%;
+    border-radius: 6px;
+  }
+
+  .sg-note-hook {
+    display: none;
   }
 
   .sg-column {
@@ -810,18 +829,14 @@ a.sg-record-row {
 
 /* A jump by key or a reduced-motion visitor changes state with no transition. */
 .sg[data-instant] .sg-ground,
-.sg[data-instant] .sg-bar,
-.sg[data-instant] .sg-scale-mark,
-.sg[data-instant] .sg-scale-label {
+.sg[data-instant] .sg-scale-mark {
   transition: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .sg-ground,
   .sg-ground[data-on],
-  .sg-bar,
   .sg-scale-mark,
-  .sg-scale-label,
   .sg a,
   .sg-link:active {
     transition: none;

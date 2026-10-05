@@ -13,15 +13,17 @@ export interface Shot {
   height: number;
   /** The part of the image the frame shows. It ends on a whole row of the screen. */
   crop: Box;
+  /** The 4:3 part the frame shows under 1024 px. */
+  narrow: Box;
 }
 
 /**
  * Where the hairline ends. A selector names a part of a live plate. An image
- * box names a part of one shot of the plate, in fractions of that shot's crop.
+ * box names a part of the plate's shot, in fractions of the whole image.
  */
 export type Target =
-  | { kind: "selector"; css: string; narrow?: string }
-  | { kind: "shot"; shot: number; box: Box }
+  | { kind: "selector"; css: string }
+  | { kind: "shot"; box: Box }
   | { kind: "figure"; css: string };
 
 /**
@@ -35,7 +37,7 @@ export type Route = { kind: "side" } | { kind: "lane"; y: number } | { kind: "al
 export type Plate =
   | { kind: "live"; key: "design-system" | "care" | "reader" }
   | { kind: "web"; shot: Shot; ground: string; dark?: boolean }
-  | { kind: "pair"; shots: [Shot, Shot]; ground: string }
+  | { kind: "phone"; shot: Shot; ground: string }
   | { kind: "number"; from?: string; to: string; unit: string; note: string };
 
 export interface Row {
@@ -71,14 +73,14 @@ export const rows: Row[] = [
   {
     id: "02",
     project: "Care-management platform",
-    line: "Many clinics share one system. Its frontend moves from Vue to React, route by route.",
-    result: "Each organization sees only its own patients",
-    role: "Frontend",
+    line: "The frontend moves from Vue to React, route by route.",
+    result: "A route moves after its parity test passes on both apps",
+    role: "Frontend, multi-tenant",
     year: "2023–26",
     plate: { kind: "live", key: "care" },
     caption: "Vitals trend card. Recreation with invented data.",
-    target: { kind: "selector", css: 'button[aria-label^="Organization"]' },
-    route: { kind: "along", css: ".border-t" },
+    target: { kind: "selector", css: 'footer [role="radiogroup"]' },
+    route: { kind: "side" },
     link: { label: "Open the case", href: "/work/care-platform" },
   },
   {
@@ -110,10 +112,11 @@ export const rows: Row[] = [
         width: 1440,
         height: 900,
         crop: { x: 0.0632, y: 0, w: 0.8729, h: 0.8889 },
+        narrow: { x: 513 / 1440, y: 525 / 900, w: 413 / 1440, h: 310 / 900 },
       },
     },
     caption: "bayyinah.org, public page.",
-    target: { kind: "shot", shot: 0, box: { x: 0.345, y: 0.844, w: 0.3, h: 0.069 } },
+    target: { kind: "shot", box: { x: 0.3644, y: 0.7502, w: 0.2619, h: 0.0613 } },
     route: { kind: "side" },
     link: { label: "bayyinah.org", href: "https://bayyinah.org/", external: true },
   },
@@ -134,10 +137,11 @@ export const rows: Row[] = [
         width: 1440,
         height: 900,
         crop: { x: 0.0972, y: 0.0889, w: 0.8, h: 0.8144 },
+        narrow: { x: 190 / 1440, y: 280 / 900, w: 512 / 1440, h: 384 / 900 },
       },
     },
     caption: "Incentiv portal sign-in, public screen.",
-    target: { kind: "shot", shot: 0, box: { x: 0.076, y: 0.577, w: 0.08, h: 0.047 } },
+    target: { kind: "shot", box: { x: 0.158, y: 0.5588, w: 0.064, h: 0.0383 } },
     route: { kind: "side" },
     link: { label: "Open the case", href: "/work/incentiv" },
   },
@@ -158,10 +162,11 @@ export const rows: Row[] = [
         width: 1440,
         height: 900,
         crop: { x: 0.3264, y: 0, w: 0.6736, h: 0.6856 },
+        narrow: { x: 515 / 1440, y: 108 / 900, w: 387 / 1440, h: 290 / 900 },
       },
     },
     caption: "Bayyinah TV pricing, public page.",
-    target: { kind: "shot", shot: 0, box: { x: 0.0603, y: 0.1945, w: 0.2732, h: 0.0996 } },
+    target: { kind: "shot", box: { x: 0.367, y: 0.1334, w: 0.184, h: 0.0683 } },
     route: { kind: "lane", y: 0.04 },
     link: { label: "Open the case", href: "/work/bayyinah-tv" },
   },
@@ -173,27 +178,19 @@ export const rows: Row[] = [
     role: "Mobile",
     year: "2023",
     plate: {
-      kind: "pair",
+      kind: "phone",
       ground: "#ee2d31",
-      shots: [
-        {
-          src: "/mobile/grocery-1.webp",
-          alt: "Viva Fresh store screenshot on iPhone: home with product categories and the latest products",
-          width: 780,
-          height: 1689,
-          crop: { x: 0.1179, y: 0.2143, w: 0.7641, h: 0.5187 },
-        },
-        {
-          src: "/mobile/grocery-4.webp",
-          alt: "Viva Fresh store screenshot on Android: the same home with product categories and the latest products",
-          width: 780,
-          height: 1387,
-          crop: { x: 0.1795, y: 0.2538, w: 0.641, h: 0.5299 },
-        },
-      ],
+      shot: {
+        src: "/mobile/grocery-1.webp",
+        alt: "Viva Fresh store screenshot on iPhone: home with product categories and the latest products",
+        width: 780,
+        height: 1689,
+        crop: { x: 92 / 780, y: 372 / 1689, w: 596 / 780, h: 868 / 1689 },
+        narrow: { x: 92 / 780, y: 372 / 1689, w: 596 / 780, h: 447 / 1689 },
+      },
     },
-    caption: "Viva Fresh home on iPhone and on Android, store listings.",
-    target: { kind: "shot", shot: 0, box: { x: 0.06, y: 0.16, w: 0.88, h: 0.165 } },
+    caption: "Viva Fresh home on iPhone. Also on Google Play.",
+    target: { kind: "shot", box: { x: 128 / 780, y: 500 / 1689, w: 522 / 780, h: 148 / 1689 } },
     route: { kind: "side" },
     link: { label: "Open the case", href: "/work/viva-fresh" },
   },
@@ -231,27 +228,19 @@ export const rows: Row[] = [
     role: "Mobile",
     year: "2021–22",
     plate: {
-      kind: "pair",
+      kind: "phone",
       ground: "#f4a3a3",
-      shots: [
-        {
-          src: "/mobile/bookstore-1.webp",
-          alt: "Dukagjini Bookstore store screenshot: home with book search, top categories and books on sale",
-          width: 780,
-          height: 1689,
-          crop: { x: 0.1385, y: 0.4381, w: 0.7231, h: 0.4174 },
-        },
-        {
-          src: "/mobile/bookstore-2.webp",
-          alt: "Dukagjini Bookstore store screenshot: foreign books with ratings and prices",
-          width: 780,
-          height: 1689,
-          crop: { x: 0.1385, y: 0.4263, w: 0.7231, h: 0.447 },
-        },
-      ],
+      shot: {
+        src: "/mobile/bookstore-1.webp",
+        alt: "Dukagjini Bookstore store screenshot on iPhone: home with book search and top categories",
+        width: 780,
+        height: 1689,
+        crop: { x: 106 / 780, y: 740 / 1689, w: 568 / 780, h: 660 / 1689 },
+        narrow: { x: 115 / 780, y: 840 / 1689, w: 547 / 780, h: 410 / 1689 },
+      },
     },
-    caption: "Dukagjini Bookstore, two screens from the store listing.",
-    target: { kind: "shot", shot: 0, box: { x: 0.08, y: 0.575, w: 0.84, h: 0.085 } },
+    caption: "Dukagjini Bookstore home on iPhone. Also on Google Play.",
+    target: { kind: "shot", box: { x: 155 / 780, y: 1145 / 1689, w: 470 / 780, h: 60 / 1689 } },
     route: { kind: "side" },
     link: { label: "Open the case", href: "/work/dukagjini-bookstore" },
   },

@@ -188,6 +188,11 @@ export const years: Year[] = [
         decision: "Keep releasing while React Native moves from 0.63 to 0.81.",
         result: "About 14 releases to both stores",
       },
+      {
+        project: "Chatbot runtime library",
+        decision: "Play scripted chat conversations from one React Native package.",
+        result: "1 reusable package, with typing delays and duplicate guards",
+      },
     ],
     plate: {
       kind: "phone",
@@ -260,12 +265,6 @@ export const record: RecordRow[] = [
     project: "Care-management platform",
     decision: "Build the care platform's features on Vue (Nuxt 2).",
     result: "4 languages: EN, DE, ES, TR",
-  },
-  {
-    year: "2022",
-    project: "Chatbot runtime library",
-    decision: "Play scripted chat conversations from one React Native package.",
-    result: "1 reusable package",
   },
 ];
 

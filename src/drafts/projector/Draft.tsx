@@ -6,7 +6,6 @@ import {
   useRef,
   useState,
   useSyncExternalStore,
-  type CSSProperties,
   type FocusEvent,
   type KeyboardEvent,
   type MouseEvent,
@@ -23,12 +22,9 @@ const FADE_MS = 200;
 const DRAW_MS = 180;
 const RING_MS = 120;
 const LEAVE_MS = 120;
-/** The frame unrolls once at load; the first line waits for it. */
-const UNROLL_MS = 600;
 const EASE_OUT = "cubic-bezier(0.23, 1, 0.32, 1)";
-/** The plate is drawn at this size and scaled to the frame's width. */
+/** On a wide screen the plate is drawn 880 px wide and scaled to the frame's width. */
 const STAGE_W = 880;
-const STAGE_H = 560;
 
 type Mode = "animate" | "instant";
 
@@ -91,6 +87,28 @@ function LivePlate({ which }: { which: keyof typeof liveKeys }) {
     return () => observer.disconnect();
   }, [which]);
 
+  // The phone crop of the care plate starts under its patient header, whose height follows the width.
+  useEffect(() => {
+    if (which !== "care") return;
+    const element = ref.current;
+    if (!element) return;
+    const measure = () => {
+      const row = element.querySelector<HTMLElement>(".border-t");
+      if (!row) return;
+      const top = row.offsetTop + 1;
+      element.style.setProperty("--pj-care-head", `${top}px`);
+    };
+    measure();
+    const resize = new ResizeObserver(measure);
+    resize.observe(element);
+    const mutation = new MutationObserver(measure);
+    mutation.observe(element, { childList: true, subtree: true });
+    return () => {
+      resize.disconnect();
+      mutation.disconnect();
+    };
+  }, [which]);
+
   const live = (
     <Suspense fallback={<div className="pj-wait" />}>
       <Live />
@@ -103,8 +121,7 @@ function LivePlate({ which }: { which: keyof typeof liveKeys }) {
   );
 }
 
-function ShotView({ shot, eager }: { shot: Shot; eager: boolean }) {
-  const { crop } = shot;
+function ShotView({ shot, crop, eager }: { shot: Shot; crop: Box; eager: boolean }) {
   return (
     <div
       className="pj-shot"
@@ -127,7 +144,7 @@ function ShotView({ shot, eager }: { shot: Shot; eager: boolean }) {
   );
 }
 
-function PlateView({ plate, load }: { plate: Plate; load: boolean }) {
+function PlateView({ plate, load, narrow }: { plate: Plate; load: boolean; narrow: boolean }) {
   if (plate.kind === "live") return load ? <LivePlate which={plate.key} /> : <div className="pj-wait" />;
   if (plate.kind === "number") {
     return (
@@ -148,16 +165,9 @@ function PlateView({ plate, load }: { plate: Plate; load: boolean }) {
       </figure>
     );
   }
-  if (plate.kind === "web") {
-    return (
-      <div className="pj-web" style={{ background: plate.ground }}>
-        {load && <ShotView shot={plate.shot} eager={false} />}
-      </div>
-    );
-  }
   return (
-    <div className="pj-pair" style={{ background: plate.ground }}>
-      {load && plate.shots.map((shot) => <ShotView key={shot.src} shot={shot} eager={false} />)}
+    <div className={`pj-${plate.kind}`} style={{ background: plate.ground }}>
+      {load && <ShotView shot={plate.shot} crop={narrow ? plate.shot.narrow : plate.shot.crop} eager={false} />}
     </div>
   );
 }
@@ -201,12 +211,12 @@ interface Wire {
   tone: "light" | "dark" | "field";
 }
 
-function targetBox(row: Row, plate: HTMLElement, narrow: boolean): Box | null {
+function targetBox(row: Row, plate: HTMLElement): Box | null {
   const { target } = row;
   if (target.kind === "shot") {
-    const shot = plate.querySelectorAll<HTMLElement>(".pj-shot")[target.shot];
-    if (!shot) return null;
-    const box = shot.getBoundingClientRect();
+    const image = plate.querySelector<HTMLImageElement>(".pj-shot img");
+    if (!image) return null;
+    const box = image.getBoundingClientRect();
     if (box.width === 0) return null;
     return {
       x: box.left + target.box.x * box.width,
@@ -215,8 +225,7 @@ function targetBox(row: Row, plate: HTMLElement, narrow: boolean): Box | null {
       h: target.box.h * box.height,
     };
   }
-  const css = target.kind === "selector" && narrow && target.narrow ? target.narrow : target.css;
-  const element = plate.querySelector<HTMLElement>(css);
+  const element = plate.querySelector<HTMLElement>(target.css);
   if (!element) return null;
   const box = element.getBoundingClientRect();
   if (box.width === 0) return null;
@@ -225,7 +234,7 @@ function targetBox(row: Row, plate: HTMLElement, narrow: boolean): Box | null {
 
 function measureWire(row: Row, rowElement: HTMLElement, plate: HTMLElement, narrow: boolean): Wire | null {
   const mark = rowElement.querySelector<HTMLElement>(".pj-result-ink mark");
-  const target = targetBox(row, plate, narrow);
+  const target = targetBox(row, plate);
   if (!mark || !target) return null;
   const fragments = mark.getClientRects();
   if (fragments.length === 0) return null;
@@ -264,7 +273,7 @@ function measureWire(row: Row, rowElement: HTMLElement, plate: HTMLElement, narr
   }
   const pad = 5;
   const ring = { x: target.x - pad, y: target.y - pad, w: target.w + pad * 2, h: target.h + pad * 2, r: 8 };
-  if (row.target.kind === "selector" && row.target.css.includes("Organization")) ring.r = ring.h / 2;
+  if (row.target.kind === "selector" && row.target.css.includes("radiogroup")) ring.r = ring.h / 2;
   const outLength = lengthOf(outside);
   const inLength = lengthOf(inside);
   return {
@@ -485,16 +494,30 @@ export default function Draft() {
     };
   }, [updateWire, loaded]);
 
+  /* The first line draws after the first plate has faded in. */
   useEffect(() => {
-    const timer = window.setTimeout(
-      () => {
-        armed.current = true;
-        pendingDraw.current = "animate";
-        updateWire();
-      },
-      reduced ? 0 : UNROLL_MS,
-    );
-    return () => window.clearTimeout(timer);
+    if (armed.current) return;
+    let timer = 0;
+    let frame = 0;
+    const arm = () => {
+      armed.current = true;
+      pendingDraw.current = "animate";
+      updateWire();
+    };
+    const wait = () => {
+      const plate = plateRefs.current[0];
+      if (!plate || !targetBox(rows[0], plate)) {
+        frame = requestAnimationFrame(wait);
+        return;
+      }
+      if (reduced) arm();
+      else timer = window.setTimeout(arm, FADE_MS);
+    };
+    wait();
+    return () => {
+      cancelAnimationFrame(frame);
+      window.clearTimeout(timer);
+    };
   }, [reduced, updateWire]);
 
   /* A new row: the old line fades, the plate cross-fades, then the new line draws. */
@@ -654,7 +677,7 @@ export default function Draft() {
         <aside className="pj-frame-wrap" aria-label="Frame">
           <div className="pj-frame" ref={frameRef}>
             <div className="pj-screen" ref={screenRef}>
-              <div className="pj-stage" style={{ width: STAGE_W, height: STAGE_H } as CSSProperties}>
+              <div className="pj-stage">
                 {rows.map((row, index) => {
                   const state = index === shown.index ? "on" : index === prev ? "prev" : "off";
                   return (
@@ -669,7 +692,7 @@ export default function Draft() {
                       inert={state !== "on" || narrow}
                       aria-hidden={state !== "on"}
                     >
-                      <PlateView plate={row.plate} load={loaded.has(index)} />
+                      <PlateView plate={row.plate} load={loaded.has(index)} narrow={narrow} />
                     </div>
                   );
                 })}

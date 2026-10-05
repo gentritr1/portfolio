@@ -18,9 +18,15 @@ export interface Shot {
 
 /** A live plate renders at its design size and scales to the plate. */
 export type Plate =
-  | { kind: "live"; key: RecreationKey; design: [number, number]; narrow: [number, number] }
-  | { kind: "shots"; shots: Shot[]; narrow: Shot }
-  | { kind: "shot"; shot: Shot; narrow: Shot };
+  | {
+      kind: "live";
+      key: RecreationKey;
+      design: [number, number];
+      narrow: [number, number];
+      /** Design pixels above the phone crop. The phone plate shows the part under them. */
+      narrowShift?: number;
+    }
+  | { kind: "shot"; shot: Shot; narrow: Shot; flush?: boolean };
 
 /** The pin ends on a part: an element of a live plate, or a box in one image of the plate. */
 export type PinTarget = { kind: "selector"; css: string } | { kind: "image"; index: number; box: Box };
@@ -31,12 +37,13 @@ export interface Card {
   /** For the bar on a phone. */
   short: string;
   role: string;
-  /** Problem → result, or what shipped. 18 words or fewer. */
-  line: string;
+  /** Decision → result, 18 words or fewer together. */
+  decision: string;
+  result: string;
   plate: Plate;
   caption: string;
+  /** The same part on both devices. */
   pin: PinTarget;
-  narrowPin?: PinTarget;
   /** How the phone line reaches the part: up the plate's left or right edge, or straight up from below. */
   narrowRoute: "left" | "right" | "below";
   /** Dominant hue of the plate, measured from the rendered plate (OKLCH degrees). */
@@ -48,15 +55,9 @@ const box = (x: number, y: number, w: number, h: number): Box => ({ x, y, w, h }
 
 const vivaIphone = {
   src: "/mobile/grocery-3.webp",
-  alt: "Viva Fresh cart on iPhone, from the App Store listing: two jars of ajvar, the total discount and the checkout bar",
+  alt: "Viva Fresh cart on iPhone, from the App Store listing: a jar of ajvar, the total discount and the checkout bar at 25.11 euro",
   width: 780,
   height: 1689,
-};
-const vivaAndroid = {
-  src: "/mobile/grocery-5.webp",
-  alt: "Viva Fresh cart on Android, from the Google Play listing: the same cart screen, the total discount and the checkout bar",
-  width: 780,
-  height: 1387,
 };
 
 export const cards: Card[] = [
@@ -65,18 +66,16 @@ export const cards: Card[] = [
     project: "Viva Fresh",
     short: "Viva Fresh",
     role: "Mobile · 2023",
-    line: "One grocery app for iPhone and Android, from one React Native codebase. Live in both stores.",
+    decision: "Ship one React Native codebase to iPhone and Android.",
+    result: "Live in both stores.",
     plate: {
-      kind: "shots",
-      shots: [
-        { ...vivaIphone, crop: box(92 / 780, 862 / 1689, 596 / 780, 604 / 1689) },
-        { ...vivaAndroid, crop: box(136 / 780, 808 / 1387, 508 / 780, 515 / 1387) },
-      ],
+      kind: "shot",
+      shot: { ...vivaIphone, crop: box(88 / 780, 1098 / 1689, 604 / 780, 370 / 1689) },
       narrow: { ...vivaIphone, crop: box(88 / 780, 1080 / 1689, 604 / 780, 403 / 1689) },
+      flush: true,
     },
-    caption: "Store listings, iPhone and Android",
-    pin: { kind: "image", index: 1, box: box(536 / 780, 1268 / 1387, 90 / 780, 40 / 1387) },
-    narrowPin: { kind: "image", index: 0, box: box(570 / 780, 1404 / 1689, 92 / 780, 40 / 1689) },
+    caption: "Store listing, iPhone; the same screen is on Google Play",
+    pin: { kind: "image", index: 0, box: box(570 / 780, 1404 / 1689, 92 / 780, 40 / 1689) },
     narrowRoute: "below",
     hue: 23,
     link: { label: "Open the case", href: "/work/viva-fresh" },
@@ -86,11 +85,11 @@ export const cards: Card[] = [
     project: "Bayyinah TV",
     short: "Bayyinah TV",
     role: "Frontend · 2023–26",
-    line: "Rebuild the video platform on Nuxt 3: 34 routes, 270+ components, live streams with moderated chat.",
-    plate: { kind: "live", key: "live-room", design: [1100, 550], narrow: [686, 457] },
+    decision: "Rebuild the video platform on Nuxt 3.",
+    result: "34 routes and 270+ components, with moderated live chat.",
+    plate: { kind: "live", key: "live-room", design: [1100, 550], narrow: [686, 760], narrowShift: 303 },
     caption: "Recreation with invented data",
     pin: { kind: "selector", css: "section[aria-label='Live chat'] .bg-accent-soft" },
-    narrowPin: { kind: "selector", css: ".lr-player .rounded-md.bg-accent" },
     narrowRoute: "left",
     hue: 34,
     link: { label: "Open the case", href: "/work/bayyinah-tv" },
@@ -100,7 +99,8 @@ export const cards: Card[] = [
     project: "Incentiv",
     short: "Incentiv",
     role: "Frontend, UI layer · 2024",
-    line: "Sign people in with a passkey or an external wallet, in English and French.",
+    decision: "Build the UI layer of a smart-wallet dashboard.",
+    result: "Passkey or wallet sign-in, in English and French.",
     plate: { kind: "live", key: "wallet", design: [800, 400], narrow: [686, 457] },
     caption: "Recreation with invented data",
     pin: { kind: "selector", css: "button.w-full" },
@@ -113,7 +113,8 @@ export const cards: Card[] = [
     project: "bayyinah.org",
     short: "bayyinah.org",
     role: "Frontend · 2024–25",
-    line: "A one-page Next.js site for the institute, live, with links to both app stores.",
+    decision: "Build the institute's site as one Next.js page.",
+    result: "Live, with links to both app stores.",
     plate: {
       kind: "shot",
       shot: {
@@ -142,7 +143,8 @@ export const cards: Card[] = [
     project: "Design System v2",
     short: "Design System v2",
     role: "Design system · 2026",
-    line: "805 tokens in three tiers from one source, under 36 components in 20 releases.",
+    decision: "Generate 805 tokens in three tiers from one source.",
+    result: "36 components in 20 releases.",
     plate: { kind: "live", key: "design-system", design: [860, 430], narrow: [686, 457] },
     caption: "Recreation with invented data",
     pin: { kind: "selector", css: ".dsr-pipeline" },
@@ -155,7 +157,8 @@ export const cards: Card[] = [
     project: "Care-management platform",
     short: "Care platform",
     role: "Frontend · 2026",
-    line: "Move a multi-tenant care platform from Vue to React, one parity-tested route at a time.",
+    decision: "Move a multi-tenant care platform from Vue to React.",
+    result: "A route moves after its parity test passes.",
     plate: { kind: "live", key: "care", design: [1100, 550], narrow: [686, 457] },
     caption: "Recreation with invented data",
     pin: { kind: "selector", css: 'button[aria-label^="Organization"]' },

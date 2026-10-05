@@ -34,7 +34,7 @@ function useMedia(query: string, fallback: boolean) {
   );
 }
 
-const pad = (hue: number) => String(Math.round(hue)).padStart(3, "0");
+const deg = (hue: number) => `${Math.round(hue)}°`;
 
 /** One ground for each distinct hue, in page order. */
 const stops = cards.reduce<{ hue: number; first: number; members: number[] }[]>((list, _, index) => {
@@ -101,6 +101,7 @@ function Live({ plate, wide }: { plate: Extract<Plate, { kind: "live" }>; wide: 
   const entry = recreations[plate.key];
   const Recreation = entry.Component;
   const size = wide ? plate.design : plate.narrow;
+  const shift = wide ? 0 : (plate.narrowShift ?? 0);
 
   useLayoutEffect(() => {
     if (!node) return;
@@ -134,7 +135,13 @@ function Live({ plate, wide }: { plate: Extract<Plate, { kind: "live" }>; wide: 
       {near && scale > 0 ? (
         <div
           className="sg-live-in"
-          style={{ width: design[0], height: design[1], transform: `scale(${scale})` } as CSSProperties}
+          style={
+            {
+              width: design[0],
+              height: design[1],
+              transform: `translateY(${-shift * scale}px) scale(${scale})`,
+            } as CSSProperties
+          }
         >
           <Suspense fallback={<div className="sg-wait" />}>
             <Recreation {...props} />
@@ -149,15 +156,7 @@ function Live({ plate, wide }: { plate: Extract<Plate, { kind: "live" }>; wide: 
 
 function PlateView({ plate, wide, eager }: { plate: Plate; wide: boolean; eager: boolean }) {
   if (plate.kind === "live") return <Live plate={plate} wide={wide} />;
-  if (!wide) return <Crop shot={plate.narrow} eager={eager} />;
-  if (plate.kind === "shot") return <Crop shot={plate.shot} eager={eager} />;
-  return (
-    <div className="sg-pair">
-      {plate.shots.map((shot) => (
-        <Crop key={shot.src} shot={shot} eager={eager} />
-      ))}
-    </div>
-  );
+  return <Crop shot={wide ? plate.shot : plate.narrow} eager={eager} />;
 }
 
 /* ---------- Pin ---------- */
@@ -227,8 +226,7 @@ function measurePin(card: HTMLElement, data: Card, wide: boolean): Geometry | nu
   const origin = card.getBoundingClientRect();
   const plate = within(plateNode.getBoundingClientRect(), origin);
   const source = within(dot.getBoundingClientRect(), origin);
-  const pin = !wide && data.narrowPin ? data.narrowPin : data.pin;
-  const target = targetBox(card, plateNode, pin, origin);
+  const target = targetBox(card, plateNode, data.pin, origin);
   if (!target || target.w === 0) return null;
   const sx = Math.round(source.x + source.w / 2);
   const sy = Math.round(source.y + source.h / 2);
@@ -250,10 +248,12 @@ function measurePin(card: HTMLElement, data: Card, wide: boolean): Geometry | nu
     const lane = data.narrowRoute === "left" ? left : data.narrowRoute === "right" ? right : cx;
     outside = [[sx - 6, sy], [margin, sy], [margin, below], [lane, below], [lane, bottom]];
     if (data.narrowRoute === "below") inside = [[lane, bottom], [lane, Math.round(target.y + target.h + 6)]];
+    else if (data.narrowRoute === "left" && target.x - 6 <= lane + 4)
+      inside = [[lane, bottom], [lane, Math.round(target.y + target.h + 4)]];
     else if (data.narrowRoute === "left") inside = [[lane, bottom], [lane, ty], [Math.round(target.x - 6), ty]];
     else inside = [[lane, bottom], [lane, ty], [Math.round(target.x + target.w + 6), ty]];
   }
-  const pad = 5;
+  const pad = wide ? 5 : Math.min(5, Math.max(1, Math.floor(target.x - plate.x) - 1));
   const ring = { x: target.x - pad, y: target.y - pad, w: target.w + pad * 2, h: target.h + pad * 2, r: 6 };
   const outLength = lengthOf(outside);
   const inLength = lengthOf(inside);
@@ -364,7 +364,9 @@ function CardView({
         aria-labelledby={`${data.id}-name`}
         tabIndex={-1}
       >
-        <div className={`sg-plate sg-plate-${data.plate.kind}`} role="group" aria-label={`${data.project}: ${data.caption}`}>
+        <div
+          className={`sg-plate sg-plate-${data.plate.kind}${data.plate.kind === "shot" && data.plate.flush ? " sg-plate-flush" : ""}`}
+          role="group" aria-label={`${data.project}: ${data.caption}`}>
           <PlateView plate={data.plate} wide={wide} eager={index === 0} />
         </div>
         <div className="sg-column">
@@ -373,13 +375,19 @@ function CardView({
           </h2>
           <p className="sg-line">
             <span className="sg-dot" aria-hidden="true" />
-            <Unbroken text={data.line} />
+            <Unbroken text={data.decision} />
+            <strong className="sg-result">
+              <span className="sg-arrow" aria-hidden="true">
+                →
+              </span>
+              <Unbroken text={data.result} />
+            </strong>
           </p>
           <p className="sg-role">{data.role}</p>
           <p className="sg-hue">
             <span className="sg-chip" aria-hidden="true" />
-            h {pad(data.hue)}
-            {shared && <> · shares {pad(ground)}</>}
+            hue {deg(data.hue)}
+            {shared && <>, ground {deg(ground)}</>}
           </p>
           <p className="sg-caption">{data.caption}</p>
           <p className="sg-more">
@@ -431,7 +439,7 @@ function Scale({ shown, onJump }: { shown: number; onJump: (index: number, insta
   const label =
     shown === RECORD
       ? "The record: no screen, no hue"
-      : `${card.project} · h ${pad(card.hue)}${grounds[shown] !== card.hue ? ` → ${pad(grounds[shown])}` : ""}`;
+      : `Sampled from the screen under it · ${card.short} · ${deg(card.hue)}${grounds[shown] !== card.hue ? ` → ${deg(grounds[shown])}` : ""}`;
   const at = active >= 0 ? stops[active].hue : 0;
 
   const onKey = (event: KeyboardEvent<HTMLElement>) => {
@@ -449,7 +457,7 @@ function Scale({ shown, onJump }: { shown: number; onJump: (index: number, insta
   return (
     <nav className="sg-scale" aria-label="Screens by hue" onKeyDown={onKey}>
       <span className="sg-scale-end" aria-hidden="true">
-        h 0
+        hue 0°
       </span>
       <div
         className="sg-scale-track"
@@ -466,7 +474,7 @@ function Scale({ shown, onJump }: { shown: number; onJump: (index: number, insta
             aria-current={index === active ? "true" : undefined}
             tabIndex={index === focusIndex ? 0 : -1}
             style={{ "--sg-h": stop.hue } as CSSProperties}
-            aria-label={`${stop.members.map((member) => cards[member].project).join(" and ")}, hue ${stop.hue}`}
+            aria-label={`${stop.members.map((member) => cards[member].project).join(" and ")}, hue ${stop.hue}°`}
             onClick={(event: MouseEvent<HTMLButtonElement>) => onJump(stop.first, event.detail === 0)}
           >
             <span className="sg-scale-dot" />
@@ -478,9 +486,42 @@ function Scale({ shown, onJump }: { shown: number; onJump: (index: number, insta
         </span>
       </div>
       <span className="sg-scale-end" aria-hidden="true">
-        360
+        360°
       </span>
     </nav>
+  );
+}
+
+/* ---------- Grounds ---------- */
+
+/**
+ * One layer for each distinct hue. The page draws one set behind everything and the bar draws a second
+ * set behind its own content; both sets sit at the viewport origin, so one circle spreads over both.
+ */
+function Grounds({
+  className,
+  neutral,
+  hue,
+  register,
+}: {
+  className: string;
+  neutral: boolean;
+  hue: number;
+  register: (key: string, node: HTMLElement | null) => void;
+}) {
+  return (
+    <div className={className} aria-hidden="true">
+      {stops.map((stop) => (
+        <span
+          key={stop.hue}
+          ref={(node) => register(String(stop.hue), node)}
+          className="sg-ground"
+          data-on={(!neutral && hue === stop.hue) || undefined}
+          style={{ "--sg-h": stop.hue } as CSSProperties}
+        />
+      ))}
+      <span ref={(node) => register("none", node)} className="sg-ground sg-ground-none" data-on={neutral || undefined} />
+    </div>
   );
 }
 
@@ -497,11 +538,21 @@ export default function Draft() {
   const [shown, setShown] = useState({ index: 0, instant: false });
   const [drawn, setDrawn] = useState<ReadonlySet<number>>(() => new Set());
   const instantNext = useRef(false);
-  const layers = useRef(new Map<string, HTMLElement>());
+  const layers = useRef(new Map<string, Set<HTMLElement>>());
   const { scrollY } = useScroll();
 
   const register = useCallback((index: number, node: HTMLElement | null) => {
     nodes.current[index] = node;
+  }, []);
+
+  const registerLayer = useCallback((key: string, node: HTMLElement | null) => {
+    if (!node) return;
+    const set = layers.current.get(key) ?? new Set<HTMLElement>();
+    set.forEach((item) => {
+      if (!item.isConnected) set.delete(item);
+    });
+    set.add(node);
+    layers.current.set(key, set);
   }, []);
 
   const locate = useCallback((y: number) => {
@@ -572,19 +623,22 @@ export default function Draft() {
     const previous = lastKey.current;
     lastKey.current = groundKey;
     if (previous === groundKey || shown.instant || reduced) return;
-    const layer = layers.current.get(groundKey);
+    const targets = layers.current.get(groundKey);
     const origin =
       shown.index === RECORD ? recordRef.current : nodes.current[shown.index]?.querySelector<HTMLElement>(".sg-plate");
-    if (!layer || !origin) return;
+    if (!targets || !origin) return;
     const box = origin.getBoundingClientRect();
     const x = Math.round(box.left + box.width / 2);
     const y = Math.round(shown.index === RECORD ? box.top : box.top + box.height / 2);
     const w = window.innerWidth;
     const h = window.innerHeight;
     const r = Math.ceil(Math.max(Math.hypot(x, y), Math.hypot(w - x, y), Math.hypot(x, h - y), Math.hypot(w - x, h - y)));
-    layer.animate([{ clipPath: `circle(0px at ${x}px ${y}px)` }, { clipPath: `circle(${r}px at ${x}px ${y}px)` }], {
-      duration: SPREAD_MS,
-      easing: "cubic-bezier(0.23, 1, 0.32, 1)",
+    targets.forEach((layer) => {
+      if (!layer.isConnected) return;
+      layer.animate([{ clipPath: `circle(0px at ${x}px ${y}px)` }, { clipPath: `circle(${r}px at ${x}px ${y}px)` }], {
+        duration: SPREAD_MS,
+        easing: "cubic-bezier(0.23, 1, 0.32, 1)",
+      });
     });
   }, [groundKey, shown, reduced]);
 
@@ -597,28 +651,10 @@ export default function Draft() {
       style={{ "--sg-h": hue } as CSSProperties}
     >
       <title>Sampled ground — Gentrit Rashiti</title>
-      <div className="sg-grounds" aria-hidden="true">
-        {stops.map((stop) => (
-          <span
-            key={stop.hue}
-            ref={(node) => {
-              if (node) layers.current.set(String(stop.hue), node);
-            }}
-            className="sg-ground"
-            data-on={(!neutral && grounds[shown.index] === stop.hue) || undefined}
-            style={{ "--sg-h": stop.hue } as CSSProperties}
-          />
-        ))}
-        <span
-          ref={(node) => {
-            if (node) layers.current.set("none", node);
-          }}
-          className="sg-ground sg-ground-none"
-          data-on={neutral || undefined}
-        />
-      </div>
+      <Grounds className="sg-grounds" neutral={neutral} hue={hue} register={registerLayer} />
 
       <header className="sg-bar">
+        <Grounds className="sg-bar-grounds" neutral={neutral} hue={hue} register={registerLayer} />
         <div className="sg-bar-in">
           <a className="sg-bar-name" href="#top" onClick={(event) => (event.preventDefault(), jump(0, event.detail === 0))}>
             Gentrit Rashiti
@@ -628,7 +664,7 @@ export default function Draft() {
           ) : (
             <p className="sg-bar-now">
               <span className="sg-chip" aria-hidden="true" />
-              {neutral ? "The record: no screen, no hue" : `${cards[shown.index].short} · h ${pad(cards[shown.index].hue)}`}
+              {neutral ? "The record: no screen, no hue" : `${cards[shown.index].short} · hue ${deg(cards[shown.index].hue)}`}
             </p>
           )}
           <p className="sg-bar-links">
@@ -649,8 +685,8 @@ export default function Draft() {
               1
             </span>
             <span>
-              Gentrit Rashiti builds web and mobile apps, from Kosovo. The colour of this page is sampled from the
-              screen under it.
+              <strong className="sg-note-name">Gentrit Rashiti</strong> builds web and mobile apps, from Kosovo.
+              <span className="sg-note-hook"> The colour of this page is sampled from the screen under it.</span>
             </span>
           </p>
         </section>

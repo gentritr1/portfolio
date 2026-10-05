@@ -112,12 +112,13 @@
   padding: 14px var(--ys-gutter) 0;
 }
 
+/* The narrow first line, "Gentrit Rashiti builds a multi-tenant platform,", is 22.5em wide at 108%. */
 .ys-say {
   font-family: var(--ys-display);
   font-weight: 600;
-  font-stretch: 88%;
-  font-size: 18px;
-  line-height: 22px;
+  font-stretch: 108%;
+  font-size: min(15px, calc((100vw - 2 * var(--ys-gutter)) / 22.6));
+  line-height: 21px;
   letter-spacing: -0.01em;
 }
 
@@ -537,7 +538,7 @@
 
 @media (min-width: 520px) {
   .ys-say {
-    font-size: 22px;
+    font-size: min(21px, calc((100vw - 2 * var(--ys-gutter)) / 22.6));
     line-height: 25px;
   }
 
@@ -563,7 +564,6 @@
   .ys-say {
     font-size: 28px;
     line-height: 31px;
-    font-stretch: 108%;
   }
 
   .ys-record {
@@ -653,18 +653,21 @@
   }
 
   /* Every slot starts at the top of the stack; slot k is k + 1 cards tall, so card k
-     leaves only after the k newer cards above it have left. */
+     leaves only after the k newer cards above it have left. Card k sticks k steps lower,
+     so it needs k more steps of scroll before the newer card has gone under the statement. */
   .ys .ys-stack {
-    --ys-step: 12px;
+    --ys-step: clamp(12px, calc((100svh - 780px) / (var(--count) - 1)), 24px);
     --ys-dwell: 72px;
-    --card-h: min(600px, calc(100svh - var(--stack-top) - (var(--count) - 1) * var(--ys-step) - 24px));
+    --card-h: min(620px, calc(100svh - var(--stack-top) - (var(--count) - 1) * var(--ys-step) - 20px));
     display: grid;
     padding-top: 8px;
   }
 
   .ys-slot {
     grid-area: 1 / 1;
-    height: calc((var(--i) + 1) * var(--card-h) + var(--i) * var(--ys-dwell));
+    height: calc(
+      (var(--i) + 1) * var(--card-h) + var(--i) * var(--ys-dwell) + var(--i) * (var(--i) + 1) / 2 * var(--ys-step)
+    );
     z-index: calc(var(--count) - var(--i));
     pointer-events: none;
   }

@@ -1,0 +1,52 @@
+{
+  "id": "sampled-review",
+  "title": "SAMPLED REVIEW",
+  "band": "Loop 6",
+  "rule": "the screen is the page, the review is drawn on it, and the margins take the screen's own colour",
+  "description": "Redline's frame with sampled-ground's palette rule (round-6 N1). Three live screens fill the page between two solid margins: Bayyinah TV's live room (2023–26), the Design System v2 specimen (2026) and the care platform (2026). Each sheet carries four notes in its margins, each a decision and its result, and each note draws a hairline into the screen and rings the part it is about. The margins and the ground are computed from the screen's measured hue at fixed lightness and chroma, so the frame takes the colour of the screen inside it; when the next sheet becomes current, its colour spreads out of its plate over margins, ground and bar together. A record of ten decisions closes the page on a grey sheet with no hue; its footnote is the only place the colour rule is stated.",
+  "signature": "Bricolage Grotesque (700 at 64 px for the claim, 450/700 for decision → result titles, 650 for note heads) and Gentrit Technical Mono for ids, captions, chips and results. Palette by construction: margins oklch(0.42 0.13 h) with ground-colour type, ground oklch(0.95 0.035 h), ink oklch(0.30 0.11 h); h = 34 (live room), 253 (specimen), 186 (care), chroma 0 for the record (measured hues from sampled-ground's histogram method). First screen: 'Two platform rewrites, three apps in both stores.', one identity line with CV and Email, 'Rebuild Bayyinah TV on Nuxt 3 → 34 routes, 270+ components.', the live room (952 × 442, mounted paused) with four notes and four rings, and the caption '0005 · 2023–26 · Frontend, core team · Recreation, invented data'. The sticky bar holds only the three sheet chips and the record chip. Motion: (1) at arrival, four hairlines draw from the note badges across the margin into the screen (180 ms each, 60 ms stagger, cubic-bezier(0.23, 1, 0.32, 1)) and each ring lands 160 ms after its line starts (120 ms, opacity and scale 0.96 → 1); (2) when the scroll rests on a new sheet for 160 ms, a clip-path circle spreads its colour from its plate's centre over the fixed frame and the bar (one layer in each, one keyframe set, 280 ms ease-out), so margins, ground and bar arrive by one means; (3) hover or focus a note and the other marks fade to 0.2 in 160 ms, hover a ringed part and its note lights. Chips, record rows and notes jump with no travel and switch the colour at once. Reduced motion: lines and rings appear, the colour switches with no spread, the live room shows its static state and runs no timer, the specimen's demo is paused. Phone: no margins; the plate keeps four numbered pins on the same four parts as the desktop and the notes stack under it in a block of the sheet's margin colour.",
+  "caseSlug": "bayyinah-tv",
+  "mechanisms": ["margin notes with hairlines", "sampled hue frame", "spread from the plate", "two-way hover", "record"],
+  "slopCount": 0,
+  "rounds": 1,
+  "combines": {
+    "redline": "frame, margins, notes, hairlines at arrival, two-way hover, keyboard path into the plate",
+    "sampled-ground": "measured hue at fixed lightness and chroma, clip-path spread from the plate, grey record with no hue",
+    "year-stack": "decision → result line for every note and title",
+    "decision-record": "the record of ten decisions with ids"
+  },
+  "fixedFromSources": [
+    "redline 1 (reduced motion): the live room mounts with demoPlaying=false on every device; under reduced motion it shows the shared recreation's static state, identical at 4 s and 12 s (final/d-reduced-top-4s.png, d-reduced-top-12s.png); the specimen demo is paused once and kept paused under reduced motion",
+    "redline 2 (busy first screen): the two-line bar identity, the links and the sheet meta line are gone from the top; the meta is the plate's caption; the live room is paused",
+    "redline 3 (notes describe features): all twelve notes are a decision and its result",
+    "redline 4 (20 px identity): the claim is 64 px and the name is set in the text weight under it",
+    "redline 5 (three hues): the margins take each screen's hue, so plate and frame are one colour family by construction",
+    "sampled-ground 2 (unexplained hue scale): no scale; the bar is four named chips",
+    "sampled-ground 3 (two means for one colour change): the bar holds its own copy of the ground layers and spreads with the same circle (final/d-spread-0006-y600-060ms.png, the bar split by the circle edge)",
+    "sampled-ground 4 (phone ring differs): the phone pins ring the same four parts as the desktop on every sheet",
+    "sampled-ground 1 (two store tiles): no store plate on the page; the store apps are record rows"
+  ],
+  "chroma": {
+    "firstScreen": 37.1,
+    "outsidePlates": 49.5,
+    "plate": [244, 362, 1196, 804],
+    "source": "reviewer's chroma5r.mjs decode and threshold on review/loop6/sampled-review/final/d-top.png (1440 × 900, captured last, with the caption label); copy at review/loop6/sampled-review/chroma-sr.mjs"
+  },
+  "contrast": {
+    "groundTypeOnMargin": "7.6 (h 34), 7.3 (h 253), 6.4 (h 186), 7.3 (record)",
+    "inkOnGround": "12.0 (h 34), 11.7 (h 253), 10.7 (h 186), 11.8 (record)",
+    "mutedOnGround": "7.4 (h 34), 7.3 (h 253), 7.1 (h 186), 7.3 (record)"
+  },
+  "bundle": "Draft chunk about 8 kB gzip JS and 3.3 kB gzip CSS; the recreations are the shared lazy chunks",
+  "loopScores": {
+    "straightToThePoint": 8.5,
+    "notOverwhelming": 8,
+    "harmony": 8.5,
+    "meaningfulMotion": 8,
+    "actionsAndSeniority": 8,
+    "original": 8,
+    "hooks": 8
+  },
+  "selfScore": 57,
+  "holdback": "Lowest: not overwhelming, 8 (seniority, motion, original and hooks are also 8). The first screen still holds the claim, the identity line, the sheet title, a live room with four rings and four notes, and two dark margins (37.1% chroma, 49.5% outside the plate); it is calmer than redline but it is not a quiet page. Seniority: the notes are decisions with results, but some results restate the product ('Realtime chat, moderated in the same column', 'Each reading shows in the patient's own timezone') because the content has no outcome number for them, and the care title's result is a method ('one route at a time, on Design System v2'). Original stays 8, not 9: an annotated screenshot is a known case-study device and the colour rule comes from sampled-ground; the new part is the combination. The aim of 60 is not reached by my strict count (57). Known limits: plates are 952 px wide, not the 1200 × 540 of the plan, because the notes need 208 px margins; the paused live room leaves the lower third of its chat column empty; the phone live-room plate is 343 × 300, not 258, so the four pins stay on legible parts; on a phone the non-current chips show only their numbers; controls inside the shared recreations (Mute, the theme segment) are under 44 px; the keyboard frame for a note was taken with element.click() (detail 0), because the capture script sends no char event for Enter on a button."
+}
