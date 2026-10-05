@@ -1,0 +1,33 @@
+{
+  "id": "live-objects",
+  "title": "LIVE OBJECTS",
+  "band": "Loop 10",
+  "rule": "everything on this page runs: the first picture is the owner's own FORM trefoil, live in WebGL, beside the OFFBEAT drum machine; the care recreation follows; client work is a plain dated list",
+  "description": "A black page whose first picture is code, not a screenshot. Top left: 'Gentrit Rashiti builds web and mobile apps. Everything on this page runs.' The FORM trefoil (ported from the owner's FORM repo: same knot, mesh, shaders and materials) turns once on load and stops; drag it and it turns with inertia. Under it, three metals: copper, chrome, porcelain. Picking one re-tints the knot and the whole page accent in 280 ms, as FORM does. At the right, the OFFBEAT drum machine (8 steps, 4 drums, its own preset, Web Audio only after Play). Then the care recreation with 'Recreation · invented data', six client rows (years, name, one result, role) and five own projects that are live on the web. FORM and OFFBEAT are labelled 'Concept' and the footer says they are made-up brands.",
+  "signature": "Gentrit Display (Hubot Sans) at wdth 120, wght 300, 51 px for the identity line, one sentence per line; Gentrit Text 400 at 17 px for everything else; no mono. Ground #0E0E0E, bone #F2EDE4 (16.6:1), muted #A7A29A (7.6:1), accent = the material: copper #C8773A (5.7:1), chrome #9EB3C7 (8.9:1), porcelain #E9E4DC (15.3:1), a registered @property so the page cross-fades. Motion: load turn 2.4 s on cubic-bezier(.65,0,.35,1); drag hands its release velocity to the knot (decay e^-3t, clamp 6 rad/s); material and page accent 280 ms; drum hit flash 240 ms from bone to the accent. Reduced motion: no load turn, no inertia, no flash, instant swaps; sound still only on Play. No WebGL: the same knot drawn flat in SVG in the accent, with one plain sentence. Phone: the knot fills the first screen, the drum grid turns to 8 rows x 4 columns on the second.",
+  "caseSlug": "care-platform",
+  "mechanisms": ["M3 material honesty", "M4 one obsession", "M5 interaction reveals", "M8 sound"],
+  "slopCount": 0,
+  "rounds": 1,
+  "loopScores": {
+    "straightToThePoint": 8,
+    "actionsAndSeniority": 7,
+    "original": 8,
+    "hooks": 8,
+    "typeAndColour": 8
+  },
+  "hook": "You can turn the copper knot, and the site changes colour with the metal.",
+  "holdback": "Lowest: actions and seniority, 7. The first screen shows two own concepts; client work starts about 1,700 px down on desktop, so the level rests on the sub-line ('5+ years. Part of two platform rewrites.'). Other limits: the porcelain state makes the accent almost bone, so the two-tone identity line goes quiet; the care recreation keeps its own teal palette and its own small mono labels; the flat SVG knot has one false gap at the right crossing; the live session in the browser pane could not run (the pane was hidden and shared), so motion is proven by headless mid-frames only.",
+  "craft": {
+    "cls": "0 at 1440, 1280, 1024, 540, 390, 375 on load and after a fast scroll",
+    "widthsChecked": [1440, 1280, 1024, 540, 390, 375],
+    "targets": "no control under 44 x 44 px outside the recreation",
+    "fontWait": "text shown 4-27 ms after mount on a cold load; hard limit 300 ms",
+    "chunk": "Draft chunk 9.2 kB gzip + 3.0 kB CSS; care recreation is its own 8.8 kB chunk",
+    "reducedMotion": "4 s and 8 s frames are pixel-identical at 1440 and 375",
+    "noWebGL": "?nogl shows the flat knot"
+  },
+  "evidence": {
+    "dir": "scratchpad/review/loop10/live-objects/final"
+  }
+}

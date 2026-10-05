@@ -71,7 +71,7 @@ export const workspaces: Workspace[] = [
         id: 'care',
         name: 'Care-management platform',
         source: 'Recreation, invented data',
-        line: 'Many care organizations share one system → every screen keeps their data apart.',
+        line: 'Many client organizations share one system → every screen keeps their data apart.',
         meta: 'Frontend and mobile, full stack since 2026 · 2023–26',
         href: '/work/care-platform',
         plate: { kind: 'live', key: 'care', world: 'healthcare', ratio: 16 / 10, phoneRatio: 1 },

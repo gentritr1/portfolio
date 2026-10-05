@@ -1,0 +1,1061 @@
+@font-face {
+  font-family: seam-display;
+  src: url("/fonts/creative/GentritDisplay-Latin.woff2") format("woff2");
+  font-weight: 200 900;
+  font-stretch: 80% 120%;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: seam-text;
+  src: url("/fonts/creative/GentritText-Latin.woff2") format("woff2");
+  font-weight: 200 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+.draft-seam {
+  --forest: #10392a;
+  --deep: #0a271c;
+  --bone: #f1ece1;
+  --muted: #b7cbbe;
+  --mint: #5be3a5;
+  --red: #ff6b5e;
+  --rule: #f1ece126;
+
+  --o-ground: #ffffff;
+  --o-text: #212529;
+  --o-muted: #5a6268;
+  --o-link: #0062cc;
+  --o-line: #dee2e6;
+  --o-stripe: #f2f2f2;
+  --o-jumbo: #e9ecef;
+  --o-dark: #343a40;
+  --o-font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+    sans-serif;
+
+  --pad: 48px;
+  --gap: 64px;
+  --runner: 72px;
+  --rest-f: 0.392857;
+
+  position: relative;
+  isolation: isolate;
+  min-height: 100svh;
+  padding-bottom: var(--runner);
+  overflow: clip;
+  background: var(--forest);
+  color: var(--bone);
+  font-family: seam-text, system-ui, sans-serif;
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+.draft-seam[data-ready="false"] {
+  visibility: hidden;
+}
+.draft-seam * {
+  box-sizing: border-box;
+}
+.draft-seam ::selection {
+  background: var(--mint);
+  color: var(--deep);
+}
+:where(.draft-seam) :where(h1, h2, h3, p, figure, ol) {
+  margin: 0;
+}
+:where(.draft-seam) :where(a, button) {
+  color: inherit;
+}
+:where(.draft-seam) button {
+  font: inherit;
+  cursor: pointer;
+  border: 0;
+  background: transparent;
+  padding: 0;
+}
+.draft-seam :where(a, button, [tabindex="0"]):focus-visible {
+  outline: 3px solid var(--mint);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+.draft-seam svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  flex: none;
+}
+.seam-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.seam-skip {
+  position: fixed;
+  top: 8px;
+  left: 16px;
+  z-index: 40;
+  padding: 12px 16px;
+  background: var(--mint);
+  color: var(--deep);
+  font-weight: 600;
+  transform: translateY(-200%);
+}
+.seam-skip:focus {
+  transform: none;
+}
+
+/* Two skins in one cell. The engine clips the old skin at the seam. */
+.seam-band {
+  display: grid;
+}
+.seam-band > div {
+  grid-area: 1 / 1;
+  min-width: 0;
+}
+.seam-new {
+  background: var(--forest);
+}
+.seam-old {
+  position: relative;
+  z-index: 1;
+  background: var(--o-ground);
+  color: var(--o-text);
+  font-family: var(--o-font);
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: auto;
+  clip-path: inset(-1px 0 -1px 0);
+}
+.seam-old a {
+  color: var(--o-link);
+  text-decoration: none;
+}
+.seam-old a:hover {
+  text-decoration: underline;
+}
+.seam-grid {
+  display: grid;
+  grid-template-columns:
+    calc(var(--rest-f) * (100% + 2 * var(--pad)) - var(--pad) - var(--gap) / 2)
+    minmax(0, 1fr);
+  column-gap: var(--gap);
+  padding-inline: var(--pad);
+}
+.seam-grid > :not(.seam-side) {
+  grid-column: 2;
+}
+.seam-side {
+  grid-column: 1;
+  grid-row: 1;
+  justify-self: end;
+  color: var(--muted);
+  font-size: 15px;
+  font-weight: 500;
+}
+.seam-old-wrap {
+  margin-left: var(--pad);
+  width: calc(var(--rest-f) * 100% - var(--pad) - 28px);
+}
+
+/* Head */
+.seam-head-new {
+  height: 72px;
+  align-items: center;
+}
+.seam-head-new > div {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+}
+.seam-name {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-family: seam-display, sans-serif;
+  font-stretch: 100%;
+  font-weight: 800;
+  font-size: 20px;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.seam-role,
+.seam-tagline {
+  color: var(--muted);
+  font-size: 15px;
+}
+.seam-head-new nav {
+  display: flex;
+  gap: 4px;
+  margin-left: auto;
+}
+.seam-head-new nav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding-inline: 12px;
+  font-weight: 600;
+  font-size: 15px;
+  text-decoration: underline;
+  text-decoration-color: #f1ece166;
+  text-underline-offset: 5px;
+}
+.seam-head-new nav a:hover {
+  text-decoration-color: var(--mint);
+}
+.seam-old-nav {
+  height: 72px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 0 0 var(--pad);
+  background: var(--o-dark);
+  color: #ffffff;
+}
+.seam-old-nav strong {
+  font-size: 20px;
+  font-weight: 400;
+  white-space: nowrap;
+}
+.seam-old-nav nav {
+  display: flex;
+  gap: 16px;
+  width: calc(var(--rest-f) * 100vw - 28px - 220px);
+  justify-content: flex-end;
+}
+.draft-seam .seam-old-nav a {
+  color: #ffffffcc;
+}
+
+/* Statement */
+.seam-statement .seam-grid {
+  padding-block: 56px 48px;
+}
+.seam-statement .seam-new h1 {
+  font-family: seam-display, sans-serif;
+  font-stretch: 80%;
+  font-weight: 900;
+  font-size: clamp(48px, 7.3vw, 112px);
+  line-height: 0.88;
+  letter-spacing: -0.008em;
+  margin-bottom: 28px;
+}
+.seam-statement .seam-new h1 > span {
+  display: block;
+  white-space: nowrap;
+}
+.seam-statement .seam-new em {
+  font-style: normal;
+  color: var(--mint);
+}
+.seam-lede {
+  font-family: seam-display, sans-serif;
+  font-stretch: 100%;
+  font-weight: 650;
+  font-size: 26px;
+  line-height: 1.18;
+  letter-spacing: -0.012em;
+  max-width: 24ch;
+}
+.seam-facts {
+  margin-top: 12px;
+  max-width: 44ch;
+  color: var(--muted);
+}
+.seam-how {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+  max-width: 46ch;
+  font-size: 15px;
+  line-height: 1.45;
+}
+.seam-how::before {
+  content: "";
+  flex: none;
+  width: 4px;
+  border-radius: 2px;
+  background: var(--mint);
+}
+.seam-how-phone {
+  display: none;
+}
+.seam-side-big {
+  align-self: end;
+  font-family: seam-display, sans-serif;
+  font-stretch: 80%;
+  font-weight: 900;
+  font-size: clamp(48px, 7.3vw, 112px);
+  line-height: 0.88;
+}
+.seam-old-jumbo {
+  margin-top: 32px;
+  padding: 32px;
+  border-radius: 0.3rem;
+  background: var(--o-jumbo);
+}
+.seam-old-jumbo h1 {
+  font-size: 40px;
+  font-weight: 300;
+  line-height: 1.2;
+  margin-bottom: 16px;
+}
+.seam-old-lead {
+  font-size: 20px;
+  font-weight: 300;
+}
+.seam-old-jumbo hr {
+  margin: 24px 0;
+  border: 0;
+  border-top: 1px solid #0000001a;
+}
+.seam-old-jumbo p {
+  margin-bottom: 16px;
+}
+.draft-seam .seam-old-btn {
+  display: inline-block;
+  padding: 8px 16px;
+  border-radius: 0.25rem;
+  background: var(--o-link);
+  color: #ffffff;
+  font-size: 18px;
+}
+
+/* Work */
+.seam-heading-new {
+  padding-block: 48px 20px;
+}
+.seam-heading-new .seam-side {
+  align-self: end;
+  font-family: seam-display, sans-serif;
+  font-stretch: 100%;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+.seam-heading-new h2 {
+  font-family: seam-display, sans-serif;
+  font-stretch: 90%;
+  font-weight: 850;
+  font-size: 34px;
+  line-height: 1;
+  letter-spacing: -0.012em;
+  margin-bottom: 8px;
+}
+.seam-heading-new p {
+  color: var(--muted);
+  max-width: 52ch;
+}
+.seam-old-heading h2 {
+  margin: 40px 0 12px;
+  font-size: 28px;
+  font-weight: 500;
+  line-height: 1.2;
+}
+.seam-row {
+  padding-block: 28px 32px;
+  background: linear-gradient(var(--rule), var(--rule)) top / calc(100% - 2 * var(--pad))
+    1px no-repeat;
+}
+.seam-num {
+  align-self: start;
+  font-family: seam-display, sans-serif;
+  font-stretch: 80%;
+  font-weight: 900;
+  font-size: 56px;
+  line-height: 0.85;
+}
+.seam-row-main header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 16px;
+}
+.seam-row-main h3 {
+  font-size: 15px;
+  font-weight: 650;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.seam-concept {
+  padding: 1px 10px;
+  border-radius: 99px;
+  box-shadow: inset 0 0 0 1.5px var(--mint);
+  color: var(--mint);
+  font-size: 13px;
+  font-weight: 600;
+}
+.seam-state {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 14px;
+}
+.seam-state[data-state="match"] {
+  color: var(--mint);
+}
+.seam-state[data-state="differs"] {
+  color: var(--red);
+  font-weight: 650;
+}
+.seam-state[data-state="checking"] {
+  color: var(--bone);
+}
+.seam-result {
+  margin: 10px 0 8px;
+  max-width: 24ch;
+  font-family: seam-display, sans-serif;
+  font-stretch: 86%;
+  font-weight: 780;
+  font-size: clamp(28px, 2.7vw, 40px);
+  line-height: 1.04;
+  letter-spacing: -0.012em;
+  text-wrap: balance;
+}
+.seam-line {
+  max-width: 52ch;
+  color: var(--muted);
+}
+.seam-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 20px;
+  margin-top: 6px;
+}
+.seam-links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 44px;
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: #f1ece166;
+  text-underline-offset: 5px;
+}
+.seam-links a:hover {
+  text-decoration-color: var(--mint);
+}
+.seam-links svg {
+  width: 14px;
+  height: 14px;
+}
+
+.seam-plate {
+  margin-top: 20px;
+}
+.seam-plate-frame {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  max-width: var(--w-max);
+  aspect-ratio: var(--w-ar);
+  border-radius: 8px;
+  background: #0e0e0e;
+  box-shadow: 0 24px 48px #04130d66;
+}
+.seam-plate-frame img {
+  position: absolute;
+  left: var(--w-ix);
+  top: var(--w-iy);
+  width: var(--w-iw);
+  max-width: none;
+  height: auto;
+}
+.seam-plate figcaption {
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 14px;
+}
+.seam-old-project {
+  padding-block: 24px;
+  border-top: 1px solid var(--o-line);
+}
+.seam-old-project h3 {
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 1.2;
+}
+.seam-old-project p {
+  margin-top: 8px;
+}
+.seam-old-meta {
+  color: var(--o-muted);
+  font-size: 14px;
+}
+.seam-old-links {
+  display: flex;
+  gap: 16px;
+}
+.seam-old .seam-plate {
+  margin-top: 16px;
+}
+.seam-old .seam-plate-frame {
+  max-width: calc(100% - 10px);
+  margin: 5px;
+  border-radius: 0.25rem;
+  box-shadow:
+    0 0 0 4px #ffffff,
+    0 0 0 5px var(--o-line);
+}
+.seam-old .seam-plate figcaption {
+  margin-top: 8px;
+  color: var(--o-muted);
+  font-size: 13px;
+}
+.seam-row-band .seam-old > .seam-old-wrap:not(.seam-old-project) {
+  height: 100%;
+}
+.seam-old-row {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1.25fr) minmax(0, 1fr) 54px;
+  height: 100%;
+  border-top: 1px solid var(--o-line);
+  font-size: 14px;
+}
+.seam-old-row > span {
+  padding: 12px 6px;
+  min-width: 0;
+}
+.seam-old-row small {
+  display: block;
+  margin-top: 2px;
+  color: var(--o-muted);
+  font-size: 13px;
+}
+.seam-old-row a {
+  font-weight: 600;
+}
+.seam-item:nth-child(odd) .seam-row-band .seam-old-row {
+  background: var(--o-stripe);
+}
+.seam-old-row em {
+  font-style: normal;
+}
+.seam-old-row em[data-state="ok"],
+.seam-old-row em[data-state="fail"] {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 0.25rem;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+}
+.seam-old-row em[data-state="ok"] {
+  background: #1e7e34;
+}
+.seam-old-row em[data-state="fail"] {
+  background: #c82333;
+}
+.seam-item .seam-row-band .seam-old-row[data-failed="true"] {
+  background: #f8d7da;
+  color: #721c24;
+}
+.seam-old-th {
+  height: auto;
+  border-bottom: 2px solid var(--o-line);
+  font-weight: 700;
+}
+
+/* About and footer */
+.seam-about .seam-new {
+  background: var(--deep);
+}
+.seam-about .seam-grid {
+  padding-block: 112px 96px;
+}
+.seam-about .seam-new h2 {
+  font-family: seam-display, sans-serif;
+  font-stretch: 80%;
+  font-weight: 900;
+  font-size: clamp(48px, 6vw, 88px);
+  line-height: 0.9;
+  letter-spacing: -0.008em;
+  margin-bottom: 20px;
+}
+.seam-about .seam-new p {
+  max-width: 44ch;
+  color: var(--muted);
+  margin-bottom: 32px;
+}
+.seam-about nav {
+  display: grid;
+  max-width: 560px;
+  border-top: 1px solid var(--rule);
+}
+.seam-about nav a {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 56px;
+  border-bottom: 1px solid var(--rule);
+  font-weight: 600;
+  text-decoration: none;
+}
+.seam-about nav a:hover {
+  color: var(--mint);
+}
+.seam-old-about {
+  margin-top: 48px;
+  padding-block: 24px;
+  border-top: 1px solid var(--o-line);
+}
+.seam-old-about h2 {
+  font-size: 28px;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+.seam-old-about p {
+  margin-bottom: 8px;
+}
+.seam-foot .seam-new {
+  background: var(--deep);
+}
+.seam-foot .seam-grid {
+  align-items: center;
+  padding-block: 8px 32px;
+}
+.seam-foot .seam-new p {
+  max-width: 62ch;
+  color: var(--muted);
+  font-size: 14px;
+}
+.seam-back {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  text-decoration: underline;
+  text-underline-offset: 5px;
+}
+.seam-old-foot {
+  padding-block: 16px 32px;
+  border-top: 1px solid var(--o-line);
+  color: var(--o-muted);
+  font-size: 13px;
+}
+
+/* The seam */
+.seam-cord {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 6;
+  overflow: visible;
+  pointer-events: none;
+}
+.draft-seam .seam-cord path {
+  fill: none;
+  stroke-linecap: round;
+}
+.draft-seam .seam-cord-path {
+  stroke: var(--deep);
+  stroke-width: 6;
+}
+.draft-seam .seam-cord-edge {
+  stroke: var(--mint);
+  stroke-width: 2;
+}
+.seam-zone {
+  position: fixed;
+  top: 0;
+  bottom: var(--runner);
+  left: 0;
+  z-index: 7;
+  width: 44px;
+  transform: translateX(calc(var(--seam-x, 100vw) - 22px));
+  cursor: ew-resize;
+  touch-action: none;
+}
+.seam-knob {
+  position: fixed;
+  top: calc((100vh - var(--runner)) / 2);
+  left: 0;
+  z-index: 8;
+  width: 48px;
+  height: 112px;
+  margin: -56px 0 0 -24px;
+  transform: translateX(clamp(30px, var(--seam-x, 100vw), calc(100vw - 30px)))
+    rotate(var(--seam-tilt, 0deg));
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+.draft-seam .seam-knob:focus-visible {
+  outline: 0;
+}
+.seam-knob-body {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  border-radius: 24px;
+  background: var(--deep);
+  color: var(--mint);
+  box-shadow:
+    0 0 0 2px var(--mint),
+    0 10px 24px #04130d59;
+  transition:
+    transform 220ms cubic-bezier(0.34, 1.35, 0.64, 1),
+    box-shadow 220ms cubic-bezier(0.215, 0.61, 0.355, 1);
+}
+.seam-knob-body svg {
+  width: 24px;
+  height: 24px;
+  stroke-width: 2.2;
+}
+.seam-knob:hover .seam-knob-body {
+  transform: scale(1.06);
+}
+.seam-knob:focus-visible .seam-knob-body {
+  transform: scale(1.06);
+  box-shadow:
+    0 0 0 2px var(--mint),
+    0 0 0 5px var(--deep),
+    0 0 0 8px var(--bone),
+    0 10px 24px #04130d59;
+}
+.draft-seam[data-dragging="true"] {
+  cursor: grabbing;
+  user-select: none;
+}
+.draft-seam[data-dragging="true"] .seam-knob {
+  cursor: grabbing;
+}
+.draft-seam[data-dragging="true"] .seam-knob-body {
+  transform: scale(1.12);
+  box-shadow:
+    0 0 0 2px var(--mint),
+    0 22px 40px #04130d80;
+}
+.seam-switch {
+  display: none;
+}
+
+/* Runner */
+.seam-runner {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 15;
+  height: var(--runner);
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 24px;
+  padding-inline: var(--pad);
+  background: var(--deep);
+  color: var(--bone);
+  box-shadow: 0 -1px 0 var(--rule);
+}
+.seam-run {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 0 14px 0 20px;
+  border-radius: 24px;
+  background: var(--mint);
+  color: var(--deep);
+  font-size: 16px;
+  font-weight: 700;
+  white-space: nowrap;
+  transition: transform 150ms cubic-bezier(0.215, 0.61, 0.355, 1);
+}
+.seam-run:hover {
+  background: #7ceab8;
+}
+.seam-run:active {
+  transform: scale(0.96);
+}
+.seam-run svg {
+  width: 11px;
+  height: 13px;
+  fill: currentColor;
+  stroke: none;
+}
+.seam-run kbd {
+  display: grid;
+  place-items: center;
+  min-width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  box-shadow: inset 0 0 0 1.5px #0a271c80;
+  font-family: seam-display, sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+}
+.draft-seam .seam-runner :focus-visible {
+  outline-color: var(--bone);
+}
+.seam-tally {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  white-space: nowrap;
+}
+.seam-tally strong {
+  display: inline-block;
+  font-family: seam-display, sans-serif;
+  font-stretch: 80%;
+  font-weight: 900;
+  font-size: 32px;
+  line-height: 1;
+}
+.seam-tally strong[data-pop="true"] {
+  animation: seam-pop 560ms cubic-bezier(0.34, 1.35, 0.64, 1);
+}
+.seam-tally span {
+  color: var(--muted);
+  font-size: 14px;
+}
+.seam-tally[data-failed="true"] span {
+  color: var(--red);
+}
+@keyframes seam-pop {
+  from {
+    transform: scale(1.3);
+    color: var(--mint);
+  }
+}
+.seam-bar {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  gap: 4px;
+  height: 12px;
+  padding: 0;
+  list-style: none;
+}
+.seam-bar li {
+  border-radius: 3px;
+  background: #24523f;
+  transition: background-color 80ms steps(1);
+}
+.seam-bar li[data-state="pass"] {
+  background: var(--mint);
+}
+.seam-bar li[data-state="fail"] {
+  background: var(--red);
+}
+.seam-bar li[data-state="active"] {
+  animation: seam-blink 240ms steps(2, end) infinite;
+}
+@keyframes seam-blink {
+  to {
+    background: var(--bone);
+  }
+}
+.seam-break {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 0 18px;
+  border-radius: 24px;
+  box-shadow: inset 0 0 0 1.5px #f1ece152;
+  font-size: 15px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.seam-break:hover {
+  box-shadow: inset 0 0 0 1.5px var(--bone);
+}
+.seam-break[aria-pressed="true"] {
+  box-shadow: inset 0 0 0 1.5px var(--red);
+}
+.seam-break > span:first-child {
+  font-size: 20px;
+  line-height: 1;
+}
+
+@media (max-width: 1100px) {
+  .draft-seam {
+    --pad: 32px;
+  }
+  .seam-tagline {
+    display: none;
+  }
+  .seam-runner {
+    gap: 16px;
+  }
+  .seam-tally span {
+    display: none;
+  }
+}
+
+@media (max-width: 700px) {
+  .draft-seam {
+    --pad: 16px;
+    --runner: 76px;
+    font-size: 16px;
+  }
+  .seam-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .seam-grid > :not(.seam-side) {
+    grid-column: 1;
+  }
+  .seam-side {
+    display: none;
+  }
+  .seam-band {
+    position: relative;
+  }
+  .seam-old {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+  }
+  .seam-old-wrap {
+    width: calc(100% - 2 * var(--pad));
+  }
+  .seam-old-nav nav {
+    width: auto;
+  }
+  .seam-head-new {
+    height: auto;
+    padding-block: 12px 0;
+    padding-right: 140px;
+  }
+  .seam-head-new > div {
+    flex-wrap: wrap;
+    gap: 0 12px;
+  }
+  .seam-head-new nav {
+    margin-left: -12px;
+    width: 100%;
+  }
+  .seam-old-nav {
+    height: 104px;
+  }
+  .seam-statement .seam-grid {
+    padding-block: 24px 32px;
+  }
+  .seam-statement .seam-new h1 {
+    font-size: clamp(38px, 12.2vw, 64px);
+    margin-bottom: 20px;
+  }
+  .seam-lede {
+    font-size: 22px;
+  }
+  .seam-how-wide {
+    display: none;
+  }
+  .seam-how-phone {
+    display: inline;
+  }
+  .seam-heading-new {
+    padding-block: 40px 12px;
+  }
+  .seam-heading-new h2 {
+    font-size: 30px;
+  }
+  .seam-row {
+    padding-block: 24px 28px;
+  }
+  .seam-state {
+    margin-left: 0;
+    width: 100%;
+  }
+  .seam-result {
+    font-size: 28px;
+  }
+  .seam-plate-frame {
+    max-width: var(--p-max);
+    aspect-ratio: var(--p-ar);
+  }
+  .seam-plate-frame img {
+    left: var(--p-ix);
+    top: var(--p-iy);
+    width: var(--p-iw);
+  }
+  .seam-about .seam-grid {
+    padding-block: 64px 56px;
+  }
+  .seam-knob,
+  .seam-zone {
+    display: none;
+  }
+  .seam-switch {
+    position: fixed;
+    top: 12px;
+    right: 16px;
+    z-index: 20;
+    display: flex;
+    padding: 3px;
+    border-radius: 26px;
+    background: var(--deep);
+    box-shadow: 0 0 0 1.5px var(--mint);
+  }
+  .seam-switch button {
+    min-width: 58px;
+    min-height: 44px;
+    padding-inline: 10px;
+    border-radius: 22px;
+    color: var(--bone);
+    font-size: 15px;
+    font-weight: 650;
+    transition: background-color 180ms cubic-bezier(0.215, 0.61, 0.355, 1);
+  }
+  .seam-switch button[aria-pressed="true"] {
+    background: var(--mint);
+    color: var(--deep);
+  }
+  .seam-runner {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-rows: auto auto;
+    align-content: center;
+    row-gap: 8px;
+    column-gap: 12px;
+  }
+  .seam-run {
+    min-height: 44px;
+    padding-inline: 16px 12px;
+    font-size: 15px;
+  }
+  .seam-run kbd {
+    display: none;
+  }
+  .seam-tally strong {
+    font-size: 26px;
+  }
+  .seam-bar {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    height: 6px;
+  }
+  .seam-break {
+    min-height: 44px;
+    padding: 0 14px;
+  }
+  .seam-break > span:last-child {
+    display: none;
+  }
+  .seam-break > span:first-child {
+    min-width: 16px;
+    text-align: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .draft-seam *,
+  .draft-seam *::before,
+  .draft-seam *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

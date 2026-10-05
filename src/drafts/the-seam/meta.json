@@ -1,0 +1,21 @@
+{
+  "id": "the-seam",
+  "title": "THE SEAM",
+  "band": "Loop 10",
+  "rule": "the seam: this page in two skins, and a cord with mass between them",
+  "description": "This page drawn twice: a made-up 2021 skin (system font, Bootstrap grey, blue and a striped table) and today's skin (Gentrit Display 900 at width 80 on forest green, bone type, mint for 'the same'). A cord with a knob divides them. Drag it, throw it or step it with the arrow keys; each row follows once the seam passes it. Press P and the seam checks every row like a test runner. Own projects (OFFBEAT and FORM as concepts, Offday) are large plates at or under source size.",
+  "signature": "The seam is one spring system (seam.ts, 240 sub-steps per second): the knob follows the pointer on a stiff spring (mass), release hands the pointer speed to a softer spring that lands on the predicted row (x + v x 0.2) with one overshoot, the cord ends trail the knob on a soft spring so the line bows up to 64 px and rings when it stops, the knob tilts with speed (up to 10 degrees), and every row has its own spring that carries today's skin to the seam once the seam passes its step. The old skin is clipped per band with a polygon that follows the bowed cord. Arrow keys step one row, Shift steps four, Home and End go to the ends. P sweeps the seam from the right edge one row every 190 ms and fills ten ticks; 'Break one row' changes one title in the 2021 data, the run stops at row 02, the seam recoils, the row turns red and scrolls into view. Phone: a 2021 | Today switch drives the same spring. ?slow=10 runs the springs at 10 % speed for review. Reduced motion: every spring jumps to its end, no bow, no tilt, no intro.",
+  "caseSlug": "care-platform",
+  "mechanisms": ["M1", "M4", "M5", "M8", "M9", "M11"],
+  "slopCount": 0,
+  "rounds": 1,
+  "loopScores": {
+    "straightToThePoint": 8,
+    "actionsAndSeniority": 7,
+    "original": 8,
+    "hooks": 8,
+    "typeAndColour": 8
+  },
+  "hook": "You drag a green cord across his site, it bends like a real rope, and his 2021 page turns into today's, row by row.",
+  "holdback": "Lowest: seniority, 7/10. The rows carry the facts but the page shows no screen of client work, only own projects. The Hubot subset draws a dotted zero ('2θ'); kept as the face's design. In the 2021 skin on a phone the table rows keep today's row height, so they have white space under them. Headless capture runs the springs at a low frame rate; judge the motion live or with ?slow=10."
+}

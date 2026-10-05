@@ -1,0 +1,25 @@
+{
+  "id": "departures",
+  "title": "DEPARTURES",
+  "band": "Loop 10",
+  "rule": "the first screen is one flip-disc board; the HTML under it is a printed bus timetable of the work",
+  "description": "A flip-disc board writes the work as bus departures: the owner's name as the destination, then one line every 6 s with its route plate, years, three stops and the next line, and a page where the real screen is quantised into the discs. Under it, a printed timetable in Archivo Narrow with dot leaders and hanging figures.",
+  "signature": "Letters write in Morse time (one dit, 60 ms, between letters). Pictures develop in 16 Bayer levels across 128 x 56 discs. Sound is off until pressed; then each flip is a panned granular click (64 voices). Hold Space or press the board to key Morse: W opens the work, C the email. Two controls only: Sound and Pause.",
+  "caseSlug": "morse-trainer",
+  "mechanisms": [
+    "M3",
+    "M5",
+    "M6",
+    "M7",
+    "M8",
+    "M9"
+  ],
+  "loopScores": {
+    "straightToThePoint": 8,
+    "actionsAndSeniority": 7,
+    "original": 9,
+    "hooks": 9,
+    "typeAndColour": 8
+  },
+  "holdback": "Lowest: actions and seniority, 7/10. The board names results in stops and the strip, but the deeper proof (16 to 2, the rebuild) sits one click down in the timetable. Phone-store pictures read as phone silhouettes, not as screens; the care line shows a chart recreation. Motion and sound were verified in headless Chrome with SwiftShader (slow) and with virtual time; the browser pane was hidden, so its screenshots were stale."
+}

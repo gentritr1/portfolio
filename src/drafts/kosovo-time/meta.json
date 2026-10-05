@@ -1,0 +1,20 @@
+{
+  "id": "kosovo-time",
+  "title": "KOSOVO TIME",
+  "band": "Loop 10",
+  "rule": "the sun over Kosovo lights the page at the visitor's time: every screen stands on the page and casts the shadow that the real sun gives it, computed from the sun's altitude and direction, never drawn",
+  "description": "The page is lit by the real sun over Kosovo (42.6° N, 20.9° E) at the visitor's clock. First screen: 'Gentrit Rashiti builds web and mobile apps, from Kosovo.', then '5+ years. Part of two platform rewrites. Working remotely.'; at the right the time in Kosovo, one plain sentence ('The sun is 3.8° above the horizon, in the west. It lights this page.') and today's sun path, which is the control that moves the hour (drag, arrow keys, or Now / Dawn / Noon / Dusk / Night). Under them Offday (own project, light theme, team calendar) stands on the page and casts its shadow; under it a caption and three result lines: Part of two platform rewrites. Three apps shipped to both app stores. One report asked the database 16 times. Now it asks 2. Then 'Client work' (care platform as a labelled recreation, Bayyinah TV library, Read to Feed, Viva Fresh, Dukagjini Bookstore, Design System v2 recreation, Incentiv) and 'Own projects' (OFFBEAT and FORM as large concept plates on one shared ground, then Offday, FJALË, Za! and Morse Trainer). Every screen casts the same sun's shadow, so a scrub swings all of them together. The footer states the four lights with their colours and measured contrast.",
+  "signature": "Fraunces (opsz 144, wght 500, SOFT 100, WONK 1) at 72 px for the identity line, Public Sans for everything else, no mono. The ground colour, the shade colour, the text and the result lines are computed from the sun's altitude, morning or evening: dawn apricot #F5C59E, day paper #F7F4EC, dusk orange #FFA667 with violet shade #A58CC5, night #0F0D14 with amber results. The ground flips from sky light to sunlight when the sun's edge crosses the horizon. The first screen's floor is a WebGL fragment shader: each pixel is unprojected to the ground, a ray goes toward the sun and tests the screen's rectangle (soft edge from the sun's 0.53° disc), the screen's base hides part of the sky (contact shade), and at night the screen's own 4 x 4 colours light the ground in front of it (lab move 01). Rows use the same projection as an SVG polygon; the SVG is also the no-WebGL path. The viewer faces south-west. Load: today's sun runs from 90 minutes ago to now in 1.1 s. Scrub: spring (350/35) with a short flick coast. Reduced motion: the hour of page load, static; jumps are instant.",
+  "caseSlug": "offday",
+  "mechanisms": ["M3", "M7", "M9"],
+  "slopCount": 0,
+  "rounds": 1,
+  "loopScores": {
+    "straightToThePoint": 8,
+    "actionsAndSeniority": 7,
+    "original": 8,
+    "hooks": 8,
+    "typeAndColour": 8
+  },
+  "holdback": "Lowest: seniority, 7/10. The client rows are a plain list with small plates; the scope and level live in one line each. The shadows are honest geometry, so at some hours a screen is nearly edge-on to the sun and its shadow is a thin sliver (mid-morning for this south-west view). Long shadows run past the bottom of a row and fade there (a 56-72 px fade, not light). The care platform plate is the live recreation scaled to half size, so its text is small. At night the care recreation follows the page's dark colour scheme. The Offday hero plate shows the 2880 px capture at about 630 css px (no upscale)."
+}

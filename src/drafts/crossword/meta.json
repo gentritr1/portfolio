@@ -1,0 +1,20 @@
+{
+  "rule": "the crossword is the site map: each answer is one piece of work, each clue is its result in plain words",
+  "id": "crossword",
+  "title": "Fjalëkryq",
+  "band": "Loop 10",
+  "description": "The site map is an Albanian crossword. Ten answers are filled at the start: the seven main pieces of work and three own projects (Offday, OFFBEAT, FORM); the Ë of FJALË is the one given letter. The clue column is the recruiter path: result first, about ten words, then Open. Twenty more answers wait below; Solve it rains their letters into the grid.",
+  "signature": "Type VIVAFRESH anywhere: nine letters fall from the top of the board into their cells with a two-bounce settle, the word floods blue in a wave, and its clue becomes the case title.",
+  "caseSlug": "viva-fresh",
+  "rounds": 1,
+  "loopScores": {
+    "straightToThePoint": 8,
+    "actionsAndSeniority": 7,
+    "original": 8,
+    "hooks": 8,
+    "typeAndColour": 8
+  },
+  "hookSentence": "His portfolio is an Albanian crossword: type a project name and the letters fall into place, then the clue turns into the project.",
+  "craftGate": "pass: 375/390/540/1024/1280/1440, no horizontal overflow, CLS 0.0000 (0.0001 at 540 and 1024, font swap), 44 px targets, visible focus, board does not trap Tab, reduced motion places letters at once, no WebGL, no sound, own JS 11.9 kB + CSS 4.3 kB gzip",
+  "holdback": "Ten answers start filled, not seven: the three own projects are filled too, so the owner's work is on the first screen. After 'Solve it' some answer words still read as stack words (CAREAPI, VUESYSTEM, CHATBOTWEB); the first screen has none (REACTSYSTEM became SYSTEM, clue 'Design System v2'). Phone first screen shows the board and the identity line; the clue list starts one scroll below. Seniority rests on plain results, not on a case narrative."
+}

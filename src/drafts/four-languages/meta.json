@@ -1,0 +1,794 @@
+{
+  "id": "four-languages",
+  "title": "THREE LANGUAGES, ONE PAGE",
+  "band": "Loop 10",
+  "rule": "the home page exists in English, Shqip and Arabic; the switch re-sets the whole page live, and Arabic mirrors the layout right to left for real (dir=rtl, logical properties), so the page proves the right-to-left skill by being one",
+  "description": "Concept C3. The first screen sets one fact in three scripts: the identity line large in the current language, and the same line in the two other languages under it, each one a button that opens the page in that language. Language names sit top-centre in their own scripts (English, Shqip, العربية). Beside the lines, two public Bayyinah TV captures (the web library on its Arabic courses tab and the App Store frame for the Arabic courses); the caption says that these show the English interface, because no Arabic-interface capture exists. Below: six rows that say what was built and the languages it shipped in, each language name in its own script (Bayyinah TV English + العربية, the care platform English, Deutsch, Español, Türkçe as text only, Viva Fresh Shqip, Read to Feed 3 languages, Incentiv English + Français, FJALË Shqip). Then 'In Albanian': FJALË (his own word game) and a Viva Fresh store frame, large. Then 'His own products': Offday (light team calendar, 2x capture, 'about 200 automatic tests', code private, no link), OFFBEAT (sound studio, cropped on its whole sequencer panel) and FORM (home with the copper trefoil), both labelled 'Concept, 2026' with their GitHub links. Footer with email, GitHub, LinkedIn and the CV. The fourth language of the title is not a page language: no fact supports a fourth language the owner writes, so the care platform's four languages are named in its row only.",
+  "signature": "Type: one family name, two scripts. Literata (opsz 7-72, wght 400-600, subset 75 kB) for Latin and Albanian; Amiri Regular and Bold (Arabic subsets, 41 kB each) for Arabic, joined by unicode-range and size-adjusted 122% so an Arabic word sits at the size of a Latin word on the same line. Identity line 64 px Literata 500 at opsz 64, -0.025 em; Arabic 56 px Amiri Bold, line-height 1.5, never tracked. Arabic-Indic digits for Arabic years. No mono. Colour: a manuscript palette, ultramarine ground #1A2466, vellum text #F2EADB (11.8:1), gold #E0B252 for the active language, language names and link underlines (7.2:1), muted #C3C6E0 (8.4:1). Motion: one View Transition of 320 ms on cubic-bezier(0.32, 0.72, 0, 1); about 50 named parts move from their old box to their mirrored box, old text fades out in 200 ms, new text fades in from 140 to 320 ms, captures move as objects and never cross-fade, the root never fades, the header stays on top, and the block the reader is on keeps its height on screen. The chosen alternate line grows into the headline while the old headline shrinks into its place. Reduced motion: instant switch. The language is in the URL (?lang=sq, ?lang=ar), on html lang and dir, and in the document title.",
+  "caseSlug": "bayyinah-tv",
+  "mechanisms": [
+    "live right-to-left mirror of the whole layout",
+    "one fact in three scripts as the language switch",
+    "language names in their own scripts as row data",
+    "manuscript palette"
+  ],
+  "slopCount": 0,
+  "rounds": 1,
+  "hook": "His site flips into Arabic for real: the whole page slides to the other side and reads right to left.",
+  "loopScores": {
+    "straightToThePoint": 8,
+    "actionsAndSeniority": 7,
+    "original": 8,
+    "hooks": 8,
+    "typeAndColour": 8,
+    "craftGate": "pass"
+  },
+  "holdback": "Lowest: actions and seniority, 7. The page proves one skill (right-to-left and multi-language interfaces) very well; depth of the platform work sits in one sub-line ('Part of two platform rewrites') and the row roles. No Arabic-interface capture of Bayyinah TV exists in public/showcase, so the screens stay the English interface and only the layout and text mirror; the caption says so. The view transition is proven headless with paused mid-frames; the in-app browser pane was hidden during this run, and a hidden document skips view transitions, so the live click there switched instantly (dir=rtl, title changed) without the motion. At 60-120 ms the header items cross over each other. The Albanian and Arabic copy needs an owner check (translationsToCheck). Own products sit low on the page (about 3,000 px down at 1440), after the language material.",
+  "translationsNote": "Every Albanian and Arabic string that differs from English. Strings left the same in all three (product names, App Store, Google Play, CV (PDF) in Albanian, Email in Albanian, Frontend and Mobile in Albanian, Latin years) are not listed.",
+  "translationsToCheck": [
+    {
+      "lang": "sq",
+      "key": "names.sq",
+      "en": "Albanian",
+      "text": "Shqip"
+    },
+    {
+      "lang": "sq",
+      "key": "page.title",
+      "en": "Gentrit Rashiti, web and mobile apps",
+      "text": "Gentrit Rashiti, aplikacione web dhe mobile"
+    },
+    {
+      "lang": "sq",
+      "key": "page.navLabel",
+      "en": "Language",
+      "text": "Gjuha"
+    },
+    {
+      "lang": "sq",
+      "key": "page.line",
+      "en": "Gentrit Rashiti builds web and mobile apps in the user’s own language.",
+      "text": "Gentrit Rashiti ndërton aplikacione web dhe mobile në gjuhën e përdoruesit."
+    },
+    {
+      "lang": "sq",
+      "key": "page.readIn",
+      "en": "Read this page in",
+      "text": "Lexoje këtë faqe në"
+    },
+    {
+      "lang": "sq",
+      "key": "page.sub",
+      "en": "5+ years. Part of two platform rewrites. Based in Kosovo, working remotely.",
+      "text": "Mbi 5 vjet përvojë. Pjesë e dy rishkrimeve të platformave. Në Kosovë, punon në distancë."
+    },
+    {
+      "lang": "sq",
+      "key": "page.heroCaption",
+      "en": "Bayyinah TV: the Arabic courses, on the web and in the app. Public pages.",
+      "text": "Bayyinah TV: kurset e arabishtes, në web dhe në aplikacion. Faqe publike."
+    },
+    {
+      "lang": "sq",
+      "key": "page.heroNote",
+      "en": "The site also has an Arabic interface. These captures show the English one.",
+      "text": "Faqja ka edhe ndërfaqe në arabisht. Këto pamje tregojnë atë në anglisht."
+    },
+    {
+      "lang": "sq",
+      "key": "page.altWeb",
+      "en": "Bayyinah TV library, Arabic tab: beginner courses and the flagship Arabic program",
+      "text": "Biblioteka e Bayyinah TV, skeda Arabisht: kurse për fillestarë dhe programi kryesor i arabishtes"
+    },
+    {
+      "lang": "sq",
+      "key": "page.altPhone",
+      "en": "App Store frame of Bayyinah TV: Study Quranic Arabic Step by Step, with the Arabic courses",
+      "text": "Pamje e Bayyinah TV nga App Store: Study Quranic Arabic Step by Step, me kurset e arabishtes"
+    },
+    {
+      "lang": "sq",
+      "key": "page.rowsTitle",
+      "en": "Apps, and the languages they ship in",
+      "text": "Aplikacionet, dhe gjuhët në të cilat dalin"
+    },
+    {
+      "lang": "sq",
+      "key": "page.langsLabel",
+      "en": "Languages",
+      "text": "Gjuhët"
+    },
+    {
+      "lang": "sq",
+      "key": "page.albTitle",
+      "en": "In Albanian",
+      "text": "Në shqip"
+    },
+    {
+      "lang": "sq",
+      "key": "page.albLine",
+      "en": "Two apps with an Albanian interface: his own word game and a grocery app.",
+      "text": "Dy aplikacione me ndërfaqe në shqip: loja e tij me fjalë dhe një aplikacion ushqimor."
+    },
+    {
+      "lang": "sq",
+      "key": "page.fjaleCaption",
+      "en": "FJALË, his own daily word game, with an Albanian keyboard.",
+      "text": "FJALË, loja e tij ditore me fjalë, me tastierë shqipe."
+    },
+    {
+      "lang": "sq",
+      "key": "page.fjaleAlt",
+      "en": "FJALË word game board: a five-letter grid, an Albanian keyboard and a hint panel",
+      "text": "Tabela e lojës FJALË: rrjetë me pesë shkronja, tastierë shqipe dhe paneli i ndihmës"
+    },
+    {
+      "lang": "sq",
+      "key": "page.vivaCaption",
+      "en": "Viva Fresh: a store frame, Albanian interface.",
+      "text": "Viva Fresh: pamje nga dyqani, ndërfaqe në shqip."
+    },
+    {
+      "lang": "sq",
+      "key": "page.vivaAlt",
+      "en": "Viva Fresh store screenshot on iPhone: home with product categories and the latest products, Albanian interface",
+      "text": "Pamje e Viva Fresh në iPhone: faqja kryesore me kategoritë dhe produktet e fundit, në shqip"
+    },
+    {
+      "lang": "sq",
+      "key": "page.contact",
+      "en": "Contact",
+      "text": "Kontakt"
+    },
+    {
+      "lang": "sq",
+      "key": "page.footLine",
+      "en": "Every screen on this page is a public page or a store frame.",
+      "text": "Çdo ekran në këtë faqe është faqe publike ose pamje nga dyqani."
+    },
+    {
+      "lang": "sq",
+      "key": "page.archived",
+      "en": "archived",
+      "text": "arkivuar"
+    },
+    {
+      "lang": "sq",
+      "key": "page.noLink",
+      "en": "No public pages",
+      "text": "Pa faqe publike"
+    },
+    {
+      "lang": "sq",
+      "key": "page.top",
+      "en": "Gentrit Rashiti, back to the top",
+      "text": "Gentrit Rashiti, kthehu në fillim"
+    },
+    {
+      "lang": "sq",
+      "key": "page.ownTitle",
+      "en": "His own products",
+      "text": "Produktet e tij"
+    },
+    {
+      "lang": "sq",
+      "key": "page.ownLine",
+      "en": "Three products made on his own time. Two of them are concepts.",
+      "text": "Tre produkte të bëra në kohën e tij të lirë. Dy prej tyre janë koncepte."
+    },
+    {
+      "lang": "sq",
+      "key": "page.offdayKind",
+      "en": "Time off for teams: requests, approvals and a shared calendar.",
+      "text": "Pushime për ekipet: kërkesa, miratime dhe një kalendar i përbashkët."
+    },
+    {
+      "lang": "sq",
+      "key": "page.offdayResult",
+      "en": "About 200 automatic tests, including tests that keep each team’s data private.",
+      "text": "Rreth 200 teste automatike, edhe teste që i mbajnë private të dhënat e çdo ekipi."
+    },
+    {
+      "lang": "sq",
+      "key": "page.offdayNote",
+      "en": "Own product, 2026. The code is private.",
+      "text": "Produkt personal, 2026. Kodi është privat."
+    },
+    {
+      "lang": "sq",
+      "key": "page.offdayAlt",
+      "en": "Offday team calendar for October 2026 in the demo workspace, with leave bars, a public holiday and the approval queue",
+      "text": "Kalendari i ekipit në Offday për tetor 2026, me pushimet, një festë zyrtare dhe radhën e miratimeve"
+    },
+    {
+      "lang": "sq",
+      "key": "page.concept",
+      "en": "Concept, 2026",
+      "text": "Koncept, 2026"
+    },
+    {
+      "lang": "sq",
+      "key": "page.offbeatKind",
+      "en": "A made-up speaker brand, with a working eight-step drum machine.",
+      "text": "Një markë altoparlantësh e shpikur, me një makinë ritmi me tetë hapa që punon."
+    },
+    {
+      "lang": "sq",
+      "key": "page.offbeatAlt",
+      "en": "OFFBEAT sound studio: an eight-step drum machine with kick, snare, hi-hat and bass rows, tempo, volume and a swing dial",
+      "text": "Studioja e zërit në OFFBEAT: makinë ritmi me tetë hapa, me rreshtat kick, snare, hi-hat dhe bas, tempo, volum dhe një çelës swing"
+    },
+    {
+      "lang": "sq",
+      "key": "page.formKind",
+      "en": "A made-up sculpture show. Three shapes from mathematics, drawn live in the browser.",
+      "text": "Një ekspozitë skulpturash e shpikur. Tri forma nga matematika, të vizatuara drejtpërdrejt në shfletues."
+    },
+    {
+      "lang": "sq",
+      "key": "page.formAlt",
+      "en": "FORM home: a copper trefoil knot sculpture, the title Objects of imagination, and the material swatches",
+      "text": "Faqja kryesore e FORM: skulptura e nyjës trefoil prej bakri, titulli Objects of imagination dhe ngjyrat e materialeve"
+    },
+    {
+      "lang": "sq",
+      "key": "bayyinah.kind",
+      "en": "A video-learning platform, rebuilt from an empty page.",
+      "text": "Një platformë mësimi me video, e rindërtuar nga një faqe bosh."
+    },
+    {
+      "lang": "sq",
+      "key": "bayyinah.result",
+      "en": "The whole site also works in Arabic, right to left.",
+      "text": "E gjithë faqja punon edhe në arabisht, nga e djathta në të majtë."
+    },
+    {
+      "lang": "sq",
+      "key": "bayyinah.role",
+      "en": "Frontend, core team",
+      "text": "Frontend, ekipi bazë"
+    },
+    {
+      "lang": "sq",
+      "key": "care.name",
+      "en": "Care-management platform",
+      "text": "Platformë për menaxhimin e kujdesit"
+    },
+    {
+      "lang": "sq",
+      "key": "care.kind",
+      "en": "Care teams follow patients’ health readings from home devices.",
+      "text": "Ekipet e kujdesit ndjekin matjet e shëndetit të pacientëve nga pajisjet në shtëpi."
+    },
+    {
+      "lang": "sq",
+      "key": "care.result",
+      "en": "Many client organizations use it, in four languages.",
+      "text": "E përdorin shumë organizata klientë, në katër gjuhë."
+    },
+    {
+      "lang": "sq",
+      "key": "care.role",
+      "en": "Frontend, full stack since 2026",
+      "text": "Frontend, full stack nga 2026"
+    },
+    {
+      "lang": "sq",
+      "key": "care.years",
+      "en": "2023–now",
+      "text": "2023–sot"
+    },
+    {
+      "lang": "sq",
+      "key": "viva.kind",
+      "en": "Shoppers order groceries and pick a delivery time.",
+      "text": "Blerësit porosisin ushqime dhe zgjedhin orarin e dorëzimit."
+    },
+    {
+      "lang": "sq",
+      "key": "viva.result",
+      "en": "One grocery app, built once for iPhone and Android.",
+      "text": "Një aplikacion ushqimor, i ndërtuar një herë për iPhone dhe Android."
+    },
+    {
+      "lang": "sq",
+      "key": "read-to-feed.kind",
+      "en": "A reading app for children. Books open inside the app.",
+      "text": "Një aplikacion leximi për fëmijë. Librat hapen brenda aplikacionit."
+    },
+    {
+      "lang": "sq",
+      "key": "read-to-feed.result",
+      "en": "About 14 updates in both app stores.",
+      "text": "Rreth 14 përditësime në të dy dyqanet e aplikacioneve."
+    },
+    {
+      "lang": "sq",
+      "key": "read-to-feed.role",
+      "en": "Mobile, iOS and Android",
+      "text": "Mobile, iOS dhe Android"
+    },
+    {
+      "lang": "sq",
+      "key": "read-to-feed.count",
+      "en": "3 languages",
+      "text": "3 gjuhë"
+    },
+    {
+      "lang": "sq",
+      "key": "incentiv.kind",
+      "en": "Screens for a crypto wallet. Teammates built the wallet.",
+      "text": "Ekranet për një portofol kripto. Kolegët ndërtuan portofolin."
+    },
+    {
+      "lang": "sq",
+      "key": "incentiv.result",
+      "en": "Sign in with a passkey (no password) or a wallet.",
+      "text": "Hyrje me passkey (pa fjalëkalim) ose me një portofol."
+    },
+    {
+      "lang": "sq",
+      "key": "fjale.kind",
+      "en": "His own daily word game, in Albanian.",
+      "text": "Loja e tij ditore me fjalë, në shqip."
+    },
+    {
+      "lang": "sq",
+      "key": "fjale.result",
+      "en": "A new five-letter word every day, live on the web.",
+      "text": "Një fjalë e re me pesë shkronja çdo ditë, në internet."
+    },
+    {
+      "lang": "sq",
+      "key": "fjale.role",
+      "en": "Own project",
+      "text": "Projekt personal"
+    },
+    {
+      "lang": "ar",
+      "key": "names.ar",
+      "en": "Arabic",
+      "text": "العربية"
+    },
+    {
+      "lang": "ar",
+      "key": "page.title",
+      "en": "Gentrit Rashiti, web and mobile apps",
+      "text": "جنتريت راشيتي، تطبيقات الويب والجوّال"
+    },
+    {
+      "lang": "ar",
+      "key": "page.navLabel",
+      "en": "Language",
+      "text": "اللغة"
+    },
+    {
+      "lang": "ar",
+      "key": "page.cv",
+      "en": "CV (PDF)",
+      "text": "السيرة الذاتية (PDF)"
+    },
+    {
+      "lang": "ar",
+      "key": "page.email",
+      "en": "Email",
+      "text": "البريد الإلكتروني"
+    },
+    {
+      "lang": "ar",
+      "key": "page.line",
+      "en": "Gentrit Rashiti builds web and mobile apps in the user’s own language.",
+      "text": "جنتريت راشيتي يبني تطبيقات الويب والجوّال بلغة المستخدم نفسه."
+    },
+    {
+      "lang": "ar",
+      "key": "page.readIn",
+      "en": "Read this page in",
+      "text": "اقرأ هذه الصفحة بـ"
+    },
+    {
+      "lang": "ar",
+      "key": "page.sub",
+      "en": "5+ years. Part of two platform rewrites. Based in Kosovo, working remotely.",
+      "text": "أكثر من ٥ سنوات. شارك في إعادة كتابة منصّتين. يقيم في كوسوفو ويعمل عن بُعد."
+    },
+    {
+      "lang": "ar",
+      "key": "page.heroCaption",
+      "en": "Bayyinah TV: the Arabic courses, on the web and in the app. Public pages.",
+      "text": "Bayyinah TV: دورات اللغة العربية على الموقع وفي التطبيق. صفحات عامة."
+    },
+    {
+      "lang": "ar",
+      "key": "page.heroNote",
+      "en": "The site also has an Arabic interface. These captures show the English one.",
+      "text": "للموقع واجهة عربية أيضاً. هذه الصور تعرض الواجهة الإنجليزية."
+    },
+    {
+      "lang": "ar",
+      "key": "page.altWeb",
+      "en": "Bayyinah TV library, Arabic tab: beginner courses and the flagship Arabic program",
+      "text": "مكتبة Bayyinah TV، تبويب العربية: دورات للمبتدئين والبرنامج الرئيسي للغة العربية"
+    },
+    {
+      "lang": "ar",
+      "key": "page.altPhone",
+      "en": "App Store frame of Bayyinah TV: Study Quranic Arabic Step by Step, with the Arabic courses",
+      "text": "صورة Bayyinah TV من App Store: ‏Study Quranic Arabic Step by Step، مع دورات العربية"
+    },
+    {
+      "lang": "ar",
+      "key": "page.rowsTitle",
+      "en": "Apps, and the languages they ship in",
+      "text": "التطبيقات، واللغات التي صدرت بها"
+    },
+    {
+      "lang": "ar",
+      "key": "page.langsLabel",
+      "en": "Languages",
+      "text": "اللغات"
+    },
+    {
+      "lang": "ar",
+      "key": "page.albTitle",
+      "en": "In Albanian",
+      "text": "بالألبانية"
+    },
+    {
+      "lang": "ar",
+      "key": "page.albLine",
+      "en": "Two apps with an Albanian interface: his own word game and a grocery app.",
+      "text": "تطبيقان بواجهة ألبانية: لعبة كلمات من صنعه، وتطبيق للبقالة."
+    },
+    {
+      "lang": "ar",
+      "key": "page.fjaleCaption",
+      "en": "FJALË, his own daily word game, with an Albanian keyboard.",
+      "text": "FJALË، لعبة كلمات يومية من صنعه، بلوحة مفاتيح ألبانية."
+    },
+    {
+      "lang": "ar",
+      "key": "page.fjaleAlt",
+      "en": "FJALË word game board: a five-letter grid, an Albanian keyboard and a hint panel",
+      "text": "لوحة لعبة FJALË: شبكة من خمسة أحرف، ولوحة مفاتيح ألبانية، ولوحة تلميحات"
+    },
+    {
+      "lang": "ar",
+      "key": "page.vivaCaption",
+      "en": "Viva Fresh: a store frame, Albanian interface.",
+      "text": "Viva Fresh: صورة من المتجر، بواجهة ألبانية."
+    },
+    {
+      "lang": "ar",
+      "key": "page.vivaAlt",
+      "en": "Viva Fresh store screenshot on iPhone: home with product categories and the latest products, Albanian interface",
+      "text": "صورة Viva Fresh على آيفون: الصفحة الرئيسية بفئات المنتجات وأحدثها، بواجهة ألبانية"
+    },
+    {
+      "lang": "ar",
+      "key": "page.contact",
+      "en": "Contact",
+      "text": "تواصل"
+    },
+    {
+      "lang": "ar",
+      "key": "page.footLine",
+      "en": "Every screen on this page is a public page or a store frame.",
+      "text": "كل شاشة في هذه الصفحة صفحة عامة أو صورة من المتجر."
+    },
+    {
+      "lang": "ar",
+      "key": "page.archived",
+      "en": "archived",
+      "text": "مؤرشف"
+    },
+    {
+      "lang": "ar",
+      "key": "page.noLink",
+      "en": "No public pages",
+      "text": "بلا صفحات عامة"
+    },
+    {
+      "lang": "ar",
+      "key": "page.top",
+      "en": "Gentrit Rashiti, back to the top",
+      "text": "جنتريت راشيتي، العودة إلى الأعلى"
+    },
+    {
+      "lang": "ar",
+      "key": "page.ownTitle",
+      "en": "His own products",
+      "text": "منتجاته الخاصة"
+    },
+    {
+      "lang": "ar",
+      "key": "page.ownLine",
+      "en": "Three products made on his own time. Two of them are concepts.",
+      "text": "ثلاثة منتجات صنعها في وقته الخاص. اثنان منها مشروعان تصوّريان."
+    },
+    {
+      "lang": "ar",
+      "key": "page.offdayKind",
+      "en": "Time off for teams: requests, approvals and a shared calendar.",
+      "text": "إجازات للفرق: طلبات وموافقات وتقويم مشترك."
+    },
+    {
+      "lang": "ar",
+      "key": "page.offdayResult",
+      "en": "About 200 automatic tests, including tests that keep each team’s data private.",
+      "text": "نحو ٢٠٠ اختبار آلي، منها اختبارات تُبقي بيانات كل فريق خاصة به."
+    },
+    {
+      "lang": "ar",
+      "key": "page.offdayNote",
+      "en": "Own product, 2026. The code is private.",
+      "text": "منتج شخصي، ٢٠٢٦. الشيفرة خاصة."
+    },
+    {
+      "lang": "ar",
+      "key": "page.offdayAlt",
+      "en": "Offday team calendar for October 2026 in the demo workspace, with leave bars, a public holiday and the approval queue",
+      "text": "تقويم الفريق في Offday لشهر أكتوبر ٢٠٢٦، مع الإجازات وعطلة رسمية وقائمة الموافقات"
+    },
+    {
+      "lang": "ar",
+      "key": "page.concept",
+      "en": "Concept, 2026",
+      "text": "مشروع تصوّري، ٢٠٢٦"
+    },
+    {
+      "lang": "ar",
+      "key": "page.offbeatKind",
+      "en": "A made-up speaker brand, with a working eight-step drum machine.",
+      "text": "علامة سماعات متخيَّلة، مع آلة إيقاع من ثماني خطوات تعمل فعلاً."
+    },
+    {
+      "lang": "ar",
+      "key": "page.offbeatAlt",
+      "en": "OFFBEAT sound studio: an eight-step drum machine with kick, snare, hi-hat and bass rows, tempo, volume and a swing dial",
+      "text": "استوديو الصوت في OFFBEAT: آلة إيقاع من ثماني خطوات بصفوف الطبل والإيقاع والصنج والباص، مع السرعة ومستوى الصوت ومقبض التأرجح"
+    },
+    {
+      "lang": "ar",
+      "key": "page.formKind",
+      "en": "A made-up sculpture show. Three shapes from mathematics, drawn live in the browser.",
+      "text": "معرض منحوتات متخيَّل. ثلاثة أشكال من الرياضيات تُرسم مباشرة في المتصفح."
+    },
+    {
+      "lang": "ar",
+      "key": "page.formAlt",
+      "en": "FORM home: a copper trefoil knot sculpture, the title Objects of imagination, and the material swatches",
+      "text": "الصفحة الرئيسية لـ FORM: منحوتة عقدة ثلاثية من النحاس، والعنوان Objects of imagination، وعينات المواد"
+    },
+    {
+      "lang": "ar",
+      "key": "bayyinah.kind",
+      "en": "A video-learning platform, rebuilt from an empty page.",
+      "text": "منصة تعليم بالفيديو، أُعيد بناؤها من صفحة فارغة."
+    },
+    {
+      "lang": "ar",
+      "key": "bayyinah.result",
+      "en": "The whole site also works in Arabic, right to left.",
+      "text": "الموقع كله يعمل بالعربية أيضاً، من اليمين إلى اليسار."
+    },
+    {
+      "lang": "ar",
+      "key": "bayyinah.role",
+      "en": "Frontend, core team",
+      "text": "الواجهة الأمامية، الفريق الأساسي"
+    },
+    {
+      "lang": "ar",
+      "key": "bayyinah.years",
+      "en": "2023–26",
+      "text": "٢٠٢٣–٢٦"
+    },
+    {
+      "lang": "ar",
+      "key": "care.name",
+      "en": "Care-management platform",
+      "text": "منصة لإدارة الرعاية الصحية"
+    },
+    {
+      "lang": "ar",
+      "key": "care.kind",
+      "en": "Care teams follow patients’ health readings from home devices.",
+      "text": "تتابع فرق الرعاية قراءات صحة المرضى من أجهزة في منازلهم."
+    },
+    {
+      "lang": "ar",
+      "key": "care.result",
+      "en": "Many client organizations use it, in four languages.",
+      "text": "تستخدمها مؤسسات كثيرة من العملاء، بأربع لغات."
+    },
+    {
+      "lang": "ar",
+      "key": "care.role",
+      "en": "Frontend, full stack since 2026",
+      "text": "الواجهة الأمامية، وتطوير متكامل منذ ٢٠٢٦"
+    },
+    {
+      "lang": "ar",
+      "key": "care.years",
+      "en": "2023–now",
+      "text": "٢٠٢٣ حتى الآن"
+    },
+    {
+      "lang": "ar",
+      "key": "viva.kind",
+      "en": "Shoppers order groceries and pick a delivery time.",
+      "text": "يطلب المتسوّقون البقالة ويختارون موعد التوصيل."
+    },
+    {
+      "lang": "ar",
+      "key": "viva.result",
+      "en": "One grocery app, built once for iPhone and Android.",
+      "text": "تطبيق بقالة واحد، بُني مرة واحدة لآيفون وأندرويد."
+    },
+    {
+      "lang": "ar",
+      "key": "viva.role",
+      "en": "Mobile",
+      "text": "تطبيقات الجوّال"
+    },
+    {
+      "lang": "ar",
+      "key": "viva.years",
+      "en": "2023",
+      "text": "٢٠٢٣"
+    },
+    {
+      "lang": "ar",
+      "key": "read-to-feed.kind",
+      "en": "A reading app for children. Books open inside the app.",
+      "text": "تطبيق قراءة للأطفال. تُفتح الكتب داخل التطبيق."
+    },
+    {
+      "lang": "ar",
+      "key": "read-to-feed.result",
+      "en": "About 14 updates in both app stores.",
+      "text": "نحو ١٤ تحديثاً في متجرَي التطبيقات."
+    },
+    {
+      "lang": "ar",
+      "key": "read-to-feed.role",
+      "en": "Mobile, iOS and Android",
+      "text": "الجوّال، iOS وAndroid"
+    },
+    {
+      "lang": "ar",
+      "key": "read-to-feed.years",
+      "en": "2022–25",
+      "text": "٢٠٢٢–٢٥"
+    },
+    {
+      "lang": "ar",
+      "key": "read-to-feed.count",
+      "en": "3 languages",
+      "text": "٣ لغات"
+    },
+    {
+      "lang": "ar",
+      "key": "incentiv.kind",
+      "en": "Screens for a crypto wallet. Teammates built the wallet.",
+      "text": "شاشات لمحفظة عملات رقمية. بنى الزملاء المحفظة نفسها."
+    },
+    {
+      "lang": "ar",
+      "key": "incentiv.result",
+      "en": "Sign in with a passkey (no password) or a wallet.",
+      "text": "دخول بمفتاح مرور (بلا كلمة سر) أو بمحفظة."
+    },
+    {
+      "lang": "ar",
+      "key": "incentiv.role",
+      "en": "Frontend",
+      "text": "الواجهة الأمامية"
+    },
+    {
+      "lang": "ar",
+      "key": "incentiv.years",
+      "en": "2024",
+      "text": "٢٠٢٤"
+    },
+    {
+      "lang": "ar",
+      "key": "fjale.kind",
+      "en": "His own daily word game, in Albanian.",
+      "text": "لعبة كلمات يومية من صنعه، بالألبانية."
+    },
+    {
+      "lang": "ar",
+      "key": "fjale.result",
+      "en": "A new five-letter word every day, live on the web.",
+      "text": "كلمة جديدة من خمسة أحرف كل يوم، على الويب."
+    },
+    {
+      "lang": "ar",
+      "key": "fjale.role",
+      "en": "Own project",
+      "text": "مشروع شخصي"
+    },
+    {
+      "lang": "ar",
+      "key": "fjale.years",
+      "en": "2026",
+      "text": "٢٠٢٦"
+    }
+  ],
+  "craft": {
+    "widthsChecked": [
+      1440,
+      1280,
+      1024,
+      540,
+      390,
+      375
+    ],
+    "cls": "0 at every width in en, sq and ar, on load and after a fast scroll to the bottom (cold profile)",
+    "targets": "every link and button is at least 44 x 44 px (0 smaller at every width)",
+    "focus": "2 px gold ring, 3 px offset, on every link and button",
+    "hover": "hover only adds a tint or underline; every action has a visible control",
+    "reducedMotion": "switch is instant: 0 animations 16 ms after the click, dir already rtl",
+    "noWebGL": "no WebGL, no canvas, no sound",
+    "contrast": "lowest text pair 7.16:1 (gold on ultramarine)",
+    "chunk": "Draft JS 7.0 kB gzip, CSS 2.9 kB gzip (fonts excluded); fonts 75 + 41 + 41 kB, preloaded",
+    "fontWait": "render waits at most 300 ms; late faces fall back to a sized Georgia and Geeza Pro for the whole visit",
+    "images": "no capture above its pixels on a 2x screen (largest scale 1.00); Offday 0.70, OFFBEAT 0.50, FORM 0.46 at 1440"
+  },
+  "checks": "npx tsc --noEmit -p tsconfig.app.json: no error in src/drafts/four-languages (other drafts in progress have errors). npx oxlint src/drafts/four-languages: clean.",
+  "evidence": {
+    "dir": "scratchpad/review/loop10/four-languages/final",
+    "tops": "d1440|d1280|d1024|p540|m390|m375 x en|sq|ar -top.png",
+    "sections": [
+      "d1440-en-rows.png",
+      "d1440-en-albanian.png",
+      "d1440-en-footer.png",
+      "d1440-ar-rows.png",
+      "d1440-ar-albanian.png"
+    ],
+    "motion": [
+      "mirror-en-ar-000-before.png",
+      "mirror-en-ar-040ms.png",
+      "mirror-en-ar-080ms.png",
+      "mirror-en-ar-120ms.png",
+      "mirror-en-ar-160ms.png",
+      "mirror-en-ar-200ms.png",
+      "mirror-en-ar-240ms.png",
+      "mirror-en-ar-280ms.png",
+      "mirror-en-ar-320ms.png",
+      "mirror-en-ar-done.png",
+      "mirror-rows-ar-sq-before.png",
+      "mirror-rows-ar-sq-120ms.png",
+      "mirror-rows-ar-sq-done.png",
+      "alt-en-sq-100ms.png",
+      "alt-en-sq-200ms.png",
+      "alt-en-sq-done.png",
+      "m-mirror-en-ar-120ms.png",
+      "m-mirror-en-ar-done.png"
+    ],
+    "keyboard": [
+      "key-tab4-focus-arabic.png",
+      "key-enter-mirrored.png",
+      "key-tab-alt-english.png"
+    ],
+    "reduced": [
+      "reduced-en.png",
+      "reduced-ar-016ms.png",
+      "reduced-ar-2s.png"
+    ],
+    "own": [
+      "d1440-en-own.png",
+      "d1440-en-own-2.png",
+      "d1440-ar-own.png",
+      "d1440-ar-own-2.png",
+      "m375-en-own.png",
+      "m375-en-own-2.png",
+      "m375-ar-own.png",
+      "m375-ar-own-2.png",
+      "mirror-own-en-ar-120ms.png",
+      "mirror-own-en-ar-done.png"
+    ]
+  }
+}

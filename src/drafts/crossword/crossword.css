@@ -1,0 +1,210 @@
+@font-face{font-family:XwFranklin;src:url('/fonts/creative/LibreFranklin-Latin.woff2') format('woff2');font-style:normal;font-weight:100 900;font-display:swap}
+@font-face{font-family:XwFraunces;src:url('/fonts/creative/Fraunces-Latin.woff2') format('woff2');font-style:normal;font-weight:100 900;font-display:swap}
+.draft-crossword{--fk-ground:#f2b705;--fk-paper:#fffcf2;--fk-ink:#161616;--fk-blue:#1f4bff;--fk-rule:#16161659;--fk-side:clamp(400px,37vw,560px);--fk-out:cubic-bezier(.215,.61,.355,1);--fk-arrive:cubic-bezier(.16,1,.3,1);--fk-sheet:cubic-bezier(.32,.72,0,1);--fk-mono:'Martian Mono',ui-monospace,monospace;--fk-serif:XwFraunces,Georgia,serif;min-height:100svh;background:var(--fk-ground);color:var(--fk-ink);font-family:XwFranklin,'Helvetica Neue',Arial,sans-serif;font-size:15px;line-height:1.5;color-scheme:light;overflow-x:clip;font-variation-settings:normal}
+.draft-crossword *{box-sizing:border-box}
+.draft-crossword :is(h1,h2,h3,p,figure,dl,dd,ol){margin:0}
+.draft-crossword ol{padding:0;list-style:none}
+.draft-crossword a{color:inherit;text-decoration-thickness:1px;text-underline-offset:4px}
+.draft-crossword button,.draft-crossword input{font:inherit;color:inherit}
+.draft-crossword button{cursor:pointer;border-radius:0;touch-action:manipulation}
+.draft-crossword input{caret-color:var(--fk-blue);border-radius:0}
+.draft-crossword :is(a,button,input,[tabindex]):focus-visible{outline:3px solid var(--fk-blue);outline-offset:3px}
+.draft-crossword ::selection{background:var(--fk-ink);color:var(--fk-ground)}
+.draft-crossword svg{flex:none}
+.draft-crossword .fk-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.draft-crossword .fk-skip{position:absolute;left:16px;top:-100px;z-index:30;background:var(--fk-paper);padding:12px 16px;font-weight:600}
+.draft-crossword .fk-skip:focus{top:8px}
+.draft-crossword .fk-num{font-family:var(--fk-mono);font-weight:500;font-size:11px;letter-spacing:0;font-variant-numeric:tabular-nums}
+
+/* Header: the setter of the puzzle */
+.draft-crossword .fk-header{height:56px;display:flex;align-items:center;gap:20px;padding:0 32px;border-bottom:2px solid var(--fk-ink)}
+.draft-crossword .fk-setter{display:flex;align-items:center;gap:16px;min-width:0}
+.draft-crossword .fk-setter-role{font-family:var(--fk-serif);font-variation-settings:'opsz' 16,'SOFT' 100,'WONK' 0;font-size:16px;font-style:normal;white-space:nowrap}
+.draft-crossword .fk-tiles{display:flex;gap:8px}
+.draft-crossword .fk-tiles>span{display:flex}
+.draft-crossword .fk-tiles i{display:grid;place-items:center;width:25px;height:25px;margin-left:-1.5px;border:1.5px solid var(--fk-ink);background:var(--fk-paper);font-style:normal;font-weight:700;font-size:14px;letter-spacing:.04em;line-height:1}
+.draft-crossword .fk-tiles i:first-child{margin-left:0}
+.draft-crossword .fk-header nav{display:flex;margin-left:auto}
+.draft-crossword .fk-header nav a{min-height:44px;min-width:44px;padding:0 10px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:600;text-decoration:none}
+.draft-crossword .fk-header nav a:hover{text-decoration:underline}
+
+/* Stage: board at the left; who, then the work, at the right */
+.draft-crossword .fk-stage{display:grid;grid-template-columns:minmax(0,1fr) var(--fk-side);grid-template-rows:auto 1fr;grid-template-areas:"board ident" "board side";min-height:calc(100svh - 56px);border-bottom:2px solid var(--fk-ink);scroll-margin-top:0}
+.draft-crossword .fk-identity{grid-area:ident;border-left:2px solid var(--fk-ink);padding:28px 32px 0}
+.draft-crossword .fk-identity h1{font-family:var(--fk-serif);font-weight:400;font-variation-settings:'opsz' 96,'SOFT' 100,'WONK' 0;font-size:38px;line-height:1.08;letter-spacing:-.02em;max-width:18ch;text-wrap:balance}
+.draft-crossword .fk-identity p{margin-top:12px;font-size:15px;font-weight:500;line-height:1.45;max-width:44ch}
+.draft-crossword .fk-board-column{grid-area:board;align-self:start;display:flex;flex-direction:column;min-width:0;height:max(600px,calc(100svh - 58px));padding-left:32px}
+.draft-crossword .fk-board-bar{flex:none;min-height:64px;display:flex;align-items:center;gap:20px;padding-right:24px;border-bottom:2px solid var(--fk-ink)}
+.draft-crossword .fk-board-bar h2{font-size:30px;line-height:1;font-weight:800;letter-spacing:-.03em}
+.draft-crossword .fk-board-bar>p{font-size:14px;font-weight:500;padding-top:4px}
+.draft-crossword .fk-solve{margin-left:auto;min-height:44px;padding:0 18px;background:var(--fk-paper);border:2px solid var(--fk-ink);font-size:15px;font-weight:650;white-space:nowrap}
+.draft-crossword .fk-solve:hover{background:var(--fk-ink);color:var(--fk-paper)}
+.draft-crossword .fk-solve[aria-pressed=true]{background:transparent}
+.draft-crossword .fk-solve[aria-pressed=true]:hover{background:var(--fk-ink)}
+
+/* Board */
+.draft-crossword .fk-board-viewport{flex:1;min-height:0;margin-right:24px;position:relative;overflow:hidden;touch-action:none;cursor:grab;isolation:isolate}
+.draft-crossword .fk-board-viewport:active{cursor:grabbing}
+.draft-crossword .fk-board-viewport:focus-visible{outline-offset:-3px}
+.draft-crossword .fk-board{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform;user-select:none}
+.draft-crossword .fk-cell{position:absolute;display:block;text-align:center;width:46px;height:46px;margin:-1px 0 0 -1px;padding:0;background:var(--fk-paper);color:var(--fk-ink);border:2px solid var(--fk-ink);overflow:visible;font-size:26px;line-height:1;font-weight:700;letter-spacing:.04em;cursor:pointer;touch-action:none;perspective:160px;transition:background-color 200ms var(--fk-out),color 200ms var(--fk-out)}
+.draft-crossword .fk-cell>span{position:absolute;inset:4px 0 0;display:grid;place-items:center;pointer-events:none;padding-left:.04em}
+.draft-crossword .fk-cell:has(>[data-falling]){z-index:6}
+.draft-crossword .fk-cell>[data-falling=""]{color:var(--fk-ink)}
+.draft-crossword .fk-cell>small{position:absolute;z-index:2;left:3px;top:2px;font-family:var(--fk-mono);font-size:11px;font-weight:500;line-height:1;letter-spacing:0;pointer-events:none}
+.draft-crossword .fk-cell:hover{box-shadow:inset 0 0 0 3px var(--fk-ink)}
+.draft-crossword .fk-cell[data-given=true]{background:var(--fk-ink);color:var(--fk-paper)}
+.draft-crossword .fk-cell[data-selected=true]{background:transparent;color:var(--fk-paper);z-index:3}
+.draft-crossword .fk-cell[data-complete=true]{animation:fk-word-flip 360ms var(--fk-out) var(--fk-wave-delay) both;backface-visibility:visible}
+.draft-crossword .fk-cell[data-cross=true]{animation:fk-cross 440ms var(--fk-out) var(--fk-cross-delay) both}
+.draft-crossword .fk-highlight{position:absolute;z-index:2;pointer-events:none;background:var(--fk-blue);box-shadow:0 0 0 2px var(--fk-ink)}
+
+/* Typing line under the board */
+.draft-crossword .fk-answer-bar{flex:none;min-height:72px;display:flex;align-items:center;gap:20px;padding:8px 24px 8px 0;border-top:2px solid var(--fk-ink)}
+.draft-crossword .fk-hint{flex:1;min-width:0;font-family:var(--fk-serif);font-variation-settings:'opsz' 20,'SOFT' 100,'WONK' 0;font-size:19px;line-height:1.3}
+.draft-crossword .fk-hint b{font-family:XwFranklin,sans-serif;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding-right:6px}
+.draft-crossword .fk-answer-form{flex:none;display:flex;align-items:center;border:2px solid var(--fk-ink);background:var(--fk-paper)}
+.draft-crossword .fk-answer-form input{width:180px;min-width:0;height:44px;border:0;background:transparent;padding:0 12px;font-size:17px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.draft-crossword .fk-answer-form input::placeholder{color:#161616a6;opacity:1}
+.draft-crossword .fk-answer-form input:focus-visible{outline-offset:2px}
+.draft-crossword .fk-answer-form button{width:44px;height:44px;display:grid;place-items:center;border:0;border-left:2px solid var(--fk-ink);background:none;font-size:20px;font-weight:700}
+.draft-crossword .fk-answer-form button:hover{background:var(--fk-ink);color:var(--fk-paper)}
+.draft-crossword .fk-answer-form .fk-check{background:var(--fk-blue);color:var(--fk-paper)}
+
+/* The work: the recruiter path */
+.draft-crossword .fk-side{grid-area:side;min-width:0;border-left:2px solid var(--fk-ink);padding:24px 32px 32px}
+.draft-crossword .fk-list-title{display:flex;align-items:baseline;gap:10px;padding-bottom:8px;border-bottom:2px solid var(--fk-ink);font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.08em}
+.draft-crossword .fk-list-title span{font-weight:500;text-transform:none;letter-spacing:0;font-size:14px}
+.draft-crossword .fk-clue{position:relative;display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"result result" "line open";column-gap:16px;row-gap:4px;width:100%;padding:10px 0 10px;background:none;border:0;border-bottom:1px solid var(--fk-rule);text-align:left}
+.draft-crossword .fk-clue-result{grid-area:result;font-family:var(--fk-serif);font-variation-settings:'opsz' 20,'SOFT' 100,'WONK' 0;font-size:19px;max-width:40ch;line-height:1.28;text-wrap:pretty;width:fit-content}
+.draft-crossword .fk-clue-line{grid-area:line;display:flex;align-items:baseline;gap:6px;font-size:12px;line-height:1.3}
+.draft-crossword .fk-clue-line>span:nth-child(2){font-weight:500}
+.draft-crossword .fk-clue-line b{font-weight:700;text-transform:uppercase;letter-spacing:.06em;width:fit-content}
+.draft-crossword .fk-clue-open{grid-area:open;align-self:end;display:flex;align-items:center;gap:6px;font-size:14px;font-weight:650;line-height:1}
+.draft-crossword .fk-clue-open svg{width:18px;height:18px}
+.draft-crossword .fk-clue[data-current=true]{background:var(--fk-blue);color:var(--fk-paper);box-shadow:-10px 0 0 var(--fk-blue),10px 0 0 var(--fk-blue)}
+.draft-crossword .fk-clue:focus-visible{outline-offset:6px}
+
+/* Case */
+.draft-crossword .fk-case-head{display:flex;align-items:center;gap:10px;min-height:44px;font-size:13px;font-weight:600}
+.draft-crossword .fk-case-head>button{width:44px;height:44px;display:grid;place-items:center;margin-left:-12px;background:none;border:0}
+.draft-crossword .fk-case-head>button:hover{background:var(--fk-paper)}
+.draft-crossword .fk-case>h2{margin-top:10px;width:fit-content;font-family:var(--fk-serif);font-weight:500;font-variation-settings:'opsz' 72,'SOFT' 100,'WONK' 0;font-size:clamp(34px,3.3vw,50px);line-height:1.04;letter-spacing:-.025em;text-wrap:balance}
+.draft-crossword .fk-case>h2:focus-visible{outline-offset:6px}
+.draft-crossword .fk-case-lede{margin-top:12px;width:fit-content;font-family:var(--fk-serif);font-variation-settings:'opsz' 24,'SOFT' 100,'WONK' 0;font-size:22px;line-height:1.32;letter-spacing:-.005em;max-width:30ch;text-wrap:pretty}
+.draft-crossword .fk-case-body{margin-top:18px}
+.draft-crossword .fk-case-meta{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;line-height:1.45}
+.draft-crossword .fk-case-scope{margin-top:8px;font-size:16px;line-height:1.5;max-width:46ch}
+.draft-crossword .fk-case-media{margin-top:20px;display:grid;gap:8px}
+.draft-crossword .fk-case-media[data-count="3"]{grid-template-columns:repeat(3,1fr)}
+.draft-crossword .fk-case-media img{display:block;width:100%;height:auto;border:2px solid var(--fk-ink);background:var(--fk-paper)}
+.draft-crossword .fk-case-media figcaption{grid-column:1/-1;font-size:13px;font-weight:600}
+.draft-crossword .fk-recreation{position:relative;aspect-ratio:4/3;overflow:hidden;border:2px solid var(--fk-ink);background:var(--fk-paper);color:initial;font-family:initial}
+.draft-crossword .fk-wait{display:grid;place-items:center;height:100%;font-size:14px}
+.draft-crossword .fk-project-links{display:flex;flex-direction:column;margin-top:20px;border-top:2px solid var(--fk-ink)}
+.draft-crossword .fk-project-links>a{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:48px;text-decoration:none;border-bottom:1px solid var(--fk-rule);font-size:15px;font-weight:600}
+.draft-crossword .fk-project-links>a:hover{text-decoration:underline}
+
+/* Own projects, large */
+.draft-crossword .fk-own{padding:56px 32px 64px;border-bottom:2px solid var(--fk-ink)}
+.draft-crossword .fk-own-head{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;padding-bottom:10px;border-bottom:2px solid var(--fk-ink)}
+.draft-crossword .fk-own-head h2{font-size:30px;font-weight:800;letter-spacing:-.03em;line-height:1.1}
+.draft-crossword .fk-own-head p{font-family:var(--fk-serif);font-variation-settings:'opsz' 20,'SOFT' 100,'WONK' 0;font-size:19px}
+.draft-crossword .fk-own-grid{display:grid;grid-template-columns:1fr 1fr;gap:56px 32px;margin-top:32px}
+.draft-crossword .fk-own-item{display:grid;align-content:start;gap:20px;min-width:0;scroll-margin-top:16px}
+.draft-crossword .fk-own-item[data-slug=offday]{grid-column:1/-1;grid-template-columns:minmax(260px,320px) minmax(0,1fr);gap:32px;align-items:start}
+.draft-crossword .fk-own-word{display:flex;align-items:flex-start}
+.draft-crossword .fk-own-word .fk-num{align-self:flex-start;margin-right:8px;padding-top:2px}
+.draft-crossword .fk-own-word i{display:grid;place-items:center;width:46px;height:46px;margin-left:-2px;border:2px solid var(--fk-ink);background:var(--fk-paper);font-style:normal;font-weight:700;font-size:26px;letter-spacing:.04em;line-height:1}
+.draft-crossword .fk-own-word i:nth-child(2){margin-left:0}
+.draft-crossword .fk-own-result{margin-top:16px;font-family:var(--fk-serif);font-weight:400;font-variation-settings:'opsz' 48,'SOFT' 100,'WONK' 0;font-size:30px;line-height:1.15;letter-spacing:-.015em;max-width:22ch;text-wrap:balance}
+.draft-crossword .fk-own-meta{margin-top:10px;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.draft-crossword .fk-own-scope{margin-top:6px;font-size:15px;line-height:1.5;max-width:44ch}
+.draft-crossword .fk-own-links{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.draft-crossword .fk-own-links>:is(a,button){display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 14px;border:2px solid var(--fk-ink);background:var(--fk-paper);font-size:15px;font-weight:600;text-decoration:none}
+.draft-crossword .fk-own-links>:is(a,button):hover{background:var(--fk-ink);color:var(--fk-paper)}
+.draft-crossword .fk-crop{min-width:0}
+.draft-crossword .fk-crop>div{position:relative;overflow:hidden;width:100%;border:2px solid var(--fk-ink);background:var(--fk-ink)}
+.draft-crossword .fk-crop img{position:absolute;display:block;max-width:none;height:auto}
+.draft-crossword .fk-crop figcaption{margin-top:8px;font-size:13px;font-weight:600}
+.draft-crossword .fk-crop-narrow{display:none}
+
+/* The other answers */
+.draft-crossword .fk-rest{padding:56px 32px 64px}
+.draft-crossword .fk-rest-head{display:flex;align-items:baseline;flex-wrap:wrap;gap:12px 20px;padding-bottom:10px;border-bottom:2px solid var(--fk-ink)}
+.draft-crossword .fk-rest-head h2{font-size:30px;font-weight:800;letter-spacing:-.03em;line-height:1.1}
+.draft-crossword .fk-rest-head p{font-family:var(--fk-serif);font-variation-settings:'opsz' 20,'SOFT' 100,'WONK' 0;font-size:19px}
+.draft-crossword .fk-rest-head .fk-solve{align-self:center}
+.draft-crossword .fk-rest-columns{display:grid;grid-template-columns:1fr 1fr;gap:0 48px;margin-top:20px}
+.draft-crossword .fk-rest-columns h3{font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;padding:8px 0}
+.draft-crossword .fk-rest-clue{display:grid;grid-template-columns:28px minmax(0,1fr);gap:8px;width:100%;min-height:44px;padding:9px 8px 10px 0;background:none;border:0;border-top:1px solid var(--fk-rule);text-align:left;font-family:var(--fk-serif);font-variation-settings:'opsz' 16,'SOFT' 100,'WONK' 0;font-size:16px;line-height:1.38}
+.draft-crossword .fk-rest-clue .fk-num{padding-top:4px;text-align:right}
+.draft-crossword .fk-rest-clue b{font-family:XwFranklin,sans-serif;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding-right:6px}
+.draft-crossword .fk-enum{font-family:XwFranklin,sans-serif;font-size:13px;font-weight:500;white-space:nowrap}
+.draft-crossword .fk-rest-clue:hover{background:var(--fk-paper)}
+
+/* Footer */
+.draft-crossword .fk-footer{padding:48px 32px;display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:40px;border-top:2px solid var(--fk-ink)}
+.draft-crossword .fk-footer h2{font-size:24px;font-weight:800;letter-spacing:-.03em;line-height:1.2;margin-bottom:8px}
+.draft-crossword .fk-footer div>p{font-size:15px;line-height:1.6;max-width:44ch}
+.draft-crossword .fk-footer>p{font-family:var(--fk-serif);font-variation-settings:'opsz' 24,'SOFT' 100,'WONK' 0;font-size:24px;line-height:1.35}
+.draft-crossword .fk-footer nav{display:grid;grid-template-columns:1fr 1fr;gap:0 24px;align-content:start}
+.draft-crossword .fk-footer nav>a{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:48px;text-decoration:none;border-bottom:1px solid var(--fk-rule);font-size:15px;font-weight:600}
+.draft-crossword .fk-footer nav>a:hover{text-decoration:underline}
+.draft-crossword .fk-footer nav>a:last-child{grid-column:1/-1}
+
+.draft-crossword :is(button,a):not(.fk-cell):not(.fk-clue){transition:background-color 150ms var(--fk-out),color 150ms var(--fk-out),translate 150ms var(--fk-out)}
+.draft-crossword :is(button,a):not(.fk-cell):active{translate:0 1px}
+.draft-crossword .fk-clue{transition:background-color 160ms var(--fk-out),color 160ms var(--fk-out),box-shadow 160ms var(--fk-out)}
+
+@keyframes fk-word-flip{0%{transform:rotateX(0deg)}48%{transform:rotateX(95deg);background:var(--fk-paper)}100%{transform:rotateX(0deg);background:var(--fk-blue);color:var(--fk-paper)}}
+@keyframes fk-cross{0%{transform:none}40%{transform:translateY(-4px);background:var(--fk-ink);color:var(--fk-paper)}100%{transform:none}}
+::view-transition-group(fk-case-title),::view-transition-group(fk-case-clue){animation-duration:420ms;animation-timing-function:cubic-bezier(.32,.72,0,1)}
+::view-transition-old(fk-case-title),::view-transition-new(fk-case-title),::view-transition-old(fk-case-clue),::view-transition-new(fk-case-clue){height:100%;object-fit:fill}
+
+@media(max-width:1100px){
+  .draft-crossword{--fk-side:380px}
+  .draft-crossword .fk-setter-role{display:none}
+  .draft-crossword .fk-identity h1{font-size:32px}
+  .draft-crossword .fk-board-bar>p{display:none}
+  .draft-crossword .fk-answer-form input{width:140px}
+  .draft-crossword .fk-hint span{display:none}
+  .draft-crossword .fk-own-item[data-slug=offday]{grid-template-columns:1fr}
+}
+@media(max-width:760px){
+  .draft-crossword{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
+  .draft-crossword .fk-header{height:52px;padding:0 6px 0 16px;gap:8px}
+  .draft-crossword .fk-tiles{gap:5px}
+  .draft-crossword .fk-tiles i{width:19px;height:19px;margin-left:-1px;border-width:1px;font-size:11px}
+  .draft-crossword .fk-header nav a{padding:0 6px}
+  .draft-crossword .fk-stage{display:flex;flex-direction:column;min-height:0}
+  .draft-crossword .fk-identity{border-left:0;padding:20px 16px 18px}
+  .draft-crossword .fk-identity h1{font-size:30px;line-height:1.1}
+  .draft-crossword .fk-identity p{margin-top:8px}
+  .draft-crossword .fk-board-column{align-self:stretch;height:auto;padding:0;border-top:2px solid var(--fk-ink)}
+  .draft-crossword .fk-board-bar{min-height:56px;padding:6px 8px 6px 16px;gap:12px}
+  .draft-crossword .fk-board-bar h2{font-size:26px}
+  .draft-crossword .fk-board-viewport{flex:none;height:52svh;min-height:300px;margin-right:0}
+  .draft-crossword .fk-answer-bar{min-height:0;padding:10px 16px}
+  .draft-crossword .fk-hint{font-size:17px}
+  .draft-crossword .fk-hint span{display:inline}
+  .draft-crossword .fk-answer-form{position:fixed;z-index:20;left:0;right:0;bottom:0;height:calc(64px + env(safe-area-inset-bottom));padding:8px 8px calc(8px + env(safe-area-inset-bottom)) 16px;border:0;border-top:2px solid var(--fk-ink);gap:0}
+  .draft-crossword .fk-answer-form input{flex:1;width:auto;border:2px solid var(--fk-ink);height:48px;font-size:16px}
+  .draft-crossword .fk-answer-form button{height:48px;width:48px;border:2px solid var(--fk-ink);border-left:0}
+  .draft-crossword .fk-side{border-left:0;border-top:2px solid var(--fk-ink);padding:20px 16px 32px}
+  .draft-crossword .fk-clue-result{font-size:18px}
+  .draft-crossword .fk-case-lede{font-size:20px}
+  .draft-crossword .fk-own{padding:40px 16px 48px}
+  .draft-crossword .fk-own-head h2,.draft-crossword .fk-rest-head h2{font-size:26px}
+  .draft-crossword .fk-own-grid{grid-template-columns:1fr;gap:48px;margin-top:24px}
+  .draft-crossword .fk-own-word i{width:38px;height:38px;font-size:21px}
+  .draft-crossword .fk-own-result{font-size:23px;line-height:1.2}
+  .draft-crossword .fk-crop-wide:has(+.fk-crop-narrow){display:none}
+  .draft-crossword .fk-crop-narrow{display:block}
+  .draft-crossword .fk-crop-narrow>div{max-width:390px!important}
+  .draft-crossword .fk-rest{padding:40px 16px 48px}
+  .draft-crossword .fk-rest-columns{grid-template-columns:1fr}
+  .draft-crossword .fk-footer{padding:32px 16px;grid-template-columns:1fr;gap:24px}
+  .draft-crossword .fk-footer>p{font-size:21px}
+}
+@media(prefers-reduced-motion:reduce){.draft-crossword *{scroll-behavior:auto!important;animation-duration:.01s!important;animation-delay:0s!important;transition-duration:.01s!important}::view-transition-group(*),::view-transition-old(*),::view-transition-new(*){animation:none!important}}
