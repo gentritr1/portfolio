@@ -2,31 +2,31 @@
   "id": "personal-studio",
   "title": "PERSONAL STUDIO",
   "band": "Loop 9",
-  "rule": "own products lead, shown like a studio's showcase: each product gets a room in its own colour and a large real screen at native pixels; client work follows as a plain index with one result each",
-  "description": "A home page led by the owner's own products. The first screen opens on Offday, a real multi-tenant time-off app, in a crimson room taken from its brand: the light Shifts week grid at native pixels (2x source, 960 x 600), with a ring on the Needs cover shift. Four feature tabs (Shift cover, Best dates, Time to rest, Assistant) each change the screen to the one that shows that feature and ring the part that proves the line. Below it, OFFBEAT (a made-up speaker brand, built as a concept) in an orange room with its drum machine, speaker and exploded view, then FORM and Snaxx Tech as two large plates with one line and a public link each. Client work follows as a compact index of seven rows (Bayyinah TV, care platform, Read to Feed, Viva Fresh, Incentiv, Dukagjini Bookstore, Design System v2): what it is, one plain result, role and years, and a link to the case page. No Vianova screen or recreation is shown; the two Vianova rows are text only.",
-  "signature": "Bricolage Grotesque 800 for the identity line, product names and index names; Libre Franklin for every other line. Both are preloaded, font-display optional, with Arial fallback faces sized to them (size-adjust and ascent/descent overrides) and a 300 ms text wait, so a late face never moves a line. Palette: paper #F4F1EC, ink #15120F, muted #59534B (6.7:1). Two room grounds come from the products: Offday crimson #8A1236 (cream text 8.8:1, muted 6.4:1) and OFFBEAT orange #FF6136 (ink 6.2:1). Spacing scale 4/8/12/16/24/32/48/64/96; 48 px gutters on desktop, 16 px on phone. Desktop 1440: header row with the name and four 44 px links (Own projects, Client work, CV (PDF), Email); the identity line at 40 px on one line; the sub-line with 5+ years, 'Part of two platform rewrites' and 'Client apps live in both app stores'; then the Offday room (304 px text column, 960 x 600 plate). One motion: when a tab changes, the new screen fades in over the old one (opacity 200 ms, cubic-bezier(0.23, 1, 0.32, 1)) and its ring draws in (opacity 160 ms and scale 1.04 to 1 in 200 ms, after 80 ms). A keyboard change (arrows, Home, End) switches at once. Reduced motion: no transition. The plates are positioned in JavaScript from each crop's centre and width; the scale is never above 1, so no screen is drawn above its own pixels. Phone: rooms are full-bleed bands, the tabs are a 2 x 2 grid above an 8:7 plate, and the current feature line sits under the plate.",
+  "rule": "own products lead, shown like a studio's showcase: each product gets a room in its own colour and real screens at native pixels; client work comes second, as seven cards with a public screen or a plain figure each",
+  "description": "A home page led by the owner's own work, with client work second. The first screen opens on Offday, a working multi-tenant time-off app, in a crimson room: the light Shifts week grid at native pixels (2x source, 960 x 600) with a ring on the Needs cover shift. Four equal feature tabs (Shift cover, Best dates, Time to rest, Assistant) each change the screen and ring the part that proves the line. Directly under it (y 898 at 1440), 'Client work' shows seven cards: Bayyinah TV, Viva Fresh, Read to Feed and Dukagjini Bookstore with their public store screenshots (2x sources, never enlarged), Incentiv with its public sign-in screen, and the care platform and Design System v2 as plain figures ('16 → 2 database requests in one billing report. It no longer times out.'; '36 building blocks, 20 releases in about six weeks'), because their screens are private. Then 'Two concepts and a studio site': OFFBEAT (orange room: drum machine, speaker, four finishes, inside) and FORM (ink room: copper, chrome, cast a word) from the new 2x captures as close crops at 1.0 (cast at 0.85), and Snaxx Tech with its 2x phone capture and two plain weight figures.",
+  "signature": "Bricolage Grotesque 800 for the identity line, room names, figures and card names; Libre Franklin for every other line. Both preloaded, font-display optional, Arial fallbacks sized to them, 300 ms text wait. Palette: paper #F4F1EC, ink #15120F, muted #59534B. Room grounds: Offday crimson #8A1236, OFFBEAT orange #FF6136, FORM on the page ink. Spacing scale 4/8/12/16/24/32/48/64/96; 48 px gutters desktop, 16 px phone. Rooms share one grammar: name, one line, tag, a vertical list of equal tabs (8 px gaps, 24 px to the caption), and a plate. One motion: when a tab changes, the new screen fades in over the old one (opacity 200 ms, cubic-bezier(0.23, 1, 0.32, 1)) and its ring draws in (opacity 160 ms, scale 1.04 to 1 in 200 ms, after 80 ms). Keys (arrows, Home, End) switch at once; reduced motion has no transition. The page sets scroll-behavior auto while it is open, so a Tab move never animates the scroll. The lead image is preloaded with high priority and a 924-byte preview paints under it until it decodes. Phone: rooms are full-bleed bands, tabs a 2-column grid, the current line under the plate; client cards become rows with a 112 x 140 screen.",
   "caseSlug": "bayyinah-tv",
   "mechanisms": [
     "product rooms",
     "native-pixel crops",
     "feature switch with proof ring",
-    "plain client index"
+    "client cards with public screens or plain figures"
   ],
   "slopCount": 0,
-  "rounds": 4,
+  "rounds": 5,
   "loopScores": {
     "straightToThePoint": 8,
-    "notOverwhelming": 8,
+    "notOverwhelming": 7,
     "harmony": 8,
     "meaningfulMotion": 8,
     "actionsAndSeniority": 7,
     "original": 7,
     "hooks": 8
   },
-  "holdback": "Lowest: actions and seniority, 7, and original, 7. The page opens on an own product, so a hiring manager meets shipped client work only in the index, about 2,400 px down on desktop; the sub-line ('Part of two platform rewrites. Client apps live in both app stores.') and the header link carry the level above the fold. Product rooms with large screens are a known studio-showcase pattern; the new part is that each feature tab swaps to the real screen that proves it. Other limits: Offday has no public link in the content, so its room has no link; OFFBEAT and Snaxx Tech screens are 1x captures shown at 0.95 to 1.0, so they are a little soft on a 2x display; at some widths between 1024 and 1200 the OFFBEAT drum crop leaves the screen's own dark margin at the right; the Offday crop at 1440 shows 38 px of the app's paper margin at the left of the grid; the Time to rest crop includes the app's own floating help and chat buttons over the card; if a page face misses first paint, that visit keeps the sized Arial fallback (seen in the headless reduced-motion load, final/d-reduced-top-4s.png; the reduced pair 4 s / 8 s is still 0 px apart).",
+  "holdback": "Lowest: actions and seniority 7, not overwhelming 7, original 7. The first screen at 1440 is still all Offday (own lead by rule); client work starts at y 898, so a hiring manager sees client screens only after the first scroll. The page is 4,815 px on desktop and 5,070 px on a 375 phone. Incentiv is a 1x public capture shown at 0.62 to 0.68, so it is soft on a 2x screen and its button text is about 9 px. The phone drum-machine crop shows the whole 8-step grid (critic item 4) at 0.46, so its row labels and step numbers are about 6 px; I followed the critic over the 11 px crop rule there. 'Four finishes' has no phone crop that keeps text at 11 px or more, so the phone shows three OFFBEAT tabs. The 800 px finish crop shows 142 px of the speaker card's left side (cut through empty card space; the 'Acid yellow' label is whole). offbeat-record is not used: its parts span 1,335 px and no plate is that wide at 1.0. On a cold headless profile the optional faces can miss first paint, and that visit keeps the sized Arial fallback (final/d-switch-* frames); the warm d-top has the page faces.",
   "chroma": {
-    "firstScreen": 20.9,
-    "outsidePlates": 36.0,
+    "firstScreen": 21.0,
+    "outsidePlates": 36.2,
     "plateRects": [
       [
         408,
@@ -35,7 +35,7 @@
         874
       ]
     ],
-    "method": "scratchpad/chroma6r.mjs decode and threshold (review/loop9/personal-studio/chroma-ps.mjs) on review/loop9/personal-studio/final/d-top.png (1440 x 900), captured last. The Offday plate is the only plate on the first screen; the crimson room counts as page."
+    "method": "review/loop9/personal-studio/chroma-ps.mjs (chroma6r decode and threshold) on review/loop9b/personal-studio/final/d-top.png (1440 x 900), captured last. The Offday plate is the only plate on the first screen; the crimson room counts as page."
   },
   "craft": {
     "spacingScale": [
@@ -49,7 +49,7 @@
       64,
       96
     ],
-    "cls": "0 at 1440, 1280, 1024, 540, 390 and 375 on load and after a fast scroll; 0 with fonts held 2.5 s at 1440 and 375",
+    "cls": "0 at 1440, 1280, 1024, 540, 390 and 375 on load (PerformanceObserver layout-shift, buffered) and after a fast scroll (20 steps down and back at 16 ms)",
     "widthsChecked": [
       1440,
       1280,
@@ -58,30 +58,60 @@
       390,
       375
     ],
-    "targets": "every visible link and button is at least 44 x 44 px",
-    "phoneEdge": "16 px"
+    "targets": "every reachable link and button is at least 44 x 44 px at 1440 and 375 (measured: none smaller)",
+    "phoneEdge": "16 px; the Email hit area now ends 16 px from the right edge",
+    "offdayTabs": "four tabs 88 px tall, 8 px apart; caption 24 px under the last tab; caption ends above the plate bottom (870 < 874)",
+    "tabScroll": "scrollY is the same at 0 ms and 30 ms after a Tab move (837 and 837): no animated scroll"
   },
   "evidence": {
-    "dir": "scratchpad/review/loop9/personal-studio/final",
+    "dir": "scratchpad/review/loop9b/personal-studio/final",
     "motion": [
       "d-switch-cover-to-dates-000ms.png",
       "d-switch-cover-to-dates-060ms.png",
       "d-switch-cover-to-dates-120ms.png",
-      "d-switch-cover-to-dates-180ms.png",
       "d-switch-cover-to-dates-240ms.png",
       "d-switch-drums-to-speaker-100ms.png",
       "m-switch-cover-to-rest-100ms.png"
     ],
     "keyboard": [
-      "d-key-tab6-focus-shift-cover.png",
+      "d-key-tab6-focus.png",
       "d-key-down-best-dates-030ms.png",
-      "d-key-down-assistant-030ms.png",
-      "d-key-tab-next-focus.png"
+      "d-key-end-assistant-030ms.png",
+      "d-key-tab-next-focus-030ms.png"
     ],
     "reducedPairs": [
       "d-reduced-top-4s.png / d-reduced-top-8s.png: 0 px",
-      "m-reduced-top-4s.png / m-reduced-top-8s.png: 0 px",
-      "m-reduced-top-4s.png / m-top.png: 0 px"
+      "m-reduced-top-4s.png / m-reduced-top-8s.png: 0 px"
+    ],
+    "beforeAfter": [
+      "before-d-top.png / d-top.png",
+      "before-d-clients.png / d-clients-1.png, d-clients-2.png",
+      "before-d-offbeat.png / d-offbeat-drums.png",
+      "before-d-pair.png / d-form-copper.png, d-snaxx.png",
+      "before-d-foot.png / d-foot.png",
+      "before-m-top.png / m-top.png",
+      "before-m-offbeat.png / m-offbeat-drums.png",
+      "before-m-clients.png / m-clients.png"
     ]
-  }
+  },
+  "polish": [
+    {
+      "round": 9,
+      "pass": "b",
+      "score": 53,
+      "fixed": [
+        "'Four products' → 'Made outside client work: one app, two concepts and a studio site.'; Offday tag 'Own app'; the second own group is headed 'Two concepts and a studio site'",
+        "Client work moved up to the second section (y 2,475 → 898 at 1440) and given real screens: four public store screenshots, the public Incentiv sign-in screen, and plain figures for the two private Vianova projects (16 → 2; 36 building blocks); a line says why those two show numbers only",
+        "Offday tab cards: equal heights (82/82/62/82 → 88 x 4), gaps 4 → 8 px, caption 0 → 24 px below the last tab, caption now ends above the plate",
+        "OFFBEAT and FORM moved to the new 2x captures; the old crops pointed at the wrong parts of the new files (the drum ring sat on the sliders, before-d-offbeat.png). New close crops at 1.0: drum grid, speaker with Drag to turn, four finishes (offbeat-finish), exploded view; FORM copper, chrome (form-chrome), cast a word (form-cast, 0.85, text ≥ 11 px)",
+        "Phone OFFBEAT crop shows the whole 8-step grid (critic item 4)",
+        "No animated scroll on Tab: scroll-behavior auto on the root while the page is open",
+        "Offday lead image preloaded with high priority, with a 924-byte preview under it, so the panel is never an empty white box",
+        "Snaxx Tech uses its 2x phone capture (was a 1x desktop capture at 2.00 device scale) and states 'All the site's files: 28 MB → 9.5 MB' as a plain figure",
+        "Sub-line 'Client apps live in both app stores' → 'Client apps shipped to the App Store and Google Play'; identity line no longer says 'products'",
+        "Read to Feed line 'Books open inside the app' → 'A reading app for children: books, quizzes and badges' with its Keep Reading store screen",
+        "Footer rule now runs inside the 48 px gutters, not full-bleed; phone Email hit area 16 px from the edge (was 4 px)"
+      ]
+    }
+  ]
 }

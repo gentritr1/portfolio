@@ -2,8 +2,8 @@
   "id": "projector",
   "title": "PROJECTOR",
   "band": "Loop 9",
-  "rule": "one frame, eight pieces of work: the frame never moves, the log scrolls beside it and decides what the frame shows",
-  "description": "Eight pieces of work as a log of eight rows, beside one fixed frame. It opens on a live product (Bayyinah TV: members subscribe on the web, iPhone or Android, with the ring on the free-trial button) and then the strongest result (one billing report: 16 requests to the database and a timeout, now 2). The row at the reading line is the current one; the frame shows its screen, and a hairline runs from the row's result into the frame to the part that proves it. After the log, an 'Own projects' band continues it as rows 09-11 in the same grid, each with its own frame, result band, hairline and ring: Offday (a time-off app, light screens, four tabs: shifts with a cover warning, best dates, time to rest, the AI assistant), OFFBEAT and FORM (concept sites, whole home screens, GitHub links).",
+  "rule": "one frame per log: the frame never moves, the log scrolls beside it and decides what the frame shows",
+  "description": "Client work as a numbered log beside one pinned frame, with the own projects in the middle of the page. Rows 01-04: Bayyinah TV (the public home page beside its App Store frame, the ring on the three places a member subscribes: bayyinahtv.com, App Store, Google Play), the billing report (16 requests and a timeout, now 2; the Now lane shrinks from 16 cells to 2 when the row becomes current), the care platform, and Viva Fresh (the line 'built once for [iPhone] and [Android]' holds two pills; a press wipes the frame from the App Store screen to the Google Play screen). Rows 05-07 'Own projects': Offday (four light tabs; Best dates is the modal alone, on the app's own backdrop tone), OFFBEAT (the 8-step drum machine at 1.12 of its CSS size) and FORM (the trefoil with its formula, ring on the formula). Rows 08-11 'More client work' in a second log with its own pinned frame: Design System v2, Incentiv, Read to Feed, Dukagjini Bookstore.",
   "signature": "Big Shoulders Display for the row numerals, the report diagram and the store panel; Public Sans for text; ink #141B06 on a chartreuse field #D9F26B (14.2:1; muted #3E4A14 at 7.7:1). Both faces are preloaded by the page; text never waits for them. Identity: 'Gentrit Rashiti builds web and mobile apps that people subscribe to, shop in and read with.' then '5+ years. Part of two platform rewrites. Based in Kosovo, working remotely.' Desktop: a 440 px log at the left with the identity line at its top; an 880 x 676 frame at the right, sticky, with one caption line under it, set in the middle of the viewport. Rows: 01 Bayyinah TV pricing page (ring on Start 7-Day Free Trial; phone crop rings 'Watch anytime, anywhere, on mobile, tablet or desktop'); 02 the 16 -> 2 report diagram; 03 care card recreation (ring on the organization switch); 04 Viva Fresh, 07 Read to Feed (public store screen, ring on the book card with 'Read 36%', archived store links) and 08 Dukagjini Bookstore as iPhone screens at source pixels with a store panel; 05 Design System v2 as four cards of the set (buttons, fields, switches, alerts; no token names; inert); 06 Incentiv sign-in. Current row has three signals: the plate, the result band and the hairline with its ring (no numeral fill, no tray, no second index on phone). Motion: the first screenshot fades in 200 ms, then the hairline draws in 180 ms to its ring. A row becomes current after it settles at 42% of the viewport for 160 ms; the plate cross-fades in 200 ms, the result band wipes in (clip-path, 240 ms), the old line fades (120 ms) and the new one draws (180 ms). Keyboard moves (arrows, Home, End) jump with no animation. Phone: the frame pins at the top at 4:3; crops grow inside their own screen bounds and are never shown above source pixels; the ring alone marks the proof. Reduced motion: no fade, no wipe, no draw. Own projects: rows 09-11 use the log's grid (440 | 880), numerals, role line and band; each plate is a 1 px ink frame with the ring on the proving part. Offday plates are 2x captures shown at 880 px (no upscale); OFFBEAT and FORM show their whole home screen at 0.61. A row turns current once when half its plate is on screen: band wipe 240 ms, then the line draws 180 ms and the ring fades in 120 ms. Offday tabs: pointer = 200 ms cross-fade + new band wipe + line redraw; arrow keys = instant. Phone: ring only, phone captures for best dates, OFFBEAT and FORM. Report diagram: the 14 requests that are gone keep a dashed place in the Now lane.",
   "caseSlug": "care-platform",
   "mechanisms": [
@@ -15,23 +15,23 @@
   "loopScores": {
     "straightToThePoint": 9,
     "notOverwhelming": 8,
-    "harmony": 8,
-    "meaningfulMotion": 8,
+    "harmony": 9,
+    "meaningfulMotion": 9,
     "actionsAndSeniority": 9,
     "original": 7,
     "hooks": 8
   },
-  "holdback": "Lowest: original, 7/10. A sticky frame beside a scrolling numbered log is a known scrollytelling layout; the own-projects band reuses it on purpose so it reads as one page. Other limits after round 9: Offday has no public link (github.com/gentritr1/offday answers 404, and projects.ts lists no link), so its row has no GitHub link; the Offday 'Time to rest' desktop crop is closer than the other tabs (1.24 source px per CSS px) and half of it is empty calendar cells, because the card sits at the bottom right of its only capture; Offday text in the desktop plate is 11-13 px (the app at its real size); OFFBEAT and FORM home screens are 1x captures shown at 0.61, so their small labels are about 8 px; the phone 'Time to rest' crop includes the app's own help and chat bubbles; the store screens (rows 04, 07, 08) are still @3x crops at source pixels; not overwhelming drops to 8 because the page is now 11 rows long.",
+  "holdback": "Lowest: original, 7/10. A sticky frame beside a numbered log is a known scrollytelling layout; the page now has two logs and an own-projects band between them, which adds a second pinned frame but no new idea. Other limits: the Bayyinah TV web crop is a 1x capture (2x on a 2x screen; no 2x capture exists); the Android Viva Fresh screen is shown at 0.91 and the iPhone screen at 0.78 so the two line up row for row; on phone the OFFBEAT plate is a thin band (the whole 8-step grid, no labels, so no text is under 11 px); the store frames for rows 04, 10, 11 are @3x captures; Offday still has no public link; the footer names the school as 'UBT', as the CV does.",
   "chroma": {
-    "firstScreen": 53.0,
-    "outsidePlates": 95.3,
+    "firstScreen": 65.1,
+    "outsidePlates": 95.0,
     "plateRect": [
       520,
-      93,
+      48,
       1400,
-      771
+      724
     ],
-    "method": "scratchpad/chroma6r.mjs logic (review/loop9/projector/work/chroma.mjs) on review/loop9/projector/final/d-top.png (1440 x 900), captured last; the first screen is unchanged by round 9"
+    "method": "scratchpad/chroma6r.mjs logic (review/loop9b/projector/chroma.mjs) on review/loop9b/projector/final/d-top.png (1440 x 900), captured last"
   },
   "polish": [
     {
@@ -102,6 +102,22 @@
         "devil: 16 -> 2 'Now' lane no longer empty: the 14 requests that are gone keep a dashed place, so 2 reads against the same 16",
         "craft: plates reserve their ratio (CLS 0 at 1440/1280/1024/540/390/375, load and fast scroll); tab change never moves the page (bands stacked, phone caption keeps two lines); every tab 44 px tall; arrow keys switch tabs with no animation; reduced motion swaps at once (pixel diff 0)",
         "lead unchanged: Bayyinah TV stays row 01; home title on '/' and /drafts/projector unchanged"
+      ]
+    },
+    {
+      "round": 9,
+      "pass": "b",
+      "score": 59,
+      "fixed": [
+        "orchestrator 1 + devil: row 01 plate proves 'Members subscribe on the web, iPhone or Android': public home page (Start Your 7-Day Free Trial) + App Store frame + ring on bayyinahtv.com / App Store / Google Play; no price anywhere; hairline 826 px -> about 330 px; phone ring on the same three places",
+        "orchestrator 2 + devil: own projects moved up from 56% to 30% of the page (1440: y 1764 of 5904; 375: 30%) by splitting the client log after row 04; rows renumbered 05-07 own, 08-11 'More client work'",
+        "critic 1 + orchestrator 2: OFFBEAT = 8-step drum machine at 1.12 (ring on the grid), FORM = trefoil with formula at 1.22 (ring on the formula); phone OFFBEAT shows the whole 8-step grid, phone FORM rings the three sculptures",
+        "critic 3: Offday Best dates crop is the modal only (no blurred backdrop text), ends on a whole suggestion row",
+        "orchestrator 3 (from proof-tiles): iPhone / Android pills in the Viva Fresh line; 300 ms clip-path wipe with an ink edge, reversible mid-wipe; caption names the store; pills keep the 27.7 px line height",
+        "orchestrator 4 (from then-now): the Now lane of the 16 -> 2 diagram shrinks from 16 cells to 2 (clip-path, 420 ms ease-out after a 160 ms delay) when row 02 becomes current; instant on keyboard jumps and reduced motion",
+        "critic 2: row 02 result above the fold at 1440 (bottom 870 px; top band 94 -> 48 px)",
+        "critic 4 + devil copy: 'read in' (not 'read with'); row 03 role 'Frontend, core team' and 'Most screens are already rebuilt in React.'; footer spells out UBT; Read to Feed in past tense",
+        "craft: plate links scale back to 44 px targets at 1024-1399 px; ring clamps inside its plate; CLS 0 on load and fast scroll at 1440/1280/540/390, 0.0002-0.0007 in single runs at 1024/375 (font swap, not reproducible on reload)"
       ]
     }
   ]

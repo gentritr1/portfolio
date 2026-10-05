@@ -17,11 +17,11 @@ import { Link } from "react-router";
 import { ArrowRightIcon, ArrowUpRightIcon } from "@phosphor-icons/react";
 import { links } from "../../content/links";
 import { recreations } from "../../lib/recreations";
-import { rows, type Box, type Plate, type Row, type Shot } from "./data";
+import { rows, type Box, type Plate, type Row, type Shot, type Weight } from "./data";
 import "./then-now.css";
 
 const SETTLE_MS = 160;
-const FONT_WAIT_MS = 300;
+const FONT_WAIT_MS = 120;
 const WRITE_WAIT_MS = 1200;
 const LITERATA = "/fonts/creative/Literata-Latin.woff2";
 const ANTON = "/fonts/creative/Anton-Latin.woff2";
@@ -48,11 +48,12 @@ function useMedia(query: string, fallback: boolean) {
 
 /* ---------- Plates ---------- */
 
+/** The card is a picture of the product here: its controls are scaled with the stage, so they are not reachable. */
 function LivePlate() {
   const entry = recreations.care;
   const Live = entry.Component;
   return (
-    <div className="tn-live tn-live-care" data-world={entry.world}>
+    <div className="tn-live tn-live-care" data-world={entry.world} inert>
       <Suspense fallback={<div className="tn-wait" />}>
         <Live />
       </Suspense>
@@ -83,59 +84,16 @@ function ShotView({ shot, crop, load = true }: { shot: Shot; crop: Box; load?: b
   );
 }
 
-const BEFORE = Array.from({ length: 16 }, (_, i) => i);
-
-/** The billing report as a count a reader can check: 16 requests, then 2. */
-function BillingFigure({ struck }: { struck: boolean }) {
+/** Measured weights, each drawn to scale: the old number is struck and the bar shrinks to its new length. */
+function WeightFigure({ weights, head, struck }: { weights: Weight[]; head?: string; struck: boolean }) {
   return (
-    <figure className="tn-fig tn-fig-billing" data-struck={struck || undefined}>
-      <figcaption className="tn-fig-head">
-        <span>One billing report</span>
-        <span className="tn-fig-unit">Requests to the database</span>
-      </figcaption>
-      <div className="tn-fig-row tn-fig-before" aria-hidden="true">
-        <span className="tn-fig-num tn-fig-from">
-          16
-          <span className="tn-fig-strike" />
-        </span>
-        <span className="tn-fig-side">
-          <span className="tn-fig-tag">Before</span>
-          <span className="tn-fig-dots">
-            {BEFORE.map((i) => (
-              <span key={i} />
-            ))}
-          </span>
-          <span className="tn-fig-end">Gave up</span>
-        </span>
-      </div>
-      <div className="tn-fig-row tn-fig-after" aria-hidden="true">
-        <span className="tn-fig-num tn-fig-to" data-to="">
-          2
-        </span>
-        <span className="tn-fig-side">
-          <span className="tn-fig-tag">Now</span>
-          <span className="tn-fig-dots">
-            <span />
-            <span />
-          </span>
-          <span className="tn-fig-end">Finishes</span>
-        </span>
-      </div>
-      <p className="tn-sr">16 requests before, 2 now.</p>
-    </figure>
-  );
-}
-
-const WEIGHTS = [
-  { tag: "Pictures", from: "972\u00a0KB", to: "337\u00a0KB", ratio: 337 / 972 },
-  { tag: "Whole site", from: "28\u00a0MB", to: "9.5\u00a0MB", ratio: 9.5 / 28 },
-];
-
-/** Two measured weights of the live site, each drawn to scale: the bar shrinks to its new length. */
-function WeightFigure({ struck }: { struck: boolean }) {
-  return (
-    <figure className="tn-fig tn-fig-weight" data-struck={struck || undefined}>
-      {WEIGHTS.map((weight, index) => (
+    <figure className="tn-fig tn-fig-weight" data-struck={struck || undefined} data-count={weights.length}>
+      {head && (
+        <figcaption className="tn-fig-head" aria-hidden="true">
+          {head}
+        </figcaption>
+      )}
+      {weights.map((weight) => (
         <div className="tn-w" key={weight.tag} aria-hidden="true">
           <span className="tn-fig-tag">{weight.tag}</span>
           <span className="tn-w-nums">
@@ -143,7 +101,7 @@ function WeightFigure({ struck }: { struck: boolean }) {
               {weight.from}
               <span className="tn-fig-strike" />
             </span>
-            <span className="tn-w-to" data-to={index === 0 ? "" : undefined}>
+            <span className="tn-w-to" data-to={weight.ring ? "" : undefined}>
               {weight.to}
             </span>
           </span>
@@ -152,7 +110,10 @@ function WeightFigure({ struck }: { struck: boolean }) {
           </span>
         </div>
       ))}
-      <p className="tn-sr">Pictures: 972 KB before, 337 KB now. The whole site: 28 MB before, 9.5 MB now.</p>
+      <p className="tn-sr">
+        {head ? `${head}. ` : ""}
+        {weights.map((weight) => `${weight.tag}: ${weight.from} before, ${weight.to} now.`).join(" ")}
+      </p>
     </figure>
   );
 }
@@ -183,17 +144,27 @@ function BundleFigure() {
 }
 
 function PlateView({ plate, load, narrow, struck }: { plate: Plate; load: boolean; narrow: boolean; struck: boolean }) {
-  if (plate.kind === "figure") return plate.which === "billing" ? <BillingFigure struck={struck} /> : <BundleFigure />;
-  if (plate.kind === "live") return load ? <LivePlate /> : <div className="tn-wait" />;
+  if (plate.kind === "figure") return <BundleFigure />;
+  if (plate.kind === "care")
+    return (
+      <div className="tn-proof tn-care">
+        {load ? <LivePlate /> : <div className="tn-live tn-wait" />}
+        <WeightFigure weights={plate.weights} head={plate.head} struck={struck} />
+      </div>
+    );
   if (plate.kind === "proof")
     return (
       <div className="tn-proof">
         <ShotView shot={plate.shot} crop={narrow ? plate.shot.narrow : plate.shot.crop} load={load} />
-        <WeightFigure struck={struck} />
+        <WeightFigure weights={plate.weights} struck={struck} />
       </div>
     );
   return (
-    <div className={`tn-${plate.kind}`} style={plate.kind === "web" ? { background: plate.ground } : undefined}>
+    <div
+      className={`tn-${plate.kind}`}
+      data-fit={plate.kind === "web" && !narrow ? plate.fit : undefined}
+      style={plate.kind === "web" ? { background: plate.ground } : undefined}
+    >
       {load && <ShotView shot={plate.shot} crop={narrow ? plate.shot.narrow : plate.shot.crop} />}
     </div>
   );
@@ -274,7 +245,14 @@ function targetBox(row: Row, plate: HTMLElement, narrow: boolean): Box | null {
   return { x: box.left, y: box.top, w: box.width, h: box.height };
 }
 
-function measureWire(row: Row, rowElement: HTMLElement, plate: HTMLElement, narrow: boolean, field: number): Wire | null {
+function measureWire(
+  row: Row,
+  rowElement: HTMLElement,
+  plate: HTMLElement,
+  narrow: boolean,
+  field: number,
+  mat: number,
+): Wire | null {
   const mark = rowElement.querySelector<HTMLElement>(".tn-now-band mark");
   const target = targetBox(row, plate, narrow);
   if (!mark || !target) return null;
@@ -284,7 +262,7 @@ function measureWire(row: Row, rowElement: HTMLElement, plate: HTMLElement, narr
   const edge = Math.round(p.left);
   const last = fragments[fragments.length - 1];
   const start: Point = [Math.round(last.right + 12), Math.round(last.top + last.height / 2)];
-  const gutter = Math.round((Math.min(field, edge - 16) + edge) / 2);
+  const gutter = Math.round((Math.min(field, mat - 16) + mat) / 2);
   const outside: Point[] = [start, [gutter, start[1]]];
   const inside: Point[] = [];
   if (row.route?.kind === "lane") {
@@ -323,6 +301,7 @@ export default function Draft() {
   const frameRef = useRef<HTMLDivElement>(null);
   const screenRef = useRef<HTMLDivElement>(null);
   const fieldRef = useRef<HTMLDivElement>(null);
+  const matRef = useRef<HTMLDivElement>(null);
   const rowRefs = useRef<(HTMLLIElement | null)[]>([]);
   const plateRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [active, setActive] = useState(0);
@@ -408,7 +387,7 @@ export default function Draft() {
     setFresh(draws ? shown.index : null);
   }
 
-  /* The page is laid out once its two faces are loaded, or after 300 ms. Then the first row writes in. */
+  /* The page is laid out once its two faces are loaded, or after 120 ms. Then the first row writes in. */
   preload(LITERATA, { as: "font", type: "font/woff2", crossOrigin: "anonymous" });
   preload(ANTON, { as: "font", type: "font/woff2", crossOrigin: "anonymous" });
   const [laid, setLaid] = useState(false);
@@ -464,7 +443,7 @@ export default function Draft() {
 
   /* A screenshot loads when its row is near. A live plate mounts when its row is first shown. */
   const near = [active - 1, active, active + 1, shown.index].filter(
-    (i) => i >= 0 && i < rows.length && (rows[i].plate.kind !== "live" || i === shown.index),
+    (i) => i >= 0 && i < rows.length && (rows[i].plate.kind !== "care" || i === shown.index),
   );
   if (!near.every((i) => loaded.has(i))) {
     const next = new Set(loaded);
@@ -473,11 +452,8 @@ export default function Draft() {
   }
 
   useEffect(() => {
-    const idle = window.requestIdleCallback ?? ((callback: () => void) => window.setTimeout(callback, 600));
-    idle(() => {
-      void recreations.care.load();
-    });
-  }, []);
+    if (laid) void recreations.care.load();
+  }, [laid]);
 
   /* The frame draws the plate at one size and scales it to its width. */
   useLayoutEffect(() => {
@@ -537,7 +513,8 @@ export default function Draft() {
     const rowElement = rowRefs.current[index];
     const plate = plateRefs.current[index];
     const field = fieldRef.current?.getBoundingClientRect().left ?? window.innerWidth;
-    const wire = armed.current && rowElement && plate ? measureWire(row, rowElement, plate, narrow, field) : null;
+    const mat = matRef.current?.getBoundingClientRect().left ?? field;
+    const wire = armed.current && rowElement && plate ? measureWire(row, rowElement, plate, narrow, field, mat) : null;
     const frameBottom = frameRef.current?.getBoundingClientRect().bottom ?? 0;
     const covered = !narrow && wire && wire.start[1] < 0;
     const hidden = narrow && wire && wire.ring.y + wire.ring.h > frameBottom - 40;
@@ -548,10 +525,10 @@ export default function Draft() {
     group.dataset.ready = "true";
     group.dataset.tone = wire.tone;
     group.dataset.wide = String(!narrow);
-    // The line is accent ink on the paper and white on the accent field. The switch is a hard stop at the field edge.
+    // The line is accent ink on paper and white on the accent field. The changes are hard stops at the field edge and the mat edge.
     for (const gradient of [lineGradientRef.current, haloGradientRef.current]) {
-      gradient?.setAttribute("x1", String(Math.round(field) - 0.5));
-      gradient?.setAttribute("x2", String(Math.round(field) + 0.5));
+      gradient?.setAttribute("x1", String(Math.round(field)));
+      gradient?.setAttribute("x2", String(Math.max(Math.round(field) + 1, Math.round(mat))));
     }
     outRefs.current.forEach((path) => path.setAttribute("d", wire.outside));
     inRefs.current.forEach((path) => path.setAttribute("d", wire.inside));
@@ -694,7 +671,10 @@ export default function Draft() {
         root.dataset.instant = "";
         requestAnimationFrame(() => requestAnimationFrame(() => delete root.dataset.instant));
       }
-      const top = row.getBoundingClientRect().top + window.scrollY - pinLine() + 2;
+      // On a phone the frame is pinned once the page scrolls, so the reading line is measured from the pinned frame.
+      const frame = frameRef.current;
+      const pin = narrow && frame ? frame.offsetTop + frame.offsetHeight + 24 : pinLine();
+      const top = row.getBoundingClientRect().top + window.scrollY - pin + 2;
       window.scrollTo({ top: index === 0 ? 0 : top, behavior: "instant" });
       locate();
       if (activeRef.current === index) {
@@ -702,7 +682,7 @@ export default function Draft() {
         setShown((was) => (was.index === index ? was : { index, mode: reduced ? "instant" : mode }));
       }
     },
-    [locate, pinLine, reduced],
+    [locate, pinLine, reduced, narrow],
   );
 
   const onLogKey = (event: KeyboardEvent<HTMLDivElement>) => {
@@ -840,7 +820,7 @@ export default function Draft() {
           </ol>
           <section className="tn-group" aria-labelledby="tn-own">
             <h2 id="tn-own">Own projects</h2>
-            <p>Made outside client work. OFFBEAT and FORM are concepts: the brands do not exist.</p>
+            <p>Made outside client work: one app, two concepts and a studio website. The two concept brands do not exist.</p>
             <ol className="tn-list" aria-label="Own projects">
               {rows.map((row, index) => (row.kind === "own" ? renderRow(row, index) : null))}
             </ol>
@@ -849,6 +829,7 @@ export default function Draft() {
 
         <aside className="tn-frame-wrap" aria-label="Screen for the current row">
           <div className="tn-frame" ref={frameRef}>
+            <div className="tn-mat" ref={matRef}>
             <div className="tn-screen" ref={screenRef}>
               <div className="tn-stage">
                 {rows.map((row, index) => {
@@ -871,13 +852,14 @@ export default function Draft() {
                 })}
               </div>
             </div>
+            </div>
             <div className="tn-caption">
               <p className="tn-count" aria-hidden="true">
                 <span>{current.id}</span>
                 <span className="tn-count-of">/ {String(rows.length).padStart(2, "0")}</span>
               </p>
               <p className="tn-caption-text" aria-live="polite">
-                {current.caption}
+                {(narrow && current.captionNarrow) || current.caption}
               </p>
               <div className="tn-tray" role="toolbar" aria-label="Rows" ref={trayRef} onKeyDown={onTrayKey}>
                 {rows.map((row, index) => (
@@ -919,11 +901,15 @@ export default function Draft() {
         <defs>
           <linearGradient id="tn-wire-line" ref={lineGradientRef} gradientUnits="userSpaceOnUse" x1="0" x2="1" y1="0" y2="0">
             <stop offset="0" className="tn-stop-paper-line" />
+            <stop offset="0" className="tn-stop-field-line" />
             <stop offset="1" className="tn-stop-field-line" />
+            <stop offset="1" className="tn-stop-paper-line" />
           </linearGradient>
           <linearGradient id="tn-wire-halo" ref={haloGradientRef} gradientUnits="userSpaceOnUse" x1="0" x2="1" y1="0" y2="0">
             <stop offset="0" className="tn-stop-paper-halo" />
+            <stop offset="0" className="tn-stop-field-halo" />
             <stop offset="1" className="tn-stop-field-halo" />
+            <stop offset="1" className="tn-stop-paper-halo" />
           </linearGradient>
         </defs>
         <g ref={wireRef} data-ready="false">

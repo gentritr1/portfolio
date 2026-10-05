@@ -25,6 +25,7 @@ import {
   lead,
   own,
   work,
+  type Box,
   type Crop,
   type Shot,
   type Tile,
@@ -106,52 +107,68 @@ function ringStyle(
 }
 
 /**
- * The narrowest crop that is at least as wide as the tile, so the image is
- * never drawn above its source pixels. A 2x capture may go 8% under: it still
- * gives more than one source pixel for each CSS pixel.
+ * A phone layout takes the phone crop when the shot has one. Otherwise the
+ * tile takes the narrowest crop that is about as wide as the tile. A 1x
+ * capture is never drawn larger than its source pixels; a 2x capture may be
+ * drawn up to 15% larger than its CSS size.
  */
-function pickCrop(shot: Shot, width: number): Crop {
+function pickCrop(shot: Shot, width: number, phone: boolean): Crop {
+  if (phone) {
+    const crop = shot.crops.find((item) => item.phone);
+    if (crop) return crop;
+  }
   const density = shot.density ?? 1;
-  const floor = density > 1 ? width * 0.92 : width - 0.5;
-  const sorted = [...shot.crops].sort((a, b) => a.w - b.w);
+  const floor = density > 1 ? width * 0.85 : width - 0.5;
+  const sorted = shot.crops
+    .filter((crop) => !crop.phone)
+    .sort((a, b) => a.w - b.w);
   return (
     sorted.find((crop) => crop.w / density >= floor) ??
     sorted[sorted.length - 1]
   );
 }
 
+const inset = (outer: Box, inner: Box) =>
+  `inset(${pct((inner.y - outer.y) / outer.h)} ${pct(
+    (outer.x + outer.w - inner.x - inner.w) / outer.w,
+  )} ${pct((outer.y + outer.h - inner.y - inner.h) / outer.h)} ${pct(
+    (inner.x - outer.x) / outer.w,
+  )})`;
+
 function ShotView({
   shot,
-  width,
+  crop,
   eager,
 }: {
   shot: Shot;
-  width: number;
+  crop: Crop;
   eager: boolean;
 }) {
-  const crop = pickCrop(shot, width);
   const mark = crop.mark ?? shot.mark;
+  const image = crop.image ?? shot;
   const [loaded, setLoaded] = useState(false);
+  const whole = { x: 0, y: 0, w: image.width, h: image.height };
   return (
     <>
       <img
-        ref={(image) => {
-          if (image?.complete && image.naturalWidth > 0) setLoaded(true);
+        ref={(element) => {
+          if (element?.complete && element.naturalWidth > 0) setLoaded(true);
         }}
         onLoad={() => setLoaded(true)}
         className="pt-img"
-        src={shot.src}
-        alt={shot.alt}
-        width={shot.width}
-        height={shot.height}
+        src={image.src}
+        alt={crop.image?.alt ?? shot.alt}
+        width={image.width}
+        height={image.height}
         loading={eager ? "eager" : "lazy"}
         decoding="async"
         fetchPriority={eager ? "high" : "auto"}
         draggable={false}
         style={{
-          width: pct(shot.width / crop.w),
+          width: pct(image.width / crop.w),
           left: pct(-crop.x / crop.w),
           top: pct(-crop.y / crop.h),
+          clipPath: crop.clip ? inset(whole, crop.clip) : undefined,
         }}
       />
       <span
@@ -310,16 +327,20 @@ function TileView({
   tile,
   eager,
   current,
+  phone,
   events,
 }: {
   tile: Tile;
   eager: boolean;
   current: boolean;
+  phone: boolean;
   events: TileEvents;
 }) {
   const mediaRef = useRef<HTMLSpanElement>(null);
   const width = useWidth(mediaRef, 432);
   const { media, link } = tile;
+  const crop =
+    media.kind === "shot" ? pickCrop(media.shot, width, phone) : undefined;
   const ids = {
     caption: `pt-${tile.id}-caption`,
     project: `pt-${tile.id}-project`,
@@ -327,7 +348,11 @@ function TileView({
   };
   const content = (
     <>
-      <Caption id={ids.caption} text={tile.caption} proof={tile.proof} />
+      <Caption
+        id={ids.caption}
+        text={tile.caption}
+        proof={crop?.proof ?? tile.proof}
+      />
       <span className="pt-meta">
         <span className="pt-project">
           <span className="pt-project-line">
@@ -379,7 +404,11 @@ function TileView({
       }}
       onPointerDown={events.onPress}
     >
-      <span ref={mediaRef} className="pt-media">
+      <span
+        ref={mediaRef}
+        className="pt-media"
+        style={crop ? { aspectRatio: `${crop.w} / ${crop.h}` } : undefined}
+      >
         {media.kind === "figure" && <Figure />}
         {media.kind === "live" && (
           <LiveView
@@ -389,8 +418,8 @@ function TileView({
             scale={Math.min(1, width / 432)}
           />
         )}
-        {media.kind === "shot" && (
-          <ShotView shot={media.shot} width={width} eager={eager} />
+        {media.kind === "shot" && crop && (
+          <ShotView shot={media.shot} crop={crop} eager={eager} />
         )}
       </span>
       {!link ? (
@@ -514,9 +543,6 @@ function Lead({ reduced }: { reduced: boolean }) {
             .
           </span>
         </h2>
-        <p className="pt-lead-hint">
-          Press iPhone or Android to switch the store screenshot.
-        </p>
       </div>
       <div className="pt-lead-more">
         <p className="pt-lead-scope">
@@ -609,7 +635,7 @@ function nextTile(boxes: DOMRect[], at: number, key: string) {
 
 /* ---------- Page ---------- */
 
-const side = ["billing", "bayyinah-tv"];
+const side = ["billing", "incentiv"];
 const allTiles = [...work, ...own];
 
 export default function Draft() {
@@ -619,6 +645,7 @@ export default function Draft() {
   const ready = useFontsReady();
   const hover = useMedia("(hover: hover) and (pointer: fine)", true);
   const reduced = useMedia("(prefers-reduced-motion: reduce)", false);
+  const phone = useMedia("(max-width: 759px)", false);
   const [current, setCurrent] = useState<string | null>(null);
   const [instant, setInstant] = useState(false);
   const mainRef = useRef<HTMLElement>(null);
@@ -711,6 +738,7 @@ export default function Draft() {
         tile={tile}
         eager={i < eagerCount}
         current={current === tile.id}
+        phone={phone}
         events={eventsFor(tile)}
       />
     ));
@@ -762,21 +790,31 @@ export default function Draft() {
               </ol>
             </section>
 
-            <h2 className="pt-sr">More client and team work</h2>
+            <section className="pt-more" aria-labelledby="pt-more-title">
+              <div className="pt-section-head">
+                <h2 id="pt-more-title">More client work</h2>
+                <p>
+                  A care platform shared by many client organizations, its
+                  design system and a bookshop app. The two care-platform cards are
+                  recreations with invented data.
+                </p>
+              </div>
             <ol className="pt-grid" {...listProps}>
               {renderTiles(
                 work.filter((tile) => !side.includes(tile.id)),
-                3,
+                0,
               )}
             </ol>
+            </section>
 
             <section className="pt-own" aria-labelledby="pt-own-title">
-              <div className="pt-own-head">
+              <div className="pt-section-head">
                 <h2 id="pt-own-title">Own projects</h2>
                 <p>
-                  Made outside client work. Offday is a time-off app for teams,
-                  covered by about 200 automated tests. OFFBEAT and FORM are
-                  concepts: the brands are made up.
+                  Made outside client work. Offday is a working time-off app
+                  for teams, covered by about 200 automated tests; its code is
+                  private. OFFBEAT and FORM are concepts: the brands are made
+                  up, the code is on GitHub.
                 </p>
               </div>
               <ol className="pt-grid pt-grid-own" {...listProps}>
@@ -862,7 +900,7 @@ export default function Draft() {
             <p className="pt-foot-note">
               The care card and the button card are recreations with invented
               data. Every other picture is a crop of a public web page, a store
-              listing or a screenshot of an own project, never enlarged.
+              listing or a screenshot of an own project.
             </p>
           </footer>
         </>

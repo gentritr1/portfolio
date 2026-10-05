@@ -1,4 +1,5 @@
 import {
+  Fragment,
   Suspense,
   useCallback,
   useEffect,
@@ -9,12 +10,13 @@ import {
   type FocusEvent,
   type KeyboardEvent,
   type MouseEvent,
+  type ReactNode,
 } from "react";
 import { Link, useLocation } from "react-router";
 import { ArrowRightIcon, ArrowUpRightIcon, CheckIcon, XIcon } from "@phosphor-icons/react";
 import { links } from "../../content/links";
 import { recreations } from "../../lib/recreations";
-import { rows, type Box, type Plate, type Row, type Shot, type Target } from "./data";
+import { leadRows, moreRows, type Box, type Plate, type Row, type Shot, type Target } from "./data";
 import { Own } from "./Own";
 import "./projector.css";
 
@@ -158,6 +160,13 @@ function ReportPlate({ before, after }: { before: number; after: number }) {
             {Array.from({ length: before }, (_, i) => (
               <span key={i} data-gone={i >= count || undefined} />
             ))}
+            {key === "now" && (
+              <span className="pj-report-fill">
+                {Array.from({ length: before }, (_, i) => (
+                  <span key={i} />
+                ))}
+              </span>
+            )}
           </p>
           <p className="pj-report-end">
             <Icon aria-hidden="true" weight="bold" />
@@ -185,19 +194,166 @@ function fitCrop(shot: Shot, frameWidth: number): Box {
   return { x: x / W, y: y / H, w: w / W, h: h / H };
 }
 
+function StoreList({ className, stores }: { className: string; stores: { label: string; href: string }[] }) {
+  return (
+    <ul className={className}>
+      {stores.map((store) => (
+        <li key={store.href}>
+          <a href={store.href} target="_blank" rel="noreferrer">
+            {store.label}
+            <ArrowUpRightIcon aria-hidden="true" size={16} weight="bold" />
+          </a>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+/** The web page and a store frame side by side, with the three places a member subscribes. */
+function DuoPlate({ plate, load, narrow }: { plate: Extract<Plate, { kind: "duo" }>; load: boolean; narrow: boolean }) {
+  const store = narrow ? plate.store.narrow : plate.store.crop;
+  return (
+    <div className="pj-duo" style={{ background: plate.ground }}>
+      {!narrow && <div className="pj-duo-web">{load && <ShotView shot={plate.web} crop={plate.web.crop} eager />}</div>}
+      <div className="pj-duo-side">
+        <p className="pj-duo-kicker">{plate.kicker}</p>
+        <StoreList className="pj-duo-stores" stores={plate.stores} />
+      </div>
+      <div
+        className="pj-duo-store"
+        style={{ aspectRatio: `${Math.round(store.w * plate.store.width)} / ${Math.round(store.h * plate.store.height)}` }}
+      >
+        {load && <ShotView shot={plate.store} crop={store} eager />}
+      </div>
+    </div>
+  );
+}
+
+const WIPE: KeyframeAnimationOptions = { duration: 300, easing: "cubic-bezier(0.77, 0, 0.175, 1)", fill: "both" };
+
+/** One screen from each store listing. A new platform wipes in over the old one, from the side its pill sits on. */
+function PairPlate({
+  plate,
+  platform,
+  load,
+  narrow,
+  reduced,
+}: {
+  plate: Extract<Plate, { kind: "pair" }>;
+  platform: number;
+  load: boolean;
+  narrow: boolean;
+  reduced: boolean;
+}) {
+  const [layers, setLayers] = useState<{ top: number; under: number | null }>({ top: platform, under: null });
+  const shown = useRef(platform);
+  const boxRef = useRef<HTMLDivElement>(null);
+  const layerRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const edgeRef = useRef<HTMLSpanElement>(null);
+  const running = useRef<Animation[]>([]);
+
+  useLayoutEffect(() => {
+    const from = shown.current;
+    if (from === platform) return;
+    shown.current = platform;
+    const settle = () => {
+      const done = running.current;
+      running.current = [];
+      setLayers({ top: platform, under: null });
+      requestAnimationFrame(() => done.forEach((animation) => animation.cancel()));
+    };
+    const [reveal, edge] = running.current;
+    // A second press during a wipe plays the same wipe back from where it is.
+    if (reveal && reveal.playState === "running") {
+      reveal.reverse();
+      edge?.reverse();
+      reveal.onfinish = settle;
+      return;
+    }
+    const layer = layerRefs.current[platform];
+    const box = boxRef.current;
+    const line = edgeRef.current;
+    if (reduced || !layer || !box || !line) {
+      setLayers({ top: platform, under: null });
+      return;
+    }
+    setLayers({ top: platform, under: from });
+    const width = box.offsetWidth;
+    const fromRight = platform > from;
+    const wipeIn = layer.animate(
+      { clipPath: fromRight ? ["inset(0 0 0 100%)", "inset(0 0 0 0)"] : ["inset(0 100% 0 0)", "inset(0 0 0 0)"] },
+      WIPE,
+    );
+    const lineMove = line.animate(
+      {
+        transform: fromRight ? [`translateX(${width}px)`, "translateX(0px)"] : ["translateX(0px)", `translateX(${width}px)`],
+        opacity: [1, 1],
+      },
+      { ...WIPE, fill: "none" },
+    );
+    running.current = [wipeIn, lineMove];
+    wipeIn.onfinish = settle;
+  }, [platform, reduced]);
+
+  const first = plate.platforms[0].shot;
+  const crop = narrow ? first.narrow : first.crop;
+  const mark = narrow ? plate.narrowMark : plate.mark;
+  return (
+    <div className="pj-phone">
+      <div className="pj-phone-side">
+        <p className="pj-phone-kicker">{plate.kicker}</p>
+        <StoreList className="pj-stores" stores={plate.platforms.map((item) => item.store)} />
+      </div>
+      <div
+        ref={boxRef}
+        className="pj-pair-box"
+        style={{ aspectRatio: `${Math.round(crop.w * first.width)} / ${Math.round(crop.h * first.height)}` }}
+      >
+        {plate.platforms.map((item, index) => (
+          <div
+            key={item.label}
+            ref={(element) => {
+              layerRefs.current[index] = element;
+            }}
+            className="pj-pair-layer"
+            data-on={index === layers.top || undefined}
+            data-leaving={index === layers.under || undefined}
+            aria-hidden={index === platform ? undefined : true}
+          >
+            {load && <ShotView shot={item.shot} crop={narrow ? item.shot.narrow : item.shot.crop} eager={false} />}
+          </div>
+        ))}
+        <span ref={edgeRef} className="pj-pair-edge" aria-hidden="true" />
+        <span
+          className="pj-pair-mark"
+          aria-hidden="true"
+          style={{ left: `${mark.x * 100}%`, top: `${mark.y * 100}%`, width: `${mark.w * 100}%`, height: `${mark.h * 100}%` }}
+        />
+      </div>
+    </div>
+  );
+}
+
 function PlateView({
   plate,
   load,
   narrow,
   eager,
   frameWidth,
+  platform,
+  reduced,
 }: {
   plate: Plate;
   load: boolean;
   narrow: boolean;
   eager: boolean;
   frameWidth: number;
+  platform: number;
+  reduced: boolean;
 }) {
+  if (plate.kind === "duo") return <DuoPlate plate={plate} load={load} narrow={narrow} />;
+  if (plate.kind === "pair")
+    return <PairPlate plate={plate} platform={platform} load={load} narrow={narrow} reduced={reduced} />;
   if (plate.kind === "live") return load ? <LivePlate which={plate.key} /> : <div className="pj-wait" />;
   if (plate.kind === "report") return <ReportPlate before={plate.before} after={plate.after} />;
   const crop = narrow ? fitCrop(plate.shot, frameWidth) : plate.shot.crop;
@@ -207,16 +363,7 @@ function PlateView({
       <div className="pj-phone">
         <div className="pj-phone-side">
           <p className="pj-phone-kicker">{plate.kicker}</p>
-          <ul className="pj-stores">
-            {plate.stores.map((store) => (
-              <li key={store.href}>
-                <a href={store.href} target="_blank" rel="noreferrer">
-                  {store.label}
-                  <ArrowUpRightIcon aria-hidden="true" size={16} weight="bold" />
-                </a>
-              </li>
-            ))}
-          </ul>
+          <StoreList className="pj-stores" stores={plate.stores} />
         </div>
         {shot}
       </div>
@@ -339,17 +486,70 @@ function measureWire(row: Row, rowElement: HTMLElement, plate: HTMLElement, narr
     split: outLength / Math.max(1, outLength + inLength),
     start,
     ring,
-    tone: row.plate.kind === "report" ? "field" : row.plate.kind === "web" && row.plate.dark ? "dark" : "light",
+    tone:
+      row.plate.kind === "report"
+        ? "field"
+        : row.plate.kind === "duo" || (row.plate.kind === "web" && row.plate.dark)
+          ? "dark"
+          : "light",
   };
 }
 
-/* ---------- Page ---------- */
+/* ---------- A log: rows at the left, one pinned frame at the right ---------- */
 
-export default function Draft() {
-  const narrow = useMedia("(max-width: 1023px)", false);
-  const reduced = useMedia("(prefers-reduced-motion: reduce)", false);
-  const fontsReady = useFontsReady();
-  const rootRef = useRef<HTMLDivElement>(null);
+function lineOf(row: Row, platform: number, choose: (index: number) => void, frameId: string): ReactNode {
+  if (row.plate.kind !== "pair") return row.line;
+  const labels = row.plate.platforms.map((item) => item.label);
+  const start = row.line.indexOf(labels[0]);
+  const last = labels[labels.length - 1];
+  const end = row.line.indexOf(last) + last.length;
+  if (start < 0 || end < start) return row.line;
+  return (
+    <>
+      {row.line.slice(0, start)}
+      <span className="pj-pills">
+        {row.plate.platforms.map((item, index) => (
+          <Fragment key={item.label}>
+            {index > 0 && " and "}
+            <button
+              type="button"
+              className="pj-pill"
+              aria-pressed={index === platform}
+              aria-controls={frameId}
+              onClick={() => choose(index)}
+            >
+              {item.label}
+            </button>
+          </Fragment>
+        ))}
+        {row.line.slice(end)}
+      </span>
+    </>
+  );
+}
+
+function Log({
+  id,
+  rows,
+  head,
+  last,
+  lazy,
+  narrow,
+  reduced,
+  fontsReady,
+}: {
+  id: string;
+  rows: Row[];
+  head: ReactNode;
+  /** The last log: at the end of the page its last row is current. */
+  last: boolean;
+  /** The log loads and draws only when it comes near the screen. */
+  lazy: boolean;
+  narrow: boolean;
+  reduced: boolean;
+  fontsReady: boolean;
+}) {
+  const rootRef = useRef<HTMLElement>(null);
   const frameRef = useRef<HTMLDivElement>(null);
   const screenRef = useRef<HTMLDivElement>(null);
   const rowRefs = useRef<(HTMLLIElement | null)[]>([]);
@@ -357,8 +557,44 @@ export default function Draft() {
   const [active, setActive] = useState(0);
   const activeRef = useRef(0);
   const [shown, setShown] = useState<{ index: number; mode: Mode }>({ index: 0, mode: "instant" });
-  const [loaded, setLoaded] = useState<Set<number>>(() => new Set([0]));
+  const [loaded, setLoaded] = useState<Set<number>>(() => (lazy ? new Set() : new Set([0])));
+  const [near, setNear] = useState(!lazy);
+  const [inView, setInView] = useState(!lazy);
+  const [platform, setPlatform] = useState(0);
   const nextMode = useRef<Mode | null>(null);
+  const frameId = `${id}-frame`;
+
+  /* A later log loads when it is one screen away, and draws its first line when its frame is in view. */
+  useEffect(() => {
+    if (!lazy) return;
+    const root = rootRef.current;
+    const frame = frameRef.current;
+    if (!root || !frame) return;
+    const nearby = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          setNear(true);
+          nearby.disconnect();
+        }
+      },
+      { rootMargin: "100% 0px" },
+    );
+    const seen = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          setInView(true);
+          seen.disconnect();
+        }
+      },
+      { threshold: 0.5 },
+    );
+    nearby.observe(root);
+    seen.observe(frame);
+    return () => {
+      nearby.disconnect();
+      seen.disconnect();
+    };
+  }, [lazy]);
 
   /* Which row is at the pin line. */
   const pinLine = useCallback(() => {
@@ -374,10 +610,10 @@ export default function Draft() {
       if (row && row.getBoundingClientRect().top <= pin) index = i;
     });
     const end = document.documentElement.scrollHeight - window.innerHeight;
-    if (end > 0 && window.scrollY >= end - 2) index = rows.length - 1;
+    if (last && end > 0 && window.scrollY >= end - 2) index = rows.length - 1;
     activeRef.current = index;
     setActive((was) => (was === index ? was : index));
-  }, [pinLine]);
+  }, [pinLine, last, rows.length]);
 
   useEffect(() => {
     let frame = 0;
@@ -427,22 +663,16 @@ export default function Draft() {
   }, [prev, track.index]);
 
   /* A screenshot loads when its row is near. A live plate mounts when its row is first shown, so it draws in view. */
-  const near = [active - 1, active, active + 1, shown.index].filter(
-    (i) => i >= 0 && i < rows.length && (rows[i].plate.kind !== "live" || i === shown.index),
-  );
-  if (!near.every((i) => loaded.has(i))) {
+  const nearRows = near
+    ? [active - 1, active, active + 1, shown.index].filter(
+        (i) => i >= 0 && i < rows.length && (rows[i].plate.kind !== "live" || i === shown.index),
+      )
+    : [];
+  if (!nearRows.every((i) => loaded.has(i))) {
     const next = new Set(loaded);
-    near.forEach((i) => next.add(i));
+    nearRows.forEach((i) => next.add(i));
     setLoaded(next);
   }
-
-  useEffect(() => {
-    const idle = window.requestIdleCallback ?? ((callback: () => void) => window.setTimeout(callback, 600));
-    idle(() => {
-      void recreations.care.load();
-      void recreations["design-system"].load();
-    });
-  }, []);
 
   /* The frame draws the plate at one size and scales it to its width. */
   const [frameWidth, setFrameWidth] = useState(0);
@@ -493,12 +723,7 @@ export default function Draft() {
       }),
     );
     dot.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 80, easing: EASE_OUT, fill: "backwards" });
-    ring.animate([{ opacity: 0 }, { opacity: 1 }], {
-      duration: RING_MS,
-      delay: ringOnly ? 0 : DRAW_MS,
-      easing: EASE_OUT,
-      fill: "backwards",
-    });
+    ring.animate([{ opacity: 0 }, { opacity: 1 }], { duration: RING_MS, delay: DRAW_MS, easing: EASE_OUT, fill: "backwards" });
   }, []);
 
   const updateWire = useCallback(() => {
@@ -532,7 +757,7 @@ export default function Draft() {
       pendingDraw.current = null;
       if (mode === "animate" && !reduced) draw(wire.split, narrow);
     }
-  }, [narrow, reduced, draw]);
+  }, [rows, narrow, reduced, draw]);
 
   useEffect(() => {
     let frame = 0;
@@ -555,7 +780,7 @@ export default function Draft() {
     }
     const log = rowRefs.current[0]?.parentElement;
     if (log) resize.observe(log);
-    const images = Array.from(document.querySelectorAll(".pj-frame img"));
+    const images = Array.from(frameElement?.querySelectorAll("img") ?? []);
     images.forEach((image) => image.addEventListener("load", schedule));
     document.fonts.addEventListener("loadingdone", schedule);
     return () => {
@@ -571,7 +796,7 @@ export default function Draft() {
 
   /* The first line draws after the first plate has faded in. */
   useEffect(() => {
-    if (armed.current || !fontsReady) return;
+    if (armed.current || !fontsReady || !inView) return;
     let timer = 0;
     let frame = 0;
     const arm = () => {
@@ -593,7 +818,7 @@ export default function Draft() {
       cancelAnimationFrame(frame);
       window.clearTimeout(timer);
     };
-  }, [reduced, narrow, fontsReady, updateWire]);
+  }, [rows, reduced, narrow, fontsReady, inView, updateWire]);
 
   /* A new row: the old line fades, the plate cross-fades, then the new line draws. */
   useLayoutEffect(() => {
@@ -631,14 +856,14 @@ export default function Draft() {
         requestAnimationFrame(() => requestAnimationFrame(() => delete root.dataset.instant));
       }
       const top = row.getBoundingClientRect().top + window.scrollY - pinLine() + 2;
-      window.scrollTo({ top: index === 0 ? 0 : top, behavior: "instant" });
+      window.scrollTo({ top: index === 0 && !lazy ? 0 : top, behavior: "instant" });
       locate();
       if (activeRef.current === index) {
         nextMode.current = null;
         setShown((was) => (was.index === index ? was : { index, mode: reduced ? "instant" : mode }));
       }
     },
-    [locate, pinLine, reduced],
+    [locate, pinLine, reduced, lazy],
   );
 
   const onLogKey = (event: KeyboardEvent<HTMLOListElement>) => {
@@ -649,7 +874,7 @@ export default function Draft() {
     const index = Math.min(rows.length - 1, Math.max(0, shown.index + step));
     jump(index, "instant");
     const row = rowRefs.current[index];
-    (row?.querySelector<HTMLElement>(".pj-link") ?? row?.querySelector<HTMLElement>("h2"))?.focus({ preventScroll: true });
+    (row?.querySelector<HTMLElement>(".pj-link") ?? row?.querySelector<HTMLElement>("h2, h3"))?.focus({ preventScroll: true });
   };
 
   const onRowFocus = (index: number) => (event: FocusEvent<HTMLLIElement>) => {
@@ -661,150 +886,125 @@ export default function Draft() {
     if (index !== shown.index) jump(index, "animate");
   };
 
+  const Heading = lazy ? "h3" : "h2";
   const current = rows[shown.index];
-  const home = useLocation().pathname === "/";
+  const caption = current.plate.kind === "pair" ? current.plate.platforms[platform].caption : current.caption;
 
   return (
-    <div className="pj" ref={rootRef}>
-      <title>{home ? "Gentrit Rashiti — web, mobile & full stack" : "Projector — Gentrit Rashiti"}</title>
-      <main className="pj-main">
-        <header className="pj-id">
-          <h1>Gentrit Rashiti builds web and mobile apps that people subscribe to, shop in and read with.</h1>
-          <p className="pj-id-line">
-            <span>5+ years. Part of two platform rewrites. Based in Kosovo, working remotely.</span>
-            <span className="pj-id-links">
-              <a href={links.cv}>CV (PDF)</a>
-              <a href={`mailto:${links.email}`}>Email</a>
-            </span>
-          </p>
-        </header>
+    <section className={`pj-main pj-${id}`} ref={rootRef} aria-labelledby={`${id}-title`}>
+      <header className="pj-id">{head}</header>
 
-        <ol className="pj-log" aria-label={`${rows.length} projects`} onKeyDown={onLogKey}>
-          {rows.map((row, index) => (
-            <li
-              key={row.id}
-              ref={(element) => {
-                rowRefs.current[index] = element;
-              }}
-              className="pj-row"
-              data-current={index === shown.index || undefined}
-              onFocus={onRowFocus(index)}
-              onClick={onRowClick(index)}
-            >
-              <div className="pj-row-head">
-                <span className="pj-num" aria-hidden="true">
-                  {row.id}
-                </span>
-                <div className="pj-row-name">
-                  <h2 tabIndex={row.link ? undefined : -1}>
-                    <span className="pj-sr">{row.id}. </span>
-                    {row.project}
-                  </h2>
-                  <p className="pj-role">
-                    {row.role}
-                    <span className="pj-year">
-                      <span className="pj-dot"> · </span>
-                      {row.year}
-                    </span>
-                  </p>
-                </div>
-              </div>
-              <p className="pj-line">{row.line}</p>
-              <p className="pj-result">
-                <span className="pj-result-base">
-                  <mark>
-                    <ArrowRightIcon className="pj-result-arrow" weight="bold" aria-hidden="true" />
-                    {row.result}
-                  </mark>
-                </span>
-                <span className="pj-result-ink" aria-hidden="true">
-                  <mark>
-                    <ArrowRightIcon className="pj-result-arrow" weight="bold" />
-                    {row.result}
-                  </mark>
-                </span>
-              </p>
-              {row.link && (
-                <p className="pj-foot">
-                  {row.live && (
-                    <a className="pj-link" href={row.live.href} target="_blank" rel="noreferrer">
-                      {row.live.label}
-                      <ArrowUpRightIcon aria-hidden="true" size={16} weight="bold" />
-                    </a>
-                  )}
-                  {row.link.external ? (
-                    <a className="pj-link" href={row.link.href} target="_blank" rel="noreferrer">
-                      {row.link.label}
-                      <ArrowUpRightIcon aria-hidden="true" size={16} weight="bold" />
-                    </a>
-                  ) : (
-                    <Link className="pj-link" to={row.link.href}>
-                      {row.link.label}
-                      <span className="pj-sr">: {row.project}</span>
-                      <ArrowRightIcon aria-hidden="true" size={16} weight="bold" />
-                    </Link>
-                  )}
+      <ol className="pj-log" aria-label={`${rows.length} projects`} start={Number(rows[0].id)} onKeyDown={onLogKey}>
+        {rows.map((row, index) => (
+          <li
+            key={row.id}
+            ref={(element) => {
+              rowRefs.current[index] = element;
+            }}
+            className="pj-row"
+            data-current={index === shown.index || undefined}
+            onFocus={onRowFocus(index)}
+            onClick={onRowClick(index)}
+          >
+            <div className="pj-row-head">
+              <span className="pj-num" aria-hidden="true">
+                {row.id}
+              </span>
+              <div className="pj-row-name">
+                <Heading tabIndex={row.link ? undefined : -1}>
+                  <span className="pj-sr">{row.id}. </span>
+                  {row.project}
+                </Heading>
+                <p className="pj-role">
+                  {row.role}
+                  <span className="pj-year">
+                    <span className="pj-dot"> · </span>
+                    {row.year}
+                  </span>
                 </p>
-              )}
-            </li>
-          ))}
-        </ol>
-
-        <aside className="pj-frame-wrap" aria-label="Frame">
-          <div className="pj-frame" ref={frameRef}>
-            <div className="pj-screen" ref={screenRef}>
-              <div className="pj-stage">
-                {rows.map((row, index) => {
-                  const state = index === shown.index ? "on" : index === prev ? "prev" : "off";
-                  return (
-                    <div
-                      key={row.id}
-                      ref={(element) => {
-                        plateRefs.current[index] = element;
-                      }}
-                      className={`pj-plate pj-plate-${row.plate.kind}`}
-                      data-state={state}
-                      data-mode={shown.mode}
-                      inert={state !== "on" || narrow || (row.plate.kind === "live" && row.plate.key === "design-system")}
-                      aria-hidden={state !== "on"}
-                    >
-                      <PlateView plate={row.plate} load={loaded.has(index)} narrow={narrow} eager={index === 0} frameWidth={frameWidth} />
-                    </div>
-                  );
-                })}
               </div>
             </div>
-            <div className="pj-caption">
-              <p className="pj-caption-text" aria-live="polite">
-                {current.caption}
-                {current.recreation && <span className="pj-rec"> Recreation · invented data.</span>}
+            <p className="pj-line">{lineOf(row, platform, setPlatform, frameId)}</p>
+            <p className="pj-result">
+              <span className="pj-result-base">
+                <mark>
+                  <ArrowRightIcon className="pj-result-arrow" weight="bold" aria-hidden="true" />
+                  {row.result}
+                </mark>
+              </span>
+              <span className="pj-result-ink" aria-hidden="true">
+                <mark>
+                  <ArrowRightIcon className="pj-result-arrow" weight="bold" />
+                  {row.result}
+                </mark>
+              </span>
+            </p>
+            {row.link && (
+              <p className="pj-foot">
+                {row.live && (
+                  <a className="pj-link" href={row.live.href} target="_blank" rel="noreferrer">
+                    {row.live.label}
+                    <ArrowUpRightIcon aria-hidden="true" size={16} weight="bold" />
+                  </a>
+                )}
+                {row.link.external ? (
+                  <a className="pj-link" href={row.link.href} target="_blank" rel="noreferrer">
+                    {row.link.label}
+                    <ArrowUpRightIcon aria-hidden="true" size={16} weight="bold" />
+                  </a>
+                ) : (
+                  <Link className="pj-link" to={row.link.href}>
+                    {row.link.label}
+                    <span className="pj-sr">: {row.project}</span>
+                    <ArrowRightIcon aria-hidden="true" size={16} weight="bold" />
+                  </Link>
+                )}
               </p>
+            )}
+          </li>
+        ))}
+      </ol>
+
+      <aside className="pj-frame-wrap" aria-label="Frame">
+        <div className="pj-frame" ref={frameRef} id={frameId}>
+          <div className="pj-screen" ref={screenRef}>
+            <div className="pj-stage">
+              {rows.map((row, index) => {
+                const state = index === shown.index ? "on" : index === prev ? "prev" : "off";
+                return (
+                  <div
+                    key={row.id}
+                    ref={(element) => {
+                      plateRefs.current[index] = element;
+                    }}
+                    className={`pj-plate pj-plate-${row.plate.kind}`}
+                    data-state={state}
+                    data-mode={shown.mode}
+                    inert={state !== "on" || narrow || (row.plate.kind === "live" && row.plate.key === "design-system")}
+                    aria-hidden={state !== "on"}
+                  >
+                    <PlateView
+                      plate={row.plate}
+                      load={loaded.has(index)}
+                      narrow={narrow}
+                      eager={index === 0 && !lazy}
+                      frameWidth={frameWidth}
+                      platform={platform}
+                      reduced={reduced}
+                    />
+                  </div>
+                );
+              })}
             </div>
           </div>
-        </aside>
-      </main>
-
-      <Own narrow={narrow} reduced={reduced} />
-
-      <footer className="pj-end">
-        <p>
-          Gentrit Rashiti. Bachelor's degree, UBT. The care and design-system screens are recreations with invented
-          data. The other screens are public pages, store listings and own projects.
-        </p>
-        <p className="pj-end-links">
-          <a href={`mailto:${links.email}`}>
-            <span className="pj-end-wide">{links.email}</span>
-            <span className="pj-end-short">Email</span>
-          </a>
-          <a href={links.cv}>Download CV (PDF)</a>
-          <a href={links.github} target="_blank" rel="noreferrer">
-            GitHub
-          </a>
-          <a href={links.linkedin} target="_blank" rel="noreferrer">
-            LinkedIn
-          </a>
-        </p>
-      </footer>
+          <div className="pj-caption">
+            <p className="pj-caption-text" aria-live="polite">
+              {caption}
+              {current.recreation && <span className="pj-rec"> Recreation · invented data.</span>}
+            </p>
+          </div>
+        </div>
+      </aside>
 
       <svg className="pj-wire" aria-hidden="true">
         <g ref={wireRef} data-ready="false">
@@ -832,6 +1032,93 @@ export default function Draft() {
           <circle ref={dotRef} className="pj-wire-dot" r={3.5} />
         </g>
       </svg>
+    </section>
+  );
+}
+
+/* ---------- Page ---------- */
+
+export default function Draft() {
+  const narrow = useMedia("(max-width: 1023px)", false);
+  const reduced = useMedia("(prefers-reduced-motion: reduce)", false);
+  const fontsReady = useFontsReady();
+  const home = useLocation().pathname === "/";
+
+  useEffect(() => {
+    const idle = window.requestIdleCallback ?? ((callback: () => void) => window.setTimeout(callback, 600));
+    idle(() => {
+      void recreations.care.load();
+      void recreations["design-system"].load();
+    });
+  }, []);
+
+  return (
+    <div className="pj">
+      <title>{home ? "Gentrit Rashiti — web, mobile & full stack" : "Projector — Gentrit Rashiti"}</title>
+      <main>
+        <Log
+          id="lead"
+          rows={leadRows}
+          last={false}
+          lazy={false}
+          narrow={narrow}
+          reduced={reduced}
+          fontsReady={fontsReady}
+          head={
+            <>
+              <h1 id="lead-title">Gentrit Rashiti builds web and mobile apps that people subscribe to, shop in and read in.</h1>
+              <p className="pj-id-line">
+                <span>5+ years. Part of two platform rewrites. Based in Kosovo, working remotely.</span>
+                <span className="pj-id-links">
+                  <a href={links.cv}>CV (PDF)</a>
+                  <a href={`mailto:${links.email}`}>Email</a>
+                </span>
+              </p>
+            </>
+          }
+        />
+
+        <Own narrow={narrow} reduced={reduced} />
+
+        <Log
+          id="more"
+          rows={moreRows}
+          last
+          lazy
+          narrow={narrow}
+          reduced={reduced}
+          fontsReady={fontsReady}
+          head={
+            <>
+              <h2 id="more-title" className="pj-band-title">
+                More client work
+              </h2>
+              <p className="pj-line">Four more client projects, 2021–26.</p>
+            </>
+          }
+        />
+      </main>
+
+      <footer className="pj-end">
+        <p>
+          Gentrit Rashiti. Bachelor's degree, UBT, Kosovo. The care and
+          design-system screens are recreations with invented data. The other screens are public pages, store listings
+          and own projects.
+        </p>
+        <p className="pj-end-links">
+          <a href={`mailto:${links.email}`}>
+            <span className="pj-end-wide">{links.email}</span>
+            <span className="pj-end-short">Email</span>
+          </a>
+          <a href={links.cv}>Download CV (PDF)</a>
+          <a href={links.github} target="_blank" rel="noreferrer">
+            GitHub
+          </a>
+          <a href={links.linkedin} target="_blank" rel="noreferrer">
+            LinkedIn
+          </a>
+        </p>
+      </footer>
     </div>
   );
 }

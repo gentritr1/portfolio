@@ -15,6 +15,7 @@
 :root:has(.pt) {
   color-scheme: light;
   background: #ecece8;
+  scroll-behavior: auto;
   scrollbar-color: #111 #ecece8;
 }
 
@@ -225,7 +226,7 @@
 .pt-lead-caption {
   margin: 8px 0 0;
   font-size: 32px;
-  line-height: 52px;
+  line-height: 44px;
   font-weight: 650;
   font-stretch: 94%;
   letter-spacing: -0.02em;
@@ -237,8 +238,9 @@
 
 /* The two platform words are the control. The pressed word carries the proof colour. */
 .pt-switch {
+  position: relative;
   display: inline-block;
-  height: 44px;
+  height: 40px;
   margin: 0;
   padding: 0 12px;
   border: 2px solid rgb(17 17 17 / 0.28);
@@ -246,13 +248,20 @@
   background: transparent;
   color: inherit;
   font: inherit;
-  line-height: 40px;
+  line-height: 36px;
   letter-spacing: inherit;
   vertical-align: baseline;
   cursor: pointer;
   transition:
     background-color 150ms var(--pt-ease),
     border-color 150ms var(--pt-ease);
+}
+
+/* The pill is 40 px tall so the sentence keeps a 44 px line; this keeps the target 44 px. The inset counts from inside the 2 px border. */
+.pt-switch::after {
+  content: "";
+  position: absolute;
+  inset: -4px -2px;
 }
 
 .pt-switch[aria-pressed="true"] {
@@ -274,13 +283,6 @@
   .pt-switch:not([aria-pressed="true"]):hover {
     border-color: var(--pt-ink);
   }
-}
-
-.pt-lead-hint {
-  margin: 8px 0 0;
-  color: var(--pt-muted);
-  font-size: 14px;
-  line-height: 20px;
 }
 
 .pt-lead-scope {
@@ -422,8 +424,42 @@
 }
 
 /* Own projects are shown larger: two columns, at native pixels or smaller. */
+/*
+ * Own projects: two columns of about 660 px from 1400 px, one column of at
+ * most 720 px below. The 2x crops then show at 0.85 to 1.15 of their CSS size.
+ */
 .pt-grid.pt-grid-own {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 720px);
+}
+
+@media (min-width: 1400px) {
+  .pt-grid.pt-grid-own {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Between 1000 and 1399 px the picture keeps 720 px and its words sit beside it, so the row has no empty half. */
+@media (min-width: 1000px) and (max-width: 1399px) {
+  .pt-grid.pt-grid-own {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .pt-grid-own .pt-tile {
+    grid-row: auto;
+    grid-template-rows: none;
+    grid-template-columns: minmax(0, 720px) minmax(0, 1fr);
+    column-gap: var(--pt-gap-x);
+  }
+
+  .pt-grid-own .pt-tile-body {
+    grid-row: auto;
+    grid-column: 2;
+    grid-template-rows: none;
+  }
+
+  .pt-grid-own .pt-caption {
+    margin-top: 0;
+  }
 }
 
 .pt-grid-own .pt-media {
@@ -526,13 +562,18 @@
 }
 
 /* The words the ring proves carry a band in the ring's colour. The band fills when the tile is current. */
+/* A highlighter band behind the lower half of the words. Links on this page are thin ink underlines; this band is never a link. */
 .pt-proof {
-  border-radius: 2px;
+  padding: 0 2px;
+  margin: 0 -2px;
+  border-radius: 3px;
   background-color: transparent;
   background-image: linear-gradient(
     to top,
-    color-mix(in oklab, var(--pt-accent) 55%, transparent) 0.3em,
-    transparent 0.3em
+    transparent 0.06em,
+    color-mix(in oklab, var(--pt-accent) 30%, transparent) 0.06em,
+    color-mix(in oklab, var(--pt-accent) 30%, transparent) 0.62em,
+    transparent 0.62em
   );
   white-space: nowrap;
   transition: background-color 200ms var(--pt-ease);
@@ -787,11 +828,15 @@
 
 /* ---------- Own projects ---------- */
 
+.pt-more {
+  padding-top: 64px;
+}
+
 .pt-own {
   margin-top: 48px;
 }
 
-.pt-own-head {
+.pt-section-head {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   column-gap: var(--pt-gap-x);
@@ -799,7 +844,7 @@
   margin-bottom: 32px;
 }
 
-.pt-own-head h2,
+.pt-section-head h2,
 .pt-index h2 {
   margin: 0;
   font-size: 40px;
@@ -809,7 +854,7 @@
   letter-spacing: -0.02em;
 }
 
-.pt-own-head p {
+.pt-section-head p {
   grid-column: span 2;
   max-width: 640px;
   margin: 0;
@@ -944,7 +989,7 @@
 
   .pt-lead-caption {
     font-size: 28px;
-    line-height: 48px;
+    line-height: 44px;
   }
 }
 
@@ -963,8 +1008,7 @@
   }
 
   .pt-grid,
-  .pt-grid.pt-side,
-  .pt-grid.pt-grid-own {
+  .pt-grid.pt-side {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
@@ -972,12 +1016,12 @@
     --pt-pad: var(--pt-gap-y);
   }
 
-  .pt-own-head {
+  .pt-section-head {
     grid-template-columns: minmax(0, 1fr);
     row-gap: 16px;
   }
 
-  .pt-own-head p {
+  .pt-section-head p {
     grid-column: auto;
   }
 
@@ -1003,6 +1047,10 @@
     padding-top: 24px;
   }
 
+  .pt-more {
+    padding-top: 32px;
+  }
+
   .pt-lead {
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: none;
@@ -1024,7 +1072,7 @@
 
   .pt-lead-caption {
     font-size: 26px;
-    line-height: 48px;
+    line-height: 44px;
   }
 
   .pt-grid,
@@ -1047,12 +1095,12 @@
     margin-top: 16px;
   }
 
-  .pt-own-head h2,
+  .pt-section-head h2,
   .pt-index h2 {
     font-size: 32px;
   }
 
-  .pt-own-head p {
+  .pt-section-head p {
     font-size: 16px;
   }
 
@@ -1061,16 +1109,36 @@
   }
 
   .pt-row {
-    grid-template-columns: minmax(0, 1fr);
-    row-gap: 4px;
-    padding: 12px 0;
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: 16px;
+    min-height: 0;
+    padding: 8px 0;
+    font-size: 14px;
+    line-height: 20px;
+  }
+
+  .pt-row-name,
+  .pt-row-line {
+    grid-column: 1;
+  }
+
+  .pt-row-line {
+    color: var(--pt-muted);
   }
 
   .pt-row-end {
-    grid-column: auto;
-    grid-template-columns: minmax(0, 1fr) auto 72px;
-    min-height: 44px;
-    font-size: 14px;
+    display: contents;
+  }
+
+  .pt-row-role,
+  .pt-row-year {
+    display: none;
+  }
+
+  .pt-row-go {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    align-self: center;
   }
 
   .pt-foot {

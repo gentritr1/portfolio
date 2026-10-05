@@ -3,8 +3,8 @@
   "title": "TWO READERS",
   "band": "Loop 9",
   "rule": "one set of facts, two readers: a switch rewrites every line for a hiring manager or for an engineer",
-  "description": "Seven pieces of work in a log beside one fixed frame, then the own projects. It opens on a shipped product: the Read to Feed store screenshot (My Books, 36% and 90% read), with 'Read 36%' ringed for 'It remembers the page in every book.' Row 02 is the billing report that asked the database 16 times and gave up, and now asks 2 times and finishes. A vermilion panel above the switch shows the trick before any click: 'Every line on this page is written twice: in plain words, or with the tools named', with one real pair ('built once for iPhone and Android' = 'one React Native codebase'). The switch, 'Same facts for: Hiring manager · Engineer', rewrites every line, the own-projects band included. Own projects: Offday (light team calendar), OFFBEAT and FORM (concepts, GitHub links).",
-  "signature": "Paper #F3EFE6, ink #1B1A17, muted #5E5A52, one vermilion accent #B8311B (5.2:1 on paper). Newsreader for the plain reader, JetBrains Mono for the engineer: the face change is the signal that the reader changed. The two faces load through the FontFace API; the page waits at most 300 ms, and a face that comes later is kept for the next visit, so text never rewraps in view (local Georgia and Menlo stand in). Desktop: a 560 px log (identity, sticky switch bar, rows) and a 4:5 frame (573 x 716 at 1440 x 900), sticky, with a count and caption under it. Row 01 plate is the public Read to Feed store screenshot (crop 704 x 880 source px at 0.81, never upscaled); row 02 is a vermilion card ('16' struck, 16 ticks, 'Gave up'; '2', 2 ticks, 'Finished'). Incentiv and Viva Fresh crops end on whole UI parts and stand on a colour sampled from the screen around the crop. Design System v2 shows ready-made buttons and inputs to the hiring manager and the token card to the engineer. Every line is two versions in one grid cell, so a switch never moves the page (CLS 0). Switch: each visible line fades (120 ms, ease-out), then the other reader's words write in with a clip-path wipe (240 ms, ease-out, from 120 ms), top to bottom with a 30 ms stagger; off-screen lines swap at once. The hairline hides at the switch and draws again (180 ms) from the new last word. Rows become current at 42% of the viewport after 160 ms; the plate cross-fades in 200 ms; the line never follows the scroll. Keyboard: arrow keys in the log jump with no travel; the switch is a radio group, and a key switch swaps the words at once. The reader is kept in the URL (?read=engineer). The hook panel and the switch bar are one vermilion block: the top part (the two-reader sample) scrolls away, the bar sticks. The last row keeps the sticky frame whole (column bottom padding). Own projects: percentage crops with a fixed aspect ratio, lazy, CLS 0; Offday 2880 x 1410 source crop, OFFBEAT and FORM 1440 x 836, phone crops from the phone screenshots. Phone: each row carries its own 4:3 plate with the same ring; the bar hides its label below 1280 px so both buttons stay on one row. Reduced motion: words swap at once, the line appears, nothing plays.",
+  "description": "Seven pieces of work in a log beside one fixed frame, then the own projects. It opens on a shipped product: the Read to Feed store screenshot (logo, My Books, 36% read), with 'Read 36%' ringed for 'It kept each child's place in every book.' Row 02 is the billing report that asked the database 16 times and gave up, and now asks 2 times and finishes. A quiet legend under the identity shows the trick before any click: 'Every line here is written twice. Pick the reader in the bar at the top.', with one real pair ('built once for iPhone and Android' = 'one React Native codebase'). The switch, 'Same facts for: Hiring manager · Engineer', sits in a sticky bar for the whole page and rewrites every line, the own-projects rows included. Own projects: Offday (best-dates suggestions, light), OFFBEAT (the eight-step drum machine) and FORM (the Trefoil with its formula), each a close crop at CSS size from the 2x captures, with GitHub links for the two concepts.",
+  "signature": "Paper #F3EFE6, ink #1B1A17, muted #5E5A52, one vermilion accent #B8311B (5.2:1 on paper). Newsreader for the plain reader, JetBrains Mono for the engineer: the face change is the signal that the reader changed. The two faces load through the FontFace API; a CSS animation holds the text for at most 250 ms, and a face that comes later is kept for the next visit, so text never rewraps in view (local Georgia and Menlo stand in). Desktop: a 560 px log (identity, sticky switch bar, rows) and a 4:5 frame (573 x 716 at 1440 x 900), sticky, with a count and caption under it. Row 01 plate is the public Read to Feed store screenshot (crop 704 x 880 source px at 0.81, never upscaled); row 02 is a vermilion card ('16' struck, 16 ticks, 'Gave up'; '2', 2 ticks, 'Finished'). Incentiv and Viva Fresh crops end on whole UI parts and stand on a colour sampled from the screen around the crop. Design System v2 shows ready-made buttons and inputs to the hiring manager and the token card to the engineer. Every line is two versions in one grid cell, so a switch never moves the page (CLS 0). Switch: each visible line fades (120 ms, ease-out), then the other reader's words write in with a clip-path wipe (240 ms, ease-out, from 120 ms), top to bottom with a 30 ms stagger; off-screen lines swap at once. The hairline hides at the switch and draws again (180 ms) from the new last word. Rows become current at 42% of the viewport after 160 ms; the plate cross-fades in 200 ms; the line never follows the scroll. Keyboard: arrow keys in the log jump with no travel; the switch is a radio group, and a key switch swaps the words at once. The reader is kept in the URL (?read=engineer). The hook panel and the switch bar are one vermilion block: the top part (the two-reader sample) scrolls away, the bar sticks. The last row keeps the sticky frame whole (column bottom padding). Own projects: percentage crops with a fixed aspect ratio, lazy, CLS 0; Offday 2880 x 1410 source crop, OFFBEAT and FORM 1440 x 836, phone crops from the phone screenshots. Phone: each row carries its own 4:3 plate with the same ring; the bar hides its label below 1280 px so both buttons stay on one row. Reduced motion: words swap at once, the line appears, nothing plays.",
   "caseSlug": "read-to-feed",
   "mechanisms": [
     "S2",
@@ -16,22 +16,22 @@
     "straightToThePoint": 9,
     "notOverwhelming": 8,
     "harmony": 8,
-    "meaningfulMotion": 8,
+    "meaningfulMotion": 9,
     "actionsAndSeniority": 8,
-    "original": 7,
+    "original": 8,
     "hooks": 8
   },
-  "holdback": "Lowest: original, 7/10. The visible two-reader sample and the switch are new, but the page around them is a log beside a sticky frame, a known scrollytelling layout. Other limits: the vermilion hook panel is the loudest block on the first screen and repeats the accent of the 16 -> 2 plate; at 1024 x 768 the row 01 result and its line fall below the fold (the plate shows); the engineer h1 keeps the height of the longer plain h1 (about 27 px of extra space); the Incentiv plate shows 100 to 160 px of its own card colour above and below the crop at 1440; Offday has no public link, so its row has none.",
+  "holdback": "Lowest: harmony and calm, 8/10. The page is still a log beside a sticky frame (a known scrollytelling layout); the switch is the only new idea. Other limits: the Read to Feed store frame is 780 px wide, so the lead crop shows at about 1.76x on a 2x screen (no sharper public capture exists); at 1024 x 768 the row 01 result falls just below the fold (the line and the plate show); on phone the OFFBEAT crop is the 3D speaker from the phone capture, because the drum grid cannot be shown whole at 11 px text in 327 px; Offday has no public link (its repository is private), so its row has none; the engineer h1 keeps the height of the longer plain h1.",
   "chroma": {
-    "firstScreen": 30.4,
-    "outsidePlates": 13.0,
+    "firstScreen": 15.3,
+    "outsidePlates": 0.1,
     "plateRect": [
-      762,
-      64,
-      1334,
-      780
+      775,
+      115,
+      1321,
+      797
     ],
-    "method": "scratchpad/chroma6r.mjs logic (review/loop9/two-readers/chroma-tr.mjs) on review/loop9/two-readers/final/d-top.png (1440 x 900), captured last. Round 8b: 1.8% / 0.8%. Engineer view: 30.6% / 13.2%."
+    "method": "scratchpad/chroma6r.mjs logic (review/loop9b/two-readers/chroma-tr.mjs) on review/loop9b/two-readers/final/d-top.png (1440 x 900), captured last. Round 9: 30.4% / 13.0% (the vermilion legend). Engineer view: 15.4% / 0.2%."
   },
   "polish": [
     {
@@ -68,6 +68,24 @@
         "Hairline hides when its proof ring is off screen (it ran up to the top edge after a scroll on the last row)",
         "1024 and phone: switch label hidden below 1280 px, sample stacked, both buttons on one row (no wrapped 'Hiring manager')",
         "Crops on whole UI parts: Read to Feed phone crop ends between cards; Offday crop ends on the calendar row line and James Wilson's buttons"
+      ]
+    },
+    {
+      "round": 9,
+      "pass": "b",
+      "score": 58,
+      "fixed": [
+        "Legend tamed (critic 1, task): the 560 x 220 vermilion box is now a quiet outlined legend (about 120 px at 1440, 175 px at 375); the hook stays visible on the first screen; first-screen chroma outside the plate 13.0% -> 0.1%",
+        "Switch reachable everywhere (task, devil): it moves into one sticky bar for the whole page (name left, 'Same facts for' + two 44 px pills right); from the own-projects band it rewrites the own lines (frames d-own-2-switch-*, m-own-3-eng). Followed the devil's 'switch in a top bar' and kept the critic's 'keep the two sample lines'",
+        "Read to Feed tense (critic 5, devil 5): 'It kept each child's place in every book.' ('place', because the screen shows a percentage, not a page)",
+        "OFFBEAT and FORM (critic 2, task): close crops from the new 2x captures at exactly 1.0 of CSS pixels (was 0.42): the whole 8-step drum grid with presets; the Trefoil with its formula. FORM line now matches the crop: 'Each sculpture is drawn live from a math formula.' Phone crops from the phone captures at 0.96-1.0",
+        "Offday: the best-dates suggestions (proves 'It finds the dates that give the longest break'), light, at 1.0; no crop through sidebar text (devil)",
+        "One row per own project, words left at the column edge and the crop at its CSS size; GitHub links 491 px apart at 1440, 44 px targets; the arrow no longer touches the word or sits under the underline (devil)",
+        "Font hold measured 75 ms at 1440 and 195 ms at 375, 221-227 ms with three probes in parallel (was 660 ms); the hold is a CSS animation capped at 250 ms, and a face that arrives after 230 ms is kept for the next visit; CLS 0 with fonts 2.5 s late",
+        "No animated scroll on Tab: Tab to row 02 and to 'OFFBEAT on GitHub' lands in one frame (scrollY equal at 0, 60 and 300 ms)",
+        "Read to Feed crop inside the store frame's blue side strips, with the Read to Feed logo on top; ends on the whole third card (critic 4)",
+        "Identity line has a verb: 'Also works on the server side since 2026.' (devil)",
+        "Own band starts at 3,034 of 5,128 px at 1440 (was 3,164 of 4,838)"
       ]
     }
   ]

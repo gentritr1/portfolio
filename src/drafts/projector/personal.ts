@@ -16,6 +16,11 @@ export interface OwnShot {
    * along this clear row, then turns onto the ring.
    */
   entry?: number;
+  /**
+   * The plate box in source pixels, when it is wider than the crop. The crop
+   * sits in its middle at full height, on the ground colour.
+   */
+  stage?: { w: number; h: number; ground: string };
 }
 
 export interface OwnView {
@@ -77,11 +82,25 @@ const assistant = offday(
   "Offday assistant answering who is off today and who is off next week, beside the team calendar",
 );
 
+/** OFFBEAT and FORM captures are 2880 x 1800 (a 1440 px window at 2x). */
+const studio = {
+  src: "/personal/shots/offbeat-studio-desktop.webp",
+  alt: "OFFBEAT sound studio: an eight-step drum machine with kick, snare, hi-hat and bass rows, the playing step in red",
+  width: 2880,
+  height: 1800,
+};
+const collection = {
+  src: "/personal/shots/form-studio-desktop.webp",
+  alt: "FORM collection: the Trefoil in copper with its formula, p(t) = ((2 + cos 3t) cos 2t, (2 + cos 3t) sin 2t, sin 3t)",
+  width: 2880,
+  height: 1800,
+};
+
 const link = (slug: string) => findProject(slug)?.links.find((item) => item.label === "GitHub")?.href;
 
 export const ownRows: OwnRow[] = [
   {
-    id: "09",
+    id: "05",
     project: "Offday",
     line: "A time-off app for teams: requests, approvals and one shared calendar.",
     role: "Own project",
@@ -101,7 +120,13 @@ export const ownRows: OwnRow[] = [
         tab: "Best dates",
         result: "It finds the longest breaks around holidays",
         caption: "Find the best dates, demo workspace.",
-        wide: { ...bestDates, crop: box(634, 89, 1613, WIDE), ring: box(1025, 1031, 829, 1, 193), entry: 1073 },
+        wide: {
+          ...bestDates,
+          crop: box(966, 89, 948, 1, 1345),
+          stage: { w: Math.round(1345 * WIDE), h: 1345, ground: "#a2a0a1" },
+          ring: box(1025, 1031, 829, 1, 193),
+          entry: 1073,
+        },
         narrow: { ...bestDatesPhone, crop: box(40, 1078, 700, NARROW), ring: box(100, 1286, 580, 1, 186) },
       },
       {
@@ -123,7 +148,7 @@ export const ownRows: OwnRow[] = [
     ],
   },
   {
-    id: "10",
+    id: "06",
     project: "OFFBEAT",
     line: "A concept site for a made-up portable speaker.",
     role: "Concept",
@@ -132,32 +157,17 @@ export const ownRows: OwnRow[] = [
     github: link("offbeat"),
     views: [
       {
-        key: "home",
-        tab: "Home",
-        result: "Turn the 3D speaker and pick a finish",
-        caption: "OFFBEAT home page. The brand is fictional.",
-        wide: {
-          src: "/personal/shots/offbeat-home-desktop.webp",
-          alt: "OFFBEAT home: a hot-orange portable speaker in 3D, the line Plays your songs. Makes its own. and four finish swatches",
-          width: 1440,
-          height: 900,
-          crop: box(0, 0, 1440, 1, 840),
-          ring: box(1068, 672, 198, 1, 52),
-          entry: 650,
-        },
-        narrow: {
-          src: "/personal/shots/offbeat-phone.webp",
-          alt: "OFFBEAT home on a phone: the hot-orange 3D speaker",
-          width: 750,
-          height: 1624,
-          crop: box(0, 905, 750, 1, 640),
-          ring: box(126, 1086, 598, 1, 394),
-        },
+        key: "studio",
+        tab: "Sound studio",
+        result: "Its 8-step drum machine plays in the browser",
+        caption: "OFFBEAT sound studio. The brand is fictional.",
+        wide: { ...studio, crop: box(1190, 70, 1540, 1, 940), ring: box(1236, 405, 1452, 1, 474) },
+        narrow: { ...studio, crop: box(1390, 446, 1296, 1, 432), ring: box(2040, 452, 162, 1, 418) },
       },
     ],
   },
   {
-    id: "11",
+    id: "07",
     project: "FORM",
     line: "A concept exhibition of sculptures made from maths.",
     role: "Concept",
@@ -166,26 +176,18 @@ export const ownRows: OwnRow[] = [
     github: link("form"),
     views: [
       {
-        key: "home",
-        tab: "Home",
-        result: "Three sculptures that turn live, in three materials",
-        caption: "FORM home page. The exhibition is fictional.",
-        wide: {
-          src: "/personal/shots/form-home-desktop.webp",
-          alt: "FORM home: a copper trefoil knot, the title Objects of imagination. and the three sculptures Trefoil, Orbit and Bloom",
-          width: 1440,
-          height: 900,
-          crop: box(0, 0, 1440, 1, 840),
-          ring: box(46, 620, 162, 1, 44),
-          entry: 642,
-        },
+        key: "collection",
+        tab: "Collection",
+        result: "Three sculptures, each drawn live from a formula",
+        caption: "FORM collection. The exhibition is fictional.",
+        wide: { ...collection, crop: box(80, 500, 1466, 1, 1040), ring: box(98, 1472, 1030, 1, 52) },
         narrow: {
           src: "/personal/shots/form-phone.webp",
-          alt: "FORM home on a phone: the three sculptures Trefoil, Orbit and Bloom above the copper knot",
-          width: 750,
-          height: 1624,
-          crop: box(0, 840, 750, 1, 784),
-          ring: box(34, 860, 310, 1, 72),
+          alt: "FORM on a phone: the three sculptures Trefoil, Orbit and Bloom above the copper trefoil",
+          width: 780,
+          height: 1688,
+          crop: box(0, 840, 780, 1, 800),
+          ring: box(30, 856, 320, 1, 80),
         },
       },
     ],

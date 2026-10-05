@@ -33,11 +33,23 @@ export type Route = { kind: "side" } | { kind: "lane"; y: number } | { kind: "le
  */
 export type Kind = "fixed" | "earlier" | "shipped" | "own";
 
+/** One measured weight. The bar is drawn at "ratio" of its old length. */
+export interface Weight {
+  tag: string;
+  from: string;
+  to: string;
+  ratio: number;
+  /** The hairline rings this weight's new number. */
+  ring?: boolean;
+}
+
 export type Plate =
-  | { kind: "figure"; which: "billing" | "bundle" }
-  | { kind: "proof"; shot: Shot }
-  | { kind: "live"; key: "care" }
-  | { kind: "web"; shot: Shot; ground: string; dark?: boolean }
+  | { kind: "figure"; which: "bundle" }
+  /** The care app (a recreation) over the measured billing report. */
+  | { kind: "care"; head: string; weights: Weight[] }
+  | { kind: "proof"; shot: Shot; weights: Weight[] }
+  /** "center": the crop keeps its own ratio and sits on the ground colour, which matches the screen's own background. */
+  | { kind: "web"; shot: Shot; ground: string; dark?: boolean; fit?: "center" }
   | { kind: "phone"; shot: Shot };
 
 export interface Row {
@@ -58,6 +70,8 @@ export interface Row {
   note?: string;
   plate: Plate;
   caption: string;
+  /** The caption on a phone, when the phone plate leaves a part out. */
+  captionNarrow?: string;
   target?: Target;
   /** The part the 4:3 phone crop rings, when the wide target is outside it. */
   narrowTarget?: Target;
@@ -72,49 +86,31 @@ const box = (x: number, y: number, w: number, h: number, width: number, height: 
   h: h / height,
 });
 
+
 export const rows: Row[] = [
   {
     id: "01",
-    project: "Snaxx Tech",
-    role: "Owner, studio website",
-    year: "2026",
+    project: "Care-management platform",
+    role: "Frontend and full stack",
+    year: "2023–26",
     kind: "fixed",
-    then: "The studio site's pictures weighed 972\u00a0KB, and the whole site 28\u00a0MB.",
-    strike: ["972\u00a0KB", "28\u00a0MB"],
-    now: "337\u00a0KB of pictures.\n9.5\u00a0MB for the whole site.",
-    note: "About a third of the weight. Live at snaxxtech.com.",
+    then: "Many client organizations use this care app. One billing report asked the database 16 times and timed out.",
+    strike: ["16 times and timed out"],
+    now: "It asks 2 times and finishes.",
+    note: "Most screens are already rebuilt in React; a screen moves over only after it passes the same tests in both apps.",
     plate: {
-      kind: "proof",
-      shot: {
-        src: "/personal/shots/snaxx-desktop.webp",
-        alt: "Snaxx Tech home page: The Snaxx Almanac, an illustrated landscape of apps and games",
-        width: 1440,
-        height: 900,
-        crop: box(330, 78, 840, 451.5, 1440, 900),
-        narrow: box(320, 90, 860, 361.3, 1440, 900),
-      },
+      kind: "care",
+      head: "One billing report · requests to the database",
+      weights: [{ tag: "Requests", from: "16", to: "2", ratio: 2 / 16, ring: true }],
     },
-    caption: "Snaxx Tech home page, live. The weights are measured.",
+    caption: "Vitals card: recreation · invented data. The bar is the measured report, drawn to scale.",
+    captionNarrow: "The care app's vitals card: recreation · invented data.",
     target: { kind: "selector", css: "[data-to]" },
-    route: { kind: "lane", y: 0.65 },
-    link: { label: "snaxxtech.com", href: "https://www.snaxxtech.com/", external: true },
-  },
-  {
-    id: "02",
-    project: "Care platform, server side",
-    role: "Full stack",
-    year: "2026",
-    kind: "fixed",
-    then: "One billing report asked the database 16 times and gave up.",
-    strike: ["16 times and gave up"],
-    now: "It asks 2 times and finishes.",
-    plate: { kind: "figure", which: "billing" },
-    caption: "One billing report, before and after. A diagram.",
-    target: { kind: "selector", css: "[data-to]" },
+    route: { kind: "lane", y: 0.735 },
     link: { label: "Open the case", href: "/work/care-platform" },
   },
   {
-    id: "03",
+    id: "02",
     project: "Bayyinah TV",
     role: "Frontend, core team",
     year: "2023–26",
@@ -124,37 +120,25 @@ export const rows: Row[] = [
     note: "A new app of 34 pages, live at bayyinahtv.com.",
     plate: {
       kind: "web",
-      ground: "#1c1214",
+      ground: "#1b1315",
       dark: true,
+      fit: "center",
       shot: {
-        src: "/showcase/bayyinah/web-06.webp",
-        alt: "Bayyinah TV pricing page: a monthly and annual switch, the Premium plan at $11 a month and a Start 7-Day Free Trial button",
+        src: "/showcase/bayyinah/web-01.webp",
+        alt: "Bayyinah TV landing page: the app on a laptop, a desktop screen, a phone and a tablet",
         width: 1440,
         height: 900,
-        crop: box(520, 24, 880, 770, 1440, 900),
-        narrow: box(980, 0, 436, 327, 1440, 900),
+        crop: box(492, 150, 838, 540, 1440, 900),
+        narrow: box(750, 205, 580, 435, 1440, 900),
       },
     },
-    caption: "Pricing page of the new app, live and public.",
-    target: { kind: "shot", box: box(1068, 651, 228, 40, 1440, 900) },
-    narrowTarget: { kind: "shot", box: box(1114, 192, 136, 88, 1440, 900) },
+    caption: "Bayyinah TV landing page, live and public.",
+    target: { kind: "shot", box: box(1082, 390, 244, 256, 1440, 900) },
+    route: { kind: "lane", y: 0.9 },
     link: { label: "Open the case", href: "/work/bayyinah-tv" },
   },
   {
-    id: "04",
-    project: "Care-management platform",
-    role: "Frontend, team project",
-    year: "2026",
-    kind: "earlier",
-    then: "Many client organizations use one care app, first built in 2023.",
-    now: "Most screens are already rebuilt in React.",
-    note: "A screen moves over only after it passes the same tests in both apps.",
-    plate: { kind: "live", key: "care" },
-    caption: "Vitals card. Recreation · invented data.",
-    link: { label: "Open the case", href: "/work/care-platform" },
-  },
-  {
-    id: "05",
+    id: "03",
     project: "Read to Feed",
     role: "Mobile",
     year: "2022–25",
@@ -178,7 +162,7 @@ export const rows: Row[] = [
     link: { label: "Open the case", href: "/work/read-to-feed" },
   },
   {
-    id: "06",
+    id: "04",
     project: "Viva Fresh",
     role: "Mobile",
     year: "2023",
@@ -201,7 +185,7 @@ export const rows: Row[] = [
     link: { label: "Open the case", href: "/work/viva-fresh" },
   },
   {
-    id: "07",
+    id: "05",
     project: "Design System v2",
     role: "Design system, with the team",
     year: "2026",
@@ -214,10 +198,8 @@ export const rows: Row[] = [
     target: { kind: "selector", css: "[data-short]" },
     link: { label: "Open the case", href: "/work/design-system-react" },
   },
-
-
   {
-    id: "08",
+    id: "06",
     project: "Offday",
     role: "Owner",
     year: "2026",
@@ -225,7 +207,7 @@ export const rows: Row[] = [
     label: "Made",
     then: "A time-off app for teams: requests, approvals and one shared calendar.",
     now: "It warns when time off leaves a shift without cover.",
-    note: "It also finds the dates that give the longest break.",
+    note: "It also finds the dates that give the longest break. About 200 automated tests.",
     plate: {
       kind: "web",
       ground: "#ffffff",
@@ -238,62 +220,92 @@ export const rows: Row[] = [
         narrow: box(534, 612, 791, 593.3, 2880, 1800),
       },
     },
-    caption: "Offday shifts, light theme, demo workspace.",
+    caption: "Offday shifts, light theme, demo workspace. The code is private.",
     target: { kind: "shot", box: box(990, 874, 318, 150, 2880, 1800) },
     route: { kind: "level", y: 0.418 },
   },
   {
-    id: "09",
+    id: "07",
     project: "OFFBEAT",
     role: "Owner, concept",
     year: "2026",
     kind: "own",
     label: "Concept",
-    then: "A speaker brand that does not exist: a 3D speaker and its sound studio.",
-    now: "Its eight-step drum machine plays in the browser.",
-    note: "A groove shares as a link or saves as a sound file.",
+    then: "A speaker brand that does not exist, with a drum machine that plays in the browser.",
+    now: "Each beat becomes a record sleeve: the dots are its drum pattern.",
+    note: "The beat also downloads as a sound file.",
     plate: {
       kind: "web",
-      ground: "#111111",
+      ground: "#0e0e0e",
       dark: true,
       shot: {
-        src: "/personal/shots/offbeat-studio-desktop.webp",
-        alt: "OFFBEAT sound studio: the speaker with its step lights, and an eight-step drum machine with kick, snare, hi-hat and bass rows, presets, tempo and a swing dial",
+        src: "/personal/shots/offbeat-record-desktop.webp",
+        alt: "OFFBEAT record sleeve: the drum pattern of Kitchen disco printed as dots on a yellow sleeve, in front of a black record",
         width: 1440,
         height: 900,
-        crop: box(606, 247, 746, 652.8, 1440, 900),
-        narrow: box(66, 380, 522, 391.5, 1440, 900),
+        crop: box(29, 101, 640, 560, 1440, 900),
+        narrow: box(18, 122, 690, 517.5, 1440, 900),
       },
     },
-    caption: "OFFBEAT sound studio. A concept, not a real brand.",
-    target: { kind: "shot", box: box(700, 492, 636, 206, 1440, 900) },
+    caption: "OFFBEAT record sleeve. A concept, not a real brand.",
+    target: { kind: "shot", box: box(86, 258, 422, 228, 1440, 900) },
     link: { label: "Source on GitHub", href: "https://github.com/gentritr1/offbeat", external: true },
   },
   {
-    id: "10",
+    id: "08",
     project: "FORM",
     role: "Owner, concept",
     year: "2026",
     kind: "own",
     label: "Concept",
     then: "A sculpture show that does not exist: three forms made from mathematics.",
-    now: "Each sculpture renders live, in copper, chrome or porcelain.",
-    note: "Type a word and it casts a sculpture. No outside libraries.",
+    now: "Each sculpture is drawn live from its formula.",
+    note: "In copper, chrome or porcelain. Type a word and it casts a sculpture.",
     plate: {
       kind: "web",
       ground: "#1b1918",
       dark: true,
       shot: {
-        src: "/personal/shots/form-home-desktop.webp",
-        alt: "FORM home page: a copper trefoil knot sculpture with copper, chrome and porcelain material swatches",
+        src: "/personal/shots/form-studio-desktop.webp",
+        alt: "FORM collection: the Trefoil knot in copper, with its formula p(t) = ((2 + cos 3t) cos 2t, (2 + cos 3t) sin 2t, sin 3t)",
         width: 1440,
         height: 900,
-        crop: box(640, 140, 790, 691.2, 1440, 900),
-        narrow: box(610, 152, 807, 605.3, 1440, 900),
+        crop: box(44, 192, 722, 631.75, 1440, 900),
+        narrow: box(44, 240, 722, 541.5, 1440, 900),
       },
     },
-    caption: "FORM home page. A concept, not a real exhibition.",
-    target: { kind: "shot", box: box(1012, 774, 210, 52, 1440, 900) },
+    caption: "FORM collection. A concept, not a real exhibition.",
+    target: { kind: "shot", box: box(48, 734, 518, 30, 1440, 900) },
     link: { label: "Source on GitHub", href: "https://github.com/gentritr1/form", external: true },
+  },
+  {
+    id: "09",
+    project: "Snaxx Tech",
+    role: "Owner, studio website",
+    year: "2026",
+    kind: "own",
+    label: "Made",
+    then: "The website of his own app studio: an illustrated home page with a 3D scene.",
+    now: "All the site's files: 28 MB → 9.5 MB.",
+    note: "Its pictures: 972 KB → 337 KB.",
+    plate: {
+      kind: "proof",
+      shot: {
+        src: "/personal/shots/snaxx-desktop.webp",
+        alt: "Snaxx Tech home page: The Snaxx Almanac, an illustrated landscape of apps and games",
+        width: 1440,
+        height: 900,
+        crop: box(390, 78, 640, 344, 1440, 900),
+        narrow: box(320, 90, 860, 361.3, 1440, 900),
+      },
+      weights: [
+        { tag: "All files", from: "28 MB", to: "9.5 MB", ratio: 9.5 / 28, ring: true },
+        { tag: "Pictures", from: "972 KB", to: "337 KB", ratio: 337 / 972 },
+      ],
+    },
+    caption: "Snaxx Tech home page, live. The weights are measured.",
+    target: { kind: "selector", css: "[data-to]" },
+    route: { kind: "lane", y: 0.65 },
+    link: { label: "snaxxtech.com", href: "https://www.snaxxtech.com/", external: true },
   },
 ];

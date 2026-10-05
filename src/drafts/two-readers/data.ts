@@ -76,7 +76,7 @@ const side: Route = { kind: "side" };
 export const identity: Record<Reader, { title: string; line: string }> = {
   plain: {
     title: "Gentrit Rashiti has built web and mobile apps for 5+ years: apps people read in, shop in and learn from.",
-    line: "Part of two platform rewrites. The server side too, since 2026. Based in Kosovo, working remotely.",
+    line: "Part of two platform rewrites. Also works on the server side since 2026. Based in Kosovo, working remotely.",
   },
   engineer: {
     title: "Gentrit Rashiti has shipped TypeScript for 5+ years: Vue and React on the web, React Native to both app stores.",
@@ -111,14 +111,14 @@ export const rows: Row[] = [
       alt: "Read to Feed store screenshot: My Books, with 36% read of The Tale of Peter Rabbit and 90% of Anne of Green Gables",
       width: 780,
       height: 1689,
-      crop: { x: 38, y: 652, w: 704, h: 880 },
-      narrow: { x: 70, y: 645, w: 640, h: 480 },
+      crop: { x: 82, y: 514, w: 618, h: 773 },
+      narrow: { x: 82, y: 652, w: 618, h: 464 },
     },
     caption: "Store screenshot, iPhone. Shipped; the listings are now archived.",
     plain: {
       meta: "Mobile · 2022–25",
       line: "A reading app for children. About 14 updates shipped to both stores.",
-      result: "It remembers the page in every book.",
+      result: "It kept each child's place in every book.",
       target: { kind: "shot", box: { x: 330, y: 852, w: 312, h: 54 } },
       route: side,
     },
@@ -289,11 +289,12 @@ export const rows: Row[] = [
 
 /** The switch, shown working on one real pair of lines before anyone presses it. */
 export const hook = {
-  lead: "Every line on this page is written twice: in plain words, or with the tools named.",
+  lead: "Every line here is written twice. Pick the reader in the bar at the top.",
   plain: "built once for iPhone and Android",
   engineer: "one React Native codebase",
 };
 
+/** Own-project captures are 2x: two source pixels make one CSS pixel. A crop is never shown larger than its CSS size. */
 export interface OwnShot {
   src: string;
   alt: string;
@@ -314,8 +315,8 @@ export interface Own {
 }
 
 export const ownIntro: Record<Reader, string> = {
-  plain: "Made outside client work. OFFBEAT and FORM are concepts: their brands are made up.",
-  engineer: "Outside client work. OFFBEAT and FORM are fictional brands, built as concepts.",
+  plain: "Made outside client work: one app and two concepts. The OFFBEAT and FORM brands are made up.",
+  engineer: "Outside client work: one app and two concepts. OFFBEAT and FORM are fictional brands.",
 };
 
 export const own: Own[] = [
@@ -323,18 +324,18 @@ export const own: Own[] = [
     name: "Offday",
     kind: "Own project · 2026",
     wide: {
-      src: "/personal/shots/offday-light-calendar-desktop.webp",
-      alt: "Offday team calendar for October 2026 in the demo workspace, with leave bars, a public holiday and the approval queue",
+      src: "/personal/shots/offday-light-best-dates-desktop.webp",
+      alt: "Offday best dates: spend 3 days in the next 3 months, with five suggestions such as Fri 6 to Wed 11 Nov, 6 days off for 3 around Veterans Day",
       width: 2880,
       height: 1800,
-      crop: { x: 0, y: 0, w: 2880, h: 1410 },
+      crop: { x: 992, y: 892, w: 896, h: 792 },
     },
     narrow: {
-      src: "/personal/shots/offday-light-calendar-phone.webp",
-      alt: "Offday team calendar on a phone, with the request button and team counts",
+      src: "/personal/shots/offday-light-best-dates-phone.webp",
+      alt: "Offday best dates on a phone: spend 3 days in the next 3 months, with three suggestions of 6 days off for 3",
       width: 780,
       height: 1688,
-      crop: { x: 0, y: 0, w: 780, h: 840 },
+      crop: { x: 76, y: 1100, w: 628, h: 492 },
     },
     plain: "A time-off app for teams. It finds the dates that give the longest break.",
     engineer: "Next.js 16, SQLite and Zod. About 200 Playwright tests, tenant isolation included.",
@@ -343,18 +344,18 @@ export const own: Own[] = [
     name: "OFFBEAT",
     kind: "Concept · 2026",
     wide: {
-      src: "/personal/shots/offbeat-home-desktop.webp",
-      alt: "OFFBEAT home: a hot-orange portable speaker in 3D with finish swatches and the line Plays your songs. Makes its own.",
-      width: 1440,
-      height: 900,
-      crop: { x: 0, y: 0, w: 1440, h: 836 },
+      src: "/personal/shots/offbeat-studio-desktop.webp",
+      alt: "OFFBEAT sound studio: an eight-step drum machine with kick, snare, hi-hat and bass rows, the playing step in red, and the presets Kitchen disco, Sunday slow and Night drive",
+      width: 2880,
+      height: 1800,
+      crop: { x: 1200, y: 100, w: 1520, h: 830 },
     },
     narrow: {
       src: "/personal/shots/offbeat-phone.webp",
-      alt: "OFFBEAT home on a phone with the 3D speaker",
-      width: 750,
-      height: 1624,
-      crop: { x: 0, y: 930, w: 750, h: 610 },
+      alt: "OFFBEAT on a phone: the hot-orange speaker in 3D, with eight step lights on its grille",
+      width: 780,
+      height: 1688,
+      crop: { x: 66, y: 930, w: 676, h: 620 },
     },
     plain: "A made-up speaker brand. Its sound studio is a working drum machine.",
     engineer: "Next.js 16, Three.js and Web Audio: a 3D speaker and an eight-step drum machine.",
@@ -364,20 +365,20 @@ export const own: Own[] = [
     name: "FORM",
     kind: "Concept · 2026",
     wide: {
-      src: "/personal/shots/form-home-desktop.webp",
-      alt: "FORM home: a copper trefoil knot sculpture, the title Objects of imagination. and material swatches",
-      width: 1440,
-      height: 900,
-      crop: { x: 0, y: 0, w: 1440, h: 836 },
+      src: "/personal/shots/form-studio-desktop.webp",
+      alt: "FORM collection: the Trefoil in copper, with its formula p(t) = ((2 + cos 3t) cos 2t, (2 + cos 3t) sin 2t, sin 3t)",
+      width: 2880,
+      height: 1800,
+      crop: { x: 80, y: 400, w: 1464, h: 1332 },
     },
     narrow: {
       src: "/personal/shots/form-phone.webp",
-      alt: "FORM home on a phone with the copper trefoil",
-      width: 750,
-      height: 1624,
-      crop: { x: 0, y: 980, w: 750, h: 644 },
+      alt: "FORM on a phone: the copper trefoil sculpture",
+      width: 780,
+      height: 1688,
+      crop: { x: 60, y: 996, w: 680, h: 654 },
     },
-    plain: "A made-up sculpture show. Type a word, and it becomes a sculpture.",
+    plain: "A made-up sculpture show. Each sculpture is drawn live from a math formula.",
     engineer: "WebGL with no dependencies: three mathematical sculptures, rendered live.",
     link: { href: "https://github.com/gentritr1/form", label: "FORM on GitHub" },
   },

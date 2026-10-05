@@ -41,7 +41,8 @@ const STAGGER_MS = 30;
 const SCROLL_IDLE_MS = 140;
 const EASE_OUT = "cubic-bezier(0.23, 1, 0.32, 1)";
 
-const FONT_WAIT_MS = 300;
+/* The CSS hold on the text (tr-font-hold) lasts 250 ms. A face that arrives later is not used on this visit. */
+const FONT_WAIT_MS = 230;
 
 const fontFaces =
   typeof FontFace === "undefined"
@@ -58,10 +59,11 @@ function useFonts() {
   useLayoutEffect(() => {
     if (ready) return;
     let done = false;
+    const start = performance.now();
     const show = (use: boolean) => {
       if (done) return;
       done = true;
-      if (use) fontFaces.forEach((face) => document.fonts.add(face));
+      if (use && performance.now() - start <= FONT_WAIT_MS) fontFaces.forEach((face) => document.fonts.add(face));
       setReady(true);
     };
     if (fontFaces.every((face) => face.status === "loaded")) {
@@ -256,7 +258,7 @@ function PlateView({
 function OwnView({ shot }: { shot: OwnShot }) {
   const { crop } = shot;
   return (
-    <div className="tr-own-shot" style={{ aspectRatio: `${crop.w} / ${crop.h}`, maxWidth: crop.w }}>
+    <div className="tr-own-shot" style={{ aspectRatio: `${crop.w} / ${crop.h}`, width: crop.w / 2 }}>
       <img
         src={shot.src}
         alt={shot.alt}
@@ -384,6 +386,7 @@ function measureWire(row: Row, reader: Reader, rowElement: HTMLElement, plate: H
 
 export default function Draft() {
   const narrow = useMedia("(max-width: 1023px)", false);
+  const ownNarrow = useMedia("(max-width: 767px)", false);
   const reduced = useMedia("(prefers-reduced-motion: reduce)", false);
   const [params, setParams] = useSearchParams();
   const reader: Reader = params.get("read") === "engineer" ? "engineer" : "plain";
@@ -872,6 +875,31 @@ export default function Draft() {
   return (
     <div className="tr" ref={rootRef} data-read={reader} data-fonts={fonts ? undefined : "wait"}>
       <title>Two readers — Gentrit Rashiti</title>
+      <div className="tr-switch-bar">
+        <div className="tr-switch-in">
+          <p className="tr-switch-name" aria-hidden="true">
+            Gentrit Rashiti
+          </p>
+          <div className="tr-switch" role="radiogroup" aria-label="Same facts for" onKeyDown={onSwitchKey}>
+            <span className="tr-switch-label" aria-hidden="true">
+              Same facts for
+            </span>
+            {(["plain", "engineer"] as const).map((option) => (
+              <button
+                key={option}
+                type="button"
+                role="radio"
+                data-reader={option}
+                aria-checked={reader === option}
+                tabIndex={reader === option ? 0 : -1}
+                onClick={(event) => choose(option, event.detail === 0)}
+              >
+                {option === "plain" ? "Hiring manager" : "Engineer"}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
       <div className="tr-main">
         <div className="tr-col">
           <header className="tr-id">
@@ -899,27 +927,6 @@ export default function Draft() {
                 <dd>{hook.engineer}</dd>
               </div>
             </dl>
-          </div>
-
-          <div className="tr-switch-bar">
-            <div className="tr-switch" role="radiogroup" aria-label="Same facts for" onKeyDown={onSwitchKey}>
-              <span className="tr-switch-label" aria-hidden="true">
-                Same facts for
-              </span>
-              {(["plain", "engineer"] as const).map((option) => (
-                <button
-                  key={option}
-                  type="button"
-                  role="radio"
-                  data-reader={option}
-                  aria-checked={reader === option}
-                  tabIndex={reader === option ? 0 : -1}
-                  onClick={(event) => choose(option, event.detail === 0)}
-                >
-                  {option === "plain" ? "Hiring manager" : "Engineer"}
-                </button>
-              ))}
-            </div>
           </div>
 
           <ol className="tr-log" aria-label="Seven pieces of work" onKeyDown={onLogKey}>
@@ -1051,7 +1058,7 @@ export default function Draft() {
             {own.map((item) => (
               <li key={item.name} className="tr-own-item">
                 <figure>
-                  <OwnView shot={narrow ? item.narrow : item.wide} />
+                  <OwnView shot={ownNarrow ? item.narrow : item.wide} />
                   <figcaption>
                     <h3>{item.name}</h3>
                     <p className="tr-own-kind">{item.kind}</p>
@@ -1061,8 +1068,8 @@ export default function Draft() {
                     {item.link && (
                       <p className="tr-own-link">
                         <a href={item.link.href} target="_blank" rel="noreferrer">
-                          {item.link.label}
-                          <span aria-hidden="true"> ↗</span>
+                          <span className="tr-own-link-text">{item.link.label}</span>
+                          <span aria-hidden="true">↗</span>
                         </a>
                       </p>
                     )}

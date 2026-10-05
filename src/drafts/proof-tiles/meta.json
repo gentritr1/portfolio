@@ -3,8 +3,8 @@
   "title": "PROOF TILES",
   "band": "Loop 9",
   "rule": "every tile is a crop of the part that proves its caption, and its caption is a result",
-  "description": "The lead is Viva Fresh, a shipped grocery app: its home screen from the App Store listing, cut inside the store frame, beside the line 'One grocery app, built once for iPhone and Android.' The two platform words are the control. Press Android and the Google Play screenshot of the same screen wipes in over the iPhone one, row for row, so the visitor sees what changes (the store) and what stays (the app). Beside the lead: the 16 -> 2 billing figure and the Bayyinah TV price. Then rows of 16:10 proof tiles (care, Incentiv, Design System v2, Read to Feed, Dukagjini, bayyinah.org), then 'Own projects': four light Offday screens (approvals, shifts that need cover, best dates, drag to pick days), OFFBEAT's drum machine and FORM's formula, larger, in two columns, with GitHub links. Each tile is a crop of the part that proves its caption, with a vermilion ring on that part.",
-  "signature": "Archivo and Martian Mono (font-display optional, preloaded, 300 ms cap). Paper #ECECE8, ink #111111, muted #53534D, one accent vermilion #FF5A36 for proof only (rings, bands, the pressed platform word, the wipe edge). First screen at 1440: column 1 the Viva Fresh screen (432 x 628, a 596 x 866 iPhone crop or a 498 x 724 Android crop, one ratio, drawn smaller than the source); column 2 'Gentrit Rashiti builds web and mobile apps. Each result here is shown with its proof.', '5+ years. Part of two platform rewrites. Based in Kosovo, working remotely.', Download CV, Email, then at the bottom the lead result with the two platform buttons, the scope line and App Store, Google Play and Case links; column 3 the billing figure and the Bayyinah TV price tile. Motion: the platform wipe (clip-path inset on the new layer plus a 3 px vermilion edge moving by transform, 300 ms, cubic-bezier(0.77, 0, 0.175, 1); a second press during a wipe plays it back from where it is; reduced motion swaps at once), and tile feedback (page ground takes the tile hue 200 ms, a halo closes on the ring, the proof band fills). Phone: who, then the lead result and its switch, then the screen it switches, then the store links.",
+  "description": "The lead is Viva Fresh, a shipped grocery app: its home screen from the App Store listing, cut inside the store frame, beside the line 'One grocery app, built once for iPhone and Android.' The two platform words are the control. Press Android and the Google Play screenshot of the same screen wipes in over the iPhone one, row for row. Beside the lead: the 16 -> 2 billing figure and the Incentiv passkey sign-in, so the first screen shows a mobile app, a server result and a web screen. Then 'More client work' (care platform, Design System v2, Dukagjini Bookstore), then 'Own projects': two light Offday screens (a shift flagged for cover, best dates), OFFBEAT's whole drum machine and FORM's trefoil with its formula, in two columns, with GitHub links. Each tile is a crop of the part that proves its caption, with a vermilion ring on that part and a soft highlighter band on the proved words.",
+  "signature": "Archivo and Martian Mono (font-display optional, preloaded, 300 ms cap). Paper #ECECE8, ink #111111, muted #53534D, one accent vermilion #FF5A36 for proof only (rings, bands, the pressed platform word, the wipe edge). First screen at 1440: column 1 the Viva Fresh screen (432 x 628, a 596 x 866 iPhone crop or a 498 x 724 Android crop, one ratio, drawn smaller than the source); column 2 'Gentrit Rashiti builds web and mobile apps. Each result here is shown with its proof.', '5+ years. Part of two platform rewrites. Based in Kosovo, working remotely.', Download CV, Email, then at the bottom the lead result with the two platform buttons, the scope line and App Store, Google Play and Case links; column 3 the billing figure and the Incentiv passkey tile. Motion: the platform wipe (clip-path inset on the new layer plus a 3 px vermilion edge moving by transform, 300 ms, cubic-bezier(0.77, 0, 0.175, 1); a second press during a wipe plays it back from where it is; reduced motion swaps at once), and tile feedback (page ground takes the tile hue 200 ms, a halo closes on the ring, the proof band fills). Phone: who, then the lead result and its switch, then the screen it switches, then the store links.",
   "caseSlug": "care-platform",
   "mechanisms": [
     "proof crop",
@@ -24,10 +24,10 @@
     "original": 7,
     "hooks": 8
   },
-  "holdback": "Lowest: original, 7. Below the lead, the page is still a grid of 16:10 tiles, a layout recruiters know; the new parts are the proof ring on every crop and the platform switch inside the lead sentence. A before/after wipe is a known device; here it compares the same screen from two store listings, which is the claim itself. Other limits: the Viva Fresh crops come from store frames at about 1.6x and are drawn at 0.72 (iPhone) and 0.87 (Android) at 1440, so they are sharp but not phone-size; the Offday approvals phone crop is 639 source px for a 343 px tile (2x source, so 1.86 device px per CSS px, 7% under the 2x line); the FORM crop cuts the top of the sculpture so that the formula line stays whole, and on phone the formula is about 8 px; the best-dates crop shows the blurred page at both sides of the dialog; the 1440 lead column has a 118 px gap between the actions and the lead line, kept so that the lead line ends level with the screen; the phone page is about 10,700 px long (15 tiles and the index of 30); headless capture does not advance animation time, so the interrupt is shown by a log from the real browser pane.",
+  "holdback": "Lowest: original, 7. Below the lead the page is still a grid of tiles, a layout recruiters know; the new parts are the proof ring on every crop and the platform switch inside the lead sentence. Other limits: the first screen still shows three exhibits (Viva Fresh, the billing figure, Incentiv); the 2x OFFBEAT and FORM crops show at 0.90 and 0.80 of their CSS size at 1440 (whole grid and whole sculpture with its formula do not fit a 660 px tile at 1.0; text stays at 11 px or more); on phone the drum machine shows the cells only (0.52), because the row names would be under 11 px; the Viva Fresh, Incentiv and Dukagjini crops come from 1x store and web captures, so on a 2x screen they are enlarged 1.2x to 2.6x; Offday has no link because its code is private; the phone page is about 7,500 px (was 10,735) and still ends in the 30-row index; headless capture does not advance animation time, so the wipe interrupt is shown by the round-9 real-browser log.",
   "chroma": {
-    "firstScreen": 11.0,
-    "outsidePlates": 1.1,
+    "firstScreen": 10.8,
+    "outsidePlates": 0.7,
     "plateRects": [
       [
         48,
@@ -43,12 +43,12 @@
       ],
       [
         960,
-        392,
+        391,
         1392,
-        662
+        661
       ]
     ],
-    "method": "chroma-pt.mjs (same decode and threshold as scratchpad/chroma6r.mjs) on review/loop9/proof-tiles/final/d-top.png (1440 x 900), captured last. outsidePlates counts the billing figure as a plate; with the figure counted as page it is 12.4%."
+    "method": "review/loop8/proof-tiles/chroma-pt.mjs (same decode and threshold as scratchpad/chroma6r.mjs) on review/loop9b/proof-tiles/final/d-top.png (1440 x 900), captured last. outsidePlates counts the billing figure as a plate."
   },
   "hues": {
     "method": "OKLCH hue histogram, chroma-weighted, 1 degree bins smoothed over 13 degrees, over each desktop crop in source pixels (review/loop8/proof-tiles/hue.mjs); live tiles use their world accent",
@@ -103,6 +103,26 @@
         "Meta lines never start with an orphan '· 2026' (role and year kept together).",
         "Crops: Android crop tightened to exclude the phone frame corner and the scroll bar; 2x captures use a density field so they show at native CSS size.",
         "1200 to 1399 px: smaller name and lead line so the lead words do not touch the actions."
+      ]
+    },
+    {
+      "round": 9,
+      "pass": "b",
+      "score": 56,
+      "fixed": [
+        "Bayyinah TV pricing tile and '$11 a month' removed from the page (devil objection 1: three of five pages show one client's price table; no 16:10 crop of that page proves 'web, iPhone or Android' without the price or a lone tick). The first screen now shows Viva Fresh, the billing figure and the Incentiv passkey sign-in: no other draft's lead screen.",
+        "Offday index line: 'covered by about 200 automated tests. The code is private.' (was the unsourced '16 tests prove ... never').",
+        "Offday cut to two tiles on whole UI parts: Shifts shows Monday to Friday and ends on a whole row (was cut at Thursday); Best dates shows only the dialog's suggestion list and the working-day line, on white, with no blurred page (clip inside the crop). Approvals and drag tiles removed (devil: two crops cut mid-UI).",
+        "Proof words carry a soft highlighter band behind the lower half of the letters, not a line under them; links stay thin ink underlines (devil: red underlines looked like links).",
+        "OFFBEAT and FORM use the new 2x captures: the whole 8-step drum machine with its presets at 0.90 and the whole trefoil with its formula at 0.80 at 1440; phone drum machine shows the whole 8 x 4 grid (critic polish 4); FORM on phone uses the phone capture and rings the three sculpture tabs, so no formula text is under 11 px.",
+        "Phone page 10,735 -> 7,529 px: 15 tiles -> 10 (Read to Feed, bayyinah.org and Bayyinah TV tiles go to the index), phone crops sized to their content, and a compact index (name, line, link; 77 px rows).",
+        "Tab focus never animates the page: scroll-behavior auto on the page root. Evidence: Tab to the care tile, scrollY 734 at 16 ms and at 600 ms.",
+        "Second tile row is under the fold at 1440 (grid top y 913) behind a visible 'More client work' heading that says which cards are recreations (critic polish 3).",
+        "The lead sentence keeps a 44 px line: the platform pills are 40 px tall with a 44 px hit area (measured by elementFromPoint 2 px above and below), not 52 px lines (critic harmony).",
+        "Removed the control legend 'Press iPhone or Android...' and 'really' from the OFFBEAT line (devil filler).",
+        "Footer no longer says 'never enlarged' (critic: false on 2x screens).",
+        "Own projects intro says Offday's code is private and that OFFBEAT and FORM are concepts with code on GitHub (devil objection 3: no Offday link).",
+        "1000 to 1399 px: own-project words sit beside the 720 px picture, so the row has no empty half."
       ]
     }
   ]

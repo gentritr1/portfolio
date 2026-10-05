@@ -98,7 +98,7 @@
   margin: 0 auto;
   /* The frame and its caption fill the first screen with one margin above and below. */
   --pj-fw: 880px;
-  --pj-top: max(24px, calc((100dvh - var(--pj-fw) * 676 / 880 - 36px) / 2));
+  --pj-top: clamp(24px, calc((100dvh - var(--pj-fw) * 676 / 880 - 36px) / 2), 48px);
 }
 
 .pj-id {
@@ -147,6 +147,30 @@
   list-style: none;
   margin: 32px 0 0;
   padding: 0 0 96px;
+}
+
+/* The first log keeps its last row current while the frame is still pinned. */
+.pj-lead .pj-log {
+  padding-bottom: 160px;
+}
+
+/* The log after the own projects opens like a band: a rule, a title and one line. */
+.pj-more {
+  border-top: 1px solid var(--pj-ink);
+}
+
+.pj-band-title,
+.pj-own-head h2 {
+  margin: 0;
+  font-size: 32px;
+  line-height: 1.12;
+  font-weight: 700;
+  letter-spacing: -0.022em;
+}
+
+.pj-more .pj-id .pj-line {
+  margin-top: 16px;
+  max-width: 34ch;
 }
 
 .pj-frame-wrap {
@@ -224,6 +248,67 @@
   font-weight: 500;
   letter-spacing: -0.012em;
   text-wrap: pretty;
+}
+
+/* The two platform words are the switch. Each is 44 px tall; its margin box keeps the line height. */
+.pj-pills {
+  white-space: nowrap;
+}
+
+.pj-pill {
+  position: relative;
+  z-index: 0;
+  display: inline-block;
+  height: 44px;
+  margin: -8px 0 -9px;
+  padding: 0 8px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  line-height: 44px;
+  letter-spacing: inherit;
+  vertical-align: baseline;
+  cursor: pointer;
+  transition: color 150ms ease;
+}
+
+.pj-pill::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 8px 0;
+  border-radius: 6px;
+  box-shadow: inset 0 0 0 1.5px var(--pj-ink);
+  transition: background-color 150ms ease;
+}
+
+.pj-pill[aria-pressed="true"] {
+  color: var(--pj-field);
+  cursor: default;
+}
+
+.pj-pill[aria-pressed="true"]::before {
+  background: var(--pj-ink);
+}
+
+.pj-pill:active:not([aria-pressed="true"])::before {
+  transform: scale(0.97);
+}
+
+.pj .pj-pill:focus-visible {
+  outline: none;
+}
+
+.pj-pill:focus-visible::before {
+  outline: 2px solid var(--pj-ink);
+  outline-offset: 1px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .pj-pill[aria-pressed="false"]:hover::before {
+    background: rgb(20 27 6 / 0.08);
+  }
 }
 
 .pj-result {
@@ -361,8 +446,8 @@
 }
 
 .pj-plate[data-mode="instant"],
-.pj[data-instant] .pj-plate,
-.pj[data-instant] .pj-result-ink {
+.pj-main[data-instant] .pj-plate,
+.pj-main[data-instant] .pj-result-ink {
   transition: none;
 }
 
@@ -494,6 +579,135 @@
   height: auto;
 }
 
+/* Row 01: the web page and a store frame at their own sizes, with the three places to subscribe under the web page. */
+.pj-duo {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: 500px minmax(0, 1fr);
+  grid-template-rows: 580px minmax(0, 1fr);
+  grid-template-areas:
+    "web store"
+    "side store";
+  color: #f4ebe6;
+}
+
+.pj-duo-web {
+  grid-area: web;
+  width: 500px;
+  height: 580px;
+}
+
+.pj-duo-web .pj-shot {
+  width: 100%;
+  height: 100%;
+}
+
+.pj-duo-store {
+  grid-area: store;
+  justify-self: end;
+  height: 100%;
+}
+
+.pj-duo-store .pj-shot {
+  height: 100%;
+}
+
+.pj-duo-side {
+  grid-area: side;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 0 20px;
+}
+
+.pj-duo-kicker {
+  margin: 0;
+  font-family: var(--pj-display);
+  font-size: 16px;
+  line-height: 1;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: #cbbab2;
+}
+
+.pj-duo-stores {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 12px;
+  margin: 0 0 0 -4px;
+  padding: 0;
+  list-style: none;
+  font-family: var(--pj-text);
+}
+
+.pj-duo-stores a {
+  display: inline-flex;
+  padding: 0 4px;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  font-size: 17px;
+  font-weight: 600;
+  text-decoration-color: rgb(244 235 230 / 0.45);
+}
+
+.pj .pj-duo :focus-visible {
+  outline-color: var(--pj-field);
+}
+
+/* Row 04: the two store screens share one box; the new one wipes in over the old one. */
+.pj-pair-box {
+  position: relative;
+  flex: none;
+  height: 100%;
+  overflow: hidden;
+  isolation: isolate;
+  box-shadow: -1px 0 0 rgb(20 27 6 / 0.16);
+}
+
+.pj-pair-layer {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  visibility: hidden;
+}
+
+.pj-pair-layer[data-leaving] {
+  z-index: 1;
+  visibility: visible;
+}
+
+.pj-pair-layer[data-on] {
+  z-index: 2;
+  visibility: visible;
+}
+
+.pj-pair-layer .pj-shot {
+  width: 100%;
+  height: 100%;
+}
+
+.pj-pair-edge {
+  position: absolute;
+  z-index: 3;
+  top: 0;
+  bottom: 0;
+  left: -1px;
+  width: 2px;
+  background: var(--pj-ink);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.pj-pair-mark {
+  position: absolute;
+  pointer-events: none;
+}
+
 /* The billing report as a diagram: one cell for each request to the database. */
 .pj-report {
   position: absolute;
@@ -555,27 +769,59 @@
 }
 
 .pj-report-cells {
+  position: relative;
   grid-area: cells;
   display: grid;
   grid-template-columns: repeat(16, minmax(0, 1fr));
   gap: 0.7cqw;
 }
 
-.pj-report-cells span {
+.pj-report-cells > span:not(.pj-report-fill) {
   height: 8cqw;
   border-radius: 0.5cqw;
   box-shadow: inset 0 0 0 max(1px, 0.17cqw) var(--pj-ink);
 }
 
-.pj-report-lane[data-lane="now"] .pj-report-cells span {
+.pj-report-lane[data-lane="now"] .pj-report-cells > span:not(.pj-report-fill) {
   background: var(--pj-ink);
 }
 
 /* The requests the report no longer makes keep their place, so 2 reads against the same 16. */
-.pj-report-lane[data-lane="now"] .pj-report-cells span[data-gone] {
+.pj-report-lane[data-lane="now"] .pj-report-cells > span:not(.pj-report-fill)[data-gone] {
   background: transparent;
   box-shadow: none;
   border: max(1px, 0.17cqw) dashed rgb(20 27 6 / 0.4);
+}
+
+/*
+ * The Now lane starts as full as the Before lane and shrinks to its 2 requests
+ * when the row becomes current. The clip edge sits in the gap after cell 2:
+ * 87.5% of the lane plus 3/8 of one gap.
+ */
+.pj-report-fill {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(16, minmax(0, 1fr));
+  gap: 0.7cqw;
+  clip-path: inset(0 0 0 0);
+}
+
+.pj-report-fill span {
+  border-radius: 0.5cqw;
+  background: var(--pj-ink);
+}
+
+.pj-plate[data-state="on"] .pj-report-fill,
+.pj-plate[data-state="prev"] .pj-report-fill {
+  clip-path: inset(0 calc(87.5% + 0.2625cqw) 0 0);
+  transition: clip-path 420ms var(--pj-ease-out) 160ms;
+}
+
+.pj-plate[data-state="prev"] .pj-report-fill,
+.pj-plate[data-mode="instant"] .pj-report-fill,
+.pj-main[data-instant] .pj-report-fill {
+  transition: none;
 }
 
 .pj-report-end {
@@ -703,13 +949,6 @@
   align-items: baseline;
 }
 
-.pj-own-head h2 {
-  margin: 0;
-  font-size: 32px;
-  line-height: 1.12;
-  font-weight: 700;
-  letter-spacing: -0.022em;
-}
 
 .pj-own-head .pj-line {
   margin: 0;
@@ -776,6 +1015,12 @@
   opacity: 1;
   visibility: visible;
   transition: none;
+}
+
+.pj-own-crop {
+  position: absolute;
+  display: block;
+  overflow: hidden;
 }
 
 .pj-own-view img {
@@ -949,11 +1194,6 @@
 
   .pj-own-head {
     display: block;
-  }
-
-  .pj-own-head h2 {
-    font-size: 23px;
-    line-height: 1.2;
   }
 
   .pj-own-head .pj-line {
@@ -1155,9 +1395,76 @@
     display: none;
   }
 
+  .pj-pair-box {
+    width: 100%;
+    height: auto;
+    box-shadow: none;
+  }
+
+  .pj-duo {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: minmax(0, 1fr);
+    grid-template-areas: "side store";
+  }
+
+  .pj-duo-side {
+    gap: 8px;
+    padding: 0 12px 0 16px;
+  }
+
+  .pj-duo-kicker {
+    font-size: 13px;
+  }
+
+  .pj-duo-stores {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .pj-duo-stores a {
+    min-height: 36px;
+    font-size: 14px;
+  }
+
+  .pj-band-title,
+  .pj-own-head h2 {
+    font-size: 23px;
+    line-height: 1.2;
+  }
+
+  .pj-more .pj-id {
+    padding-top: 48px;
+  }
+
+  .pj-more .pj-id .pj-line {
+    margin-top: 8px;
+  }
+
+  .pj-lead .pj-log {
+    padding-bottom: 48px;
+  }
+
+  .pj-pill {
+    margin: -11px 0;
+    padding: 0 6px;
+  }
+
+  .pj-pill::before {
+    inset: 10px 0;
+    border-radius: 5px;
+  }
+
   .pj-phone .pj-shot {
     width: 100%;
     box-shadow: none;
+  }
+}
+
+/* The frame scales its plate down under 1440 px, so links inside a plate grow back to a 44 px target. */
+@media (min-width: 1024px) {
+  .pj-duo-stores a,
+  .pj-stores a {
+    min-height: max(44px, calc(44px / var(--k, 1)));
   }
 }
 
@@ -1206,6 +1513,10 @@
   .pj-own-view[data-state="on"],
   .pj-own-row[data-on] .pj-own-band[data-current] .pj-result-ink,
   .pj-own-tabs button,
+  .pj-report-fill,
+  .pj-plate[data-state="on"] .pj-report-fill,
+  .pj-pill,
+  .pj-pill::before,
   .pj-wire g {
     transition: none;
   }

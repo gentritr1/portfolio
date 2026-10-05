@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent } from "react";
 import { ArrowRightIcon, ArrowUpRightIcon } from "@phosphor-icons/react";
+import type { Box } from "./data";
 import { ownRows, type OwnRow, type OwnShot } from "./personal";
 
 const FADE_MS = 200;
@@ -35,31 +36,48 @@ const lengthOf = (points: Point[]) =>
 
 const percent = (value: number) => `${(value * 100).toFixed(4)}%`;
 
+/** The plate box in source pixels: the crop, or a wider stage the crop sits in. */
+const boxOf = (shot: OwnShot): Box =>
+  shot.stage
+    ? { x: shot.crop.x - (shot.stage.w - shot.crop.w) / 2, y: shot.crop.y - (shot.stage.h - shot.crop.h) / 2, w: shot.stage.w, h: shot.stage.h }
+    : shot.crop;
+
 function Shot({ shot, eager }: { shot: OwnShot; eager: boolean }) {
   const { crop, ring } = shot;
+  const stage = boxOf(shot);
   return (
     <>
-      <img
-        src={shot.src}
-        alt={shot.alt}
-        width={shot.width}
-        height={shot.height}
-        loading={eager ? "eager" : "lazy"}
-        decoding="async"
+      <span
+        className="pj-own-crop"
         style={{
-          width: percent(shot.width / crop.w),
-          left: percent(-crop.x / crop.w),
-          top: percent(-crop.y / crop.h),
+          left: percent((crop.x - stage.x) / stage.w),
+          top: percent((crop.y - stage.y) / stage.h),
+          width: percent(crop.w / stage.w),
+          height: percent(crop.h / stage.h),
         }}
-      />
+      >
+        <img
+          src={shot.src}
+          alt={shot.alt}
+          width={shot.width}
+          height={shot.height}
+          loading={eager ? "eager" : "lazy"}
+          decoding="async"
+          style={{
+            width: percent(shot.width / crop.w),
+            left: percent(-crop.x / crop.w),
+            top: percent(-crop.y / crop.h),
+          }}
+        />
+      </span>
       <span
         className="pj-own-target"
         aria-hidden="true"
         style={{
-          left: percent((ring.x - crop.x) / crop.w),
-          top: percent((ring.y - crop.y) / crop.h),
-          width: percent(ring.w / crop.w),
-          height: percent(ring.h / crop.h),
+          left: percent((ring.x - stage.x) / stage.w),
+          top: percent((ring.y - stage.y) / stage.h),
+          width: percent(ring.w / stage.w),
+          height: percent(ring.h / stage.h),
         }}
       />
     </>
@@ -128,13 +146,19 @@ function OwnItem({ row, narrow, reduced }: { row: OwnRow; narrow: boolean; reduc
     });
     const t = local(target.getBoundingClientRect());
     const p = local(plate.getBoundingClientRect());
-    const box = { x: t.x - PAD, y: t.y - PAD, w: t.w + PAD * 2, h: t.h + PAD * 2 };
+    /* The ring stays inside the plate, 1 px from its edge. */
+    const x0 = Math.max(t.x - PAD, p.x + 1);
+    const y0 = Math.max(t.y - PAD, p.y + 1);
+    const x1 = Math.min(t.x + t.w + PAD, p.x + p.w - 1);
+    const y1 = Math.min(t.y + t.h + PAD, p.y + p.h - 1);
+    const box = { x: x0, y: y0, w: x1 - x0, h: y1 - y0 };
     const shot = narrow ? row.views[view].narrow : row.views[view].wide;
     const last = local(fragments[fragments.length - 1]);
     const start: Point = [Math.round(last.x + last.w + 10), Math.round(last.y + last.h / 2)];
     const edge = Math.round(p.x);
     const gutter = edge - 20;
-    const entry = shot.entry === undefined ? t.y + t.h / 2 : p.y + ((shot.entry - shot.crop.y) / shot.crop.h) * p.h;
+    const stage = boxOf(shot);
+    const entry = shot.entry === undefined ? t.y + t.h / 2 : p.y + ((shot.entry - stage.y) / stage.h) * p.h;
     const ey = Math.round(entry);
     const outside: Point[] = [start, [gutter, start[1]], [gutter, ey], [edge, ey]];
     const inside: Point[] = [[edge, ey]];
@@ -286,7 +310,7 @@ function OwnItem({ row, narrow, reduced }: { row: OwnRow; narrow: boolean; reduc
   const tabs = row.views.length > 1;
   const plateId = `pj-own-${row.id}`;
   const shotOf = (index: number) => (narrow ? row.views[index].narrow : row.views[index].wide);
-  const ratio = (shot: OwnShot) => `${shot.crop.w} / ${shot.crop.h}`;
+  const ratio = (shot: OwnShot) => `${boxOf(shot).w} / ${boxOf(shot).h}`;
 
   return (
     <li
@@ -359,7 +383,14 @@ function OwnItem({ row, narrow, reduced }: { row: OwnRow; narrow: boolean; reduc
           {row.views.map((item, index) => {
             const state = index === current ? "on" : index === prev ? "prev" : "off";
             return (
-              <div key={item.key} className="pj-own-view" data-view={index} data-state={state} aria-hidden={state !== "on"}>
+              <div
+                key={item.key}
+                className="pj-own-view"
+                data-view={index}
+                data-state={state}
+                aria-hidden={state !== "on"}
+                style={{ background: shotOf(index).stage?.ground }}
+              >
                 <Shot shot={shotOf(index)} eager={false} />
               </div>
             );
@@ -428,7 +459,7 @@ export function Own({ narrow, reduced }: { narrow: boolean; reduced: boolean }) 
         <h2 id="pj-own-title">Own projects</h2>
         <p className="pj-line">Made outside client work: one working app and two design concepts.</p>
       </header>
-      <ol className="pj-own-list" start={9}>
+      <ol className="pj-own-list" start={5}>
         {ownRows.map((row) => (
           <OwnItem key={row.id} row={row} narrow={narrow} reduced={reduced} />
         ))}

@@ -14,7 +14,7 @@
   font-display: swap;
 }
 
-/* When the two faces miss the 300 ms wait, the page keeps these faces for the visit. They match the widths and line metrics of Literata and Anton. */
+/* When the two faces miss the 120 ms wait, the page keeps these faces for the visit. They match the widths and line metrics of Literata and Anton. */
 @font-face {
   font-family: "Literata Fallback";
   src: local("Georgia");
@@ -87,7 +87,7 @@
   -webkit-font-smoothing: antialiased;
 }
 
-/* The text waits at most 300 ms for its two faces. The paper shows at once. */
+/* The text waits at most 120 ms for its two faces. The paper shows at once. */
 .tn:not([data-laid]) > * {
   display: none;
 }
@@ -147,9 +147,14 @@
   padding-bottom: 48px;
   /* The frame and its caption fill the first screen with one margin above and below. */
   --tn-gap: 64px;
-  --tn-fw: 640px;
+  --tn-mat: 12px;
+  --tn-fw: 664px;
   --tn-cap: 108px;
-  --tn-top: clamp(32px, calc((100dvh - var(--tn-fw) * 560 / 640 - var(--tn-cap)) / 2), 96px);
+  --tn-top: clamp(
+    32px,
+    calc((100dvh - (var(--tn-fw) - 2 * var(--tn-mat)) * 560 / 640 - 2 * var(--tn-mat) - var(--tn-cap)) / 2),
+    96px
+  );
 }
 
 /* The accent field holds the frame: the products sit on the colour of the result. It runs from half the gap to the screen edge. */
@@ -473,14 +478,21 @@
   position: relative;
 }
 
+/* A paper mat holds every screen, so a dark screen never meets the accent field edge to edge. */
+.tn-mat {
+  padding: var(--tn-mat);
+  border-radius: 16px;
+  background: var(--tn-paper);
+}
+
 .tn-screen {
   position: relative;
   width: 100%;
   aspect-ratio: 640 / 560;
   overflow: hidden;
-  border-radius: 12px;
+  border-radius: 6px;
   background: var(--tn-white);
-  box-shadow: 0 0 0 1px var(--tn-ink);
+  box-shadow: 0 0 0 1px var(--tn-rule);
   isolation: isolate;
 }
 
@@ -524,7 +536,7 @@
 
 .tn-plate[data-mode="instant"],
 .tn-plate[data-mode="instant"] .tn-fig *,
-.tn-plate[data-mode="instant"] .tn-fig *::before,
+
 .tn[data-instant] .tn-plate,
 .tn[data-instant] .tn-now-band,
 .tn[data-instant] .tn-hit,
@@ -561,6 +573,15 @@
 .tn-web .tn-shot {
   width: 100%;
   height: 100%;
+}
+
+.tn-web[data-fit="center"] {
+  display: flex;
+  align-items: center;
+}
+
+.tn-web[data-fit="center"] .tn-shot {
+  height: auto;
 }
 
 /* A phone screen stands at its own ratio, never wider than its source pixels. */
@@ -627,68 +648,6 @@
   color: var(--tn-fig-soft);
 }
 
-.tn-fig-row {
-  display: grid;
-  grid-template-columns: 30cqw minmax(0, 1fr);
-  align-items: center;
-  column-gap: 5cqw;
-}
-
-.tn-fig-after {
-  padding-top: 5cqw;
-  border-top: 1px solid var(--tn-fig-faint);
-}
-
-.tn-fig-num {
-  justify-self: start;
-  font-family: var(--tn-display);
-  font-size: 26cqw;
-  line-height: 0.86;
-  font-variant-numeric: tabular-nums;
-}
-
-.tn-fig-side {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 2.5cqw;
-}
-
-.tn-fig-dots {
-  display: grid;
-  grid-template-columns: repeat(8, 3.75cqw);
-  gap: 1.875cqw;
-}
-
-.tn-fig-dots > span {
-  position: relative;
-  height: 3.75cqw;
-  border-radius: 4px;
-  box-shadow: inset 0 0 0 1.5px var(--tn-fig-faint);
-}
-
-.tn-fig-dots > span::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  transition: opacity 200ms ease;
-}
-
-.tn-fig-before .tn-fig-dots > span::before {
-  background: var(--tn-ink);
-}
-
-.tn-fig-after .tn-fig-dots > span {
-  box-shadow: none;
-}
-
-.tn-fig-after .tn-fig-dots > span::before {
-  background: var(--tn-now);
-  opacity: 0;
-  transition-delay: 200ms;
-}
-
 .tn-fig-from {
   position: relative;
   color: var(--tn-ink);
@@ -709,42 +668,12 @@
   transition: transform 200ms var(--tn-ease-out);
 }
 
-.tn-fig-to {
-  color: var(--tn-now);
-  clip-path: inset(0 100% 0 0);
-  transition: clip-path 260ms var(--tn-ease-out) 200ms;
-}
-
-.tn-fig-before .tn-fig-end {
-  transition: color 200ms ease;
-}
-
-.tn-fig-after .tn-fig-end {
-  color: var(--tn-now);
-  opacity: 0;
-  transition: opacity 200ms ease 200ms;
-}
-
-.tn-fig[data-struck] .tn-fig-from,
-.tn-fig[data-struck] .tn-fig-before .tn-fig-end {
+.tn-fig[data-struck] .tn-fig-from {
   color: var(--tn-fig-soft);
 }
 
 .tn-fig[data-struck] .tn-fig-strike {
   transform: scaleX(1);
-}
-
-.tn-fig[data-struck] .tn-fig-to {
-  clip-path: inset(0 0 0 0);
-}
-
-.tn-fig[data-struck] .tn-fig-before .tn-fig-dots > span::before {
-  opacity: 0;
-}
-
-.tn-fig[data-struck] .tn-fig-after .tn-fig-dots > span::before,
-.tn-fig[data-struck] .tn-fig-after .tn-fig-end {
-  opacity: 1;
 }
 
 .tn-fig-bars {
@@ -822,6 +751,58 @@
   gap: 3.75cqw;
   padding: 6cqw 7.5cqw 0;
   border-top: 1px solid var(--tn-ink);
+}
+
+/* The lead plate: the care app above, the billing report below at a fixed height. */
+.tn-care .tn-live {
+  position: relative;
+  inset: auto;
+  flex: 1;
+  min-height: 0;
+}
+
+.tn-care .tn-live footer {
+  display: none;
+}
+
+/* One weight: the head names it, so the row is the two numbers and the bar. */
+.tn-care .tn-fig-weight {
+  flex: none;
+  height: 34cqw;
+  justify-content: flex-start;
+  gap: 4cqw;
+  padding: 5cqw 7.5cqw 0;
+}
+
+.tn-care .tn-fig-head {
+  color: var(--tn-fig-soft);
+}
+
+.tn-care .tn-w {
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  column-gap: 5cqw;
+}
+
+.tn-care .tn-w .tn-fig-tag {
+  display: none;
+}
+
+.tn-care .tn-w-nums {
+  grid-row: 1;
+  font-size: 15cqw;
+  gap: 5cqw;
+}
+
+.tn-care .tn-w .tn-fig-strike {
+  height: 1.25cqw;
+  margin-top: -0.625cqw;
+}
+
+.tn-care .tn-w-track {
+  grid-column: 2;
+  grid-row: 1;
+  height: 3.75cqw;
 }
 
 /* Each weight: the old number struck, the new one written, and one bar that shrinks to its new length. */
@@ -1074,12 +1055,24 @@
 /* ---------- The end ---------- */
 
 .tn-end {
+  position: relative;
   width: 1344px;
   margin: 0 auto;
   padding: 48px 0 64px;
   border-top: 1px solid var(--tn-ink);
   font-size: 16px;
   line-height: 1.5;
+}
+
+/* The rule runs on under the accent field to the screen edge, so the field and the rule end on one line. */
+.tn-end::after {
+  content: "";
+  position: absolute;
+  top: -1px;
+  left: 100%;
+  right: calc(50% - 50vw);
+  height: 1px;
+  background: var(--tn-ink);
 }
 
 .tn-end p {
@@ -1112,7 +1105,7 @@
 
   .tn-main {
     --tn-gap: 48px;
-    --tn-fw: min(640px, 46vw);
+    --tn-fw: min(664px, calc(46vw + 24px));
   }
 }
 
@@ -1140,6 +1133,10 @@
   .tn-end {
     margin: 0 16px;
     padding: 32px 0 48px;
+  }
+
+  .tn-end::after {
+    display: none;
   }
 
   .tn-id {
@@ -1253,26 +1250,6 @@
     column-gap: 3cqw;
   }
 
-  .tn-fig-row {
-    grid-template-columns: 26cqw minmax(0, 1fr);
-  }
-
-  .tn-fig-after {
-    padding-top: 3cqw;
-  }
-
-  .tn-fig-num {
-    font-size: 23cqw;
-  }
-
-  .tn-fig-side {
-    gap: 2cqw;
-  }
-
-  .tn-fig-dots > span {
-    border-radius: 2px;
-  }
-
   .tn-fig-bars {
     gap: 2cqw;
   }
@@ -1327,8 +1304,18 @@
 
   /* The narrowest phone crop is 436 source pixels wide. A wider frame would upscale it. */
   .tn-frame {
-    max-width: 436px;
+    max-width: 452px;
     margin-inline: auto;
+  }
+
+  .tn-mat {
+    padding: 8px;
+    border-radius: 12px;
+  }
+
+  /* A phone plate is too short for the card and the report, so it shows the card; the row carries the numbers. */
+  .tn-care .tn-fig-weight {
+    display: none;
   }
 
   .tn-screen {
@@ -1364,9 +1351,8 @@
   .tn-row[data-fresh] .tn-hit,
   .tn-fig-from,
   .tn-fig-strike,
-  .tn-fig-to,
-  .tn-fig-end,
-  .tn-fig-dots > span::before,
+  .tn-w-to,
+  .tn-w-bar,
   .tn-tray button::before,
   .tn-wire g {
     transition: none;

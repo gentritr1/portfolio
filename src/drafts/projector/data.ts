@@ -45,8 +45,18 @@ export interface StoreLink {
   href: string;
 }
 
+/** One of two store screenshots of the same screen. Both crops share one ratio and line up row for row. */
+export interface Platform {
+  label: string;
+  store: StoreLink;
+  caption: string;
+  shot: Shot;
+}
+
 export type Plate =
   | { kind: "live"; key: "design-system" | "care" }
+  | { kind: "duo"; ground: string; web: Shot; store: Shot; kicker: string; stores: StoreLink[] }
+  | { kind: "pair"; kicker: string; platforms: Platform[]; mark: Box; narrowMark: Box }
   | { kind: "web"; shot: Shot; ground: string; dark?: boolean }
   | { kind: "phone"; shot: Shot; kicker: string; stores: StoreLink[] }
   | { kind: "report"; before: number; after: number };
@@ -76,7 +86,11 @@ export interface Row {
 const storeLinks = (slug: string): StoreLink[] =>
   (findProject(slug)?.links ?? []).map((link) => ({ label: link.label, href: link.href }));
 
-export const rows: Row[] = [
+const viva = storeLinks("viva-fresh");
+const px = (x: number, y: number, w: number, h: number, W: number, H: number): Box => ({ x: x / W, y: y / H, w: w / W, h: h / H });
+
+/** The client rows before the own projects. */
+export const leadRows: Row[] = [
   {
     id: "01",
     project: "Bayyinah TV",
@@ -85,25 +99,35 @@ export const rows: Row[] = [
     role: "Frontend, core team",
     year: "2023–26",
     plate: {
-      kind: "web",
-      ground: "#1c1214",
-      dark: true,
-      shot: {
-        src: "/showcase/bayyinah/web-06.webp",
-        alt: "Bayyinah TV pricing: the plan list, the Premium plan at $11 a month and a Start 7-Day Free Trial button",
+      kind: "duo",
+      ground: "#1f1518",
+      kicker: "Subscribe on",
+      stores: [
+        { label: "bayyinahtv.com", href: "https://bayyinahtv.com/" },
+        { label: "App Store", href: "https://apps.apple.com/us/app/bayyinah-tv/id1530635769" },
+        { label: "Google Play", href: "https://play.google.com/store/apps/details?id=com.zombiesoup.bayyinah" },
+      ],
+      web: {
+        src: "/showcase/bayyinah/web-01.webp",
+        alt: "Bayyinah TV home page: Quran Studies Made Simple, with Start Your 7-Day Free Trial and Watch Now buttons",
         width: 1440,
         height: 900,
-        crop: { x: 470 / 1440, y: 0, w: 970 / 1440, h: 745 / 900 },
-        narrow: { x: 25 / 1440, y: 180 / 900, w: 460 / 1440, h: 345 / 900 },
-        bounds: { x: 0, y: 168 / 900, w: 515 / 1440, h: 380 / 900 },
+        crop: px(20, 10, 500, 580, 1440, 900),
+        narrow: px(20, 10, 500, 580, 1440, 900),
+      },
+      store: {
+        src: "/showcase/bayyinah/store-01.webp",
+        alt: "Bayyinah TV App Store frame: Quran Studies Made Simple, with the app home screen on an iPhone",
+        width: 778,
+        height: 1690,
+        crop: px(0, 206, 778, 1384, 778, 1690),
+        narrow: px(0, 206, 778, 1384, 778, 1690),
       },
     },
-    caption: "Bayyinah TV pricing page, public.",
-    target: { kind: "shot", box: { x: 1068 / 1440, y: 651 / 900, w: 228 / 1440, h: 40 / 900 } },
-    narrowTarget: { kind: "shot", box: { x: 36 / 1440, y: 378 / 900, w: 318 / 1440, h: 56 / 900 } },
+    caption: "Bayyinah TV home page and its App Store frame, public.",
+    target: { kind: "selector", css: ".pj-duo-stores" },
     route: { kind: "side" },
     link: { label: "Open the case", href: "/work/bayyinah-tv" },
-    live: { label: "Live at bayyinahtv.com", href: "https://bayyinahtv.com/" },
   },
   {
     id: "02",
@@ -121,9 +145,9 @@ export const rows: Row[] = [
   {
     id: "03",
     project: "Care-management platform",
-    line: "Many client organizations use the same system.",
+    line: "Many client organizations use the same system. Most screens are already rebuilt in React.",
     result: "Each one sees only its own patients",
-    role: "Frontend, and the 2026 rebuild",
+    role: "Frontend, core team",
     year: "2023–26",
     plate: { kind: "live", key: "care" },
     caption: "Vitals card for one organization.",
@@ -140,27 +164,51 @@ export const rows: Row[] = [
     role: "Mobile",
     year: "2023",
     plate: {
-      kind: "phone",
+      kind: "pair",
       kicker: "Live in both app stores",
-      stores: storeLinks("viva-fresh"),
-      shot: {
-        src: "/mobile/grocery-1.webp",
-        alt: "Viva Fresh home on iPhone: product categories in Albanian and the latest products",
-        width: 780,
-        height: 1689,
-        crop: { x: 92 / 780, y: 356 / 1689, w: 596 / 780, h: 676 / 1689 },
-        narrow: { x: 92 / 780, y: 372 / 1689, w: 596 / 780, h: 447 / 1689 },
-        bounds: { x: 92 / 780, y: 352 / 1689, w: 596 / 780, h: 1240 / 1689 },
-      },
+      platforms: [
+        {
+          label: "iPhone",
+          store: viva[0],
+          caption: "Viva Fresh home, from its App Store listing.",
+          shot: {
+            src: "/mobile/grocery-1.webp",
+            alt: "Viva Fresh home on iPhone, from the App Store listing: product categories in Albanian and the latest products",
+            width: 780,
+            height: 1689,
+            crop: px(92, 377, 596, 868, 780, 1689),
+            narrow: px(92, 377, 596, 447, 780, 1689),
+          },
+        },
+        {
+          label: "Android",
+          store: viva[1],
+          caption: "Viva Fresh home, from its Google Play listing.",
+          shot: {
+            src: "/mobile/grocery-4.webp",
+            alt: "Viva Fresh home on Android, from the Google Play listing: the same categories and products",
+            width: 780,
+            height: 1387,
+            crop: px(134, 360, 508, 740, 780, 1387),
+            narrow: px(134, 360, 508, 381, 780, 1387),
+          },
+        },
+      ],
+      mark: { x: 0.06, y: 0.135, w: 0.88, h: 0.175 },
+      narrowMark: { x: 0.05, y: 0.255, w: 0.9, h: 0.34 },
     },
-    caption: "Viva Fresh home, from its App Store listing.",
+    caption: "Viva Fresh home, from its store listing.",
     target: { kind: "selector", css: ".pj-stores" },
-    narrowTarget: { kind: "shot", box: { x: 128 / 780, y: 500 / 1689, w: 522 / 780, h: 148 / 1689 } },
+    narrowTarget: { kind: "selector", css: ".pj-pair-mark" },
     route: { kind: "side" },
     link: { label: "Open the case", href: "/work/viva-fresh" },
   },
+];
+
+/** The client rows after the own projects. */
+export const moreRows: Row[] = [
   {
-    id: "05",
+    id: "08",
     project: "Design System v2",
     line: "The new care dashboard needed one set of buttons, menus and forms.",
     result: "36 building blocks, released 20 times in about six weeks",
@@ -174,7 +222,7 @@ export const rows: Row[] = [
     link: { label: "Open the case", href: "/work/design-system-react" },
   },
   {
-    id: "06",
+    id: "09",
     project: "Incentiv",
     line: "Sign-in and dashboard screens for a crypto wallet. Teammates built the wallet.",
     result: "Passkey (no password) or wallet sign-in, in English and French",
@@ -200,10 +248,10 @@ export const rows: Row[] = [
     link: { label: "Open the case", href: "/work/incentiv" },
   },
   {
-    id: "07",
+    id: "10",
     project: "Read to Feed",
     line: "A reading app for children. About 14 updates shipped to both stores.",
-    result: "It remembers the page in every book",
+    result: "It kept each child's place in every book",
     role: "Mobile",
     year: "2022–25",
     plate: {
@@ -226,7 +274,7 @@ export const rows: Row[] = [
     link: { label: "Open the case", href: "/work/read-to-feed" },
   },
   {
-    id: "08",
+    id: "11",
     project: "Dukagjini Bookstore",
     line: "A publisher's bookshop app for iPhone and Android.",
     result: "Search, sales and checkout, live in both app stores",

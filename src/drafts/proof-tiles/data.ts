@@ -9,6 +9,14 @@ export interface Box {
 /** A crop can carry its own mark when it shows only part of the proof. */
 export interface Crop extends Box {
   mark?: Box;
+  /** Used only on a phone layout, where the tile has one column. Its ratio can differ from 16:10. */
+  phone?: boolean;
+  /** A crop from another capture of the same screen. */
+  image?: { src: string; width: number; height: number; density: number; alt?: string };
+  /** The part of the crop that shows the image. Outside it, the tile ground shows. */
+  clip?: Box;
+  /** The caption words that this crop proves, when they differ from the tile's. */
+  proof?: string;
 }
 
 export interface Shot {
@@ -17,9 +25,9 @@ export interface Shot {
   width: number;
   height: number;
   /**
-   * The parts of the image a tile can show, all 16:10 and cut on whole rows.
-   * The tile uses the narrowest crop that is at least as wide as the tile, so
-   * an image is never drawn larger than its source pixels.
+   * The parts of the image a tile can show, cut on whole rows. Crops that are
+   * not phone crops are 16:10. The tile uses the narrowest crop that is close
+   * to its width, so text in a crop keeps its size.
    */
   crops: Crop[];
   /** The part that proves the caption. */
@@ -54,31 +62,6 @@ export interface Tile {
 }
 
 export const work: Tile[] = [
-  {
-    id: "bayyinah-tv",
-    project: "Bayyinah TV",
-    caption: "Members subscribe for $11 a month, on the web or in the apps.",
-    proof: "$11 a month",
-    role: "Frontend, core team",
-    year: "2023–26",
-    media: {
-      kind: "shot",
-      shot: {
-        src: "/showcase/bayyinah/web-06.webp",
-        alt: "Bayyinah TV pricing page, public: a Monthly and Annual switch, the Premium plan at $11.00 a month, four included features and a Start 7-Day Free Trial button",
-        width: 1440,
-        height: 900,
-        crops: [
-          { x: 960, y: 102, w: 440, h: 275 },
-        ],
-        mark: { x: 1112, y: 196, w: 140, h: 78 },
-      },
-    },
-    hue: 32,
-    ground: "#150f11",
-    dark: true,
-    link: { href: "/work/bayyinah-tv", label: "Open the case" },
-  },
   {
     id: "billing",
     project: "Care platform, server side",
@@ -154,28 +137,6 @@ export const work: Tile[] = [
     link: { href: "/work/design-system-react", label: "Open the case" },
   },
   {
-    id: "read-to-feed",
-    project: "Read to Feed",
-    caption: "About 14 updates shipped. Books reopen where children stopped.",
-    proof: "where children stopped",
-    role: "Mobile",
-    year: "2022–25",
-    media: {
-      kind: "shot",
-      shot: {
-        src: "/mobile/reading-1.webp",
-        alt: "Read to Feed store screenshot: My Books, with The Tale of Peter Rabbit read to 36% and the next book under it",
-        width: 780,
-        height: 1689,
-        crops: [{ x: 58, y: 700, w: 664, h: 415 }],
-        mark: { x: 330, y: 852, w: 312, h: 52 },
-      },
-    },
-    hue: 235,
-    ground: "#7fb4ca",
-    link: { href: "/work/read-to-feed", label: "Open the case" },
-  },
-  {
     id: "dukagjini",
     project: "Dukagjini Bookstore",
     caption: "Search, sales and checkout, live in both app stores.",
@@ -197,59 +158,12 @@ export const work: Tile[] = [
     ground: "#f3f2f1",
     link: { href: "/work/dukagjini-bookstore", label: "Open the case" },
   },
-  {
-    id: "bayyinah-org",
-    project: "Bayyinah institute website",
-    caption: "Live at bayyinah.org, with links to both app stores.",
-    proof: "both app stores",
-    role: "Frontend",
-    year: "2024–25",
-    media: {
-      kind: "shot",
-      shot: {
-        src: "/showcase/bayyinah/org-01.webp",
-        alt: "bayyinah.org home, public page: the Join the Mission button over the App Store and Google Play badges",
-        width: 1440,
-        height: 900,
-        crops: [{ x: 504, y: 545, w: 432, h: 270 }],
-        mark: { x: 520, y: 664, w: 388, h: 64 },
-      },
-    },
-    hue: 59,
-    ground: "#d0b6a9",
-    link: { href: "https://bayyinah.org/", label: "bayyinah.org", external: true },
-  },
 ];
 
 const offdayAlt = "Offday, light theme, a screenshot of the app with demo data";
 
 /** Own projects. OFFBEAT and FORM are concepts: no real brand or client. */
 export const own: Tile[] = [
-  {
-    id: "offday-approvals",
-    project: "Offday",
-    caption: "Managers approve time off and see who needs cover.",
-    proof: "approve",
-    role: "Owner",
-    year: "2026",
-    media: {
-      kind: "shot",
-      shot: {
-        src: "/personal/shots/offday-light-calendar-desktop.webp",
-        alt: `${offdayAlt}: the Needs your attention list beside the team calendar, with Needs cover, Approve and Decline on each request`,
-        width: 2880,
-        height: 1800,
-        density: 2,
-        crops: [
-          { x: 2241, y: 756, w: 639, h: 399 },
-          { x: 1503, y: 706, w: 1325, h: 828 },
-        ],
-        mark: { x: 2320, y: 998, w: 446, h: 83 },
-      },
-    },
-    hue: 168,
-    ground: "#f7f5f3",
-  },
   {
     id: "offday-shifts",
     project: "Offday",
@@ -266,10 +180,10 @@ export const own: Tile[] = [
         height: 1800,
         density: 2,
         crops: [
-          { x: 547, y: 727, w: 778, h: 487 },
-          { x: 547, y: 507, w: 1584, h: 991 },
+          { x: 520, y: 622, w: 818, h: 444, phone: true, mark: { x: 990, y: 874, w: 310, h: 94 } },
+          { x: 960, y: 622, w: 1408, h: 880 },
         ],
-        mark: { x: 991, y: 874, w: 317, h: 94 },
+        mark: { x: 990, y: 874, w: 318, h: 94 },
       },
     },
     hue: 247,
@@ -291,59 +205,54 @@ export const own: Tile[] = [
         height: 1800,
         density: 2,
         crops: [
-          { x: 1017, y: 922, w: 848, h: 530 },
-          { x: 806, y: 771, w: 1321, h: 825 },
+          {
+            x: 47,
+            y: 1096,
+            w: 686,
+            h: 492,
+            phone: true,
+            image: {
+              src: "/personal/shots/offday-light-best-dates-phone.webp",
+              width: 780,
+              height: 1688,
+              density: 2,
+            },
+            mark: { x: 98, y: 1284, w: 584, h: 84 },
+          },
+          {
+            x: 780,
+            y: 890,
+            w: 1320,
+            h: 824,
+            clip: { x: 960, y: 890, w: 960, h: 792 },
+          },
         ],
         mark: { x: 1032, y: 1030, w: 818, h: 86 },
       },
     },
     hue: 161,
-    ground: "#f6f4f4",
-  },
-  {
-    id: "offday-drag",
-    project: "Offday",
-    caption: "Drag across the calendar to pick the days off.",
-    proof: "Drag across the calendar",
-    role: "Owner",
-    year: "2026",
-    media: {
-      kind: "shot",
-      shot: {
-        src: "/personal/shots/offday-light-drag-select-desktop.webp",
-        alt: `${offdayAlt}: the November calendar with four days, the 17th to the 20th, selected by a drag, and Veterans Day and Thanksgiving marked`,
-        width: 2880,
-        height: 1800,
-        density: 2,
-        crops: [
-          { x: 776, y: 1008, w: 968, h: 605 },
-          { x: 756, y: 890, w: 1456, h: 910 },
-        ],
-        mark: { x: 776, y: 1179, w: 968, h: 222 },
-      },
-    },
-    hue: 5,
     ground: "#ffffff",
   },
   {
     id: "offbeat",
     project: "OFFBEAT, a speaker brand concept",
-    caption: "Its drum machine really plays, in the browser.",
-    proof: "drum machine really plays",
+    caption: "Its drum machine plays in the browser.",
+    proof: "drum machine plays",
     role: "Owner",
     year: "2026",
     media: {
       kind: "shot",
       shot: {
         src: "/personal/shots/offbeat-studio-desktop.webp",
-        alt: "OFFBEAT sound studio, a concept: an eight-step drum machine with kick, snare, hi-hat and bass rows and three groove presets",
-        width: 1440,
-        height: 900,
+        alt: "OFFBEAT sound studio, a concept, while it plays: an eight-step drum machine with kick, snare, hi-hat and bass rows, the playing step in red, and three groove presets",
+        width: 2880,
+        height: 1800,
+        density: 2,
         crops: [
-          { x: 618, y: 465, w: 400, h: 250, mark: { x: 692, y: 488, w: 320, h: 212 } },
-          { x: 600, y: 303, w: 760, h: 475 },
+          { x: 1384, y: 446, w: 1312, h: 446, phone: true, mark: { x: 2040, y: 470, w: 160, h: 386 } },
+          { x: 1224, y: 96, w: 1474, h: 922 },
         ],
-        mark: { x: 698, y: 490, w: 644, h: 210 },
+        mark: { x: 2040, y: 456, w: 160, h: 414 },
       },
     },
     hue: 113,
@@ -354,7 +263,7 @@ export const own: Tile[] = [
   {
     id: "form",
     project: "FORM, a sculpture show concept",
-    caption: "Each sculpture is drawn live from its formula.",
+    caption: "Three sculptures, each drawn live from its formula.",
     proof: "drawn live from its formula",
     role: "Owner",
     year: "2026",
@@ -363,13 +272,29 @@ export const own: Tile[] = [
       shot: {
         src: "/personal/shots/form-studio-desktop.webp",
         alt: "FORM collection, a concept: the copper Trefoil sculpture with its formula, p(t) = ((2 + cos 3t) cos 2t, (2 + cos 3t) sin 2t, sin 3t)",
-        width: 1440,
-        height: 900,
+        width: 2880,
+        height: 1800,
+        density: 2,
         crops: [
-          { x: 44, y: 470, w: 520, h: 325 },
-          { x: 44, y: 345, w: 720, h: 450 },
+          {
+            x: 20,
+            y: 830,
+            w: 740,
+            h: 816,
+            phone: true,
+            image: {
+              src: "/personal/shots/form-phone.webp",
+              width: 780,
+              height: 1688,
+              density: 2,
+              alt: "FORM home on a phone, a concept: the copper Trefoil sculpture under the Trefoil, Orbit and Bloom tabs",
+            },
+            mark: { x: 40, y: 856, w: 298, h: 76 },
+            proof: "Three sculptures",
+          },
+          { x: 0, y: 524, w: 1648, h: 1030, clip: { x: 0, y: 524, w: 1580, h: 1030 } },
         ],
-        mark: { x: 50, y: 769, w: 512, h: 20 },
+        mark: { x: 96, y: 1476, w: 1060, h: 60 },
       },
     },
     hue: 50,
@@ -470,7 +395,7 @@ export const index: IndexGroup[] = [
     title: "Own projects",
     rows: [
       { name: "Snaxx Tech", line: "A studio website. Images cut from 972 KB to 337 KB.", role: "Owner", year: "2026", link: live("https://www.snaxxtech.com/") },
-      { name: "Offday", line: "Time-off app. 16 tests prove one team never sees another team's data.", role: "Owner", year: "2026" },
+      { name: "Offday", line: "Time-off app for teams, covered by about 200 automated tests. The code is private.", role: "Owner", year: "2026" },
       { name: "FJALË", line: "A daily Albanian word game that also works offline.", role: "Owner", year: "2026", link: live("https://xn--fjal-opa.com/") },
       { name: "Za!", line: "Pizza card game for 2 to 8 players. The server keeps every game fair.", role: "Owner", year: "2026", link: live("https://za-game.onrender.com/") },
       { name: "Morse Trainer", line: "A game that teaches Morse code with spaced practice.", role: "Owner", year: "2026", link: live("https://morse-code-amber.vercel.app/") },
