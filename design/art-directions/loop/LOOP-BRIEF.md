@@ -95,3 +95,7 @@ Round 7 was in progress (now done). To continue:
 6. Copy is plain and short: a hiring manager, a founder or a recruiter must understand every line. See PORTFOLIO-RESEARCH.md.
 
 Home page: projector (owner, 2026-10-05). Case pages and the 404 still use the AISLE style and must follow the home page.
+
+## Craft bar (owner, 2026-10-05)
+
+Every round checks spacing, motion and UX at desktop (1440, 1280, 1024) and phone (375, 390, 540): one spacing scale, equal gutters, no layout shift (CLS 0), no text reflow or jitter during motion, visible focus and 44 px targets, nothing only on hover, sticky parts never cover content, and a designed phone layout. The critic step includes a craft QA pass. Polish uses the skills and research where needed, to take each draft to the next level.
