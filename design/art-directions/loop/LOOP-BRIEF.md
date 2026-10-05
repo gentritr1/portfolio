@@ -83,3 +83,14 @@ Round 7 is in progress. To continue:
 2. Run a fresh Fable review of round 7 (sampled-ground, projector, sampled-frame), write round-7-review.md, update this log.
 3. Commit, push main and drafts-polish, publish the drafts gallery, make the round-7 vertical reels (brag-output-loop7/).
 4. Ask the owner which draft, if any, replaces AISLE as the home page (reviewer leaders: projector to ship now, sampled-ground as the memorable page).
+
+## Round process from round 8 (owner, 2026-10-05)
+
+1. Build: Opus agents build the round (new directions + polish of the leaders).
+2. Critique: one Opus critic scores each draft against the 7-point bar with frame evidence.
+3. Devil's advocate: one Opus agent argues against each draft (why a hiring manager closes the tab, what is generic, what is not true or not clear).
+4. Polish: the builders fix what the critic and the devil's advocate proved.
+5. Fable 5.1 is an advisor only when needed (a stuck decision, a final pick), not a reviewer every round.
+6. Copy is plain and short: a hiring manager, a founder or a recruiter must understand every line. See PORTFOLIO-RESEARCH.md.
+
+Home page: projector (owner, 2026-10-05). Case pages and the 404 still use the AISLE style and must follow the home page.
