@@ -46,7 +46,8 @@ The owner wants many directions, kept as live drafts, iterated round after round
 | 2 | release-brief, strike-index, cited-claims, decision-record, margin-notes, tenant-switch | decision-record 52, margin-notes 51, release-brief 50, strike-index 47, cited-claims 46, tenant-switch 46 (of 70). See round-2-review.md | decision-record log and Results, margin-notes hairline, strike-index edit mechanics, release-brief year rewrite |
 | 3 | pinned-decisions, statement-of-record, year-stack, workspace-rail, same-behaviour, proven-cv | year-stack 54, statement-of-record 53, pinned-decisions 52, same-behaviour 51, workspace-rail 49, proven-cv 49. See round-3-review.md. All six opened on the care plate; five were pale | polish track: year-stack, statement-of-record |
 | 4 | polish: year-stack, statement-of-record; new: rebuilt-twice, token-source, both-stores, added-clauses | year-stack 55 (+1), statement-of-record 54 (+1), token-source 54, both-stores 54, rebuilt-twice 53, added-clauses 52. See round-4-review.md. Six different first screens; chroma 24–65%; original stuck at 7 | polish: year-stack, statement-of-record, token-source |
-| 5 | polish: year-stack, statement-of-record, token-source; new (no stack): sampled-ground, redline, projector | pending (plan: round-4-review.md, Round 5 plan) | |
+| 5 | polish: year-stack, statement-of-record, token-source; new (no stack): sampled-ground, redline, projector | year-stack 56, sampled-ground 56, statement-of-record 55, token-source 55, projector 55, redline 54. See round-5-review.md. Original 8 reached by sampled-ground and redline | polish: sampled-ground, year-stack, projector; new: sampled-review |
+| 6 | polish: sampled-ground, year-stack, projector; new: sampled-review | pending (plan: round-5-review.md) | |
 
 ## Rules added after round 1
 
