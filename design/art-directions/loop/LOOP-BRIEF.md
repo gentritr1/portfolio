@@ -44,7 +44,8 @@ The owner wants many directions, kept as live drafts, iterated round after round
 | --- | --- | --- | --- |
 | 1 | specimen, brief, orbit-index, changelog | changelog 52, brief 51, orbit-index 46, specimen 46 (of 70). See round-1-review.md | changelog frame, brief strike-and-insert, orbit-index Work column, specimen citation rule |
 | 2 | release-brief, strike-index, cited-claims, decision-record, margin-notes, tenant-switch | decision-record 52, margin-notes 51, release-brief 50, strike-index 47, cited-claims 46, tenant-switch 46 (of 70). See round-2-review.md | decision-record log and Results, margin-notes hairline, strike-index edit mechanics, release-brief year rewrite |
-| 3 | pinned-decisions, statement-of-record, year-stack, workspace-rail, same-behaviour, proven-cv | pending (brief: ROUND-3-BRIEF.md) | |
+| 3 | pinned-decisions, statement-of-record, year-stack, workspace-rail, same-behaviour, proven-cv | year-stack 54, statement-of-record 53, pinned-decisions 52, same-behaviour 51, workspace-rail 49, proven-cv 49. See round-3-review.md. All six opened on the care plate; five were pale | polish track: year-stack, statement-of-record |
+| 4 | polish: year-stack, statement-of-record; new: rebuilt-twice, token-source, both-stores, added-clauses | pending (plan: round-3-review.md, Round 4 plan) | |
 
 ## Rules added after round 1
 

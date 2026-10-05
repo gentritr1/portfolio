@@ -596,9 +596,9 @@ export function Recreation({ demoStep }: { demoStep?: number } = {}) {
 
         <TrendChart org={org} unit={unit} play={inView} />
 
-        <footer className="flex items-center justify-between gap-3">
+        <footer className="flex flex-col items-start gap-2 @sm:flex-row @sm:items-center @sm:justify-between @sm:gap-3">
           <UnitToggle value={unit} onChange={setUnit} />
-          <div className="min-w-0 space-y-0.5 text-right font-mono text-[0.6875rem] leading-snug text-muted @md:text-[0.75rem]">
+          <div className="min-w-0 space-y-0.5 font-mono text-[0.6875rem] @sm:text-right leading-snug text-muted @md:text-[0.75rem]">
             <p>
               <ArrowsClockwiseIcon size={13} weight="light" aria-hidden className="mr-1.5 inline align-[-2px]" />
               Last sync 2 min ago
