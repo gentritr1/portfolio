@@ -99,3 +99,10 @@ Home page: projector (owner, 2026-10-05). Case pages and the 404 still use the A
 ## Craft bar (owner, 2026-10-05)
 
 Every round checks spacing, motion and UX at desktop (1440, 1280, 1024) and phone (375, 390, 540): one spacing scale, equal gutters, no layout shift (CLS 0), no text reflow or jitter during motion, visible focus and 44 px targets, nothing only on hover, sticky parts never cover content, and a designed phone layout. The critic step includes a craft QA pass. Polish uses the skills and research where needed, to take each draft to the next level.
+
+## Owner decisions (2026-10-05, after round 8)
+
+- Home page stays projector.
+- No more videos (.mp4 reels). Rounds end with push + gallery publish only.
+- Personal work to showcase: Offday (light theme, more screenshots), OFFBEAT and FORM (visually strong). They appear as personal work on the home page and in the drafts.
+- Each draft leads with its own product; no two drafts open on the same screen.
