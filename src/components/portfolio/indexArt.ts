@@ -81,11 +81,11 @@ export const indexArt: Record<string, IndexArt> = {
     caption: "Personal project",
   },
   offday: {
-    background: "#283b38",
-    images: ["/personal/shots/offday-dark-desktop.webp"],
+    background: "#f4efee",
+    images: ["/personal/shots/offday-light-calendar-desktop.webp"],
     type: "web",
     proof: "Time off, together.",
-    detail: "Multi-tenant · Next.js · 16 security tests",
+    detail: "Multi-tenant · Next.js · about 200 tests",
     caption: "Personal project",
   },
   fjale: {

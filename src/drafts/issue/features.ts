@@ -31,8 +31,8 @@ export const features: Feature[] = [
     aspect: "web",
     plates: [
       {
-        src: "/personal/shots/offday-dark-desktop.webp",
-        alt: "Offday team calendar in dark theme, leave bars and approval queue",
+        src: "/personal/shots/offday-light-calendar-desktop.webp",
+        alt: "Offday team calendar in the light theme, October leave bars and the approval queue",
       },
     ],
     href: "#iss-story",

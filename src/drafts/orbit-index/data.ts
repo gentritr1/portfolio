@@ -225,7 +225,7 @@ const entries: Record<string, Entry> = {
     accent: '#92b8ff',
     problem: 'Many teams share one time-off app, and no data may cross teams.',
     result: 'Approvals and a team calendar. 16 Playwright tests cover security and isolation.',
-    media: { kind: 'shot', src: '/personal/shots/offday-dark-desktop.webp', alt: 'Offday team calendar in the dark theme with leave bars' },
+    media: { kind: 'shot', src: '/personal/shots/offday-light-calendar-desktop.webp', alt: 'Offday team calendar in the light theme, October leave bars and the approval queue' },
   },
   'geo-guesser': {
     name: 'Geo Guesser World 3D',
