@@ -14,9 +14,8 @@ import {
 import { Link } from "react-router";
 import { ArrowRightIcon, ArrowUpRightIcon } from "@phosphor-icons/react";
 import { links } from "../../content/links";
-import { projects } from "../../content/projects";
 import { recreations } from "../../lib/recreations";
-import { record, rows, type Box, type LivePlate, type Row, type ShotPlate } from "./data";
+import { record, rows, type Box, type FigurePlate, type LivePlate, type Row, type ShotPlate } from "./data";
 import "./sampled-frame.css";
 
 const SETTLE_MS = 160;
@@ -24,7 +23,6 @@ const FADE_MS = 200;
 const SPREAD_MS = 280;
 const DRAW_MS = 180;
 const RING_MS = 120;
-const LEAVE_MS = 120;
 const EASE_OUT = "cubic-bezier(0.23, 1, 0.32, 1)";
 const RECORD = rows.length;
 
@@ -46,7 +44,7 @@ function useMedia(query: string, fallback: boolean) {
   );
 }
 
-const hues = Array.from(new Set(rows.map((row) => row.hue)));
+const hues = Array.from(new Set(rows.flatMap((row) => (row.hue === null ? [] : [row.hue]))));
 
 /* ---------- Plates ---------- */
 
@@ -95,7 +93,7 @@ function LiveView({ plate, frame, narrow }: { plate: LivePlate; frame: Size; nar
   );
 }
 
-function ShotView({ plate, frame, narrow }: { plate: ShotPlate; frame: Size; narrow: boolean }) {
+function ShotView({ plate, frame, narrow, eager }: { plate: ShotPlate; frame: Size; narrow: boolean; eager: boolean }) {
   const crop = narrow ? plate.narrow : plate.crop;
   const k = frame.w / crop.w;
   return (
@@ -105,10 +103,34 @@ function ShotView({ plate, frame, narrow }: { plate: ShotPlate; frame: Size; nar
         alt={plate.alt}
         width={plate.width}
         height={plate.height}
-        loading="lazy"
+        loading={eager ? "eager" : "lazy"}
+        fetchPriority={eager ? "high" : "auto"}
         decoding="async"
         style={{ width: plate.width * k, left: -crop.x * k, top: -crop.y * k }}
       />
+    </div>
+  );
+}
+
+function FigureView({ plate }: { plate: FigurePlate }) {
+  return (
+    <div className="sf-fig">
+      <div className="sf-fig-in">
+        <p className="sf-fig-before">
+          <span className="sf-fig-value">{plate.before.value}</span>
+          <span className="sf-fig-label">
+            <strong>{plate.before.label}</strong>
+            {plate.before.note}
+          </span>
+        </p>
+        <p className="sf-fig-after">
+          <span className="sf-fig-value">{plate.after.value}</span>
+          <span className="sf-fig-label">
+            <strong>{plate.after.label}</strong>
+            {plate.after.note}
+          </span>
+        </p>
+      </div>
     </div>
   );
 }
@@ -192,8 +214,8 @@ function measureWire(row: Row, rowElement: HTMLElement, plate: HTMLElement, fram
   let gutter: number;
   if (narrow) {
     const first = fragments[0];
-    start = [Math.round(first.left - 6), Math.round(first.top + first.height / 2)];
-    gutter = 7;
+    gutter = 16;
+    start = [gutter, Math.round(first.top + first.height / 2)];
   } else {
     const last = fragments[fragments.length - 1];
     start = [Math.round(last.right + 10), Math.round(last.top + last.height / 2)];
@@ -208,10 +230,13 @@ function measureWire(row: Row, rowElement: HTMLElement, plate: HTMLElement, fram
     outside = [start, [gutter, start[1]], [gutter, ty], [edge, ty]];
     inside = [[edge, ty], [Math.round(ring.x - 1), ty]];
   } else {
-    const lane = Math.round(p.top + row.lane);
+    const rule = plate.querySelector<HTMLElement>(row.lane);
+    if (!rule) return null;
+    const lane = Math.round(rule.getBoundingClientRect().top);
     const cx = Math.round(target.x + target.w / 2);
+    const end = target.y > lane ? Math.round(ring.y - 1) : Math.round(ring.y + ring.h + 1);
     outside = [start, [gutter, start[1]], [gutter, lane], [edge, lane]];
-    inside = [[edge, lane], [cx, lane], [cx, Math.round(ring.y - 1)]];
+    inside = [[edge, lane], [cx, lane], [cx, end]];
   }
   const outLength = lengthOf(outside);
   const inLength = lengthOf(inside);
@@ -335,8 +360,9 @@ export default function Draft() {
   }, [active, shown.index, reduced]);
 
   const plateIndex = Math.min(shown.index, RECORD - 1);
-  const neutral = shown.index === RECORD;
+  const inRecord = shown.index === RECORD;
   const hue = rows[plateIndex].hue;
+  const neutral = inRecord || hue === null;
 
   /* The plate that leaves stays under the new one until the circle has covered it. */
   const [track, setTrack] = useState<{ index: number; prev: number | null }>({ index: 0, prev: null });
@@ -351,9 +377,7 @@ export default function Draft() {
   }, [prev, track.index]);
 
   /* A screenshot loads when its row is near. A live plate mounts when its row is first shown, so it draws in view. */
-  const nearRows = [active - 1, active, active + 1, plateIndex].filter(
-    (i) => i >= 0 && i < RECORD && (rows[i].plate.kind !== "live" || i === plateIndex),
-  );
+  const nearRows = [active - 1, active, active + 1, plateIndex].filter((i) => i >= 0 && i < RECORD);
   if (!nearRows.every((i) => loaded.has(i))) {
     const next = new Set(loaded);
     nearRows.forEach((i) => next.add(i));
@@ -362,10 +386,15 @@ export default function Draft() {
 
   useEffect(() => {
     const idle = window.requestIdleCallback ?? ((callback: () => void) => window.setTimeout(callback, 600));
+    /* Live plates mount hidden once the page is idle, so their first draw is over before their row is shown. */
     idle(() => {
-      rows.forEach((row) => {
-        if (row.plate.kind === "live") void recreations[row.plate.key].load();
-      });
+      const live = rows.flatMap((row, i) => (row.plate.kind === "live" ? [i] : []));
+      void Promise.all(
+        live.map((i) => {
+          const plate = rows[i].plate;
+          return plate.kind === "live" ? recreations[plate.key].load() : undefined;
+        }),
+      ).then(() => setLoaded((was) => new Set([...was, ...live])));
     });
   }, []);
 
@@ -394,11 +423,11 @@ export default function Draft() {
     if (previousLayer !== layerKey) targets.push(...(layerNodes.current.get(layerKey) ?? []));
     const plate = plateRefs.current[plateIndex];
     if (previousPlate !== String(plateIndex) && plate) targets.push(plate);
-    const origin = neutral ? recordRef.current : frameRef.current;
+    const origin = inRecord ? recordRef.current : frameRef.current;
     if (targets.length === 0 || !origin) return;
     const box = origin.getBoundingClientRect();
     const x = Math.round(box.left + box.width / 2);
-    const y = Math.round(neutral ? Math.max(0, box.top) : box.top + box.height / 2);
+    const y = Math.round(inRecord ? Math.max(0, box.top) : box.top + box.height / 2);
     const w = window.innerWidth;
     const h = window.innerHeight;
     const r = Math.ceil(Math.max(Math.hypot(x, y), Math.hypot(w - x, y), Math.hypot(x, h - y), Math.hypot(w - x, h - y)));
@@ -412,11 +441,11 @@ export default function Draft() {
         easing: EASE_OUT,
       });
     });
-  }, [spreadKey, layerKey, plateIndex, neutral, shown.mode, reduced]);
+  }, [spreadKey, layerKey, plateIndex, inRecord, shown.mode, reduced]);
 
   useEffect(() => {
     const root = document.documentElement;
-    root.style.backgroundColor = neutral ? "oklch(0.95 0 0)" : `oklch(0.95 0.035 ${hue})`;
+    root.style.backgroundColor = neutral ? "oklch(0.95 0 0)" : `oklch(0.95 0.035 ${hue ?? 0})`;
     return () => {
       root.style.backgroundColor = "";
     };
@@ -559,17 +588,16 @@ export default function Draft() {
       updateWire();
       return;
     }
-    const fade = group.animate([{ opacity: 1 }, { opacity: 0 }], { duration: LEAVE_MS, easing: EASE_OUT, fill: "forwards" });
+    /* The old line leaves before the circle starts, so it never points into the new screen. */
+    group.getAnimations({ subtree: true }).forEach((animation) => animation.cancel());
+    group.dataset.ready = "false";
+    wireIndex.current = -1;
     const timer = window.setTimeout(() => {
-      fade.cancel();
       wireIndex.current = shown.index;
       pendingDraw.current = "animate";
       updateWire();
     }, FADE_MS);
-    return () => {
-      window.clearTimeout(timer);
-      fade.cancel();
-    };
+    return () => window.clearTimeout(timer);
   }, [shown, reduced, updateWire]);
 
   /* ---------- Keyboard and pointer: the page jumps, nothing travels ---------- */
@@ -631,13 +659,13 @@ export default function Draft() {
   const current = rows[plateIndex];
 
   return (
-    <div className="sf" ref={rootRef} data-neutral={neutral || undefined} style={{ "--sf-h": hue } as CSSProperties}>
-      <title>Sampled frame — Gentrit Rashiti</title>
+    <div className="sf" ref={rootRef} data-neutral={neutral || undefined} style={{ "--sf-h": hue ?? 0 } as CSSProperties}>
+      <title>Gentrit Rashiti, web and mobile developer</title>
       <Layers className="sf-grounds" keyOn={layerKey} register={registerLayer} />
 
       <main className="sf-main">
         <header className="sf-id">
-          <h1>Gentrit Rashiti builds web and mobile products, from the design system to the API behind them.</h1>
+          <h1>Gentrit Rashiti builds web and mobile apps, from the screens people use to the server behind them.</h1>
           <p className="sf-id-line">
             <span>Part of two platform rewrites. Based in Kosovo, working remotely.</span>
             <span className="sf-id-links">
@@ -647,7 +675,7 @@ export default function Draft() {
           </p>
         </header>
 
-        <ol className="sf-log" aria-label="Seven screens" onKeyDown={onLogKey}>
+        <ol className="sf-log" aria-label="Seven projects" onKeyDown={onLogKey}>
           {rows.map((row, index) => (
             <li
               key={row.id}
@@ -725,8 +753,10 @@ export default function Draft() {
                     {frame.w > 0 && loaded.has(index) ? (
                       row.plate.kind === "live" ? (
                         <LiveView plate={row.plate} frame={frame} narrow={narrow} />
+                      ) : row.plate.kind === "shot" ? (
+                        <ShotView plate={row.plate} frame={frame} narrow={narrow} eager={index === 0} />
                       ) : (
-                        <ShotView plate={row.plate} frame={frame} narrow={narrow} />
+                        <FigureView plate={row.plate} />
                       )
                     ) : (
                       <div className="sf-wait" />
@@ -764,7 +794,6 @@ export default function Draft() {
               <p className="sf-caption-text" aria-live="polite">
                 {current.caption}
               </p>
-              <p className="sf-hue">Sampled from the screen: {current.hue}°</p>
             </div>
           </div>
         </aside>
@@ -785,8 +814,12 @@ export default function Draft() {
             );
             return (
               <li key={item.decision}>
-                {item.slug ? (
-                  <Link className="sf-record-row" to={`/work/${item.slug}`}>
+                {item.external ? (
+                  <a className="sf-record-row" href={item.href} target="_blank" rel="noreferrer">
+                    {inner}
+                  </a>
+                ) : item.href ? (
+                  <Link className="sf-record-row" to={item.href}>
                     {inner}
                   </Link>
                 ) : (
@@ -796,11 +829,6 @@ export default function Draft() {
             );
           })}
         </ol>
-        <p className="sf-record-more">
-          <Link to="/">
-            All {projects.length} projects <ArrowRightIcon aria-hidden="true" size={16} weight="bold" />
-          </Link>
-        </p>
       </section>
 
       <footer className="sf-end">
@@ -815,9 +843,9 @@ export default function Draft() {
           </a>
         </p>
         <p>
-          Gentrit Rashiti. Bachelor's degree, UBT. The specimen, care, live room, wallet and reader screens are recreations
-          with invented data; the other screens come from public pages and store listings. The page takes each colour from
-          the screen in the frame; the record has no screen, so it has no colour.
+          Gentrit Rashiti. Bachelor's degree, UBT. The care, button, reader and wallet screens are recreations with
+          invented data. The other screens come from public pages and store listings. The page takes its colour from the
+          screen in the frame. A result with no screen stays grey.
         </p>
       </footer>
 

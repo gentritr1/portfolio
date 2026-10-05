@@ -3,7 +3,8 @@ import { Route, Routes, useLocation, useParams } from "react-router";
 import { ScrollToTop } from "./components/ScrollToTop";
 import { featuredProjects } from "./content/projects";
 import { caseStudyPage } from "./lib/routes";
-const NoSignalPage = lazy(() => import("./pages/NoSignalPage"));
+import { fontsReady } from "./pages/caseFonts";
+const NotFoundPage = lazy(() => import("./pages/NotFoundPage").then((m) => fontsReady().then(() => m)));
 const DraftApp = lazy(() => import("./drafts/DraftApp"));
 const ProjectorHome = lazy(() => import("./drafts/projector/Draft"));
 
@@ -15,7 +16,7 @@ function CaseStudyRoute() {
   return featuredProjects.some((project) => project.slug === slug) ? (
     <CaseStudyPage />
   ) : (
-    <NoSignalPage />
+    <NotFoundPage />
   );
 }
 
@@ -34,7 +35,7 @@ export default function App() {
     return (
       <>
         <ScrollToTop />
-        <Suspense fallback={<div className="min-h-[100svh] bg-[#ffd400]" />}>
+        <Suspense fallback={<div className="min-h-[100svh] bg-[#d9f26b]" />}>
           <Routes>
             <Route path="/work/:slug" element={<CaseStudyRoute />} />
           </Routes>
@@ -60,8 +61,8 @@ export default function App() {
   return (
     <>
       <ScrollToTop />
-      <Suspense fallback={<div className="min-h-[100svh] bg-[#ffd400]" />}>
-        <NoSignalPage />
+      <Suspense fallback={<div className="min-h-[100svh] bg-[#d9f26b]" />}>
+        <NotFoundPage />
       </Suspense>
     </>
   );

@@ -37,7 +37,14 @@ export interface ShotPlate {
   narrow: Box;
 }
 
-export type Plate = LivePlate | ShotPlate;
+/** A result with no screen: the figure is the plate, and the page stays grey. */
+export interface FigurePlate {
+  kind: "figure";
+  before: { value: string; label: string; note: string };
+  after: { value: string; label: string; note: string };
+}
+
+export type Plate = LivePlate | ShotPlate | FigurePlate;
 
 /** Where the hairline ends: one element (or the union of all matches) of a live plate, or a box of a screenshot. */
 export type Target = { kind: "selector"; css: string; all?: boolean } | { kind: "shot"; box: Box };
@@ -47,19 +54,26 @@ export interface Row {
   project: string;
   role: string;
   year: string;
-  /** The decision. */
+  /** The problem, or what had to exist. */
   line: string;
   /** What the screen proves. It carries the hairline. */
   result: string;
   plate: Plate;
   caption: string;
   target: Target;
-  /** The line enters the plate along a clear row this many pixels under the plate's top, then turns onto the part. */
-  lane?: number;
-  /** Dominant hue of the rendered plate, in OKLCH degrees. Only this number comes from the screen. */
-  hue: number;
+  /** A rule inside the plate: the line enters along it, then turns onto the part. */
+  lane?: string;
+  /** Dominant hue of the rendered plate, in OKLCH degrees. A row with no screen has no hue. */
+  hue: number | null;
   link: { label: string; href: string; external?: boolean };
 }
+
+const pricing = {
+  src: "/showcase/bayyinah/web-06.webp",
+  alt: "Bayyinah TV pricing page: the Premium plan at 11 dollars a month, its included courses and the Start 7-Day Free Trial button",
+  width: 1440,
+  height: 900,
+};
 
 const viva = {
   src: "/mobile/grocery-3.webp",
@@ -68,115 +82,113 @@ const viva = {
   height: 1689,
 };
 
-const org = {
-  src: "/showcase/bayyinah/org-phone.webp",
-  alt: "bayyinah.org on a phone: the Help Us Spread Quranic Knowledge hero, the Join the Mission button and the App Store and Google Play badges",
-  width: 780,
-  height: 1688,
-};
-
+/* Neighbouring rows differ in hue, so each scroll changes the page colour clearly. */
 export const rows: Row[] = [
   {
     id: "01",
-    project: "Design System v2",
-    role: "Design system",
-    year: "2026",
-    line: "Generate every design token from one source, in three tiers.",
-    result: "805 tokens reach CSS, TypeScript and Figma",
-    plate: { kind: "live", key: "design-system", width: 584, narrowWidth: 480, narrowShift: 150 },
-    caption: "Component specimen. Recreation with invented data.",
-    target: { kind: "selector", css: ".dsr-pipeline > *", all: true },
-    hue: 253,
-    link: { label: "Open the case", href: "/work/design-system-react" },
+    project: "Bayyinah TV",
+    role: "Frontend, core team",
+    year: "2023–26",
+    line: "The video-learning platform, rebuilt from an empty page: 34 pages.",
+    result: "Members subscribe on the web, iPhone or Android",
+    plate: {
+      kind: "shot",
+      ...pricing,
+      crop: { x: 864, y: 88, w: 576, h: 720 },
+      narrow: { x: 864, y: 96, w: 576, h: 432 },
+    },
+    caption: "Bayyinah TV pricing page, public.",
+    target: { kind: "shot", box: { x: 1108, y: 192, w: 148, h: 88 } },
+    hue: 31,
+    link: { label: "Open the case", href: "/work/bayyinah-tv" },
   },
   {
     id: "02",
-    project: "Care-management platform",
-    role: "Frontend, multi-tenant",
-    year: "2023–26",
-    line: "Many client organizations share one system.",
-    result: "Each organization sees only its own patients",
-    plate: { kind: "live", key: "care", width: 576, narrowWidth: 460 },
-    caption: "Vitals trend card. Recreation with invented data.",
-    target: { kind: "selector", css: 'button[aria-label^="Organization"]' },
-    lane: 12,
-    hue: 185,
+    project: "Care platform, server side",
+    role: "Full stack",
+    year: "2026",
+    line: "One billing report asked the database 16 times and gave up.",
+    result: "Now it asks 2 times and finishes",
+    plate: {
+      kind: "figure",
+      before: { value: "16", label: "Requests before", note: "The report gave up." },
+      after: { value: "2", label: "Requests now", note: "The report finishes." },
+    },
+    caption: "One report, before and after. No screen.",
+    target: { kind: "selector", css: ".sf-fig-after .sf-fig-value" },
+    hue: null,
     link: { label: "Open the case", href: "/work/care-platform" },
   },
   {
     id: "03",
-    project: "Bayyinah TV",
-    role: "Frontend, core team",
+    project: "Care-management platform",
+    role: "Frontend, rebuilt screen by screen",
     year: "2023–26",
-    line: "Rebuild the video platform on Nuxt 3, from an empty template.",
-    result: "Moderated live chat, in 34 routes and 270+ components",
-    plate: { kind: "live", key: "live-room", width: 440, narrowWidth: 460, narrowShift: 250 },
-    caption: "Live room. Recreation with invented data.",
-    target: { kind: "selector", css: "section[aria-label='Live chat'] .bg-accent-soft" },
-    hue: 34,
-    link: { label: "Open the case", href: "/work/bayyinah-tv" },
+    line: "Many client organizations use the same system.",
+    result: "Each one sees only its own patients",
+    plate: { kind: "live", key: "care", width: 576, narrowWidth: 460 },
+    caption: "Vitals card. Recreation · invented data.",
+    target: { kind: "selector", css: 'button[aria-label^="Organization"]' },
+    lane: ".border-t",
+    hue: 185,
+    link: { label: "Open the case", href: "/work/care-platform" },
   },
   {
     id: "04",
-    project: "bayyinah.org",
-    role: "Frontend",
-    year: "2024–25",
-    line: "Build the institute's site as one Next.js page.",
-    result: "Live, with links to both app stores",
+    project: "Viva Fresh",
+    role: "Mobile",
+    year: "2023",
+    line: "One grocery app, built once for iPhone and Android.",
+    result: "Shopping in Albanian, live in both app stores",
     plate: {
       kind: "shot",
-      ...org,
-      crop: { x: 0, y: 236, w: 780, h: 975 },
-      narrow: { x: 0, y: 735, w: 780, h: 585 },
+      ...viva,
+      crop: { x: 102, y: 862, w: 576, h: 720 },
+      narrow: { x: 88, y: 1102, w: 604, h: 453 },
     },
-    caption: "bayyinah.org on a phone, public page.",
-    target: { kind: "shot", box: { x: 44, y: 1096, w: 668, h: 104 } },
-    hue: 61,
-    link: { label: "bayyinah.org", href: "https://bayyinah.org/", external: true },
+    caption: "App Store listing, iPhone. Also on Google Play.",
+    target: { kind: "shot", box: { x: 116, y: 1400, w: 300, h: 46 } },
+    hue: 23,
+    link: { label: "Open the case", href: "/work/viva-fresh" },
   },
   {
     id: "05",
-    project: "Incentiv",
-    role: "Frontend, UI layer",
-    year: "2024",
-    line: "Build the sign-in of a smart-wallet dashboard. Teammates built the wallet layer.",
-    result: "Passkey or wallet sign-in, in English and French",
-    plate: { kind: "live", key: "wallet", width: 576, narrowWidth: 460, narrowShift: 150 },
-    caption: "Wallet card. Recreation with invented data.",
-    target: { kind: "selector", css: "button.w-full" },
-    hue: 282,
-    link: { label: "Open the case", href: "/work/incentiv" },
+    project: "Design System v2",
+    role: "Design system, with the team",
+    year: "2026",
+    line: "The new care dashboard needed one set of buttons, menus and forms.",
+    result: "36 building blocks, 20 releases in about six weeks",
+    plate: { kind: "live", key: "design-system", width: 440, narrowWidth: 480 },
+    caption: "Button set. Recreation · invented data.",
+    target: { kind: "selector", css: ".dsr-area-buttons .dsr-button-rows" },
+    hue: 254,
+    link: { label: "Open the case", href: "/work/design-system-react" },
   },
   {
     id: "06",
     project: "Read to Feed",
     role: "Mobile",
     year: "2022–25",
-    line: "Build a children's reading app around a PDF and EPUB reader.",
-    result: "Progress is kept on every book",
+    line: "A reading app for children. Books open inside the app.",
+    result: "It remembers the page in every book",
     plate: { kind: "live", key: "reader", width: 480, narrowWidth: 420 },
-    caption: "Reader page. Recreation with public-domain text.",
+    caption: "Reader page. Recreation · public-domain text.",
     target: { kind: "selector", css: "div:has(> .h-\\[3px\\])" },
     hue: 78,
     link: { label: "Open the case", href: "/work/read-to-feed" },
   },
   {
     id: "07",
-    project: "Viva Fresh",
-    role: "Mobile",
-    year: "2023",
-    line: "Ship one React Native codebase to iPhone and Android.",
-    result: "Checkout in Albanian, live in both stores",
-    plate: {
-      kind: "shot",
-      ...viva,
-      crop: { x: 102, y: 862, w: 576, h: 720 },
-      narrow: { x: 102, y: 1130, w: 576, h: 432 },
-    },
-    caption: "App Store listing, iPhone. Also on Google Play.",
-    target: { kind: "shot", box: { x: 116, y: 1400, w: 300, h: 46 } },
-    hue: 24,
-    link: { label: "Open the case", href: "/work/viva-fresh" },
+    project: "Incentiv",
+    role: "Frontend, the screens",
+    year: "2024",
+    line: "Sign-in and dashboard screens for a crypto wallet. Teammates built the wallet.",
+    result: "Passkey (no password) or wallet sign-in, in English and French",
+    plate: { kind: "live", key: "wallet", width: 576, narrowWidth: 330 },
+    caption: "Wallet sign-in. Recreation · invented data.",
+    target: { kind: "selector", css: "button.w-full" },
+    hue: 282,
+    link: { label: "Open the case", href: "/work/incentiv" },
   },
 ];
 
@@ -185,54 +197,56 @@ export interface RecordRow {
   project: string;
   years: string;
   result: string;
-  slug?: string;
+  href?: string;
+  external?: boolean;
 }
 
 export const record: RecordRow[] = [
   {
-    decision: "Rework one billing report until it stops timing out.",
-    project: "Care-management API",
-    years: "2026",
-    result: "16 → 2 queries",
-    slug: "care-platform",
-  },
-  {
-    decision: "Move the care platform from Vue to React, one route at a time.",
+    decision: "Move the care platform to a new framework, one screen at a time.",
     project: "Care-management platform",
     years: "2026",
-    result: "Parity-tested on both apps",
-    slug: "care-platform",
+    result: "Each screen checked against the old app",
+    href: "/work/care-platform",
   },
   {
-    decision: "Test tenant isolation in a time-off app.",
+    decision: "The institute's public website, on one page.",
+    project: "bayyinah.org",
+    years: "2024–25",
+    result: "Live at bayyinah.org",
+    href: "https://bayyinah.org/",
+    external: true,
+  },
+  {
+    decision: "Keep a children's reading app current through three major upgrades.",
+    project: "Read to Feed",
+    years: "2022–25",
+    result: "About 14 updates in both stores",
+    href: "/work/read-to-feed",
+  },
+  {
+    decision: "Quizzes that run like a chat: messages, pictures, buttons and timers.",
+    project: "Scripted chat engine",
+    years: "2022–25",
+    result: "Built once, used on phones and the web",
+  },
+  {
+    decision: "Prove that each team in a time-off app sees only its own data.",
     project: "Offday",
     years: "2026",
     result: "16 security tests",
   },
   {
-    decision: "Cut the image weight of a studio site.",
+    decision: "Make a studio's website lighter to load.",
     project: "Snaxx Tech",
     years: "2026",
-    result: "972 → 337 KB",
+    result: "Images 972 KB → 337 KB",
   },
   {
-    decision: "Keep a children's reading app releasing from React Native 0.63 to 0.81.",
-    project: "Read to Feed",
-    years: "2022–25",
-    result: "About 14 releases",
-    slug: "read-to-feed",
-  },
-  {
-    decision: "Play scripted chat conversations from one React Native package.",
-    project: "Chatbot runtime",
-    years: "2022–25",
-    result: "1 package",
-  },
-  {
-    decision: "Ship a publisher's book shop to iPhone and Android.",
+    decision: "A publisher's bookshop app for iPhone and Android.",
     project: "Dukagjini Bookstore",
     years: "2021–22",
-    result: "Live in both stores",
-    slug: "dukagjini-bookstore",
+    result: "Live in both app stores",
+    href: "/work/dukagjini-bookstore",
   },
 ];

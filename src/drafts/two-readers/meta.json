@@ -1,0 +1,28 @@
+{
+  "id": "two-readers",
+  "title": "TWO READERS",
+  "band": "Loop 8",
+  "rule": "one set of facts, two readers: a switch rewrites every line for a hiring manager or for an engineer",
+  "description": "Eight pieces of work in a log beside one fixed frame, opening on a shipped product with a solved problem: one billing report that asked the database 16 times and gave up now asks 2 times and finishes. A switch at the top, 'Read as: Hiring manager · Engineer', rewrites every line. The hiring-manager view is the default and fully plain; the engineer view names the stack. The same facts, two audiences.",
+  "signature": "Paper #F3EFE6, ink #1B1A17, muted #5E5A52, one vermilion accent #B8311B (5.2:1 on paper). Newsreader for the plain reader, JetBrains Mono for the engineer: the face change is the signal that the reader changed. Desktop: a 560 px log (identity, sticky switch bar, rows) and a 4:5 frame (573 x 716 at 1440 x 900), sticky, with a count and caption under it. Row 01 plate is a vermilion card: '16' struck in cream with 16 ticks and 'Gave up', then '2' with 2 ticks and 'Finished'. Every line is two versions in one grid cell, so a switch never moves the page (CLS 0). Switch: each visible line is struck by a 2 px pen line along its words (160 ms, linear), the struck words fade (80 ms), the other reader's words write in with a clip-path wipe (240 ms, ease-out, from 200 ms), lines top to bottom with a 30 ms stagger; off-screen lines swap at once. The hairline hides at the switch and draws again (180 ms) from the new last word when that word's write ends, to the part that proves it; in engineer mode row 01 rings the '2 queries' count instead of the 'Finished' track, and Incentiv rings all three sign-in buttons instead of Passkey. Rows become current at 42% of the viewport after 160 ms; the plate cross-fades in 200 ms; the line never follows the scroll (it hides while the page moves and returns where it stops). Keyboard: arrow keys in the log jump with no travel; the switch is a radio group, and a key switch swaps the words at once. The reader is kept in the URL (?read=engineer). Phone: each row carries its own 4:3 plate with the same ring; the switch bar sticks at the top. Reduced motion: words swap at once, the line appears, nothing plays.",
+  "caseSlug": "care-platform",
+  "mechanisms": ["S2", "S5"],
+  "slopCount": 0,
+  "rounds": 4,
+  "loopScores": {
+    "straightToThePoint": 9,
+    "notOverwhelming": 8,
+    "harmony": 8,
+    "meaningfulMotion": 8,
+    "actionsAndSeniority": 8,
+    "original": 7,
+    "hooks": 8
+  },
+  "holdback": "Lowest: original, 7/10. The switch that rewrites every line is new, but the page around it is projector's log beside a sticky frame, a known scrollytelling layout. Other limits: the first plate is a figure, not a screen (no real Vianova screen may be shown); each line reserves the height of its longer version, so a few rows keep up to about 20 px of extra space under the shorter version; the Bayyinah TV ring (the free-trial button) proves 'members subscribe on the web', not the iPhone and Android part, which the copy carries; the Incentiv crop keeps about 90 px of the page's own dark ground above and below the sign-in card; the reader page keeps an empty lower half; motion timing is proven by paused-animation frames, because headless Chrome runs this page at about 4 fps.",
+  "chroma": {
+    "firstScreen": 31.0,
+    "outsidePlates": 0.7,
+    "plateRect": [762, 64, 1334, 780],
+    "method": "scratchpad/chroma6r.mjs logic (review/loop8/two-readers/chroma-tr.mjs) on review/loop8/two-readers/final/d-top.png (1440 x 900), captured last"
+  }
+}

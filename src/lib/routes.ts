@@ -1,7 +1,10 @@
 import { findProject } from '../content/projects'
 import { preloadable } from './preloadable'
+import { fontsReady } from '../pages/caseFonts'
 
-export const caseStudyPage = preloadable(() => import('../pages/AisleCasePage').then((m) => m.CaseStudyPage))
+export const caseStudyPage = preloadable(() =>
+  import('../pages/CasePage').then((m) => fontsReady().then(() => m.CaseStudyPage)),
+)
 
 /** Loads the case page and its monitor recreation, so the route renders in one commit. */
 export function preloadCase(slug: string): Promise<unknown> {

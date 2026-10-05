@@ -1,32 +1,71 @@
 {
   "id": "sampled-frame",
   "title": "SAMPLED FRAME",
-  "band": "Loop 7",
+  "band": "Loop 8",
   "rule": "one fixed frame, and the whole page is the colour of the screen inside it",
-  "description": "Seven screens as a log of seven rows beside one fixed frame on a wall. The row at the reading line is current: its screen fills the frame, and the screen's measured hue paints the page. The new screen and its colour arrive together inside one circle that grows from the frame's centre over the wall and the field; then a hairline runs from the row's result to the part of the screen that proves it. Decisions with no screen close the page in a grey record with no hue.",
-  "signature": "Projector's frame and log with sampled-ground's colour rule. Public Sans for text, Big Shoulders Display for the 96 px row numerals, roles and tray. Palette by construction, only the hue comes from the screen: field oklch(0.95 0.035 h), ink oklch(0.30 0.11 h), wall oklch(0.42 0.13 h); hues measured from each rendered plate (253, 185, 34, 61, 282, 78, 24). Desktop: name-first identity at 40 px and 'Part of two platform rewrites.' over a 520 px log at the left; at the right a full-height wall in the band colour holds a fixed 4:5 frame (576 x 720, never wider, so a store crop is never upscaled), a vertical tray of seven 44 px slots, and the caption with one hue line 'Sampled from the screen: 253°'. Every plate fills the frame: the specimen shows its Tokens and Alert cards whole; care, live room, wallet and reader render in their narrow layouts; bayyinah.org is its public phone view at 0.74x; Viva Fresh is a 576 x 720 native-pixel crop of the App Store cart. Every pin rings a part that proves its result: the One source row (CSS, TypeScript, Figma), the organization switcher (each organization sees only its own patients), the pinned chat message (moderated live chat), the passkey button, the two store badges, the progress row, the Albanian checkout button. Motion: a row becomes current 160 ms after it settles; one clip-path circle (280 ms, ease-out) reveals the new plate and spreads the new hue over wall and field from the frame's centre; the old line fades (120 ms), the result band wipes in (240 ms), the numeral fills (160 ms), and the new line draws (180 ms) with its ring (120 ms). Keys (Up/Down in the log, the tray, Tab) jump with no travel and switch the colour at once. Phone: the wall is the pinned head (4:3 crop of the same part, count, caption, hue); the log scrolls under it. Reduced motion: no circle, no draw, live plates still.",
-  "caseSlug": "design-system-react",
-  "mechanisms": ["sampled ground", "fixed frame", "S2", "one pin per row"],
+  "description": "Seven projects as a log beside one fixed frame on a coloured wall. The row at the reading line is current: its screen fills the frame, and the screen's measured hue paints the page. It opens on a shipped product (the Bayyinah TV pricing page, real and public) and puts the strongest result second: one billing report, 16 database requests before and 2 now, drawn as a figure on a grey wall because it has no screen. The new screen and its colour arrive together inside one circle from the frame's centre; then a hairline runs from the result to the part of the screen that proves it.",
+  "signature": "Projector's frame and log with sampled-ground's colour rule. Public Sans for text, Big Shoulders Display for the 96 px numerals and the 16 -> 2 figure. Palette by construction, only the hue comes from the screen: field oklch(0.95 0.035 h), ink oklch(0.30 0.11 h), wall oklch(0.42 0.13 h); a row with no screen is grey. Row order alternates warm and cool so every scroll changes the colour: 31, grey, 185, 23, 254, 78, 282. Desktop: a 560 px log and a wall of frame + 160 px with a 4:5 frame (576 x 720, never upscaled), a tray of seven 44 px slots, a caption under the frame. One card for each plate: the pricing column, the figure, the vitals card, the Viva Fresh cart, the button set, the reader page, the wallet. Motion: a row becomes current 160 ms after it settles; the old hairline leaves at once; one clip-path circle (280 ms, ease-out) reveals the new plate and its colour; the result band wipes in (240 ms), the numeral fills (160 ms), the new line draws (180 ms) with its ring (120 ms). Live plates mount hidden when the page is idle, so the care chart is already drawn when its row is shown. Keys jump with no motion. Phone: the wall is a pinned head with a 4:3 crop of the same part; the log scrolls under it. Reduced motion: no circle, no draw, nothing moves in a plate.",
+  "caseSlug": "bayyinah-tv",
+  "mechanisms": [
+    "sampled ground",
+    "fixed frame",
+    "S2",
+    "one pin per row"
+  ],
   "slopCount": 0,
-  "rounds": 1,
+  "rounds": 2,
   "loopScores": {
     "straightToThePoint": 9,
     "notOverwhelming": 8,
     "harmony": 8,
     "meaningfulMotion": 8.5,
-    "actionsAndSeniority": 8,
-    "original": 8,
-    "hooks": 8.5
+    "actionsAndSeniority": 8.5,
+    "original": 7.5,
+    "hooks": 8
   },
-  "holdback": "Lowest: calm, harmony, seniority and original at 8. Calm: the first screen is a split screen with a full-height colour wall, a five-line 40 px identity and a plate with two cards. Harmony: the care pin enters along a lane 12 px under the frame's top edge; the paused live room keeps about 60 px of empty chat under its fourth message, and under reduced motion it shows its full static chat (10 messages) with the first message under the pinned one; the care chart draws once (1.1 s) when its row is first current. Seniority: two results are features a screen can prove (moderated live chat, progress on every book), not outcomes. Original: it is projector's sticky frame with sampled-ground's colour rule; the wall makes it new, the layout is still a frame beside a log. The circle edge cuts glyphs of the plate for about 40 ms during the reveal.",
+  "holdback": "Lowest: original at 7.5. The first two rows now match projector's (the Bayyinah TV pricing page, then 16 -> 2), so the wall colour and the 4:5 frame are the only differences on the first screen. Other limits: at native pixels a 4:5 crop of the pricing page holds only the Premium column, so its four check rows have no labels; on a 375 px phone the '/ month' text in that crop renders at about 10 px; the circle edge cuts plate glyphs during its 280 ms; Incentiv stays a recreation (the real sign-in screen measures hue 41 and would add a fourth warm wall); the reader wall (hue 78) is still brown.",
   "chroma": {
-    "firstScreen": 28.3,
-    "outsidePlates": 41.0,
-    "plateRect": [732, 62, 1308, 782],
-    "method": "scratchpad/chroma6r.mjs logic (round-3 decode and threshold) on review/loop7/sampled-frame/final/d-top.png (1440 x 900), captured last with every label"
+    "firstScreen": 24.2,
+    "outsidePlates": 34.5,
+    "plateRect": [
+      762,
+      72,
+      1338,
+      792
+    ],
+    "method": "scratchpad/chroma6r.mjs logic (round-3 decode and threshold) on review/loop8/sampled-frame/final/d-top.png (1440 x 900), captured last"
   },
   "hues": {
-    "method": "OKLCH hue histogram, chroma-weighted, 1 degree bins smoothed over 13 degrees, over the rendered 576 x 720 plate at 1440 x 900 with the hairline hidden (review/loop7/sampled-frame/hue.mjs)",
-    "design-system": 253, "care-platform": 185, "bayyinah-tv": 34, "bayyinah-org": 61, "incentiv": 282, "read-to-feed": 78, "viva-fresh": 24
-  }
+    "method": "OKLCH hue histogram, chroma-weighted, 1 degree bins smoothed over 13 degrees, over the rendered 576 x 720 plate at 1440 x 900 (review/loop7/sampled-frame/hue.mjs); the 16 -> 2 figure has no screen and no hue",
+    "bayyinah-tv": 31,
+    "care-api": null,
+    "care-platform": 185,
+    "viva-fresh": 23,
+    "design-system": 254,
+    "read-to-feed": 78,
+    "incentiv": 282
+  },
+  "polish": [
+    {
+      "round": 8,
+      "score": 57.5,
+      "fixed": [
+        "Opens on a shipped product with a plain problem and result: Bayyinah TV, real public pricing page, 'Members subscribe on the web, iPhone or Android'",
+        "The strongest result gets a big plain figure as row 02: 16 -> 2 database requests, on a grey wall because it has no screen",
+        "First screen whole at 1440, 1280, 1024, 540, 390 and 375 px: no ellipsized labels, no cut card top (phone wallet shows its sign-in panel alone; Viva Fresh crop starts on a whole card)",
+        "Deleted the printed 'Sampled from the screen: N deg' line",
+        "One card for each plate: the specimen shows only its button set (no token names on the home page)",
+        "The old ring and line leave at t = 0 of the circle (d-spread-01to02-020ms)",
+        "Care chart is drawn before its row is shown: live plates mount hidden at idle (d-03-first-show-040ms)",
+        "Rows reordered so neighbouring hues differ: 31, grey, 185, 23, 254, 78, 282; no two warm walls touch",
+        "Care hairline runs along the card's header rule, not the frame edge",
+        "Plain copy for every row and the record (owner wording: 34 pages, client organizations, crypto wallet, Scripted chat engine); team work stated on Design System v2 and Bayyinah TV",
+        "Identity at four lines from 1024 to 1440 px (headline scales with its column); log column 560 px, wall narrowed by 64 px",
+        "Spacing on one scale (4/8/12/16/24/32/48/64/96); phone gutters 24 px; hairline never closer than 16 px to the edge; balanced result lines with no orphan words",
+        "Removed the 'All 30 projects' link that went back to the home page; the busy spinner in the button set no longer loops; weak 'ease' curves replaced by the custom ease-out",
+        "First pricing image loads eagerly, so the first hairline draws on load; CLS 0 measured"
+      ]
+    }
+  ],
+  "polished": true
 }

@@ -10,21 +10,25 @@ import {
   type KeyboardEvent,
   type MouseEvent,
 } from "react";
-import { Link, useLocation } from "react-router";
-import { ArrowRightIcon, ArrowUpRightIcon, CheckIcon, XIcon } from "@phosphor-icons/react";
+import { preload } from "react-dom";
+import { Link } from "react-router";
+import { ArrowRightIcon, ArrowUpRightIcon } from "@phosphor-icons/react";
 import { links } from "../../content/links";
 import { recreations } from "../../lib/recreations";
-import { rows, type Box, type Plate, type Row, type Shot, type Target } from "./data";
-import "./projector.css";
+import { rows, type Box, type Plate, type Row, type Shot } from "./data";
+import "./then-now.css";
 
 const SETTLE_MS = 160;
-const FADE_MS = 200;
+const FONT_WAIT_MS = 1000;
+const WRITE_WAIT_MS = 1200;
+const LITERATA = "/fonts/creative/Literata-Latin.woff2";
+const ANTON = "/fonts/creative/Anton-Latin.woff2";
 const DRAW_MS = 180;
 const RING_MS = 120;
 const LEAVE_MS = 120;
 const EASE_OUT = "cubic-bezier(0.23, 1, 0.32, 1)";
-/** On a wide screen the plate is drawn 880 px wide and scaled to the frame's width. */
-const STAGE_W = 880;
+/** On a wide screen every plate is drawn 640 x 656 and scaled to the frame's width. */
+const STAGE_W = 640;
 
 type Mode = "animate" | "instant";
 
@@ -40,29 +44,9 @@ function useMedia(query: string, fallback: boolean) {
   );
 }
 
-/* Text is shown once its fonts are in, so a late font never moves a line. The wait is capped. */
-const FONT_WAIT_MS = 1200;
-
-function useFontsReady() {
-  const [ready, setReady] = useState(false);
-  useEffect(() => {
-    let live = true;
-    const show = () => {
-      if (live) setReady(true);
-    };
-    const timer = window.setTimeout(show, FONT_WAIT_MS);
-    void document.fonts.ready.then(show, show);
-    return () => {
-      live = false;
-      window.clearTimeout(timer);
-    };
-  }, []);
-  return ready;
-}
-
 /* ---------- Plates ---------- */
 
-const liveKeys = { "design-system": recreations["design-system"], care: recreations.care, reader: recreations.reader };
+const liveKeys = { care: recreations.care, "design-system": recreations["design-system"] };
 
 function LivePlate({ which }: { which: keyof typeof liveKeys }) {
   const entry = liveKeys[which];
@@ -88,56 +72,27 @@ function LivePlate({ which }: { which: keyof typeof liveKeys }) {
     return () => observer.disconnect();
   }, [which]);
 
-  // The reader is drawn square. Its own ground fills the rest of the frame.
-  useEffect(() => {
-    if (which !== "reader") return;
-    const element = ref.current;
-    if (!element) return;
-    const copy = () => {
-      const root = element.querySelector<HTMLElement>(".pj-square > div");
-      if (!root) return false;
-      element.style.background = getComputedStyle(root).backgroundColor;
-      return true;
-    };
-    if (copy()) return;
-    const observer = new MutationObserver(() => {
-      if (copy()) observer.disconnect();
-    });
-    observer.observe(element, { childList: true, subtree: true });
-    return () => observer.disconnect();
-  }, [which]);
-
-  const live = (
-    <Suspense fallback={<div className="pj-wait" />}>
-      <Live />
-    </Suspense>
-  );
   return (
-    <div ref={ref} className={`pj-live pj-live-${which}`} data-world={entry.world}>
-      {which === "reader" ? <div className="pj-square">{live}</div> : live}
+    <div ref={ref} className={`tn-live tn-live-${which}`} data-world={entry.world}>
+      <Suspense fallback={<div className="tn-wait" />}>
+        <Live />
+      </Suspense>
     </div>
   );
 }
 
-const markLoaded = (image: HTMLImageElement | null) => {
-  if (image?.complete && image.naturalWidth > 0) image.dataset.loaded = "";
-};
-
-function ShotView({ shot, crop, eager }: { shot: Shot; crop: Box; eager: boolean }) {
+function ShotView({ shot, crop }: { shot: Shot; crop: Box }) {
   return (
     <div
-      className="pj-shot"
+      className="tn-shot"
       style={{ aspectRatio: `${Math.round(crop.w * shot.width)} / ${Math.round(crop.h * shot.height)}` }}
     >
       <img
-        ref={markLoaded}
-        onLoad={(event) => markLoaded(event.currentTarget)}
         src={shot.src}
         alt={shot.alt}
         width={shot.width}
         height={shot.height}
-        loading={eager ? "eager" : "lazy"}
-        fetchPriority={eager ? "high" : "auto"}
+        loading="lazy"
         decoding="async"
         style={{
           width: `${100 / crop.w}%`,
@@ -149,89 +104,42 @@ function ShotView({ shot, crop, eager }: { shot: Shot; crop: Box; eager: boolean
   );
 }
 
-function ReportPlate({ before, after }: { before: number; after: number }) {
-  const lanes = [
-    { key: "before", label: "Before", count: before, end: "Gave up", Icon: XIcon },
-    { key: "now", label: "Now", count: after, end: "Finished", Icon: CheckIcon },
-  ] as const;
+const REQUESTS = Array.from({ length: 16 }, (_, i) => i);
+
+/** The billing report as a count a reader can check: 16 requests, then 2. */
+function Figure({ struck }: { struck: boolean }) {
   return (
-    <figure className="pj-report">
-      <figcaption className="pj-report-head">One billing report · requests to the database</figcaption>
-      {lanes.map(({ key, label, count, end, Icon }) => (
-        <div key={key} className="pj-report-lane" data-lane={key}>
-          <p className="pj-report-label">{label}</p>
-          <p className="pj-report-n">{count}</p>
-          <p className="pj-report-cells" aria-hidden="true">
-            {Array.from({ length: count }, (_, i) => (
-              <span key={i} />
-            ))}
-          </p>
-          <p className="pj-report-end">
-            <Icon aria-hidden="true" weight="bold" />
-            {end}
-          </p>
-        </div>
-      ))}
+    <figure className="tn-fig" data-struck={struck || undefined}>
+      <p className="tn-fig-label">One billing report</p>
+      <p className="tn-fig-nums" aria-hidden="true">
+        <span className="tn-fig-from">
+          16
+          <span className="tn-fig-strike" />
+        </span>
+        <ArrowRightIcon className="tn-fig-arrow" weight="bold" />
+        <span className="tn-fig-to" data-to="">
+          2
+        </span>
+      </p>
+      <ol className="tn-fig-dots" aria-hidden="true">
+        {REQUESTS.map((i) => (
+          <li key={i} data-keep={i < 2 || undefined} />
+        ))}
+      </ol>
+      <figcaption className="tn-fig-unit">
+        Requests to the database
+        <span className="tn-sr">: 16 before, 2 now.</span>
+      </figcaption>
     </figure>
   );
 }
 
-/** Grows a narrow crop from its top edge and around its centre line until it is as wide as the frame, so the frame never shows it above its source pixels. */
-function fitCrop(shot: Shot, frameWidth: number): Box {
-  const { width: W, height: H } = shot;
-  const wide = shot.narrowWide;
-  const box = wide && frameWidth >= 0.85 * wide.w * W ? wide : shot.narrow;
-  const bounds = shot.bounds ?? { x: 0, y: 0, w: 1, h: 1 };
-  const ratio = (box.w * W) / (box.h * H);
-  const most = Math.min(bounds.w * W, bounds.h * H * ratio);
-  const w = Math.min(most, Math.max(box.w * W, frameWidth));
-  const h = w / ratio;
-  const clamp = (value: number, low: number, high: number) => Math.min(Math.max(value, low), high);
-  const x = clamp((box.x + box.w / 2) * W - w / 2, bounds.x * W, (bounds.x + bounds.w) * W - w);
-  const y = clamp(box.y * H, bounds.y * H, (bounds.y + bounds.h) * H - h);
-  return { x: x / W, y: y / H, w: w / W, h: h / H };
-}
-
-function PlateView({
-  plate,
-  load,
-  narrow,
-  eager,
-  frameWidth,
-}: {
-  plate: Plate;
-  load: boolean;
-  narrow: boolean;
-  eager: boolean;
-  frameWidth: number;
-}) {
-  if (plate.kind === "live") return load ? <LivePlate which={plate.key} /> : <div className="pj-wait" />;
-  if (plate.kind === "report") return <ReportPlate before={plate.before} after={plate.after} />;
-  const crop = narrow ? fitCrop(plate.shot, frameWidth) : plate.shot.crop;
-  const shot = load && <ShotView shot={plate.shot} crop={crop} eager={eager} />;
-  if (plate.kind === "phone") {
-    return (
-      <div className="pj-phone">
-        <div className="pj-phone-side">
-          <p className="pj-phone-kicker">Live in both app stores</p>
-          <ul className="pj-stores">
-            {plate.stores.map((store) => (
-              <li key={store.href}>
-                <a href={store.href} target="_blank" rel="noreferrer">
-                  {store.label}
-                  <ArrowUpRightIcon aria-hidden="true" size={16} weight="bold" />
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
-        {shot}
-      </div>
-    );
-  }
+function PlateView({ plate, load, narrow, struck }: { plate: Plate; load: boolean; narrow: boolean; struck: boolean }) {
+  if (plate.kind === "figure") return <Figure struck={struck} />;
+  if (plate.kind === "live") return load ? <LivePlate which={plate.key} /> : <div className="tn-wait" />;
   return (
-    <div className="pj-web" style={{ background: plate.ground }}>
-      {shot}
+    <div className={`tn-${plate.kind}`} style={plate.kind === "web" ? { background: plate.ground } : undefined}>
+      {load && <ShotView shot={plate.shot} crop={narrow ? plate.shot.narrow : plate.shot.crop} />}
     </div>
   );
 }
@@ -272,13 +180,15 @@ interface Wire {
   split: number;
   start: Point;
   ring: Box & { r: number };
-  tone: "light" | "dark" | "field";
+  tone: "light" | "dark";
 }
 
-function targetBox(target: Target, plate: HTMLElement): Box | null {
+function targetBox(row: Row, plate: HTMLElement): Box | null {
+  const { target } = row;
+  if (!target) return null;
   if (target.kind === "shot") {
-    const image = plate.querySelector<HTMLImageElement>(".pj-shot img");
-    if (!image?.complete || image.naturalWidth === 0) return null;
+    const image = plate.querySelector<HTMLImageElement>(".tn-shot img");
+    if (!image) return null;
     const box = image.getBoundingClientRect();
     if (box.width === 0) return null;
     return {
@@ -296,57 +206,41 @@ function targetBox(target: Target, plate: HTMLElement): Box | null {
 }
 
 function measureWire(row: Row, rowElement: HTMLElement, plate: HTMLElement, narrow: boolean): Wire | null {
-  const mark = rowElement.querySelector<HTMLElement>(".pj-result-ink mark");
-  const target = targetBox(narrow ? (row.narrowTarget ?? row.target) : row.target, plate);
+  const mark = rowElement.querySelector<HTMLElement>(".tn-now-band mark");
+  const target = targetBox(row, plate);
   if (!mark || !target) return null;
   const fragments = mark.getClientRects();
   if (fragments.length === 0) return null;
   const p = plate.getBoundingClientRect();
   const edge = Math.round(p.left);
-  let start: Point;
-  let gutter: number;
-  if (narrow) {
-    const first = fragments[0];
-    start = [Math.round(first.left - 6), Math.round(first.top + first.height / 2)];
-    gutter = Math.round(edge - 8);
-  } else {
-    const last = fragments[fragments.length - 1];
-    start = [Math.round(last.right + 10), Math.round(last.top + last.height / 2)];
-    gutter = Math.round(edge - 20);
-  }
-  const outside: Point[] = narrow ? [start, [gutter, start[1]]] : [start, [gutter, start[1]]];
+  const last = fragments[fragments.length - 1];
+  const start: Point = [Math.round(last.right + 12), Math.round(last.top + last.height / 2)];
+  const gutter = Math.round(edge - 24);
+  const outside: Point[] = [start, [gutter, start[1]]];
   const inside: Point[] = [];
-  const cx = Math.round(target.x + target.w / 2);
-  const { route } = row;
-  if (route.kind === "side") {
-    const ty = Math.round(target.y + target.h / 2);
-    outside.push([gutter, ty], [edge, ty]);
-    inside.push([edge, ty], [Math.round(target.x - 6), ty]);
-  } else {
-    let lane: number | null = null;
-    if (route.kind === "lane") lane = Math.round(p.top + route.y * p.height);
-    else {
-      const rule = plate.querySelector<HTMLElement>(route.css);
-      lane = rule ? Math.round(rule.getBoundingClientRect().top) : null;
-    }
-    if (lane === null) return null;
-    const end = target.y > lane ? Math.round(target.y - 6) : Math.round(target.y + target.h + 6);
+  if (row.route?.kind === "lane") {
+    const lane = Math.round(p.top + row.route.y * p.height);
+    const cx = Math.round(target.x + target.w / 2);
+    const end = target.y > lane ? Math.round(target.y - 8) : Math.round(target.y + target.h + 8);
     outside.push([gutter, lane], [edge, lane]);
     inside.push([edge, lane], [cx, lane], [cx, end]);
+  } else {
+    const ty = Math.round(target.y + target.h / 2);
+    outside.push([gutter, ty], [edge, ty]);
+    inside.push([edge, ty], [Math.round(target.x - 8), ty]);
   }
-  const pad = 5;
+  const pad = 6;
   const ring = { x: target.x - pad, y: target.y - pad, w: target.w + pad * 2, h: target.h + pad * 2, r: 8 };
-  if (row.target.kind === "selector" && row.target.round) ring.r = ring.h / 2;
-  if (narrow) ring.r = Math.min(ring.r, 8);
+  if (row.target?.kind === "selector" && row.target.round) ring.r = ring.h / 2;
   const outLength = lengthOf(outside);
   const inLength = lengthOf(inside);
   return {
-    outside: rounded(outside),
-    inside: rounded(inside),
+    outside: narrow ? "" : rounded(outside),
+    inside: narrow ? "" : rounded(inside),
     split: outLength / Math.max(1, outLength + inLength),
     start,
     ring,
-    tone: row.plate.kind === "report" ? "field" : row.plate.kind === "web" && row.plate.dark ? "dark" : "light",
+    tone: row.plate.kind === "web" && row.plate.dark ? "dark" : "light",
   };
 }
 
@@ -355,7 +249,6 @@ function measureWire(row: Row, rowElement: HTMLElement, plate: HTMLElement, narr
 export default function Draft() {
   const narrow = useMedia("(max-width: 1023px)", false);
   const reduced = useMedia("(prefers-reduced-motion: reduce)", false);
-  const fontsReady = useFontsReady();
   const rootRef = useRef<HTMLDivElement>(null);
   const frameRef = useRef<HTMLDivElement>(null);
   const screenRef = useRef<HTMLDivElement>(null);
@@ -367,7 +260,14 @@ export default function Draft() {
   const [loaded, setLoaded] = useState<Set<number>>(() => new Set([0]));
   const nextMode = useRef<Mode | null>(null);
 
-  /* Which row is at the pin line. */
+  /*
+   * A struck row stays struck. "fresh" is the row whose line is being drawn now;
+   * every other row strikes without a transition.
+   */
+  const [struck, setStruck] = useState<Set<number>>(() => new Set());
+  const [fresh, setFresh] = useState<number | null>(null);
+
+  /* Which row is at the reading line. */
   const pinLine = useCallback(() => {
     if (!narrow) return window.innerHeight * 0.42;
     const frame = frameRef.current?.getBoundingClientRect();
@@ -375,13 +275,12 @@ export default function Draft() {
   }, [narrow]);
 
   const locate = useCallback(() => {
+    if (!rowRefs.current[0]?.offsetHeight) return;
     const pin = pinLine();
     let index = 0;
     rowRefs.current.forEach((row, i) => {
       if (row && row.getBoundingClientRect().top <= pin) index = i;
     });
-    const end = document.documentElement.scrollHeight - window.innerHeight;
-    if (end > 0 && window.scrollY >= end - 2) index = rows.length - 1;
     activeRef.current = index;
     setActive((was) => (was === index ? was : index));
   }, [pinLine]);
@@ -405,7 +304,7 @@ export default function Draft() {
     };
   }, [locate]);
 
-  /* A row is shown only after it settles at the pin line, so a passed row never fires. */
+  /* A row is shown only after it settles at the reading line, so a passed row never fires. */
   useEffect(() => {
     if (shown.index === active) return;
     if (nextMode.current) {
@@ -421,6 +320,59 @@ export default function Draft() {
     return () => window.clearTimeout(timer);
   }, [active, shown.index, reduced]);
 
+  /* The shown row and every row above it are struck. Only the shown row draws its line. */
+  const [strikeFor, setStrikeFor] = useState<{ index: number; mode: Mode; reduced: boolean } | null>(null);
+  if (strikeFor?.index !== shown.index || strikeFor.mode !== shown.mode || strikeFor.reduced !== reduced) {
+    setStrikeFor({ index: shown.index, mode: shown.mode, reduced });
+    const upTo = reduced ? rows.length - 1 : shown.index;
+    const missing = rows.slice(0, upTo + 1).some((_, i) => !struck.has(i));
+    if (missing) {
+      const next = new Set(struck);
+      for (let i = 0; i <= upTo; i++) next.add(i);
+      setStruck(next);
+    }
+    const first = strikeFor === null;
+    const draws =
+      !reduced && (first || shown.mode === "animate") && !struck.has(shown.index) && rows[shown.index].kind === "fixed";
+    setFresh(draws ? shown.index : null);
+  }
+
+  /* The page is laid out once its two faces are loaded. Then the first row strikes. */
+  preload(LITERATA, { as: "font", type: "font/woff2", crossOrigin: "anonymous" });
+  preload(ANTON, { as: "font", type: "font/woff2", crossOrigin: "anonymous" });
+  const [laid, setLaid] = useState(false);
+  const [ready, setReady] = useState(false);
+  useEffect(() => {
+    let live = true;
+    let frame = 0;
+    const show = () => {
+      if (!live) return;
+      live = false;
+      setLaid(true);
+      // The strike starts one painted frame after the layout, so its transition runs.
+      frame = requestAnimationFrame(() => {
+        frame = requestAnimationFrame(() => setReady(true));
+      });
+    };
+    const timer = window.setTimeout(show, FONT_WAIT_MS);
+    void Promise.all([
+      document.fonts.load('400 20px "Literata"'),
+      document.fonts.load('650 20px "Literata"'),
+      document.fonts.load('400 20px "Anton"'),
+    ])
+      .then(() => document.fonts.ready)
+      .then(show, show);
+    return () => {
+      live = false;
+      window.clearTimeout(timer);
+      cancelAnimationFrame(frame);
+    };
+  }, []);
+  useEffect(() => {
+    if (laid) locate();
+  }, [laid, locate]);
+  const firstLoad = !ready && !reduced;
+
   /* The plate that leaves stays under the new one until the new one is opaque. */
   const [track, setTrack] = useState<{ index: number; prev: number | null }>({ index: 0, prev: null });
   if (track.index !== shown.index) {
@@ -429,11 +381,11 @@ export default function Draft() {
   const prev = track.prev;
   useEffect(() => {
     if (prev === null) return;
-    const timer = window.setTimeout(() => setTrack((was) => ({ ...was, prev: null })), FADE_MS + 40);
+    const timer = window.setTimeout(() => setTrack((was) => ({ ...was, prev: null })), 240);
     return () => window.clearTimeout(timer);
   }, [prev, track.index]);
 
-  /* A screenshot loads when its row is near. A live plate mounts when its row is first shown, so it draws in view. */
+  /* A screenshot loads when its row is near. A live plate mounts when its row is first shown. */
   const near = [active - 1, active, active + 1, shown.index].filter(
     (i) => i >= 0 && i < rows.length && (rows[i].plate.kind !== "live" || i === shown.index),
   );
@@ -447,19 +399,15 @@ export default function Draft() {
     const idle = window.requestIdleCallback ?? ((callback: () => void) => window.setTimeout(callback, 600));
     idle(() => {
       void recreations.care.load();
-      void recreations.reader.load();
+      void recreations["design-system"].load();
     });
   }, []);
 
   /* The frame draws the plate at one size and scales it to its width. */
-  const [frameWidth, setFrameWidth] = useState(0);
   useLayoutEffect(() => {
     const screen = screenRef.current;
     if (!screen) return;
-    const fit = () => {
-      screen.style.setProperty("--k", String(screen.clientWidth / STAGE_W));
-      setFrameWidth(Math.ceil(screen.clientWidth));
-    };
+    const fit = () => screen.style.setProperty("--k", String(screen.clientWidth / STAGE_W));
     fit();
     const observer = new ResizeObserver(fit);
     observer.observe(screen);
@@ -476,22 +424,20 @@ export default function Draft() {
   const pendingDraw = useRef<Mode | null>(null);
   const armed = useRef(false);
 
-  const draw = useCallback((split: number, ringOnly: boolean) => {
-    const out = outRefs.current;
-    const inner = inRefs.current;
+  const draw = useCallback((split: number, wide: boolean) => {
     const ring = ringRef.current;
     const dot = dotRef.current;
     if (!ring || !dot) return;
-    if (ringOnly) {
+    if (!wide) {
       ring.animate([{ opacity: 0 }, { opacity: 1 }], { duration: RING_MS, easing: EASE_OUT, fill: "backwards" });
       return;
     }
     const outMs = Math.round(DRAW_MS * split);
     const inMs = DRAW_MS - outMs;
-    out.forEach((path) =>
+    outRefs.current.forEach((path) =>
       path.animate([{ strokeDashoffset: 1 }, { strokeDashoffset: 0 }], { duration: outMs, easing: "linear", fill: "backwards" }),
     );
-    inner.forEach((path) =>
+    inRefs.current.forEach((path) =>
       path.animate([{ strokeDashoffset: 1 }, { strokeDashoffset: 0 }], {
         duration: inMs,
         delay: outMs,
@@ -500,12 +446,7 @@ export default function Draft() {
       }),
     );
     dot.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 80, easing: EASE_OUT, fill: "backwards" });
-    ring.animate([{ opacity: 0 }, { opacity: 1 }], {
-      duration: RING_MS,
-      delay: ringOnly ? 0 : DRAW_MS,
-      easing: EASE_OUT,
-      fill: "backwards",
-    });
+    ring.animate([{ opacity: 0 }, { opacity: 1 }], { duration: RING_MS, delay: DRAW_MS, easing: EASE_OUT, fill: "backwards" });
   }, []);
 
   const updateWire = useCallback(() => {
@@ -518,13 +459,16 @@ export default function Draft() {
     const rowElement = rowRefs.current[index];
     const plate = plateRefs.current[index];
     const wire = armed.current && rowElement && plate ? measureWire(row, rowElement, plate, narrow) : null;
-    if (!wire) {
+    const frameBottom = frameRef.current?.getBoundingClientRect().bottom ?? 0;
+    const covered = !narrow && wire && wire.start[1] < 0;
+    const hidden = narrow && wire && wire.ring.y + wire.ring.h > frameBottom - 40;
+    if (!wire || covered || hidden) {
       group.dataset.ready = "false";
       return;
     }
     group.dataset.ready = "true";
     group.dataset.tone = wire.tone;
-    group.dataset.narrow = String(narrow);
+    group.dataset.wide = String(!narrow);
     outRefs.current.forEach((path) => path.setAttribute("d", wire.outside));
     inRefs.current.forEach((path) => path.setAttribute("d", wire.inside));
     dot.setAttribute("cx", String(wire.start[0]));
@@ -537,7 +481,7 @@ export default function Draft() {
     if (pendingDraw.current) {
       const mode = pendingDraw.current;
       pendingDraw.current = null;
-      if (mode === "animate" && !reduced) draw(wire.split, narrow);
+      if (mode === "animate" && !reduced) draw(wire.split, !narrow);
     }
   }, [narrow, reduced, draw]);
 
@@ -562,7 +506,7 @@ export default function Draft() {
     }
     const log = rowRefs.current[0]?.parentElement;
     if (log) resize.observe(log);
-    const images = Array.from(document.querySelectorAll(".pj-frame img"));
+    const images = Array.from(document.querySelectorAll(".tn-frame img"));
     images.forEach((image) => image.addEventListener("load", schedule));
     return () => {
       cancelAnimationFrame(frame);
@@ -574,11 +518,38 @@ export default function Draft() {
     };
   }, [updateWire, loaded]);
 
-  /* The first line draws after the first plate has faded in. */
+  /** Calls back when the row's result has written in, so the line never draws ahead of its words. */
+  const afterWrite = useCallback((index: number, done: () => void) => {
+    const band = rowRefs.current[index]?.querySelector<HTMLElement>(".tn-now-band");
+    let live = true;
+    const finish = () => {
+      if (!live) return;
+      live = false;
+      band?.removeEventListener("transitionend", onEnd);
+      band?.removeEventListener("transitioncancel", onEnd);
+      window.clearTimeout(timer);
+      done();
+    };
+    const onEnd = (event: TransitionEvent) => {
+      if (event.target === band && event.propertyName === "clip-path") finish();
+    };
+    band?.addEventListener("transitionend", onEnd);
+    band?.addEventListener("transitioncancel", onEnd);
+    // The band moves for at most 460 ms. The timer covers a band that does not move.
+    const timer = window.setTimeout(finish, WRITE_WAIT_MS);
+    return () => {
+      live = false;
+      band?.removeEventListener("transitionend", onEnd);
+      band?.removeEventListener("transitioncancel", onEnd);
+      window.clearTimeout(timer);
+    };
+  }, []);
+
+  /* At load the first row strikes, its result writes in, then its line draws. */
   useEffect(() => {
-    if (armed.current || !fontsReady) return;
-    let timer = 0;
+    if (armed.current || !ready) return;
     let frame = 0;
+    let stop: (() => void) | null = null;
     const arm = () => {
       armed.current = true;
       pendingDraw.current = "animate";
@@ -586,21 +557,21 @@ export default function Draft() {
     };
     const wait = () => {
       const plate = plateRefs.current[0];
-      if (!plate || !targetBox(narrow ? (rows[0].narrowTarget ?? rows[0].target) : rows[0].target, plate)) {
+      if (!plate || !targetBox(rows[0], plate)) {
         frame = requestAnimationFrame(wait);
         return;
       }
       if (reduced) arm();
-      else timer = window.setTimeout(arm, FADE_MS);
+      else stop = afterWrite(0, arm);
     };
     wait();
     return () => {
       cancelAnimationFrame(frame);
-      window.clearTimeout(timer);
+      stop?.();
     };
-  }, [reduced, narrow, fontsReady, updateWire]);
+  }, [ready, reduced, updateWire, afterWrite]);
 
-  /* A new row: the old line fades, the plate cross-fades, then the new line draws. */
+  /* A new row: the old line fades, the row strikes (once) and writes, then the new line draws. */
   useLayoutEffect(() => {
     const group = wireRef.current;
     if (!group || wireIndex.current === shown.index) return;
@@ -612,17 +583,17 @@ export default function Draft() {
       return;
     }
     const fade = group.animate([{ opacity: 1 }, { opacity: 0 }], { duration: LEAVE_MS, easing: EASE_OUT, fill: "forwards" });
-    const timer = window.setTimeout(() => {
+    const stop = afterWrite(shown.index, () => {
       fade.cancel();
       wireIndex.current = shown.index;
       pendingDraw.current = "animate";
       updateWire();
-    }, FADE_MS);
+    });
     return () => {
-      window.clearTimeout(timer);
+      stop();
       fade.cancel();
     };
-  }, [shown, reduced, updateWire]);
+  }, [shown, reduced, updateWire, afterWrite]);
 
   /* ---------- Keyboard and pointer: the page jumps, nothing travels ---------- */
   const jump = useCallback(
@@ -653,8 +624,7 @@ export default function Draft() {
     event.preventDefault();
     const index = Math.min(rows.length - 1, Math.max(0, shown.index + step));
     jump(index, "instant");
-    const row = rowRefs.current[index];
-    (row?.querySelector<HTMLElement>(".pj-link") ?? row?.querySelector<HTMLElement>("h2"))?.focus({ preventScroll: true });
+    rowRefs.current[index]?.querySelector<HTMLElement>(".tn-link")?.focus({ preventScroll: true });
   };
 
   const onRowFocus = (index: number) => (event: FocusEvent<HTMLLIElement>) => {
@@ -681,94 +651,96 @@ export default function Draft() {
   };
 
   const current = rows[shown.index];
-  const home = useLocation().pathname === "/";
+  const isStruck = (index: number) => struck.has(index) && !(index === 0 && firstLoad);
 
   return (
-    <div className="pj" ref={rootRef} data-wait={fontsReady ? undefined : ""}>
-      <title>{home ? "Gentrit Rashiti — web, mobile & full stack" : "Projector — Gentrit Rashiti"}</title>
-      <main className="pj-main">
-        <header className="pj-id">
+    <div className="tn" ref={rootRef} data-laid={laid || undefined} data-ready={ready || undefined}>
+      <title>Then and now — Gentrit Rashiti</title>
+      <main className="tn-main">
+        <header className="tn-id">
           <h1>Gentrit Rashiti builds web and mobile apps, from the screens people use to the server behind them.</h1>
-          <p className="pj-id-line">
+          <p className="tn-id-line">
             <span>Part of two platform rewrites. Based in Kosovo, working remotely.</span>
-            <span className="pj-id-links">
-              <a href={links.cv}>CV</a>
+            <span className="tn-id-links">
+              <a href={links.cv}>Download CV</a>
               <a href={`mailto:${links.email}`}>Email</a>
             </span>
           </p>
+          <p className="tn-key">Each row is one change to a product. A struck line is a problem that is now gone.</p>
         </header>
 
-        <ol className="pj-log" aria-label={`${rows.length} projects`} onKeyDown={onLogKey}>
-          {rows.map((row, index) => (
-            <li
-              key={row.id}
-              ref={(element) => {
-                rowRefs.current[index] = element;
-              }}
-              className="pj-row"
-              data-current={index === shown.index || undefined}
-              onFocus={onRowFocus(index)}
-              onClick={onRowClick(index)}
-            >
-              <div className="pj-row-head">
-                <span className="pj-num" aria-hidden="true">
-                  {row.id}
-                </span>
-                <div className="pj-row-name">
-                  <h2 tabIndex={row.link ? undefined : -1}>
-                    <span className="pj-sr">{row.id}. </span>
-                    {row.project}
-                  </h2>
-                  <p className="pj-role">
+        <ol className="tn-log" aria-label="Changes, strongest first" onKeyDown={onLogKey}>
+          {rows.map((row, index) => {
+            const strikeNow = row.kind === "fixed" && isStruck(index);
+            return (
+              <li
+                key={row.id}
+                ref={(element) => {
+                  rowRefs.current[index] = element;
+                }}
+                className="tn-row"
+                data-kind={row.kind}
+                data-current={index === shown.index || undefined}
+                data-struck={strikeNow || undefined}
+                data-fresh={(fresh === index && strikeNow) || undefined}
+                onFocus={onRowFocus(index)}
+                onClick={onRowClick(index)}
+              >
+                <h2 className="tn-head">
+                  <span className="tn-num" aria-hidden="true">
+                    {row.id}
+                  </span>
+                  <span className="tn-project">{row.project}</span>
+                  <span className="tn-role">
                     {row.role} · {row.year}
-                  </p>
-                </div>
-              </div>
-              <p className="pj-line">{row.line}</p>
-              <p className="pj-result">
-                <span className="pj-result-base">
-                  <mark>
-                    <ArrowRightIcon className="pj-result-arrow" weight="bold" aria-hidden="true" />
-                    {row.result}
-                  </mark>
-                </span>
-                <span className="pj-result-ink" aria-hidden="true">
-                  <mark>
-                    <ArrowRightIcon className="pj-result-arrow" weight="bold" />
-                    {row.result}
-                  </mark>
-                </span>
-              </p>
-              {row.link && (
-                <p className="pj-foot">
-                  {row.live && (
-                    <a className="pj-link" href={row.live.href} target="_blank" rel="noreferrer">
-                      {row.live.label}
-                      <ArrowUpRightIcon aria-hidden="true" size={16} weight="bold" />
-                    </a>
-                  )}
+                  </span>
+                </h2>
+                <p className="tn-then">
+                  <span className="tn-label">{row.kind === "shipped" ? "Shipped" : "Then"}</span>
+                  <span className="tn-then-text">
+                    {row.kind === "fixed" && <span className="tn-sr">Problem, now gone: </span>}
+                    {row.then}
+                    {row.kind === "fixed" && (
+                      <span className="tn-strike" aria-hidden="true">
+                        {row.then}
+                      </span>
+                    )}
+                  </span>
+                </p>
+                <p className="tn-now">
+                  <span className="tn-label">Now</span>
+                  <span className="tn-now-body">
+                    <span className="tn-now-base">
+                      <mark>{row.now}</mark>
+                    </span>
+                    <span className="tn-now-band" aria-hidden="true">
+                      <mark>{row.now}</mark>
+                    </span>
+                  </span>
+                </p>
+                <p className="tn-foot">
                   {row.link.external ? (
-                    <a className="pj-link" href={row.link.href} target="_blank" rel="noreferrer">
+                    <a className="tn-link" href={row.link.href} target="_blank" rel="noreferrer">
                       {row.link.label}
                       <ArrowUpRightIcon aria-hidden="true" size={16} weight="bold" />
                     </a>
                   ) : (
-                    <Link className="pj-link" to={row.link.href}>
+                    <Link className="tn-link" to={row.link.href}>
                       {row.link.label}
-                      <span className="pj-sr">: {row.project}</span>
+                      <span className="tn-sr">: {row.project}</span>
                       <ArrowRightIcon aria-hidden="true" size={16} weight="bold" />
                     </Link>
                   )}
                 </p>
-              )}
-            </li>
-          ))}
+              </li>
+            );
+          })}
         </ol>
 
-        <aside className="pj-frame-wrap" aria-label="Frame">
-          <div className="pj-frame" ref={frameRef}>
-            <div className="pj-screen" ref={screenRef}>
-              <div className="pj-stage">
+        <aside className="tn-frame-wrap" aria-label="Screen for the current row">
+          <div className="tn-frame" ref={frameRef}>
+            <div className="tn-screen" ref={screenRef}>
+              <div className="tn-stage">
                 {rows.map((row, index) => {
                   const state = index === shown.index ? "on" : index === prev ? "prev" : "off";
                   return (
@@ -777,27 +749,27 @@ export default function Draft() {
                       ref={(element) => {
                         plateRefs.current[index] = element;
                       }}
-                      className={`pj-plate pj-plate-${row.plate.kind}`}
+                      className={`tn-plate tn-plate-${row.plate.kind}`}
                       data-state={state}
                       data-mode={shown.mode}
                       inert={state !== "on" || narrow}
                       aria-hidden={state !== "on"}
                     >
-                      <PlateView plate={row.plate} load={loaded.has(index)} narrow={narrow} eager={index === 0} frameWidth={frameWidth} />
+                      <PlateView plate={row.plate} load={loaded.has(index)} narrow={narrow} struck={isStruck(index)} />
                     </div>
                   );
                 })}
               </div>
             </div>
-            <div className="pj-caption">
-              <p className="pj-count" aria-hidden="true">
+            <div className="tn-caption">
+              <p className="tn-count" aria-hidden="true">
                 <span>{current.id}</span>
-                <span className="pj-count-of">/ {String(rows.length).padStart(2, "0")}</span>
+                <span className="tn-count-of">/ {String(rows.length).padStart(2, "0")}</span>
               </p>
-              <p className="pj-caption-text" aria-live="polite">
+              <p className="tn-caption-text" aria-live="polite">
                 {current.caption}
               </p>
-              <div className="pj-tray" role="toolbar" aria-label="Screens" ref={trayRef} onKeyDown={onTrayKey}>
+              <div className="tn-tray" role="toolbar" aria-label="Rows" ref={trayRef} onKeyDown={onTrayKey}>
                 {rows.map((row, index) => (
                   <button
                     type="button"
@@ -816,16 +788,13 @@ export default function Draft() {
         </aside>
       </main>
 
-      <footer className="pj-end">
+      <footer className="tn-end">
         <p>
-          Gentrit Rashiti. Bachelor's degree, UBT. The care, style and reader screens are recreations with invented
-          data. The other screens are public.
+          Gentrit Rashiti. Bachelor's degree, UBT. The vitals card and the button card are recreations with invented
+          data. The other screens come from public pages and store listings.
         </p>
-        <p className="pj-end-links">
-          <a href={`mailto:${links.email}`}>
-            <span className="pj-end-wide">{links.email}</span>
-            <span className="pj-end-short">Email</span>
-          </a>
+        <p className="tn-end-links">
+          <a href={`mailto:${links.email}`}>{links.email}</a>
           <a href={links.cv}>Download CV</a>
           <a href={links.github} target="_blank" rel="noreferrer">
             GitHub
@@ -836,7 +805,7 @@ export default function Draft() {
         </p>
       </footer>
 
-      <svg className="pj-wire" aria-hidden="true">
+      <svg className="tn-wire" aria-hidden="true">
         <g ref={wireRef} data-ready="false">
           {[0, 1].map((layer) => (
             <path
@@ -844,7 +813,7 @@ export default function Draft() {
               ref={(element) => {
                 if (element) outRefs.current[layer] = element;
               }}
-              className={layer === 0 ? "pj-wire-halo pj-wire-out" : "pj-wire-line pj-wire-out"}
+              className={layer === 0 ? "tn-wire-halo tn-wire-out" : "tn-wire-line tn-wire-out"}
               pathLength={1}
             />
           ))}
@@ -854,12 +823,12 @@ export default function Draft() {
               ref={(element) => {
                 if (element) inRefs.current[layer] = element;
               }}
-              className={layer === 0 ? "pj-wire-halo pj-wire-in" : "pj-wire-line pj-wire-in"}
+              className={layer === 0 ? "tn-wire-halo tn-wire-in" : "tn-wire-line tn-wire-in"}
               pathLength={1}
             />
           ))}
-          <rect ref={ringRef} className="pj-wire-ring" />
-          <circle ref={dotRef} className="pj-wire-dot" r={3.5} />
+          <rect ref={ringRef} className="tn-wire-ring" />
+          <circle ref={dotRef} className="tn-wire-dot" r={3.5} />
         </g>
       </svg>
     </div>

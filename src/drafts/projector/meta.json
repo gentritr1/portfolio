@@ -1,10 +1,10 @@
 {
   "id": "projector",
   "title": "PROJECTOR",
-  "band": "Loop 7",
-  "rule": "one frame, ten screens: the frame never moves, the log scrolls beside it and decides what the frame shows",
-  "description": "Ten pieces of work as a log of ten rows, newest first, beside one fixed frame. The row at the reading line is the current one; the frame shows its screen, and a hairline runs from the row's result into the frame to the part that proves it. No card stack: the eye stays on one frame while the work changes.",
-  "signature": "Big Shoulders Display for the 96 px row numerals, the number plates and the slide tray, and Public Sans for text, ink #141B06 on a chartreuse field #D9F26B that is the whole page (14.2:1; muted #3E4A14 at 7.7:1). Desktop: a 440 px log at the left with the identity line at its top; an 880 x 676 frame at the right, white with a 1 px ink line, position: sticky, and a caption and a ten-slot tray under it. The frame, caption and tray are one block set in the middle of the viewport, so at 1440 x 900 the frame top and the name both sit at y 83 and the first screen ends on the tray (its bottom at y 817, then an 83 px margin). Rows scroll natively; the row whose top passes 42% of the viewport becomes current after it settles for 160 ms, so a passed row never fires. Then the plate cross-fades in 200 ms over the old one (the old plate stays opaque under it, so no dip), the caption swaps, the row's outlined numeral fills (160 ms), its result gets an ink band that wipes in from the left (clip-path, 240 ms; it leaves by opacity in 120 ms), the old hairline fades (120 ms) and the new one draws in 180 ms from the end of the result, through the gutter, into the frame to a ring on the part that proves the result: the One source row of the specimen, the organization switcher of the care card (the line runs along the card's own rule and turns up into the ring), the 2 of 16 -> 2, the store badges of bayyinah.org, the Passkey button of the Incentiv sign-in, the Monthly/Annual switch of the Bayyinah TV pricing page, the Albanian category row of Viva Fresh, the progress row of the reader, the 1 of the chatbot plate, the search field of Dukagjini Bookstore. At load the first plate fades in (200 ms) and then its line draws; there is no entrance on the frame. The specimen shows three token rows and the source row, drawn at 600 px and scaled 1.47 to fill the frame. Viva Fresh and Dukagjini Bookstore show one iPhone screen each at its own ratio, cropped to whole rows, on the frame's white paper with a hairline at each screen edge, never larger than its source pixels; no store colour field. Row 09 (chatbot runtime, no case page) has no link; Up and Down in the log focus its title instead. Arrow keys in the log, the tray buttons (roving tabindex, Left and Right) and Tab on a row move the current row with no travel and no animation. Phone: the frame pins at the top at 4:3 over an ink rule, the log scrolls under it; each plate is a phone crop at its own size (the specimen's first lane and source row, the care card's header with the organization switcher over its chart, the reader's page, a 4:3 crop of each screenshot), and every caption keeps two lines so the pinned frame never changes height. Reduced motion: no fade, no wipe, the line appears, and nothing inside a live plate moves on its own.",
+  "band": "Loop 8",
+  "rule": "one frame, eight pieces of work: the frame never moves, the log scrolls beside it and decides what the frame shows",
+  "description": "Eight pieces of work as a log of eight rows, beside one fixed frame. It opens on a live product (Bayyinah TV pricing page) and then the strongest result (one billing report: 16 requests to the database and a timeout, now 2). The row at the reading line is the current one; the frame shows its screen, and a hairline runs from the row's result into the frame to the part that proves it.",
+  "signature": "Big Shoulders Display for the row numerals, the report diagram and the slide tray; Public Sans for text; ink #141B06 on a chartreuse field #D9F26B (14.2:1; muted #3E4A14 at 7.7:1). Desktop: a 440 px log at the left with the identity line at its top; an 880 x 676 frame at the right, sticky, with a caption and an eight-slot tray under it, set in the middle of the viewport. Row order: 01 Bayyinah TV (pricing page, ring on the Monthly/Annual switch, result 'Members pay monthly or yearly', plus a 'Live at bayyinahtv.com' link); 02 care platform server side as a diagram (16 outlined cells and 'Gave up' over 2 filled cells and 'Finished', ring on the Now lane); 03 care card recreation (ring on the organization switch); 04 Viva Fresh and 08 Dukagjini Bookstore as iPhone screens at their source pixels (596 x 676 and 568 x 676, flush right) with an App Store / Google Play panel at the left of the frame; 05 Design System v2 specimen with the three token rows spread evenly; 06 Incentiv sign-in; 07 reader recreation. Motion: at load the text appears once its fonts are in (capped at 1.2 s, so no line moves), the first screenshot fades in 200 ms, then the hairline draws in 180 ms to its ring. A row becomes current after it settles at 42% of the viewport for 160 ms; the plate cross-fades in 200 ms, the numeral fills (160 ms), the result band wipes in (clip-path, 240 ms), the old line fades (120 ms) and the new one draws (180 ms). Keyboard moves (arrows, Home, End, tray Left/Right) jump with no animation. Phone: the frame pins at the top at 4:3 (max 568 px wide); each screenshot crop grows to the frame width inside its own screen bounds, so it is never shown above its source pixels; the ring alone marks the proof (no line in the 16 px gutter); at the page end the last row is current and stands whole under the frame. Reduced motion: no fade, no wipe, no draw; the line and ring appear at once.",
   "caseSlug": "care-platform",
   "mechanisms": [
     "S2",
@@ -15,23 +15,23 @@
   "loopScores": {
     "straightToThePoint": 9,
     "notOverwhelming": 8,
-    "harmony": 8.5,
+    "harmony": 8,
     "meaningfulMotion": 8,
-    "actionsAndSeniority": 8.5,
+    "actionsAndSeniority": 9,
     "original": 7,
     "hooks": 8
   },
-  "holdback": "Lowest: original, 7/10. A sticky media frame beside a scrolling text column is a known scrollytelling layout, and polish does not change the frame. Other limits after round 7: the two store screens stand on the frame's white paper with 208 px (Viva Fresh, shown at 0.78 of its source pixels) and 157 px (Dukagjini, 0.99) of paper at each side; the only store images are 780 px wide, and a landscape crop at frame width was built and dropped because it showed them at 1.5x with soft text. The taller 880 x 676 frame leaves about 165 px of the Incentiv page's own dark ground above and below its sign-in card, and the reader page stands in its own ground with 102 px at each side. The Viva Fresh pin rings the Albanian category row: it proves 'Shopping in Albanian'; no pixel proves 'live in both stores', which the caption carries ('Also on Google Play'). The first screen keeps an 83 px margin under the tray, equal to the margin above the frame. The care card is a recreation: its organization switcher shows the tenancy decision, not production data.",
+  "holdback": "Lowest: original, 7/10. A sticky frame beside a scrolling numbered log is a known scrollytelling layout; the report diagram and the store panel are new, the frame is not. Other limits after round 8: the two store screens are shown at source pixels, but the store images hold a 596 / 568 px wide phone screen, so the frame's left 284 / 312 px hold the store links, not screen; harmony stays 8 until a reviewer accepts that panel. The Viva Fresh desktop crop ends inside the first two product cards (images only, no text cut). The Viva Fresh ring proves 'live in both app stores' (the two store links); 'Shopping in Albanian' is read from the screen beside it. Row 01's ring proves 'monthly or yearly'; 'live' is carried by its link. The specimen (row 05) still prints token names (cobalt.600, action.primary); it is a recreation and no longer on the first screen. The Incentiv page keeps about 130 px of its own dark ground above and below its sign-in card. The reader page stands in its own ground with about 100 px at each side. Phone: a grown crop can end inside a UI row on some widths; text in every crop stays at 11 px or more at 375 px.",
   "chroma": {
-    "firstScreen": 51.1,
-    "outsidePlates": 93.9,
+    "firstScreen": 52.8,
+    "outsidePlates": 94.7,
     "plateRect": [
       520,
       83,
       1400,
       759
     ],
-    "method": "scratchpad/chroma6r.mjs logic (review/loop7/projector/chroma-pj7.mjs) on review/loop7/projector/final/d-top.png (1440 x 900), captured last with every label"
+    "method": "scratchpad/chroma6r.mjs logic (review/loop8/projector/chroma-pj8.mjs) on review/loop8/projector/final/d-top.png (1440 x 900), captured last"
   },
   "polish": [
     {
@@ -55,6 +55,23 @@
         3,
         4,
         5
+      ]
+    },
+    {
+      "round": 8,
+      "score": 58,
+      "fixed": [
+        "copy pass: identity line, every row in plain words (owner wording: 34 pages, client organizations, crypto wallet)",
+        "devil: row 01 is a live product (Bayyinah TV) with a ring that proves its result; design system moved to row 05 with 'the team'",
+        "devil: 16 -> 2 billing result is row 02 on the first screen, with a diagram plate (16 cells gave up, 2 cells finished)",
+        "devil: rows 04 (institute site) and 09 (chat engine) cut; 8 rows, every frame shows work",
+        "critic 1: store screens at source pixels (1.0), cropped to whole rows, no empty paper strip",
+        "critic 2/3: first-screen copy plain, no jargon",
+        "critic 4: Bayyinah TV result matches its ring",
+        "critic 5: specimen rows spread evenly",
+        "critic 6: phone end shows the last row whole, footer shorter",
+        "critic 7: 1024 x 768 first row whole (smaller identity line)",
+        "craft: one spacing scale, CLS 0 (font gate), phone crops never upscaled, phone line removed from the 16 px gutter"
       ]
     }
   ]

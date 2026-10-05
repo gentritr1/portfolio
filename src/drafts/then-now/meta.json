@@ -1,0 +1,32 @@
+{
+  "id": "then-now",
+  "title": "THEN / NOW",
+  "band": "Loop 8",
+  "rule": "every row is one change made to a product: a problem is struck and its result writes in; an earlier state stays unstruck; a new product says Shipped",
+  "description": "Eight changes, strongest first, beside one fixed frame. The page opens on one billing report that asked the database 16 times and gave up. The line is struck, 'It asks 2 times and finishes' writes in, and the frame shows 16 requests become 2. Only three rows carry a strike, because only three have a problem that is gone: the billing report, the button-only app that downloaded far more code than needed, and the studio site's 972 KB of pictures. Bayyinah TV and the care platform show an earlier state in grey with no strike (version 1 was replaced, and the 2023 care app is still live while its screens move). Read to Feed, Viva Fresh and Incentiv say Shipped.",
+  "signature": "Literata for every sentence and Anton for the labels (THEN, NOW, SHIPPED), the row numbers, the tray and the 16 → 2 figure; ink #121212 on paper #F6F5F0, struck and earlier text #6B6860 (5.0:1), muted #57544C (6.9:1), one accent #2348D8 for the NOW band, the hairline, the ring and the 2 kept requests (white on accent 7.5:1). Desktop: a 1344 px grid with 48 px gutters, the log at the left and a 640 × 656 frame at the right, sticky, centred with its two-line caption and the eight-slot tray, so at 1440 × 900 the name and the frame top both sit at y 94. Row 01 is the lead at display size (32 px). The frame draws every plate on a 640 × 656 stage at its native pixels or smaller: the web screens at 0.73 to 1.0, the two phone screens at 1.0 with 8 and 24 px of white at each side. A row becomes current when its top passes 42% of the viewport and settles for 160 ms. The first time a fixed row is current, a copy of its sentence with a line-through is revealed from the left by clip-path (200 ms, all lines at once) while the sentence turns grey; then the NOW band wipes in by clip-path (260 ms); then the hairline draws from the end of the band through the gutter into the frame (180 ms) and the ring fades in (120 ms) on the part that proves the result. The line waits for the row's own animations to finish, so it never draws ahead of the words. Later visits only wipe the band and draw the line. At load the same three steps run once on row 01, and the figure strikes 16 (transform scaleX), 14 of the 16 squares empty and 2 turn blue (opacity), and the 2 writes in (clip-path). Plates cross-fade in 200 ms. Rows passed by a fast scroll strike with no transition. Arrow keys in the log, Home and End, the tray (roving tabindex, Left and Right) and Tab on a row jump with no travel and no animation. The page stays hidden until Literata and Anton are loaded (at most 1 s), so no line reflows. Phone: the frame pins at the top at 4:3 with phone crops; the ring shows with no line; the caption keeps two lines. Reduced motion: every fixed row is struck from the start, the band and ring appear at once, and the live plates do not move.",
+  "caseSlug": "care-platform",
+  "slopCount": 0,
+  "rounds": 4,
+  "loopScores": {
+    "straightToThePoint": 9,
+    "notOverwhelming": 8,
+    "harmony": 8,
+    "meaningfulMotion": 8,
+    "actionsAndSeniority": 8,
+    "original": 7,
+    "hooks": 8
+  },
+  "holdback": "Lowest: original, 7/10. The frame is projector's sticky frame beside a scrolling log, and the strike-and-write is year-stack's; the new part is that a strike appears only where a measured problem is gone, and the first frame counts 16 requests down to 2. Other limits: two rows have no pin, because no pixel proves the result (Snaxx Tech: no screen shows image weight; care platform: no screen shows the screen-by-screen check), so their frames carry a caption only. The button card proves which button, not the 96.6%. The Viva Fresh pin proves the Albanian shop; no pixel proves both stores, which the caption carries. The Bayyinah TV pin proves paid plans, not 34 pages. Design System v2 is a team project and its dashboard is not in production; the row says team project and does not claim users. The first screen is pale by the brief's one-accent palette: chroma 2.8% (the 16 → 2 figure is ink and one blue).",
+  "chroma": {
+    "firstScreen": 2.8,
+    "outsidePlates": 2.0,
+    "plateRect": [
+      752,
+      94,
+      1392,
+      750
+    ],
+    "method": "scratchpad/chroma6r.mjs logic (review/loop8/then-now/chroma-tn.mjs) on review/loop8/then-now/final/d-top.png (1440 x 900), captured last with every label"
+  }
+}

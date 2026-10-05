@@ -1,0 +1,33 @@
+{
+  "id": "proof-tiles",
+  "title": "PROOF TILES",
+  "band": "Loop 8",
+  "rule": "every tile is a crop of the part that proves its caption, and its caption is a result",
+  "description": "A grid of nine 16:10 tiles. Each tile is a crop of a public screen, a recreation, or one plain figure, cut to the part that proves the line under it. A vermilion ring marks that part, and the words it proves carry the same vermilion underline. The lead tile is the strongest result: one billing report, 16 database requests before and 2 after.",
+  "signature": "Archivo (variable: name at 64 px, weight 800, width 112%; results at 18 px, weight 600, width 94%) and Martian Mono for years, numbers and labels. Palette: paper #ECECE8, ink #111111, muted #53534D (6.3:1), one accent, vermilion #FF5A36, used only for proof: the lead tile, the rings and the proof underlines. Desktop 1440: the name and the identity sentence across the top, '5+ years. Part of two platform rewrites. Based in Kosovo, working remotely.', Download CV and Email at the right; then a 3-column grid of 432 x 270 tiles with 24 px gaps and 48 px gutters. First screen, in reading order: the lead figure (16 struck, an arrow, 2 in an ink ring, 'Before, it timed out. Now it finishes.'), the Bayyinah TV Premium price, the Viva Fresh Albanian checkout, the care card's organization switch (recreation), the Incentiv passkey button, the Design System v2 button row (recreation). Then Read to Feed reading progress, the Dukagjini search field and the bayyinah.org Join the Mission button, then an index of all 30 projects on the same three columns. Every web crop is drawn at 1:1 or smaller (the tile takes the narrowest crop that is at least as wide as the tile: Bayyinah TV 440, Incentiv 480 or 344, bayyinah.org 432 source px); store crops are 568 to 600 source px wide and shown at 0.72 to 0.76; the two recreations render at 432 x 270 and scale down, never up. Each tile spans three subgrid rows, so the results and project lines of one row align. Motion, one state change only: when a tile becomes current (mouse hover, keyboard focus, or the tile at the middle of a touch screen), the page ground takes the screen's measured hue (oklch 0.935 0.035 h, background-color 200 ms, cubic-bezier(0.23, 1, 0.32, 1)); a dimmer whose hole starts larger than the tile closes onto the ring (transform 200 ms), ink at 45% on light screens and paper at 38% on dark ones; the proof words light up in vermilion at 38% (background-color 200 ms). Keyboard: Tab enters the grid, arrow keys move by column and row, Home and End; a keyboard move changes everything at once with no transition. Load: one 200 ms fade of the page after the fonts are ready, so text never reflows. Live tiles never move: the specimen's demo is paused, its card entrances and the care chart's draw are shown finished, CSS animations inside are paused. Reduced motion: no fade, no transition, the same states at once. Phone: one column, max 432 px, 16 px gutters; the tile at the middle of the screen is current.",
+  "caseSlug": "care-platform",
+  "mechanisms": ["proof crop", "proof mark rhyme", "sampled ground", "closing dimmer"],
+  "slopCount": 0,
+  "rounds": 1,
+  "loopScores": {
+    "straightToThePoint": 9,
+    "notOverwhelming": 8,
+    "harmony": 8,
+    "meaningfulMotion": 8.5,
+    "actionsAndSeniority": 8,
+    "original": 7.5,
+    "hooks": 8
+  },
+  "holdback": "Lowest: original, 7.5. A grid of 16:10 tiles is the most familiar portfolio layout (rauno.me craft, designeng.tools); what is new is the proof rule (the ring and the vermilion words) and a lead tile that is a figure, not a screen. Other limits: six tiles on the first screen is more than 'one idea per page'; two captions are features, not outcomes ('Readers search the catalogue and buy books on sale', 'Visitors join the mission or get the apps'); the Bayyinah TV ring proves 'subscribe', not 'on the web, iPhone or Android' (only 'subscribe' is underlined); the design-system ring is on one button row, which proves 'building blocks', not the count 36 or the 20 releases; the Read to Feed crop ends on the empty top of the next book card; the care chart's alert dots appear about 1.2 s after load (they mount only after the chart's own draw finishes); on a touch screen the current tile changes about 0.6 s after a scroll in headless Chrome (IntersectionObserver cadence). The first screen is low in chroma (12.1%) because the paper is neutral and three of the six crops are dark or pale.",
+  "chroma": {
+    "firstScreen": 12.1,
+    "outsidePlates": 0.3,
+    "outsideScreenPlates": 14.6,
+    "plateRects": [[48, 175, 480, 445], [504, 175, 936, 445], [960, 175, 1392, 445], [48, 552, 480, 822], [504, 552, 936, 822], [960, 552, 1392, 822]],
+    "method": "scratchpad/chroma6r.mjs decode and threshold (review/loop8/proof-tiles/chroma-pt.mjs) on review/loop8/proof-tiles/final/d-top.png (1440 x 900), captured last. outsidePlates counts the lead figure as a plate; outsideScreenPlates counts it as page."
+  },
+  "hues": {
+    "method": "OKLCH hue histogram, chroma-weighted, 1 degree bins smoothed over 13 degrees, over each crop in source pixels (review/loop8/proof-tiles/hue.mjs); live tiles use their world accent",
+    "billing": 33, "bayyinah-tv": 32, "viva-fresh": 23, "care": 185, "incentiv": 40, "design-system": 253, "read-to-feed": 235, "dukagjini": 18, "bayyinah-org": 59
+  }
+}

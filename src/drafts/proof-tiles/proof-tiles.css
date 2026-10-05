@@ -1,0 +1,769 @@
+/*
+ * One spacing scale: 4, 8, 12, 16, 24, 32, 48, 64, 96 px.
+ * One accent: vermilion. It marks proof only (the rings, the lead figure, focus).
+ * Only the hue of the page ground changes; lightness and chroma are fixed.
+ */
+:root:has(.pt) {
+  color-scheme: light;
+  background: #ecece8;
+  scrollbar-color: #111 #ecece8;
+}
+
+.pt {
+  --pt-paper: #ecece8;
+  --pt-ink: #111111;
+  --pt-muted: #53534d;
+  --pt-rule: rgb(17 17 17 / 0.14);
+  --pt-accent: #ff5a36;
+  --pt-ease: cubic-bezier(0.23, 1, 0.32, 1);
+  --pt-text: "Archivo", ui-sans-serif, system-ui, sans-serif;
+  --pt-mono: "Martian Mono", ui-monospace, monospace;
+  --pt-gutter: 48px;
+  --pt-col: 1344px;
+  --pt-gap-x: 24px;
+  --pt-gap-y: 48px;
+  min-height: 100dvh;
+  padding: 0 var(--pt-gutter);
+  background-color: var(--pt-paper);
+  color: var(--pt-ink);
+  font-family: var(--pt-text);
+  font-size: 16px;
+  line-height: 1.5;
+  font-weight: 400;
+  font-stretch: 100%;
+  -webkit-font-smoothing: antialiased;
+  transition: background-color 200ms var(--pt-ease);
+}
+
+.pt[data-tinted] {
+  background-color: oklch(0.935 0.035 var(--pt-h));
+}
+
+.pt[data-instant] {
+  transition: none;
+}
+
+.pt ::selection {
+  background: var(--pt-accent);
+  color: var(--pt-ink);
+}
+
+.pt a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.pt :focus-visible {
+  outline: 2px solid var(--pt-ink);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
+.pt-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@keyframes pt-in {
+  from {
+    opacity: 0;
+  }
+}
+
+.pt[data-ready] > * {
+  animation: pt-in 200ms var(--pt-ease) both;
+}
+
+.pt-head,
+.pt main,
+.pt-foot {
+  max-width: var(--pt-col);
+  margin: 0 auto;
+}
+
+/* ---------- Head ---------- */
+
+.pt-head {
+  position: relative;
+  padding: 24px 0 48px;
+}
+
+.pt-name {
+  margin: 0;
+  font-weight: inherit;
+}
+
+.pt-name-line {
+  display: block;
+  font-size: 64px;
+  line-height: 1;
+  font-weight: 800;
+  font-stretch: 112%;
+  letter-spacing: -0.025em;
+}
+
+.pt-claim {
+  display: block;
+  max-width: 1000px;
+  margin-top: 8px;
+  font-size: 24px;
+  line-height: 1.3;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+.pt-aside {
+  position: absolute;
+  top: 24px;
+  right: 0;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.pt-aside p {
+  max-width: 240px;
+  margin: 0;
+  color: var(--pt-muted);
+  font-size: 14px;
+  line-height: 1.4;
+  text-align: right;
+}
+
+.pt-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.pt-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: 999px;
+  background: var(--pt-ink);
+  color: var(--pt-paper) !important;
+  font-size: 15px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: opacity 150ms var(--pt-ease);
+}
+
+.pt-text-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: underline !important;
+  text-decoration-thickness: 1px !important;
+  text-underline-offset: 4px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .pt-button:hover {
+    opacity: 0.86;
+  }
+
+  .pt-text-link:hover,
+  .pt-row-go a:hover,
+  .pt-foot-links a:hover {
+    text-decoration-color: var(--pt-accent) !important;
+  }
+}
+
+/* ---------- Grid ---------- */
+
+/* Each tile spans three shared rows (picture, result, project), so the lines of one row align. */
+.pt-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  column-gap: var(--pt-gap-x);
+  row-gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pt-tile {
+  display: grid;
+  grid-row: span 3;
+  grid-template-rows: subgrid;
+  min-width: 0;
+  padding-bottom: var(--pt-gap-y);
+}
+
+.pt-tile-link {
+  display: grid;
+  grid-row: 1 / -1;
+  grid-template-rows: subgrid;
+  align-content: start;
+  border-radius: 6px;
+}
+
+.pt-tile-link:focus-visible {
+  outline-offset: 8px;
+}
+
+/* Every tile is 16:10 and never wider than 432 px, the narrowest crop. */
+.pt-media {
+  position: relative;
+  display: block;
+  width: 100%;
+  max-width: 432px;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  border-radius: 6px;
+  background: var(--tile-ground, #1a1a1a);
+  box-shadow: inset 0 0 0 1px var(--pt-rule);
+  container-type: inline-size;
+  isolation: isolate;
+}
+
+.pt-img {
+  position: absolute;
+  max-width: none;
+  height: auto;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.pt-ring {
+  position: absolute;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.pt-ring::before,
+.pt-ring::after {
+  content: "";
+  position: absolute;
+  inset: -5px;
+  border-radius: 10px;
+}
+
+.pt-ring::before {
+  z-index: 1;
+  border: 2px solid var(--pt-accent);
+  box-shadow:
+    0 0 0 1.5px rgb(255 255 255 / 0.9),
+    inset 0 0 0 1.5px rgb(255 255 255 / 0.9);
+}
+
+/*
+ * The dimmer is a hole in a dark field. At rest the hole is larger than the tile,
+ * so nothing dims. When the tile is current, the hole closes onto the proof.
+ */
+.pt-ring::after {
+  box-shadow: 0 0 0 200vmax var(--pt-scrim, rgb(17 17 17 / 0.45));
+  transform: scale(var(--pt-sx, 4), var(--pt-sy, 4));
+  transition: transform 200ms var(--pt-ease);
+}
+
+.pt-tile[data-dark] {
+  --pt-scrim: rgb(236 236 232 / 0.38);
+}
+
+.pt-tile[data-current] .pt-ring::after {
+  transform: none;
+}
+
+.pt[data-instant] .pt-ring::after {
+  transition: none;
+}
+
+.pt-label {
+  position: absolute;
+  z-index: 4;
+  left: 8px;
+  bottom: 8px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background: rgb(17 17 17 / 0.88);
+  color: #fff;
+  font-family: var(--pt-mono);
+  font-size: 11px;
+  line-height: 16px;
+  font-stretch: 87.5%;
+  letter-spacing: 0;
+}
+
+/* The words the ring proves carry the ring's colour. They light up with the ring. */
+.pt-proof {
+  margin: 0 -2px;
+  padding: 0 2px;
+  border-radius: 2px;
+  background-color: transparent;
+  text-decoration: underline;
+  text-decoration-color: var(--pt-accent);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+  text-decoration-skip-ink: auto;
+  white-space: nowrap;
+  transition: background-color 200ms var(--pt-ease);
+}
+
+.pt-tile[data-current] .pt-proof {
+  background-color: color-mix(in oklab, var(--pt-accent) 38%, transparent);
+}
+
+.pt[data-instant] .pt-proof {
+  transition: none;
+}
+
+.pt-caption {
+  display: block;
+  align-self: start;
+  margin-top: 12px;
+  font-stretch: 94%;
+  font-size: 18px;
+  line-height: 1.3;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+.pt-meta {
+  display: flex;
+  align-self: start;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 4px;
+  font-size: 13px;
+  line-height: 18px;
+}
+
+.pt-project {
+  min-width: 0;
+  color: var(--pt-muted);
+}
+
+.pt-project-name {
+  color: var(--pt-ink);
+  font-weight: 500;
+}
+
+.pt-year,
+.pt-row-year {
+  font-family: var(--pt-mono);
+  font-size: 12px;
+  font-stretch: 87.5%;
+  font-variant-numeric: tabular-nums;
+}
+
+.pt-go {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex: none;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.pt-go svg,
+.pt-row-go svg,
+.pt-button svg,
+.pt-foot-links svg {
+  width: 14px;
+  height: 14px;
+  flex: none;
+}
+
+/* ---------- The lead figure ---------- */
+
+.pt-tile[data-kind="figure"] .pt-media {
+  background: var(--pt-accent);
+  box-shadow: none;
+}
+
+.pt-figure {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 24px;
+  color: var(--pt-ink);
+}
+
+.pt-figure-row {
+  display: flex;
+  align-items: center;
+  gap: 4cqi;
+  margin: 0;
+  font-size: 27cqi;
+  line-height: 0.8;
+  font-weight: 850;
+  font-stretch: 112%;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+}
+
+.pt-figure-was {
+  position: relative;
+}
+
+.pt-figure-was::after {
+  content: "";
+  position: absolute;
+  left: -3%;
+  right: -3%;
+  top: 50%;
+  height: 2.2cqi;
+  margin-top: -1.1cqi;
+  background: var(--pt-ink);
+  transform: rotate(-8deg);
+}
+
+.pt-figure-arrow {
+  width: 12cqi;
+  height: 12cqi;
+  flex: none;
+}
+
+.pt-figure-now {
+  position: relative;
+  padding: 0 1cqi;
+}
+
+.pt-ring-ink {
+  inset: -1cqi -1cqi -2cqi;
+}
+
+.pt-ring-ink::before {
+  border-color: var(--pt-ink);
+  border-width: 0.7cqi;
+  border-radius: 3cqi;
+  box-shadow: none;
+}
+
+.pt-ring-ink::after {
+  display: none;
+}
+
+.pt-figure-unit {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  font-family: var(--pt-mono);
+  font-size: 12px;
+  line-height: 16px;
+  font-stretch: 87.5%;
+}
+
+.pt-figure-unit span:first-child {
+  font-family: var(--pt-text);
+  font-size: 18px;
+  line-height: 1.25;
+  font-weight: 700;
+  font-stretch: 100%;
+  letter-spacing: -0.01em;
+}
+
+/* ---------- Live recreations ---------- */
+
+/* A recreation is drawn at 432 x 270 and scaled down to the tile, never up. */
+.pt-live {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 432px;
+  height: 270px;
+  container-type: inline-size;
+  transform: scale(var(--pt-k, 1));
+  transform-origin: 0 0;
+  background: var(--world-bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 1.6;
+  letter-spacing: normal;
+  -webkit-font-smoothing: auto;
+}
+
+.pt-live-care footer {
+  display: none;
+}
+
+/* The chart is shown drawn. Its draw-in is for the case page. */
+.pt-live-care svg path {
+  stroke-dasharray: none !important;
+  stroke-dashoffset: 0 !important;
+}
+
+.pt-live-care svg g {
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+.pt-live-design-system .dsr-top,
+.pt-live-design-system .dsr-board > :not(.dsr-area-buttons),
+.pt-live-design-system .dsr-button-rows > :nth-child(n + 3) {
+  display: none;
+}
+
+.pt-live-design-system .dsr-card {
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+.pt-live-design-system .dsr-scroll {
+  overflow: hidden;
+}
+
+.pt-live-design-system .dsr-board {
+  height: 100%;
+  padding: 12px;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+  grid-template-areas: "buttons";
+}
+
+/* Nothing inside a tile moves on its own. */
+.pt-live *,
+.pt-live *::before,
+.pt-live *::after {
+  animation-play-state: paused !important;
+}
+
+/* ---------- Index ---------- */
+
+.pt-index {
+  margin-top: 48px;
+}
+
+.pt-index h2 {
+  margin: 0 0 32px;
+  font-size: 40px;
+  line-height: 1.1;
+  font-weight: 800;
+  font-stretch: 112%;
+  letter-spacing: -0.02em;
+}
+
+.pt-group + .pt-group {
+  margin-top: 48px;
+}
+
+.pt-group h3 {
+  margin: 0 0 8px;
+  color: var(--pt-muted);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.pt-group ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-bottom: 1px solid var(--pt-rule);
+}
+
+/* The index keeps the columns of the grid above it. */
+.pt-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  column-gap: var(--pt-gap-x);
+  align-items: center;
+  min-height: 60px;
+  padding: 8px 0;
+  border-top: 1px solid var(--pt-rule);
+  font-size: 15px;
+  line-height: 1.4;
+}
+
+.pt-row-name {
+  font-weight: 600;
+}
+
+.pt-row-end {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 72px 112px;
+  column-gap: 16px;
+  align-items: center;
+}
+
+.pt-row-role,
+.pt-row-year {
+  color: var(--pt-muted);
+}
+
+.pt-row-go {
+  justify-self: end;
+}
+
+.pt-row-go a {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 44px;
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+}
+
+/* ---------- Foot ---------- */
+
+.pt-foot {
+  margin-top: 96px;
+  padding: 32px 0 48px;
+  border-top: 1px solid var(--pt-ink);
+}
+
+.pt-foot-lead {
+  margin: 0;
+  font-size: 24px;
+  line-height: 1.3;
+  font-weight: 600;
+}
+
+.pt-foot-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 32px;
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pt-foot-links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 44px;
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+}
+
+.pt-foot-note {
+  max-width: 640px;
+  margin: 16px 0 0;
+  color: var(--pt-muted);
+  font-size: 14px;
+}
+
+/* ---------- Widths ---------- */
+
+@media (max-width: 1199px) {
+  .pt {
+    --pt-gutter: 32px;
+    --pt-col: 888px;
+  }
+
+  .pt-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .pt-aside {
+    position: static;
+    justify-content: space-between;
+    margin-top: 24px;
+  }
+
+  .pt-aside p {
+    max-width: none;
+    text-align: left;
+  }
+
+  .pt-row {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+
+  .pt-row-end {
+    grid-column: 1 / -1;
+    grid-template-columns: minmax(0, 1fr) 72px 112px;
+  }
+}
+
+@media (max-width: 759px) {
+  .pt {
+    --pt-gutter: 16px;
+    --pt-col: 432px;
+    --pt-gap-y: 32px;
+  }
+
+  .pt-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .pt-head {
+    padding: 16px 0 24px;
+  }
+
+  .pt-name-line {
+    font-size: 40px;
+    font-stretch: 105%;
+  }
+
+  .pt-claim {
+    font-size: 20px;
+  }
+
+  .pt-aside {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    margin-top: 16px;
+  }
+
+  .pt-index {
+    margin-top: 64px;
+  }
+
+  .pt-index h2 {
+    font-size: 32px;
+  }
+
+  .pt-row {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 4px;
+    padding: 12px 0;
+  }
+
+  .pt-row-end {
+    grid-column: auto;
+    grid-template-columns: minmax(0, 1fr) auto 72px;
+    min-height: 44px;
+    font-size: 14px;
+  }
+
+  .pt-foot {
+    margin-top: 64px;
+  }
+
+  .pt-foot-lead {
+    font-size: 20px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pt,
+  .pt-ring::after,
+  .pt-proof,
+  .pt-button {
+    transition: none;
+  }
+
+  .pt[data-ready] > * {
+    animation: none;
+  }
+
+  .pt-live *,
+  .pt-live *::before,
+  .pt-live *::after {
+    animation-duration: 0s !important;
+    transition-duration: 0s !important;
+  }
+}

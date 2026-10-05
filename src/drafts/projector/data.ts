@@ -1,3 +1,5 @@
+import { findProject } from "../../content/projects";
+
 /** A box in fractions of its reference (an image, or the plate). */
 export interface Box {
   x: number;
@@ -13,8 +15,12 @@ export interface Shot {
   height: number;
   /** The part of the image the frame shows. It ends on a whole row of the screen. */
   crop: Box;
-  /** The 4:3 part the frame shows under 1024 px. */
+  /** The 4:3 part the frame shows under 1024 px. It grows to the frame's width, inside bounds, so it is never upscaled. */
   narrow: Box;
+  /** A wider narrow crop for a wide phone frame. It keeps the text at 11 px or more when it is chosen. */
+  narrowWide?: Box;
+  /** The part of the image a narrow crop may grow into. The whole image when absent. */
+  bounds?: Box;
 }
 
 /**
@@ -34,11 +40,16 @@ export type Target =
  */
 export type Route = { kind: "side" } | { kind: "lane"; y: number } | { kind: "along"; css: string };
 
+export interface StoreLink {
+  label: string;
+  href: string;
+}
+
 export type Plate =
   | { kind: "live"; key: "design-system" | "care" | "reader" }
   | { kind: "web"; shot: Shot; ground: string; dark?: boolean }
-  | { kind: "phone"; shot: Shot }
-  | { kind: "number"; from?: string; to: string; unit: string; note: string };
+  | { kind: "phone"; shot: Shot; stores: StoreLink[] }
+  | { kind: "report"; before: number; after: number };
 
 export interface Row {
   id: string;
@@ -52,104 +63,23 @@ export interface Row {
   plate: Plate;
   caption: string;
   target: Target;
+  /** The part the ring marks under 1024 px, when the wide target is not in the phone crop. */
+  narrowTarget?: Target;
   route: Route;
   link?: { label: string; href: string; external?: boolean };
+  /** The public product, when it is live. */
+  live?: StoreLink;
 }
+
+const storeLinks = (slug: string): StoreLink[] =>
+  (findProject(slug)?.links ?? []).map((link) => ({ label: link.label, href: link.href }));
 
 export const rows: Row[] = [
   {
     id: "01",
-    project: "Design System v2",
-    line: "One source of design tokens, in three tiers, for CSS, TypeScript and Figma.",
-    result: "36 components, 805 tokens, 20 releases in about six weeks",
-    role: "Design system",
-    year: "2026",
-    plate: { kind: "live", key: "design-system" },
-    caption: "Component specimen. Recreation with invented data.",
-    target: { kind: "selector", css: ".dsr-pipeline" },
-    route: { kind: "side" },
-    link: { label: "Open the case", href: "/work/design-system-react" },
-  },
-  {
-    id: "02",
-    project: "Care-management platform",
-    line: "Many organizations share one system.",
-    result: "Each sees only its own patients",
-    role: "Vue to React, parity-tested",
-    year: "2023–26",
-    plate: { kind: "live", key: "care" },
-    caption: "Vitals card for one organization. Recreation with invented data.",
-    target: { kind: "selector", css: 'button[aria-haspopup="listbox"]', round: true },
-    route: { kind: "along", css: ".border-t" },
-    link: { label: "Open the case", href: "/work/care-platform" },
-  },
-  {
-    id: "03",
-    project: "Care-management API",
-    line: "One billing report ran 16 queries and timed out.",
-    result: "2 queries, no timeout",
-    role: "Full stack",
-    year: "2026",
-    plate: { kind: "number", from: "16", to: "2", unit: "queries", note: "One billing report, Laravel API" },
-    caption: "Queries for one billing report, before and after.",
-    target: { kind: "figure", css: "[data-to]" },
-    route: { kind: "lane", y: 0.06 },
-    link: { label: "Open the case", href: "/work/care-platform" },
-  },
-  {
-    id: "04",
-    project: "Bayyinah institute website",
-    line: "The institute's one-page site, built on Next.js.",
-    result: "Live, with links to both app stores",
-    role: "Frontend",
-    year: "2024–25",
-    plate: {
-      kind: "web",
-      ground: "#fde9dc",
-      shot: {
-        src: "/showcase/bayyinah/org-01.webp",
-        alt: "Bayyinah Foundation home: the hero, the Join the Mission button and the two store badges",
-        width: 1440,
-        height: 900,
-        crop: { x: 232 / 1440, y: 86 / 900, w: 977 / 1440, h: 751 / 900 },
-        narrow: { x: 513 / 1440, y: 525 / 900, w: 413 / 1440, h: 310 / 900 },
-      },
-    },
-    caption: "bayyinah.org, public page.",
-    target: { kind: "shot", box: { x: 0.3644, y: 0.7502, w: 0.2619, h: 0.0613 } },
-    route: { kind: "side" },
-    link: { label: "bayyinah.org", href: "https://bayyinah.org/", external: true },
-  },
-  {
-    id: "05",
-    project: "Incentiv",
-    line: "Sign people in to an on-chain wallet. Teammates built the wallet layer.",
-    result: "Passkey, MetaMask or WalletConnect, in English and French",
-    role: "Frontend, UI layer",
-    year: "2024",
-    plate: {
-      kind: "web",
-      ground: "#121212",
-      dark: true,
-      shot: {
-        src: "/showcase/incentiv/web-03.webp",
-        alt: "Incentiv Portal sign-in: Passkey, MetaMask and WalletConnect options beside a dashboard preview",
-        width: 1440,
-        height: 900,
-        crop: { x: 160 / 1440, y: 19 / 900, w: 1121 / 1440, h: 861 / 900 },
-        narrow: { x: 190 / 1440, y: 280 / 900, w: 512 / 1440, h: 384 / 900 },
-      },
-    },
-    caption: "Incentiv portal sign-in, public screen.",
-    target: { kind: "shot", box: { x: 0.158, y: 0.5588, w: 0.064, h: 0.0383 } },
-    route: { kind: "side" },
-    link: { label: "Open the case", href: "/work/incentiv" },
-  },
-  {
-    id: "06",
     project: "Bayyinah TV",
-    line: "Rebuild the video platform on Nuxt 3: 34 routes, 270+ components.",
-    result: "Stripe, Apple and Google subscriptions",
+    line: "The video-learning platform, rebuilt from an empty page: 34 pages.",
+    result: "Members pay monthly or yearly",
     role: "Frontend, core team",
     year: "2023–26",
     plate: {
@@ -165,39 +95,108 @@ export const rows: Row[] = [
         narrow: { x: 515 / 1440, y: 108 / 900, w: 387 / 1440, h: 290 / 900 },
       },
     },
-    caption: "Bayyinah TV pricing, public page.",
+    caption: "Bayyinah TV pricing page, public.",
     target: { kind: "shot", box: { x: 0.367, y: 0.1334, w: 0.184, h: 0.0683 } },
     route: { kind: "lane", y: 0.04 },
     link: { label: "Open the case", href: "/work/bayyinah-tv" },
+    live: { label: "Live at bayyinahtv.com", href: "https://bayyinahtv.com/" },
   },
   {
-    id: "07",
+    id: "02",
+    project: "Care platform, server side",
+    line: "One billing report asked the database 16 times and gave up.",
+    result: "Now it asks 2 times and finishes",
+    role: "Full stack",
+    year: "2026",
+    plate: { kind: "report", before: 16, after: 2 },
+    caption: "Database requests for one billing report. A diagram.",
+    target: { kind: "selector", css: '[data-lane="now"]' },
+    route: { kind: "side" },
+    link: { label: "Open the case", href: "/work/care-platform" },
+  },
+  {
+    id: "03",
+    project: "Care-management platform",
+    line: "Many client organizations use the same system.",
+    result: "Each one sees only its own patients",
+    role: "Frontend, rebuilt screen by screen",
+    year: "2023–26",
+    plate: { kind: "live", key: "care" },
+    caption: "Vitals card for one organization. Recreation with invented data.",
+    target: { kind: "selector", css: 'button[aria-haspopup="listbox"]', round: true },
+    route: { kind: "along", css: ".border-t" },
+    link: { label: "Open the case", href: "/work/care-platform" },
+  },
+  {
+    id: "04",
     project: "Viva Fresh",
-    line: "A grocery app for iPhone and Android, from one React Native codebase.",
-    result: "Shopping in Albanian, live in both stores",
+    line: "One grocery app, built once for iPhone and Android.",
+    result: "Shopping in Albanian, live in both app stores",
     role: "Mobile",
     year: "2023",
     plate: {
       kind: "phone",
+      stores: storeLinks("viva-fresh"),
       shot: {
         src: "/mobile/grocery-1.webp",
-        alt: "Viva Fresh store screenshot on iPhone: home with product categories and the latest products",
+        alt: "Viva Fresh home on iPhone: product categories in Albanian and the latest products",
         width: 780,
         height: 1689,
-        crop: { x: 92 / 780, y: 372 / 1689, w: 596 / 780, h: 868 / 1689 },
+        crop: { x: 92 / 780, y: 356 / 1689, w: 596 / 780, h: 676 / 1689 },
         narrow: { x: 92 / 780, y: 372 / 1689, w: 596 / 780, h: 447 / 1689 },
+        bounds: { x: 92 / 780, y: 352 / 1689, w: 596 / 780, h: 1240 / 1689 },
       },
     },
-    caption: "Viva Fresh home on iPhone. Also on Google Play.",
-    target: { kind: "shot", box: { x: 128 / 780, y: 500 / 1689, w: 522 / 780, h: 148 / 1689 } },
+    caption: "Viva Fresh home, from its App Store listing.",
+    target: { kind: "selector", css: ".pj-stores" },
+    narrowTarget: { kind: "shot", box: { x: 128 / 780, y: 500 / 1689, w: 522 / 780, h: 148 / 1689 } },
     route: { kind: "side" },
     link: { label: "Open the case", href: "/work/viva-fresh" },
   },
   {
-    id: "08",
+    id: "05",
+    project: "Design System v2",
+    line: "The team built 36 building blocks for the new care dashboard.",
+    result: "Colours and sizes are set once, for code and Figma",
+    role: "Design system, with the team",
+    year: "2026",
+    plate: { kind: "live", key: "design-system" },
+    caption: "Shared style values. Recreation with invented data.",
+    target: { kind: "selector", css: ".dsr-pipeline" },
+    route: { kind: "side" },
+    link: { label: "Open the case", href: "/work/design-system-react" },
+  },
+  {
+    id: "06",
+    project: "Incentiv",
+    line: "Sign-in and dashboard screens for a crypto wallet. Teammates built the wallet.",
+    result: "Passkey (no password) or wallet sign-in, in English and French",
+    role: "Frontend, the screens",
+    year: "2024",
+    plate: {
+      kind: "web",
+      ground: "#121212",
+      dark: true,
+      shot: {
+        src: "/showcase/incentiv/web-03.webp",
+        alt: "Incentiv Portal sign-in: Passkey, MetaMask and WalletConnect options beside a dashboard preview",
+        width: 1440,
+        height: 900,
+        crop: { x: 160 / 1440, y: 19 / 900, w: 1121 / 1440, h: 861 / 900 },
+        narrow: { x: 192 / 1440, y: 474 / 900, w: 344 / 1440, h: 258 / 900 },
+        narrowWide: { x: 170 / 1440, y: 345 / 900, w: 520 / 1440, h: 390 / 900 },
+      },
+    },
+    caption: "Incentiv sign-in, public page.",
+    target: { kind: "shot", box: { x: 0.158, y: 0.5588, w: 0.064, h: 0.0383 } },
+    route: { kind: "side" },
+    link: { label: "Open the case", href: "/work/incentiv" },
+  },
+  {
+    id: "07",
     project: "Read to Feed",
-    line: "A children's reading app around a PDF and EPUB reader.",
-    result: "Progress on every book, about 14 releases to both stores",
+    line: "A reading app for children. About 14 updates shipped to both stores.",
+    result: "It remembers the page in every book",
     role: "Mobile",
     year: "2022–25",
     plate: { kind: "live", key: "reader" },
@@ -207,36 +206,26 @@ export const rows: Row[] = [
     link: { label: "Open the case", href: "/work/read-to-feed" },
   },
   {
-    id: "09",
-    project: "Chatbot runtime library",
-    line: "Quizzes as chat conversations, with text, media, choices and timers.",
-    result: "One reusable React Native package, ported to the web",
-    role: "Mobile",
-    year: "2022–25",
-    plate: { kind: "number", to: "1", unit: "package", note: "Text, media, choices and timers, in React Native and on the web" },
-    caption: "One package plays every scripted conversation.",
-    target: { kind: "figure", css: "[data-to]" },
-    route: { kind: "lane", y: 0.06 },
-  },
-  {
-    id: "10",
+    id: "08",
     project: "Dukagjini Bookstore",
-    line: "A publisher's book shop for iPhone and Android, in React Native.",
-    result: "Search, sales and checkout, live in both stores",
+    line: "A publisher's bookshop app for iPhone and Android.",
+    result: "Search, sales and checkout, live in both app stores",
     role: "Mobile",
     year: "2021–22",
     plate: {
       kind: "phone",
+      stores: storeLinks("dukagjini-bookstore"),
       shot: {
         src: "/mobile/bookstore-1.webp",
-        alt: "Dukagjini Bookstore store screenshot on iPhone: home with book search and top categories",
+        alt: "Dukagjini Bookstore home on iPhone: book search and top categories",
         width: 780,
         height: 1689,
-        crop: { x: 106 / 780, y: 740 / 1689, w: 568 / 780, h: 680 / 1689 },
+        crop: { x: 106 / 780, y: 740 / 1689, w: 568 / 780, h: 676 / 1689 },
         narrow: { x: 115 / 780, y: 840 / 1689, w: 547 / 780, h: 410 / 1689 },
+        bounds: { x: 106 / 780, y: 730 / 1689, w: 568 / 780, h: 959 / 1689 },
       },
     },
-    caption: "Dukagjini Bookstore home on iPhone. Also on Google Play.",
+    caption: "Dukagjini Bookstore home, from its App Store listing.",
     target: { kind: "shot", box: { x: 155 / 780, y: 1145 / 1689, w: 470 / 780, h: 60 / 1689 } },
     route: { kind: "side" },
     link: { label: "Open the case", href: "/work/dukagjini-bookstore" },
