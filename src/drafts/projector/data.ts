@@ -22,7 +22,7 @@ export interface Shot {
  * box names a part of the plate's shot, in fractions of the whole image.
  */
 export type Target =
-  | { kind: "selector"; css: string }
+  | { kind: "selector"; css: string; round?: boolean }
   | { kind: "shot"; box: Box }
   | { kind: "figure"; css: string };
 
@@ -37,7 +37,7 @@ export type Route = { kind: "side" } | { kind: "lane"; y: number } | { kind: "al
 export type Plate =
   | { kind: "live"; key: "design-system" | "care" | "reader" }
   | { kind: "web"; shot: Shot; ground: string; dark?: boolean }
-  | { kind: "phone"; shot: Shot; ground: string }
+  | { kind: "phone"; shot: Shot }
   | { kind: "number"; from?: string; to: string; unit: string; note: string };
 
 export interface Row {
@@ -53,7 +53,7 @@ export interface Row {
   caption: string;
   target: Target;
   route: Route;
-  link: { label: string; href: string; external?: boolean };
+  link?: { label: string; href: string; external?: boolean };
 }
 
 export const rows: Row[] = [
@@ -73,14 +73,14 @@ export const rows: Row[] = [
   {
     id: "02",
     project: "Care-management platform",
-    line: "The frontend moves from Vue to React, route by route.",
-    result: "A route moves after its parity test passes on both apps",
-    role: "Frontend, multi-tenant",
+    line: "Many organizations share one system.",
+    result: "Each sees only its own patients",
+    role: "Vue to React, parity-tested",
     year: "2023–26",
     plate: { kind: "live", key: "care" },
-    caption: "Vitals trend card. Recreation with invented data.",
-    target: { kind: "selector", css: 'footer [role="radiogroup"]' },
-    route: { kind: "side" },
+    caption: "Vitals card for one organization. Recreation with invented data.",
+    target: { kind: "selector", css: 'button[aria-haspopup="listbox"]', round: true },
+    route: { kind: "along", css: ".border-t" },
     link: { label: "Open the case", href: "/work/care-platform" },
   },
   {
@@ -111,7 +111,7 @@ export const rows: Row[] = [
         alt: "Bayyinah Foundation home: the hero, the Join the Mission button and the two store badges",
         width: 1440,
         height: 900,
-        crop: { x: 0.0632, y: 0, w: 0.8729, h: 0.8889 },
+        crop: { x: 232 / 1440, y: 86 / 900, w: 977 / 1440, h: 751 / 900 },
         narrow: { x: 513 / 1440, y: 525 / 900, w: 413 / 1440, h: 310 / 900 },
       },
     },
@@ -136,7 +136,7 @@ export const rows: Row[] = [
         alt: "Incentiv Portal sign-in: Passkey, MetaMask and WalletConnect options beside a dashboard preview",
         width: 1440,
         height: 900,
-        crop: { x: 0.0972, y: 0.0889, w: 0.8, h: 0.8144 },
+        crop: { x: 160 / 1440, y: 19 / 900, w: 1121 / 1440, h: 861 / 900 },
         narrow: { x: 190 / 1440, y: 280 / 900, w: 512 / 1440, h: 384 / 900 },
       },
     },
@@ -161,7 +161,7 @@ export const rows: Row[] = [
         alt: "Bayyinah TV pricing: a monthly and annual switch, the course list and the Premium plan at $11 a month",
         width: 1440,
         height: 900,
-        crop: { x: 0.3264, y: 0, w: 0.6736, h: 0.6856 },
+        crop: { x: 470 / 1440, y: 0, w: 970 / 1440, h: 745 / 900 },
         narrow: { x: 515 / 1440, y: 108 / 900, w: 387 / 1440, h: 290 / 900 },
       },
     },
@@ -174,12 +174,11 @@ export const rows: Row[] = [
     id: "07",
     project: "Viva Fresh",
     line: "A grocery app for iPhone and Android, from one React Native codebase.",
-    result: "The same app, live in both stores",
+    result: "Shopping in Albanian, live in both stores",
     role: "Mobile",
     year: "2023",
     plate: {
       kind: "phone",
-      ground: "#ee2d31",
       shot: {
         src: "/mobile/grocery-1.webp",
         alt: "Viva Fresh store screenshot on iPhone: home with product categories and the latest products",
@@ -218,7 +217,6 @@ export const rows: Row[] = [
     caption: "One package plays every scripted conversation.",
     target: { kind: "figure", css: "[data-to]" },
     route: { kind: "lane", y: 0.06 },
-    link: { label: "All 30 projects", href: "/" },
   },
   {
     id: "10",
@@ -229,13 +227,12 @@ export const rows: Row[] = [
     year: "2021–22",
     plate: {
       kind: "phone",
-      ground: "#f4a3a3",
       shot: {
         src: "/mobile/bookstore-1.webp",
         alt: "Dukagjini Bookstore store screenshot on iPhone: home with book search and top categories",
         width: 780,
         height: 1689,
-        crop: { x: 106 / 780, y: 740 / 1689, w: 568 / 780, h: 660 / 1689 },
+        crop: { x: 106 / 780, y: 740 / 1689, w: 568 / 780, h: 680 / 1689 },
         narrow: { x: 115 / 780, y: 840 / 1689, w: 547 / 780, h: 410 / 1689 },
       },
     },

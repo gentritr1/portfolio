@@ -3,6 +3,7 @@ import {
   useCallback,
   useEffect,
   useLayoutEffect,
+  useMemo,
   useRef,
   useState,
   useSyncExternalStore,
@@ -100,8 +101,12 @@ function Live({ plate, wide }: { plate: Extract<Plate, { kind: "live" }>; wide: 
   const [design, setDesign] = useState<[number, number]>(plate.design);
   const entry = recreations[plate.key];
   const Recreation = entry.Component;
-  const size = wide ? plate.design : plate.narrow;
-  const shift = wide ? 0 : (plate.narrowShift ?? 0);
+  const { narrow } = plate;
+  const size = useMemo<[number, number]>(
+    () => (wide ? plate.design : [narrow.width, narrow.height]),
+    [wide, plate.design, narrow.width, narrow.height],
+  );
+  const shift = wide ? 0 : narrow.top;
 
   useLayoutEffect(() => {
     if (!node) return;
@@ -152,6 +157,13 @@ function Live({ plate, wide }: { plate: Extract<Plate, { kind: "live" }>; wide: 
       )}
     </div>
   );
+}
+
+/** The phone plate's width over its height. The desktop plate is 2 / 1, or the crop's own size when it is native. */
+function narrowRatio(plate: Plate) {
+  if (plate.kind === "live") return plate.narrow.width / plate.narrow.band;
+  const { crop, width, height } = plate.narrow;
+  return (crop.w * width) / (crop.h * height);
 }
 
 function PlateView({ plate, wide, eager }: { plate: Plate; wide: boolean; eager: boolean }) {
@@ -348,7 +360,9 @@ function CardView({
       } as CSSProperties)
     : undefined;
   const ground = grounds[index];
-  const shared = ground !== data.hue;
+  const native = data.plate.kind === "shot" && data.plate.native;
+  const nativeWidth =
+    data.plate.kind === "shot" ? Math.round(data.plate.shot.crop.w * data.plate.shot.width) : undefined;
 
   return (
     <li className="sg-slot">
@@ -358,15 +372,18 @@ function CardView({
           register(index, node);
         }}
         id={data.id}
-        className="sg-card"
+        className={`sg-card${native ? " sg-card-native" : ""}`}
         data-current={current || undefined}
-        style={{ "--sg-h": data.hue } as CSSProperties}
+        style={{ "--sg-h": ground, "--sg-native": native ? `${nativeWidth}px` : undefined } as CSSProperties}
         aria-labelledby={`${data.id}-name`}
         tabIndex={-1}
       >
         <div
-          className={`sg-plate sg-plate-${data.plate.kind}${data.plate.kind === "shot" && data.plate.flush ? " sg-plate-flush" : ""}`}
-          role="group" aria-label={`${data.project}: ${data.caption}`}>
+          className={`sg-plate sg-plate-${data.plate.kind}`}
+          style={{ "--sg-ratio": narrowRatio(data.plate) } as CSSProperties}
+          role="group"
+          aria-label={`${data.project}: ${data.caption}`}
+        >
           <PlateView plate={data.plate} wide={wide} eager={index === 0} />
         </div>
         <div className="sg-column">
@@ -380,14 +397,17 @@ function CardView({
               <span className="sg-arrow" aria-hidden="true">
                 →
               </span>
-              <Unbroken text={data.result} />
+              {data.result.split(/(?<=\.) /).map((sentence) => (
+                <span key={sentence} className="sg-result-sentence">
+                  <Unbroken text={sentence} />
+                </span>
+              ))}
             </strong>
           </p>
           <p className="sg-role">{data.role}</p>
           <p className="sg-hue">
             <span className="sg-chip" aria-hidden="true" />
-            hue {deg(data.hue)}
-            {shared && <>, ground {deg(ground)}</>}
+            hue {deg(ground)}
           </p>
           <p className="sg-caption">{data.caption}</p>
           <p className="sg-more">
@@ -439,7 +459,7 @@ function Scale({ shown, onJump }: { shown: number; onJump: (index: number, insta
   const label =
     shown === RECORD
       ? "The record: no screen, no hue"
-      : `Sampled from the screen under it · ${card.short} · ${deg(card.hue)}${grounds[shown] !== card.hue ? ` → ${deg(grounds[shown])}` : ""}`;
+      : `Sampled from the screen under it · ${card.short} · ${deg(grounds[shown])}`;
   const at = active >= 0 ? stops[active].hue : 0;
 
   const onKey = (event: KeyboardEvent<HTMLElement>) => {
@@ -664,7 +684,7 @@ export default function Draft() {
           ) : (
             <p className="sg-bar-now">
               <span className="sg-chip" aria-hidden="true" />
-              {neutral ? "The record: no screen, no hue" : `${cards[shown.index].short} · hue ${deg(cards[shown.index].hue)}`}
+              {neutral ? "The record: no screen, no hue" : `${cards[shown.index].short} · hue ${deg(grounds[shown.index])}`}
             </p>
           )}
           <p className="sg-bar-links">
@@ -678,17 +698,12 @@ export default function Draft() {
         <section className="sg-top" aria-labelledby="sg-claim">
           <h1 className="sg-claim" id="sg-claim">
             Two platform rewrites,
-            <br className="sg-br" /> three apps in both stores.<sup aria-hidden="true">1</sup>
+            <br className="sg-br" /> three apps in both stores.
           </h1>
-          <p className="sg-note">
-            <span className="sg-note-mark" aria-hidden="true">
-              1
-            </span>
-            <span>
-              <strong className="sg-note-name">Gentrit Rashiti</strong> builds web and mobile apps, from Kosovo.
-              <span className="sg-note-hook"> The colour of this page is sampled from the screen under it.</span>
-            </span>
+          <p className="sg-who">
+            <strong className="sg-who-name">Gentrit Rashiti</strong> builds web and mobile apps, from Kosovo.
           </p>
+          <p className="sg-hook">The colour of this page is sampled from the screen under it.</p>
         </section>
 
         <ol className="sg-cards">

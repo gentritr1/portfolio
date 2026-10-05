@@ -96,11 +96,14 @@
   column-gap: 40px;
   width: 1360px;
   margin: 0 auto;
+  /* The frame and its tray fill the first screen with one margin above and below. */
+  --pj-fw: 880px;
+  --pj-top: max(24px, calc((100dvh - var(--pj-fw) * 676 / 880 - 58px) / 2));
 }
 
 .pj-id {
   grid-area: id;
-  padding-top: 40px;
+  padding-top: var(--pj-top);
 }
 
 .pj-id h1 {
@@ -148,8 +151,8 @@
   grid-area: frame;
   align-self: start;
   position: sticky;
-  top: max(40px, calc(50vh - 366px));
-  margin-top: max(40px, calc(50vh - 366px));
+  top: var(--pj-top);
+  margin-top: var(--pj-top);
 }
 
 /* ---------- A row of the log ---------- */
@@ -291,7 +294,7 @@
 .pj-screen {
   position: relative;
   width: 100%;
-  aspect-ratio: 880 / 560;
+  aspect-ratio: 880 / 676;
   overflow: hidden;
   border-radius: 12px;
   background: var(--pj-paper);
@@ -315,7 +318,7 @@
   left: 0;
   top: 0;
   width: 880px;
-  height: 560px;
+  height: 676px;
   container-type: inline-size;
   transform: scale(var(--k, 1));
   transform-origin: 0 0;
@@ -380,9 +383,9 @@
   position: absolute;
   top: 0;
   left: 50%;
-  width: 670px;
-  height: 560px;
-  margin-left: -335px;
+  width: 676px;
+  height: 676px;
+  margin-left: -338px;
   container-type: inline-size;
 }
 
@@ -399,7 +402,7 @@
   right: auto;
   bottom: auto;
   width: 600px;
-  height: 382px;
+  height: 461px;
   transform: scale(1.4667);
   transform-origin: 0 0;
 }
@@ -432,7 +435,7 @@
 }
 
 .pj-live-design-system .dsr-lane-list {
-  gap: 18px;
+  gap: 30px;
 }
 
 .pj-live-design-system .dsr-lane {
@@ -440,7 +443,7 @@
 }
 
 .pj-live-design-system .dsr-chip-token {
-  height: 48px;
+  height: 56px;
 }
 
 .pj-web,
@@ -454,13 +457,18 @@
   height: 100%;
 }
 
+/* A phone screen stands at its own ratio on the frame's paper, never wider than its source pixels. */
 .pj-phone {
   display: flex;
   justify-content: center;
+  background: var(--pj-paper);
 }
 
 .pj-phone .pj-shot {
   height: 100%;
+  box-shadow:
+    -1px 0 0 rgb(20 27 6 / 0.16),
+    1px 0 0 rgb(20 27 6 / 0.16);
 }
 
 .pj-shot {
@@ -731,6 +739,7 @@
 
   .pj-main {
     grid-template-columns: minmax(0, 2fr) minmax(0, 4fr);
+    --pj-fw: calc((100vw - 120px) * 2 / 3);
   }
 }
 
@@ -880,6 +889,10 @@
     height: 34px;
   }
 
+  .pj-live-design-system .dsr-lane-list {
+    gap: 18px;
+  }
+
   .pj-square {
     left: 0;
     width: 100%;
@@ -891,12 +904,8 @@
     display: none;
   }
 
-  /* The care plate shows its chart: the patient header sits above the frame, the sync note is left out. */
-  .pj-live-care {
-    top: calc(-1 * var(--pj-care-head, 86px));
-  }
-
-  .pj-live-care footer > div:last-child {
+  /* The care plate keeps its organization switch and chart; the unit switch and the sync note are left out. */
+  .pj-live-care footer {
     display: none;
   }
 }

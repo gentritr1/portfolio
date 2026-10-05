@@ -284,40 +284,28 @@
   text-wrap: balance;
 }
 
-.sg-claim sup {
-  position: relative;
-  top: -1.55em;
-  margin-left: 0.1em;
-  font-family: var(--sg-mono);
-  font-size: 0.3em;
-  font-weight: 400;
-  letter-spacing: 0;
-  line-height: 0;
-  vertical-align: baseline;
-}
-
 .sg-br {
   display: none;
 }
 
-.sg-note {
-  display: flex;
-  gap: 10px;
-  max-width: 34rem;
-  margin: 16px 0 0;
+.sg-who {
+  max-width: 36rem;
+  margin: 14px 0 0;
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: -0.005em;
+}
+
+.sg-who-name {
+  font-weight: 700;
+}
+
+.sg-hook {
+  max-width: 36rem;
+  margin: 6px 0 0;
   font-size: 16px;
   line-height: 1.45;
-}
-
-.sg-note-name {
-  font-weight: 650;
-}
-
-.sg-note-mark {
-  flex: none;
-  padding-top: 3px;
-  font-family: var(--sg-mono);
-  font-size: 12px;
 }
 
 /* ---------- Cards ---------- */
@@ -345,9 +333,20 @@
 
 .sg-plate {
   position: relative;
-  aspect-ratio: 3 / 2;
+  aspect-ratio: var(--sg-ratio, 3 / 2);
   overflow: hidden;
   background: var(--sg-c-ground);
+}
+
+/* A paused live room shows four messages. Its chat panel ends at the last one. */
+@media (min-width: 1024px) {
+  .sg-plate section[aria-label="Live chat"] {
+    align-self: start;
+  }
+
+  .sg-plate section[aria-label="Live chat"] > div:last-child {
+    flex: none;
+  }
 }
 
 .sg-live {
@@ -427,6 +426,10 @@
   margin-top: 4px;
   font-weight: 700;
   text-wrap: balance;
+}
+
+.sg-result-sentence {
+  display: block;
 }
 
 /* The arrow hangs in the dot's column, so the decision and the result share one left edge. */
@@ -711,9 +714,13 @@ a.sg-record-row {
     display: inline;
   }
 
-  .sg-note {
+  .sg-who {
     margin-top: 18px;
-    font-size: 18px;
+    font-size: 20px;
+  }
+
+  .sg-hook {
+    display: none;
   }
 
   .sg-cards {
@@ -731,21 +738,14 @@ a.sg-record-row {
     border-radius: 6px;
   }
 
-  /* A portrait store screen keeps its native ratio and sits flush with the plate's right edge. */
-  .sg-plate-flush {
-    display: flex;
-    justify-content: flex-end;
-    background: var(--sg-c-panel);
+  /* A store image is never upscaled: the slot takes the crop's width in source pixels, and the text column takes the rest. */
+  .sg-card-native {
+    grid-template-columns: var(--sg-native) minmax(0, 1fr);
   }
 
-  .sg-plate-flush .sg-crop {
-    width: auto;
-    height: 100%;
-    border-radius: 6px;
-  }
-
-  .sg-note-hook {
-    display: none;
+  .sg-card-native .sg-plate {
+    aspect-ratio: auto;
+    align-self: start;
   }
 
   .sg-column {

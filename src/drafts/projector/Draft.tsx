@@ -87,28 +87,6 @@ function LivePlate({ which }: { which: keyof typeof liveKeys }) {
     return () => observer.disconnect();
   }, [which]);
 
-  // The phone crop of the care plate starts under its patient header, whose height follows the width.
-  useEffect(() => {
-    if (which !== "care") return;
-    const element = ref.current;
-    if (!element) return;
-    const measure = () => {
-      const row = element.querySelector<HTMLElement>(".border-t");
-      if (!row) return;
-      const top = row.offsetTop + 1;
-      element.style.setProperty("--pj-care-head", `${top}px`);
-    };
-    measure();
-    const resize = new ResizeObserver(measure);
-    resize.observe(element);
-    const mutation = new MutationObserver(measure);
-    mutation.observe(element, { childList: true, subtree: true });
-    return () => {
-      resize.disconnect();
-      mutation.disconnect();
-    };
-  }, [which]);
-
   const live = (
     <Suspense fallback={<div className="pj-wait" />}>
       <Live />
@@ -166,7 +144,7 @@ function PlateView({ plate, load, narrow }: { plate: Plate; load: boolean; narro
     );
   }
   return (
-    <div className={`pj-${plate.kind}`} style={{ background: plate.ground }}>
+    <div className={`pj-${plate.kind}`} style={plate.kind === "web" ? { background: plate.ground } : undefined}>
       {load && <ShotView shot={plate.shot} crop={narrow ? plate.shot.narrow : plate.shot.crop} eager={false} />}
     </div>
   );
@@ -273,7 +251,7 @@ function measureWire(row: Row, rowElement: HTMLElement, plate: HTMLElement, narr
   }
   const pad = 5;
   const ring = { x: target.x - pad, y: target.y - pad, w: target.w + pad * 2, h: target.h + pad * 2, r: 8 };
-  if (row.target.kind === "selector" && row.target.css.includes("radiogroup")) ring.r = ring.h / 2;
+  if (row.target.kind === "selector" && row.target.round) ring.r = ring.h / 2;
   const outLength = lengthOf(outside);
   const inLength = lengthOf(inside);
   return {
@@ -573,7 +551,8 @@ export default function Draft() {
     event.preventDefault();
     const index = Math.min(rows.length - 1, Math.max(0, shown.index + step));
     jump(index, "instant");
-    rowRefs.current[index]?.querySelector<HTMLElement>(".pj-link")?.focus({ preventScroll: true });
+    const row = rowRefs.current[index];
+    (row?.querySelector<HTMLElement>(".pj-link") ?? row?.querySelector<HTMLElement>("h2"))?.focus({ preventScroll: true });
   };
 
   const onRowFocus = (index: number) => (event: FocusEvent<HTMLLIElement>) => {
@@ -633,7 +612,7 @@ export default function Draft() {
                   {row.id}
                 </span>
                 <div className="pj-row-name">
-                  <h2>
+                  <h2 tabIndex={row.link ? undefined : -1}>
                     <span className="pj-sr">{row.id}. </span>
                     {row.project}
                   </h2>
@@ -657,19 +636,21 @@ export default function Draft() {
                   </mark>
                 </span>
               </p>
-              <p className="pj-foot">
-                {row.link.external ? (
-                  <a className="pj-link" href={row.link.href} target="_blank" rel="noreferrer">
-                    {row.link.label}
-                    <ArrowUpRightIcon aria-hidden="true" size={16} weight="bold" />
-                  </a>
-                ) : (
-                  <Link className="pj-link" to={row.link.href}>
-                    {row.link.label}
-                    <ArrowRightIcon aria-hidden="true" size={16} weight="bold" />
-                  </Link>
-                )}
-              </p>
+              {row.link && (
+                <p className="pj-foot">
+                  {row.link.external ? (
+                    <a className="pj-link" href={row.link.href} target="_blank" rel="noreferrer">
+                      {row.link.label}
+                      <ArrowUpRightIcon aria-hidden="true" size={16} weight="bold" />
+                    </a>
+                  ) : (
+                    <Link className="pj-link" to={row.link.href}>
+                      {row.link.label}
+                      <ArrowRightIcon aria-hidden="true" size={16} weight="bold" />
+                    </Link>
+                  )}
+                </p>
+              )}
             </li>
           ))}
         </ol>

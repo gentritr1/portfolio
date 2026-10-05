@@ -1,10 +1,10 @@
 {
   "id": "sampled-ground",
   "title": "SAMPLED GROUND",
-  "band": "Loop 6",
+  "band": "Loop 7",
   "rule": "the page takes its colour from the screen it shows; nobody picks a colour",
-  "description": "Six products from 2023 to 2026, oldest first, as six big side-column cards. Each card's panel and the page ground are computed from the dominant hue of the card's own screen at fixed lightness and chroma, so the page changes colour when the product changes. A hue scale in the bar, labelled 'hue 0° … 360°' and 'Sampled from the screen under it', places the six screens on the colour wheel and moves the page between them. Each card says one decision and its result. A closing record holds the decisions that have no screen, on a grey ground with no hue.",
-  "signature": "Bricolage Grotesque (700 at 64 px for the claim, 500 for text, 700 for results) and Gentrit Technical Mono for roles, hues and the scale. First screen: the scale 'hue 0° … 360°' with the label 'Sampled from the screen under it · Viva Fresh · 23°' under its ring; 'Two platform rewrites, three apps in both stores.' with a footnote 'Gentrit Rashiti builds web and mobile apps, from Kosovo.' (name at 650); then the Viva Fresh card: one iPhone cart screen from the App Store listing at native ratio, cropped to whole rows (one product, 'Zbritje totale', 'VAZHDO ME PAGESEN'), flush with the plate's right edge, a hairline from the result to the 25.11 € total, and 'Ship one React Native codebase to iPhone and Android. → Live in both stores.' Palette by construction: ground oklch(0.95 0.035 h), ink oklch(0.30 0.11 h), panel oklch(0.42 0.13 h) with ground-colour type; only h comes from the screen. When a card settles as current (160 ms after the scroll stops on it), its ground spreads out of its plate as one circle (clip-path, 280 ms ease-out) over the page and the bar together, and the ring on the hue scale slides to the new hue (transform, 280 ms ease-in-out); the label swaps. The first time a card is current, one hairline draws from its result to the part that proves it (180 ms, then a 120 ms ring); the phone rings the same part as the desktop. Reduced motion and key jumps switch the ground with no spread and draw the hairline whole.",
+  "description": "Six products from 2023 to 2026, oldest first, as six big side-column cards. Each card's panel and the page ground are computed from the dominant hue of the card's own screen at fixed lightness and chroma, so the page changes colour when the product changes. A hue scale in the bar, labelled 'hue 0° … 360°' and 'Sampled from the screen under it', places the screens on the colour wheel and moves the page between them; it shows one number, the hue the ground uses. Each card says one decision and a result that its pinned part proves. A closing record holds the decisions that have no screen, on a grey ground with no hue.",
+  "signature": "Bricolage Grotesque (700 at 64 px for the claim, 500 for text, 700 for results) and Gentrit Technical Mono for roles, hues and the scale. First screen: the scale 'hue 0° … 360°' with 'Sampled from the screen under it · Viva Fresh · 23°' under its ring; 'Two platform rewrites, three apps in both stores.' with 'Gentrit Rashiti builds web and mobile apps, from Kosovo.' as a 20 px line under it (name at 700); then the Viva Fresh card: one iPhone cart screen from the App Store listing at its source pixels (604 x 370, no upscale), cropped to whole rows, in a slot of its own size with the text column widened to meet it; a hairline from the result to the checkout button, and 'Ship one React Native codebase to iPhone and Android. → One checkout, in Albanian, in both stores.' Pins: checkout button (Viva Fresh), pinned chat message ('Moderated live chat.' first), passkey button (Incentiv), store badges (bayyinah.org), One source row ('It generates CSS, TypeScript and a Figma bundle.'), organization switcher ('Each sees only its own patients.'). Phone plates render each recreation at its own 360 px layout at 0.95 scale and show only the band around the ringed part. Palette by construction: ground oklch(0.95 0.035 h), ink oklch(0.30 0.11 h), panel oklch(0.42 0.13 h) with ground-colour type; only h comes from the screen. When a card settles as current (160 ms after the scroll stops on it), its ground spreads out of its plate as one circle (clip-path, 280 ms ease-out) over the page and the bar together, and the ring on the hue scale slides to the new hue (transform, 280 ms ease-in-out); the label swaps. The first time a card is current, one hairline draws from its result to the part that proves it (180 ms, then a 120 ms ring). Reduced motion and key jumps switch the ground with no spread and draw the hairline whole.",
   "caseSlug": "viva-fresh",
   "mechanisms": [
     "sampled ground",
@@ -12,17 +12,17 @@
     "one pin per card"
   ],
   "slopCount": 0,
-  "rounds": 2,
+  "rounds": 3,
   "loopScores": {
     "straightToThePoint": 8.5,
     "notOverwhelming": 8,
     "harmony": 8.5,
-    "meaningfulMotion": 8.5,
+    "meaningfulMotion": 9,
     "actionsAndSeniority": 8.5,
     "original": 8,
     "hooks": 8
   },
-  "holdback": "Lowest: hooks and calm, 8/10. The hook (the page is painted by the screen) is now said once, at the scale, in 12 px mono; a visitor sees it prove itself only when the second ground spreads, below the first screen. Known limits: the Viva Fresh screen at native ratio is 718 x 440, so the 880 px plate slot keeps a 162 px panel strip at its left; the store image is shown at about 1.2x its source pixels; under reduced motion the shared live room shows its full static chat (10 messages, nothing plays) where the normal page shows the paused 04; the phone Bayyinah TV plate crops the player to its control row so that the pinned message, the part the desktop rings, is in view.",
+  "holdback": "Lowest: calm, original and hooks, 8/10. The frame is the same card column as round 6, so 'original' and the hook do not move; the hook still proves itself only when the second ground spreads, below the first screen. Known limits: the Viva Fresh card is the one card with a different column split (plate 604 px at source pixels, text column 556 px), because no store image is wider than 780 px; the paused live room's chat panel now ends at its fourth message, so 190 px of the room's own pale ground stands under it; under reduced motion the shared live room shows its full static chat (10 messages, nothing plays); the record has eight rows, because the Vue-to-React parity fact and the 36 components moved there from cards whose pins did not prove them.",
   "hues": {
     "method": "oklch hue histogram, chroma-weighted, 1 degree bins smoothed over 13 degrees, over the rendered 880 x 440 plate at 1440 x 900 with the hairlines hidden (scratchpad/sg/hue.mjs)",
     "viva-fresh": 23,
@@ -34,26 +34,31 @@
     "shared": "bayyinah-tv keeps ground 23 (11 degrees from its neighbour)"
   },
   "chroma": {
-    "firstScreen": 37.3,
-    "outsidePlates": 40.3,
+    "firstScreen": 38.1,
+    "outsidePlates": 40.1,
     "plateRect": [
-      282,
-      327,
-      1000,
-      767
-    ],
-    "outsidePlatesSlot": 35.6,
-    "slotRect": [
       120,
-      327,
-      1000,
-      767
+      329,
+      724,
+      699
     ],
-    "method": "scratchpad/chroma5r.mjs logic (round-3 decode and threshold) on review/loop6/sampled-ground/final/d-top.png (1440 x 900), captured last with every label on it; plateRect is the store screen, slotRect the whole 880 px plate slot"
+    "method": "scratchpad/chroma6r.mjs logic (round-3 decode and threshold), copied to review/loop7/sampled-ground/chroma7.mjs, on review/loop7/sampled-ground/final/d-top.png (1440 x 900), captured last with every label on it; plateRect is the store screen, which is now the whole plate slot (604 x 370 at source pixels)"
   },
   "polish": [
     {
       "round": 6,
+      "score": 58,
+      "fixed": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    },
+    {
+      "round": 7,
       "score": 58,
       "fixed": [
         1,

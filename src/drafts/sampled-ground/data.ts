@@ -22,11 +22,16 @@ export type Plate =
       kind: "live";
       key: RecreationKey;
       design: [number, number];
-      narrow: [number, number];
-      /** Design pixels above the phone crop. The phone plate shows the part under them. */
-      narrowShift?: number;
+      /** The phone renders the recreation at its own narrow layout and shows one band of it, in design pixels. */
+      narrow: { width: number; height: number; top: number; band: number };
     }
-  | { kind: "shot"; shot: Shot; narrow: Shot; flush?: boolean };
+  | {
+      kind: "shot";
+      shot: Shot;
+      narrow: Shot;
+      /** The image is narrower than the slot, so the slot takes the crop's size in source pixels. */
+      native?: boolean;
+    };
 
 /** The pin ends on a part: an element of a live plate, or a box in one image of the plate. */
 export type PinTarget = { kind: "selector"; css: string } | { kind: "image"; index: number; box: Box };
@@ -67,15 +72,15 @@ export const cards: Card[] = [
     short: "Viva Fresh",
     role: "Mobile · 2023",
     decision: "Ship one React Native codebase to iPhone and Android.",
-    result: "Live in both stores.",
+    result: "One checkout, in\u00a0Albanian, in both\u00a0stores.",
     plate: {
       kind: "shot",
       shot: { ...vivaIphone, crop: box(88 / 780, 1098 / 1689, 604 / 780, 370 / 1689) },
-      narrow: { ...vivaIphone, crop: box(88 / 780, 1080 / 1689, 604 / 780, 403 / 1689) },
-      flush: true,
+      narrow: { ...vivaIphone, crop: box(88 / 780, 1098 / 1689, 604 / 780, 370 / 1689) },
+      native: true,
     },
     caption: "Store listing, iPhone; the same screen is on Google Play",
-    pin: { kind: "image", index: 0, box: box(570 / 780, 1404 / 1689, 92 / 780, 40 / 1689) },
+    pin: { kind: "image", index: 0, box: box(103 / 780, 1387 / 1689, 575 / 780, 73 / 1689) },
     narrowRoute: "below",
     hue: 23,
     link: { label: "Open the case", href: "/work/viva-fresh" },
@@ -86,8 +91,8 @@ export const cards: Card[] = [
     short: "Bayyinah TV",
     role: "Frontend · 2023–26",
     decision: "Rebuild the video platform on Nuxt 3.",
-    result: "34 routes and 270+ components, with moderated live chat.",
-    plate: { kind: "live", key: "live-room", design: [1100, 550], narrow: [686, 760], narrowShift: 303 },
+    result: "Moderated live chat. 34 routes, 270+\u00a0components.",
+    plate: { kind: "live", key: "live-room", design: [1100, 550], narrow: { width: 360, height: 640, top: 158, band: 334 } },
     caption: "Recreation with invented data",
     pin: { kind: "selector", css: "section[aria-label='Live chat'] .bg-accent-soft" },
     narrowRoute: "left",
@@ -101,7 +106,7 @@ export const cards: Card[] = [
     role: "Frontend, UI layer · 2024",
     decision: "Build the UI layer of a smart-wallet dashboard.",
     result: "Passkey or wallet sign-in, in English and French.",
-    plate: { kind: "live", key: "wallet", design: [800, 400], narrow: [686, 457] },
+    plate: { kind: "live", key: "wallet", design: [800, 400], narrow: { width: 360, height: 640, top: 386, band: 154 } },
     caption: "Recreation with invented data",
     pin: { kind: "selector", css: "button.w-full" },
     narrowRoute: "left",
@@ -126,10 +131,10 @@ export const cards: Card[] = [
       },
       narrow: {
         src: "/showcase/bayyinah/org-01.webp",
-        alt: "bayyinah.org home: the hero, the Join the Mission button and the two store badges",
+        alt: "bayyinah.org home: the Join the Mission button and the two store badges",
         width: 1440,
         height: 900,
-        crop: box(230 / 1440, 88 / 900, 980 / 1440, 653 / 900),
+        crop: box(463 / 1440, 540 / 900, 500 / 1440, 210 / 900),
       },
     },
     caption: "bayyinah.org, public page",
@@ -143,9 +148,9 @@ export const cards: Card[] = [
     project: "Design System v2",
     short: "Design System v2",
     role: "Design system · 2026",
-    decision: "Generate 805 tokens in three tiers from one source.",
-    result: "36 components in 20 releases.",
-    plate: { kind: "live", key: "design-system", design: [860, 430], narrow: [686, 457] },
+    decision: "Keep 805 tokens in three tiers in one source.",
+    result: "It generates CSS, TypeScript and a Figma bundle.",
+    plate: { kind: "live", key: "design-system", design: [860, 430], narrow: { width: 360, height: 900, top: 580, band: 198 } },
     caption: "Recreation with invented data",
     pin: { kind: "selector", css: ".dsr-pipeline" },
     narrowRoute: "left",
@@ -157,9 +162,9 @@ export const cards: Card[] = [
     project: "Care-management platform",
     short: "Care platform",
     role: "Frontend · 2026",
-    decision: "Move a multi-tenant care platform from Vue to React.",
-    result: "A route moves after its parity test passes.",
-    plate: { kind: "live", key: "care", design: [1100, 550], narrow: [686, 457] },
+    decision: "Serve many client organizations from one care platform.",
+    result: "Each sees only its own patients.",
+    plate: { kind: "live", key: "care", design: [1100, 550], narrow: { width: 360, height: 520, top: 0, band: 520 } },
     caption: "Recreation with invented data",
     pin: { kind: "selector", css: 'button[aria-label^="Organization"]' },
     narrowRoute: "right",
@@ -188,6 +193,20 @@ export interface Row {
 }
 
 export const record: Row[] = [
+  {
+    decision: "Move the care platform from Vue to React, one route at a time.",
+    project: "Care-management platform",
+    years: "2026",
+    result: "parity test per route",
+    slug: "care-platform",
+  },
+  {
+    decision: "Ship 36 components as one typed, versioned package.",
+    project: "Design System v2",
+    years: "2026",
+    result: "20 releases",
+    slug: "design-system-react",
+  },
   {
     decision: "Rework one billing report until it stops timing out.",
     project: "Care-management API",
@@ -219,12 +238,6 @@ export const record: Row[] = [
     years: "2022–25",
     result: "≈14 releases",
     slug: "read-to-feed",
-  },
-  {
-    decision: "Play scripted chat conversations from one React Native package.",
-    project: "Chatbot runtime",
-    years: "2022–25",
-    result: "1 package",
   },
   {
     decision: "Ship a publisher's book shop to iPhone and Android.",
