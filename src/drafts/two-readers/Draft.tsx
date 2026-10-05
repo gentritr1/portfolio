@@ -11,7 +11,6 @@ import {
   type MouseEvent,
   type ReactNode,
 } from "react";
-import { preload } from "react-dom";
 import { Link, useSearchParams } from "react-router";
 import { links } from "../../content/links";
 import { recreations } from "../../lib/recreations";
@@ -33,10 +32,50 @@ const FADE_MS = 200;
 const DRAW_MS = 180;
 const RING_MS = 120;
 const WRITE_MS = 240;
-const WRITE_AT_MS = 200;
+const WRITE_AT_MS = 120;
 const STAGGER_MS = 30;
 const SCROLL_IDLE_MS = 140;
 const EASE_OUT = "cubic-bezier(0.23, 1, 0.32, 1)";
+
+const FONT_WAIT_MS = 300;
+
+const fontFaces =
+  typeof FontFace === "undefined"
+    ? []
+    : [
+        new FontFace("TR Newsreader", 'url("/fonts/creative/Newsreader-Latin.woff2") format("woff2")', { weight: "300 650" }),
+        new FontFace("TR JetBrains Mono", 'url("/fonts/creative/JetBrainsMono-Latin.woff2") format("woff2")', { weight: "100 800" }),
+      ];
+const fontsLoaded = Promise.all(fontFaces.map((face) => face.load()));
+fontsLoaded.catch(() => undefined);
+
+function useFonts() {
+  const [ready, setReady] = useState(() => fontFaces.every((face) => document.fonts.has(face)));
+  useLayoutEffect(() => {
+    if (ready) return;
+    let done = false;
+    const show = (use: boolean) => {
+      if (done) return;
+      done = true;
+      if (use) fontFaces.forEach((face) => document.fonts.add(face));
+      setReady(true);
+    };
+    if (fontFaces.every((face) => face.status === "loaded")) {
+      show(true);
+      return;
+    }
+    const timer = window.setTimeout(() => show(false), FONT_WAIT_MS);
+    fontsLoaded.then(
+      () => show(true),
+      () => show(false),
+    );
+    return () => {
+      done = true;
+      window.clearTimeout(timer);
+    };
+  }, [ready]);
+  return ready;
+}
 
 type Mode = "animate" | "instant";
 interface Size {
@@ -111,22 +150,33 @@ function LiveView({ plate, size, narrow }: { plate: LivePlate; size: Size; narro
 
 function ShotView({ plate, size, narrow, eager }: { plate: ShotPlate; size: Size; narrow: boolean; eager: boolean }) {
   const crop = narrow ? plate.narrow : plate.crop;
+  const image = (k: number, left: number, top: number) => (
+    <img
+      src={plate.src}
+      alt={plate.alt}
+      width={plate.width}
+      height={plate.height}
+      loading={eager ? "eager" : "lazy"}
+      decoding="async"
+      style={{ width: plate.width * k, left, top }}
+    />
+  );
+  if (plate.fill) {
+    const k = Math.min(1, size.w / crop.w, size.h / crop.h);
+    const w = Math.round(crop.w * k);
+    const h = Math.round(crop.h * k);
+    return (
+      <div className="tr-shot" style={{ background: plate.fill }}>
+        <div className="tr-shot-crop" style={{ width: w, height: h, left: Math.round((size.w - w) / 2), top: Math.round((size.h - h) / 2) }}>
+          {image(k, -crop.x * k, -crop.y * k)}
+        </div>
+      </div>
+    );
+  }
   // Never larger than the source pixels: a narrower plate stands centred on the frame's paper.
   const k = Math.min(1, size.w / crop.w);
   const left = (size.w - crop.w * k) / 2;
-  return (
-    <div className={`tr-shot${plate.dark ? " tr-shot-dark" : ""}`}>
-      <img
-        src={plate.src}
-        alt={plate.alt}
-        width={plate.width}
-        height={plate.height}
-        loading={eager ? "eager" : "lazy"}
-        decoding="async"
-        style={{ width: plate.width * k, left: left - crop.x * k, top: -crop.y * k }}
-      />
-    </div>
-  );
+  return <div className={`tr-shot${plate.dark ? " tr-shot-dark" : ""}`}>{image(k, left - crop.x * k, -crop.y * k)}</div>;
 }
 
 function FigureView({ reader }: { reader: Reader }) {
@@ -312,8 +362,7 @@ export default function Draft() {
   const [params, setParams] = useSearchParams();
   const reader: Reader = params.get("read") === "engineer" ? "engineer" : "plain";
 
-  preload("/fonts/creative/Newsreader-Latin.woff2", { as: "font", type: "font/woff2", crossOrigin: "anonymous" });
-  preload("/fonts/creative/JetBrainsMono-Latin.woff2", { as: "font", type: "font/woff2", crossOrigin: "anonymous" });
+  const fonts = useFonts();
 
   const rootRef = useRef<HTMLDivElement>(null);
   const frameRef = useRef<HTMLDivElement>(null);
@@ -406,6 +455,7 @@ export default function Draft() {
 
   /* Live plates mount hidden once the page is idle, so their first draw is over before their row is shown. */
   useEffect(() => {
+    if (!fonts) return;
     const idle = window.requestIdleCallback ?? ((callback: () => void) => window.setTimeout(callback, 600));
     const handle = idle(() => {
       const live = rows.flatMap((row, i) => (row.plate.kind === "live" ? [i] : []));
@@ -416,7 +466,7 @@ export default function Draft() {
     return () => {
       if (window.cancelIdleCallback && typeof handle === "number") window.cancelIdleCallback(handle);
     };
-  }, []);
+  }, [fonts]);
 
   /* ---------- Phone: each row's plate and ring ---------- */
   const [phonePlate, setPhonePlate] = useState<Size>({ w: 0, h: 0 });
@@ -616,7 +666,7 @@ export default function Draft() {
 
   /* The first line draws after the first plate has faded in. */
   useEffect(() => {
-    if (armed.current || narrow) return;
+    if (armed.current || narrow || !fonts) return;
     let timer = 0;
     let raf = 0;
     const arm = () => {
@@ -638,7 +688,7 @@ export default function Draft() {
       cancelAnimationFrame(raf);
       window.clearTimeout(timer);
     };
-  }, [reduced, updateWire, narrow]);
+  }, [reduced, updateWire, narrow, fonts]);
 
   /* A new row: the old line fades, the plate cross-fades, then the new line draws. */
   useLayoutEffect(() => {
@@ -664,7 +714,7 @@ export default function Draft() {
     };
   }, [shown, reduced, updateWire]);
 
-  /* ---------- The switch: every visible line is struck, then the other reader's line writes in ---------- */
+  /* ---------- The switch: every visible line fades, then the other reader's line writes in ---------- */
   const switchTimer = useRef(0);
   const switchToken = useRef(0);
   const choose = (next: Reader, keyboard = false) => {
@@ -788,7 +838,7 @@ export default function Draft() {
   const current = rows[shown.index];
 
   return (
-    <div className="tr" ref={rootRef} data-read={reader}>
+    <div className="tr" ref={rootRef} data-read={reader} data-fonts={fonts ? undefined : "wait"}>
       <title>Two readers — Gentrit Rashiti</title>
       <div className="tr-main">
         <div className="tr-col">
@@ -806,9 +856,9 @@ export default function Draft() {
           </header>
 
           <div className="tr-switch-bar">
-            <div className="tr-switch" role="radiogroup" aria-label="Read as" onKeyDown={onSwitchKey}>
+            <div className="tr-switch" role="radiogroup" aria-label="Same facts for" onKeyDown={onSwitchKey}>
               <span className="tr-switch-label" aria-hidden="true">
-                Read as
+                Same facts for
               </span>
               {(["plain", "engineer"] as const).map((option) => (
                 <button
@@ -825,7 +875,6 @@ export default function Draft() {
               ))}
             </div>
           </div>
-          <p className="tr-switch-note">Same facts. The engineer view names the tools.</p>
 
           <ol className="tr-log" aria-label="Eight pieces of work" onKeyDown={onLogKey}>
             {rows.map((row, index) => {
@@ -947,8 +996,8 @@ export default function Draft() {
       <footer className="tr-end">
         <div className="tr-end-in">
           <p>
-            Gentrit Rashiti. Bachelor's degree, UBT. The care, design-system and reader screens are recreations with invented
-            data. The other screens come from public pages and store listings.
+            Gentrit Rashiti. Bachelor's degree, UBT. The care and design-system screens are recreations with invented data.
+            The other screens come from public pages and store listings.
           </p>
           <p className="tr-end-links">
             <a href={`mailto:${links.email}`}>{links.email}</a>

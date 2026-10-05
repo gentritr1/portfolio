@@ -2,31 +2,61 @@
   "id": "then-now",
   "title": "THEN / NOW",
   "band": "Loop 8",
-  "rule": "every row is one change made to a product: a problem is struck and its result writes in; an earlier state stays unstruck; a new product says Shipped",
-  "description": "Eight changes, strongest first, beside one fixed frame. The page opens on one billing report that asked the database 16 times and gave up. The line is struck, 'It asks 2 times and finishes' writes in, and the frame shows 16 requests become 2. Only three rows carry a strike, because only three have a problem that is gone: the billing report, the button-only app that downloaded far more code than needed, and the studio site's 972 KB of pictures. Bayyinah TV and the care platform show an earlier state in grey with no strike (version 1 was replaced, and the 2023 care app is still live while its screens move). Read to Feed, Viva Fresh and Incentiv say Shipped.",
-  "signature": "Literata for every sentence and Anton for the labels (THEN, NOW, SHIPPED), the row numbers, the tray and the 16 → 2 figure; ink #121212 on paper #F6F5F0, struck and earlier text #6B6860 (5.0:1), muted #57544C (6.9:1), one accent #2348D8 for the NOW band, the hairline, the ring and the 2 kept requests (white on accent 7.5:1). Desktop: a 1344 px grid with 48 px gutters, the log at the left and a 640 × 656 frame at the right, sticky, centred with its two-line caption and the eight-slot tray, so at 1440 × 900 the name and the frame top both sit at y 94. Row 01 is the lead at display size (32 px). The frame draws every plate on a 640 × 656 stage at its native pixels or smaller: the web screens at 0.73 to 1.0, the two phone screens at 1.0 with 8 and 24 px of white at each side. A row becomes current when its top passes 42% of the viewport and settles for 160 ms. The first time a fixed row is current, a copy of its sentence with a line-through is revealed from the left by clip-path (200 ms, all lines at once) while the sentence turns grey; then the NOW band wipes in by clip-path (260 ms); then the hairline draws from the end of the band through the gutter into the frame (180 ms) and the ring fades in (120 ms) on the part that proves the result. The line waits for the row's own animations to finish, so it never draws ahead of the words. Later visits only wipe the band and draw the line. At load the same three steps run once on row 01, and the figure strikes 16 (transform scaleX), 14 of the 16 squares empty and 2 turn blue (opacity), and the 2 writes in (clip-path). Plates cross-fade in 200 ms. Rows passed by a fast scroll strike with no transition. Arrow keys in the log, Home and End, the tray (roving tabindex, Left and Right) and Tab on a row jump with no travel and no animation. The page stays hidden until Literata and Anton are loaded (at most 1 s), so no line reflows. Phone: the frame pins at the top at 4:3 with phone crops; the ring shows with no line; the caption keeps two lines. Reduced motion: every fixed row is struck from the start, the band and ring appear at once, and the live plates do not move.",
+  "rule": "every row is one change made to a product: an earlier state stays grey, a problem has only its measured part struck while its result writes in, and a new product says Shipped with its Result",
+  "description": "Eight changes, a live product first. The identity line says the idea: Gentrit Rashiti builds web and mobile apps, and rebuilds and fixes the ones people already use; the sub-line gives the level (5+ years) and keeps 'Part of two platform rewrites'. Row 01 is Bayyinah TV: version 1 in grey, then 'Built again: members subscribe on the web, iPhone or Android' writes in, and the line rings the Start 7-Day Free Trial button on the live pricing page. Row 02, also on the first screen at 1440, is the billing report: only '16 times and gave up' is struck when the row becomes current, 'It asks 2 times and finishes' writes in, and a blue diagram strikes 16 and writes 2. Only two rows strike (the billing report and the studio site's 972 KB), because only they have a measured problem that is gone. The care platform shows its 2023 app in grey and 'Most screens are already rebuilt in React', with the note that a screen moves over only after it passes the same tests in both apps. Design System v2 is 'Built ... with the team' and its result is '96.6% less JavaScript for a page that uses only a button', drawn to scale, not struck. Read to Feed, Viva Fresh and Incentiv say Shipped and Result.",
+  "signature": "Literata for every sentence and Anton for the labels (THEN, NOW, SHIPPED, RESULT, BUILT), the row numbers, the tray and the two diagrams; ink #121212 on paper #F6F5F0, earlier and problem text #57544C (6.9:1), struck part #6B6860 (5.0:1), one accent #2348D8 for the NOW band, the hairline, the ring and the two diagram plates (white on accent 7.5:1, soft white 4.7:1). Desktop: a 1344 px grid with 48 px gutters, the log at the left and a 640 x 560 frame at the right, sticky at 96 px. Every plate fills the 640 x 560 stage: web screens at 0.73 to 1.0, phone screens at 0.95 to 1.0, the two diagrams laid out in cqw so one rule draws the desktop and the phone plate. A row becomes current when its top passes 42% of the viewport and settles for 160 ms. A fixed row's struck part draws its line on every wrapped line at once (200 ms), the NOW band wipes in by clip-path (260 ms, after 200 ms), then the hairline draws from the band end into the frame (180 ms) and the ring fades in (120 ms). The line waits for the band's transitionend. Plates cross-fade in 200 ms. Keyboard jumps (arrows, Home, End, tray, Tab) are instant, including the diagram parts. The text waits at most 300 ms for its two faces; if they are late, the page keeps metric-matched fallback faces (Georgia and Impact with size-adjust and ascent overrides) for the visit, so a late font never moves a line. Phone: the frame pins at the top at 4:3, at most 436 px wide (the narrowest crop), with phone crops and the ring only. Reduced motion: every fixed row is struck from the start, the band and ring appear at once, and nothing moves.",
   "caseSlug": "care-platform",
   "slopCount": 0,
   "rounds": 4,
   "loopScores": {
     "straightToThePoint": 9,
     "notOverwhelming": 8,
-    "harmony": 8,
-    "meaningfulMotion": 8,
-    "actionsAndSeniority": 8,
+    "harmony": 9,
+    "meaningfulMotion": 9,
+    "actionsAndSeniority": 9,
     "original": 7,
     "hooks": 8
   },
-  "holdback": "Lowest: original, 7/10. The frame is projector's sticky frame beside a scrolling log, and the strike-and-write is year-stack's; the new part is that a strike appears only where a measured problem is gone, and the first frame counts 16 requests down to 2. Other limits: two rows have no pin, because no pixel proves the result (Snaxx Tech: no screen shows image weight; care platform: no screen shows the screen-by-screen check), so their frames carry a caption only. The button card proves which button, not the 96.6%. The Viva Fresh pin proves the Albanian shop; no pixel proves both stores, which the caption carries. The Bayyinah TV pin proves paid plans, not 34 pages. Design System v2 is a team project and its dashboard is not in production; the row says team project and does not claim users. The first screen is pale by the brief's one-accent palette: chroma 2.8% (the 16 → 2 figure is ink and one blue).",
+  "holdback": "Lowest: original, 7/10. The frame is projector's sticky frame beside a scrolling log, and the strike-and-write is year-stack's; the new part is that only the measured part of a problem is struck. Other limits: the strike no longer plays at load, because row 01 is now a live product with an earlier state (no problem to strike); the 16 -> 2 strike plays on the first scroll, and row 02 is on the first screen at 1440 as text. First-screen chroma is 3.7% (the pricing page is dark with red buttons); the blue diagram plates bring 26-27% when rows 02 and 06 are current. Two rows have no pin, because no pixel proves the result (care platform rebuild, Snaxx Tech image weight). The Bayyinah TV pin proves the subscription button, not the 34 pages. A visitor whose fonts arrive after 300 ms sees Georgia and Impact for that visit (metric-matched, CLS 0). Design System v2 is a team project and its dashboard is not in production; the row says 'with the team' and makes no live claim.",
   "chroma": {
-    "firstScreen": 2.8,
-    "outsidePlates": 2.0,
+    "firstScreen": 3.7,
+    "outsidePlates": 3.9,
     "plateRect": [
       752,
-      94,
+      96,
       1392,
-      750
+      656
     ],
-    "method": "scratchpad/chroma6r.mjs logic (review/loop8/then-now/chroma-tn.mjs) on review/loop8/then-now/final/d-top.png (1440 x 900), captured last with every label"
-  }
+    "scrollStates": {
+      "d-02 billing diagram": 26.2,
+      "d-04 Read to Feed": 13.9,
+      "d-06 bundle diagram": 26.9
+    },
+    "before": 2.8,
+    "method": "scratchpad/chroma6r.mjs logic (review/loop8b/then-now/chroma.mjs) on review/loop8b/then-now/final/d-top.png (1440 x 900), captured last"
+  },
+  "polish": [
+    {
+      "round": 8,
+      "pass": "b",
+      "score": 59,
+      "fixed": [
+        "Lead: row 01 is now Bayyinah TV, a live product screen with a result a person feels (members subscribe on the web, iPhone or Android); the ring sits on the Start 7-Day Free Trial button. 16 -> 2 is row 02, still on the first screen at 1440 (devil + brief over the critic's praise of the 16 -> 2 lead)",
+        "Own identity line: 'builds web and mobile apps, and rebuilds and fixes the ones people already use'; sub-line '5+ years. Part of two platform rewrites. Based in Kosovo, working remotely.'",
+        "Plates fill the frame: the stage is 640 x 560; the billing figure is two rows (before 16 struck with 16 squares, now 2 with 2 squares); the half-empty button card is replaced by a bundle diagram drawn to scale (3.4% bar, 96.6% less); every crop re-cut to whole UI parts",
+        "Row 01/02 hairline enters at the 2's height (side route), no travel across the plate; Read to Feed line runs in the gap between two cards",
+        "Font CLS 0.084 -> 0 with fonts 2.5 s late; text wait 1.0 s -> 0.3 s; fallback faces matched by size-adjust and ascent/descent overrides, kept for the visit when the faces are late",
+        "Care platform: 'Most screens are already rebuilt in React.' plus 'A screen moves over only after it passes the same tests in both apps.'; years 2026; no 'checked' or 'verified'; no route counts",
+        "Design System v2: '96.6% less JavaScript for a page that uses only a button', label Built, role 'with the team', no strike (not a live fixed problem)",
+        "Read to Feed: 'It kept each child's place in every book.' (past tense, archived listings); public store screenshot, not a recreation",
+        "Shipped rows label the second line RESULT, not NOW",
+        "Strike only on the measured part ('16 times and gave up', '972 KB'); the problem sentence stays readable in #57544C",
+        "More colour: the two diagram plates are accent blue with white type (26-27% chroma in those states); first screen 2.8% -> 3.7%",
+        "Removed the legend line; copy rewrites from the critic table ('Built again', 'first built in 2023', no 'empty page' wordplay)",
+        "Phone: bands 38 px or more from the right edge, text-wrap balance on then/now lines, phone pricing crop shows Sign in, Start Learning, Premium and the price (no tick without its label), frame capped at 436 px so no crop upscales at 540",
+        "CV and Email links are at least 44 x 44 px",
+        "Keyboard jumps to a diagram row are instant (the figure's delayed transitions are off in instant mode); a row change before the page is ready no longer draws the line ahead of the band"
+      ]
+    }
+  ]
 }

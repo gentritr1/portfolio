@@ -168,12 +168,41 @@ function NumberPlate({ plate }: { plate: Extract<Plate, { kind: "number" }> }) {
   );
 }
 
+type Links = Project["links"];
+
+/** The product's public links. On the stage they sit left of the shot, so the hairline reaches them without crossing it. */
+function Stores({ title, links, dark }: { title: string; links: Links; dark?: boolean }) {
+  return (
+    <div className="cs-stores" data-dark={dark || undefined}>
+      <p className="cs-stores-title">{title}</p>
+      <ul>
+        {links.map((link) => (
+          <li key={link.href}>
+            <a href={link.href} target="_blank" rel="noreferrer">
+              {link.label}
+              <ArrowUpRightIcon aria-hidden="true" weight="bold" />
+              <span className="cs-sr"> (opens in a new tab)</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+const isDark = (shot: Shot) => shot.ground !== "#ffffff";
+
+/** The stage width a link panel and its gaps take beside a shot. */
+const STORES_W = 264 + 40 + 32;
+
 /** A screenshot on the stage: whole crop, centred on the page's own colour, never above its source pixels. */
-function StageShot({ shot, eager }: { shot: Shot; eager: boolean }) {
+function StageShot({ shot, eager, stores, links }: { shot: Shot; eager: boolean; stores?: string; links: Links }) {
   const { crop } = shot;
-  const scale = Math.min(STAGE_W / crop.w, STAGE_H / crop.h, 1);
+  const room = stores ? STAGE_W - STORES_W : STAGE_W;
+  const scale = Math.min(room / crop.w, STAGE_H / crop.h, 1);
   return (
     <div className="cs-stage-shot" style={{ background: shot.ground }}>
+      {stores && <Stores title={stores} links={links} dark={isDark(shot)} />}
       <div style={{ width: Math.round(crop.w * scale), height: Math.round(crop.h * scale) }}>
         <ShotView shot={shot} crop={crop} eager={eager} />
       </div>
@@ -181,16 +210,23 @@ function StageShot({ shot, eager }: { shot: Shot; eager: boolean }) {
   );
 }
 
-function StagePlate({ plate, load, eager }: { plate: Plate; load: boolean; eager: boolean }) {
+function StagePlate({ plate, load, eager, links }: { plate: Plate; load: boolean; eager: boolean; links: Links }) {
   if (plate.kind === "number") return <NumberPlate plate={plate} />;
   if (!load) return <div className="cs-wait" />;
   if (plate.kind === "live") return <LivePlate which={plate.key} />;
-  return <StageShot shot={plate} eager={eager} />;
+  return <StageShot shot={plate} eager={eager} stores={plate.stores} links={links} />;
 }
 
-/** The plate a part shows on a phone, under its text. */
-function InlinePlate({ part, plate, caption }: { part: Part; plate: Plate; caption: string }) {
+/** The plate a part shows on a phone: under the title for the first part, under its text for the others. */
+function InlinePlate({ part, plate, caption, links, hero }: { part: Part; plate: Plate; caption: string; links: Links; hero?: boolean }) {
   if (!part.narrow) return null;
+  const stores = plate.kind === "web" || plate.kind === "phone" ? plate.stores : undefined;
+  if (part.narrow === "stores")
+    return stores ? (
+      <div className="cs-inline">
+        <Stores title={stores} links={links} />
+      </div>
+    ) : null;
   let body = null;
   if (plate.kind === "number") body = <div className="cs-inline-number"><NumberPlate plate={plate} /></div>;
   else if (plate.kind === "live") {
@@ -212,14 +248,15 @@ function InlinePlate({ part, plate, caption }: { part: Part; plate: Plate; capti
         data-kind={plate.kind}
         style={{ background: plate.ground, maxWidth: crop.w } as CSSProperties}
       >
-        <ShotView shot={plate} crop={crop} eager={false} ring={ring} />
+        <ShotView shot={plate} crop={crop} eager={hero ?? false} ring={ring} />
       </div>
     );
   }
   return (
-    <figure className="cs-inline">
+    <figure className={hero ? "cs-inline cs-hero" : "cs-inline"}>
       {body}
       <figcaption>{caption}</figcaption>
+      {stores && <Stores title={stores} links={links} />}
     </figure>
   );
 }
@@ -330,7 +367,7 @@ function measureWire(part: Part, plate: Plate, partElement: HTMLElement, plateEl
   if (part.target.kind === "selector" && part.target.round) ring.r = ring.h / 2;
   const outLength = lengthOf(outside);
   const inLength = lengthOf(inside);
-  const dark = (plate.kind === "web" || plate.kind === "phone") && plate.ground !== "#ffffff";
+  const dark = (plate.kind === "web" || plate.kind === "phone") && isDark(plate);
   return {
     outside: rounded(outside),
     inside: rounded(inside),
@@ -666,7 +703,7 @@ function Case({ project, copy }: { project: Project; copy: CaseCopy }) {
             </Link>
             <span className="cs-nav-end">
               <a href={links.cv} download>
-                CV
+                CV (PDF)
               </a>
               <a href={`mailto:${links.email}`}>Email</a>
             </span>
@@ -677,6 +714,9 @@ function Case({ project, copy }: { project: Project; copy: CaseCopy }) {
             <span>{project.years}</span>
           </p>
           <h1>{keepWords(copy.title)}</h1>
+          {narrow && (
+            <InlinePlate part={parts[0]} plate={plates[parts[0].plate]} caption={captions[parts[0].plate]} links={project.links} hero />
+          )}
           <p className="cs-sentence">{keepWords(copy.sentence)}</p>
           <Facts project={project} copy={copy} />
         </header>
@@ -717,8 +757,8 @@ function Case({ project, copy }: { project: Project; copy: CaseCopy }) {
                     </mark>
                   </span>
                 </p>
-                {narrow && (first || plate.kind !== "live") && (
-                  <InlinePlate part={part} plate={plate} caption={captions[part.plate]} />
+                {narrow && index > 0 && (first || plate.kind !== "live") && (
+                  <InlinePlate part={part} plate={plate} caption={captions[part.plate]} links={project.links} />
                 )}
               </section>
             );
@@ -744,7 +784,7 @@ function Case({ project, copy }: { project: Project; copy: CaseCopy }) {
                         inert={state !== "on"}
                         aria-hidden={state !== "on"}
                       >
-                        <StagePlate plate={plate} load={loaded.has(index)} eager={index === parts[0].plate} />
+                        <StagePlate plate={plate} load={loaded.has(index)} eager={index === parts[0].plate} links={project.links} />
                       </div>
                     );
                   })}
@@ -823,7 +863,7 @@ function Case({ project, copy }: { project: Project; copy: CaseCopy }) {
           <p className="cs-end-links">
             <a href={`mailto:${links.email}`}>{links.email}</a>
             <a href={links.cv} download>
-              Download CV
+              Download CV (PDF)
             </a>
             <a href={links.github} target="_blank" rel="noreferrer">
               GitHub

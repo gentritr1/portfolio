@@ -1,4 +1,13 @@
 /*
+ * These faces never swap after the first paint: the page shows the fallback
+ * if a face is not ready, so text never waits and never reflows.
+ */
+@font-face { font-family: "PT Archivo"; src: url("/fonts/Archivo.woff2") format("woff2"); font-weight: 100 900; font-stretch: 62% 125%; font-display: optional; }
+@font-face { font-family: "PT Martian"; src: url("/fonts/MartianMono.woff2") format("woff2"); font-weight: 100 800; font-stretch: 75% 112.5%; font-display: optional; }
+@font-face { font-family: "PT Text"; src: url("/fonts/creative/GentritText-Latin.woff2") format("woff2"); font-weight: 200 900; font-display: optional; }
+@font-face { font-family: "PT Code"; src: url("/fonts/creative/JetBrainsMono-Latin.woff2") format("woff2"); font-weight: 100 800; font-display: optional; }
+
+/*
  * One spacing scale: 4, 8, 12, 16, 24, 32, 48, 64, 96 px.
  * One accent: vermilion. It marks proof only (the rings, the lead figure, focus).
  * Only the hue of the page ground changes; lightness and chroma are fixed.
@@ -16,8 +25,8 @@
   --pt-rule: rgb(17 17 17 / 0.14);
   --pt-accent: #ff5a36;
   --pt-ease: cubic-bezier(0.23, 1, 0.32, 1);
-  --pt-text: "Archivo", ui-sans-serif, system-ui, sans-serif;
-  --pt-mono: "Martian Mono", ui-monospace, monospace;
+  --pt-text: "PT Archivo", ui-sans-serif, system-ui, sans-serif;
+  --pt-mono: "PT Martian", ui-monospace, monospace;
   --pt-gutter: 48px;
   --pt-col: 1344px;
   --pt-gap-x: 24px;
@@ -41,6 +50,11 @@
 
 .pt[data-instant] {
   transition: none;
+}
+
+.pt :is(h1, h2, h3, h4) {
+  font-family: var(--pt-text);
+  font-stretch: 100%;
 }
 
 .pt ::selection {
@@ -74,7 +88,7 @@
   }
 }
 
-.pt[data-ready] > * {
+.pt > * {
   animation: pt-in 200ms var(--pt-ease) both;
 }
 
@@ -88,55 +102,41 @@
 /* ---------- Head ---------- */
 
 .pt-head {
-  position: relative;
-  padding: 24px 0 48px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 48px;
+  padding: 32px 0 48px;
 }
 
+/* The name is part of the sentence, at text size. */
 .pt-name {
   margin: 0;
-  font-weight: inherit;
-}
-
-.pt-name-line {
-  display: block;
-  font-size: 64px;
-  line-height: 1;
-  font-weight: 800;
-  font-stretch: 112%;
-  letter-spacing: -0.025em;
-}
-
-.pt-claim {
-  display: block;
-  max-width: 1000px;
-  margin-top: 8px;
-  font-size: 24px;
-  line-height: 1.3;
+  font-size: 28px;
+  line-height: 36px;
   font-weight: 500;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.015em;
   text-wrap: balance;
 }
 
-.pt-aside {
-  position: absolute;
-  top: 24px;
-  right: 0;
-  display: flex;
-  align-items: center;
-  gap: 24px;
+.pt-name strong {
+  font-weight: 750;
 }
 
-.pt-aside p {
-  max-width: 240px;
-  margin: 0;
+.pt-name-2 {
+  display: block;
+}
+
+.pt-level {
+  margin: 12px 0 0;
   color: var(--pt-muted);
-  font-size: 14px;
-  line-height: 1.4;
-  text-align: right;
+  font-size: 16px;
+  line-height: 24px;
 }
 
 .pt-actions {
   display: flex;
+  flex: none;
   align-items: center;
   gap: 16px;
 }
@@ -159,6 +159,8 @@
 .pt-text-link {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
+  min-width: 44px;
   min-height: 44px;
   font-size: 15px;
   font-weight: 600;
@@ -181,7 +183,11 @@
 
 /* ---------- Grid ---------- */
 
-/* Each tile spans three shared rows (picture, result, project), so the lines of one row align. */
+/*
+ * Each tile spans three shared rows (picture, result, project), so the lines
+ * of one row align. The lead tile spans two columns and the rows of the two
+ * tiles beside it.
+ */
 .pt-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -193,26 +199,65 @@
 }
 
 .pt-tile {
+  --pt-pad: var(--pt-gap-y);
+  position: relative;
   display: grid;
   grid-row: span 3;
   grid-template-rows: subgrid;
   min-width: 0;
-  padding-bottom: var(--pt-gap-y);
+  padding-bottom: var(--pt-pad);
 }
 
 .pt-tile-link {
   display: grid;
-  grid-row: 1 / -1;
+  grid-row: 2 / -1;
   grid-template-rows: subgrid;
   align-content: start;
-  border-radius: 6px;
+}
+
+.pt-tile[data-lead] {
+  grid-column: 1 / span 2;
+  grid-row: 1 / span 6;
+  display: flex;
+  flex-direction: column;
+}
+
+.pt-tile[data-lead] .pt-tile-link {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+
+.pt-tile:nth-child(2) {
+  --pt-pad: 32px;
+  grid-column: 3;
+  grid-row: 1 / span 3;
+}
+
+.pt-tile:nth-child(3) {
+  grid-column: 3;
+  grid-row: 4 / span 3;
+}
+
+/* The whole tile opens the link; the picture itself holds no control. */
+.pt-tile-link::after {
+  content: "";
+  position: absolute;
+  z-index: 5;
+  inset: 0 0 var(--pt-pad);
+  border-radius: 8px;
 }
 
 .pt-tile-link:focus-visible {
+  outline: none;
+}
+
+.pt-tile-link:focus-visible::after {
+  outline: 2px solid var(--pt-ink);
   outline-offset: 8px;
 }
 
-/* Every tile is 16:10 and never wider than 432 px, the narrowest crop. */
+/* Every tile is 16:10. A side tile is never wider than 432 px, the narrowest crop. */
 .pt-media {
   position: relative;
   display: block;
@@ -227,12 +272,21 @@
   isolation: isolate;
 }
 
+.pt-tile[data-lead] .pt-media {
+  max-width: none;
+}
+
 .pt-img {
   position: absolute;
   max-width: none;
   height: auto;
   user-select: none;
   -webkit-user-drag: none;
+}
+
+.pt-live-frame {
+  position: absolute;
+  inset: 0;
 }
 
 .pt-ring {
@@ -245,12 +299,11 @@
 .pt-ring::after {
   content: "";
   position: absolute;
-  inset: -5px;
   border-radius: 10px;
 }
 
 .pt-ring::before {
-  z-index: 1;
+  inset: -5px;
   border: 2px solid var(--pt-accent);
   box-shadow:
     0 0 0 1.5px rgb(255 255 255 / 0.9),
@@ -258,20 +311,22 @@
 }
 
 /*
- * The dimmer is a hole in a dark field. At rest the hole is larger than the tile,
- * so nothing dims. When the tile is current, the hole closes onto the proof.
+ * The halo is a second ring. At rest it is invisible and a little larger.
+ * When the tile is current, it closes onto the proof. Nothing else in the tile changes.
  */
 .pt-ring::after {
-  box-shadow: 0 0 0 200vmax var(--pt-scrim, rgb(17 17 17 / 0.45));
-  transform: scale(var(--pt-sx, 4), var(--pt-sy, 4));
-  transition: transform 200ms var(--pt-ease);
-}
-
-.pt-tile[data-dark] {
-  --pt-scrim: rgb(236 236 232 / 0.38);
+  inset: -11px;
+  border-radius: 14px;
+  border: 2px solid var(--pt-accent);
+  opacity: 0;
+  transform: scale(1.12);
+  transition:
+    transform 200ms var(--pt-ease),
+    opacity 200ms var(--pt-ease);
 }
 
 .pt-tile[data-current] .pt-ring::after {
+  opacity: 1;
   transform: none;
 }
 
@@ -279,39 +334,21 @@
   transition: none;
 }
 
-.pt-label {
-  position: absolute;
-  z-index: 4;
-  left: 8px;
-  bottom: 8px;
-  padding: 4px 8px;
-  border-radius: 4px;
-  background: rgb(17 17 17 / 0.88);
-  color: #fff;
-  font-family: var(--pt-mono);
-  font-size: 11px;
-  line-height: 16px;
-  font-stretch: 87.5%;
-  letter-spacing: 0;
-}
-
-/* The words the ring proves carry the ring's colour. They light up with the ring. */
+/* The words the ring proves carry a band in the ring's colour. The band fills when the tile is current. */
 .pt-proof {
-  margin: 0 -2px;
-  padding: 0 2px;
   border-radius: 2px;
   background-color: transparent;
-  text-decoration: underline;
-  text-decoration-color: var(--pt-accent);
-  text-decoration-thickness: 2px;
-  text-underline-offset: 4px;
-  text-decoration-skip-ink: auto;
+  background-image: linear-gradient(
+    to top,
+    color-mix(in oklab, var(--pt-accent) 55%, transparent) 0.3em,
+    transparent 0.3em
+  );
   white-space: nowrap;
   transition: background-color 200ms var(--pt-ease);
 }
 
 .pt-tile[data-current] .pt-proof {
-  background-color: color-mix(in oklab, var(--pt-accent) 38%, transparent);
+  background-color: color-mix(in oklab, var(--pt-accent) 30%, transparent);
 }
 
 .pt[data-instant] .pt-proof {
@@ -330,6 +367,20 @@
   text-wrap: balance;
 }
 
+.pt-tile[data-lead] .pt-caption {
+  margin-top: 16px;
+  font-size: 24px;
+  line-height: 1.25;
+}
+
+.pt-scope {
+  display: block;
+  margin-top: 4px;
+  color: var(--pt-muted);
+  font-size: 16px;
+  line-height: 1.4;
+}
+
 .pt-meta {
   display: flex;
   align-self: start;
@@ -341,14 +392,39 @@
   line-height: 18px;
 }
 
+.pt-tile[data-lead] .pt-meta {
+  align-self: stretch;
+  margin-top: auto;
+  padding-top: 8px;
+}
+
 .pt-project {
+  display: flex;
   min-width: 0;
+  flex-direction: column;
+  gap: 4px;
   color: var(--pt-muted);
+}
+
+.pt-project-line {
+  text-wrap: pretty;
 }
 
 .pt-project-name {
   color: var(--pt-ink);
   font-weight: 500;
+}
+
+.pt-note {
+  align-self: start;
+  padding: 0 8px;
+  border-radius: 4px;
+  background: rgb(17 17 17 / 0.07);
+  color: var(--pt-ink);
+  font-family: var(--pt-mono);
+  font-size: 11px;
+  line-height: 20px;
+  font-stretch: 87.5%;
 }
 
 .pt-year,
@@ -450,23 +526,11 @@
 }
 
 .pt-figure-unit {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
   margin: 0;
   font-family: var(--pt-mono);
   font-size: 12px;
   line-height: 16px;
   font-stretch: 87.5%;
-}
-
-.pt-figure-unit span:first-child {
-  font-family: var(--pt-text);
-  font-size: 18px;
-  line-height: 1.25;
-  font-weight: 700;
-  font-stretch: 100%;
-  letter-spacing: -0.01em;
 }
 
 /* ---------- Live recreations ---------- */
@@ -488,6 +552,16 @@
   line-height: 1.6;
   letter-spacing: normal;
   -webkit-font-smoothing: auto;
+}
+
+.pt-live {
+  --font-sans: "PT Archivo", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "PT Martian", ui-monospace, monospace;
+}
+
+.pt-live .dsr {
+  --font-ui: "PT Text", ui-sans-serif, system-ui, sans-serif;
+  --font-code: "PT Code", ui-monospace, monospace;
 }
 
 .pt-live-care footer {
@@ -662,19 +736,29 @@
     --pt-col: 888px;
   }
 
+  .pt-head {
+    flex-direction: column;
+    gap: 24px;
+  }
+
   .pt-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .pt-aside {
-    position: static;
-    justify-content: space-between;
-    margin-top: 24px;
+  .pt-tile[data-lead] {
+    grid-column: 1 / -1;
+    grid-row: 1;
   }
 
-  .pt-aside p {
-    max-width: none;
-    text-align: left;
+  .pt-tile:nth-child(2) {
+    --pt-pad: var(--pt-gap-y);
+    grid-column: 1;
+    grid-row: 2 / span 3;
+  }
+
+  .pt-tile:nth-child(3) {
+    grid-column: 2;
+    grid-row: 2 / span 3;
   }
 
   .pt-row {
@@ -698,24 +782,38 @@
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .pt-head {
-    padding: 16px 0 24px;
+  .pt-tile[data-lead],
+  .pt-tile:nth-child(2),
+  .pt-tile:nth-child(3) {
+    grid-column: auto;
+    grid-row: auto / span 3;
   }
 
-  .pt-name-line {
-    font-size: 40px;
-    font-stretch: 105%;
+  .pt-tile[data-lead] {
+    grid-row: auto;
   }
 
-  .pt-claim {
+  .pt-tile[data-lead] .pt-caption {
     font-size: 20px;
   }
 
-  .pt-aside {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
-    margin-top: 16px;
+  .pt-head {
+    gap: 16px;
+    padding: 24px 0 32px;
+  }
+
+  .pt-name {
+    font-size: 22px;
+    line-height: 30px;
+  }
+
+  .pt-name-2 {
+    display: inline;
+  }
+
+  .pt-level {
+    font-size: 15px;
+    line-height: 22px;
   }
 
   .pt-index {
@@ -756,7 +854,7 @@
     transition: none;
   }
 
-  .pt[data-ready] > * {
+  .pt > * {
     animation: none;
   }
 

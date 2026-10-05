@@ -14,6 +14,59 @@
   font-display: swap;
 }
 
+/* Arial faces sized to each case face, so a late face swaps in without a layout shift. */
+@font-face {
+  font-family: "Public Sans Fallback";
+  src: local("Arial"), local("ArialMT");
+  font-weight: 100 549;
+  size-adjust: 104%;
+  ascent-override: 91.3%;
+  descent-override: 22.1%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Public Sans Fallback";
+  src: local("Arial Bold"), local("Arial-BoldMT");
+  font-weight: 550 900;
+  size-adjust: 100%;
+  ascent-override: 95%;
+  descent-override: 23%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Big Shoulders Fallback";
+  src: local("Arial Narrow Bold"), local("ArialNarrow-Bold");
+  font-weight: 100 900;
+  size-adjust: 92%;
+  ascent-override: 106.5%;
+  descent-override: 22.8%;
+  line-gap-override: 0%;
+}
+
+/* The large figures are mostly digits, which run wider in Arial Narrow than in Big Shoulders. */
+@font-face {
+  font-family: "Big Shoulders Figure Fallback";
+  src: local("Arial Narrow Bold"), local("ArialNarrow-Bold");
+  font-weight: 100 900;
+  size-adjust: 86%;
+  ascent-override: 114%;
+  descent-override: 24.4%;
+  line-gap-override: 0%;
+}
+
+/* Archivo draws the titles at a 112% width. */
+@font-face {
+  font-family: "Archivo Fallback";
+  src: local("Arial Bold"), local("Arial-BoldMT");
+  font-weight: 100 900;
+  size-adjust: 111%;
+  ascent-override: 79.3%;
+  descent-override: 18.9%;
+  line-gap-override: 0%;
+}
+
 /* Spacing scale: 4, 8, 12, 16, 24, 32, 48, 64, 96. */
 :root:has(.cs) {
   --cs-field: #d9f26b;
@@ -21,8 +74,8 @@
   --cs-muted: #3e4a14;
   --cs-rule: rgb(20 27 6 / 0.32);
   --cs-paper: #ffffff;
-  --cs-display: "Big Shoulders Display", "Arial Narrow", sans-serif;
-  --cs-text: "Public Sans", ui-sans-serif, system-ui, sans-serif;
+  --cs-display: "Big Shoulders Display", "Big Shoulders Fallback", "Arial Narrow", sans-serif;
+  --cs-text: "Public Sans", "Public Sans Fallback", ui-sans-serif, system-ui, sans-serif;
   --cs-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   color-scheme: light;
   background: var(--cs-field);
@@ -142,7 +195,12 @@
 
 .cs-nav-end {
   display: inline-flex;
-  gap: 24px;
+  gap: 16px;
+}
+
+.cs-nav-end a {
+  min-width: 44px;
+  justify-content: center;
 }
 
 .cs-name {
@@ -161,6 +219,7 @@
 
 .cs-head h1 {
   margin-top: 12px;
+  font-family: "Archivo", "Archivo Fallback", ui-sans-serif, system-ui, sans-serif;
   font-size: 40px;
   line-height: 1.08;
   font-weight: 700;
@@ -306,7 +365,7 @@
   font-weight: 650;
   letter-spacing: -0.012em;
   font-variant-numeric: tabular-nums;
-  text-wrap: pretty;
+  text-wrap: balance;
 }
 
 .cs-proof mark {
@@ -434,13 +493,13 @@
   -webkit-font-smoothing: auto;
 }
 
-/* The specimen shows three token rows and the source row, drawn small and scaled up, so the plate ends on a whole card. */
+/* The specimen shows four cards of the set, drawn small and scaled up: buttons, fields, switches and alerts. */
 .cs-stage .cs-live-design-system {
   right: auto;
   bottom: auto;
-  width: 600px;
-  height: 461px;
-  transform: scale(1.4667);
+  width: 800px;
+  height: 615px;
+  transform: scale(1.1);
   transform-origin: 0 0;
 }
 
@@ -455,9 +514,13 @@
 }
 
 .cs-live-design-system .dsr-top,
-.cs-live-design-system .dsr-board > :not(.dsr-area-tokens),
-.cs-live-design-system .dsr-lane-list > li:nth-child(2),
-.cs-live-design-system .dsr-lane-list > li:nth-child(4) {
+.cs-live-design-system .dsr-area-tokens,
+.cs-live-design-system .dsr-area-steps,
+.cs-live-design-system .dsr-area-tasks,
+.cs-live-design-system .dsr-area-filters,
+.cs-live-design-system .dsr-area-alerts .dsr-card-meta,
+.cs-live-design-system .dsr-alert:nth-child(n + 4),
+.cs-live-design-system .dsr-toasts {
   display: none;
 }
 
@@ -467,30 +530,19 @@
 
 .cs-live-design-system .dsr-board {
   height: 100%;
-  padding: 14px;
-  grid-template-columns: minmax(0, 1fr);
-  grid-template-rows: minmax(0, 1fr);
-  grid-template-areas: "tokens";
-}
-
-.cs-live-design-system .dsr-area-tokens {
-  padding: 14px 14px 16px;
-}
-
-.cs-live-design-system .dsr-lanes {
+  padding: 12px;
+  gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: auto auto;
   align-content: center;
+  grid-template-areas:
+    "buttons fields"
+    "team alerts";
 }
 
-.cs-live-design-system .dsr-lane-list {
-  gap: 30px;
-}
-
-.cs-live-design-system .dsr-lane {
-  grid-template-columns: minmax(0, 1.32fr) 14px minmax(0, 1fr) 14px minmax(0, 1.18fr);
-}
-
-.cs-live-design-system .dsr-chip-token {
-  height: 56px;
+/* The busy button keeps its spinner still: nothing in the frame loops. */
+.cs-live-design-system .dsr-spinner {
+  animation-play-state: paused;
 }
 
 .cs-live-body {
@@ -503,6 +555,66 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 40px;
+}
+
+/* ---------- The public links beside a shot ---------- */
+
+/* On the stage, sizes divide by the stage scale, so the panel keeps its CSS size in a smaller frame. */
+.cs-stores {
+  --cs-u: calc(1px / var(--k, 1));
+  flex: none;
+  width: 264px;
+  color: var(--cs-ink);
+  --cs-stores-rule: var(--cs-rule);
+}
+
+.cs-stores[data-dark] {
+  color: #ffffff;
+  --cs-stores-rule: rgb(255 255 255 / 0.32);
+}
+
+.cs-stores-title {
+  font-family: var(--cs-display);
+  font-size: calc(18 * var(--cs-u));
+  line-height: 1.15;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+
+.cs-stores ul {
+  margin: calc(12 * var(--cs-u)) 0 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid currentColor;
+}
+
+.cs-stores li {
+  border-bottom: 1px solid var(--cs-stores-rule);
+}
+
+.cs-stores a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: calc(8 * var(--cs-u));
+  min-height: calc(52 * var(--cs-u));
+  font-size: calc(18 * var(--cs-u));
+  line-height: 1.2;
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.cs-stores a svg {
+  flex: none;
+  width: calc(18 * var(--cs-u));
+  height: calc(18 * var(--cs-u));
+}
+
+.cs-stores[data-dark] a:focus-visible {
+  outline-color: #ffffff;
 }
 
 .cs-stage-shot > div {
@@ -556,7 +668,7 @@
   display: flex;
   align-items: center;
   gap: 3.2cqw;
-  font-family: var(--cs-display);
+  font-family: "Big Shoulders Display", "Big Shoulders Figure Fallback", sans-serif;
   font-size: 40.9cqw;
   line-height: 0.78;
   font-weight: 800;
@@ -605,10 +717,15 @@
   margin-top: 12px;
 }
 
+/* The caption keeps a two-line box, so a caption that wraps never moves the row. */
 .cs-caption-text {
+  display: flex;
+  align-items: center;
+  min-height: 2.7em;
   font-size: 15px;
   line-height: 1.35;
   font-weight: 500;
+  text-wrap: pretty;
 }
 
 .cs-tray {
@@ -967,11 +1084,29 @@
     font-size: 18px;
   }
 
-  .cs-inline {
+  /* On a phone the band starts at the text edge, so it keeps the 16 px screen margin. */
+  .cs-proof mark {
+    margin-left: 0;
+  }
+
+  .cs .cs-inline {
     margin-top: 16px;
   }
 
-  .cs-inline > div {
+  .cs-inline > .cs-stores:first-child {
+    margin-top: 0;
+  }
+
+  .cs-hero + .cs-sentence {
+    margin-top: 16px !important;
+  }
+
+  .cs-inline .cs-stores {
+    width: auto;
+    margin-top: 16px;
+  }
+
+  .cs-inline > div:not(.cs-stores) {
     position: relative;
     overflow: hidden;
     border-radius: 12px;
@@ -979,6 +1114,7 @@
   }
 
   .cs-inline figcaption {
+    text-wrap: pretty;
     margin-top: 8px;
     font-size: 14px;
     line-height: 1.35;
@@ -1006,25 +1142,17 @@
     padding: 16px;
   }
 
-  /* On a phone the specimen shows its token lane and the source row. */
-  .cs-inline .cs-live-design-system .dsr-lane-list > li:nth-child(n + 2) {
-    display: none;
-  }
-
+  /* On a phone the specimen shows whole button rows only. */
   .cs-inline .cs-live-design-system .dsr-board {
     padding: 8px;
-  }
-
-  .cs-inline .cs-live-design-system .dsr-lane {
     grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
+    grid-template-areas: "buttons";
   }
 
-  .cs-inline .cs-live-design-system .dsr-chip-token {
-    height: 34px;
-  }
-
-  .cs-inline .cs-live-design-system .dsr-lane-list {
-    gap: 16px;
+  .cs-inline .cs-live-design-system :is(.dsr-area-fields, .dsr-area-alerts, .dsr-area-team, .dsr-button-link),
+  .cs-inline .cs-live-design-system .dsr-button-rows > :nth-child(n + 3) {
+    display: none;
   }
 
   .cs-after > * {
@@ -1105,14 +1233,13 @@
 /* ---------- Page not found ---------- */
 
 .cs-404 .cs-main {
-  grid-template-areas:
-    "head frame"
-    "list frame";
+  grid-template-areas: "head list";
+  grid-template-rows: auto;
 }
 
 .cs-404-list {
   grid-area: list;
-  margin-top: 48px;
+  padding-top: var(--cs-top);
   padding-bottom: 48px;
 }
 
@@ -1188,50 +1315,16 @@
   }
 }
 
-.cs-404-screen {
-  container-type: inline-size;
-}
-
-.cs-404 .cs-number {
-  background: var(--cs-field);
-}
-
 .cs-404-path {
-  max-width: 100%;
+  font-weight: 650;
   overflow-wrap: anywhere;
 }
 
 @media (max-width: 1023px) {
-  .cs-404 .cs-frame-wrap {
-    margin-top: 32px;
-  }
-
-  .cs-404 .cs-screen {
-    aspect-ratio: 4 / 3;
-  }
-
   .cs-404-list {
     margin-top: 32px;
+    padding-top: 0;
     padding-bottom: 32px;
-  }
-
-  .cs-404 .cs-main {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .cs-404 .cs-head {
-    order: 0;
-  }
-
-  .cs-404 .cs-frame-wrap {
-    order: 1;
-    position: static;
-    align-self: stretch;
-  }
-
-  .cs-404-list {
-    order: 2;
   }
 }
 

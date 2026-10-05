@@ -14,6 +14,36 @@
   font-display: swap;
 }
 
+/* When the two faces miss the 300 ms wait, the page keeps these faces for the visit. They match the widths and line metrics of Literata and Anton. */
+@font-face {
+  font-family: "Literata Fallback";
+  src: local("Georgia");
+  font-weight: 400;
+  size-adjust: 104.2%;
+  ascent-override: 113.2%;
+  descent-override: 29.8%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Literata Fallback";
+  src: local("Georgia Bold"), local("Georgia-Bold");
+  font-weight: 700;
+  size-adjust: 95%;
+  ascent-override: 124.2%;
+  descent-override: 32.6%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Anton Fallback";
+  src: local("Impact");
+  size-adjust: 95.5%;
+  ascent-override: 123.6%;
+  descent-override: 34.6%;
+  line-gap-override: 0%;
+}
+
 :root:has(.tn) {
   --tn-paper: #f6f5f0;
   --tn-ink: #121212;
@@ -23,8 +53,8 @@
   --tn-now: #2348d8;
   --tn-on-now: #ffffff;
   --tn-white: #ffffff;
-  --tn-display: "Anton", "Arial Narrow", sans-serif;
-  --tn-text: "Literata", Georgia, serif;
+  --tn-display: "Anton", "Anton Fallback", "Arial Narrow", sans-serif;
+  --tn-text: "Literata", "Literata Fallback", Georgia, serif;
   --tn-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   color-scheme: light;
   background: var(--tn-paper);
@@ -38,6 +68,11 @@
   animation: none;
 }
 
+.tn[data-fallback] {
+  --tn-display: "Anton Fallback", "Arial Narrow", sans-serif;
+  --tn-text: "Literata Fallback", Georgia, serif;
+}
+
 .tn {
   min-height: 100dvh;
   background: var(--tn-paper);
@@ -49,7 +84,7 @@
   -webkit-font-smoothing: antialiased;
 }
 
-/* Nothing is laid out until both faces are loaded, so no text moves after the first paint. */
+/* The text waits at most 300 ms for its two faces. The paper shows at once. */
 .tn:not([data-laid]) > * {
   display: none;
 }
@@ -107,7 +142,7 @@
   /* The frame and its caption fill the first screen with one margin above and below. */
   --tn-fw: 640px;
   --tn-cap: 56px;
-  --tn-top: max(24px, calc((100dvh - var(--tn-fw) * 656 / 640 - var(--tn-cap)) / 2));
+  --tn-top: clamp(32px, calc((100dvh - var(--tn-fw) * 560 / 640 - var(--tn-cap)) / 2), 96px);
 }
 
 .tn-id {
@@ -148,18 +183,11 @@
 .tn-id-links a {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
+  min-width: 44px;
   min-height: 44px;
   color: var(--tn-ink);
   font-weight: 600;
-}
-
-.tn-key {
-  margin: 24px 0 0;
-  padding-top: 16px;
-  border-top: 1px solid var(--tn-ink);
-  font-size: 15px;
-  line-height: 1.45;
-  color: var(--tn-muted);
 }
 
 .tn-log {
@@ -243,44 +271,29 @@
   font-size: 20px;
   line-height: 1.4;
   font-weight: 400;
-  text-wrap: pretty;
+  color: var(--tn-muted);
+  text-wrap: balance;
 }
 
-.tn-then-text {
-  position: relative;
+/* The strike draws on every line of the struck part at once. */
+.tn-hit {
+  background-image: linear-gradient(var(--tn-ink), var(--tn-ink));
+  background-repeat: no-repeat;
+  background-position: 0 var(--tn-strike-y, 60%);
+  background-size: 0% 0.075em;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
 }
 
-/* A copy of the sentence carries the strike on every line. It is revealed from the left, all lines at once. */
-.tn-strike {
-  position: absolute;
-  inset: 0;
-  color: transparent;
-  text-decoration-line: line-through;
-  text-decoration-thickness: 0.075em;
-  text-decoration-color: var(--tn-ink);
-  clip-path: inset(0 100% 0 0);
-  pointer-events: none;
-  user-select: none;
-}
-
-.tn-row[data-struck] .tn-then-text {
+.tn-row[data-struck] .tn-hit {
   color: var(--tn-struck);
+  background-size: 100% 0.075em;
 }
 
-.tn-row[data-struck] .tn-strike {
-  clip-path: inset(0 0 0 0);
-}
-
-.tn-row[data-fresh] .tn-then-text {
-  transition: color 200ms ease;
-}
-
-.tn-row[data-fresh] .tn-strike {
-  transition: clip-path 200ms var(--tn-ease-out);
-}
-
-.tn-row[data-kind="earlier"] .tn-then-text {
-  color: var(--tn-struck);
+.tn-row[data-fresh] .tn-hit {
+  transition:
+    background-size 200ms var(--tn-ease-out),
+    color 200ms ease;
 }
 
 .tn-now-body {
@@ -291,6 +304,8 @@
   font-weight: 650;
   letter-spacing: -0.01em;
   font-variant-numeric: tabular-nums;
+  margin-right: 8px;
+  text-wrap: balance;
 }
 
 .tn-now mark {
@@ -337,6 +352,15 @@
 .tn:not([data-ready]) .tn-row[data-current] .tn-now-band {
   opacity: 0;
   clip-path: inset(0 100% 0 0);
+}
+
+.tn-note {
+  margin: 8px 0 0 64px;
+  max-width: 44ch;
+  font-size: 16px;
+  line-height: 1.45;
+  color: var(--tn-muted);
+  text-wrap: pretty;
 }
 
 .tn-foot {
@@ -392,7 +416,7 @@
 .tn-screen {
   position: relative;
   width: 100%;
-  aspect-ratio: 640 / 656;
+  aspect-ratio: 640 / 560;
   overflow: hidden;
   border-radius: 12px;
   background: var(--tn-white);
@@ -405,7 +429,7 @@
   left: 0;
   top: 0;
   width: 640px;
-  height: 656px;
+  height: 560px;
   container-type: inline-size;
   transform: scale(var(--k, 1));
   transform-origin: 0 0;
@@ -439,10 +463,11 @@
 }
 
 .tn-plate[data-mode="instant"],
+.tn-plate[data-mode="instant"] .tn-fig *,
+.tn-plate[data-mode="instant"] .tn-fig *::before,
 .tn[data-instant] .tn-plate,
 .tn[data-instant] .tn-now-band,
-.tn[data-instant] .tn-then-text,
-.tn[data-instant] .tn-strike,
+.tn[data-instant] .tn-hit,
 .tn[data-instant] .tn-tray button::before {
   transition: none;
 }
@@ -465,47 +490,6 @@
   font-weight: 400;
   letter-spacing: normal;
   -webkit-font-smoothing: auto;
-}
-
-/* The specimen shows its Button card only, so the ring sits on one button. */
-.tn-live-design-system .dsr-top,
-.tn-live-design-system .dsr-board > :not(.dsr-area-buttons) {
-  display: none;
-}
-
-.tn-live-design-system {
-  right: auto;
-  bottom: auto;
-  width: 480px;
-  height: 492px;
-  transform: scale(1.3334);
-  transform-origin: 0 0;
-}
-
-.tn-live-design-system .dsr-button-rows {
-  align-content: center;
-  gap: 48px;
-}
-
-/* Two rows only: the hierarchy row with the ringed button, and the sizes. The spinner and the toast row stay out, so nothing plays. */
-.tn-live-design-system .dsr-button-rows > :nth-child(n + 3) {
-  display: none;
-}
-
-.tn-live-design-system .dsr-toasts {
-  display: none;
-}
-
-.tn-live-design-system .dsr-scroll {
-  overflow: hidden;
-}
-
-.tn-live-design-system .dsr-board {
-  height: 100%;
-  padding: 24px;
-  grid-template-columns: minmax(0, 1fr);
-  grid-template-rows: minmax(0, 1fr);
-  grid-template-areas: "buttons";
 }
 
 .tn-web,
@@ -544,82 +528,146 @@
   height: auto;
 }
 
-/* ---------- The billing figure ---------- */
+/* ---------- The two diagrams ---------- */
 
+/* Sizes are in cqw of the stage, so one rule draws the 640 px wide plate and the phone plate. */
 .tn-fig {
   position: absolute;
   inset: 0;
   margin: 0;
   display: flex;
   flex-direction: column;
-  align-items: center;
   justify-content: center;
-  gap: 32px;
-  padding: 48px;
-  background: var(--tn-paper);
-  color: var(--tn-ink);
-  text-align: center;
+  gap: 5cqw;
+  padding: 7.5cqw;
+  background: var(--tn-now);
+  color: var(--tn-on-now);
+  --tn-fig-soft: rgb(255 255 255 / 0.72);
+  --tn-fig-faint: rgb(255 255 255 / 0.5);
 }
 
-.tn-fig-label,
-.tn-fig-unit {
-  margin: 0;
+.tn-fig-head {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25cqw;
+}
+
+.tn-fig-head,
+.tn-fig-tag,
+.tn-fig-end {
   font-family: var(--tn-display);
-  font-size: 20px;
+  font-size: max(13px, 3.125cqw);
   line-height: 1;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
-.tn-fig-unit {
-  color: var(--tn-muted);
+.tn-fig-unit,
+.tn-fig-tag {
+  color: var(--tn-fig-soft);
 }
 
-.tn-fig-nums {
-  display: flex;
+.tn-fig-row {
+  display: grid;
+  grid-template-columns: 30cqw minmax(0, 1fr);
   align-items: center;
-  gap: 24px;
-  margin: 0;
+  column-gap: 5cqw;
+}
+
+.tn-fig-after {
+  padding-top: 5cqw;
+  border-top: 1px solid var(--tn-fig-faint);
+}
+
+.tn-fig-num {
+  justify-self: start;
   font-family: var(--tn-display);
-  font-size: 240px;
-  line-height: 0.9;
+  font-size: 26cqw;
+  line-height: 0.86;
   font-variant-numeric: tabular-nums;
+}
+
+.tn-fig-side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2.5cqw;
+}
+
+.tn-fig-dots {
+  display: grid;
+  grid-template-columns: repeat(8, 3.75cqw);
+  gap: 1.875cqw;
+}
+
+.tn-fig-dots > span {
+  position: relative;
+  height: 3.75cqw;
+  border-radius: 4px;
+  box-shadow: inset 0 0 0 1.5px var(--tn-fig-faint);
+}
+
+.tn-fig-dots > span::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  transition: opacity 200ms ease;
+}
+
+.tn-fig-before .tn-fig-dots > span::before {
+  background: var(--tn-on-now);
+}
+
+.tn-fig-after .tn-fig-dots > span {
+  box-shadow: none;
+}
+
+.tn-fig-after .tn-fig-dots > span::before {
+  background: var(--tn-on-now);
+  opacity: 0;
+  transition-delay: 200ms;
 }
 
 .tn-fig-from {
   position: relative;
-  color: var(--tn-ink);
+  color: var(--tn-on-now);
   transition: color 200ms ease;
 }
 
 .tn-fig-strike {
   position: absolute;
-  left: -8px;
-  right: -8px;
+  left: -1.25cqw;
+  right: -1.25cqw;
   top: 50%;
-  height: 14px;
-  margin-top: -7px;
+  height: 1.9cqw;
+  margin-top: -0.95cqw;
   border-radius: 2px;
-  background: var(--tn-ink);
+  background: var(--tn-on-now);
   transform: scaleX(0);
   transform-origin: left center;
   transition: transform 200ms var(--tn-ease-out);
 }
 
-.tn-fig-arrow {
-  flex: none;
-  width: 64px;
-  height: 64px;
-}
-
 .tn-fig-to {
-  color: var(--tn-now);
+  color: var(--tn-on-now);
   clip-path: inset(0 100% 0 0);
   transition: clip-path 260ms var(--tn-ease-out) 200ms;
 }
 
-.tn-fig[data-struck] .tn-fig-from {
-  color: var(--tn-struck);
+.tn-fig-before .tn-fig-end {
+  transition: color 200ms ease;
+}
+
+.tn-fig-after .tn-fig-end {
+  color: var(--tn-on-now);
+  opacity: 0;
+  transition: opacity 200ms ease 200ms;
+}
+
+.tn-fig[data-struck] .tn-fig-from,
+.tn-fig[data-struck] .tn-fig-before .tn-fig-end {
+  color: var(--tn-fig-soft);
 }
 
 .tn-fig[data-struck] .tn-fig-strike {
@@ -630,46 +678,68 @@
   clip-path: inset(0 0 0 0);
 }
 
-.tn-fig-dots {
-  display: grid;
-  grid-template-columns: repeat(16, 24px);
-  gap: 12px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.tn-fig-dots li {
-  position: relative;
-  height: 24px;
-  border-radius: 4px;
-  box-shadow: inset 0 0 0 1.5px var(--tn-struck);
-}
-
-.tn-fig-dots li::before,
-.tn-fig-dots li::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  transition: opacity 200ms ease;
-}
-
-.tn-fig-dots li::before {
-  background: var(--tn-ink);
-}
-
-.tn-fig-dots li[data-keep]::after {
-  background: var(--tn-now);
+.tn-fig[data-struck] .tn-fig-before .tn-fig-dots > span::before {
   opacity: 0;
 }
 
-.tn-fig[data-struck] .tn-fig-dots li::before {
-  opacity: 0;
-}
-
-.tn-fig[data-struck] .tn-fig-dots li[data-keep]::after {
+.tn-fig[data-struck] .tn-fig-after .tn-fig-dots > span::before,
+.tn-fig[data-struck] .tn-fig-after .tn-fig-end {
   opacity: 1;
+}
+
+.tn-fig-bars {
+  display: grid;
+  justify-items: start;
+  gap: 2.5cqw;
+}
+
+.tn-fig-bar {
+  display: block;
+  width: 100%;
+  height: 15cqw;
+  border-radius: 4px;
+  background: var(--tn-fig-faint);
+}
+
+.tn-fig-tag + .tn-fig-bar {
+  margin-bottom: 5cqw;
+}
+
+/* The short bar is drawn at 3.4% of the long one: 96.6% less. */
+.tn-fig-bars {
+  --tn-long: 85cqw;
+}
+
+.tn-fig-bars > .tn-fig-bar {
+  width: var(--tn-long);
+}
+
+.tn-fig-short {
+  display: flex;
+  align-items: center;
+  gap: 3.75cqw;
+}
+
+.tn-fig-short .tn-fig-bar {
+  flex: none;
+  width: calc(var(--tn-long) * 0.034);
+  background: var(--tn-on-now);
+}
+
+.tn-fig-less {
+  display: flex;
+  align-items: baseline;
+  gap: 2.5cqw;
+  font-family: var(--tn-display);
+  font-size: 17cqw;
+  line-height: 0.86;
+  color: var(--tn-on-now);
+}
+
+.tn-fig-less span {
+  font-size: 5cqw;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
 /* ---------- Under the frame ---------- */
@@ -819,9 +889,13 @@
   fill: var(--tn-now);
 }
 
-.tn-wire g[data-tone="dark"] .tn-wire-in.tn-wire-line,
-.tn-wire g[data-tone="dark"] .tn-wire-ring {
+.tn-wire g:is([data-tone="dark"], [data-tone="accent"]) .tn-wire-in.tn-wire-line,
+.tn-wire g:is([data-tone="dark"], [data-tone="accent"]) .tn-wire-ring {
   stroke: var(--tn-white);
+}
+
+.tn-wire g[data-tone="accent"] .tn-wire-in.tn-wire-halo {
+  stroke: var(--tn-now);
 }
 
 .tn-wire g[data-tone="dark"] .tn-wire-in.tn-wire-halo {
@@ -932,10 +1006,6 @@
     column-gap: 16px;
   }
 
-  .tn-key {
-    display: none;
-  }
-
   .tn-frame-wrap {
     order: 1;
     align-self: stretch;
@@ -995,8 +1065,64 @@
     font-size: 20px;
   }
 
+  .tn-note {
+    margin: 4px 0 0 64px;
+    font-size: 15px;
+  }
+
   .tn-foot {
     margin: 4px 0 0 64px;
+  }
+
+  .tn-fig {
+    gap: 3cqw;
+    padding: 4.5cqw 6cqw;
+  }
+
+  .tn-fig-head {
+    flex-direction: row;
+    flex-wrap: wrap;
+    column-gap: 3cqw;
+  }
+
+  .tn-fig-row {
+    grid-template-columns: 26cqw minmax(0, 1fr);
+  }
+
+  .tn-fig-after {
+    padding-top: 3cqw;
+  }
+
+  .tn-fig-num {
+    font-size: 23cqw;
+  }
+
+  .tn-fig-side {
+    gap: 2cqw;
+  }
+
+  .tn-fig-dots > span {
+    border-radius: 2px;
+  }
+
+  .tn-fig-bars {
+    gap: 2cqw;
+  }
+
+  .tn-fig-bar {
+    height: 9cqw;
+  }
+
+  .tn-fig-bars {
+    --tn-long: 88cqw;
+  }
+
+  .tn-fig-tag + .tn-fig-bar {
+    margin-bottom: 3cqw;
+  }
+
+  .tn-fig-less {
+    font-size: 13cqw;
   }
 
   .tn-caption {
@@ -1017,6 +1143,12 @@
     display: none;
   }
 
+  /* The narrowest phone crop is 436 source pixels wide. A wider frame would upscale it. */
+  .tn-frame {
+    max-width: 436px;
+    margin-inline: auto;
+  }
+
   .tn-screen {
     aspect-ratio: 4 / 3;
   }
@@ -1025,62 +1157,6 @@
     width: 100%;
     height: 100%;
     transform: none;
-  }
-
-  .tn-fig {
-    gap: 3cqw;
-    padding: 4cqw;
-  }
-
-  .tn-fig-label,
-  .tn-fig-unit {
-    font-size: max(13px, 3.6cqw);
-  }
-
-  .tn-fig-nums {
-    font-size: 30cqw;
-    gap: 4cqw;
-  }
-
-  .tn-fig-strike {
-    height: 1.6cqw;
-    margin-top: -0.8cqw;
-    left: -1cqw;
-    right: -1cqw;
-  }
-
-  .tn-fig-arrow {
-    width: 10cqw;
-    height: 10cqw;
-  }
-
-  .tn-fig-dots {
-    grid-template-columns: repeat(16, 3.4cqw);
-    gap: 1.6cqw;
-  }
-
-  .tn-fig-dots li {
-    height: 3.4cqw;
-    border-radius: 2px;
-  }
-
-  .tn-live-design-system {
-    inset: 0;
-    width: auto;
-    height: auto;
-    transform: none;
-  }
-
-  .tn-live-design-system .dsr-board {
-    padding: 8px;
-  }
-
-  .tn-live-design-system .dsr-button-rows {
-    gap: 16px;
-  }
-
-  .tn-live-design-system .dsr-button-rows > :nth-child(n + 3) {
-    display: none;
   }
 
   /* The care plate keeps its organization switch and chart; the unit switch and the sync note are left out. */
@@ -1103,13 +1179,12 @@
   .tn-now-band,
   .tn-row[data-current] .tn-now-band,
   .tn-row[data-current][data-fresh] .tn-now-band,
-  .tn-row[data-fresh] .tn-then-text,
-  .tn-row[data-fresh] .tn-strike,
+  .tn-row[data-fresh] .tn-hit,
   .tn-fig-from,
   .tn-fig-strike,
   .tn-fig-to,
-  .tn-fig-dots li::before,
-  .tn-fig-dots li::after,
+  .tn-fig-end,
+  .tn-fig-dots > span::before,
   .tn-tray button::before,
   .tn-wire g {
     transition: none;

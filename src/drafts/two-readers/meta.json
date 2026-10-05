@@ -3,10 +3,13 @@
   "title": "TWO READERS",
   "band": "Loop 8",
   "rule": "one set of facts, two readers: a switch rewrites every line for a hiring manager or for an engineer",
-  "description": "Eight pieces of work in a log beside one fixed frame, opening on a shipped product with a solved problem: one billing report that asked the database 16 times and gave up now asks 2 times and finishes. A switch at the top, 'Read as: Hiring manager · Engineer', rewrites every line. The hiring-manager view is the default and fully plain; the engineer view names the stack. The same facts, two audiences.",
-  "signature": "Paper #F3EFE6, ink #1B1A17, muted #5E5A52, one vermilion accent #B8311B (5.2:1 on paper). Newsreader for the plain reader, JetBrains Mono for the engineer: the face change is the signal that the reader changed. Desktop: a 560 px log (identity, sticky switch bar, rows) and a 4:5 frame (573 x 716 at 1440 x 900), sticky, with a count and caption under it. Row 01 plate is a vermilion card: '16' struck in cream with 16 ticks and 'Gave up', then '2' with 2 ticks and 'Finished'. Every line is two versions in one grid cell, so a switch never moves the page (CLS 0). Switch: each visible line is struck by a 2 px pen line along its words (160 ms, linear), the struck words fade (80 ms), the other reader's words write in with a clip-path wipe (240 ms, ease-out, from 200 ms), lines top to bottom with a 30 ms stagger; off-screen lines swap at once. The hairline hides at the switch and draws again (180 ms) from the new last word when that word's write ends, to the part that proves it; in engineer mode row 01 rings the '2 queries' count instead of the 'Finished' track, and Incentiv rings all three sign-in buttons instead of Passkey. Rows become current at 42% of the viewport after 160 ms; the plate cross-fades in 200 ms; the line never follows the scroll (it hides while the page moves and returns where it stops). Keyboard: arrow keys in the log jump with no travel; the switch is a radio group, and a key switch swaps the words at once. The reader is kept in the URL (?read=engineer). Phone: each row carries its own 4:3 plate with the same ring; the switch bar sticks at the top. Reduced motion: words swap at once, the line appears, nothing plays.",
+  "description": "Eight pieces of work in a log beside one fixed frame. It opens on a shipped product: the Bayyinah TV home page, with the free-trial button ringed for 'Members subscribe on the web, iPhone or Android'. Row 02 is the billing report that asked the database 16 times and gave up, and now asks 2 times and finishes. A switch at the top, 'Same facts for: Hiring manager · Engineer', rewrites every line. The hiring-manager view is the default and fully plain; the engineer view names the stack. The same facts, two audiences.",
+  "signature": "Paper #F3EFE6, ink #1B1A17, muted #5E5A52, one vermilion accent #B8311B (5.2:1 on paper). Newsreader for the plain reader, JetBrains Mono for the engineer: the face change is the signal that the reader changed. The two faces load through the FontFace API; the page waits at most 300 ms, and a face that comes later is kept for the next visit, so text never rewraps in view (local Georgia and Menlo stand in). Desktop: a 560 px log (identity, sticky switch bar, rows) and a 4:5 frame (573 x 716 at 1440 x 900), sticky, with a count and caption under it. Row 01 plate is the public Bayyinah TV home page; row 02 is a vermilion card ('16' struck, 16 ticks, 'Gave up'; '2', 2 ticks, 'Finished'). Read to Feed shows its public store screenshot (36% and 90% read); Incentiv, Viva Fresh, Read to Feed and Dukagjini crops end on whole UI parts and stand on a colour sampled from the screen around the crop. Design System v2 shows ready-made buttons and inputs to the hiring manager and the token card to the engineer. Every line is two versions in one grid cell, so a switch never moves the page (CLS 0). Switch: each visible line fades (120 ms, ease-out), then the other reader's words write in with a clip-path wipe (240 ms, ease-out, from 120 ms), top to bottom with a 30 ms stagger; off-screen lines swap at once. The hairline hides at the switch and draws again (180 ms) from the new last word. Rows become current at 42% of the viewport after 160 ms; the plate cross-fades in 200 ms; the line never follows the scroll. Keyboard: arrow keys in the log jump with no travel; the switch is a radio group, and a key switch swaps the words at once. The reader is kept in the URL (?read=engineer). Phone: each row carries its own 4:3 plate with the same ring; the switch bar sticks at the top with its rule inset to the 24 px gutter. Reduced motion: words swap at once, the line appears, nothing plays.",
   "caseSlug": "care-platform",
-  "mechanisms": ["S2", "S5"],
+  "mechanisms": [
+    "S2",
+    "S5"
+  ],
   "slopCount": 0,
   "rounds": 4,
   "loopScores": {
@@ -18,11 +21,39 @@
     "original": 7,
     "hooks": 8
   },
-  "holdback": "Lowest: original, 7/10. The switch that rewrites every line is new, but the page around it is projector's log beside a sticky frame, a known scrollytelling layout. Other limits: the first plate is a figure, not a screen (no real Vianova screen may be shown); each line reserves the height of its longer version, so a few rows keep up to about 20 px of extra space under the shorter version; the Bayyinah TV ring (the free-trial button) proves 'members subscribe on the web', not the iPhone and Android part, which the copy carries; the Incentiv crop keeps about 90 px of the page's own dark ground above and below the sign-in card; the reader page keeps an empty lower half; motion timing is proven by paused-animation frames, because headless Chrome runs this page at about 4 fps.",
+  "holdback": "Lowest: original, 7/10. The switch that rewrites every line is new, but the page around it is projector's log beside a sticky frame, a known scrollytelling layout. Other limits: the hook is still behind a click, so a recruiter who never presses 'Engineer' sees a calm plain page; the engineer h1 keeps the height of the longer plain h1 (about 27 px of extra space); at 1440 the Incentiv and Dukagjini plates show 100 to 160 px of their own card or app colour above and below the crop, because their content is wider than a 4:5 frame and is never upscaled; the Bayyinah TV ring (the free-trial button) proves 'members subscribe on the web', not the iPhone and Android part; in the dev server a dev-only module evaluation (360 to 470 ms) can hold the first reveal past 300 ms, while the production build reveals in 246 to 277 ms with fonts 2.5 s late.",
   "chroma": {
-    "firstScreen": 31.0,
-    "outsidePlates": 0.7,
-    "plateRect": [762, 64, 1334, 780],
-    "method": "scratchpad/chroma6r.mjs logic (review/loop8/two-readers/chroma-tr.mjs) on review/loop8/two-readers/final/d-top.png (1440 x 900), captured last"
-  }
+    "firstScreen": 1.8,
+    "outsidePlates": 0.8,
+    "plateRect": [
+      762,
+      64,
+      1334,
+      780
+    ],
+    "method": "scratchpad/chroma6r.mjs logic (review/loop8b/two-readers/chroma-tr.mjs) on review/loop8b/two-readers/final/d-top.png (1440 x 900), captured last. The first plate is now the dark Bayyinah TV page, not the vermilion card."
+  },
+  "polish": [
+    {
+      "round": 8,
+      "pass": "b",
+      "score": 56,
+      "fixed": [
+        "First screen shows a real product: Bayyinah TV is row 01 (public home page, free-trial button ringed); the 16 -> 2 card moves to row 02 (critic 1, devil)",
+        "Own identity line with the level: 'has built web and mobile apps for 5+ years: apps people learn from, shop in and read in'",
+        "Engineer view keeps 'Part of two rewrites' and its h1 says what shipped where, not a skills list (critic 2, devil)",
+        "Switch label 'Same facts for' sits next to the control (3 words); the 13-15 px note under the bar is gone (critic 4, devil)",
+        "Switch motion: the red strike is gone (a strike reads as 'wrong', and the round-8 260 ms frame showed a left-over pen line); words fade 120 ms, then write in 240 ms (devil, followed over the critic's 9 because the frame proved the defect)",
+        "Read to Feed uses its public store screenshot (36% and 90% read) instead of the recreation; no empty lower half (devil, research rule 6)",
+        "Design System v2 in the hiring-manager view shows buttons and inputs, no token names; the token card stays in the engineer view (critic 3)",
+        "Incentiv crop is the sign-in card on its own card colour, no page ground band (critic 3)",
+        "Viva Fresh and Dukagjini crops end on whole UI parts: no cut product cards, no half 'FAN' chip",
+        "Care rebuild wording: 'Most screens rebuilt in React in 2026'; Bayyinah '34 pages' (not routes); Design System 'with the team'",
+        "Phone: switch bar rule inset to the 24 px gutter; buttons fit on one row at 375 (ends at x 347)",
+        "Email and footer links are at least 48 x 44 px; no target under 44 px outside inert plates at 375, 390, 540, 1024, 1280, 1440",
+        "Fonts: FontFace API with a 300 ms cap, late faces kept for the next visit; CLS 0 with fonts 2.5 s late (was 0.0012)",
+        "text-wrap: balance on problem and result lines (no one-word orphans)"
+      ]
+    }
+  ]
 }

@@ -3,7 +3,7 @@ import { Route, Routes, useLocation, useParams } from "react-router";
 import { ScrollToTop } from "./components/ScrollToTop";
 import { featuredProjects } from "./content/projects";
 import { caseStudyPage } from "./lib/routes";
-import { fontsReady } from "./pages/caseFonts";
+import { fontsReady, preloadCaseFonts } from "./pages/caseFonts";
 const NotFoundPage = lazy(() => import("./pages/NotFoundPage").then((m) => fontsReady().then(() => m)));
 const DraftApp = lazy(() => import("./drafts/DraftApp"));
 const ProjectorHome = lazy(() => import("./drafts/projector/Draft"));
@@ -31,7 +31,8 @@ export default function App() {
         </Suspense>
       </>
     );
-  if (pathname.startsWith("/work/"))
+  if (pathname.startsWith("/work/")) {
+    preloadCaseFonts();
     return (
       <>
         <ScrollToTop />
@@ -42,6 +43,7 @@ export default function App() {
         </Suspense>
       </>
     );
+  }
   if (pathname === "/drafts" || pathname.startsWith("/drafts/"))
     return (
       <>
@@ -58,6 +60,7 @@ export default function App() {
         </Suspense>
       </>
     );
+  preloadCaseFonts();
   return (
     <>
       <ScrollToTop />

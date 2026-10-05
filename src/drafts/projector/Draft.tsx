@@ -40,8 +40,22 @@ function useMedia(query: string, fallback: boolean) {
   );
 }
 
-/* Text is shown once its fonts are in, so a late font never moves a line. The wait is capped. */
-const FONT_WAIT_MS = 1200;
+/* The two faces are asked for before the first render. Text never waits for them. */
+for (const face of ["PublicSans-Latin", "BigShouldersDisplay-Latin"]) {
+  const href = `/fonts/creative/${face}.woff2`;
+  if (!document.head.querySelector(`link[rel="preload"][href="${href}"]`)) {
+    const link = document.createElement("link");
+    link.rel = "preload";
+    link.as = "font";
+    link.type = "font/woff2";
+    link.crossOrigin = "anonymous";
+    link.href = href;
+    document.head.append(link);
+  }
+}
+
+/* The first hairline starts at a word, so it waits for the faces, but never longer than this. */
+const FONT_WAIT_MS = 300;
 
 function useFontsReady() {
   const [ready, setReady] = useState(false);
@@ -62,7 +76,7 @@ function useFontsReady() {
 
 /* ---------- Plates ---------- */
 
-const liveKeys = { "design-system": recreations["design-system"], care: recreations.care, reader: recreations.reader };
+const liveKeys = { "design-system": recreations["design-system"], care: recreations.care };
 
 function LivePlate({ which }: { which: keyof typeof liveKeys }) {
   const entry = liveKeys[which];
@@ -88,33 +102,11 @@ function LivePlate({ which }: { which: keyof typeof liveKeys }) {
     return () => observer.disconnect();
   }, [which]);
 
-  // The reader is drawn square. Its own ground fills the rest of the frame.
-  useEffect(() => {
-    if (which !== "reader") return;
-    const element = ref.current;
-    if (!element) return;
-    const copy = () => {
-      const root = element.querySelector<HTMLElement>(".pj-square > div");
-      if (!root) return false;
-      element.style.background = getComputedStyle(root).backgroundColor;
-      return true;
-    };
-    if (copy()) return;
-    const observer = new MutationObserver(() => {
-      if (copy()) observer.disconnect();
-    });
-    observer.observe(element, { childList: true, subtree: true });
-    return () => observer.disconnect();
-  }, [which]);
-
-  const live = (
-    <Suspense fallback={<div className="pj-wait" />}>
-      <Live />
-    </Suspense>
-  );
   return (
     <div ref={ref} className={`pj-live pj-live-${which}`} data-world={entry.world}>
-      {which === "reader" ? <div className="pj-square">{live}</div> : live}
+      <Suspense fallback={<div className="pj-wait" />}>
+        <Live />
+      </Suspense>
     </div>
   );
 }
@@ -213,7 +205,7 @@ function PlateView({
     return (
       <div className="pj-phone">
         <div className="pj-phone-side">
-          <p className="pj-phone-kicker">Live in both app stores</p>
+          <p className="pj-phone-kicker">{plate.kicker}</p>
           <ul className="pj-stores">
             {plate.stores.map((store) => (
               <li key={store.href}>
@@ -447,7 +439,7 @@ export default function Draft() {
     const idle = window.requestIdleCallback ?? ((callback: () => void) => window.setTimeout(callback, 600));
     idle(() => {
       void recreations.care.load();
-      void recreations.reader.load();
+      void recreations["design-system"].load();
     });
   }, []);
 
@@ -564,6 +556,7 @@ export default function Draft() {
     if (log) resize.observe(log);
     const images = Array.from(document.querySelectorAll(".pj-frame img"));
     images.forEach((image) => image.addEventListener("load", schedule));
+    document.fonts.addEventListener("loadingdone", schedule);
     return () => {
       cancelAnimationFrame(frame);
       window.removeEventListener("scroll", schedule);
@@ -571,6 +564,7 @@ export default function Draft() {
       resize.disconnect();
       mutation.disconnect();
       images.forEach((image) => image.removeEventListener("load", schedule));
+      document.fonts.removeEventListener("loadingdone", schedule);
     };
   }, [updateWire, loaded]);
 
@@ -666,33 +660,19 @@ export default function Draft() {
     if (index !== shown.index) jump(index, "animate");
   };
 
-  const trayRef = useRef<HTMLDivElement>(null);
-  const onSlot = (index: number) => (event: MouseEvent<HTMLButtonElement>) => {
-    jump(index, event.detail === 0 ? "instant" : "animate");
-  };
-  const onTrayKey = (event: KeyboardEvent<HTMLDivElement>) => {
-    const step =
-      event.key === "ArrowRight" ? 1 : event.key === "ArrowLeft" ? -1 : event.key === "Home" ? -99 : event.key === "End" ? 99 : 0;
-    if (!step) return;
-    event.preventDefault();
-    const index = Math.min(rows.length - 1, Math.max(0, shown.index + step));
-    jump(index, "instant");
-    trayRef.current?.querySelectorAll<HTMLButtonElement>("button")[index]?.focus({ preventScroll: true });
-  };
-
   const current = rows[shown.index];
   const home = useLocation().pathname === "/";
 
   return (
-    <div className="pj" ref={rootRef} data-wait={fontsReady ? undefined : ""}>
+    <div className="pj" ref={rootRef}>
       <title>{home ? "Gentrit Rashiti — web, mobile & full stack" : "Projector — Gentrit Rashiti"}</title>
       <main className="pj-main">
         <header className="pj-id">
-          <h1>Gentrit Rashiti builds web and mobile apps, from the screens people use to the server behind them.</h1>
+          <h1>Gentrit Rashiti builds web and mobile apps that people subscribe to, shop in and read with.</h1>
           <p className="pj-id-line">
-            <span>Part of two platform rewrites. Based in Kosovo, working remotely.</span>
+            <span>5+ years. Part of two platform rewrites. Based in Kosovo, working remotely.</span>
             <span className="pj-id-links">
-              <a href={links.cv}>CV</a>
+              <a href={links.cv}>CV (PDF)</a>
               <a href={`mailto:${links.email}`}>Email</a>
             </span>
           </p>
@@ -720,7 +700,11 @@ export default function Draft() {
                     {row.project}
                   </h2>
                   <p className="pj-role">
-                    {row.role} · {row.year}
+                    {row.role}
+                    <span className="pj-year">
+                      <span className="pj-dot"> · </span>
+                      {row.year}
+                    </span>
                   </p>
                 </div>
               </div>
@@ -780,7 +764,7 @@ export default function Draft() {
                       className={`pj-plate pj-plate-${row.plate.kind}`}
                       data-state={state}
                       data-mode={shown.mode}
-                      inert={state !== "on" || narrow}
+                      inert={state !== "on" || narrow || (row.plate.kind === "live" && row.plate.key === "design-system")}
                       aria-hidden={state !== "on"}
                     >
                       <PlateView plate={row.plate} load={loaded.has(index)} narrow={narrow} eager={index === 0} frameWidth={frameWidth} />
@@ -790,27 +774,10 @@ export default function Draft() {
               </div>
             </div>
             <div className="pj-caption">
-              <p className="pj-count" aria-hidden="true">
-                <span>{current.id}</span>
-                <span className="pj-count-of">/ {String(rows.length).padStart(2, "0")}</span>
-              </p>
               <p className="pj-caption-text" aria-live="polite">
                 {current.caption}
+                {current.recreation && <span className="pj-rec"> Recreation · invented data.</span>}
               </p>
-              <div className="pj-tray" role="toolbar" aria-label="Screens" ref={trayRef} onKeyDown={onTrayKey}>
-                {rows.map((row, index) => (
-                  <button
-                    type="button"
-                    key={row.id}
-                    aria-label={`${row.id}, ${row.project}`}
-                    aria-pressed={index === shown.index}
-                    tabIndex={index === shown.index ? 0 : -1}
-                    onClick={onSlot(index)}
-                  >
-                    <span>{row.id}</span>
-                  </button>
-                ))}
-              </div>
             </div>
           </div>
         </aside>
@@ -818,7 +785,7 @@ export default function Draft() {
 
       <footer className="pj-end">
         <p>
-          Gentrit Rashiti. Bachelor's degree, UBT. The care, style and reader screens are recreations with invented
+          Gentrit Rashiti. Bachelor's degree, UBT. The care and design-system screens are recreations with invented
           data. The other screens are public.
         </p>
         <p className="pj-end-links">
@@ -826,7 +793,7 @@ export default function Draft() {
             <span className="pj-end-wide">{links.email}</span>
             <span className="pj-end-short">Email</span>
           </a>
-          <a href={links.cv}>Download CV</a>
+          <a href={links.cv}>Download CV (PDF)</a>
           <a href={links.github} target="_blank" rel="noreferrer">
             GitHub
           </a>

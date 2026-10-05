@@ -33,6 +33,8 @@ export interface Tile {
   caption: string;
   /** The words of the caption that the ring proves. They carry the same mark. */
   proof: string;
+  /** The lead tile only: one plain line on the size of the work. */
+  scope?: string;
   /** Role and scope, in plain words. */
   role: string;
   year: string;
@@ -41,7 +43,6 @@ export interface Tile {
   hue: number;
   /** Mean colour of the crop. The tile shows it until the picture arrives. */
   ground: string;
-  /** A dark screen is washed with paper, not dimmed with ink, around its proof. */
   dark?: boolean;
   recreation?: boolean;
   link: { href: string; label: string; external?: boolean };
@@ -49,32 +50,24 @@ export interface Tile {
 
 export const tiles: Tile[] = [
   {
-    id: "billing",
-    project: "Care platform, server side",
-    caption: "One billing report: 2 database requests, not 16.",
-    proof: "2 database requests",
-    role: "Full stack",
-    year: "2026",
-    media: { kind: "figure" },
-    hue: 33,
-    ground: "#ff5a36",
-    link: { href: "/work/care-platform", label: "Open the case" },
-  },
-  {
     id: "bayyinah-tv",
     project: "Bayyinah TV",
     caption: "Members subscribe on the web, iPhone or Android.",
     proof: "subscribe",
+    scope: "The second version is a new app: 34 pages, in English and Arabic.",
     role: "Frontend, core team",
     year: "2023–26",
     media: {
       kind: "shot",
       shot: {
         src: "/showcase/bayyinah/web-06.webp",
-        alt: "Bayyinah TV pricing page: the Premium plan at $11.00 a month, with course access ticked",
+        alt: "Bayyinah TV pricing page, public: a Monthly and Annual switch, the Premium plan at $11.00 a month, four included features and a Start 7-Day Free Trial button",
         width: 1440,
         height: 900,
-        crops: [{ x: 960, y: 102, w: 440, h: 275 }],
+        crops: [
+          { x: 960, y: 102, w: 440, h: 275 },
+          { x: 408, y: 96, w: 1000, h: 625 },
+        ],
         mark: { x: 1112, y: 196, w: 140, h: 78 },
       },
     },
@@ -82,6 +75,18 @@ export const tiles: Tile[] = [
     ground: "#150f11",
     dark: true,
     link: { href: "/work/bayyinah-tv", label: "Open the case" },
+  },
+  {
+    id: "billing",
+    project: "Care platform, server side",
+    caption: "A billing report that timed out now finishes.",
+    proof: "now finishes",
+    role: "Full stack",
+    year: "2026",
+    media: { kind: "figure" },
+    hue: 33,
+    ground: "#ff5a36",
+    link: { href: "/work/care-platform", label: "Open the case" },
   },
   {
     id: "viva-fresh",
@@ -110,7 +115,7 @@ export const tiles: Tile[] = [
     project: "Care platform",
     caption: "Each client organization sees only its own patients.",
     proof: "Each client organization",
-    role: "Frontend, rebuilt screen by screen",
+    role: "Frontend",
     year: "2023–26",
     media: {
       kind: "live",
@@ -139,7 +144,7 @@ export const tiles: Tile[] = [
         height: 900,
         crops: [
           { x: 190, y: 486, w: 344, h: 215 },
-          { x: 190, y: 262, w: 480, h: 300 },
+          { x: 186, y: 236, w: 512, h: 320 },
         ],
         mark: { x: 222, y: 500, w: 106, h: 40 },
       },
@@ -170,18 +175,18 @@ export const tiles: Tile[] = [
   {
     id: "read-to-feed",
     project: "Read to Feed",
-    caption: "Children pick up every book where they stopped.",
-    proof: "where they stopped",
-    role: "Mobile, about 14 updates shipped",
+    caption: "About 14 updates shipped. Books reopen where children stopped.",
+    proof: "where children stopped",
+    role: "Mobile",
     year: "2022–25",
     media: {
       kind: "shot",
       shot: {
         src: "/mobile/reading-1.webp",
-        alt: "Read to Feed store screenshot: My Books, with The Tale of Peter Rabbit read to 36%",
+        alt: "Read to Feed store screenshot: My Books, with The Tale of Peter Rabbit read to 36% and the next book under it",
         width: 780,
         height: 1689,
-        crops: [{ x: 90, y: 640, w: 600, h: 375 }],
+        crops: [{ x: 58, y: 700, w: 664, h: 415 }],
         mark: { x: 330, y: 852, w: 312, h: 52 },
       },
     },
@@ -192,18 +197,18 @@ export const tiles: Tile[] = [
   {
     id: "dukagjini",
     project: "Dukagjini Bookstore",
-    caption: "Readers search the catalogue and buy books on sale.",
-    proof: "search the catalogue",
+    caption: "Search, sales and checkout, live in both app stores.",
+    proof: "Search",
     role: "Mobile",
     year: "2021–22",
     media: {
       kind: "shot",
       shot: {
         src: "/mobile/bookstore-1.webp",
-        alt: "Dukagjini Bookstore store screenshot: Search Millions of Books, the search field, and the Bestsellers and On sale 35% off categories",
+        alt: "Dukagjini Bookstore store screenshot: Search Millions of Books, with the search field under an open-book picture",
         width: 780,
         height: 1689,
-        crops: [{ x: 106, y: 1058, w: 568, h: 355 }],
+        crops: [{ x: 106, y: 920, w: 568, h: 355 }],
         mark: { x: 152, y: 1141, w: 476, h: 70 },
       },
     },
@@ -214,8 +219,8 @@ export const tiles: Tile[] = [
   {
     id: "bayyinah-org",
     project: "Bayyinah institute website",
-    caption: "Visitors join the mission or get the apps.",
-    proof: "join the mission",
+    caption: "Live at bayyinah.org, with links to both app stores.",
+    proof: "both app stores",
     role: "Frontend",
     year: "2024–25",
     media: {
@@ -226,7 +231,7 @@ export const tiles: Tile[] = [
         width: 1440,
         height: 900,
         crops: [{ x: 504, y: 545, w: 432, h: 270 }],
-        mark: { x: 600, y: 561, w: 240, h: 67 },
+        mark: { x: 520, y: 664, w: 388, h: 64 },
       },
     },
     hue: 59,
@@ -259,8 +264,8 @@ export const index: IndexGroup[] = [
       { name: "Care platform, server side", line: "A billing report went from 16 database requests to 2.", role: "Full stack", year: "2026" },
       { name: "Design System v2", line: "36 building blocks with the team, 20 releases in about six weeks.", role: "Design system", year: "2026", link: caseLink("design-system-react") },
       { name: "Design system for the older app", line: "Colours and sizes come from Figma. Automatic checks catch visual changes.", role: "Design system", year: "2026" },
-      { name: "Design dashboard (prototype)", line: "One call-activity screen with demo data, as a design reference.", role: "Frontend", year: "2026" },
-      { name: "Bayyinah TV", line: "Video-learning platform rebuilt from an empty page: 34 pages, live classes.", role: "Frontend, core team", year: "2023–26", link: caseLink("bayyinah-tv") },
+      { name: "Design dashboard (prototype)", line: "One screen of the care app, made with demo data as a design reference.", role: "Frontend", year: "2026" },
+      { name: "Bayyinah TV", line: "Video-learning platform. The second version is a new app: 34 pages, live classes.", role: "Frontend, core team", year: "2023–26", link: caseLink("bayyinah-tv") },
       { name: "Bayyinah institute website", line: "The institute's public website, on one page.", role: "Frontend", year: "2024–25", link: live("https://bayyinah.org/") },
       { name: "Read to Feed", line: "Children's reading app. About 14 updates shipped to both app stores.", role: "Mobile", year: "2022–25", link: caseLink("read-to-feed") },
       { name: "Viva Fresh", line: "Grocery orders with delivery slots, loyalty and a wishlist.", role: "Mobile", year: "2023", link: caseLink("viva-fresh") },
@@ -270,7 +275,7 @@ export const index: IndexGroup[] = [
       { name: "Book reader prototype", line: "Opens a downloaded book and resizes its text. The reading app's first reader.", role: "Mobile", year: "2022" },
       { name: "Sadaqah app for Islamic Relief USA", line: "Donation app. Payment screens, badges and Android builds, in a small team.", role: "Mobile", year: "2021–22" },
       { name: "Coaching app", line: "Sign-in through an organization, a daily calendar strip and reactions.", role: "Mobile", year: "2022–23" },
-      { name: "Fuel-station loyalty app", line: "Upkeep: runs on newer Macs for testing, and shadows fixed.", role: "Mobile", year: "2026" },
+      { name: "Fuel-station loyalty app", line: "Maintenance: the app builds again on newer Macs, and its shadows show correctly.", role: "Mobile", year: "2026" },
       { name: "Incentiv", line: "Sign-in and dashboard screens for a crypto wallet. Teammates built the wallet.", role: "Frontend", year: "2024", link: caseLink("incentiv") },
       { name: "Member portal", line: "The base of a member portal: sign-in, private pages and the app frame.", role: "Frontend", year: "2025" },
       { name: "Business dashboard with AI", line: "Headshots made from photos, and a chat that answers questions about a PDF.", role: "Frontend, some server work", year: "—" },

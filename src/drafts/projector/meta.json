@@ -3,8 +3,8 @@
   "title": "PROJECTOR",
   "band": "Loop 8",
   "rule": "one frame, eight pieces of work: the frame never moves, the log scrolls beside it and decides what the frame shows",
-  "description": "Eight pieces of work as a log of eight rows, beside one fixed frame. It opens on a live product (Bayyinah TV pricing page) and then the strongest result (one billing report: 16 requests to the database and a timeout, now 2). The row at the reading line is the current one; the frame shows its screen, and a hairline runs from the row's result into the frame to the part that proves it.",
-  "signature": "Big Shoulders Display for the row numerals, the report diagram and the slide tray; Public Sans for text; ink #141B06 on a chartreuse field #D9F26B (14.2:1; muted #3E4A14 at 7.7:1). Desktop: a 440 px log at the left with the identity line at its top; an 880 x 676 frame at the right, sticky, with a caption and an eight-slot tray under it, set in the middle of the viewport. Row order: 01 Bayyinah TV (pricing page, ring on the Monthly/Annual switch, result 'Members pay monthly or yearly', plus a 'Live at bayyinahtv.com' link); 02 care platform server side as a diagram (16 outlined cells and 'Gave up' over 2 filled cells and 'Finished', ring on the Now lane); 03 care card recreation (ring on the organization switch); 04 Viva Fresh and 08 Dukagjini Bookstore as iPhone screens at their source pixels (596 x 676 and 568 x 676, flush right) with an App Store / Google Play panel at the left of the frame; 05 Design System v2 specimen with the three token rows spread evenly; 06 Incentiv sign-in; 07 reader recreation. Motion: at load the text appears once its fonts are in (capped at 1.2 s, so no line moves), the first screenshot fades in 200 ms, then the hairline draws in 180 ms to its ring. A row becomes current after it settles at 42% of the viewport for 160 ms; the plate cross-fades in 200 ms, the numeral fills (160 ms), the result band wipes in (clip-path, 240 ms), the old line fades (120 ms) and the new one draws (180 ms). Keyboard moves (arrows, Home, End, tray Left/Right) jump with no animation. Phone: the frame pins at the top at 4:3 (max 568 px wide); each screenshot crop grows to the frame width inside its own screen bounds, so it is never shown above its source pixels; the ring alone marks the proof (no line in the 16 px gutter); at the page end the last row is current and stands whole under the frame. Reduced motion: no fade, no wipe, no draw; the line and ring appear at once.",
+  "description": "Eight pieces of work as a log of eight rows, beside one fixed frame. It opens on a live product (Bayyinah TV: members subscribe on the web, iPhone or Android, with the ring on the free-trial button) and then the strongest result (one billing report: 16 requests to the database and a timeout, now 2). The row at the reading line is the current one; the frame shows its screen, and a hairline runs from the row's result into the frame to the part that proves it.",
+  "signature": "Big Shoulders Display for the row numerals, the report diagram and the store panel; Public Sans for text; ink #141B06 on a chartreuse field #D9F26B (14.2:1; muted #3E4A14 at 7.7:1). Both faces are preloaded by the page; text never waits for them. Identity: 'Gentrit Rashiti builds web and mobile apps that people subscribe to, shop in and read with.' then '5+ years. Part of two platform rewrites. Based in Kosovo, working remotely.' Desktop: a 440 px log at the left with the identity line at its top; an 880 x 676 frame at the right, sticky, with one caption line under it, set in the middle of the viewport. Rows: 01 Bayyinah TV pricing page (ring on Start 7-Day Free Trial; phone crop rings 'Watch anytime, anywhere, on mobile, tablet or desktop'); 02 the 16 -> 2 report diagram; 03 care card recreation (ring on the organization switch); 04 Viva Fresh, 07 Read to Feed (public store screen, ring on the book card with 'Read 36%', archived store links) and 08 Dukagjini Bookstore as iPhone screens at source pixels with a store panel; 05 Design System v2 as four cards of the set (buttons, fields, switches, alerts; no token names; inert); 06 Incentiv sign-in. Current row has three signals: the plate, the result band and the hairline with its ring (no numeral fill, no tray, no second index on phone). Motion: the first screenshot fades in 200 ms, then the hairline draws in 180 ms to its ring. A row becomes current after it settles at 42% of the viewport for 160 ms; the plate cross-fades in 200 ms, the result band wipes in (clip-path, 240 ms), the old line fades (120 ms) and the new one draws (180 ms). Keyboard moves (arrows, Home, End) jump with no animation. Phone: the frame pins at the top at 4:3; crops grow inside their own screen bounds and are never shown above source pixels; the ring alone marks the proof. Reduced motion: no fade, no wipe, no draw.",
   "caseSlug": "care-platform",
   "mechanisms": [
     "S2",
@@ -14,24 +14,24 @@
   "rounds": 3,
   "loopScores": {
     "straightToThePoint": 9,
-    "notOverwhelming": 8,
+    "notOverwhelming": 9,
     "harmony": 8,
     "meaningfulMotion": 8,
     "actionsAndSeniority": 9,
     "original": 7,
     "hooks": 8
   },
-  "holdback": "Lowest: original, 7/10. A sticky frame beside a scrolling numbered log is a known scrollytelling layout; the report diagram and the store panel are new, the frame is not. Other limits after round 8: the two store screens are shown at source pixels, but the store images hold a 596 / 568 px wide phone screen, so the frame's left 284 / 312 px hold the store links, not screen; harmony stays 8 until a reviewer accepts that panel. The Viva Fresh desktop crop ends inside the first two product cards (images only, no text cut). The Viva Fresh ring proves 'live in both app stores' (the two store links); 'Shopping in Albanian' is read from the screen beside it. Row 01's ring proves 'monthly or yearly'; 'live' is carried by its link. The specimen (row 05) still prints token names (cobalt.600, action.primary); it is a recreation and no longer on the first screen. The Incentiv page keeps about 130 px of its own dark ground above and below its sign-in card. The reader page stands in its own ground with about 100 px at each side. Phone: a grown crop can end inside a UI row on some widths; text in every crop stays at 11 px or more at 375 px.",
+  "holdback": "Lowest: original, 7/10. A sticky frame beside a scrolling numbered log is a known scrollytelling layout (pudding.cool); the report diagram and the store panel are new, the frame is not. Other limits after pass 8b: the store screens (rows 04, 07, 08) are @3x captures at source pixels, so they read larger than a real phone; the Design System v2 board is centred with about 80 px of its own ground above and below; at 1024 px the row 01 result band takes two lines (the critic asked for one; the result needs about 480 px and the column is 301 px); the 16 -> 2 'Now' lane keeps empty width beside its two cells, which is the point of the figure; the line jumps once if the faces arrive after 300 ms (measured CLS 0.0006 with fonts 2.5 s late).",
   "chroma": {
-    "firstScreen": 52.8,
-    "outsidePlates": 94.7,
+    "firstScreen": 53.0,
+    "outsidePlates": 95.3,
     "plateRect": [
       520,
-      83,
+      93,
       1400,
-      759
+      771
     ],
-    "method": "scratchpad/chroma6r.mjs logic (review/loop8/projector/chroma-pj8.mjs) on review/loop8/projector/final/d-top.png (1440 x 900), captured last"
+    "method": "scratchpad/chroma6r.mjs logic (review/loop8b/projector/work/chroma.mjs) on review/loop8b/projector/final/d-top.png (1440 x 900), captured last"
   },
   "polish": [
     {
@@ -72,6 +72,25 @@
         "critic 6: phone end shows the last row whole, footer shorter",
         "critic 7: 1024 x 768 first row whole (smaller identity line)",
         "craft: one spacing scale, CLS 0 (font gate), phone crops never upscaled, phone line removed from the 16 px gutter"
+      ]
+    },
+    {
+      "round": 8,
+      "pass": "b",
+      "score": 58,
+      "fixed": [
+        "critic 1 + devil: row 01 result is 'Members subscribe on the web, iPhone or Android'; ring on Start 7-Day Free Trial (desktop) and on 'Watch anytime, anywhere, on mobile, tablet or desktop' (phone); line 'built again as a new app: 34 pages' (no page/pages wordplay)",
+        "critic 2: no font wait (visibility gate removed); Public Sans and Big Shoulders preloaded by the page; heading visible before the faces arrive (fonts held 2.5 s: h1 at 1.08-1.26 s on the dev server, CLS 0.0002-0.0006)",
+        "critic 3: Design System v2 plate shows buttons, fields, switches and alerts; no token names; result '36 building blocks, released 20 times in about six weeks'",
+        "critic 4 + devil: phone first plate has no empty 'Price' row; it crops the plan list at whole rows",
+        "critic 5: 1024 px role line puts the years on their own line (no hanging dot); band stays two balanced lines",
+        "critic 6: phone result band starts at 16 px (no -7 px hang); probe min edge 16 px at 375/390/540",
+        "critic 7 + devil: current-row signals 5 -> 3 (numeral fill and tray removed); phone '01 / 08' count removed",
+        "critic 8 + devil: 'CV (PDF)' 59 x 44 and Email 44 x 44 in the header; footer links at least 44 x 44; no target under 44 px outside plates",
+        "devil: row 03 role 'Frontend, and the 2026 rebuild' with years 2023-26 (the rebuild is 2026)",
+        "shared: Read to Feed uses its public store screen (My Books, Read 36%) with archived store links and 'Shipped to both app stores'; reader recreation removed",
+        "shared: identity line for this page with the level ('5+ years'); 'Part of two platform rewrites' kept",
+        "shared: recreation captions end with 'Recreation · invented data.' (never broken across lines)"
       ]
     }
   ]

@@ -46,9 +46,9 @@ export interface StoreLink {
 }
 
 export type Plate =
-  | { kind: "live"; key: "design-system" | "care" | "reader" }
+  | { kind: "live"; key: "design-system" | "care" }
   | { kind: "web"; shot: Shot; ground: string; dark?: boolean }
-  | { kind: "phone"; shot: Shot; stores: StoreLink[] }
+  | { kind: "phone"; shot: Shot; kicker: string; stores: StoreLink[] }
   | { kind: "report"; before: number; after: number };
 
 export interface Row {
@@ -62,6 +62,8 @@ export interface Row {
   year: string;
   plate: Plate;
   caption: string;
+  /** The plate is a recreation of a private screen. The caption then says so. */
+  recreation?: boolean;
   target: Target;
   /** The part the ring marks under 1024 px, when the wide target is not in the phone crop. */
   narrowTarget?: Target;
@@ -78,8 +80,8 @@ export const rows: Row[] = [
   {
     id: "01",
     project: "Bayyinah TV",
-    line: "The video-learning platform, rebuilt from an empty page: 34 pages.",
-    result: "Members pay monthly or yearly",
+    line: "A video-learning platform, built again as a new app: 34 pages.",
+    result: "Members subscribe on the web, iPhone or Android",
     role: "Frontend, core team",
     year: "2023–26",
     plate: {
@@ -88,16 +90,18 @@ export const rows: Row[] = [
       dark: true,
       shot: {
         src: "/showcase/bayyinah/web-06.webp",
-        alt: "Bayyinah TV pricing: a monthly and annual switch, the course list and the Premium plan at $11 a month",
+        alt: "Bayyinah TV pricing: the plan list, the Premium plan at $11 a month and a Start 7-Day Free Trial button",
         width: 1440,
         height: 900,
         crop: { x: 470 / 1440, y: 0, w: 970 / 1440, h: 745 / 900 },
-        narrow: { x: 515 / 1440, y: 108 / 900, w: 387 / 1440, h: 290 / 900 },
+        narrow: { x: 25 / 1440, y: 180 / 900, w: 460 / 1440, h: 345 / 900 },
+        bounds: { x: 0, y: 168 / 900, w: 515 / 1440, h: 380 / 900 },
       },
     },
     caption: "Bayyinah TV pricing page, public.",
-    target: { kind: "shot", box: { x: 0.367, y: 0.1334, w: 0.184, h: 0.0683 } },
-    route: { kind: "lane", y: 0.04 },
+    target: { kind: "shot", box: { x: 1068 / 1440, y: 651 / 900, w: 228 / 1440, h: 40 / 900 } },
+    narrowTarget: { kind: "shot", box: { x: 36 / 1440, y: 378 / 900, w: 318 / 1440, h: 56 / 900 } },
+    route: { kind: "side" },
     link: { label: "Open the case", href: "/work/bayyinah-tv" },
     live: { label: "Live at bayyinahtv.com", href: "https://bayyinahtv.com/" },
   },
@@ -119,10 +123,11 @@ export const rows: Row[] = [
     project: "Care-management platform",
     line: "Many client organizations use the same system.",
     result: "Each one sees only its own patients",
-    role: "Frontend, rebuilt screen by screen",
+    role: "Frontend, and the 2026 rebuild",
     year: "2023–26",
     plate: { kind: "live", key: "care" },
-    caption: "Vitals card for one organization. Recreation with invented data.",
+    caption: "Vitals card for one organization.",
+    recreation: true,
     target: { kind: "selector", css: 'button[aria-haspopup="listbox"]', round: true },
     route: { kind: "along", css: ".border-t" },
     link: { label: "Open the case", href: "/work/care-platform" },
@@ -136,6 +141,7 @@ export const rows: Row[] = [
     year: "2023",
     plate: {
       kind: "phone",
+      kicker: "Live in both app stores",
       stores: storeLinks("viva-fresh"),
       shot: {
         src: "/mobile/grocery-1.webp",
@@ -156,13 +162,14 @@ export const rows: Row[] = [
   {
     id: "05",
     project: "Design System v2",
-    line: "The team built 36 building blocks for the new care dashboard.",
-    result: "Colours and sizes are set once, for code and Figma",
+    line: "The new care dashboard needed one set of buttons, menus and forms.",
+    result: "36 building blocks, released 20 times in about six weeks",
     role: "Design system, with the team",
     year: "2026",
     plate: { kind: "live", key: "design-system" },
-    caption: "Shared style values. Recreation with invented data.",
-    target: { kind: "selector", css: ".dsr-pipeline" },
+    caption: "A few of the 36 building blocks.",
+    recreation: true,
+    target: { kind: "selector", css: ".dsr-area-buttons" },
     route: { kind: "side" },
     link: { label: "Open the case", href: "/work/design-system-react" },
   },
@@ -199,9 +206,22 @@ export const rows: Row[] = [
     result: "It remembers the page in every book",
     role: "Mobile",
     year: "2022–25",
-    plate: { kind: "live", key: "reader" },
-    caption: "Reader page. Recreation with public-domain text.",
-    target: { kind: "selector", css: "div:has(> .h-\\[3px\\])" },
+    plate: {
+      kind: "phone",
+      kicker: "Shipped to both app stores",
+      stores: storeLinks("read-to-feed"),
+      shot: {
+        src: "/mobile/reading-1.webp",
+        alt: "Read to Feed My Books on iPhone: The Tale of Peter the Rabbit, read 36%, and two more books",
+        width: 780,
+        height: 1689,
+        crop: { x: 92 / 780, y: 619 / 1689, w: 596 / 780, h: 676 / 1689 },
+        narrow: { x: 92 / 780, y: 660 / 1689, w: 596 / 780, h: 447 / 1689 },
+        bounds: { x: 92 / 780, y: 619 / 1689, w: 596 / 780, h: 676 / 1689 },
+      },
+    },
+    caption: "Read to Feed My Books, from its store listing.",
+    target: { kind: "shot", box: { x: 119 / 780, y: 712 / 1689, w: 543 / 780, h: 211 / 1689 } },
     route: { kind: "side" },
     link: { label: "Open the case", href: "/work/read-to-feed" },
   },
@@ -214,6 +234,7 @@ export const rows: Row[] = [
     year: "2021–22",
     plate: {
       kind: "phone",
+      kicker: "Live in both app stores",
       stores: storeLinks("dukagjini-bookstore"),
       shot: {
         src: "/mobile/bookstore-1.webp",

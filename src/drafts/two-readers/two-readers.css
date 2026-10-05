@@ -1,17 +1,41 @@
+/* The web faces load in Draft.tsx. These local faces stand in for them, sized to their advance widths at text size. */
 @font-face {
-  font-family: "TR Newsreader";
-  src: url("/fonts/creative/Newsreader-Latin.woff2") format("woff2");
-  font-weight: 300 650;
-  font-style: normal;
-  font-display: block;
+  font-family: "TR Newsreader Fallback";
+  src: local("Georgia");
+  font-weight: 100 450;
+  size-adjust: 93%;
+  ascent-override: 79.6%;
+  descent-override: 28%;
+  line-gap-override: 0%;
 }
 
 @font-face {
-  font-family: "TR JetBrains Mono";
-  src: url("/fonts/creative/JetBrainsMono-Latin.woff2") format("woff2");
-  font-weight: 100 800;
-  font-style: normal;
-  font-display: block;
+  font-family: "TR Newsreader Fallback";
+  src: local("Georgia");
+  font-weight: 451 550;
+  size-adjust: 96%;
+  ascent-override: 77.1%;
+  descent-override: 27.1%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "TR Newsreader Fallback";
+  src: local("Georgia Bold"), local("Georgia-Bold");
+  font-weight: 551 900;
+  size-adjust: 90%;
+  ascent-override: 82.2%;
+  descent-override: 28.9%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "TR JetBrains Mono Fallback";
+  src: local("Menlo Regular"), local("Menlo-Regular"), local("Consolas");
+  size-adjust: 99.66%;
+  ascent-override: 102.3%;
+  descent-override: 30.1%;
+  line-gap-override: 0%;
 }
 
 :root:has(.tr) {
@@ -21,14 +45,19 @@
   --tr-muted: #5e5a52;
   --tr-rule: rgb(27 26 23 / 0.16);
   --tr-accent: #b8311b;
-  --tr-serif: "TR Newsreader", "Iowan Old Style", Georgia, serif;
-  --tr-mono: "TR JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --tr-serif: "TR Newsreader", "TR Newsreader Fallback", Georgia, serif;
+  --tr-mono: "TR JetBrains Mono", "TR JetBrains Mono Fallback", ui-monospace, monospace;
   --tr-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   color-scheme: light;
   background: var(--tr-paper);
   scroll-behavior: auto;
   scroll-padding-top: 96px;
   scrollbar-color: var(--tr-muted) var(--tr-paper);
+}
+
+/* The page waits at most 300 ms for its two faces. A face that comes later is used on the next visit, so text never rewraps in view. */
+.tr[data-fonts="wait"] > * {
+  visibility: hidden;
 }
 
 :root:has(.tr)::view-transition-old(root),
@@ -112,13 +141,6 @@
   letter-spacing: -0.01em;
 }
 
-.tr-ink {
-  background-image: linear-gradient(var(--tr-accent), var(--tr-accent));
-  background-repeat: no-repeat;
-  background-position: 0 58%;
-  background-size: 0% 2px;
-}
-
 /* The reader on screen. */
 .tr[data-read="plain"] .tr-v[data-v="plain"],
 .tr[data-read="engineer"] .tr-v[data-v="engineer"] {
@@ -126,37 +148,24 @@
   opacity: 1;
   clip-path: inset(-0.3em -0.6em -0.3em -0.6em);
   transition:
-    clip-path 240ms var(--tr-ease-out) calc(var(--d, 0ms) + 200ms),
-    opacity 0s linear calc(var(--d, 0ms) + 200ms),
-    visibility 0s linear calc(var(--d, 0ms) + 200ms);
+    clip-path 240ms var(--tr-ease-out) calc(var(--d, 0ms) + 120ms),
+    opacity 0s linear calc(var(--d, 0ms) + 120ms),
+    visibility 0s linear calc(var(--d, 0ms) + 120ms);
 }
 
-.tr[data-read="plain"] .tr-v[data-v="plain"] .tr-ink,
-.tr[data-read="engineer"] .tr-v[data-v="engineer"] .tr-ink {
-  background-size: 0% 2px;
-  transition: none;
-}
-
-/* The reader that leaves: the strike draws along its words, then the words go. */
+/* The reader that leaves: its words fade, then the other reader's words write in from the left. */
 .tr[data-read="plain"] .tr-v[data-v="engineer"],
 .tr[data-read="engineer"] .tr-v[data-v="plain"] {
   visibility: hidden;
   opacity: 0;
   clip-path: inset(-0.3em 100% -0.3em -0.6em);
   transition:
-    opacity 80ms ease calc(var(--d, 0ms) + 160ms),
-    visibility 0s linear calc(var(--d, 0ms) + 240ms),
-    clip-path 0s linear calc(var(--d, 0ms) + 240ms);
+    opacity 120ms var(--tr-ease-out) var(--d, 0ms),
+    visibility 0s linear calc(var(--d, 0ms) + 120ms),
+    clip-path 0s linear calc(var(--d, 0ms) + 120ms);
 }
 
-.tr[data-read="plain"] .tr-v[data-v="engineer"] .tr-ink,
-.tr[data-read="engineer"] .tr-v[data-v="plain"] .tr-ink {
-  background-size: 100% 2px;
-  transition: background-size 160ms linear var(--d, 0ms);
-}
-
-.tr-pair[data-snap] .tr-v,
-.tr-pair[data-snap] .tr-ink {
+.tr-pair[data-snap] .tr-v {
   transition: none !important;
 }
 
@@ -219,6 +228,8 @@
 .tr-id-links a {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
+  min-width: 48px;
   min-height: 44px;
   font-size: 17px;
   font-weight: 600;
@@ -244,7 +255,7 @@
 
 .tr-switch-label {
   font-size: 16px;
-  color: var(--tr-muted);
+  color: var(--tr-ink);
 }
 
 .tr-switch button {
@@ -293,12 +304,6 @@
 
 .tr-switch button:active {
   transform: scale(0.98);
-}
-
-.tr-switch-note {
-  margin-top: 4px;
-  font-size: 15px;
-  color: var(--tr-muted);
 }
 
 /* ---------- The log ---------- */
@@ -377,7 +382,7 @@
   margin-top: 16px;
   font-size: 20px;
   line-height: 1.4;
-  text-wrap: pretty;
+  text-wrap: balance;
 }
 
 .tr-line .tr-v[data-v="engineer"] {
@@ -391,7 +396,7 @@
   line-height: 1.22;
   font-weight: 500;
   letter-spacing: -0.012em;
-  text-wrap: pretty;
+  text-wrap: balance;
 }
 
 .tr-result .tr-v[data-v="engineer"] {
@@ -540,7 +545,24 @@
   padding: 16px;
 }
 
-.tr-live-design-system .dsr-board > :not(.dsr-area-tokens) {
+/* The hiring manager sees ready-made parts; the engineer sees the token card that builds them. */
+.tr[data-read="engineer"] .tr-live-design-system .dsr-board > :not(.dsr-area-tokens),
+.tr[data-read="plain"] .tr-live-design-system .dsr-board > :not(.dsr-area-buttons, .dsr-area-fields) {
+  display: none;
+}
+
+.tr[data-read="plain"] .tr-live-design-system .dsr-board {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+}
+
+.tr-live-design-system .dsr-button-rows {
+  gap: 16px;
+}
+
+/* The spinner row stays out, so nothing in the plate plays. */
+.tr-live-design-system .dsr-button-rows > :nth-child(3) {
   display: none;
 }
 
@@ -550,17 +572,6 @@
 
 .tr-live-design-system .dsr-area-tokens {
   height: 100%;
-}
-
-.tr-live-reader .tr-live-in > div > :nth-child(2) {
-  display: none;
-}
-
-.tr-live-reader [class*="bg-(--bezel)"] {
-  padding: 0;
-  background: transparent;
-  box-shadow: none;
-  --tw-ring-shadow: 0 0 #0000;
 }
 
 .tr-shot {
@@ -580,6 +591,11 @@
   height: auto;
 }
 
+.tr-shot-crop {
+  position: absolute;
+  overflow: hidden;
+}
+
 /* ---------- The figure: one billing report, before and after ---------- */
 
 .tr-fig {
@@ -589,10 +605,6 @@
   background: var(--tr-accent);
   color: var(--tr-sheet);
   font-family: var(--tr-serif);
-}
-
-.tr-fig .tr-ink {
-  background-image: linear-gradient(var(--tr-sheet), var(--tr-sheet));
 }
 
 .tr-fig-in {
@@ -821,6 +833,7 @@
 .tr-end-links a {
   display: inline-flex;
   align-items: center;
+  min-width: 48px;
   min-height: 44px;
   color: var(--tr-ink);
   font-weight: 600;
@@ -879,27 +892,37 @@
   .tr-switch-bar {
     margin: 16px -24px 0;
     padding: 12px 24px;
+    box-shadow: none;
+  }
+
+  .tr-switch-bar::after {
+    content: "";
+    position: absolute;
+    right: 24px;
+    bottom: 0;
+    left: 24px;
+    border-bottom: 1px solid var(--tr-rule);
   }
 
   .tr-switch {
-    gap: 12px;
+    flex-wrap: wrap;
+    gap: 4px 8px;
   }
 
   .tr-switch-label {
-    font-size: 15px;
+    font-size: 14px;
+    white-space: nowrap;
   }
 
   .tr-switch button {
-    padding: 0 14px;
-    font-size: 16px;
+    margin-left: -4px;
+    padding: 0 12px;
+    font-size: 15px;
+    white-space: nowrap;
   }
 
   .tr-switch button[data-reader="engineer"] {
-    font-size: 14px;
-  }
-
-  .tr-switch-note {
-    font-size: 14px;
+    font-size: 13px;
   }
 
   .tr-row {
@@ -1072,7 +1095,12 @@
     padding-top: 32px;
   }
 
-  .tr-phone-plate .dsr-lane-list > li:nth-child(n + 3) {
+  .tr[data-read="plain"] .tr-phone-plate .tr-live-design-system .dsr-board {
+    align-content: center;
+  }
+
+  .tr-phone-plate .dsr-lane-list > li:nth-child(n + 3),
+  .tr[data-read="plain"] .tr-phone-plate .tr-live-design-system .dsr-board > .dsr-area-fields {
     display: none;
   }
 
@@ -1083,7 +1111,6 @@
 
 @media (prefers-reduced-motion: reduce) {
   .tr .tr-v,
-  .tr .tr-ink,
   .tr-num,
   .tr-switch button,
   .tr-frame .tr-plate,

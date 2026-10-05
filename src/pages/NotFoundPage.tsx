@@ -7,7 +7,7 @@ import "./case.css";
 
 const pad = (n: number) => String(n).padStart(2, "0");
 
-/** The address has no page. The frame says so; the list opens every case. */
+/** The address has no page. The title says so once; the list opens every case. */
 export default function NotFoundPage() {
   const { pathname } = useLocation();
 
@@ -24,17 +24,18 @@ export default function NotFoundPage() {
             </Link>
             <span className="cs-nav-end">
               <a href={links.cv} download>
-                CV
+                CV (PDF)
               </a>
               <a href={`mailto:${links.email}`}>Email</a>
             </span>
           </nav>
           <p className="cs-name">
-            <span>Error 404</span>
+            <span>Gentrit Rashiti</span>
           </p>
           <h1>There is no page at this address.</h1>
           <p className="cs-sentence">
-            The link may be old, or the address may have a typing error. Every case is in the list below.
+            The link to <span className="cs-404-path">{pathname}</span> may be old, or the address may have a typing
+            error. Every case is in the list.
           </p>
         </header>
 
@@ -60,24 +61,6 @@ export default function NotFoundPage() {
           </ol>
         </section>
 
-        <aside className="cs-frame-wrap" aria-label="Address">
-          <div className="cs-frame">
-            <div className="cs-screen cs-404-screen">
-              <figure className="cs-number">
-                <p className="cs-number-figure" aria-hidden="true">
-                  404
-                </p>
-                <figcaption>
-                  <span className="cs-number-unit">Page not found</span>
-                  <span className="cs-number-note cs-404-path">{pathname}</span>
-                </figcaption>
-              </figure>
-            </div>
-            <div className="cs-caption">
-              <p className="cs-caption-text">This address has no page.</p>
-            </div>
-          </div>
-        </aside>
       </main>
 
       <div className="cs-after">
@@ -86,7 +69,7 @@ export default function NotFoundPage() {
           <p className="cs-end-links">
             <a href={`mailto:${links.email}`}>{links.email}</a>
             <a href={links.cv} download>
-              Download CV
+              Download CV (PDF)
             </a>
             <a href={links.github} target="_blank" rel="noreferrer">
               GitHub

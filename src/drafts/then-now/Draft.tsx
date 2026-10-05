@@ -19,7 +19,7 @@ import { rows, type Box, type Plate, type Row, type Shot } from "./data";
 import "./then-now.css";
 
 const SETTLE_MS = 160;
-const FONT_WAIT_MS = 1000;
+const FONT_WAIT_MS = 300;
 const WRITE_WAIT_MS = 1200;
 const LITERATA = "/fonts/creative/Literata-Latin.woff2";
 const ANTON = "/fonts/creative/Anton-Latin.woff2";
@@ -27,7 +27,7 @@ const DRAW_MS = 180;
 const RING_MS = 120;
 const LEAVE_MS = 120;
 const EASE_OUT = "cubic-bezier(0.23, 1, 0.32, 1)";
-/** On a wide screen every plate is drawn 640 x 656 and scaled to the frame's width. */
+/** On a wide screen every plate is drawn 640 x 560 and scaled to the frame's width. */
 const STAGE_W = 640;
 
 type Mode = "animate" | "instant";
@@ -46,34 +46,11 @@ function useMedia(query: string, fallback: boolean) {
 
 /* ---------- Plates ---------- */
 
-const liveKeys = { care: recreations.care, "design-system": recreations["design-system"] };
-
-function LivePlate({ which }: { which: keyof typeof liveKeys }) {
-  const entry = liveKeys[which];
+function LivePlate() {
+  const entry = recreations.care;
   const Live = entry.Component;
-  const ref = useRef<HTMLDivElement>(null);
-
-  // The specimen runs a demo loop until it is paused. The frame shows it still.
-  useEffect(() => {
-    if (which !== "design-system") return;
-    const element = ref.current;
-    if (!element) return;
-    const pause = () => {
-      const button = element.querySelector<HTMLButtonElement>('.dsr-demo[aria-pressed="true"]');
-      if (!button) return false;
-      button.click();
-      return true;
-    };
-    if (pause()) return;
-    const observer = new MutationObserver(() => {
-      if (pause()) observer.disconnect();
-    });
-    observer.observe(element, { childList: true, subtree: true });
-    return () => observer.disconnect();
-  }, [which]);
-
   return (
-    <div ref={ref} className={`tn-live tn-live-${which}`} data-world={entry.world}>
+    <div className="tn-live tn-live-care" data-world={entry.world}>
       <Suspense fallback={<div className="tn-wait" />}>
         <Live />
       </Suspense>
@@ -104,43 +81,95 @@ function ShotView({ shot, crop }: { shot: Shot; crop: Box }) {
   );
 }
 
-const REQUESTS = Array.from({ length: 16 }, (_, i) => i);
+const BEFORE = Array.from({ length: 16 }, (_, i) => i);
 
 /** The billing report as a count a reader can check: 16 requests, then 2. */
-function Figure({ struck }: { struck: boolean }) {
+function BillingFigure({ struck }: { struck: boolean }) {
   return (
-    <figure className="tn-fig" data-struck={struck || undefined}>
-      <p className="tn-fig-label">One billing report</p>
-      <p className="tn-fig-nums" aria-hidden="true">
-        <span className="tn-fig-from">
+    <figure className="tn-fig tn-fig-billing" data-struck={struck || undefined}>
+      <figcaption className="tn-fig-head">
+        <span>One billing report</span>
+        <span className="tn-fig-unit">Requests to the database</span>
+      </figcaption>
+      <div className="tn-fig-row tn-fig-before" aria-hidden="true">
+        <span className="tn-fig-num tn-fig-from">
           16
           <span className="tn-fig-strike" />
         </span>
-        <ArrowRightIcon className="tn-fig-arrow" weight="bold" />
-        <span className="tn-fig-to" data-to="">
+        <span className="tn-fig-side">
+          <span className="tn-fig-tag">Before</span>
+          <span className="tn-fig-dots">
+            {BEFORE.map((i) => (
+              <span key={i} />
+            ))}
+          </span>
+          <span className="tn-fig-end">Gave up</span>
+        </span>
+      </div>
+      <div className="tn-fig-row tn-fig-after" aria-hidden="true">
+        <span className="tn-fig-num tn-fig-to" data-to="">
           2
         </span>
-      </p>
-      <ol className="tn-fig-dots" aria-hidden="true">
-        {REQUESTS.map((i) => (
-          <li key={i} data-keep={i < 2 || undefined} />
-        ))}
-      </ol>
-      <figcaption className="tn-fig-unit">
-        Requests to the database
-        <span className="tn-sr">: 16 before, 2 now.</span>
+        <span className="tn-fig-side">
+          <span className="tn-fig-tag">Now</span>
+          <span className="tn-fig-dots">
+            <span />
+            <span />
+          </span>
+          <span className="tn-fig-end">Finishes</span>
+        </span>
+      </div>
+      <p className="tn-sr">16 requests before, 2 now.</p>
+    </figure>
+  );
+}
+
+/** One measurement at its true ratio: the short bar is 3.4% of the long one. */
+function BundleFigure() {
+  return (
+    <figure className="tn-fig tn-fig-bundle">
+      <figcaption className="tn-fig-head">
+        <span>JavaScript a page downloads</span>
+        <span className="tn-fig-unit">The page uses only the button</span>
       </figcaption>
+      <div className="tn-fig-bars" aria-hidden="true">
+        <span className="tn-fig-tag">Library as one file</span>
+        <span className="tn-fig-bar" />
+        <span className="tn-fig-tag">Each part on its own</span>
+        <span className="tn-fig-short" data-short="">
+          <span className="tn-fig-bar" />
+          <span className="tn-fig-less">
+            96.6%
+            <span>less</span>
+          </span>
+        </span>
+      </div>
+      <p className="tn-sr">A page that uses only the button downloads 96.6% less JavaScript when each part is built on its own.</p>
     </figure>
   );
 }
 
 function PlateView({ plate, load, narrow, struck }: { plate: Plate; load: boolean; narrow: boolean; struck: boolean }) {
-  if (plate.kind === "figure") return <Figure struck={struck} />;
-  if (plate.kind === "live") return load ? <LivePlate which={plate.key} /> : <div className="tn-wait" />;
+  if (plate.kind === "figure") return plate.which === "billing" ? <BillingFigure struck={struck} /> : <BundleFigure />;
+  if (plate.kind === "live") return load ? <LivePlate /> : <div className="tn-wait" />;
   return (
     <div className={`tn-${plate.kind}`} style={plate.kind === "web" ? { background: plate.ground } : undefined}>
       {load && <ShotView shot={plate.shot} crop={narrow ? plate.shot.narrow : plate.shot.crop} />}
     </div>
+  );
+}
+
+/** The struck part of a fixed row's first line. */
+function ThenText({ row }: { row: Row }) {
+  if (!row.strike) return row.then;
+  const at = row.then.indexOf(row.strike);
+  if (at < 0) return row.then;
+  return (
+    <>
+      {row.then.slice(0, at)}
+      <span className="tn-hit">{row.strike}</span>
+      {row.then.slice(at + row.strike.length)}
+    </>
   );
 }
 
@@ -180,11 +209,11 @@ interface Wire {
   split: number;
   start: Point;
   ring: Box & { r: number };
-  tone: "light" | "dark";
+  tone: "light" | "dark" | "accent";
 }
 
-function targetBox(row: Row, plate: HTMLElement): Box | null {
-  const { target } = row;
+function targetBox(row: Row, plate: HTMLElement, narrow: boolean): Box | null {
+  const target = narrow && row.narrowTarget ? row.narrowTarget : row.target;
   if (!target) return null;
   if (target.kind === "shot") {
     const image = plate.querySelector<HTMLImageElement>(".tn-shot img");
@@ -207,7 +236,7 @@ function targetBox(row: Row, plate: HTMLElement): Box | null {
 
 function measureWire(row: Row, rowElement: HTMLElement, plate: HTMLElement, narrow: boolean): Wire | null {
   const mark = rowElement.querySelector<HTMLElement>(".tn-now-band mark");
-  const target = targetBox(row, plate);
+  const target = targetBox(row, plate, narrow);
   if (!mark || !target) return null;
   const fragments = mark.getClientRects();
   if (fragments.length === 0) return null;
@@ -231,7 +260,8 @@ function measureWire(row: Row, rowElement: HTMLElement, plate: HTMLElement, narr
   }
   const pad = 6;
   const ring = { x: target.x - pad, y: target.y - pad, w: target.w + pad * 2, h: target.h + pad * 2, r: 8 };
-  if (row.target?.kind === "selector" && row.target.round) ring.r = ring.h / 2;
+  const used = narrow && row.narrowTarget ? row.narrowTarget : row.target;
+  if (used?.kind === "selector" && used.round) ring.r = ring.h / 2;
   const outLength = lengthOf(outside);
   const inLength = lengthOf(inside);
   return {
@@ -240,7 +270,7 @@ function measureWire(row: Row, rowElement: HTMLElement, plate: HTMLElement, narr
     split: outLength / Math.max(1, outLength + inLength),
     start,
     ring,
-    tone: row.plate.kind === "web" && row.plate.dark ? "dark" : "light",
+    tone: row.plate.kind === "figure" ? "accent" : row.plate.kind === "web" && row.plate.dark ? "dark" : "light",
   };
 }
 
@@ -337,11 +367,12 @@ export default function Draft() {
     setFresh(draws ? shown.index : null);
   }
 
-  /* The page is laid out once its two faces are loaded. Then the first row strikes. */
+  /* The page is laid out once its two faces are loaded, or after 300 ms. Then the first row writes in. */
   preload(LITERATA, { as: "font", type: "font/woff2", crossOrigin: "anonymous" });
   preload(ANTON, { as: "font", type: "font/woff2", crossOrigin: "anonymous" });
   const [laid, setLaid] = useState(false);
   const [ready, setReady] = useState(false);
+  const [fallback, setFallback] = useState(false);
   useEffect(() => {
     let live = true;
     let frame = 0;
@@ -354,7 +385,12 @@ export default function Draft() {
         frame = requestAnimationFrame(() => setReady(true));
       });
     };
-    const timer = window.setTimeout(show, FONT_WAIT_MS);
+    // A face that arrives after the wait is never used, so it cannot move a line.
+    const timer = window.setTimeout(() => {
+      if (!live) return;
+      setFallback(true);
+      show();
+    }, FONT_WAIT_MS);
     void Promise.all([
       document.fonts.load('400 20px "Literata"'),
       document.fonts.load('650 20px "Literata"'),
@@ -399,7 +435,6 @@ export default function Draft() {
     const idle = window.requestIdleCallback ?? ((callback: () => void) => window.setTimeout(callback, 600));
     idle(() => {
       void recreations.care.load();
-      void recreations["design-system"].load();
     });
   }, []);
 
@@ -535,8 +570,12 @@ export default function Draft() {
     };
     band?.addEventListener("transitionend", onEnd);
     band?.addEventListener("transitioncancel", onEnd);
-    // The band moves for at most 460 ms. The timer covers a band that does not move.
-    const timer = window.setTimeout(finish, WRITE_WAIT_MS);
+    // The band moves for at most 460 ms. The timer covers a band that has stopped or does not move.
+    // Before the page is ready no band has started to write, so the line waits for it.
+    const moving =
+      !rootRef.current?.hasAttribute("data-ready") ||
+      band?.getAnimations().some((animation) => (animation as CSSTransition).transitionProperty === "clip-path");
+    const timer = window.setTimeout(finish, moving ? WRITE_WAIT_MS : 0);
     return () => {
       live = false;
       band?.removeEventListener("transitionend", onEnd);
@@ -557,7 +596,7 @@ export default function Draft() {
     };
     const wait = () => {
       const plate = plateRefs.current[0];
-      if (!plate || !targetBox(rows[0], plate)) {
+      if (!plate || !targetBox(rows[0], plate, narrow)) {
         frame = requestAnimationFrame(wait);
         return;
       }
@@ -569,7 +608,7 @@ export default function Draft() {
       cancelAnimationFrame(frame);
       stop?.();
     };
-  }, [ready, reduced, updateWire, afterWrite]);
+  }, [ready, reduced, narrow, updateWire, afterWrite]);
 
   /* A new row: the old line fades, the row strikes (once) and writes, then the new line draws. */
   useLayoutEffect(() => {
@@ -654,19 +693,24 @@ export default function Draft() {
   const isStruck = (index: number) => struck.has(index) && !(index === 0 && firstLoad);
 
   return (
-    <div className="tn" ref={rootRef} data-laid={laid || undefined} data-ready={ready || undefined}>
+    <div
+      className="tn"
+      ref={rootRef}
+      data-laid={laid || undefined}
+      data-ready={ready || undefined}
+      data-fallback={fallback || undefined}
+    >
       <title>Then and now — Gentrit Rashiti</title>
       <main className="tn-main">
         <header className="tn-id">
-          <h1>Gentrit Rashiti builds web and mobile apps, from the screens people use to the server behind them.</h1>
+          <h1>Gentrit Rashiti builds web and mobile apps, and rebuilds and fixes the ones people already use.</h1>
           <p className="tn-id-line">
-            <span>Part of two platform rewrites. Based in Kosovo, working remotely.</span>
+            <span>5+ years. Part of two platform rewrites. Based in Kosovo, working remotely.</span>
             <span className="tn-id-links">
               <a href={links.cv}>Download CV</a>
               <a href={`mailto:${links.email}`}>Email</a>
             </span>
           </p>
-          <p className="tn-key">Each row is one change to a product. A struck line is a problem that is now gone.</p>
         </header>
 
         <ol className="tn-log" aria-label="Changes, strongest first" onKeyDown={onLogKey}>
@@ -696,19 +740,14 @@ export default function Draft() {
                   </span>
                 </h2>
                 <p className="tn-then">
-                  <span className="tn-label">{row.kind === "shipped" ? "Shipped" : "Then"}</span>
+                  <span className="tn-label">{row.label ?? (row.kind === "shipped" ? "Shipped" : "Then")}</span>
                   <span className="tn-then-text">
                     {row.kind === "fixed" && <span className="tn-sr">Problem, now gone: </span>}
-                    {row.then}
-                    {row.kind === "fixed" && (
-                      <span className="tn-strike" aria-hidden="true">
-                        {row.then}
-                      </span>
-                    )}
+                    <ThenText row={row} />
                   </span>
                 </p>
                 <p className="tn-now">
-                  <span className="tn-label">Now</span>
+                  <span className="tn-label">{row.kind === "shipped" ? "Result" : "Now"}</span>
                   <span className="tn-now-body">
                     <span className="tn-now-base">
                       <mark>{row.now}</mark>
@@ -718,6 +757,7 @@ export default function Draft() {
                     </span>
                   </span>
                 </p>
+                {row.note && <p className="tn-note">{row.note}</p>}
                 <p className="tn-foot">
                   {row.link.external ? (
                     <a className="tn-link" href={row.link.href} target="_blank" rel="noreferrer">
@@ -790,8 +830,8 @@ export default function Draft() {
 
       <footer className="tn-end">
         <p>
-          Gentrit Rashiti. Bachelor's degree, UBT. The vitals card and the button card are recreations with invented
-          data. The other screens come from public pages and store listings.
+          Gentrit Rashiti. Bachelor's degree, UBT. The vitals card is a recreation with invented data. The two diagrams
+          draw measured results. The other screens come from public pages and store listings.
         </p>
         <p className="tn-end-links">
           <a href={`mailto:${links.email}`}>{links.email}</a>

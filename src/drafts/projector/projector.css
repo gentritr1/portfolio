@@ -46,10 +46,6 @@
   -webkit-font-smoothing: antialiased;
 }
 
-.pj[data-wait] {
-  visibility: hidden;
-}
-
 .pj ::selection {
   background: var(--pj-ink);
   color: var(--pj-field);
@@ -100,9 +96,9 @@
   column-gap: 40px;
   width: 1360px;
   margin: 0 auto;
-  /* The frame and its tray fill the first screen with one margin above and below. */
+  /* The frame and its caption fill the first screen with one margin above and below. */
   --pj-fw: 880px;
-  --pj-top: max(24px, calc((100dvh - var(--pj-fw) * 676 / 880 - 58px) / 2));
+  --pj-top: max(24px, calc((100dvh - var(--pj-fw) * 676 / 880 - 36px) / 2));
 }
 
 .pj-id {
@@ -139,6 +135,8 @@
 .pj-id-links a {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
+  min-width: 44px;
   min-height: 44px;
   color: var(--pj-ink);
   font-weight: 600;
@@ -184,11 +182,6 @@
   font-variant-numeric: tabular-nums;
   color: transparent;
   -webkit-text-stroke: 1.5px var(--pj-ink);
-  transition: color 160ms var(--pj-ease-out);
-}
-
-.pj-row[data-current] .pj-num {
-  color: var(--pj-ink);
 }
 
 .pj-row-name {
@@ -213,6 +206,14 @@
   letter-spacing: 0.07em;
   text-transform: uppercase;
   color: var(--pj-muted);
+}
+
+.pj-year {
+  white-space: nowrap;
+}
+
+.pj-dot {
+  white-space: pre;
 }
 
 .pj-line {
@@ -316,7 +317,7 @@
   transition: opacity 200ms var(--pj-ease-out);
 }
 
-.pj:not([data-wait]) .pj-plate:first-child .pj-shot img[data-loaded] {
+.pj-plate:first-child .pj-shot img[data-loaded] {
   opacity: 1;
 }
 
@@ -360,9 +361,7 @@
 
 .pj-plate[data-mode="instant"],
 .pj[data-instant] .pj-plate,
-.pj[data-instant] .pj-result-ink,
-.pj[data-instant] .pj-num,
-.pj[data-instant] .pj-tray button::before {
+.pj[data-instant] .pj-result-ink {
   transition: none;
 }
 
@@ -386,38 +385,15 @@
   -webkit-font-smoothing: auto;
 }
 
-.pj-square {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  width: 676px;
-  height: 676px;
-  margin-left: -338px;
-  container-type: inline-size;
-}
-
-/* The page is shown as a page: no device silhouette around it. */
-.pj-square [class*="bg-(--bezel)"] {
-  padding: 0;
-  background: transparent;
-  box-shadow: 0 1px 0 rgb(20 27 6 / 0.08), 0 14px 30px -18px rgb(20 27 6 / 0.35);
-  --tw-ring-shadow: 0 0 #0000;
-}
-
-/* The specimen shows three token rows and the source row, drawn small and scaled up, so the plate ends on a whole card. */
-.pj-live-design-system {
-  right: auto;
-  bottom: auto;
-  width: 600px;
-  height: 461px;
-  transform: scale(1.4667);
-  transform-origin: 0 0;
-}
-
+/* The specimen shows four cards of the set: buttons, fields, switches and alerts. */
 .pj-live-design-system .dsr-top,
-.pj-live-design-system .dsr-board > :not(.dsr-area-tokens),
-.pj-live-design-system .dsr-lane-list > li:nth-child(2),
-.pj-live-design-system .dsr-lane-list > li:nth-child(4) {
+.pj-live-design-system .dsr-area-tokens,
+.pj-live-design-system .dsr-area-steps,
+.pj-live-design-system .dsr-area-tasks,
+.pj-live-design-system .dsr-area-filters,
+.pj-live-design-system .dsr-area-alerts .dsr-card-meta,
+.pj-live-design-system .dsr-alert:nth-child(n + 4),
+.pj-live-design-system .dsr-toasts {
   display: none;
 }
 
@@ -427,34 +403,19 @@
 
 .pj-live-design-system .dsr-board {
   height: 100%;
-  padding: 14px;
-  grid-template-columns: minmax(0, 1fr);
-  grid-template-rows: minmax(0, 1fr);
-  grid-template-areas: "tokens";
-}
-
-.pj-live-design-system .dsr-area-tokens {
-  padding: 14px 14px 16px;
-}
-
-/* The three token rows share the card's height evenly, so no empty band sits over or under them. */
-.pj-live-design-system .dsr-lanes {
-  grid-template-rows: auto 1fr;
-  align-content: stretch;
-  margin-top: 16px;
-}
-
-.pj-live-design-system .dsr-lane-list {
-  align-content: space-evenly;
+  padding: 16px;
   gap: 16px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: auto auto;
+  align-content: center;
+  grid-template-areas:
+    "buttons fields"
+    "team alerts";
 }
 
-.pj-live-design-system .dsr-lane {
-  grid-template-columns: minmax(0, 1.32fr) 14px minmax(0, 1fr) 14px minmax(0, 1.18fr);
-}
-
-.pj-live-design-system .dsr-chip-token {
-  height: 56px;
+/* The busy button keeps its spinner still: nothing in the frame loops. */
+.pj-live-design-system .dsr-spinner {
+  animation-play-state: paused;
 }
 
 .pj-web,
@@ -484,7 +445,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: space-between;
   gap: 16px;
   padding: 32px;
   color: var(--pj-ink);
@@ -632,30 +593,7 @@
 /* ---------- Under the frame ---------- */
 
 .pj-caption {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  align-items: center;
-  column-gap: 16px;
-  min-height: 44px;
   margin-top: 16px;
-}
-
-.pj-count {
-  display: none;
-  align-items: baseline;
-  gap: 6px;
-  margin: 0;
-  font-family: var(--pj-display);
-  font-size: 30px;
-  line-height: 1;
-  font-weight: 800;
-  font-variant-numeric: tabular-nums;
-}
-
-.pj-count-of {
-  font-size: 17px;
-  font-weight: 700;
-  color: var(--pj-muted);
 }
 
 .pj-caption-text {
@@ -665,62 +603,8 @@
   font-weight: 500;
 }
 
-.pj-tray {
-  display: flex;
-}
-
-.pj-tray button {
-  display: grid;
-  place-items: center;
-  width: 44px;
-  height: 44px;
-  margin: 0;
-  padding: 0;
-  border: 0;
-  background: none;
-  color: var(--pj-ink);
-  font-family: var(--pj-display);
-  font-size: 15px;
-  font-weight: 800;
-  font-variant-numeric: tabular-nums;
-  cursor: pointer;
-}
-
-.pj-tray button::before {
-  content: "";
-  grid-area: 1 / 1;
-  width: 36px;
-  height: 26px;
-  border-radius: 4px;
-  box-shadow: inset 0 0 0 1px var(--pj-ink);
-  transition: background-color 160ms var(--pj-ease-out);
-}
-
-.pj-tray button span {
-  position: relative;
-  grid-area: 1 / 1;
-}
-
-.pj-tray button[aria-pressed="true"] {
-  color: var(--pj-field);
-}
-
-.pj-tray button[aria-pressed="true"]::before {
-  background: var(--pj-ink);
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .pj-tray button:hover::before {
-    background: rgb(20 27 6 / 0.12);
-  }
-
-  .pj-tray button[aria-pressed="true"]:hover::before {
-    background: var(--pj-ink);
-  }
-}
-
-.pj-tray button:focus-visible {
-  outline-offset: -2px;
+.pj-rec {
+  white-space: nowrap;
 }
 
 /* ---------- The hairline ---------- */
@@ -821,6 +705,8 @@
 .pj-end-links a {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
+  min-width: 44px;
   min-height: 44px;
   font-weight: 600;
 }
@@ -919,6 +805,11 @@
     margin-top: 8px;
   }
 
+  /* The band starts at the text edge, so its ink keeps the 16 px gutter. */
+  .pj-result mark {
+    margin-left: 0;
+  }
+
   .pj-foot {
     margin-top: 4px;
   }
@@ -941,38 +832,13 @@
   }
 
   .pj-caption {
-    column-gap: 8px;
-    min-height: 0;
     margin-top: 8px;
-  }
-
-  /* A fixed width keeps the caption still when the count changes. */
-  .pj-count {
-    display: flex;
-    min-width: 64px;
-    font-size: 22px;
-  }
-
-  .pj-count > span:first-child {
-    width: 20px;
-  }
-
-  .pj-count-of {
-    font-size: 14px;
   }
 
   /* Two lines are kept for every caption, so the pinned frame keeps one height and the log never jumps. */
   .pj-caption-text {
     min-height: 2.7em;
     font-size: 13px;
-  }
-
-  .pj-tray {
-    display: none;
-  }
-
-  .pj-caption {
-    grid-template-columns: auto 1fr;
   }
 
   .pj-row:first-child {
@@ -995,41 +861,22 @@
     transform: none;
   }
 
-  .pj-live-design-system {
-    width: auto;
-    height: auto;
-    inset: 0;
-    transform: none;
+  .pj-live-design-system .dsr-board {
+    padding: 8px;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
+    grid-template-areas: "buttons";
   }
 
-  .pj-live-design-system .dsr-lane-list > li:nth-child(n + 2) {
+  .pj-live-design-system .dsr-area-fields,
+  .pj-live-design-system .dsr-area-alerts,
+  .pj-live-design-system .dsr-area-team {
     display: none;
   }
 
-  .pj-live-design-system .dsr-board {
-    padding: 10px;
-  }
-
-  .pj-live-design-system .dsr-lane {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .pj-live-design-system .dsr-chip-token {
-    height: 34px;
-  }
-
-  .pj-live-design-system .dsr-lane-list {
-    gap: 16px;
-  }
-
-  .pj-square {
-    left: 0;
-    width: 100%;
-    height: 100%;
-    margin-left: 0;
-  }
-
-  .pj-square > div > :nth-child(2) {
+  /* The phone crop ends on whole button rows. */
+  .pj-live-design-system .dsr-button-link,
+  .pj-live-design-system .dsr-button-rows > :nth-child(n + 3) {
     display: none;
   }
 
@@ -1056,8 +903,19 @@
 }
 
 @media (min-width: 480px) and (max-width: 1023px) {
-  .pj-live-design-system .dsr-lane-list > li:nth-child(3) {
-    display: grid;
+  .pj-live-design-system .dsr-button-rows > :nth-child(3) {
+    display: flex;
+  }
+}
+
+/* The name column is too narrow for role and years on one line, so the years take their own line. */
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .pj-year {
+    display: block;
+  }
+
+  .pj-dot {
+    display: none;
   }
 }
 
@@ -1078,8 +936,6 @@
   .pj-plate[data-state="on"],
   .pj-result-ink,
   .pj-row[data-current] .pj-result-ink,
-  .pj-num,
-  .pj-tray button::before,
   .pj-wire g {
     transition: none;
   }
