@@ -1,0 +1,27 @@
+{
+  "id": "both-stores",
+  "title": "BOTH STORES",
+  "band": "Loop 4",
+  "rule": "one claim a visitor can count: three apps shipped to both stores",
+  "description": "The page opens on one claim, 'Three apps shipped to both stores.', beside the live Read to Feed reader. Then the three apps arrive in year order (Dukagjini Bookstore 2021, Read to Feed 2022, Viva Fresh 2023), each a big card with one store listing, a claim it can prove and one pinned result. A sticky line counts them as they pass, until it says the claim back. The care platform, the two rewrites and the design system close the page as a record of five rows.",
+  "signature": "Archivo at 125% width and 800 for the claims, Archivo 100% for text, Martian Mono for years and roles; ink #161616 on a mustard field #F2B705 that covers the page, white cards with one soft shadow, mustard again only as the current card's year chip and the marked words in the record. First screen: the claim at 96 px over five lines and the reader recreation in a 560 x 672 card, its result line already pinned to the Scan a book card (the hairline draws once at load, 180 ms, ring after 160 ms). S3: the claim fades and lifts 24 px over the first 200 px of scroll; the count bar's ground arrives over 200 to 250 px and its words over 250 to 320 px, so no text ever sits on text. S1 in true order: each newer app card slides over the older one, which scales to 0.96 and dims to 0.6 on a view timeline. The count: 'One app / Two apps / Three apps shipped to both stores.' changes when a card crosses the middle of the viewport; the new words fade in over 120 ms (a swap, never a cross-fade), the app's dot fills, and the last state is the hero claim word for word. Each card's pinned result draws its hairline through the gap between text and screen, into the store screenshot, to the book row a notification opens, the reading-progress row, and the cart total. The three header links jump with no travel; after a keyboard jump the pin and the count change with no motion. Phone: the claim at 40 px, the reader plate at 343 x 410 with its pinned line in the first screen; cards do not stick, hairlines run up the plate's outer edge and enter level with the target. Reduced motion: no scroll-linked motion, the count bar switches at 200 px, pins appear drawn.",
+  "caseSlug": "read-to-feed",
+  "mechanisms": ["S1", "S3"],
+  "slopCount": 0,
+  "rounds": 1,
+  "chroma": {
+    "firstScreen": "64.7%",
+    "outsidePlates": "82.8%",
+    "method": "scratchpad/chroma.mjs logic on final/d-top.png (1440 x 900); plate = the reader recreation, x 760-1320, y 84-604"
+  },
+  "loopScores": {
+    "straightToThePoint": 8,
+    "notOverwhelming": 8,
+    "harmony": 7.5,
+    "meaningfulMotion": 8,
+    "actionsAndSeniority": 7.5,
+    "original": 7,
+    "hooks": 7.5
+  },
+  "holdback": "Lowest: original, 7/10. The committed mustard field and the count that ends on the claim's own words are new, but the frame under them is inherited: a sticky card stack (S1) and a hairline pin, both from earlier rounds. Seniority is 7.5 because the page is about mobile apps; the two platform rewrites and the design system are only five rows at the end. Known limits: the live count counts apps, not releases, because only Read to Feed has a release number in the facts (about 14), so the brief's 'about 14 releases counted from the cards' could not be honest. Read to Feed appears twice (the live reader on the first screen and its store card in the stack). The store screenshots keep their own blue, red and green inside their borders. On the phone the reader recreation fits its column layout into 410 px, so only three lines of the page text show above the scan card."
+}

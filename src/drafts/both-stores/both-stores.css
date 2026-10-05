@@ -1,0 +1,926 @@
+@font-face {
+  font-family: "Archivo";
+  src: url("/fonts/Archivo.woff2") format("woff2");
+  font-weight: 100 900;
+  font-stretch: 62% 125%;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Martian Mono";
+  src: url("/fonts/MartianMono.woff2") format("woff2");
+  font-weight: 100 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root:has(.bs) {
+  --bs-field: #f2b705;
+  --bs-ink: #161616;
+  --bs-muted: #3a2e06;
+  --bs-card: #ffffff;
+  --bs-card-muted: #574e3a;
+  --bs-card-line: #ece6d4;
+  --bs-text: "Archivo", ui-sans-serif, system-ui, sans-serif;
+  --bs-mono: "Martian Mono", ui-monospace, monospace;
+  --bs-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --bs-gutter: 16px;
+  --bs-bar-h: 52px;
+  --bs-shadow: 0 12px 32px -16px rgb(58 46 6 / 0.55);
+  color-scheme: light;
+  background: var(--bs-field);
+  scrollbar-color: var(--bs-muted) var(--bs-field);
+}
+
+.bs {
+  min-height: 100dvh;
+  background: var(--bs-field);
+  color: var(--bs-ink);
+  font-family: var(--bs-text);
+  font-size: 17px;
+  line-height: 1.45;
+  font-weight: 400;
+  font-stretch: 100%;
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+}
+
+.bs ::selection {
+  background: var(--bs-ink);
+  color: var(--bs-field);
+}
+
+.bs :focus-visible {
+  outline: 2px solid var(--bs-ink);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+.bs h1,
+.bs h2,
+.bs p,
+.bs ol,
+.bs ul,
+.bs figure {
+  margin: 0;
+  padding: 0;
+}
+
+.bs ol,
+.bs ul {
+  list-style: none;
+}
+
+.bs a {
+  color: inherit;
+  text-decoration-line: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+  text-decoration-color: currentColor;
+  transition:
+    text-underline-offset 160ms ease,
+    text-decoration-color 160ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .bs a:hover {
+    text-underline-offset: 2px;
+  }
+}
+
+/* ---------- Top row ---------- */
+
+.bs-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 56px;
+  padding: 0 var(--bs-gutter);
+}
+
+.bs .bs-name {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-weight: 700;
+  font-stretch: 112%;
+  font-size: 16px;
+  text-decoration: none;
+}
+
+.bs-top-links {
+  display: flex;
+  gap: 20px;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.bs-top-links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+
+/* ---------- The claim and the reader ---------- */
+
+.bs-hero {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 4px var(--bs-gutter) 0;
+}
+
+.bs-claim {
+  font-weight: 800;
+  font-stretch: 125%;
+  font-size: 40px;
+  line-height: 0.95;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+
+.bs .bs-who {
+  margin-top: 12px;
+  max-width: 34ch;
+  font-size: 15px;
+  line-height: 21px;
+  color: var(--bs-muted);
+}
+
+.bs-card {
+  position: relative;
+  isolation: isolate;
+  border-radius: 12px;
+  background: var(--bs-card);
+  box-shadow: var(--bs-shadow);
+}
+
+.bs-reader {
+  display: flex;
+  flex-direction: column;
+}
+
+.bs-live {
+  position: relative;
+  height: 410px;
+  overflow: hidden;
+  border-radius: 12px 12px 0 0;
+  container-type: inline-size;
+  background: var(--world-bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  font-stretch: normal;
+  line-height: 1.6;
+  font-variant-numeric: normal;
+  -webkit-font-smoothing: auto;
+}
+
+.bs-wait {
+  position: absolute;
+  inset: 0;
+  background: var(--world-bg);
+}
+
+.bs-reader-text {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 18px 16px 18px 28px;
+}
+
+.bs-result {
+  font-size: 17px;
+  line-height: 23px;
+  font-weight: 600;
+  text-wrap: pretty;
+}
+
+.bs-meta {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 16px;
+  row-gap: 2px;
+  font-family: var(--bs-mono);
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--bs-card-muted);
+}
+
+/* ---------- The count ---------- */
+
+.bs-count {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  height: var(--bs-bar-h);
+  padding: 0 var(--bs-gutter);
+  background: var(--bs-field);
+  opacity: 0;
+  visibility: hidden;
+}
+
+.bs[data-compact] .bs-count {
+  opacity: 1;
+  visibility: visible;
+}
+
+.bs-count-say {
+  font-weight: 800;
+  font-size: 17px;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+.bs-n {
+  display: inline-block;
+}
+
+.bs-tick {
+  display: inline-block;
+  flex: none;
+  width: 10px;
+  height: 10px;
+  border: 1.5px solid currentColor;
+  border-radius: 50%;
+  transition: background-color 120ms var(--bs-ease-out);
+}
+
+.bs-tick[data-counted],
+[data-counted] > .bs-tick {
+  background: currentColor;
+}
+
+.bs-count-ticks {
+  display: flex;
+  gap: 6px;
+}
+
+.bs-count-apps {
+  display: none;
+}
+
+/* ---------- The stack ---------- */
+
+.bs .bs-stack {
+  --stack-top: calc(var(--bs-bar-h) + 12px);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 48px var(--bs-gutter) 0;
+}
+
+.bs-app {
+  display: flex;
+  flex-direction: column;
+  outline-offset: 4px;
+}
+
+.bs-app:focus:not(:focus-visible) {
+  outline: none;
+}
+
+.bs .bs-app:focus-visible {
+  border-radius: 12px;
+  outline-offset: 4px;
+}
+
+.bs .bs-figure {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 12px 0;
+}
+
+.bs-crop {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 8px;
+  background: var(--bs-card-line);
+}
+
+.bs-crop::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1px rgb(22 22 22 / 0.1);
+  pointer-events: none;
+}
+
+.bs-crop img {
+  position: absolute;
+  left: var(--img-x);
+  top: var(--img-y);
+  width: var(--img-w);
+  max-width: none;
+  height: auto;
+}
+
+.bs-caption {
+  font-family: var(--bs-mono);
+  font-size: 11px;
+  line-height: 16px;
+  color: var(--bs-card-muted);
+}
+
+.bs-app-text {
+  display: flex;
+  flex-direction: column;
+  padding: 16px 16px 8px 28px;
+}
+
+.bs-app-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--bs-mono);
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--bs-card-muted);
+}
+
+.bs-year {
+  padding: 3px 7px;
+  margin-left: -7px;
+  border-radius: 6px;
+  color: var(--bs-ink);
+  transition: background-color 160ms ease;
+}
+
+.bs-app[data-current] .bs-year {
+  background: var(--bs-field);
+}
+
+.bs .bs-app-claim {
+  margin: 10px 0 20px;
+  font-weight: 800;
+  font-stretch: 125%;
+  font-size: 26px;
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+.bs-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.bs-row {
+  display: flex;
+  flex-direction: column;
+}
+
+.bs-decision {
+  font-size: 16px;
+  line-height: 22px;
+  text-wrap: pretty;
+}
+
+.bs-row-result {
+  margin-top: 3px;
+  font-size: 16px;
+  line-height: 22px;
+  font-weight: 650;
+}
+
+.bs-app-foot {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 20px;
+}
+
+.bs-links {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 20px;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.bs-links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 44px;
+  white-space: nowrap;
+}
+
+/* ---------- Pins ---------- */
+
+.bs-pin {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.bs-pin path {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.bs-pin-halo {
+  stroke: var(--bs-card);
+  stroke-width: 4.5;
+}
+
+.bs-pin-line {
+  stroke: var(--bs-ink);
+  stroke-width: 1.5;
+}
+
+.bs-pin-ring {
+  fill: none;
+  stroke: var(--bs-ink);
+  stroke-width: 2;
+  filter: drop-shadow(0 0 1.5px #fff) drop-shadow(0 0 1px #fff);
+}
+
+.bs-pin-start {
+  fill: var(--bs-ink);
+}
+
+.bs-pin[data-draw="animate"] path {
+  stroke-dasharray: 1;
+  animation: bs-draw 180ms var(--bs-ease-out) both;
+}
+
+.bs-pin[data-draw="animate"] .bs-pin-ring {
+  animation: bs-ring 120ms var(--bs-ease-out) 160ms both;
+}
+
+@keyframes bs-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes bs-ring {
+  from {
+    opacity: 0;
+  }
+}
+
+/* ---------- The rest of the record ---------- */
+
+.bs-record {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 72px var(--bs-gutter) 24px;
+}
+
+.bs-record-claim {
+  font-weight: 800;
+  font-stretch: 125%;
+  font-size: 32px;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+.bs-record-rows {
+  border-radius: 12px;
+  background: var(--bs-card);
+  box-shadow: var(--bs-shadow);
+  overflow: hidden;
+}
+
+.bs-record-rows li + li {
+  border-top: 1px solid var(--bs-card-line);
+}
+
+.bs .bs-record-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "name years"
+    "result result";
+  column-gap: 12px;
+  row-gap: 2px;
+  min-height: 44px;
+  padding: 14px 16px;
+  text-decoration: none;
+  transition: background-color 160ms ease;
+}
+
+.bs-record-name {
+  grid-area: name;
+  font-weight: 650;
+}
+
+.bs-record-result {
+  grid-area: result;
+  font-size: 15px;
+  line-height: 21px;
+  color: var(--bs-card-muted);
+}
+
+.bs-record-result mark {
+  padding: 1px 4px;
+  margin-inline: -4px 0;
+  border-radius: 4px;
+  background: var(--bs-field);
+  color: var(--bs-ink);
+}
+
+.bs-record-years {
+  grid-area: years;
+  font-family: var(--bs-mono);
+  font-size: 12px;
+  line-height: 24px;
+  color: var(--bs-card-muted);
+}
+
+.bs-record-go {
+  display: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .bs .bs-record-row:hover {
+    background: #fff8dc;
+  }
+}
+
+.bs .bs-record-row:focus-visible {
+  outline-offset: -3px;
+  border-radius: 12px;
+}
+
+.bs-all {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.bs-all a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+}
+
+/* ---------- Footer ---------- */
+
+.bs-foot {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 40px var(--bs-gutter) 56px;
+  font-size: 15px;
+  line-height: 22px;
+}
+
+.bs-foot-links {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 20px;
+}
+
+.bs-foot-links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+
+.bs-foot-note {
+  max-width: 62ch;
+  color: var(--bs-muted);
+}
+
+/* ---------- Tablet ---------- */
+
+@media (min-width: 520px) and (max-width: 1023.98px) {
+  .bs-hero,
+  .bs .bs-stack,
+  .bs-record,
+  .bs-foot {
+    max-width: 560px;
+    margin-inline: auto;
+    box-sizing: content-box;
+  }
+
+  .bs-claim {
+    font-size: 48px;
+  }
+}
+
+/* ---------- Desktop ---------- */
+
+@media (min-width: 1024px) {
+  :root:has(.bs) {
+    --bs-gutter: max(32px, calc((100vw - 1200px) / 2));
+    --bs-bar-h: 64px;
+  }
+
+  .bs-top {
+    height: 72px;
+  }
+
+  .bs-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 560px;
+    column-gap: 56px;
+    align-items: start;
+    padding-top: 12px;
+  }
+
+  .bs-hero-say {
+    padding-top: 36px;
+  }
+
+  .bs-claim {
+    font-size: 96px;
+    line-height: 0.9;
+  }
+
+  .bs .bs-who {
+    margin-top: 40px;
+    font-size: 18px;
+    line-height: 26px;
+  }
+
+  .bs-reader {
+    height: 672px;
+  }
+
+  .bs-live {
+    height: 520px;
+    flex: none;
+  }
+
+  .bs-reader-text {
+    flex: 1;
+    justify-content: center;
+    padding: 0 24px 0 32px;
+  }
+
+  .bs-result {
+    font-size: 19px;
+    line-height: 26px;
+  }
+
+  .bs-count-say {
+    font-stretch: 125%;
+    font-size: 24px;
+    letter-spacing: -0.02em;
+  }
+
+  .bs-count-ticks {
+    display: none;
+  }
+
+  .bs-count-apps {
+    display: flex;
+    gap: 4px;
+  }
+
+  .bs-count-apps a {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 0 12px;
+    border-radius: 6px;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--bs-muted);
+    text-decoration-color: transparent;
+  }
+
+  .bs-count-apps a[data-counted] {
+    color: var(--bs-ink);
+  }
+
+  .bs-count-apps a[aria-current="true"] {
+    font-weight: 700;
+    text-decoration-color: currentColor;
+    text-decoration-thickness: 2px;
+  }
+
+  .bs-count-year {
+    font-family: var(--bs-mono);
+    font-size: 11px;
+    font-weight: 400;
+  }
+
+  .bs .bs-stack {
+    --stack-top: calc(var(--bs-bar-h) + 24px);
+    --card-h: min(680px, calc(100svh - var(--stack-top) - 32px));
+    gap: 24px;
+    padding-top: 120px;
+  }
+
+  .bs-app {
+    position: sticky;
+    top: var(--stack-top);
+    flex-direction: row;
+    gap: 64px;
+    height: var(--card-h);
+    padding: 40px 48px 32px 40px;
+    box-sizing: border-box;
+    transform-origin: 50% 0;
+  }
+
+  .bs .bs-figure {
+    flex: none;
+    padding: 0;
+    gap: 8px;
+  }
+
+  .bs-crop {
+    width: auto;
+    height: calc(var(--card-h) - 72px - 24px);
+  }
+
+  .bs-app-text {
+    flex: 1;
+    min-width: 0;
+    padding: 4px 0 0;
+  }
+
+  .bs .bs-app-claim {
+    margin: 20px 0 40px;
+    font-size: 48px;
+    max-width: 580px;
+  }
+
+  .bs-rows {
+    gap: 22px;
+    max-width: 50ch;
+  }
+
+  .bs-decision,
+  .bs-row-result {
+    font-size: 18px;
+    line-height: 25px;
+  }
+
+  .bs-app-foot {
+    margin-top: auto;
+    gap: 4px;
+  }
+
+  .bs-record {
+    padding-top: 160px;
+    padding-bottom: 32px;
+    gap: 40px;
+  }
+
+  .bs-record-claim {
+    font-size: 64px;
+    line-height: 0.95;
+    max-width: 14ch;
+  }
+
+  .bs .bs-record-row {
+    grid-template-columns: 280px minmax(0, 1fr) 96px 24px;
+    grid-template-areas: "name result years go";
+    align-items: center;
+    column-gap: 24px;
+    min-height: 64px;
+    padding: 0 28px;
+  }
+
+  .bs-record-result {
+    font-size: 16px;
+  }
+
+  .bs-record-years {
+    text-align: right;
+  }
+
+  .bs-record-go {
+    display: block;
+    text-align: right;
+  }
+
+  .bs-foot {
+    padding-top: 48px;
+  }
+}
+
+/* ---------- Scroll-linked: the claim gives way to the count; the newer card covers the older ---------- */
+
+@supports (animation-timeline: scroll()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .bs-hero-say {
+      animation: bs-leave linear both;
+      animation-timeline: scroll(root);
+      animation-range: 0px 200px;
+    }
+
+    .bs .bs-count {
+      opacity: 1;
+      background: none;
+    }
+
+    .bs-count::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      background: var(--bs-field);
+      animation: bs-arrive linear both;
+      animation-timeline: scroll(root);
+      animation-range: 200px 250px;
+    }
+
+    .bs-count > * {
+      animation: bs-arrive linear both;
+      animation-timeline: scroll(root);
+      animation-range: 250px 320px;
+    }
+  }
+}
+
+@keyframes bs-leave {
+  to {
+    opacity: 0;
+    transform: translateY(-24px);
+  }
+}
+
+@keyframes bs-arrive {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@supports (animation-timeline: view()) {
+  @media (min-width: 1024px) and (prefers-reduced-motion: no-preference) {
+    .bs-stack {
+      timeline-scope: --bs-2, --bs-3;
+    }
+
+    .bs-app:nth-child(2) {
+      view-timeline-name: --bs-2;
+    }
+
+    .bs-app:nth-child(3) {
+      view-timeline-name: --bs-3;
+    }
+
+    .bs-app:not(:last-child),
+    .bs-app:not(:last-child) > * {
+      animation-name: bs-cover;
+      animation-duration: auto;
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+      animation-range: cover calc(100svh - var(--stack-top) - var(--card-h) - 8px) cover
+        calc(100svh - var(--stack-top));
+    }
+
+    .bs-app:not(:last-child) > * {
+      animation-name: bs-dim;
+    }
+
+    .bs-app:nth-child(1),
+    .bs-app:nth-child(1) > * {
+      animation-timeline: --bs-2;
+    }
+
+    .bs-app:nth-child(2),
+    .bs-app:nth-child(2) > * {
+      animation-timeline: --bs-3;
+    }
+  }
+}
+
+@keyframes bs-cover {
+  to {
+    transform: scale(0.96);
+  }
+}
+
+@keyframes bs-dim {
+  to {
+    opacity: 0.6;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bs-tick,
+  .bs-year,
+  .bs a {
+    transition: none;
+  }
+}

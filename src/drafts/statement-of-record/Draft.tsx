@@ -3,7 +3,9 @@ import {
   Suspense,
   useCallback,
   useEffect,
+  useLayoutEffect,
   useRef,
+  type RefObject,
   useState,
   type CSSProperties,
   type MouseEvent,
@@ -16,6 +18,7 @@ import {
   constraintCount,
   entries,
   moreCount,
+  rows,
   spoken,
   type Entry,
   type Plate,
@@ -68,7 +71,11 @@ function Words({ text, total }: { text: string; total: number }) {
         return (
           <Fragment key={index}>
             {index > 0 && " "}
-            <span className="sr-w" data-last={index === words.length - 1 || undefined} style={style}>
+            <span
+              className="sr-w"
+             
+              style={style}
+            >
               {word}
             </span>
           </Fragment>
@@ -90,7 +97,39 @@ function Head({ entry }: { entry: Entry }) {
   );
 }
 
+/**
+ * Marks the struck word that ends each line, so its stroke stops at the last
+ * glyph and does not run on past the line end.
+ */
+function useLineEnds(was: RefObject<HTMLSpanElement | null>) {
+  useLayoutEffect(() => {
+    const node = was.current;
+    if (!node) return;
+    const mark = () => {
+      const words = [...node.querySelectorAll<HTMLElement>(".sr-w")];
+      const tops = words.map((word) => word.getBoundingClientRect().top);
+      words.forEach((word, index) => {
+        const end = index === words.length - 1 || tops[index + 1] - tops[index] > 4;
+        word.toggleAttribute("data-eol", end);
+      });
+    };
+    let live = true;
+    mark();
+    void document.fonts.ready.then(() => {
+      if (live) mark();
+    });
+    const watch = new ResizeObserver(mark);
+    watch.observe(node.parentElement ?? node);
+    return () => {
+      live = false;
+      watch.disconnect();
+    };
+  }, [was]);
+}
+
 function Sentence({ entry }: { entry: Entry }) {
+  const was = useRef<HTMLSpanElement>(null);
+  useLineEnds(was);
   return (
     <p className="sr-sentence">
       <span className="sr-only">{spoken(entry)}</span>
@@ -99,7 +138,7 @@ function Sentence({ entry }: { entry: Entry }) {
         {entry.edit && (
           <>
             {" "}
-            <span className="sr-was">
+            <span className="sr-was" ref={was}>
               <Words text={entry.edit.was} total={STRIKE} />
             </span>{" "}
             <span className="sr-now">
@@ -142,19 +181,39 @@ function PlateView({ plate }: { plate: Plate }) {
       />
     );
   }
-  return (
-    <div className="sr-phones">
-      {plate.srcs.map((src, index) => (
+  if (plate.kind === "screen") {
+    const [width, height] = plate.image;
+    const [x, y, w, h] = plate.crop;
+    const style = {
+      aspectRatio: `${w} / ${h}`,
+      "--img-w": `${(width / w) * 100}%`,
+      "--img-x": `${(-x / w) * 100}%`,
+      "--img-y": `${(-y / h) * 100}%`,
+    } as CSSProperties;
+    return (
+      <div className="sr-screen" style={style}>
         <img
-          key={src}
-          src={src}
-          alt={index === 0 ? plate.alt : ""}
-          width={780}
-          height={1689}
+          src={plate.src}
+          alt={plate.alt}
+          width={width}
+          height={height}
           loading="lazy"
           decoding="async"
         />
-      ))}
+      </div>
+    );
+  }
+  return (
+    <div className="sr-number">
+      <p className="sr-number-figure">
+        <span className="sr-number-was">{plate.was}</span>
+        <span className="sr-number-arrow" aria-hidden="true">
+          →
+        </span>
+        <span className="sr-only"> to </span>
+        <span className="sr-number-now">{plate.now}</span>
+      </p>
+      <p className="sr-number-unit">{plate.unit}</p>
     </div>
   );
 }
@@ -181,7 +240,11 @@ function EntryLinkView({ entry, onJump }: { entry: Entry } & JumpProps) {
     );
   }
   return (
-    <a className="sr-link" href={`#d-${link.id}`} onClick={(event) => onJump(link.id, event)}>
+    <a
+      className="sr-link"
+      href={`#d-${link.id}`}
+      onClick={(event) => onJump(link.id, event)}
+    >
       {link.label}
     </a>
   );
@@ -195,7 +258,14 @@ interface EntryProps extends JumpProps {
   register: (id: string, node: HTMLElement | null) => void;
 }
 
-function EntryView({ entry, current, solved, instant, register, onJump }: EntryProps) {
+function EntryView({
+  entry,
+  current,
+  solved,
+  instant,
+  register,
+  onJump,
+}: EntryProps) {
   return (
     <article
       id={`d-${entry.id}`}
@@ -374,7 +444,11 @@ export default function StatementOfRecord() {
                   {clause.text}
                   {clause.stop}
                 </span>{" "}
-                <Cite id={clause.cites} current={current === clause.cites} onJump={jump} />
+                <Cite
+                  id={clause.cites}
+                  current={current === clause.cites}
+                  onJump={jump}
+                />
               </Fragment>
             ))}
           </p>
@@ -389,71 +463,93 @@ export default function StatementOfRecord() {
         </div>
       </header>
 
-      <main className="sr-page">
+      <main>
         <section className="sr-top">
-          <span className="sr-sentinel" ref={sentinel} aria-hidden="true" />
-          <h1 className="sr-statement">
-            <span className="sr-row">
-              <span className="sr-clause">
-                <span className="sr-name">Gentrit Rashiti</span> builds
-              </span>
-            </span>
-            {clauses.map((clause) => (
-              <span className="sr-row" key={clause.cites}>
-                <span className="sr-clause">
-                  {clause.text}
-                  {clause.stop}
-                </span>
-                <span className="sr-row-cite">
-                  <Cite id={clause.cites} current={current === clause.cites} onJump={jump} />
-                </span>
-              </span>
-            ))}
-          </h1>
-          <ul className="sr-top-links">
-            <li>
-              <a href={links.cv}>CV</a>
-            </li>
-            <li>
-              <a href={`mailto:${links.email}`}>Email</a>
-            </li>
-          </ul>
-        </section>
-
-        <div className="sr-entries">
-          {entries.map((item) => (
-            <EntryView
-              key={item.id}
-              entry={item}
-              current={item.id === current}
-              solved={solved.has(item.id)}
-              instant={instant.has(item.id)}
-              register={register}
-              onJump={jump}
-            />
-          ))}
-        </div>
-
-        <section className="sr-record" aria-labelledby="sr-record-title">
-          <h2 id="sr-record-title">The record</h2>
-          <ol>
-            {entries.map((item) => (
-              <li key={item.id}>
-                <a href={`#d-${item.id}`} onClick={(event) => jump(item.id, event)}>
-                  <span className="sr-record-id">{item.id}</span>
-                  <span className="sr-record-name">{item.project}</span>
-                  <span className="sr-record-result">
-                    {item.link?.kind === "entry" ? `${item.result} · superseded` : item.result}
+          <div className="sr-top-in">
+            <span className="sr-sentinel" ref={sentinel} aria-hidden="true" />
+            <h1 className="sr-statement">
+              {rows.map((row, index) => (
+                <span className="sr-row" key={row[0].cites}>
+                  <span className="sr-clause">
+                    {index === 0 && (
+                      <>
+                        <span className="sr-name">Gentrit Rashiti</span>{" "}
+                        builds{" "}
+                      </>
+                    )}
+                    {row.map((clause, at) => (
+                      <Fragment key={clause.cites}>
+                        {at > 0 && " "}
+                        {clause.text}
+                        {clause.stop}
+                      </Fragment>
+                    ))}
                   </span>
-                </a>
+                  <span className="sr-row-cite">
+                    {row.map((clause) => (
+                      <Cite
+                        key={clause.cites}
+                        id={clause.cites}
+                        current={current === clause.cites}
+                        onJump={jump}
+                      />
+                    ))}
+                  </span>
+                </span>
+              ))}
+            </h1>
+            <ul className="sr-top-links">
+              <li>
+                <a href={links.cv}>CV</a>
               </li>
-            ))}
-          </ol>
-          <p className="sr-more">
-            {moreCount} more projects, from games to a donations app, are on the{" "}
-            <Link to="/">full portfolio</Link>.
-          </p>
+              <li>
+                <a href={`mailto:${links.email}`}>Email</a>
+              </li>
+            </ul>
+          </div>
         </section>
+
+        <div className="sr-page">
+          <div className="sr-entries">
+            {entries.map((item) => (
+              <EntryView
+                key={item.id}
+                entry={item}
+                current={item.id === current}
+                solved={solved.has(item.id)}
+                instant={instant.has(item.id)}
+                register={register}
+                onJump={jump}
+              />
+            ))}
+          </div>
+
+          <section className="sr-record" aria-labelledby="sr-record-title">
+            <h2 id="sr-record-title">The record</h2>
+            <ol>
+              {entries.map((item) => (
+                <li key={item.id}>
+                  <a
+                    href={`#d-${item.id}`}
+                    onClick={(event) => jump(item.id, event)}
+                  >
+                    <span className="sr-record-id">{item.id}</span>
+                    <span className="sr-record-name">{item.project}</span>
+                    <span className="sr-record-result">
+                      {item.link?.kind === "entry"
+                        ? `${item.result} · superseded`
+                        : item.result}
+                    </span>
+                  </a>
+                </li>
+              ))}
+            </ol>
+            <p className="sr-more">
+              {moreCount} more projects, from games to a donations app, are on
+              the <Link to="/">full portfolio</Link>.
+            </p>
+          </section>
+        </div>
       </main>
 
       <footer className="sr-foot">
@@ -477,8 +573,8 @@ export default function StatementOfRecord() {
         </ul>
         <p>Kosovo, working remotely. Bachelor’s degree, UBT.</p>
         <p>
-          Care-platform screens are recreations with invented data. Every other image comes from a public
-          page, a store listing or an own project.
+          Care-platform screens are recreations with invented data. Every other
+          image comes from a public page, a store listing or an own project.
         </p>
       </footer>
     </div>

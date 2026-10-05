@@ -1,22 +1,52 @@
 {
   "id": "year-stack",
   "title": "YEAR STACK",
-  "band": "Loop 3",
+  "band": "Loop 4",
   "rule": "the scroll is time; one sentence at the top says what was true in the year under it",
-  "description": "Six years as six big cards, newest first. A sticky sentence at the top, 'Gentrit Rashiti builds a multi-tenant platform, from the design system to the API behind it.', rewrites to the year of the card under it. Each card names two to four decisions with their results and pins one result to the pixel that proves it.",
-  "signature": "Gentrit Display (Hubot Sans) for the statement and Gentrit Text (Mona Sans) for text and the 160 px year numerals, on white, with one butter and navy identity: the current year's card is the butter panel, everything else is navy on white. Takes release-brief's year rewrite (no rail, no version numbers: the scroll is the rail), decision-record's results, and margin-notes' hairline. Desktop: the sentence is four lines; when a year earlier than 2026 settles (160 ms after the scroll stops on it), the 2026 words of each clause are struck (260 ms) and that year's words write in after them (clip, 320 ms, 30 ms line stagger). The edit always ends its line, so no other word moves; leaving words fade to 0 (120 ms) before they give up their width. One rewrite per settled year, never one per card passed. The cards stick under the sentence (S1): the next card slides over the current one, which shrinks to 0.96 and dims to 0.6 on a view timeline. Each card's first result draws a navy hairline to its pixel (180 ms, then a 120 ms outline) the first time the card is current: the organization switcher on the live care recreation (mounted once), the store badges on bayyinah.org, Passkey on the Incentiv sign-in, the plan switch on Bayyinah TV pricing, a book row with progress on Read to Feed, the search field on Dukagjini Bookstore. The year links jump with no travel; arrow keys move between years and nothing animates. Phone: cards do not stick, the plate comes before the rows, the sentence shows only the year's words and rewrites with a fade and write-in. Reduced motion: no stack animation, sentence and hairlines switch with no transition.",
+  "description": "Six years as six big cards, newest first, stacked as a pile with 2026 on top. A sticky sentence at the top, 'Gentrit Rashiti builds a multi-tenant platform, from the design system to the API behind it.', rewrites to the year of the card under it. Each card names two to four decisions with their results and pins one result to the pixel that proves it.",
+  "signature": "Gentrit Display (Hubot Sans) for the statement and Gentrit Text (Mona Sans) for text, the 160 px year numerals and the 14 px year links, on white, with one butter and navy identity: the current year's card is the butter panel, everything else is navy on white. Desktop: the statement is three lines, one clause on each, 'Gentrit Rashiti builds' opens the first; the six year links sit at its right on the last line. When a year earlier than 2026 settles (160 ms after the scroll stops on it), the 2026 words of each clause are struck (260 ms) and that year's words write in after them one whole word at a time (140 ms opacity each, stagger up to 60 ms, 320 ms in all, 30 ms line stagger), so no frame shows a cut glyph. The edit ends its line, so no other word moves; leaving words fade (120 ms) before they give up their width. The stack is in true order: all six cards stick from the first frame, the newer one on top and each older one 12 px lower, so the first screen shows a pile of six. Scroll lifts the newer card off with native scroll and shows the older card under it, still and whole; nothing scales or dims. Each card's first result draws a navy hairline (180 ms, then a 120 ms outline) the first time the card is current; the line runs through the gap between the text and the plate, enters the plate from its left edge along a rule or a clear row, and ends at the part: the organization switcher on the live care recreation (along the plate's own divider), the store badges on bayyinah.org, Passkey on the Incentiv sign-in, the plan switch on Bayyinah TV pricing, a book row with progress on Read to Feed, the search field on Dukagjini Bookstore. Inside a dark plate the line is butter. Every plate ends on a whole row; the store listings are one screen each, cropped inside the phone frame. The year links and arrow keys jump with no travel; a covered card that takes focus comes to the top with no travel. Phone: cards do not stick; the sentence keeps the device, with the first clause struck and the year's whole sentence written under it. Reduced motion: the pile stays (position is not motion), the sentence and hairlines switch with no transition.",
   "caseSlug": "care-platform",
-  "mechanisms": ["S1", "S3", "S6"],
+  "mechanisms": [
+    "S1",
+    "S3",
+    "S6"
+  ],
   "slopCount": 0,
-  "rounds": 1,
+  "rounds": 2,
   "loopScores": {
     "straightToThePoint": 8,
-    "notOverwhelming": 7,
-    "harmony": 7.5,
-    "meaningfulMotion": 7.5,
+    "notOverwhelming": 8,
+    "harmony": 8.5,
+    "meaningfulMotion": 8,
     "actionsAndSeniority": 8,
-    "original": 6.5,
-    "hooks": 7
+    "original": 7.5,
+    "hooks": 8
   },
-  "holdback": "Lowest: original, 6.5/10. Sticky stacking cards are a known scroll pattern, and big year numerals on a coloured panel are close to a timeline template; what is new is the sentence that rewrites to its past self with the 2026 words struck, and that only shows after the first scroll. Not overwhelming is 7: the first desktop screen carries a four-line sentence, six year links, a 160 px numeral, four decisions and a live plate with a hairline. Harmony is 7.5 because the screenshot plates keep their own dark or saturated palettes beside the butter and navy. Known deviations from the brief: the sentence is four lines on desktop, not one (the struck 2026 words plus a year's words do not fit 28 px on one line); the phone sentence shows only the year's words, with no struck 2026 words; the year numerals use Gentrit Text 800, because the Gentrit Display zero is barred and '2026' reads as '2θ26' at 160 px."
+  "holdback": "Lowest: original, 7.5/10. Big year numerals on a coloured panel and a card stack are still close to a timeline template; the pile that is lifted year by year, newest on top, and the sentence that strikes its 2026 words are the new parts. Known limits: the phone crops of the two store listings are narrow, so the 2021 and 2022 plates leave butter space at their right on desktop; the 2026 billing result (16 to 2 queries) moved from the first card to the footer to keep three decisions on the first screen, so the clause 'to the API behind it' has no row on the first card; the year links use Gentrit Text tabular figures, not a mono, to keep one family; the bottom 100 px of the 1440 x 900 first screen is empty ground under the pile.",
+  "chroma": {
+    "firstScreen": 34.2,
+    "outsidePlates": 43.4,
+    "plateRect": [
+      605,
+      173,
+      1283,
+      597
+    ],
+    "method": "scratchpad/chroma.mjs logic on review/loop4/year-stack/final/d-top.png (1440 x 900)"
+  },
+  "polish": [
+    {
+      "round": 4,
+      "score": 56,
+      "fixed": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ]
+    }
+  ]
 }

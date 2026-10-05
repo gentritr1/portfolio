@@ -1,0 +1,23 @@
+{
+  "id": "rebuilt-twice",
+  "title": "REBUILT TWICE",
+  "band": "Loop 4",
+  "rule": "one claim, and the two screens that prove it, in the order they happened",
+  "description": "\"Two platform rewrites.\" at 72 px, with the identity as a footnote under it. The 2023 Bayyinah TV rebuild opens the page as a live-room plate on an oxblood panel; the 2026 care-platform move to React follows and covers it. Each card corrects its own sentence when it becomes current, then draws one hairline from its note to the pixel it is about. A record of ten decisions closes the page.",
+  "signature": "Fraunces 600 for the claim and 400 for text, Martian Mono for ids and results, on cream with oxblood as the only accent. The oxblood panel is the ground of the current card and moves with the reader. Motion: S3 claim into a one-line header with two cites (scroll-linked, 0 to 320 px); S1 with two cards in true order, the 2026 card covers the 2023 card, which scales to 0.96 and dims to 0.6 (scroll-linked, desktop only); S6 once per card (strike 260 ms word by word, then the result fades in word by word from 220 ms); one hairline per card, 180 ms after a 600 ms delay so it starts when the result is written, then a ring at the target. Keyboard jumps switch state with no travel. Reduced motion: no scroll-linked motion, all states switch.",
+  "caseSlug": "bayyinah-tv",
+  "mechanisms": ["S1", "S3", "S6"],
+  "slopCount": 0,
+  "rounds": 4,
+  "chroma": "24.1% of the 1440×900 first screen is chromatic; 39.0% outside the live plate (120,265 to 1320,823)",
+  "loopScores": {
+    "straightToThePoint": 8,
+    "notOverwhelming": 8,
+    "harmony": 7.5,
+    "meaningfulMotion": 8,
+    "actionsAndSeniority": 8,
+    "original": 7,
+    "hooks": 7.5
+  },
+  "holdback": "Lowest: original, 7/10. Every part is proven elsewhere: the claim line (cited-claims), the panel as the current card's ground (year-stack), the self-correcting sentence (statement-of-record), the pin (pinned-decisions) and the record (decision-record). The new parts are the order (S1 is true because the page runs 2023 to 2026, so the second rewrite covers the first) and the oxblood first screen. Known limits: the care plate keeps its teal palette beside the oxblood panel, so the page shows two plate palettes; the live-room plate keeps the shared recreation's slow background drift; the page is short by design (two cards and the record); card 2 shows one reserved blank line under its sentence until its correction fires."
+}

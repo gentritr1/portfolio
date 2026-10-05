@@ -1,0 +1,829 @@
+@font-face {
+  font-family: "Newsreader";
+  src: url("/fonts/creative/Newsreader-Latin.woff2") format("woff2");
+  font-weight: 300 650;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("/fonts/creative/JetBrainsMono-Latin.woff2") format("woff2");
+  font-weight: 100 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root:has(.ac) {
+  --ac-ground: #f6dcc3;
+  --ac-plum: #35183f;
+  --ac-muted: #5e3c6b;
+  --ac-panel-muted: #d9b8a8;
+  --ac-blank: #8a6a92;
+  --ac-line: rgb(53 24 63 / 0.2);
+  --ac-serif: "Newsreader", ui-serif, Georgia, serif;
+  --ac-mono: "JetBrains Mono", ui-monospace, monospace;
+  --ac-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ac-gutter: 16px;
+  --ac-bar-h: 70px;
+  color-scheme: light;
+  background: var(--ac-ground);
+  scrollbar-color: var(--ac-blank) var(--ac-ground);
+}
+
+.ac {
+  min-height: 100dvh;
+  background: var(--ac-ground);
+  color: var(--ac-plum);
+  font-family: var(--ac-serif);
+  font-size: 17px;
+  line-height: 1.45;
+  font-weight: 400;
+  font-optical-sizing: auto;
+}
+
+.ac ::selection {
+  background: var(--ac-plum);
+  color: var(--ac-ground);
+}
+
+.ac :focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.ac a {
+  color: inherit;
+  text-decoration-line: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+  text-decoration-color: currentColor;
+  transition: text-underline-offset 160ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .ac a:hover {
+    text-underline-offset: 2px;
+  }
+}
+
+.ac-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.ac h1,
+.ac h2 {
+  font-family: var(--ac-serif);
+  font-stretch: normal;
+  text-transform: none;
+}
+
+:where(.ac) :where(h1, h2, p, ol, figure) {
+  margin: 0;
+  padding: 0;
+}
+
+:where(.ac) ol {
+  list-style: none;
+}
+
+/* ---------- The sentence: words that are not earned yet keep their place as blanks ---------- */
+
+.ac a.ac-slot {
+  text-decoration: none;
+}
+
+.ac-w {
+  position: relative;
+}
+
+.ac-ink {
+  opacity: 0;
+  transition: opacity 120ms var(--ac-ease-out) var(--d);
+}
+
+.ac-slot[data-earned] .ac-ink {
+  opacity: 1;
+}
+
+/* The blank under each word. */
+.ac-w::before {
+  content: "";
+  position: absolute;
+  left: 0.04em;
+  right: 0.04em;
+  bottom: 0.14em;
+  border-bottom: 0.05em dotted var(--ac-blank);
+  transition: opacity 100ms ease var(--d);
+}
+
+.ac-w[data-comma]::before {
+  display: none;
+}
+
+.ac-slot[data-earned] .ac-w::before {
+  opacity: 0;
+}
+
+/* The full stop follows the last earned word. It sits where the next clause's comma or space goes. */
+.ac-w[data-end]::after {
+  content: ".";
+  position: absolute;
+  left: 100%;
+  top: 0;
+  line-height: normal;
+  opacity: 0;
+  transition: opacity 100ms ease;
+}
+
+.ac-slot[data-last] .ac-w[data-end]::after {
+  opacity: 1;
+  transition: opacity 120ms var(--ac-ease-out) var(--d);
+}
+
+.ac-tag {
+  position: absolute;
+  left: 0.3em;
+  bottom: 0.3em;
+  font-family: var(--ac-mono);
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 1;
+  letter-spacing: 0;
+  color: var(--ac-muted);
+  white-space: nowrap;
+  transition: opacity 100ms ease;
+}
+
+.ac-slot[data-earned] .ac-tag {
+  opacity: 0;
+}
+
+.ac[data-mode="instant"] :is(.ac-ink, .ac-tag),
+.ac[data-instant] :is(.ac-ink, .ac-tag),
+.ac[data-instant] .ac-w::before,
+.ac[data-instant] .ac-w::after {
+  transition: none;
+}
+
+.ac[data-mode="instant"] .ac-w::before,
+.ac[data-mode="instant"] .ac-w::after {
+  transition: none;
+}
+
+/* ---------- Header: the same sentence, one line ---------- */
+
+.ac-bar {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 20;
+  background: var(--ac-ground);
+  box-shadow: 0 1px 0 var(--ac-line);
+  visibility: hidden;
+}
+
+.ac-bar[data-away] {
+  visibility: visible;
+}
+
+.ac-bar-in {
+  display: block;
+  padding: 10px var(--ac-gutter) 12px;
+  font-size: 15px;
+  line-height: 22px;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+}
+
+.ac-bar .ac-tag {
+  font-size: 12px;
+  bottom: 0.32em;
+}
+
+.ac-bar .ac-slot {
+  position: relative;
+  border-radius: 4px;
+}
+
+/* A taller hit area than the line. */
+.ac-bar .ac-slot::after {
+  content: "";
+  position: absolute;
+  inset: -11px -2px;
+}
+
+/* ---------- Hero ---------- */
+
+.ac-hero {
+  position: relative;
+  padding: 20px var(--ac-gutter) 24px;
+}
+
+.ac-say {
+  font-size: 32px;
+  line-height: 1.08;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  text-wrap: pretty;
+}
+
+.ac-say .ac-tag {
+  font-size: 12px;
+}
+
+.ac-say-in {
+  display: block;
+}
+
+.ac-br {
+  display: none;
+}
+
+.ac-sentinel {
+  position: absolute;
+  top: 200px;
+  left: 0;
+  width: 1px;
+  height: 1px;
+}
+
+/* ---------- Cards ---------- */
+
+.ac .ac-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 0 var(--ac-gutter);
+}
+
+.ac-card {
+  --c-ink: var(--ac-plum);
+  --c-muted: var(--ac-muted);
+  --c-panel: var(--ac-ground);
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--ac-line);
+  border-radius: 12px;
+  background: var(--ac-ground);
+  color: var(--c-ink);
+  overflow: clip;
+  transition:
+    color 220ms ease,
+    border-color 220ms ease;
+}
+
+.ac-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--ac-plum);
+  opacity: 0;
+  transition: opacity 220ms ease;
+}
+
+.ac-card[data-current] {
+  --c-ink: var(--ac-ground);
+  --c-muted: var(--ac-panel-muted);
+  --c-panel: var(--ac-plum);
+  border-color: var(--ac-plum);
+}
+
+.ac-card[data-current]::before {
+  opacity: 1;
+}
+
+.ac-text {
+  display: flex;
+  flex-direction: column;
+  padding: 16px 16px 4px;
+}
+
+.ac-meta {
+  font-family: var(--ac-mono);
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 500;
+  color: var(--c-muted);
+  transition: color 220ms ease;
+}
+
+.ac-meta {
+  margin-top: 6px;
+}
+
+.ac-name {
+  font-size: 26px;
+  line-height: 1.12;
+  font-weight: 500;
+  letter-spacing: -0.015em;
+}
+
+.ac-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.ac-row {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.ac-decision {
+  font-size: 17px;
+  line-height: 23px;
+  text-wrap: pretty;
+}
+
+.ac-result {
+  font-family: var(--ac-mono);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+  text-wrap: pretty;
+}
+
+.ac-foot {
+  display: flex;
+}
+
+.ac-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  font-size: 17px;
+  font-weight: 500;
+}
+
+.ac-card .ac-link:active {
+  transform: scale(0.97);
+  transition:
+    text-underline-offset 160ms ease,
+    transform 120ms var(--ac-ease-out);
+}
+
+.ac-figure {
+  order: -1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 10px 0;
+}
+
+.ac-plate {
+  position: relative;
+  overflow: hidden;
+  border-radius: 6px;
+  background: #fff;
+}
+
+.ac-plate-image img {
+  position: absolute;
+  max-width: none;
+  height: auto;
+  display: block;
+}
+
+.ac-plate-live {
+  aspect-ratio: 4 / 5;
+  container-type: inline-size;
+  background: var(--surface);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.ac-wait {
+  position: absolute;
+  inset: 0;
+  background: var(--world-bg, #f4f8f8);
+}
+
+.ac-caption {
+  padding: 0 6px;
+  font-family: var(--ac-mono);
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--c-muted);
+  transition: color 220ms ease;
+}
+
+/* ---------- Pin ---------- */
+
+.ac-pin {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.ac-pin path {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.ac-pin-halo {
+  stroke: var(--c-panel);
+  stroke-width: 5;
+}
+
+.ac-pin-line {
+  stroke: var(--c-ink);
+  stroke-width: 1.75;
+}
+
+.ac-pin-ring {
+  fill: none;
+  stroke: var(--c-ink);
+  stroke-width: 2;
+  paint-order: stroke;
+  filter: drop-shadow(0 0 0 var(--c-panel)) drop-shadow(0 0 1.5px var(--c-panel)) drop-shadow(0 0 1px var(--c-panel));
+}
+
+.ac-pin-start {
+  fill: var(--c-ink);
+}
+
+.ac-pin[data-draw="animate"] path {
+  stroke-dasharray: 1;
+  animation: ac-draw 180ms var(--ac-ease-out) 340ms both;
+}
+
+.ac-pin[data-draw="animate"] .ac-pin-ring {
+  animation: ac-ring 120ms var(--ac-ease-out) 500ms both;
+}
+
+.ac-pin[data-draw="animate"] .ac-pin-start {
+  animation: ac-ring 100ms var(--ac-ease-out) 320ms both;
+}
+
+@keyframes ac-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes ac-ring {
+  from {
+    opacity: 0;
+  }
+}
+
+/* ---------- Record ---------- */
+
+.ac-record {
+  padding: 72px var(--ac-gutter) 0;
+}
+
+.ac-record-h {
+  font-size: 28px;
+  line-height: 1.15;
+  font-weight: 500;
+  letter-spacing: -0.015em;
+}
+
+.ac-record-rows {
+  margin-top: 20px;
+  border-top: 1px solid var(--ac-line);
+}
+
+.ac-record-row {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  grid-template-areas:
+    "year main"
+    ". result";
+  column-gap: 12px;
+  row-gap: 2px;
+  padding: 12px 0 13px;
+  border-bottom: 1px solid var(--ac-line);
+}
+
+.ac-record-year {
+  grid-area: year;
+  font-family: var(--ac-mono);
+  font-size: 13px;
+  line-height: 23px;
+  font-weight: 500;
+  color: var(--ac-muted);
+}
+
+.ac-record-main {
+  grid-area: main;
+  display: flex;
+  flex-direction: column;
+}
+
+.ac-record-project {
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--ac-muted);
+}
+
+.ac-record-decision {
+  font-size: 17px;
+  line-height: 23px;
+  text-wrap: pretty;
+}
+
+.ac-record-decision a {
+  display: inline;
+  text-decoration-color: rgb(53 24 63 / 0.4);
+}
+
+.ac-nowrap {
+  white-space: nowrap;
+}
+
+.ac-record-decision svg {
+  display: inline-block;
+  margin-left: 4px;
+  vertical-align: -1px;
+}
+
+.ac-record-result {
+  grid-area: result;
+  font-family: var(--ac-mono);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+}
+
+/* ---------- Footer ---------- */
+
+.ac-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 48px var(--ac-gutter) 56px;
+  font-size: 15px;
+  line-height: 22px;
+}
+
+.ac-footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 20px;
+}
+
+.ac-footer-links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+
+.ac-footer-note {
+  color: var(--ac-muted);
+  max-width: 64ch;
+}
+
+/* ---------- Tablet ---------- */
+
+@media (min-width: 600px) {
+  :root:has(.ac) {
+    --ac-gutter: 32px;
+  }
+
+  .ac-say {
+    font-size: 48px;
+  }
+
+  .ac-say .ac-tag {
+    font-size: 13px;
+  }
+
+  .ac-text {
+    padding: 20px 24px 8px;
+  }
+
+  .ac-figure {
+    padding: 12px 12px 0;
+  }
+
+  .ac-caption {
+    padding: 0 12px;
+  }
+
+  .ac-record-row {
+    grid-template-columns: 56px minmax(0, 1fr) 260px;
+    grid-template-areas: "year main result";
+    align-items: baseline;
+  }
+
+  .ac-record-result {
+    text-align: right;
+  }
+}
+
+/* ---------- Desktop: the cards stack, newest on top ---------- */
+
+@media (min-width: 1024px) {
+  :root:has(.ac) {
+    --ac-gutter: max(40px, calc((100vw - 1200px) / 2));
+    --ac-bar-h: 60px;
+  }
+
+  .ac-bar-in {
+    padding: 17px var(--ac-gutter) 0;
+    height: var(--ac-bar-h);
+    white-space: nowrap;
+    font-size: 20px;
+    line-height: 26px;
+  }
+
+  .ac-hero {
+    padding-top: 28px;
+    padding-bottom: 28px;
+  }
+
+  .ac-say {
+    font-size: clamp(48px, 5.55vw, 80px);
+    line-height: 1;
+  }
+
+  .ac-br {
+    display: inline;
+  }
+
+  .ac-say .ac-tag {
+    font-size: 14px;
+    bottom: 0.36em;
+  }
+
+  .ac-sentinel {
+    top: 320px;
+  }
+
+  .ac .ac-stack {
+    --stack-top: calc(var(--ac-bar-h) + 16px);
+    gap: 24px;
+  }
+
+  .ac-card {
+    --plate-h: 384px;
+    position: sticky;
+    top: calc(var(--stack-top) + var(--n) * 12px);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: 56px;
+    height: 480px;
+    padding: 32px 40px 32px 40px;
+    transform-origin: 50% 0;
+  }
+
+  .ac-text {
+    padding: 0;
+    min-width: 0;
+    max-width: 460px;
+  }
+
+  .ac-name {
+    font-size: 34px;
+  }
+
+  .ac-rows {
+    margin-top: 22px;
+    gap: 16px;
+  }
+
+  .ac-foot {
+    margin-top: auto;
+  }
+
+  .ac-figure {
+    order: 0;
+    align-self: start;
+    padding: 0;
+  }
+
+  .ac-plate {
+    border-radius: 8px;
+  }
+
+  .ac-plate-image {
+    height: var(--plate-h);
+    max-height: var(--plate-h);
+    width: min(640px, calc(var(--plate-h) * var(--plate-ratio)));
+  }
+
+  .ac-plate-live {
+    width: 640px;
+    aspect-ratio: 16 / 10;
+  }
+
+  .ac-caption {
+    padding: 0;
+  }
+
+  .ac-record {
+    padding-top: 120px;
+  }
+
+  .ac-record-h {
+    font-size: 40px;
+  }
+
+  .ac-record-rows {
+    margin-top: 28px;
+  }
+
+  .ac-record-row {
+    grid-template-columns: 80px minmax(0, 1fr) 320px;
+    padding: 14px 0 15px;
+  }
+
+  .ac-footer {
+    padding-top: 72px;
+  }
+}
+
+/* ---------- Scroll: the big sentence hands over to the header (S3) ---------- */
+
+@supports (animation-timeline: scroll()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .ac-bar {
+      visibility: visible;
+      animation: ac-arrive linear both;
+      animation-timeline: scroll(root);
+      animation-range: 0px 200px;
+    }
+
+    .ac-bar:not([data-away]) {
+      pointer-events: none;
+    }
+
+    .ac-say-in {
+      animation: ac-leave linear both;
+      animation-timeline: scroll(root);
+      animation-range: 0px 200px;
+    }
+
+    @media (min-width: 1024px) {
+      .ac-bar,
+      .ac-say-in {
+        animation-range: 0px 320px;
+      }
+    }
+  }
+}
+
+@keyframes ac-arrive {
+  0%,
+  55% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes ac-leave {
+  0% {
+    opacity: 1;
+    transform: none;
+  }
+  70% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-24px);
+  }
+}
+
+.ac[data-instant] .ac-card,
+.ac[data-instant] .ac-card::before,
+.ac[data-instant] :is(.ac-meta, .ac-caption) {
+  transition: none;
+}
+
+.ac[data-instant] .ac-pin * {
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ac-card,
+  .ac-card::before,
+  .ac-meta,
+  .ac-caption,
+  .ac a {
+    transition: none;
+  }
+}

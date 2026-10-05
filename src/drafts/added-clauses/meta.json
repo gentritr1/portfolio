@@ -1,0 +1,27 @@
+{
+  "id": "added-clauses",
+  "title": "ADDED CLAUSES",
+  "band": "Loop 4",
+  "rule": "the identity sentence is earned on the way down: each card adds the clause it proves",
+  "description": "One sentence with blanks. The page opens on 'Gentrit Rashiti builds mobile apps.' and three dotted blanks, each marked with its year. Four big cards follow in true order (2021 Dukagjini Bookstore, 2023 Bayyinah TV, 2026 Design System v2, 2026 care platform and API). When a card settles as the current card, its clause writes into the sentence, so the visitor reads the full identity line at the end: 'Gentrit Rashiti builds mobile apps and web platforms, from the design system to the API behind them.' A record of ten more decisions with results closes the page.",
+  "signature": "Newsreader 500 for the sentence (80 px on desktop, one or two clauses per line, 32 px on the phone) and JetBrains Mono for years, roles and results, on an apricot ground with plum ink. The current card is the plum panel with apricot type; covered cards return to apricot and stay as 12 px edges at the top of the stack, newest on top. Unearned words keep their place as dotted blanks, so no word moves when a clause arrives (strike-index's rule, with no strike). Motion: on load the 2021 clause writes in word by word (opacity, 120 ms per word, 50 ms stagger, starting 420 ms after mount); every later clause writes in once, 160 ms after its card settles under the middle of the viewport, and the full stop fades out as the next clause's comma fades in at the same spot. After the write, the card's one pin draws a hairline (180 ms) from the result to the pixel that proves it, routed through the gap between text and plate and into the plate clear of text, then a ring (120 ms). The big sentence hands over to a one-line sticky header over the first 320 px of scroll (S3, scroll-driven, opacity and translate only); the header's clauses are links to their cards. Keyboard jumps change state with no travel. Reduced motion: clauses and pins switch state, the header switches with an IntersectionObserver, sticky stays.",
+  "caseSlug": "dukagjini-bookstore",
+  "mechanisms": ["S1", "S3", "S6"],
+  "slopCount": 0,
+  "rounds": 1,
+  "chroma": {
+    "firstScreen": "37.9%",
+    "outsidePlates": "40.6%",
+    "method": "scratchpad/chroma.mjs thresholds (saturation > 0.25, value > 60) on final/d-top.png, plate rect 996,409 to 1279,793"
+  },
+  "loopScores": {
+    "straightToThePoint": 7,
+    "notOverwhelming": 8,
+    "harmony": 8,
+    "meaningfulMotion": 8,
+    "actionsAndSeniority": 8,
+    "original": 7,
+    "hooks": 7.5
+  },
+  "holdback": "Lowest: straight to the point, 7/10. By design the first screen says only 'Gentrit Rashiti builds mobile apps.' plus three dated blanks; web platforms, the design system and the API, which carry the seniority, arrive only as the visitor scrolls (or on a return to the top, where the full sentence stands at 80 px). Original is 7 because the frame under the sentence is a known sticky card stack. Other open points: the first card's portrait store plate leaves about 400 px of empty plum between the text and the plate on desktop; on the phone the hero shows three rows of dotted blanks and the sticky header grows to three lines (about 88 px); the care chart draws its 1.1 s line when it mounts, one viewport before it is visible. Deviations from the brief: the sentence is 80 px, not 96 px, so each line holds whole clauses and the first card's plate fits inside 900 px; four cards, one per clause, not five, so every card adds a clause."
+}

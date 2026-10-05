@@ -37,168 +37,210 @@ function useMedia(query: string, fallback: boolean) {
 
 /* ---------- Statement ---------- */
 
-interface ClauseState {
-  struck: boolean;
-  now: string | null;
+const WRITE_MS = 320;
+const WORD_MS = 140;
+
+function wordNodes(value: string) {
+  const nodes: Node[] = [];
+  value
+    .split(" ")
+    .filter(Boolean)
+    .forEach((word, index) => {
+      if (index > 0) nodes.push(document.createTextNode(" "));
+      const span = document.createElement("span");
+      span.textContent = word;
+      nodes.push(span);
+    });
+  return nodes;
 }
 
-const clip = {
-  hidden: "inset(-0.3em 100% -0.3em -0.1em)",
-  shown: "inset(-0.3em -0.2em -0.3em -0.1em)",
-};
-
-/**
- * One clause of the statement. The present (2026) words stay in place; on a
- * wide screen they are struck when an earlier year is shown and that year's
- * words write in after them, so every edit ends the line and nothing else moves.
- */
-function Clause({ was, target, index, mode, narrow }: { was: string; target: string; index: number; mode: Mode; narrow: boolean }) {
+/** The 2026 words. A line strikes through them when an earlier year is shown. */
+function Struck({ text, struck, mode, delay }: { text: string; struck: boolean; mode: Mode; delay: number }) {
   const wasRef = useRef<HTMLSpanElement>(null);
-  const strikeRef = useRef<HTMLSpanElement>(null);
-  const nowRef = useRef<HTMLSpanElement>(null);
-  const shown = useRef<{ state: ClauseState; narrow: boolean } | null>(null);
-  const version = useRef(0);
+  const lineRef = useRef<HTMLSpanElement>(null);
+  const shown = useRef<boolean | null>(null);
 
   useLayoutEffect(() => {
-    const wasEl = wasRef.current;
-    const strike = strikeRef.current;
-    const now = nowRef.current;
-    if (!wasEl || !strike || !now) return;
-    const next: ClauseState = narrow
-      ? { struck: false, now: target }
-      : target === was
-        ? { struck: false, now: null }
-        : { struck: true, now: target };
-    const v = ++version.current;
-    for (const element of [wasEl, strike, now]) element.getAnimations().forEach((animation) => animation.cancel());
-
-    const paint = (state: ClauseState) => {
-      wasEl.hidden = narrow;
-      wasEl.dataset.struck = String(state.struck);
-      now.textContent = state.now ?? "";
-      now.hidden = state.now === null;
-    };
-
-    const previous = shown.current;
-    shown.current = { state: next, narrow };
-    if (!previous || previous.narrow !== narrow || mode === "instant") {
-      paint(next);
+    const was = wasRef.current;
+    const line = lineRef.current;
+    if (!was || !line) return;
+    line.getAnimations().forEach((animation) => animation.cancel());
+    const from = shown.current;
+    shown.current = struck;
+    if (from === null || from === struck || mode === "instant") {
+      was.dataset.struck = String(struck);
       return;
     }
-    const from = previous.state;
-    paint(from);
-    const delay = index * 30;
-
-    if (!from.struck && next.struck) {
-      wasEl.dataset.struck = "true";
-      strike.animate([{ transform: "scaleX(0)" }, { transform: "scaleX(1)" }], {
+    if (struck) {
+      was.dataset.struck = "true";
+      line.animate([{ transform: "scaleX(0)" }, { transform: "scaleX(1)" }], {
         duration: 260,
         delay,
         easing: easeOut,
         fill: "backwards",
       });
+      return;
     }
-    if (from.struck && !next.struck) {
-      const retract = strike.animate(
-        [
-          { transform: "scaleX(1)", transformOrigin: "right center" },
-          { transform: "scaleX(0)", transformOrigin: "right center" },
-        ],
-        { duration: 200, delay: delay + 60, easing: easeOut, fill: "forwards" },
-      );
-      retract.onfinish = () => {
-        if (version.current !== v) return;
-        wasEl.dataset.struck = "false";
-        retract.cancel();
-      };
-    }
-    if (from.now !== next.now) {
-      const writeIn = (wait: number) => {
-        now.textContent = next.now ?? "";
-        now.hidden = next.now === null;
-        if (next.now === null) return;
-        now.animate([{ clipPath: clip.hidden }, { clipPath: clip.shown }], {
-          duration: 320,
-          delay: wait,
-          easing: easeOut,
-          fill: "backwards",
-        });
-      };
-      if (from.now === null) {
-        writeIn(delay + 200);
-      } else {
-        // The leaving words are invisible before they give up their width.
-        const fade = now.animate([{ opacity: 1 }, { opacity: 0 }], {
-          duration: 120,
-          delay,
-          easing: "ease",
-          fill: "forwards",
-        });
-        fade.onfinish = () => {
-          if (version.current !== v) return;
-          fade.cancel();
-          writeIn(20);
-        };
-      }
-    }
-  }, [was, target, index, mode, narrow]);
+    const retract = line.animate(
+      [
+        { transform: "scaleX(1)", transformOrigin: "right center" },
+        { transform: "scaleX(0)", transformOrigin: "right center" },
+      ],
+      { duration: 200, delay: delay + 60, easing: easeOut, fill: "forwards" },
+    );
+    retract.onfinish = () => {
+      was.dataset.struck = "false";
+      retract.cancel();
+    };
+  }, [struck, mode, delay]);
 
   return (
-    <span className="ys-line">
-      <span ref={wasRef} className="ys-was">
-        {was}
-        <span ref={strikeRef} className="ys-strike" />
+    <span ref={wasRef} className="ys-was">
+      {text}
+      <span ref={lineRef} className="ys-strike" />
+    </span>
+  );
+}
+
+/**
+ * The year's words. Leaving words fade out before they give up their width.
+ * New words write in one whole word at a time, so no frame shows a cut glyph.
+ */
+function Written({ text, mode, delay, className }: { text: string; mode: Mode; delay: number; className: string }) {
+  const ref = useRef<HTMLSpanElement>(null);
+  const painted = useRef<string | null>(null);
+  const version = useRef(0);
+
+  useLayoutEffect(() => {
+    const element = ref.current;
+    if (!element) return;
+    const v = ++version.current;
+    element.getAnimations({ subtree: true }).forEach((animation) => animation.cancel());
+    const from = painted.current;
+    const paint = (value: string) => {
+      painted.current = value;
+      element.replaceChildren(...wordNodes(value));
+      element.hidden = value === "";
+    };
+    if (from === null || mode === "instant") {
+      paint(text);
+      return;
+    }
+    if (from === text) return;
+    const write = (wait: number) => {
+      paint(text);
+      const words = Array.from(element.children);
+      const stagger = words.length > 1 ? Math.min(60, (WRITE_MS - WORD_MS) / (words.length - 1)) : 0;
+      words.forEach((word, index) =>
+        word.animate([{ opacity: 0 }, { opacity: 1 }], {
+          duration: WORD_MS,
+          delay: wait + index * stagger,
+          easing: easeOut,
+          fill: "backwards",
+        }),
+      );
+    };
+    if (from === "") {
+      write(delay + 200);
+      return;
+    }
+    const fade = element.animate([{ opacity: 1 }, { opacity: 0 }], {
+      duration: 120,
+      delay,
+      easing: easeOut,
+      fill: "forwards",
+    });
+    fade.onfinish = () => {
+      if (version.current !== v) return;
+      fade.cancel();
+      write(20);
+    };
+  }, [text, mode, delay]);
+
+  return <span ref={ref} className={className} />;
+}
+
+/**
+ * Wide: three lines, one clause each; a clause's 2026 words are struck and the
+ * year's words end the same line. Narrow: only the first clause is struck, and
+ * the year's whole sentence follows under it.
+ */
+function Statement({ says, mode, narrow }: { says: readonly [string, string, string]; mode: Mode; narrow: boolean }) {
+  const isPresent = says.every((clause, index) => clause === present[index]);
+  if (narrow) {
+    return (
+      <span className="ys-lines" aria-hidden="true">
+        <span className="ys-line">Gentrit Rashiti builds</span>
+        <span className="ys-line">
+          <Struck text={present[0]} struck={!isPresent} mode={mode} delay={0} />
+        </span>
+        <Written
+          className="ys-tail"
+          text={isPresent ? present.slice(1).join(" ") : says.join(" ")}
+          mode={mode}
+          delay={0}
+        />
       </span>
-      <span ref={nowRef} className="ys-now" />
+    );
+  }
+  return (
+    <span className="ys-lines" aria-hidden="true">
+      {present.map((was, index) => (
+        <span className="ys-line" key={index}>
+          {index === 0 && "Gentrit Rashiti builds "}
+          <Struck text={was} struck={says[index] !== was} mode={mode} delay={index * 30} />
+          <Written
+            className="ys-now"
+            text={says[index] === was ? "" : says[index]}
+            mode={mode}
+            delay={index * 30}
+          />
+        </span>
+      ))}
     </span>
   );
 }
 
 /* ---------- Plate and pin ---------- */
 
-function PlateView({ plate, wide, eager }: { plate: Plate; wide: boolean; eager: boolean }) {
+function PlateView({ plate, eager }: { plate: Plate; eager: boolean }) {
   if (plate.kind === "care") {
     const entry = recreations.care;
     const Care = entry.Component;
     return (
-      <div className="ys-live" data-world={entry.world}>
+      <div className="ys-live ys-surface" data-world={entry.world}>
         <Suspense fallback={<div className="ys-wait" />}>
           <Care />
         </Suspense>
       </div>
     );
   }
-  if (plate.kind === "web") {
-    return (
+  const { shot, crop } = plate;
+  return (
+    <div
+      className={`ys-crop ys-crop-${plate.kind} ys-surface`}
+      style={{ aspectRatio: `${Math.round(crop.w * shot.width)} / ${Math.round(crop.h * shot.height)}` }}
+    >
       <img
-        className="ys-shot"
-        src={plate.shot.src}
-        alt={plate.shot.alt}
-        width={1440}
-        height={900}
+        src={shot.src}
+        alt={shot.alt}
+        width={shot.width}
+        height={shot.height}
         loading={eager ? "eager" : "lazy"}
         decoding="async"
+        style={{
+          width: `${100 / crop.w}%`,
+          left: `${(-crop.x / crop.w) * 100}%`,
+          top: `${(-crop.y / crop.h) * 100}%`,
+        }}
       />
-    );
-  }
-  return (
-    <div className="ys-phones">
-      {plate.shots.slice(0, wide ? 3 : 2).map((image) => (
-        <img
-          key={image.src}
-          src={image.src}
-          alt={image.alt}
-          width={780}
-          height={1689}
-          loading={eager ? "eager" : "lazy"}
-          decoding="async"
-        />
-      ))}
     </div>
   );
 }
 
-function rounded(points: Array<[number, number]>, radius = 8) {
+type Point = [number, number];
+
+function rounded(points: Point[], radius = 8) {
   let d = `M${points[0][0]},${points[0][1]}`;
   for (let i = 1; i < points.length - 1; i++) {
     const [px, py] = points[i - 1];
@@ -221,7 +263,10 @@ function rounded(points: Array<[number, number]>, radius = 8) {
   return `${d} L${last[0]},${last[1]}`;
 }
 
-/** Position inside `root`, from the offset chain, so a covered card's scale does not change it. */
+const lengthOf = (points: Point[]) =>
+  points.reduce((sum, point, i) => (i === 0 ? 0 : sum + Math.hypot(point[0] - points[i - 1][0], point[1] - points[i - 1][1])), 0);
+
+/** Position inside `root`, from the offset chain. */
 function offsetIn(element: HTMLElement, root: HTMLElement): Box | null {
   let x = 0;
   let y = 0;
@@ -235,51 +280,83 @@ function offsetIn(element: HTMLElement, root: HTMLElement): Box | null {
 }
 
 interface PinGeometry {
-  d: string;
-  start: [number, number];
+  outside: string;
+  inside: string;
+  /** Share of the line drawn outside the plate, for the draw timing. */
+  split: number;
+  start: Point;
   ring: Box & { r: number };
   width: number;
   height: number;
 }
 
 function measurePin(card: HTMLElement, data: Year, wide: boolean): PinGeometry | null {
-  const plate = card.querySelector<HTMLElement>(".ys-plate");
+  const surface = card.querySelector<HTMLElement>(".ys-surface");
   const source = card.querySelector<HTMLElement>(".ys-row:first-child .ys-result span");
-  if (!plate || !source) return null;
-  const plateBox = offsetIn(plate, card);
+  if (!surface || !source) return null;
+  const plateBox = offsetIn(surface, card);
   const src = offsetIn(source, card);
   if (!plateBox || !src) return null;
+  const image = surface.querySelector<HTMLImageElement>("img");
+  const imageBox = image ? offsetIn(image, card) : null;
   let target: Box | null = null;
   const { pin } = data;
   if (pin.target.kind === "selector") {
-    const element = plate.querySelector<HTMLElement>(pin.target.css);
+    const element = surface.querySelector<HTMLElement>(pin.target.css);
     target = element ? offsetIn(element, card) : null;
-  } else {
-    const image = plate.querySelector<HTMLImageElement>("img");
-    const base = image ? offsetIn(image, card) : null;
-    if (base && base.w > 0) {
-      const { box } = pin.target;
-      target = { x: base.x + box.x * base.w, y: base.y + box.y * base.h, w: box.w * base.w, h: box.h * base.h };
-    }
+  } else if (imageBox && imageBox.w > 0) {
+    const { box } = pin.target;
+    target = {
+      x: imageBox.x + box.x * imageBox.w,
+      y: imageBox.y + box.y * imageBox.h,
+      w: box.w * imageBox.w,
+      h: box.h * imageBox.h,
+    };
   }
   if (!target || target.w === 0) return null;
+
   const sy = Math.round(src.y + src.h / 2);
   const gutter = Math.round(plateBox.x - (wide ? 24 : 8));
-  const start: [number, number] = wide ? [Math.round(src.x + src.w + 12), sy] : [gutter, sy];
-  const points: Array<[number, number]> = wide ? [start, [gutter, sy]] : [start];
-  if (pin.route === "over") {
-    const lane = Math.round(plateBox.y - (wide ? 14 : 7));
-    const cx = Math.round(target.x + target.w / 2);
-    points.push([gutter, lane], [cx, lane], [cx, Math.round(target.y - 6)]);
-  } else {
+  const edge = Math.round(plateBox.x);
+  const start: Point = wide ? [Math.round(src.x + src.w + 12), sy] : [gutter, sy];
+  const outside: Point[] = wide ? [start, [gutter, sy]] : [start];
+  const inside: Point[] = [];
+  const cx = Math.round(target.x + target.w / 2);
+  if (pin.route.kind === "side") {
     const ty = Math.round(target.y + target.h / 2);
-    points.push([gutter, ty], [Math.round(target.x - 6), ty]);
+    outside.push([gutter, ty], [edge, ty]);
+    inside.push([edge, ty], [Math.round(target.x - 6), ty]);
+  } else {
+    let lane: number | null = null;
+    if ("along" in pin.route) {
+      const rule = surface.querySelector<HTMLElement>(pin.route.along);
+      const box = rule ? offsetIn(rule, card) : null;
+      lane = box ? Math.round(box.y) : null;
+    } else if (imageBox) {
+      lane = Math.round(imageBox.y + pin.route.y * imageBox.h);
+    }
+    if (lane === null) return null;
+    const end = target.y > lane ? Math.round(target.y - 6) : Math.round(target.y + target.h + 6);
+    outside.push([gutter, lane], [edge, lane]);
+    inside.push([edge, lane], [cx, lane], [cx, end]);
   }
   const pad = 5;
   const ring = { x: target.x - pad, y: target.y - pad, w: target.w + pad * 2, h: target.h + pad * 2, r: 0 };
   ring.r = pin.pill ? ring.h / 2 : 6;
-  return { d: rounded(points), start, ring, width: card.offsetWidth, height: card.offsetHeight };
+  const outLength = lengthOf(outside);
+  const inLength = lengthOf(inside);
+  return {
+    outside: rounded(outside),
+    inside: rounded(inside),
+    split: outLength / Math.max(1, outLength + inLength),
+    start,
+    ring,
+    width: card.offsetWidth,
+    height: card.offsetHeight,
+  };
 }
+
+const PIN_MS = 180;
 
 function YearCard({
   data,
@@ -287,14 +364,16 @@ function YearCard({
   current,
   wide,
   reduced,
+  onFocusCard,
 }: {
   data: Year;
   index: number;
   current: boolean;
   wide: boolean;
   reduced: boolean;
+  onFocusCard: (index: number) => void;
 }) {
-  const cardRef = useRef<HTMLLIElement>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
   const [geometry, setGeometry] = useState<PinGeometry | null>(null);
   const [draw, setDraw] = useState<"none" | "animate" | "static">("none");
   const signature = useRef("");
@@ -334,93 +413,141 @@ function YearCard({
   }
 
   const { plate, link } = data;
+  const timing = geometry
+    ? ({
+        "--pin-out": `${Math.round(PIN_MS * geometry.split)}ms`,
+        "--pin-in": `${Math.round(PIN_MS * (1 - geometry.split))}ms`,
+      } as CSSProperties)
+    : undefined;
   return (
-    <li
-      ref={cardRef}
-      id={`y${data.year}`}
-      className="ys-card"
-      data-current={current || undefined}
-      aria-labelledby={`ys-year-${data.year}`}
-    >
-      <h2 className="ys-year" id={`ys-year-${data.year}`}>
-        {data.year}
-      </h2>
-      <p className="ys-sr">
-        In {data.year}, {sentenceOf(data.says)}
-      </p>
-      <figure className="ys-figure">
-        <div className={`ys-plate ys-plate-${plate.kind}`}>
-          <PlateView plate={plate} wide={wide} eager={index === 0} />
-        </div>
-        <figcaption className="ys-caption">{plate.caption}</figcaption>
-      </figure>
-      <ol className="ys-rows">
-        {data.rows.map((row) => (
-          <li className="ys-row" key={row.decision}>
-            {row.project && <span className="ys-project">{row.project}</span>}
-            <span className="ys-decision">{row.decision}</span>
-            <span className="ys-result">
-              <span>{row.result}</span>
-            </span>
-          </li>
-        ))}
-      </ol>
-      <p className="ys-foot">
-        {link.external ? (
-          <a className="ys-link" href={link.href} target="_blank" rel="noreferrer">
-            {link.label}
-            <ArrowUpRightIcon aria-hidden="true" size={15} weight="regular" />
-          </a>
-        ) : (
-          <Link className="ys-link" to={link.href}>
-            {link.label} <span aria-hidden="true">→</span>
-          </Link>
+    <li className="ys-slot" style={{ "--i": index } as CSSProperties}>
+      <div
+        ref={cardRef}
+        id={`y${data.year}`}
+        className="ys-card"
+        data-current={current || undefined}
+        role="group"
+        aria-labelledby={`ys-year-${data.year}`}
+        onFocus={() => onFocusCard(index)}
+      >
+        <h2 className="ys-year" id={`ys-year-${data.year}`}>
+          {data.year}
+        </h2>
+        <p className="ys-sr">
+          In {data.year}, {sentenceOf(data.says)}
+        </p>
+        <figure className="ys-figure">
+          <div className={`ys-plate ys-plate-${plate.kind}`}>
+            <PlateView plate={plate} eager={index === 0} />
+          </div>
+          <figcaption className="ys-caption">{plate.caption}</figcaption>
+        </figure>
+        <ol className="ys-rows">
+          {data.rows.map((row) => (
+            <li className="ys-row" key={row.decision}>
+              {row.project && <span className="ys-project">{row.project}</span>}
+              <span className="ys-decision">{row.decision}</span>
+              <span className="ys-result">
+                <span>{row.result}</span>
+              </span>
+            </li>
+          ))}
+        </ol>
+        <p className="ys-foot">
+          {link.external ? (
+            <a className="ys-link" href={link.href} target="_blank" rel="noreferrer">
+              {link.label}
+              <ArrowUpRightIcon aria-hidden="true" size={15} weight="regular" />
+            </a>
+          ) : (
+            <Link className="ys-link" to={link.href}>
+              {link.label} <span aria-hidden="true">→</span>
+            </Link>
+          )}
+        </p>
+        {geometry && draw !== "none" && (
+          <svg
+            className="ys-pin"
+            data-draw={draw}
+            data-tone={plate.kind === "web" && plate.dark ? "dark" : "light"}
+            width={geometry.width}
+            height={geometry.height}
+            style={timing}
+            aria-hidden="true"
+          >
+            <path className="ys-pin-halo ys-pin-out" d={geometry.outside} pathLength={1} />
+            <path className="ys-pin-line ys-pin-out" d={geometry.outside} pathLength={1} />
+            <path className="ys-pin-halo ys-pin-in" d={geometry.inside} pathLength={1} />
+            <path className="ys-pin-line ys-pin-in" d={geometry.inside} pathLength={1} />
+            <rect
+              className="ys-pin-ring"
+              x={geometry.ring.x}
+              y={geometry.ring.y}
+              width={geometry.ring.w}
+              height={geometry.ring.h}
+              rx={geometry.ring.r}
+            />
+            <circle className="ys-pin-start" cx={geometry.start[0]} cy={geometry.start[1]} r={3} />
+          </svg>
         )}
-      </p>
-      {geometry && draw !== "none" && (
-        <svg
-          className="ys-pin"
-          data-draw={draw}
-          width={geometry.width}
-          height={geometry.height}
-          aria-hidden="true"
-        >
-          <path className="ys-pin-halo" d={geometry.d} pathLength={1} />
-          <path className="ys-pin-line" d={geometry.d} pathLength={1} />
-          <rect
-            className="ys-pin-ring"
-            x={geometry.ring.x}
-            y={geometry.ring.y}
-            width={geometry.ring.w}
-            height={geometry.ring.h}
-            rx={geometry.ring.r}
-          />
-          <circle className="ys-pin-start" cx={geometry.start[0]} cy={geometry.start[1]} r={3} />
-        </svg>
-      )}
+      </div>
     </li>
   );
 }
 
 /* ---------- Page ---------- */
 
+interface Track {
+  /** The scroll offset from which each card is current. */
+  marks: number[];
+  /** The scroll offset that shows each card whole. */
+  jumps: number[];
+}
+
+/**
+ * Wide: every card sticks from the first frame, the newer one on top and each
+ * older one a step lower, so the stack shows as a pile. A card stays until its
+ * slot ends, then scrolls away and shows the older card under it.
+ */
+function measureTrack(stack: HTMLElement, wide: boolean, barHeight: number): Track {
+  const slots = Array.from(stack.children) as HTMLElement[];
+  const cards = slots.map((slot) => slot.firstElementChild as HTMLElement);
+  const tops = slots.map((slot) => slot.getBoundingClientRect().top + window.scrollY);
+  if (!wide || cards.length === 0) {
+    return {
+      marks: tops.map((top, k) => (k === 0 ? -Infinity : top - window.innerHeight * 0.5)),
+      jumps: tops.map((top) => Math.max(0, top - barHeight - 8)),
+    };
+  }
+  const stick = parseFloat(getComputedStyle(cards[0]).top) || 0;
+  const step = cards.length > 1 ? (parseFloat(getComputedStyle(cards[1]).top) || stick) - stick : 0;
+  const pitch = cards[0].offsetHeight - step;
+  const base = tops[0] - stick;
+  return {
+    marks: cards.map((_, k) => (k === 0 ? -Infinity : base + k * pitch - pitch / 2)),
+    jumps: cards.map((_, k) => Math.max(0, base + k * pitch)),
+  };
+}
+
 export default function Draft() {
   const wide = useMedia("(min-width: 1024px)", true);
   const reduced = useMedia("(prefers-reduced-motion: reduce)", false);
   const stackRef = useRef<HTMLOListElement>(null);
+  const barRef = useRef<HTMLElement>(null);
   const rootRef = useRef<HTMLDivElement>(null);
-  const tops = useRef<number[]>([]);
+  const track = useRef<Track>({ marks: [], jumps: [] });
   const [current, setCurrent] = useState(0);
+  const currentRef = useRef(0);
   const [said, setSaid] = useState<{ index: number; mode: Mode }>({ index: 0, mode: "instant" });
   const instantNext = useRef(false);
   const { scrollY } = useScroll();
 
   const locate = useCallback((y: number) => {
-    const line = window.innerHeight * 0.5;
     let index = 0;
-    tops.current.forEach((top, i) => {
-      if (top - y <= line) index = i;
+    track.current.marks.forEach((mark, i) => {
+      if (y >= mark) index = i;
     });
+    currentRef.current = index;
     setCurrent((previous) => (previous === index ? previous : index));
   }, []);
 
@@ -428,14 +555,7 @@ export default function Draft() {
     const stack = stackRef.current;
     if (!stack) return;
     const measure = () => {
-      const cards = Array.from(stack.children) as HTMLElement[];
-      const gap = parseFloat(getComputedStyle(stack).rowGap) || 0;
-      let top = stack.getBoundingClientRect().top + window.scrollY + (parseFloat(getComputedStyle(stack).paddingTop) || 0);
-      tops.current = cards.map((card) => {
-        const at = top;
-        top += card.offsetHeight + gap;
-        return at;
-      });
+      track.current = measureTrack(stack, wide, barRef.current?.offsetHeight ?? 0);
       locate(window.scrollY);
     };
     measure();
@@ -462,14 +582,13 @@ export default function Draft() {
   }, [current, said.index, reduced]);
 
   const jump = (index: number, instant: boolean) => {
-    const stackTop = (document.querySelector<HTMLElement>(".ys-bar")?.offsetHeight ?? 0) + 8;
     instantNext.current = instant;
     const root = rootRef.current;
     if (instant && root) {
       root.dataset.instant = "";
       requestAnimationFrame(() => requestAnimationFrame(() => delete root.dataset.instant));
     }
-    window.scrollTo({ top: Math.max(0, tops.current[index] - stackTop), behavior: "instant" });
+    window.scrollTo({ top: track.current.jumps[index] ?? 0, behavior: "instant" });
     locate(window.scrollY);
   };
 
@@ -488,43 +607,36 @@ export default function Draft() {
     event.currentTarget.querySelectorAll<HTMLAnchorElement>("a")[index]?.focus({ preventScroll: true });
   };
 
-  const says = years[said.index].says;
+  // A covered card that takes focus comes to the top of the pile, with no travel.
+  const onFocusCard = (index: number) => {
+    if (wide && index !== currentRef.current) jump(index, true);
+  };
+
   const mode: Mode = reduced ? "instant" : said.mode;
 
   return (
     <div className="ys" ref={rootRef}>
       <title>Year stack — Gentrit Rashiti</title>
-      <header className="ys-bar">
+      <header className="ys-bar" ref={barRef}>
         <div className="ys-bar-in">
           <h1 className="ys-say">
             <span className="ys-sr">{sentenceOf(present)}</span>
-            <span className="ys-lines" aria-hidden="true">
-              <span className="ys-line">Gentrit Rashiti builds</span>
-              {present.map((was, index) => (
-                <Clause key={index} was={was} target={says[index]} index={index} mode={mode} narrow={!wide} />
-              ))}
-            </span>
+            <Statement says={years[said.index].says} mode={mode} narrow={!wide} />
           </h1>
           {wide && (
-            <div className="ys-side">
-              <nav className="ys-years" aria-label="Years" onKeyDown={onYearKey}>
-                {years.map((year, index) => (
-                  <a
-                    key={year.year}
-                    href={`#y${year.year}`}
-                    aria-current={index === current ? "true" : undefined}
-                    tabIndex={index === current ? 0 : -1}
-                    onClick={onYear(index)}
-                  >
-                    {year.year}
-                  </a>
-                ))}
-              </nav>
-              <p className="ys-contact">
-                <a href={`mailto:${links.email}`}>Email</a>
-                <a href={links.cv}>CV</a>
-              </p>
-            </div>
+            <nav className="ys-years" aria-label="Years" onKeyDown={onYearKey}>
+              {years.map((year, index) => (
+                <a
+                  key={year.year}
+                  href={`#y${year.year}`}
+                  aria-current={index === current ? "true" : undefined}
+                  tabIndex={index === current ? 0 : -1}
+                  onClick={onYear(index)}
+                >
+                  {year.year}
+                </a>
+              ))}
+            </nav>
           )}
         </div>
       </header>
@@ -539,6 +651,7 @@ export default function Draft() {
               current={index === current}
               wide={wide}
               reduced={reduced}
+              onFocusCard={onFocusCard}
             />
           ))}
         </ol>
@@ -548,6 +661,9 @@ export default function Draft() {
         <p className="ys-foot-who">
           Gentrit Rashiti. Web and mobile since 2021, full stack since 2026. Bachelor's degree, UBT. Based in Kosovo,
           working remotely.
+        </p>
+        <p className="ys-foot-who">
+          Also in 2026, on the care-management API: a billing report that timed out went from 16 queries to 2.
         </p>
         <p className="ys-foot-links">
           <a href={`mailto:${links.email}`}>{links.email}</a>

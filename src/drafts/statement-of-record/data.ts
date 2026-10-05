@@ -3,7 +3,16 @@ import { projects } from "../../content/projects";
 export type Plate =
   | { kind: "care"; caption: string }
   | { kind: "web"; src: string; alt: string; caption: string }
-  | { kind: "phones"; srcs: string[]; alt: string; caption: string };
+  | {
+      kind: "screen";
+      src: string;
+      alt: string;
+      caption: string;
+      /** Image size, then the crop box of the app screen inside the store image, in image pixels. */
+      image: [number, number];
+      crop: [number, number, number, number];
+    }
+  | { kind: "number"; was: string; now: string; unit: string; caption: string };
 
 export type EntryLink =
   | { kind: "case"; slug: string }
@@ -28,10 +37,15 @@ export interface Entry {
 }
 
 export const clauses = [
-  { text: "a multi-tenant care platform", stop: ",", cites: "0010" },
-  { text: "from the design system", stop: "", cites: "0008" },
-  { text: "to the API behind it", stop: ".", cites: "0009" },
+  { text: "a multi-tenant care platform", stop: ",", cites: "0010", row: 0 },
+  { text: "from the design system", stop: "", cites: "0008", row: 1 },
+  { text: "to the API behind it", stop: ",", cites: "0009", row: 1 },
+  { text: "and mobile apps in both stores", stop: ".", cites: "0002", row: 2 },
 ] as const;
+
+export const rows = [0, 1, 2].map((row) =>
+  clauses.filter((clause) => clause.row === row),
+);
 
 export const entries: Entry[] = [
   {
@@ -62,6 +76,13 @@ export const entries: Entry[] = [
       now: "runs 2 queries and no longer times out.",
     },
     mark: "Laravel API",
+    plate: {
+      kind: "number",
+      was: "16",
+      now: "2",
+      unit: "queries",
+      caption: "Billing report, queries before and after",
+    },
     link: { kind: "case", slug: "care-platform" },
     result: "16 → 2 queries",
   },
@@ -118,7 +139,11 @@ export const entries: Entry[] = [
       alt: "Snaxx Tech studio site hero: The Snaxx Almanac, an illustrated landscape of apps and games",
       caption: "snaxxtech.com, own site",
     },
-    link: { kind: "site", href: "https://www.snaxxtech.com/", label: "Open the site" },
+    link: {
+      kind: "site",
+      href: "https://www.snaxxtech.com/",
+      label: "Open the site",
+    },
     result: "972 → 337 KB",
   },
   {
@@ -158,7 +183,11 @@ export const entries: Entry[] = [
       was: "and Arabic reads right to left.",
       now: "with a full right-to-left layout.",
     },
-    link: { kind: "site", href: "https://bayyinahtv.com/", label: "bayyinahtv.com" },
+    link: {
+      kind: "site",
+      href: "https://bayyinahtv.com/",
+      label: "bayyinahtv.com",
+    },
     result: "English and Arabic, RTL",
   },
   {
@@ -168,11 +197,14 @@ export const entries: Entry[] = [
     role: "Mobile",
     years: "2023",
     head: "One React Native codebase ships Viva Fresh to the App Store and Google Play.",
+    mark: "App Store and Google Play",
     plate: {
-      kind: "phones",
-      srcs: ["/mobile/grocery-1.webp", "/mobile/grocery-2.webp", "/mobile/grocery-3.webp"],
-      alt: "Three Viva Fresh store screenshots on iPhone: home with product categories, the Fresh product grid and the cart",
-      caption: "Public store listing",
+      kind: "screen",
+      src: "/mobile/grocery-1.webp",
+      alt: "Viva Fresh home screen from the App Store listing: product categories, recent products and the first row of product cards",
+      caption: "App Store listing, home screen",
+      image: [780, 1689],
+      crop: [88, 352, 605, 890],
     },
     link: { kind: "case", slug: "viva-fresh" },
     result: "iOS and Android",
@@ -194,7 +226,8 @@ export const entries: Entry[] = [
 
 export const constraintCount = entries.filter((entry) => entry.edit).length;
 
-export const moreCount = projects.length - new Set(entries.map((entry) => entry.slug)).size;
+export const moreCount =
+  projects.length - new Set(entries.map((entry) => entry.slug)).size;
 
 export const spoken = (entry: Entry) =>
   entry.edit

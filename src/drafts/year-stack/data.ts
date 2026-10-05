@@ -7,25 +7,35 @@ export interface Box {
   h: number;
 }
 
-/** A pin ends on a part of a live plate (a selector) or on a box in the first image, in fractions of that image. */
+/** A pin ends on a part of a live plate (a selector) or on a box in the plate's image, in fractions of the whole image. */
 export type PinTarget = { kind: "selector"; css: string } | { kind: "image"; box: Box };
+
+/**
+ * The line enters the plate from its left edge. "side" enters at the part's height.
+ * "lane" enters along a rule of the plate (an element's top edge) or at a clear row
+ * (a fraction of the image height), then turns onto the part, so it never crosses
+ * the plate's top edge.
+ */
+export type PinRoute = { kind: "side" } | { kind: "lane"; along: string } | { kind: "lane"; y: number };
 
 export interface Pin {
   target: PinTarget;
-  /** "over" runs above the plate and drops onto the part; "side" runs straight in from the left. */
-  route: "over" | "side";
+  route: PinRoute;
   pill?: boolean;
 }
 
 export interface Shot {
   src: string;
   alt: string;
+  width: number;
+  height: number;
 }
 
+/** A crop keeps the box of the image, in fractions; it always ends on a whole row of the screen. */
 export type Plate =
   | { kind: "care"; caption: string }
-  | { kind: "web"; shot: Shot; caption: string }
-  | { kind: "phones"; shots: Shot[]; caption: string };
+  | { kind: "web"; shot: Shot; crop: Box; caption: string; dark?: boolean }
+  | { kind: "phone"; shot: Shot; crop: Box; caption: string };
 
 export interface Row {
   project?: string;
@@ -52,12 +62,7 @@ export interface Year {
 
 const shot = (slug: string, index: number): Shot => {
   const item = findProject(slug)?.media.galleries?.[0]?.items[index];
-  return { src: item?.src ?? "", alt: item?.alt ?? "" };
-};
-
-const bayyinahShot = (index: number): Shot => {
-  const item = findProject("bayyinah-tv")?.media.galleries?.[0]?.items[index];
-  return { src: item?.src ?? "", alt: item?.alt ?? "" };
+  return { src: item?.src ?? "", alt: item?.alt ?? "", width: item?.width ?? 1440, height: item?.height ?? 900 };
 };
 
 export const years: Year[] = [
@@ -79,14 +84,13 @@ export const years: Year[] = [
         decision: "Generate every design token from one source, in three tiers.",
         result: "36 components, 805 tokens, 20 releases",
       },
-      {
-        project: "Care-management API",
-        decision: "Rework a billing report that timed out.",
-        result: "16 → 2 queries",
-      },
     ],
     plate: { kind: "care", caption: "Recreation with invented data" },
-    pin: { target: { kind: "selector", css: 'button[aria-label^="Organization"]' }, route: "over", pill: true },
+    pin: {
+      target: { kind: "selector", css: 'button[aria-label^="Organization"]' },
+      route: { kind: "lane", along: ".border-t" },
+      pill: true,
+    },
     link: { label: "Open the case", href: "/work/care-platform" },
   },
   {
@@ -112,9 +116,10 @@ export const years: Year[] = [
     plate: {
       kind: "web",
       shot: shot("bayyinah-institute", 0),
+      crop: { x: 0, y: 0, w: 1, h: 0.878 },
       caption: "bayyinah.org, public page",
     },
-    pin: { target: { kind: "image", box: { x: 0.362, y: 0.746, w: 0.267, h: 0.07 } }, route: "side" },
+    pin: { target: { kind: "image", box: { x: 0.362, y: 0.746, w: 0.267, h: 0.07 } }, route: { kind: "side" } },
     link: { label: "bayyinah.org", href: "https://bayyinah.org/", external: true },
   },
   {
@@ -134,9 +139,11 @@ export const years: Year[] = [
     plate: {
       kind: "web",
       shot: shot("incentiv", 2),
+      crop: { x: 0.095, y: 0.17, w: 0.81, h: 0.655 },
+      dark: true,
       caption: "Portal sign-in, public screen",
     },
-    pin: { target: { kind: "image", box: { x: 0.153, y: 0.553, w: 0.077, h: 0.05 } }, route: "side" },
+    pin: { target: { kind: "image", box: { x: 0.153, y: 0.553, w: 0.077, h: 0.05 } }, route: { kind: "side" } },
     link: { label: "Open the case", href: "/work/incentiv" },
   },
   {
@@ -163,8 +170,14 @@ export const years: Year[] = [
         result: "Four languages: EN, DE, ES, TR",
       },
     ],
-    plate: { kind: "web", shot: bayyinahShot(5), caption: "Bayyinah TV pricing, public page" },
-    pin: { target: { kind: "image", box: { x: 0.363, y: 0.128, w: 0.192, h: 0.08 } }, route: "over" },
+    plate: {
+      kind: "web",
+      shot: shot("bayyinah-tv", 5),
+      crop: { x: 0, y: 0, w: 1, h: 0.844 },
+      dark: true,
+      caption: "Bayyinah TV pricing, public page",
+    },
+    pin: { target: { kind: "image", box: { x: 0.363, y: 0.128, w: 0.192, h: 0.08 } }, route: { kind: "lane", y: 0.106 } },
     link: { label: "Open the case", href: "/work/bayyinah-tv" },
   },
   {
@@ -187,11 +200,12 @@ export const years: Year[] = [
       },
     ],
     plate: {
-      kind: "phones",
-      shots: [shot("read-to-feed", 0), shot("read-to-feed", 2), shot("read-to-feed", 1)],
+      kind: "phone",
+      shot: shot("read-to-feed", 0),
+      crop: { x: 0.103, y: 0.379, w: 0.795, h: 0.388 },
       caption: "Store listing, archived",
     },
-    pin: { target: { kind: "image", box: { x: 0.15, y: 0.42, w: 0.7, h: 0.135 } }, route: "side" },
+    pin: { target: { kind: "image", box: { x: 0.15, y: 0.42, w: 0.7, h: 0.135 } }, route: { kind: "side" } },
     link: { label: "Open the case", href: "/work/read-to-feed" },
   },
   {
@@ -214,11 +228,12 @@ export const years: Year[] = [
       },
     ],
     plate: {
-      kind: "phones",
-      shots: [shot("dukagjini-bookstore", 0), shot("dukagjini-bookstore", 1), shot("dukagjini-bookstore", 2)],
+      kind: "phone",
+      shot: shot("dukagjini-bookstore", 0),
+      crop: { x: 0.141, y: 0.438, w: 0.718, h: 0.308 },
       caption: "Store listing",
     },
-    pin: { target: { kind: "image", box: { x: 0.195, y: 0.675, w: 0.61, h: 0.042 } }, route: "side" },
+    pin: { target: { kind: "image", box: { x: 0.195, y: 0.675, w: 0.61, h: 0.042 } }, route: { kind: "side" } },
     link: { label: "Open the case", href: "/work/dukagjini-bookstore" },
   },
 ];
