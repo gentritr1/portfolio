@@ -128,7 +128,7 @@ export const record: Row[] = [
     decision: "Test tenant isolation in the time-off app.",
     project: "Offday",
     years: "2026",
-    result: "16 security tests",
+    result: "about 200 tests",
   },
   {
     id: "0008",

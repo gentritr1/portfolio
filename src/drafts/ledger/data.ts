@@ -1,7 +1,7 @@
 import { projects } from "../../content/projects";
 
 const material: Record<string, [string, string]> = {
-  "care-platform": ["31 ADRs · parity tested", "#7cc7ff"],
+  "care-platform": ["Decision records · parity tests", "#7cc7ff"],
   "care-api": ["Report queries: 16 → 2", "#ffe45c"],
   "design-system-react": ["34 accessible components", "#b8b1ff"],
   "design-system-vue": ["Figma → code tokens", "#6fe3a8"],
@@ -23,7 +23,7 @@ const material: Record<string, [string, string]> = {
   offbeat: ["8-step Web Audio drum machine", "#ff9a7a"],
   form: ["3 sculptures · word-cast forms", "#e8b48a"],
   "snaxx-tech": ["Images: 972 → 337 KB", "#ffe08a"],
-  offday: ["16 security & tenant tests", "#9fd8ff"],
+  offday: ["about 200 tests", "#9fd8ff"],
   "geo-guesser": ["Published on Google Play", "#a8f0a0"],
   fjale: ["21k Albanian words", "#f9f07a"],
   za: ["2–8 players · WebSocket", "#ffb3c7"],

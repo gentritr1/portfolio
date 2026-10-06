@@ -116,7 +116,7 @@ export const decisions: Decision[] = [
     id: "0007",
     title: "Test tenant isolation in the time-off app.",
     label: "Time-off app",
-    result: "16 security tests",
+    result: "about 200 tests",
     project: "Offday",
     role: "Owner",
     years: "2026",
@@ -129,7 +129,7 @@ export const decisions: Decision[] = [
         height: 900,
       },
     },
-    line: "16 Playwright tests check security, and that each workspace sees only its own data.",
+    line: "About 200 Playwright tests check security, and that each workspace sees only its own data.",
     point: { rect: [18, 106, 191, 57], route: "left" },
   },
   {

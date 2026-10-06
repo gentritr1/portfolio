@@ -86,7 +86,7 @@ export function projectFacts(project: Project): string[] {
   if (project.slug === "care-platform")
     return [
       "Vue (Nuxt 2) to React, one route at a time, with parity tests.",
-      "31 architecture decision records and CI quality gates.",
+      "Architecture decision records and CI quality gates.",
       "Care plans, lab results, vitals, billing claims, calls and chat.",
       "English, German, Spanish and Turkish; separate data for each organization.",
     ];

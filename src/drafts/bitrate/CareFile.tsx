@@ -16,7 +16,7 @@ export default function CareFile({ reduced }: { reduced: boolean }) {
       aria-pressed={open}
       aria-label={
         open
-          ? "Close care case facts. 31 architecture decisions; parity before cutover; billing report 16 to 2 queries."
+          ? "Close care case facts. Architecture decisions written down; parity before cutover; billing report 16 to 2 queries."
           : "Open care-platform case facts"
       }
     >
@@ -49,7 +49,7 @@ export default function CareFile({ reduced }: { reduced: boolean }) {
           </span>
         </span>
         <span className="bit-file-back" aria-hidden={!open}>
-          <strong>31 architecture decisions.</strong>
+          <strong>Architecture decisions, written down.</strong>
           <span>Parity before cutover.</span>
           <span>Billing report: 16 → 2 queries.</span>
           <small>Close file</small>

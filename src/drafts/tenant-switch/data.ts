@@ -200,10 +200,10 @@ const entries: Record<string, Entry> = {
   },
   offday: {
     name: 'Offday',
-    outcome: 'Multi-tenant time off, 16 isolation tests',
+    outcome: 'Multi-tenant time off, about 200 tests',
     scope: 'Web',
     problem: 'Many teams share one time-off app, and no data may cross teams.',
-    result: 'Approvals, a team calendar and invite links. 16 Playwright tests cover security and tenant isolation.',
+    result: 'Approvals and a team calendar. About 200 Playwright tests cover security and tenant isolation.',
     proof: { kind: 'web', src: '/personal/shots/offday-app-desktop.webp', alt: 'Offday team calendar with October leave bars and the approval queue' },
   },
   'geo-guesser': {

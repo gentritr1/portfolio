@@ -60,7 +60,7 @@ export function CareFile({
             </span>
           </span>
           <span className="fp-care-back" aria-hidden={!open}>
-            <strong>{ar ? "31 وثيقة قرار" : "31 ADRs"}</strong>
+            <strong>{ar ? "وثائق القرار" : "Decision records"}</strong>
             <span>
               {ar
                 ? "قرارات البنية موثقة."

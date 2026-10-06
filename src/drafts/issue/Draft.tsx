@@ -202,7 +202,7 @@ export default function Draft() {
           <div className="iss-story-columns">
             <p className="iss-drop">{offday.summary}</p>
             <aside>
-              <blockquote>16 tests for security and tenant isolation.</blockquote>
+              <blockquote>About 200 tests, including security and tenant isolation.</blockquote>
               <p className="iss-meta">{offday.stack.join(" · ")}</p>
             </aside>
           </div>

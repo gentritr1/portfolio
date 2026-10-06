@@ -26,7 +26,7 @@ const specificClues: Record<string, string> = {
   fjale: 'A daily Albanian word game. A 21k-word dictionary, an archive, and play that works offline.',
   'bayyinah-tv': 'A video-learning platform rebuilt across 34 routes. English, Arabic, and live streams.',
   'read-to-feed': 'Books, a barcode scanner, and about 14 releases. React Native, from 0.63 to 0.81.',
-  'care-platform': 'A Vue-to-React migration, route by route. Parity tests and 31 architecture decisions.',
+  'care-platform': 'A Vue-to-React migration, route by route. Parity tests and written architecture decisions.',
   'care-api': 'A multi-tenant Laravel API. One billing report went from 16 queries to 2.',
   'morse-trainer': 'Learn the rhythm of Morse with spaced repetition and Farnsworth timing.',
   'donation-app': 'Donations and subscriptions with Stripe, badges, guided tasks and video, for iOS and Android.',

@@ -271,7 +271,7 @@ export const examples: Example[] = [
     variants: ['fullstack'],
     problem: 'A time-off app where each company’s data must stay its own.',
     built: 'Next.js 16, SQLite and Zod: requests, approvals, a team calendar and a streaming AI assistant.',
-    result: '16 Playwright tests guard security and tenant isolation.',
+    result: 'About 200 Playwright tests guard security and tenant isolation.',
     canvas: { kind: 'web', frames: frames('offday', 0, 1, 2) },
     more: {
       text: 'Employees request leave, managers approve it, and the team calendar shows who is away, with drag-select to pick dates. Invite links bring people into a workspace. A personal project, with real screenshots.',

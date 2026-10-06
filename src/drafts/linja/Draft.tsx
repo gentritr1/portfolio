@@ -769,7 +769,7 @@ export default function Draft() {
                             Confidential case file
                           </span>
                           <span className="linja-file-back" aria-hidden={!careFacts}>
-                            31 ADRs · Parity tests · 16 → 2 queries
+                            Decision records · Parity tests · 16 → 2 queries
                           </span>
                         </motion.span>
                         <span>{careFacts ? "Close the file" : "Open the file"}</span>

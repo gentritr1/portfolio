@@ -17,7 +17,7 @@ export function OldCareFile({ slug }: { slug: string }) {
         <span>Private product. Public engineering account.</span>
       </span>
       <span className="old-care-file-back" aria-hidden={!open}>
-        <span className="old-care-file-facts" id={factsId}><strong>31 architecture decisions.</strong><span>Parity tests before each route moves from Vue to React.</span><span>API billing report: 16 queries → 2.</span><span className="old-care-file-hint">Press again to close the file.</span></span>
+        <span className="old-care-file-facts" id={factsId}><strong>Architecture decisions, written down.</strong><span>Parity tests before each route moves from Vue to React.</span><span>API billing report: 16 queries → 2.</span><span className="old-care-file-hint">Press again to close the file.</span></span>
         <span className="old-care-file-recreation"><img src="/signal-posters/healthcare.avif" alt="Care interface recreation using invented data" loading="lazy" /><span>Recreation · invented data</span></span>
       </span>
     </motion.span>

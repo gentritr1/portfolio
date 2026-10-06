@@ -12,7 +12,7 @@ const colours = [
 const highlights: Record<string, string> = {
   "bayyinah-tv": "34 routes. English & Arabic. Live streams.",
   futurisma: "Seven circuits. Weather, tides and day–night systems.",
-  "care-platform": "31 architecture decisions. Parity before cutover.",
+  "care-platform": "Architecture decisions, written down. Parity before cutover.",
   "care-api": "One billing report: 16 queries → 2.",
   fjale: "21,000 Albanian words. An archive. Offline play.",
   "morse-trainer": "Spaced repetition and Farnsworth timing.",

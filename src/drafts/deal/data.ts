@@ -150,7 +150,7 @@ const facts: Record<string, [string, string]> = {
   offbeat: ["8 steps", "Web Audio drum machine"],
   form: ["3", "mathematical sculptures"],
   "snaxx-tech": ["972 → 337 KB", "image assets"],
-  offday: ["16 tests", "security and tenant isolation"],
+  offday: ["about 200 tests", "security and tenant isolation"],
   "geo-guesser": ["Google Play", "a published geography game"],
   futurisma: ["7 circuits", "weather, tides and day / night"],
   "secret-dictator": ["AI opponents", "a social-deduction game"],

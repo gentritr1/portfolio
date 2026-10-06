@@ -244,7 +244,7 @@ const record: { decision: string; result: string; href: string }[] = [
   },
   {
     decision: "Test tenant isolation in a time-off app",
-    result: "16 security tests",
+    result: "about 200 tests",
     href: "/work/offday",
   },
 ];

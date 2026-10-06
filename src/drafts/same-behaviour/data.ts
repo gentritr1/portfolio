@@ -151,7 +151,7 @@ export const work: Work[] = [
   {
     slug: "offday",
     name: "Offday",
-    line: "Multi-tenant time off with approvals and a team calendar; 16 security tests",
+    line: "Multi-tenant time off with approvals and a team calendar; about 200 tests",
     role: "Owner",
     years: "2026",
     shot: {

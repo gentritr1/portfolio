@@ -25,7 +25,7 @@ function Version({ current }: { current: boolean }) {
       </dl>
       <p>
         {current
-          ? "31 architecture decisions. Route-by-route parity tests."
+          ? "Architecture decisions, written down. Route-by-route parity tests."
           : "An established application, moved one route at a time."}
       </p>
     </div>

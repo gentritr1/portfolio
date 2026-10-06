@@ -316,7 +316,7 @@ export const experience: Entry[] = [
 
 export const personal: Claim[] = [
   {
-    text: "Offday: a multi-tenant time-off app with 16 security and tenant-isolation tests.",
+    text: "Offday: a multi-tenant time-off app with about 200 tests, including security and tenant isolation.",
     proof: {
       id: "10",
       kind: "Own project · screenshot",

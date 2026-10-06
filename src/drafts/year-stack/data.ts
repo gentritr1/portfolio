@@ -252,7 +252,7 @@ export const record: RecordRow[] = [
     year: "2026",
     project: "Offday",
     decision: "Test that each workspace of a multi-tenant time-off app stays apart.",
-    result: "16 isolation tests",
+    result: "about 200 tests",
   },
   {
     year: "2026",

@@ -52,7 +52,7 @@ export default function CareFile({ reduced }: { reduced: boolean }) {
               : undefined
           }
         >
-          <strong>31 architecture decisions.</strong>
+          <strong>Architecture decisions, written down.</strong>
           <span>Parity before cutover.</span>
           <span>Billing report: 16 → 2 queries.</span>
           <span>Close the file</span>

@@ -26,7 +26,7 @@ export const features: Feature[] = [
     line: "Time off, together.",
     title: ["Time off.", "Together."],
     deck: "Employee requests. Manager approvals. One team calendar, with drag-select to pick the dates.",
-    quote: "16 security and tenant-isolation tests.",
+    quote: "About 200 tests, including security and tenant isolation.",
     caption: "Team calendar · public capture",
     aspect: "web",
     plates: [

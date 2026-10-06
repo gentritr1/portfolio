@@ -234,7 +234,7 @@ export const record: RecordRow[] = [
     decision: "Prove that each team in a time-off app sees only its own data.",
     project: "Offday",
     years: "2026",
-    result: "16 security tests",
+    result: "about 200 tests",
   },
   {
     decision: "Make a studio's website lighter to load.",

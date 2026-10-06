@@ -42,7 +42,7 @@ export function CareFile({ reduced }: { reduced: boolean }) {
             <span>Recreation · invented data</span>
           </span>
           <span className="dl-care-back" aria-hidden={!open}>
-            <strong>31 ADRs</strong>
+            <strong>Decision records</strong>
             <span>Architecture decisions recorded.</span>
             <strong>Parity tests</strong>
             <span>Vue to React, route by route.</span>

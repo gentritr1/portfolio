@@ -91,7 +91,7 @@ export const rows: Row[] = [
     years: "2026",
     scope: "Web app",
     text: "many teams share one app,",
-    edit: { was: "and no data may cross", now: "16 tests check isolation" },
+    edit: { was: "and no data may cross", now: "about 200 tests check isolation" },
     note: "A multi-tenant time-off app: requests, approvals and a team calendar. Playwright covers security and tenant isolation.",
     proof: {
       kind: "shot",

@@ -311,7 +311,7 @@ export const workspaces: Workspace[] = [
             id: 'pe-tenant',
             slug: 'offday',
             text: 'Keep {every team’s data apart} in one shared app.',
-            result: '16 security and tenant-isolation tests',
+            result: 'about 200 tests, including tenant isolation',
             pin: { kind: 'point', x: 0.142, y: 0.15 },
           },
           {

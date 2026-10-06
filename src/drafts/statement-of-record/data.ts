@@ -114,7 +114,7 @@ export const entries: Entry[] = [
     head: "Many teams share one time-off app,",
     edit: {
       was: "and no team may see another team’s data.",
-      now: "and 16 tests check security and tenant isolation.",
+      now: "and about 200 tests check security and tenant isolation.",
     },
     plate: {
       kind: "web",
@@ -122,7 +122,7 @@ export const entries: Entry[] = [
       alt: "Offday team calendar in the demo workspace: October leave bars and the approval queue",
       caption: "Own project, own capture",
     },
-    result: "16 isolation tests",
+    result: "about 200 tests",
   },
   {
     id: "0006",

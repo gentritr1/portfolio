@@ -45,7 +45,7 @@ export const indexArt: Record<string, IndexArt> = {
     images: ["/signal-posters/healthcare.avif"],
     type: "web",
     proof: "A live platform. A careful rewrite.",
-    detail: "Vue → React · parity-tested · 31 ADRs",
+    detail: "Vue → React · parity-tested · Decision records",
     caption: "Recreation with invented data",
   },
   "read-to-feed": {

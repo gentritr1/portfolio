@@ -10,7 +10,7 @@ export function CareFile({ reduced }: { reduced: boolean }) {
       <span className="fk-care-tab">PRIVATE / CARE PLATFORM</span>
       <motion.span className="fk-care-paper" animate={{ y: open ? -18 : preview ? -9 : 0, z: open ? 36 : 0, scale: open ? 1.05 : 1, rotateY: open ? 180 : 0 }} transition={reduced ? { duration: .01 } : spring.lift}>
         <span className="fk-care-front" aria-hidden={open}><img src="/signal-posters/healthcare.avif" alt="Care interface recreation with invented data" /><span>Recreation · invented data</span></span>
-        <span className="fk-care-back" aria-hidden={!open}><strong>31 ADRs</strong><span>Architecture decisions, written down.</span><strong>Parity tests</strong><span>Vue to React, route by route.</span><strong>16 → 2 queries</strong><span>One billing report in the related care API.</span></span>
+        <span className="fk-care-back" aria-hidden={!open}><strong>Decision records</strong><span>Architecture decisions, written down.</span><strong>Parity tests</strong><span>Vue to React, route by route.</span><strong>16 → 2 queries</strong><span>One billing report in the related care API.</span></span>
       </motion.span>
       <span className="fk-care-pocket">{open ? 'Case file open · tap to close' : 'Private work · open the case file'}</span>
     </motion.button>
