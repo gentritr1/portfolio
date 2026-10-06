@@ -1011,13 +1011,12 @@
   flex-direction: column;
   padding: 8px;
 }
-.draft-facing-pages .fp-care-front > img {
-  display: block;
+.draft-facing-pages .fp-care-front > .fp-care-shot {
+  display: grid;
+  place-items: center;
   min-height: 0;
   flex: 1;
-  width: 100%;
-  height: calc(100% - 25px);
-  object-fit: cover;
+  container-type: size;
 }
 .draft-facing-pages .fp-care-front > span {
   font:

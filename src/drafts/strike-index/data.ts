@@ -1,7 +1,9 @@
 import { findProject, projects, type Project } from "../../content/projects";
+import { careShots, dsShots, type ScreenShot } from "../../content/careShots";
 
 export type Proof =
   | { kind: "shot"; src: string; alt: string; note?: string }
+  | { kind: "screen"; shot: ScreenShot; note: string }
   | { kind: "phones"; srcs: string[]; alt: string }
   | { kind: "readout"; from?: string; to: string; label: string };
 
@@ -24,7 +26,7 @@ const need = (slug: string) => {
   return project;
 };
 
-const recreation = "Recreation with invented data. The product is private.";
+const realScreen = "Real product screen with invented data. The product is private.";
 
 export const rows: Row[] = [
   {
@@ -35,12 +37,7 @@ export const rows: Row[] = [
     text: "Vue to React:",
     edit: { was: "no behaviour may change", now: "parity tests on both apps" },
     note: "A live multi-tenant product moves one route at a time. Each screen keeps every organization’s data, roles and timezones apart, in four languages.",
-    proof: {
-      kind: "shot",
-      src: "/signal-posters/healthcare.avif",
-      alt: "Vitals trend card for Patient 4821 at Northwind Clinic, two readings marked as alerts",
-      note: recreation,
-    },
+    proof: { kind: "screen", shot: careShots.week, note: realScreen },
   },
   {
     project: need("care-api"),
@@ -64,12 +61,7 @@ export const rows: Row[] = [
     scope: "System",
     text: "36 components and 805 tokens, 20 releases in about six weeks",
     note: "One token source in three tiers feeds CSS, TypeScript and Figma. A Button-only consumer loads 96.6% less JavaScript.",
-    proof: {
-      kind: "shot",
-      src: "/showcase/design-system/specimen-light.webp",
-      alt: "Component specimen of an invented project-tracker kit: token tiers, alerts, inputs, steps and a toast",
-      note: "Recreation of an invented kit, in its own palette.",
-    },
+    proof: { kind: "screen", shot: dsShots.buttonAlert, note: realScreen },
   },
   {
     project: need("bayyinah-tv"),

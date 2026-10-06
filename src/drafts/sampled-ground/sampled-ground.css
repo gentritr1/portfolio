@@ -370,11 +370,6 @@
   line-height: 1.6;
 }
 
-/* The specimen plate shows its Tokens card only; the cards under it stay out of view and out of the tab order. */
-.sg-plate .dsr-board > section:not(.dsr-area-tokens) {
-  visibility: hidden;
-}
-
 .sg-wait {
   position: absolute;
   inset: 0;

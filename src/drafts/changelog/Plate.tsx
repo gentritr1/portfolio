@@ -1,8 +1,9 @@
-import { Suspense, forwardRef, type CSSProperties } from "react";
+import { forwardRef } from "react";
 import { Link } from "react-router";
 import { motion } from "motion/react";
 import { ArrowRightIcon, ArrowUpRightIcon } from "@phosphor-icons/react";
-import { recreations } from "../../lib/recreations";
+import { CropShot } from "../../components/CropShot";
+import { REAL_SCREENS } from "../../content/careShots";
 import type { Change, Plate } from "./data";
 import { ease } from "./motion";
 
@@ -15,23 +16,8 @@ interface PlateProps {
 }
 
 function Stage({ plate }: { plate: Plate }) {
-  if (plate.kind === "recreation") {
-    const entry = recreations[plate.recreation];
-    const Recreation = entry.Component;
-    const style = {
-      "--a-base": entry.aspect.base,
-      "--a-sm": entry.aspect.sm,
-      "--a-lg": entry.aspect.lg,
-    } as CSSProperties;
-    return (
-      <div className="cl-stage" data-world={entry.world} style={style}>
-        <Suspense
-          fallback={<img className="cl-stage-poster" src={plate.thumb} alt="" />}
-        >
-          <Recreation />
-        </Suspense>
-      </div>
-    );
+  if (plate.kind === "shot") {
+    return <CropShot shot={plate.shot} className="cl-shot" style={{ maxWidth: plate.shot.crop.w }} />;
   }
   return (
     <div className={`cl-shots cl-shots-${plate.kind}`} data-count={plate.images.length}>
@@ -74,9 +60,7 @@ export const PlateView = forwardRef<HTMLElement, PlateProps>(function PlateView(
         <span className="cl-caption-no">Plate {number}</span>
         <span className="cl-caption-text">
           {plate.title}.{" "}
-          {plate.kind === "recreation"
-            ? `Recreation with invented data. ${plate.hint}`
-            : "Screens from public pages."}
+          {plate.kind === "shot" ? REAL_SCREENS : "Screens from public pages."}
         </span>
         {(change.caseSlug || change.links?.length) && (
           <span className="cl-caption-links">

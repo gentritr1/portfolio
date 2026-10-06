@@ -91,14 +91,25 @@ export default function Reel({
         sample.width = Math.max(1, Math.round(image.naturalWidth / divisor));
         sample.height = Math.max(1, Math.round(image.naturalHeight / divisor));
         sampleContext?.drawImage(image, 0, 0, sample.width, sample.height);
-        const ratio = Math.min(
-          (w * 0.79) / image.naturalWidth,
-          (h * 0.74) / image.naturalHeight,
-        );
-        const imageWidth = image.naturalWidth * ratio;
-        const imageHeight = image.naturalHeight * ratio;
+        const filePx = image.naturalWidth / (source?.shot?.width ?? image.naturalWidth);
+        const crop = source?.shot?.crop ?? {
+          x: 0,
+          y: 0,
+          w: image.naturalWidth,
+          h: image.naturalHeight,
+        };
+        const cropWidth = crop.w * filePx;
+        const cropHeight = crop.h * filePx;
+        const ratio = Math.min((w * 0.79) / cropWidth, (h * 0.74) / cropHeight);
+        const imageWidth = cropWidth * ratio;
+        const imageHeight = cropHeight * ratio;
+        const toSample = sampleContext ? sample.width / image.naturalWidth : 1;
         context.drawImage(
           sampleContext ? sample : image,
+          crop.x * filePx * toSample,
+          crop.y * filePx * toSample,
+          cropWidth * toSample,
+          cropHeight * toSample,
           (w - imageWidth) / 2,
           (h - imageHeight) / 2,
           imageWidth,
@@ -171,7 +182,7 @@ export default function Reel({
       className="bit-reel"
       style={{ backgroundColor: projectColour(project) }}
     >
-      {!ready && source && (
+      {!ready && source && !source.shot && (
         <img
           src={source.src}
           alt=""

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { AnimatePresence, LayoutGroup, animate, motion } from 'motion/react'
 import { useLocation } from 'react-router'
 import { CareFile } from './CareFile'
+import { CropShot } from '../../components/CropShot'
 import { ThermalReceipt } from './ThermalReceipt'
 import { receiptText } from './receiptText'
 import { dur, ease, spring } from './motion'
@@ -67,11 +68,13 @@ function ProductBox({ item, index, enterDelay, settled, inBasket, scanning, redu
       <span className="as-box-front" ref={node => register(item.project.slug, node)}>
         <motion.span className="as-box-name" layoutId={detailActive ? undefined : 'as-title-' + item.project.slug} transition={ui}>{item.project.name}</motion.span>
         <span className="as-window">
-          {item.image
+          {item.image?.real
+            ? <CropShot shot={item.image.real.window} fill alt="" eager={index < 5} style={{ borderRadius: 7 }} />
+            : item.image
             ? <img src={item.image.src} alt="" loading={index < 5 ? 'eager' : 'lazy'} decoding="async" style={{ objectPosition: item.image.position[0] * 100 + '% ' + item.image.position[1] * 100 + '%' }} />
             : <span className="as-window-type"><strong>{item.project.stack[0]}</strong><span>{item.project.stack.slice(1, 3).join(' · ') || item.project.kind}</span></span>}
         </span>
-        {item.image?.recreation && <small className="as-small-print">Invented data</small>}
+        {item.image?.real && <small className="as-small-print">Invented data</small>}
         <motion.span className="as-laser" aria-hidden="true" initial={false} animate={laser.animate} transition={reduced ? { duration: .01 } : laser.transition} />
       </span>
       <span className="as-box-side" aria-hidden="true"><span>GR / {item.reference} · {years}</span></span>
@@ -400,7 +403,7 @@ export default function Draft() {
           <button type="button" className="as-detail-scan" onClick={() => scan(inspected)} disabled={basket.includes(inspected)}>{basket.includes(inspected) ? 'In your basket' : 'Add to your basket'}{basket.includes(inspected) ? <CheckIcon /> : <BasketIcon />}</button>
           <button className="as-close-case" type="button" onClick={() => setDetailsOpen(false)}>Close the label</button></div>
         <div><p>{selected.project.summary}</p><dl><div><dt>Work</dt><dd>{selected.project.role}</dd></div><div><dt>Technology</dt><dd>{selected.project.stack.join(' · ')}</dd></div></dl><nav aria-label={selected.project.name + ' links'}>{selected.project.featured && <a href={'/work/' + inspected}>Full case study <Arrow /></a>}{selected.project.links.map(link => <a key={link.href} href={link.href} target="_blank" rel="noreferrer">{link.label} <Arrow /></a>)}</nav></div>
-        {inspected === 'care-platform' ? <CareFile reduced={reduced} /> : selected.image && <figure><img src={selected.poster ?? selected.image.src} alt={selected.image.alt} loading="lazy" /><figcaption>{selected.image.recreation ? 'Recreation · invented data' : 'Public store or web page'}</figcaption></figure>}
+        {inspected === 'care-platform' ? <CareFile reduced={reduced} /> : selected.image?.real ? <figure><CropShot shot={selected.image.real.label} /><figcaption>Real product screens · invented data</figcaption></figure> : selected.image && <figure><img src={selected.poster ?? selected.image.src} alt={selected.image.alt} loading="lazy" /><figcaption>Public store or web page</figcaption></figure>}
       </motion.section>}</AnimatePresence>
       <footer className="as-footer">
         <div><h2>Gentrit Rashiti</h2><p>Web and mobile products, from the first screen to release: healthcare, video streaming, e-reading and Web3. Kosovo, working remotely.</p></div>

@@ -1,3 +1,4 @@
+import { careShots, dsShots, type ScreenShot } from '../../content/careShots'
 import { projects, groupPeriods, type Project, type ProjectGroupName, type PublicLink, type RecreationKey } from '../../content/projects'
 
 export type TenantId = 'vianova' | 'agency-work' | 'incentiv' | 'avahitech' | 'personal'
@@ -6,6 +7,7 @@ export type Scope = 'Web' | 'API' | 'System' | 'Mobile' | 'Site' | 'Library' | '
 
 export type Proof =
   | { kind: 'recreation'; key: RecreationKey; hint: string }
+  | { kind: 'shot'; shot: ScreenShot }
   | { kind: 'web'; src: string; alt: string }
   | { kind: 'small'; src: string; alt: string }
   | { kind: 'phones'; srcs: string[]; alt: string }
@@ -28,7 +30,7 @@ const entries: Record<string, Entry> = {
     scope: 'Web',
     problem: 'A live multi-tenant care platform had to leave Vue without losing a behaviour.',
     result: 'A route moves to React only after its parity test passes against both apps. Most screens are rebuilt.',
-    proof: { kind: 'recreation', key: 'care', hint: 'Switch the organization in the card. The patient, the data and the timezone change; the controls stay.' },
+    proof: { kind: 'shot', shot: careShots.patients },
   },
   'care-api': {
     name: 'Care-management API',
@@ -44,7 +46,7 @@ const entries: Record<string, Entry> = {
     scope: 'System',
     problem: 'A new React dashboard needed one accessible base, from tokens to controls.',
     result: '36 components in 20 releases in about six weeks, to WCAG 2.1 AA floors. A Button-only consumer loads 96.6% less JavaScript.',
-    proof: { kind: 'recreation', key: 'design-system', hint: 'An invented kit built the same way: three token tiers under every control.' },
+    proof: { kind: 'shot', shot: dsShots.top },
   },
   'design-system-vue': {
     name: 'Design system, Vue',

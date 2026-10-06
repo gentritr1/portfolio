@@ -1,4 +1,5 @@
 /** Plain case-page copy. Facts come from CONTENT.md, projects.ts and caseNarratives.ts. */
+import { careShots, dsShots, REAL_SCREENS } from "../content/careShots";
 
 /** A box in source pixels of a screenshot. */
 export interface Px {
@@ -19,7 +20,7 @@ export interface Shot {
   ground: string;
 }
 
-export type LiveKey = "care" | "design-system" | "wallet";
+export type LiveKey = "wallet";
 
 /**
  * A shot plate may carry the product's public links beside the shot. The value is the panel title.
@@ -28,13 +29,28 @@ export type LiveKey = "care" | "design-system" | "wallet";
 export type Plate =
   | ({ kind: "web" | "phone"; stores?: string; narrow?: Px; narrowAlt?: string } & Shot)
   | { kind: "live"; key: LiveKey }
-  | { kind: "number"; from?: string; to: string; unit: string; note: string };
+  | { kind: "number"; from?: string; to: string; unit: string; note: string }
+  | { kind: "flow"; steps: Step[]; back: Back };
+
+/** One step of a work loop. `person`: the step a person takes, not an agent. */
+export interface Step {
+  name: string;
+  note: string;
+  person?: boolean;
+}
+
+/** The way back in a work loop: a failed step returns the work to an earlier step. Both are indexes into `steps`. */
+export interface Back {
+  from: number;
+  to: number;
+  label: string;
+}
 
 /** The proving part of the plate. A box in a shot gets a ring. */
 export type Target = { kind: "shot"; box: Px } | { kind: "selector"; css: string; round?: boolean } | { kind: "figure" };
 
 export interface Part {
-  heading: "The product" | "What was built" | "The result";
+  heading: "The product" | "What was built" | "How it is built" | "The result";
   text: string;
   /** The result line under the part's text. */
   proof: string;
@@ -45,7 +61,7 @@ export interface Part {
    * The crop the phone layout shows under this part. "stores": only the plate's link panel.
    * Omitted: the part shows no plate on a phone. The first part's plate is the phone hero, under the title.
    */
-  narrow?: Px | "live" | "number" | "stores";
+  narrow?: Px | "live" | "number" | "flow" | "stores";
   /** What the phone crop shows, when it is a different part of the shot. */
   narrowAlt?: string;
 }
@@ -66,9 +82,11 @@ export interface CaseCopy {
   privateNote?: string;
   plates: Plate[];
   captions: string[];
-  parts: [Part, Part, Part];
+  parts: [Part, Part, Part, ...Part[]];
   figures?: Figure[];
   builtWith: string;
+  /** Detail for engineers, one fact for each item. */
+  engineering?: string[];
 }
 
 const RECREATION = "Recreation · invented data.";
@@ -116,34 +134,6 @@ const incentivSignIn: Shot = {
   ground: "#262624",
 };
 
-const REAL_SCREENS = "Real product screens, invented data.";
-
-const careGlucose: Shot = {
-  src: "/showcase/care-dashboard/rpm-overview-cgm.webp",
-  alt: "Glucose overview for one patient: time in range, average, highest and lowest values, device usage, one day's glucose curve, and the first row of the readings for the last seven days. Invented data.",
-  width: 1440,
-  height: 900,
-  crop: { x: 236, y: 76, w: 1204, h: 810 },
-  ground: "#f4f6fa",
-};
-
-const careClaims: Shot = {
-  src: "/showcase/care-dashboard/claims.webp",
-  alt: "Claims for one month: counts by status, filters for updated claims and claims that need attention, and each claim with its program, CPT codes and status. Invented data.",
-  width: 1440,
-  height: 900,
-  crop: { x: 246, y: 160, w: 1194, h: 714 },
-  ground: "#f5f7fb",
-};
-
-const careWeek: Shot = {
-  src: "/showcase/care-dashboard/appointments-week.webp",
-  alt: "Care team calendar for one week: calls, video calls and office visits for each patient, filters for priority, status, type, assignee and patient, and a line at the current time. Invented data.",
-  width: 1440,
-  height: 900,
-  crop: { x: 240, y: 70, w: 1200, h: 748 },
-  ground: "#f5f7fb",
-};
 
 const phone = (src: string, alt: string, crop: Px): { kind: "phone" } & Shot => ({
   kind: "phone",
@@ -166,13 +156,24 @@ export const caseCopy: Record<string, CaseCopy> = {
     privateNote: `Private app. ${REAL_SCREENS}`,
     plates: [
       { kind: "number", from: "16", to: "2", unit: "Database requests", note: "One billing report, before and after" },
-      { kind: "web", ...careGlucose },
-      { kind: "web", ...careClaims },
+      { kind: "web", ...careShots.glucose },
+      { kind: "web", ...careShots.claims },
       {
         kind: "web",
-        ...careWeek,
-        narrow: { x: 630, y: 208, w: 321, h: 530 },
-        narrowAlt: "Two days of the care team calendar, Tuesday and Wednesday, from 8 AM to 1 PM, with a line at the current time. Invented data.",
+        ...careShots.week,
+        narrow: careShots.weekTwoDays.crop,
+        narrowAlt: careShots.weekTwoDays.alt,
+      },
+      {
+        kind: "flow",
+        steps: [
+          { name: "Old app", note: "Shows how it works" },
+          { name: "Test first", note: "Written on the old app" },
+          { name: "Agents build", note: "Inside fixed rules" },
+          { name: "Checks", note: "Automatic, must pass" },
+          { name: "Person approves", note: "Then it is added", person: true },
+        ],
+        back: { from: 4, to: 2, label: "Fails? It goes back." },
       },
     ],
     captions: [
@@ -180,6 +181,7 @@ export const caseCopy: Record<string, CaseCopy> = {
       `Glucose overview for one patient. ${REAL_SCREENS}`,
       `Claims for one month. ${REAL_SCREENS}`,
       `Care team calendar for one week. ${REAL_SCREENS}`,
+      "How a change gets into the new app.",
     ],
     parts: [
       {
@@ -205,8 +207,16 @@ export const caseCopy: Record<string, CaseCopy> = {
         proof: "Claims that need another look are flagged.",
         plate: 2,
         target: { kind: "shot", box: { x: 676, y: 500, w: 308, h: 40 } },
-        narrow: { x: 256, y: 270, w: 776, h: 280 },
-        narrowAlt: "Claim counts by status, and the filters for updated claims and claims that need attention. Invented data.",
+        narrow: careShots.claimsCounts.crop,
+        narrowAlt: careShots.claimsCounts.alt,
+      },
+      {
+        heading: "How it is built",
+        text: "AI agents work inside fixed rules and automatic checks. Old bugs are written down, not copied. A person approves each change before it is added.",
+        proof: "A check is trusted only after it is shown to fail.",
+        plate: 4,
+        target: { kind: "figure" },
+        narrow: "flow",
       },
     ],
     figures: [
@@ -216,6 +226,14 @@ export const caseCopy: Record<string, CaseCopy> = {
     ],
     builtWith:
       "React 19, TypeScript, TanStack Query and Router, Zustand, Zod, Tailwind, Vitest, Playwright. Before the rewrite: Vue and Nuxt 2. Server: Laravel 13, PHP 8.3, MySQL, Redis, Pest. Services: Twilio, Chime, Pusher, ECharts.",
+    engineering: [
+      "One Playwright spec for each route is written against the pinned legacy app. The same spec must then pass on both apps.",
+      "Each route keeps a deviations register: every departure from legacy, with its evidence and an approval.",
+      "Two stable CI jobs. Each gate has a negative control that proves it can fail.",
+      "Server state in TanStack Query, client state in Zustand, filters and tabs in the URL. Zod schemas from captured responses parse every API response.",
+      "Features never import sibling features. A dependency-graph check enforces it.",
+      "Agents work through repository skills, one for each stage, with a fresh reviewer for each round. A rule changes only through a decision record.",
+    ],
   },
 
   "bayyinah-tv": {
@@ -433,42 +451,63 @@ export const caseCopy: Record<string, CaseCopy> = {
     sentence:
       "Design System v2 is the shared set of buttons, menus and forms that the team built for the new dashboard of a care platform. A colour changes in one place, and the code and the Figma file follow.",
     platforms: "A library of screen parts, for code and for Figma",
-    privateNote: "Not public. Shown as a recreation and a capture from its Storybook.",
+    privateNote: `Not public. ${REAL_SCREENS}`,
     plates: [
-      { kind: "live", key: "design-system" },
+      { kind: "web", ...dsShots.buttonAlert },
+      { kind: "number", to: "96.6%", unit: "Less JavaScript", note: "For a page that uses only a button" },
+      { kind: "web", ...careShots.overview },
       {
-        kind: "web",
-        src: "/showcase/design-system/button-alert.webp",
-        alt: "Design System v2 in its Storybook: buttons in four styles, buttons with icons, and alerts for a note, information, success, a warning and an error. Sample text.",
-        width: 720,
-        height: 596,
-        crop: { x: 0, y: 0, w: 720, h: 596 },
-        ground: "#ffffff",
+        kind: "flow",
+        steps: [
+          { name: "Research", note: "Five leading systems" },
+          { name: "Guides", note: "Written for agents" },
+          { name: "Agents build", note: "Inside the guides" },
+          { name: "Checks", note: "Automatic, must pass" },
+          { name: "Person approves", note: "Then it is added", person: true },
+        ],
+        back: { from: 4, to: 2, label: "Fails? It goes back." },
       },
     ],
-    captions: [`A few of the building blocks. ${RECREATION}`, "Button and Alert, from the Storybook. Sample text."],
+    captions: [
+      `Button and Alert, from the Storybook. ${REAL_SCREENS}`,
+      "Less JavaScript for a page that uses only a button.",
+      `The care dashboard that uses it. ${REAL_SCREENS}`,
+      "How a change gets into the library.",
+    ],
     parts: [
       {
         heading: "The product",
         text: "Colours, sizes and type are set once, for code and for Figma. 805 shared style values, in three levels, feed ready-made building blocks, from buttons and alerts to date pickers and pop-up messages.",
         proof: "Buttons, fields, switches and alerts, ready for every screen.",
         plate: 0,
-        target: { kind: "selector", css: ".dsr-area-buttons" },
-        narrow: "live",
+        target: { kind: "shot", box: { x: 12, y: 16, w: 664, h: 108 } },
+        narrow: dsShots.buttons.crop,
+        narrowAlt: dsShots.buttons.alt,
       },
       {
         heading: "What was built",
-        text: "The work started with research: a study of leading design systems and an audit of the old app. Each decision is written down. Automatic checks stop a change that breaks a rule, and independent reviewers check each change. Each building block also loads on its own, so a page loads only the blocks it uses.",
+        text: "Each building block loads on its own. A page loads only the blocks it uses.",
         proof: "96.6% less JavaScript for a page that uses only a button.",
-        plate: 0,
+        plate: 1,
         target: { kind: "figure" },
+        narrow: "number",
+      },
+      {
+        heading: "How it is built",
+        text: "Research into five leading design systems came first. It became written guides for AI agents. The guides advise, but automatic checks decide.",
+        proof: "No guide can overrule a failed check.",
+        plate: 3,
+        target: { kind: "figure" },
+        narrow: "flow",
       },
       {
         heading: "The result",
         text: "Each building block is built to the WCAG 2.1 AA accessibility level, with automatic checks on screen. The care dashboard that uses it is not live yet.",
         proof: "The new care dashboard uses it on its screens.",
-        plate: 1,
+        plate: 2,
         target: { kind: "figure" },
+        narrow: careShots.patients.crop,
+        narrowAlt: careShots.patients.alt,
       },
     ],
     figures: [
@@ -479,6 +518,12 @@ export const caseCopy: Record<string, CaseCopy> = {
     ],
     builtWith:
       "React 19, TypeScript, CSS Modules, Storybook 10, DTCG tokens, Style Dictionary, Playwright, axe, Changesets. 805 tokens in three tiers: core, semantic, component.",
+    engineering: [
+      "Order of authority: the best-practices guide and accepted decision records are the spec. Research is the evidence. Skills only advise. Executable gates decide.",
+      "One machine-read contract binds every agent skill to its role and its rules.",
+      "Research: a benchmark of Material, Carbon, Polaris, Atlassian and Primer, a token taxonomy, a testing strategy, governance, health metrics, a maturity scorecard and an audit of the old frontend.",
+      "New evidence changes the spec only through a decision record.",
+    ],
   },
 
   incentiv: {

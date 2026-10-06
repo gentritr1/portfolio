@@ -2,6 +2,7 @@ import { Suspense, useCallback, useEffect, useLayoutEffect, useRef, useState, ty
 import { useSearchParams } from 'react-router'
 import { AnimatePresence, MotionConfig, motion, useInView, useReducedMotion } from 'motion/react'
 import { ArrowElbowDownRightIcon, ArrowUpRightIcon, ArrowsInSimpleIcon, ArrowsOutSimpleIcon, DownloadSimpleIcon } from '@phosphor-icons/react'
+import { CropShot } from '../../components/CropShot'
 import { recreations } from '../../lib/recreations'
 import { links } from '../../content/links'
 import {
@@ -161,9 +162,17 @@ function PropsTable({ variant, onOpen }: { variant: Variant; onOpen: (slug: stri
   )
 }
 
-function Stage({ canvas, wide, label }: { canvas: Canvas; wide: boolean; label: string }) {
+function Stage({ canvas, wide, brief, label }: { canvas: Canvas; wide: boolean; brief: boolean; label: string }) {
   const ref = useRef<HTMLDivElement>(null)
   const near = useInView(ref, { once: true, margin: '300px 0px' })
+  if (canvas.kind === 'screen') {
+    const shot = (brief && canvas.brief) || canvas.shot
+    return (
+      <div className="sp-screen">
+        <CropShot shot={shot} className="sp-screen-shot" style={{ maxWidth: shot.crop.w, '--r': shot.crop.w / shot.crop.h } as CSSProperties} />
+      </div>
+    )
+  }
   if (canvas.kind === 'recreation') {
     const rec = recreations[canvas.key]
     const style = { '--a-base': rec.aspect.base, '--a-wide': wide ? rec.aspect.lg : rec.aspect.sm } as CSSProperties
@@ -286,7 +295,12 @@ function ExampleCard({ example, form, span, open, onToggle }: CardProps) {
     >
       <div className="sp-canvas" data-kind={example.canvas.kind}>
         <div className="sp-canvas-inner">
-          <Stage canvas={open && example.more.canvas ? example.more.canvas : example.canvas} wide={wide} label={example.label} />
+          <Stage
+            canvas={open && example.more.canvas ? example.more.canvas : example.canvas}
+            wide={wide}
+            brief={form === 'brief' && !open}
+            label={example.label}
+          />
         </div>
       </div>
       <div className="sp-caption">
@@ -536,8 +550,8 @@ export default function Draft() {
             </li>
           </ul>
           <p className="sp-colophon">
-            Set in Literata and JetBrains Mono. Private product screens are recreations with invented data. Every screenshot comes from a public page or a store
-            listing. <a href="/drafts">All directions</a>
+            Set in Literata and JetBrains Mono. The design-system and care screens are real product screens with invented data; the document chat is a recreation
+            with invented data. Every other screenshot comes from a public page or a store listing. <a href="/drafts">All directions</a>
           </p>
         </footer>
       </div>

@@ -21,12 +21,6 @@ export interface RecreationEntry extends Preloadable<object> {
 }
 
 export const recreations: Record<RecreationKey, RecreationEntry> = {
-  care: {
-    name: 'Vitals trend card',
-    world: 'healthcare',
-    aspect: { base: '4 / 5', sm: '4 / 3', lg: '16 / 10' },
-    ...preloadable(() => import('../worlds/healthcare/Recreation').then((m) => m.Recreation)),
-  },
   'live-room': {
     name: 'Live room',
     world: 'streaming',
@@ -45,12 +39,6 @@ export const recreations: Record<RecreationKey, RecreationEntry> = {
     aspect: { base: '3 / 4', sm: '6 / 5', lg: '16 / 9' },
     maxWidth: '920px',
     ...preloadable(() => import('../worlds/web3/Recreation').then((m) => m.Recreation)),
-  },
-  'design-system': {
-    name: 'Component specimen',
-    world: 'healthcare',
-    aspect: { base: '9 / 16', sm: '1 / 1', lg: '16 / 10' },
-    ...preloadable(() => import('../worlds/design-system/Recreation').then((m) => m.Recreation)),
   },
   'doc-chat': {
     name: 'Document chat',

@@ -1,4 +1,5 @@
 import { projects, type Project } from "../../content/projects";
+import { careShots, dsShots, type ScreenShot } from "../../content/careShots";
 
 export type Quality = "Auto" | "1080p" | "720p" | "480p" | "240p";
 export const qualities: Quality[] = ["Auto", "1080p", "720p", "480p", "240p"];
@@ -46,19 +47,31 @@ export function projectColour(project: Project): string {
 export interface ReelFrame {
   src: string;
   caption: string;
+  /** A real screen: the reel draws only its crop. */
+  shot?: ScreenShot;
 }
+
+const realScreens = (...shots: ScreenShot[]): ReelFrame[] =>
+  shots.map((shot) => ({
+    src: shot.src,
+    caption: "Real product screens · invented data",
+    shot,
+  }));
 /** Landing-page heroes that show the product on stock devices: marketing art, not a screen of the product. */
 const DEVICE_MONTAGES = new Set(["/showcase/bayyinah/web-01.webp"]);
 
 export function reelFrames(project: Project): ReelFrame[] {
-  // Care material is the repository's labelled, invented-data recreation only.
-  if (project.channel === "healthcare")
-    return [
-      {
-        src: "/signal-posters/healthcare.avif",
-        caption: "Care interface recreation · invented data",
-      },
-    ];
+  if (project.slug === "care-platform")
+    return realScreens(
+      careShots.overview,
+      careShots.glucoseChart,
+      careShots.claims,
+      careShots.week,
+    );
+  if (project.slug === "care-api") return realScreens(careShots.claims);
+  if (project.slug === "design-system-react")
+    return realScreens(dsShots.buttonAlert);
+  if (project.channel === "healthcare") return [];
   if (project.slug === "ai-dashboard")
     return [
       {

@@ -7,6 +7,7 @@ import {
 } from "react";
 import { Link } from "react-router";
 import { links } from "../../content/links";
+import { CropShot } from "../../components/CropShot";
 import { caseFor, moreCount, roleOf, rows, spoken, type Row } from "./data";
 import "./strike-index.css";
 
@@ -68,6 +69,16 @@ function Media({ row }: { row: Row }) {
         {proof.kind === "shot" && (
           <img src={proof.src} alt={proof.alt} decoding="async" />
         )}
+        {proof.kind === "screen" && (
+          <div className="si-screen" style={{ background: proof.shot.ground }}>
+            <CropShot
+              shot={proof.shot}
+              style={{
+                width: `min(100cqw, ${proof.shot.crop.w / proof.shot.crop.h} * 100cqh, ${proof.shot.crop.w}px)`,
+              }}
+            />
+          </div>
+        )}
         {proof.kind === "phones" &&
           proof.srcs.map((src, index) => (
             <img
@@ -91,7 +102,7 @@ function Media({ row }: { row: Row }) {
           </div>
         )}
       </div>
-      {proof.kind === "shot" && proof.note && (
+      {(proof.kind === "shot" || proof.kind === "screen") && proof.note && (
         <figcaption>{proof.note}</figcaption>
       )}
     </figure>
@@ -193,7 +204,9 @@ export default function StrikeIndex() {
         const sources =
           proof.kind === "shot"
             ? [proof.src]
-            : proof.kind === "phones"
+            : proof.kind === "screen"
+              ? [proof.shot.src]
+              : proof.kind === "phones"
               ? proof.srcs
               : [];
         sources.forEach((src) => {
@@ -357,7 +370,7 @@ export default function StrikeIndex() {
           Write to <a href={`mailto:${links.email}`}>{links.email}</a>
         </p>
         <p>
-          Vianova screens are recreations with invented data. Every other image
+          Vianova screens are real product screens with invented data. Every other image
           comes from a public page, a store listing or an own project.
           Bachelor’s degree, UBT.
         </p>

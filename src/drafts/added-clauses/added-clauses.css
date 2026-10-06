@@ -396,22 +396,6 @@
   display: block;
 }
 
-.ac-plate-live {
-  aspect-ratio: 4 / 5;
-  container-type: inline-size;
-  background: var(--surface);
-  color: var(--ink);
-  font-family: var(--font-sans);
-  font-size: 1rem;
-  line-height: 1.6;
-}
-
-.ac-wait {
-  position: absolute;
-  inset: 0;
-  background: var(--world-bg, #f4f8f8);
-}
-
 .ac-caption {
   padding: 0 6px;
   font-family: var(--ac-mono);
@@ -721,11 +705,6 @@
     height: var(--plate-h);
     max-height: var(--plate-h);
     width: min(640px, calc(var(--plate-h) * var(--plate-ratio)));
-  }
-
-  .ac-plate-live {
-    width: 640px;
-    aspect-ratio: 16 / 10;
   }
 
   .ac-caption {

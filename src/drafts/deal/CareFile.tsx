@@ -1,6 +1,10 @@
 import { useState } from "react";
 import { motion } from "motion/react";
 import { spring } from "./motion";
+import { CropShot } from "../../components/CropShot";
+import { careShots } from "../../content/careShots";
+
+const shot = careShots.patients;
 
 export function CareFile({ reduced }: { reduced: boolean }) {
   const [open, setOpen] = useState(false);
@@ -34,16 +38,19 @@ export function CareFile({ reduced }: { reduced: boolean }) {
           transition={reduced ? { duration: 0.01 } : spring.ui}
         >
           <span className="dl-care-front" aria-hidden={open}>
-            <img
-              src="/signal-posters/healthcare.avif"
-              alt="Care interface recreation with invented data"
-              loading="lazy"
-            />
-            <span>Recreation · invented data</span>
+            <span className="dl-care-shot">
+              <CropShot
+                shot={shot}
+                style={{
+                  width: `min(100cqw, ${shot.crop.w / shot.crop.h} * 100cqh)`,
+                }}
+              />
+            </span>
+            <span>Real product screens · invented data</span>
           </span>
           <span className="dl-care-back" aria-hidden={!open}>
             <strong>Decision records</strong>
-            <span>Architecture decisions recorded.</span>
+            <span>Architecture decisions, written down.</span>
             <strong>Parity tests</strong>
             <span>Vue to React, route by route.</span>
             <strong>16 → 2 queries</strong>
@@ -55,8 +62,8 @@ export function CareFile({ reduced }: { reduced: boolean }) {
         </span>
       </motion.button>
       <figcaption>
-        Private client work. Public facts, with a labelled recreation using
-        invented data.
+        Private client work. Public facts; real product screens with invented
+        data.
       </figcaption>
     </figure>
   );

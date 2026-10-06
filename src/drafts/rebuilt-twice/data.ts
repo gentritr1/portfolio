@@ -1,14 +1,23 @@
-import { projects, type RecreationKey } from "../../content/projects";
+import { careShots, type Px, type ScreenShot } from "../../content/careShots";
+import { projects } from "../../content/projects";
 
 export interface Pin {
   /** The note under the plate. Its dot starts the hairline. */
   note: string;
-  /** The element inside the live plate that the note is about. */
+  /** The element inside the plate that the note is about. */
   target: string;
   /** The gutter the hairline takes from the note to the target. */
   side: "left" | "right";
   /** Stroke inside the plate: a light core with a dark halo reads on a video frame. */
   inside: "light" | "dark";
+}
+
+/** Real screenshots for the desktop and the phone, and the part the note is about in each, in the shot's CSS px. */
+export interface Screen {
+  shot: ScreenShot;
+  shotNarrow: ScreenShot;
+  spot: Px;
+  spotNarrow: Px;
 }
 
 export interface Rewrite {
@@ -17,7 +26,8 @@ export interface Rewrite {
   year: string;
   role: string;
   years: string;
-  plate: RecreationKey;
+  plate: "live-room" | Screen;
+  caption?: string;
   /** Sentence start. The struck constraint and its result follow and end the sentence. */
   head: string;
   was: string;
@@ -51,14 +61,20 @@ export const rewrites: Rewrite[] = [
     year: "2026",
     role: "Frontend",
     years: "2026",
-    plate: "care",
+    plate: {
+      shot: { ...careShots.claims, crop: { x: 0, y: 0, w: 1440, h: 704 } },
+      shotNarrow: { ...careShots.engagement, crop: { x: 843, y: 0, w: 597, h: 520 } },
+      spot: { x: 14, y: 12, w: 184, h: 32 },
+      spotNarrow: { x: 1182, y: 14, w: 160, h: 28 },
+    },
+    caption: "real product screens, invented data",
     head: "The care platform moves from Vue to React",
     was: "and no screen may change its behaviour.",
     now: "one route at a time, parity-tested on both apps.",
     pin: {
-      note: "Switch the organization: the data changes, the controls stay.",
-      target: 'button[aria-label^="Organization"]',
-      side: "right",
+      note: "Many organizations share one system. Each sees only its own data.",
+      target: "[data-spot]",
+      side: "left",
       inside: "dark",
     },
     slug: "care-platform",

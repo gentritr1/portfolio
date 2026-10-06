@@ -1,5 +1,4 @@
 import {
-  Suspense,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -16,7 +15,6 @@ import { preload } from "react-dom";
 import { Link } from "react-router";
 import { ArrowRightIcon, ArrowUpRightIcon } from "@phosphor-icons/react";
 import { links } from "../../content/links";
-import { recreations } from "../../lib/recreations";
 import { rows, type Box, type Plate, type Row, type Shot, type Weight } from "./data";
 import "./then-now.css";
 
@@ -47,19 +45,6 @@ function useMedia(query: string, fallback: boolean) {
 }
 
 /* ---------- Plates ---------- */
-
-/** The card is a picture of the product here: its controls are scaled with the stage, so they are not reachable. */
-function LivePlate() {
-  const entry = recreations.care;
-  const Live = entry.Component;
-  return (
-    <div className="tn-live tn-live-care" data-world={entry.world} inert>
-      <Suspense fallback={<div className="tn-wait" />}>
-        <Live />
-      </Suspense>
-    </div>
-  );
-}
 
 function ShotView({ shot, crop, load = true }: { shot: Shot; crop: Box; load?: boolean }) {
   return (
@@ -145,10 +130,10 @@ function BundleFigure() {
 
 function PlateView({ plate, load, narrow, struck }: { plate: Plate; load: boolean; narrow: boolean; struck: boolean }) {
   if (plate.kind === "figure") return <BundleFigure />;
-  if (plate.kind === "care")
+  if (plate.kind === "report")
     return (
-      <div className="tn-proof tn-care">
-        {load ? <LivePlate /> : <div className="tn-live tn-wait" />}
+      <div className="tn-proof tn-report">
+        <ShotView shot={plate.shot} crop={narrow ? plate.shot.narrow : plate.shot.crop} load={load} />
         <WeightFigure weights={plate.weights} head={plate.head} struck={struck} />
       </div>
     );
@@ -441,19 +426,13 @@ export default function Draft() {
     return () => window.clearTimeout(timer);
   }, [prev, track.index]);
 
-  /* A screenshot loads when its row is near. A live plate mounts when its row is first shown. */
-  const near = [active - 1, active, active + 1, shown.index].filter(
-    (i) => i >= 0 && i < rows.length && (rows[i].plate.kind !== "care" || i === shown.index),
-  );
+  /* A screenshot loads when its row is near. */
+  const near = [active - 1, active, active + 1, shown.index].filter((i) => i >= 0 && i < rows.length);
   if (!near.every((i) => loaded.has(i))) {
     const next = new Set(loaded);
     near.forEach((i) => next.add(i));
     setLoaded(next);
   }
-
-  useEffect(() => {
-    if (laid) void recreations.care.load();
-  }, [laid]);
 
   /* The frame draws the plate at one size and scales it to its width. */
   useLayoutEffect(() => {
@@ -882,7 +861,7 @@ export default function Draft() {
 
       <footer className="tn-end">
         <p>
-          Gentrit Rashiti. Bachelor's degree, UBT. The vitals card is a recreation with invented data. The diagrams draw
+          Gentrit Rashiti. Bachelor's degree, UBT. The care app's claims page is a real product screen with invented data. The diagrams draw
           measured results. Every other screen is a real capture of a public page, a store listing or an own project.
         </p>
         <p className="tn-end-links">

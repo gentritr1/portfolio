@@ -290,12 +290,18 @@
   --rl-a: 43 / 20;
 }
 
-.rl-stage[data-plate="care"] {
-  --rl-a: 2 / 1;
+.rl-shot {
+  display: flex;
+  justify-content: center;
 }
 
-.rl-stage[data-plate="design-system"] {
-  --rl-a: 1080 / 452;
+.rl-shot-frame {
+  position: relative;
+  flex: 1 1 auto;
+}
+
+.rl-spot {
+  position: absolute;
 }
 
 .rl-foot {
@@ -740,14 +746,6 @@
     --rl-a: 343 / 300;
   }
 
-  .rl-stage[data-plate="care"] {
-    --rl-a: 4 / 5;
-  }
-
-  .rl-stage[data-plate="design-system"] {
-    --rl-a: 343 / 420;
-  }
-
   .rl-notes-stack {
     grid-column: 2;
     grid-row: 3;
@@ -766,15 +764,6 @@
 
   .rl-foot {
     grid-row: 4;
-  }
-
-  .rl-foot-sep {
-    display: none;
-  }
-
-  /* On a phone the specimen shows two of its five token lanes: the first and the focus lane. */
-  .rl-stage[data-plate="design-system"] .dsr-lane-list > li:nth-child(n + 2):nth-child(-n + 4) {
-    display: none;
   }
 
   .rl-rows li > :is(a, div) {

@@ -13,7 +13,9 @@ import {
 } from "react";
 import { Link } from "react-router";
 import { links } from "../../content/links";
-import { projects, type RecreationKey } from "../../content/projects";
+import { careShots, dsShots, type Px, type ScreenShot } from "../../content/careShots";
+import { projects } from "../../content/projects";
+import { CropShot } from "../../components/CropShot";
 import { recreations } from "../../lib/recreations";
 import "./sampled-review.css";
 
@@ -31,8 +33,19 @@ interface Note {
   result: string;
   target: Find;
   route: Route;
-  /** Where the numbered pin sits on a phone when the default corner covers the part's label. */
-  pin?: "right";
+  /** On a phone the pin moves to another corner of the ring when the top-right corner covers another pin or a label. */
+  pin?: "left" | "below";
+  /** On a screenshot plate: the part, in the shot's CSS px. */
+  at?: Px;
+  /** The part in the phone crop, when it differs. */
+  atNarrow?: Px;
+}
+
+/** A real screenshot, with its desktop and phone crops. */
+interface Screen {
+  shot: ScreenShot;
+  wide: Px;
+  narrow: Px;
 }
 
 interface Sheet {
@@ -43,7 +56,8 @@ interface Sheet {
   years: string;
   decision: string;
   result: string;
-  plate: RecreationKey;
+  plate: "live-room" | Screen;
+  caption: string;
   /** Dominant hue of the rendered plate, in OKLCH degrees. */
   hue: number;
   slug: string;
@@ -51,18 +65,7 @@ interface Sheet {
 }
 
 const css = (selector: string): Find => (root) => root.querySelector(selector);
-
-/** The smallest element whose own text is exactly `text`. */
-const byText =
-  (text: string, within = "*"): Find =>
-  (root) => {
-    let best: Element | null = null;
-    for (const element of root.querySelectorAll(within)) {
-      if (element.textContent?.trim() !== text) continue;
-      if (!best || best.contains(element)) best = element;
-    }
-    return best;
-  };
+const spot = (n: number): Find => css(`[data-spot="${n}"]`);
 
 const sheets: Sheet[] = [
   {
@@ -74,6 +77,7 @@ const sheets: Sheet[] = [
     decision: "Rebuild Bayyinah TV on Nuxt\u00a03",
     result: "34 routes, 270+ components.",
     plate: "live-room",
+    caption: "Recreation, invented data",
     hue: 34,
     slug: "bayyinah-tv",
     notes: [
@@ -119,41 +123,46 @@ const sheets: Sheet[] = [
     years: "2026",
     decision: "Build Design System v2 from one token source",
     result: "36 components in 20 releases.",
-    plate: "design-system",
-    hue: 253,
+    plate: { shot: dsShots.buttonAlert, wide: dsShots.buttonAlert.crop, narrow: dsShots.buttonAlert.crop },
+    caption: "Real product screens, invented data",
+    hue: 230,
     slug: "design-system-react",
     notes: [
       {
         n: 1,
         side: "left",
-        title: "Three tiers",
-        result: "805 tokens: core value, semantic role, component part.",
-        target: css(".dsr-lane-list > li:nth-child(1)"),
+        title: "Build per component",
+        result: "A Button-only app loads 96.6% less JavaScript.",
+        target: spot(1),
         route: { kind: "direct" },
+        at: { x: 15, y: 23, w: 129, h: 36 },
       },
       {
         n: 2,
         side: "left",
-        title: "One source",
-        result: "Built to CSS, TypeScript and a Figma bundle.",
-        target: css(".dsr-pipeline"),
+        title: "Three tiers",
+        result: "805 tokens: core value, semantic role, component part.",
+        target: spot(2),
         route: { kind: "direct" },
+        at: { x: 16, y: 232, w: 688, h: 68 },
       },
       {
         n: 3,
         side: "right",
-        title: "Themes re-point a tier",
-        result: "Light and Dark change values. Component names stay.",
-        target: css(".dsr-segment"),
+        title: "Build to AA floors",
+        result: "Built to WCAG 2.1 AA floors, with rendered evidence.",
+        target: spot(3),
         route: { kind: "direct" },
+        at: { x: 16, y: 408, w: 688, h: 68 },
       },
       {
         n: 4,
         side: "right",
-        title: "A token for focus",
-        result: "Built to WCAG 2.1 AA floors, with rendered evidence.",
-        target: css(".dsr-lane-list > li:nth-child(5) .dsr-chip-component"),
+        title: "Two of 36",
+        result: "Button and Alert are two of the 36 components.",
+        target: spot(4),
         route: { kind: "direct" },
+        at: { x: 16, y: 496, w: 688, h: 88 },
       },
     ],
   },
@@ -165,44 +174,52 @@ const sheets: Sheet[] = [
     years: "2026",
     decision: "Move the care platform from Vue to React",
     result: "one route at a time, on Design System v2.",
-    plate: "care",
-    hue: 186,
+    plate: { shot: careShots.glucoseChart, wide: { x: 0, y: 0, w: 1440, h: 760 }, narrow: { x: 860, y: 0, w: 580, h: 676 } },
+    caption: "Real product screens, invented data",
+    hue: 154,
     slug: "care-platform",
     notes: [
       {
         n: 1,
         side: "left",
-        title: "Respect the role",
-        result: "Each screen shows what the user’s role allows.",
-        target: byText("Care manager", "span"),
+        title: "Keep tenants apart",
+        result: "Many organizations share one system. Each sees only its own data.",
+        target: spot(1),
         route: { kind: "direct" },
+        at: { x: 14, y: 12, w: 184, h: 32 },
+        atNarrow: { x: 1182, y: 14, w: 160, h: 28 },
+        pin: "left",
       },
       {
         n: 2,
         side: "left",
-        title: "Parity before each move",
-        result: "Each scenario runs on both apps before a route moves.",
-        target: css('[role="group"][aria-label^="Blood pressure"]'),
+        title: "Respect the role",
+        result: "Each screen shows what the user’s role allows.",
+        target: spot(2),
         route: { kind: "direct" },
+        at: { x: 12, y: 78, w: 212, h: 664 },
+        atNarrow: { x: 1354, y: 14, w: 68, h: 28 },
+        pin: "below",
       },
       {
         n: 3,
         side: "right",
-        title: "Keep tenants apart",
-        result: "Many organizations share one system. Each sees only its own data.",
-        target: css('button[aria-label^="Organization"]'),
+        title: "Patient-local time",
+        result: "Each reading shows in the patient’s own timezone.",
+        target: spot(3),
         route: { kind: "direct" },
+        at: { x: 1236, y: 248, w: 176, h: 36 },
       },
       {
         n: 4,
         side: "right",
-        title: "Patient-local time",
-        result: "Each reading shows in the patient’s own timezone.",
-        target: (root) => {
-          for (const p of root.querySelectorAll("footer p")) if (p.textContent?.includes("Timezone")) return p.parentElement;
-          return null;
-        },
+        title: "Follow the devices",
+        result: "Care teams follow readings from connected devices.",
+        target: spot(4),
         route: { kind: "direct" },
+        at: { x: 314, y: 302, w: 1078, h: 346 },
+        atNarrow: { x: 866, y: 302, w: 526, h: 346 },
+        pin: "left",
       },
     ],
   },
@@ -351,7 +368,7 @@ interface Box {
 
 interface Mark {
   n: number;
-  pin?: "right";
+  pin?: "left" | "below";
   ring: Box;
   path: string;
   start: { x: number; y: number };
@@ -482,42 +499,55 @@ function measure(
 
 /* ---------- Plate ---------- */
 
-/**
- * Every plate mounts with its demo stopped: the live room gets `demoPlaying={false}`, and the specimen's own
- * demo is paused once it appears (and kept paused under reduced motion), so nothing on the page loops.
- */
-function Plate({ sheet, mounted, wide, reduced }: { sheet: Sheet; mounted: boolean; wide: boolean; reduced: boolean }) {
-  const entry = recreations[sheet.plate];
+function Plate({ sheet, mounted, wide }: { sheet: Sheet; mounted: boolean; wide: boolean }) {
+  return typeof sheet.plate === "string" ? (
+    <LivePlate mounted={mounted} wide={wide} />
+  ) : (
+    <ShotPlate screen={sheet.plate} notes={sheet.notes} wide={wide} />
+  );
+}
+
+const pct = (value: number, of: number) => `${(value / of) * 100}%`;
+
+function ShotPlate({ screen, notes, wide }: { screen: Screen; notes: Note[]; wide: boolean }) {
+  const crop = wide ? screen.wide : screen.narrow;
+  return (
+    <div className="sr-shot" style={{ background: screen.shot.ground }}>
+      <div className="sr-shot-frame" style={{ maxWidth: crop.w }}>
+        <CropShot shot={screen.shot} crop={crop} />
+        {notes.map((note) => {
+          const at = (!wide && note.atNarrow) || note.at;
+          if (!at) return null;
+          const inside = at.x >= crop.x && at.y >= crop.y && at.x + at.w <= crop.x + crop.w && at.y + at.h <= crop.y + crop.h;
+          if (!inside) return null;
+          return (
+            <span
+              key={note.n}
+              className="sr-spot"
+              data-spot={note.n}
+              style={{
+                left: pct(at.x - crop.x, crop.w),
+                top: pct(at.y - crop.y, crop.h),
+                width: pct(at.w, crop.w),
+                height: pct(at.h, crop.h),
+              }}
+            />
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/** The live room mounts with its demo stopped, so nothing on the page loops. */
+function LivePlate({ mounted, wide }: { mounted: boolean; wide: boolean }) {
+  const entry = recreations["live-room"];
   const Recreation = entry.Component as ComponentType<{ demoPlaying?: boolean }>;
   const holder = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const node = holder.current;
-    if (!node || !mounted || sheet.plate !== "design-system") return;
-    let paused = false;
-    const check = () => {
-      const demo = node.querySelector<HTMLButtonElement>('.dsr-demo[aria-pressed="true"]');
-      if (demo && (!paused || reduced)) {
-        paused = true;
-        demo.click();
-      } else if (node.querySelector(".dsr-demo")) {
-        paused = true;
-      }
-    };
-    check();
-    const observer = new MutationObserver(check);
-    observer.observe(node, { subtree: true, childList: true, attributes: true, attributeFilter: ["aria-pressed"] });
-    return () => observer.disconnect();
-  }, [mounted, sheet.plate, reduced]);
-
-  /* A plate stops on a whole part: the specimen under its Tokens card, the phone live room under its pinned note. */
+  /* On a phone the live room stops under its pinned note. */
   const [height, setHeight] = useState<number | null>(null);
-  const edge =
-    sheet.plate === "design-system"
-      ? ".dsr-area-tokens"
-      : sheet.plate === "live-room" && !wide
-        ? 'section[aria-label="Live chat"] > div:first-of-type'
-        : null;
+  const edge = wide ? null : 'section[aria-label="Live chat"] > div:first-of-type';
   useLayoutEffect(() => {
     const node = holder.current;
     if (!node || !mounted || !edge) {
@@ -529,7 +559,7 @@ function Plate({ sheet, mounted, wide, reduced }: { sheet: Sheet; mounted: boole
       if (!card) return;
       let top = 0;
       for (let el: HTMLElement | null = card; el && el !== node; el = el.offsetParent as HTMLElement | null) top += el.offsetTop;
-      setHeight(Math.ceil(top + card.offsetHeight + (sheet.plate === "live-room" ? 10 : 12)));
+      setHeight(Math.ceil(top + card.offsetHeight + 10));
     };
     fit();
     const resize = new ResizeObserver(fit);
@@ -540,13 +570,13 @@ function Plate({ sheet, mounted, wide, reduced }: { sheet: Sheet; mounted: boole
       resize.disconnect();
       mutation.disconnect();
     };
-  }, [mounted, edge, sheet.plate]);
+  }, [mounted, edge]);
 
   return (
     <div
       className="sr-stage"
       data-world={entry.world}
-      data-plate={sheet.plate}
+      data-plate="live-room"
       ref={holder}
       style={height ? { aspectRatio: "auto", height } : undefined}
     >
@@ -743,7 +773,7 @@ function SheetView({ sheet, index, wide, reduced, mounted, drawn, instant, regis
         }}
         onPointerLeave={() => setFocus(null)}
       >
-        <Plate sheet={sheet} mounted={mounted} wide={wide} reduced={reduced} />
+        <Plate sheet={sheet} mounted={mounted} wide={wide} />
       </div>
       {!wide && <ol className="sr-notes sr-notes-stack">{sheet.notes.map(note)}</ol>}
       <footer className="sr-foot">
@@ -751,7 +781,7 @@ function SheetView({ sheet, index, wide, reduced, mounted, drawn, instant, regis
           <span className="sr-meta-id">{sheet.id}</span>
           <span>{sheet.years}</span>
           <span>{sheet.role}</span>
-          <span>Recreation, invented data</span>
+          <span>{sheet.caption}</span>
         </p>
         <Link className="sr-link" to={`/work/${sheet.slug}`}>
           Open the case
@@ -780,11 +810,11 @@ function SheetView({ sheet, index, wide, reduced, mounted, drawn, instant, regis
             const order = sheet.notes.findIndex((item) => item.n === mark.n);
             const style = { "--i": order } as CSSProperties;
             const rx = Math.min(8, mark.ring.h / 2);
-            const badge =
-              mark.pin === "right"
-                ? { x: mark.ring.x + mark.ring.w + 12, y: mark.ring.y + mark.ring.h / 2 }
-                : { x: mark.ring.x + mark.ring.w + 3, y: mark.ring.y - 3 };
-            const pinX = Math.min(badge.x, plateBox.x + plateBox.w - 11);
+            const badge = {
+              x: mark.pin === "left" ? mark.ring.x - 3 : mark.ring.x + mark.ring.w + 3,
+              y: mark.pin === "below" ? mark.ring.y + mark.ring.h + 3 : mark.ring.y - 3,
+            };
+            const pinX = Math.max(plateBox.x + 11, Math.min(badge.x, plateBox.x + plateBox.w - 11));
             const pinY = Math.max(badge.y, plateBox.y + 11);
             return (
               <g key={mark.n} className="sr-mark" data-n={mark.n} style={style}>
@@ -895,12 +925,7 @@ export default function SampledReview() {
     root.style.scrollBehavior = "auto";
     root.style.scrollPaddingTop = "0px";
     void recreations["live-room"].load();
-    const idle = window.setTimeout(() => {
-      void recreations["design-system"].load();
-      void recreations.care.load();
-    }, 1200);
     return () => {
-      window.clearTimeout(idle);
       root.style.background = previous.root;
       body.style.background = previous.body;
       root.style.colorScheme = previous.scheme;
@@ -1148,7 +1173,7 @@ export default function SampledReview() {
           </p>
           <p className="sr-rule">
             Each sheet takes its colour from its screen: the margins and the ground use the screen’s measured hue (34°,
-            253°, 186°) at a fixed lightness. The record has no screen, so it has no hue.
+            230°, 154°) at a fixed lightness. The record has no screen, so it has no hue.
           </p>
         </section>
       </main>
@@ -1173,7 +1198,7 @@ export default function SampledReview() {
           </li>
         </ul>
         <p>Kosovo, working remotely. Bachelor’s degree, UBT.</p>
-        <p>The three screens are recreations with invented data. No screen of client work is shown.</p>
+        <p>The live room is a recreation with invented data. The Design System v2 and care screens are real product screens with invented data.</p>
       </footer>
     </div>
   );

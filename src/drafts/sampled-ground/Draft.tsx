@@ -72,28 +72,6 @@ function Crop({ shot, eager }: { shot: Shot; eager: boolean }) {
   );
 }
 
-/** Pauses the specimen's own demo once, so the plate does not run a loop. */
-function usePauseDemo(root: HTMLElement | null) {
-  useEffect(() => {
-    if (!root) return;
-    const pause = () => {
-      const button = root.querySelector<HTMLButtonElement>('.dsr-demo[aria-pressed="true"]');
-      if (!button) return false;
-      button.click();
-      return true;
-    };
-    if (pause() || root.querySelector(".dsr-demo")) return;
-    const observer = new MutationObserver(() => {
-      if (root.querySelector(".dsr-demo")) {
-        pause();
-        observer.disconnect();
-      }
-    });
-    observer.observe(root, { childList: true, subtree: true });
-    return () => observer.disconnect();
-  }, [root]);
-}
-
 function Live({ plate, wide }: { plate: Extract<Plate, { kind: "live" }>; wide: boolean }) {
   const [node, setNode] = useState<HTMLDivElement | null>(null);
   const [scale, setScale] = useState(0);
@@ -131,8 +109,6 @@ function Live({ plate, wide }: { plate: Extract<Plate, { kind: "live" }>; wide: 
     observer.observe(node);
     return () => observer.disconnect();
   }, [node, near]);
-
-  usePauseDemo(plate.key === "design-system" ? node : null);
 
   const props = plate.key === "live-room" ? { demoPlaying: false } : {};
   return (
@@ -775,8 +751,8 @@ export default function Draft() {
         </ul>
         <p>Gentrit Rashiti. Bachelor’s degree, UBT. Based in Kosovo, working remotely.</p>
         <p>
-          The live plates are recreations with invented data. The other screens come from public web pages and store
-          listings.
+          The care and design-system screens are real product screens with invented data. The live plates are
+          recreations with invented data. The other screens come from public web pages and store listings.
         </p>
       </footer>
     </div>

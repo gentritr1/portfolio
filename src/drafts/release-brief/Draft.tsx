@@ -3,7 +3,8 @@ import { Link } from "react-router";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { ArrowDownIcon, ArrowRightIcon, ArrowUpRightIcon } from "@phosphor-icons/react";
 import { links } from "../../content/links";
-import { recreations } from "../../lib/recreations";
+import { CropShot } from "../../components/CropShot";
+import { REAL_SCREENS } from "../../content/careShots";
 import { newest, oldest, releaseOf, sentenceOf, type Change, type Release } from "./data";
 import { PlateStage } from "./Plate";
 import { Rail, type SelectSource } from "./Rail";
@@ -37,9 +38,6 @@ function ChangeRow({ release, change, index, open, cited, onToggle }: ChangeProp
   const number = `${release.major}.${index + 1}`;
   const plateId = `rb-plate-${release.major}-${index + 1}`;
   const plate = change.plate;
-  const preload = () => {
-    if (plate?.kind === "recreation") void recreations[plate.recreation].load();
-  };
   return (
     <li
       id={`rb-note-${release.major}-${index + 1}`}
@@ -85,19 +83,19 @@ function ChangeRow({ release, change, index, open, cited, onToggle }: ChangeProp
               tabIndex={-1}
               aria-hidden="true"
               onClick={onToggle}
-              onPointerEnter={preload}
-              onFocus={preload}
             >
-              <img src={plate.thumb} alt="" loading="lazy" decoding="async" width={160} height={100} />
+              {plate.kind === "shot" ? (
+                <CropShot shot={plate.thumb} alt="" fill />
+              ) : (
+                <img src={plate.thumb} alt="" loading="lazy" decoding="async" width={160} height={100} />
+              )}
             </button>
           )}
           <figcaption className="rb-caption">
             <span className="rb-no">Plate {number}</span>{" "}
             <span>
               {plate.title}.{" "}
-              {plate.kind === "recreation"
-                ? "Recreation with invented data."
-                : "Screens from public pages."}
+              {plate.kind === "shot" ? REAL_SCREENS : "Screens from public pages."}
             </span>{" "}
             <button
               type="button"
@@ -269,9 +267,9 @@ export default function Draft() {
 
         <footer className="rb-colophon">
           <p>
-            Set in Newsreader and JetBrains Mono. The care platform and the design system
-            are recreations with invented data; every other screen comes from a public page
-            or a store listing.
+            Set in Newsreader and JetBrains Mono. The Vianova care and design-system screens
+            are real product screens with invented data. Every other screen comes from a
+            public page or a store listing.
           </p>
           <p className="rb-colophon-links">
             <a href={`mailto:${links.email}`}>{links.email}</a>

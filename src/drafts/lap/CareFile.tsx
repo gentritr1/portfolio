@@ -1,6 +1,10 @@
 import { useId, useState } from "react";
 import { motion } from "motion/react";
 import { spring } from "./motion";
+import { CropShot } from "../../components/CropShot";
+import { careShots } from "../../content/careShots";
+
+const shot = careShots.patients;
 export default function CareFile({ reduced }: { reduced: boolean }) {
   const [open, setOpen] = useState(false),
     [preview, setPreview] = useState(false),
@@ -35,13 +39,16 @@ export default function CareFile({ reduced }: { reduced: boolean }) {
             reduced ? { visibility: open ? "hidden" : "visible" } : undefined
           }
         >
-          <img
-            src="/signal-posters/healthcare.avif"
-            alt="Care-interface recreation with invented data"
-            loading="lazy"
-          />
+          <span className="lp-file-shot">
+            <CropShot
+              shot={shot}
+              style={{
+                width: `min(100cqw, ${shot.crop.w / shot.crop.h} * 100cqh)`,
+              }}
+            />
+          </span>
           <strong>Open the engineering facts.</strong>
-          <span>Recreation · invented data</span>
+          <span>Real product screens · invented data</span>
         </span>
         <span
           className="lp-file-back"

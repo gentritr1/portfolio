@@ -1,0 +1,22 @@
+{
+  "id": "one-screen",
+  "title": "ONE SCREEN",
+  "band": "Loop 11",
+  "rule": "the whole portfolio fits on one screen at 1440 x 900, and every project line lights a real screen beside it",
+  "description": "One screen, no sections. Left: 'Gentrit Rashiti', 'Builds web and mobile apps. Part of two platform rewrites. 5+ years, working remotely from Kosovo.', the result line 'One report made 16 database requests. Now it makes 2.' with sixteen marks, then Client work (Care platform, Bayyinah TV, Design System v2, Viva Fresh, Read to Feed, Dukagjini Bookstore, Incentiv) and Own projects (Offday, OFFBEAT, FORM), one line each, and Email, GitHub, LinkedIn, CV. Right: the real screen of the current line at 3:2 (care calendar week first), a two-line caption, a switch for the second screen (care: Calendar / Claims; Bayyinah: Library / Series; Design System: Blocks / In use), then 'How Gentrit works': one Instrument Serif italic line and a four-step diagram (Rules, AI agents build, Checks, A person approves, with the way back when a check fails), with links to the care and design-system cases. On a phone the list is the page and the current screen stays in a bottom panel with 'Read the case'.",
+  "signature": "Instrument Sans 400/500 at 17 px for almost every word, 14 px for captions and the diagram, one Instrument Serif italic line at 22 px. Paper #F4F1EA, ink #191816, muted #6B675F (dark: #141311 / #ECE8DF / #969186). Motion: pointer rest 80 ms on a line, then the rule under the name slides and resizes (180 ms, transform) and the screen cross-fades (200 ms, opacity, after decode); keyboard moves are instant. Arrival: the first screen fades in once (300 ms); fourteen of the sixteen request marks fall away right to left (380 ms each, 18 ms stagger); the diagram draws once in reading order (stroke-dashoffset, about 0.9 s). Case links fade the page out in 160 ms. Reduced motion: still and complete.",
+  "caseSlug": "care-platform",
+  "mechanisms": ["M5"],
+  "slopCount": 0,
+  "rounds": 1,
+  "loopScores": {
+    "straightToThePoint": 9,
+    "actionsAndSeniority": 8,
+    "original": 6,
+    "hooks": 6,
+    "typeAndColour": 7
+  },
+  "hookSentence": "The whole portfolio was one screen, and every line I pointed at showed me the real product.",
+  "craftGate": "pass: no horizontal scroll and CLS 0 at 375/390/540/1024/1280/1440; whole page fits 1440x900 and 1280x800; every link and button >= 44 px; focus ring for keyboard only; font wait 300 ms, fallback kept for the visit; production chunk 8.2 kB JS + 2.5 kB CSS gzip; 0 frames over 20 ms during hover and tap switches at 4x CPU (production build)",
+  "holdback": "Lowest: original and hooks, 6/10. A name list that lights a screen beside it is a known index pattern (designeer, many studio sites); the page is calm and correct but nobody will tell a friend about it. Smaller: on a phone the panel takes about 37 % of the height, so only three or four lines show above it; at 1024 the descriptions wrap to two lines and the page scrolls a little; on a cold link slower than 300 ms the fallback sans stays for the visit; two frames over 20 ms at first paint (font switch and first image raster) at 4x CPU."
+}

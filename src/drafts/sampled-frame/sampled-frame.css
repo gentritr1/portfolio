@@ -431,35 +431,6 @@
   height: auto;
 }
 
-/* The specimen shows one card: the button set. */
-.sf-live-design-system .dsr-top {
-  display: none;
-}
-
-.sf-live-design-system .dsr-scroll {
-  overflow: hidden;
-}
-
-.sf-live-design-system .dsr-board {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  padding: 16px;
-}
-
-.sf-live-design-system .dsr-area-buttons {
-  flex: 1;
-}
-
-/* The busy button keeps its spinner still: nothing in the frame loops. */
-.sf-live-design-system .dsr-spinner {
-  animation-play-state: paused;
-}
-
-.sf-live-design-system .dsr-board > :not(.dsr-area-buttons) {
-  display: none;
-}
-
 /* ---------- A result with no screen: the figure fills the frame ---------- */
 
 .sf-fig {

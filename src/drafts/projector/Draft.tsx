@@ -1,6 +1,5 @@
 import {
   Fragment,
-  Suspense,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -15,7 +14,6 @@ import {
 import { Link, useLocation } from "react-router";
 import { ArrowRightIcon, ArrowUpRightIcon, CheckIcon, XIcon } from "@phosphor-icons/react";
 import { links } from "../../content/links";
-import { recreations } from "../../lib/recreations";
 import { leadRows, moreRows, type Box, type Plate, type Row, type Shot, type Target } from "./data";
 import { Own } from "./Own";
 import "./projector.css";
@@ -78,41 +76,6 @@ function useFontsReady() {
 }
 
 /* ---------- Plates ---------- */
-
-const liveKeys = { "design-system": recreations["design-system"], care: recreations.care };
-
-function LivePlate({ which }: { which: keyof typeof liveKeys }) {
-  const entry = liveKeys[which];
-  const Live = entry.Component;
-  const ref = useRef<HTMLDivElement>(null);
-
-  // The specimen runs a demo loop until it is paused. The frame shows it still.
-  useEffect(() => {
-    if (which !== "design-system") return;
-    const element = ref.current;
-    if (!element) return;
-    const pause = () => {
-      const button = element.querySelector<HTMLButtonElement>('.dsr-demo[aria-pressed="true"]');
-      if (!button) return false;
-      button.click();
-      return true;
-    };
-    if (pause()) return;
-    const observer = new MutationObserver(() => {
-      if (pause()) observer.disconnect();
-    });
-    observer.observe(element, { childList: true, subtree: true });
-    return () => observer.disconnect();
-  }, [which]);
-
-  return (
-    <div ref={ref} className={`pj-live pj-live-${which}`} data-world={entry.world}>
-      <Suspense fallback={<div className="pj-wait" />}>
-        <Live />
-      </Suspense>
-    </div>
-  );
-}
 
 const markLoaded = (image: HTMLImageElement | null) => {
   if (image?.complete && image.naturalWidth > 0) image.dataset.loaded = "";
@@ -354,7 +317,16 @@ function PlateView({
   if (plate.kind === "duo") return <DuoPlate plate={plate} load={load} narrow={narrow} />;
   if (plate.kind === "pair")
     return <PairPlate plate={plate} platform={platform} load={load} narrow={narrow} reduced={reduced} />;
-  if (plate.kind === "live") return load ? <LivePlate which={plate.key} /> : <div className="pj-wait" />;
+  if (plate.kind === "canvas") {
+    const crop = narrow ? plate.shot.narrow : plate.shot.crop;
+    return (
+      <div className="pj-canvas" style={{ background: plate.ground }}>
+        <div className="pj-canvas-box" style={{ width: `min(100%, ${Math.round(crop.w * plate.shot.width)}px)` }}>
+          {load && <ShotView shot={plate.shot} crop={crop} eager={eager} />}
+        </div>
+      </div>
+    );
+  }
   if (plate.kind === "report") return <ReportPlate before={plate.before} after={plate.after} />;
   const crop = narrow ? fitCrop(plate.shot, frameWidth) : plate.shot.crop;
   const shot = load && <ShotView shot={plate.shot} crop={crop} eager={eager} />;
@@ -463,20 +435,13 @@ function measureWire(row: Row, rowElement: HTMLElement, plate: HTMLElement, narr
     outside.push([gutter, ty], [edge, ty]);
     inside.push([edge, ty], [Math.round(target.x - 6), ty]);
   } else {
-    let lane: number | null = null;
-    if (route.kind === "lane") lane = Math.round(p.top + route.y * p.height);
-    else {
-      const rule = plate.querySelector<HTMLElement>(route.css);
-      lane = rule ? Math.round(rule.getBoundingClientRect().top) : null;
-    }
-    if (lane === null) return null;
+    const lane = Math.round(p.top + route.y * p.height);
     const end = target.y > lane ? Math.round(target.y - 6) : Math.round(target.y + target.h + 6);
     outside.push([gutter, lane], [edge, lane]);
     inside.push([edge, lane], [cx, lane], [cx, end]);
   }
   const pad = 5;
   const ring = { x: target.x - pad, y: target.y - pad, w: target.w + pad * 2, h: target.h + pad * 2, r: 8 };
-  if (row.target.kind === "selector" && row.target.round) ring.r = ring.h / 2;
   if (narrow) ring.r = Math.min(ring.r, 8);
   const outLength = lengthOf(outside);
   const inLength = lengthOf(inside);
@@ -662,12 +627,8 @@ function Log({
     return () => window.clearTimeout(timer);
   }, [prev, track.index]);
 
-  /* A screenshot loads when its row is near. A live plate mounts when its row is first shown, so it draws in view. */
-  const nearRows = near
-    ? [active - 1, active, active + 1, shown.index].filter(
-        (i) => i >= 0 && i < rows.length && (rows[i].plate.kind !== "live" || i === shown.index),
-      )
-    : [];
+  /* A screenshot loads when its row is near. */
+  const nearRows = near ? [active - 1, active, active + 1, shown.index].filter((i) => i >= 0 && i < rows.length) : [];
   if (!nearRows.every((i) => loaded.has(i))) {
     const next = new Set(loaded);
     nearRows.forEach((i) => next.add(i));
@@ -980,7 +941,7 @@ function Log({
                     className={`pj-plate pj-plate-${row.plate.kind}`}
                     data-state={state}
                     data-mode={shown.mode}
-                    inert={state !== "on" || narrow || (row.plate.kind === "live" && row.plate.key === "design-system")}
+                    inert={state !== "on" || narrow}
                     aria-hidden={state !== "on"}
                   >
                     <PlateView
@@ -1000,7 +961,7 @@ function Log({
           <div className="pj-caption">
             <p className="pj-caption-text" aria-live="polite">
               {caption}
-              {current.recreation && <span className="pj-rec"> Recreation · invented data.</span>}
+              {current.realScreen && <span className="pj-real"> Real product screens · invented data.</span>}
             </p>
           </div>
         </div>
@@ -1043,14 +1004,6 @@ export default function Draft() {
   const reduced = useMedia("(prefers-reduced-motion: reduce)", false);
   const fontsReady = useFontsReady();
   const home = useLocation().pathname === "/";
-
-  useEffect(() => {
-    const idle = window.requestIdleCallback ?? ((callback: () => void) => window.setTimeout(callback, 600));
-    idle(() => {
-      void recreations.care.load();
-      void recreations["design-system"].load();
-    });
-  }, []);
 
   return (
     <div className="pj">
@@ -1102,7 +1055,7 @@ export default function Draft() {
       <footer className="pj-end">
         <p>
           Gentrit Rashiti. Bachelor's degree, UBT, Kosovo. The care and
-          design-system screens are recreations with invented data. The other screens are public pages, store listings
+          design-system screens are real product screens with invented data. The other screens are public pages, store listings
           and own projects.
         </p>
         <p className="pj-end-links">

@@ -1,5 +1,4 @@
 import {
-  Suspense,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -13,7 +12,6 @@ import { Link } from "react-router";
 import { useMotionValueEvent, useScroll } from "motion/react";
 import { ArrowUpRightIcon } from "@phosphor-icons/react";
 import { links } from "../../content/links";
-import { recreations } from "../../lib/recreations";
 import { cards, opening, record, sentence, yearOf, type Box, type Card, type Plate } from "./data";
 import "./added-clauses.css";
 
@@ -107,26 +105,11 @@ function Slots({ said, onJump }: { said: Said; onJump?: (index: number) => (even
 
 /* ---------- Plates ---------- */
 
-function cropOf(plate: Extract<Plate, { kind: "image" }>, wide: boolean) {
+function cropOf(plate: Plate, wide: boolean) {
   return wide ? plate.wide : plate.narrow;
 }
 
-function PlateView({ plate, wide, eager, live }: { plate: Plate; wide: boolean; eager: boolean; live: boolean }) {
-  if (plate.kind === "care") {
-    const entry = recreations.care;
-    const Care = entry.Component;
-    return (
-      <div className="ac-plate ac-plate-live" data-world={entry.world}>
-        {live ? (
-          <Suspense fallback={<div className="ac-wait" />}>
-            <Care />
-          </Suspense>
-        ) : (
-          <div className="ac-wait" />
-        )}
-      </div>
-    );
-  }
+function PlateView({ plate, wide, eager }: { plate: Plate; wide: boolean; eager: boolean }) {
   const crop = cropOf(plate, wide);
   const style = {
     aspectRatio: `${crop.w} / ${crop.h}`,
@@ -205,29 +188,14 @@ function measurePin(card: HTMLElement, data: Card, wide: boolean): PinGeometry |
   const src = offsetIn(source, card);
   if (!plate || !src || plate.w === 0) return null;
 
-  let target: Box | null = null;
-  let lane: number | null = null;
-  if (data.plate.kind === "image") {
-    const crop = cropOf(data.plate, wide);
-    const scale = plate.w / crop.w;
-    const t = data.plate.target;
-    target = { x: plate.x + (t.x - crop.x) * scale, y: plate.y + (t.y - crop.y) * scale, w: t.w * scale, h: t.h * scale };
-    if (wide && data.plate.laneWide !== undefined) lane = Math.round(plate.y + (data.plate.laneWide - crop.y) * scale);
-  } else {
-    const element = plateEl.querySelector<HTMLElement>(data.plate.css);
-    target = element ? offsetIn(element, card) : null;
-    // The lane runs in the gap under the control's row, so the line crosses no text.
-    const row = element?.closest("header");
-    const next = row?.nextElementSibling as HTMLElement | null | undefined;
-    const rowBox = row ? offsetIn(row, card) : null;
-    const nextBox = next ? offsetIn(next, card) : null;
-    if (rowBox && nextBox) lane = Math.round((rowBox.y + rowBox.h + nextBox.y) / 2);
-  }
-  if (!target || target.w === 0) return null;
+  const crop = cropOf(data.plate, wide);
+  const scale = plate.w / crop.w;
+  const t = data.plate.target;
+  const target: Box = { x: plate.x + (t.x - crop.x) * scale, y: plate.y + (t.y - crop.y) * scale, w: t.w * scale, h: t.h * scale };
+  const lane = wide && data.plate.laneWide !== undefined ? Math.round(plate.y + (data.plate.laneWide - crop.y) * scale) : null;
 
   const pad = 5;
-  const ring = { x: target.x - pad, y: target.y - pad, w: target.w + pad * 2, h: target.h + pad * 2, r: 0 };
-  ring.r = data.plate.kind === "care" ? ring.h / 2 : 8;
+  const ring = { x: target.x - pad, y: target.y - pad, w: target.w + pad * 2, h: target.h + pad * 2, r: 8 };
   const sy = Math.round(src.y + src.h / 2);
   const ty = Math.round(target.y + target.h / 2);
   const gutter = wide ? Math.round(plate.x - 24) : Math.round(plate.x / 2);
@@ -266,24 +234,7 @@ function CardView({
   const cardRef = useRef<HTMLLIElement>(null);
   const [geometry, setGeometry] = useState<PinGeometry | null>(null);
   const [draw, setDraw] = useState<"none" | Mode>("none");
-  const [live, setLive] = useState(false);
   const signature = useRef("");
-
-  useEffect(() => {
-    const card = cardRef.current;
-    if (!card || data.plate.kind !== "care") return;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries.some((entry) => entry.isIntersecting)) {
-          setLive(true);
-          observer.disconnect();
-        }
-      },
-      { rootMargin: "0px 0px 100% 0px" },
-    );
-    observer.observe(card);
-    return () => observer.disconnect();
-  }, [data.plate.kind]);
 
   useLayoutEffect(() => {
     const card = cardRef.current;
@@ -300,17 +251,14 @@ function CardView({
       });
     };
     measure();
+    void document.fonts.ready.then(measure);
     const resize = new ResizeObserver(measure);
     resize.observe(card);
-    const plate = card.querySelector(".ac-plate");
-    const mutation = new MutationObserver(measure);
-    if (plate) mutation.observe(plate, { subtree: true, childList: true });
     return () => {
       cancelAnimationFrame(frame);
       resize.disconnect();
-      mutation.disconnect();
     };
-  }, [data, wide, live]);
+  }, [data, wide]);
 
   // The pin draws once, after its clause is earned.
   if (pinned && geometry !== null && draw === "none") {
@@ -353,7 +301,7 @@ function CardView({
         </p>
       </div>
       <figure className="ac-figure">
-        <PlateView plate={plate} wide={wide} eager={index === 0} live={live} />
+        <PlateView plate={plate} wide={wide} eager={index === 0} />
         <figcaption className="ac-caption">{plate.caption}</figcaption>
       </figure>
       {geometry && draw !== "none" && (
@@ -569,8 +517,8 @@ export default function Draft() {
           <Link to="/">All 30 projects →</Link>
         </p>
         <p className="ac-footer-note">
-          No screenshots of client work: the care screen and the component specimen are recreations with invented data.
-          The other screens come from public web pages and store listings.
+          The Vianova care and design-system screens are real product screens with invented data. The other screens come
+          from public web pages and store listings.
         </p>
       </footer>
     </div>

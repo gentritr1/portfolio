@@ -1,7 +1,8 @@
+import { careShots, dsShots, REAL_SCREENS, type ScreenShot } from "../../content/careShots";
 import { projects } from "../../content/projects";
 
 export type Plate =
-  | { kind: "care"; caption: string }
+  | { kind: "real"; shot: ScreenShot; phone?: ScreenShot; caption: string }
   | { kind: "web"; src: string; alt: string; caption: string }
   | {
       kind: "screen";
@@ -62,7 +63,7 @@ export const entries: Entry[] = [
       now: "one route at a time, each after a parity test on both apps.",
     },
     mark: "care platform",
-    plate: { kind: "care", caption: "Recreation with invented data" },
+    plate: { kind: "real", shot: careShots.claims, phone: careShots.patients, caption: REAL_SCREENS },
     link: { kind: "case", slug: "care-platform" },
     result: "Parity test on both apps",
   },
@@ -96,12 +97,7 @@ export const entries: Entry[] = [
     years: "2026",
     head: "Design System v2: 36 components and 805 tokens, 20 releases in about six weeks.",
     mark: "Design System v2",
-    plate: {
-      kind: "web",
-      src: "/showcase/design-system/specimen-light.webp",
-      alt: "Component specimen of an invented project-tracker kit: a three-tier token strip, alerts, select, input states, steps, buttons, tabs and switches",
-      caption: "Recreation of an invented kit",
-    },
+    plate: { kind: "real", shot: dsShots.top, caption: REAL_SCREENS },
     link: { kind: "case", slug: "design-system-react" },
     result: "36 components, 805 tokens",
   },

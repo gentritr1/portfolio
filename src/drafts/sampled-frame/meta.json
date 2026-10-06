@@ -4,7 +4,7 @@
   "band": "Loop 8",
   "rule": "one fixed frame, and the whole page is the colour of the screen inside it",
   "description": "Seven projects as a log beside one fixed frame on a coloured wall. The row at the reading line is current: its screen fills the frame, and the screen's measured hue paints the page. It opens on a shipped product (the Bayyinah TV pricing page, real and public) and puts the strongest result second: one billing report, 16 database requests before and 2 now, drawn as a figure on a grey wall because it has no screen. The new screen and its colour arrive together inside one circle from the frame's centre; then a hairline runs from the result to the part of the screen that proves it.",
-  "signature": "Projector's frame and log with sampled-ground's colour rule. Public Sans for text, Big Shoulders Display for the 96 px numerals and the 16 -> 2 figure. Palette by construction, only the hue comes from the screen: field oklch(0.95 0.035 h), ink oklch(0.30 0.11 h), wall oklch(0.42 0.13 h); a row with no screen is grey. Row order alternates warm and cool so every scroll changes the colour: 31, grey, 185, 23, 254, 78, 282. Desktop: a 560 px log and a wall of frame + 160 px with a 4:5 frame (576 x 720, never upscaled), a tray of seven 44 px slots, a caption under the frame. One card for each plate: the pricing column, the figure, the vitals card, the Viva Fresh cart, the button set, the reader page, the wallet. Motion: a row becomes current 160 ms after it settles; the old hairline leaves at once; one clip-path circle (280 ms, ease-out) reveals the new plate and its colour; the result band wipes in (240 ms), the numeral fills (160 ms), the new line draws (180 ms) with its ring (120 ms). Live plates mount hidden when the page is idle, so the care chart is already drawn when its row is shown. Keys jump with no motion. Phone: the wall is a pinned head with a 4:3 crop of the same part; the log scrolls under it. Reduced motion: no circle, no draw, nothing moves in a plate.",
+  "signature": "Projector's frame and log with sampled-ground's colour rule. Public Sans for text, Big Shoulders Display for the 96 px numerals and the 16 -> 2 figure. Palette by construction, only the hue comes from the screen: field oklch(0.95 0.035 h), ink oklch(0.30 0.11 h), wall oklch(0.42 0.13 h); a row with no screen is grey. Neighbouring rows differ in hue so every scroll changes the colour: 31, grey, 297, 23, 230, 78, 282. Desktop: a 560 px log and a wall of frame + 160 px with a 4:5 frame (576 x 720, never upscaled), a tray of seven 44 px slots, a caption under the frame. One card for each plate: the pricing column, the figure, the care dashboard's patient ring (real product screen, invented data), the Viva Fresh cart, the Design System v2 buttons and alerts in Storybook (real product screen, invented data), the reader page, the wallet. Motion: a row becomes current 160 ms after it settles; the old hairline leaves at once; one clip-path circle (280 ms, ease-out) reveals the new plate and its colour; the result band wipes in (240 ms), the numeral fills (160 ms), the new line draws (180 ms) with its ring (120 ms). Live plates mount hidden when the page is idle, so the reader and the wallet are already drawn when their rows are shown. Keys jump with no motion. Phone: the wall is a pinned head with a 4:3 crop of the same part; the log scrolls under it. Reduced motion: no circle, no draw, nothing moves in a plate.",
   "caseSlug": "bayyinah-tv",
   "mechanisms": [
     "sampled ground",
@@ -39,9 +39,9 @@
     "method": "OKLCH hue histogram, chroma-weighted, 1 degree bins smoothed over 13 degrees, over the rendered 576 x 720 plate at 1440 x 900 (review/loop7/sampled-frame/hue.mjs); the 16 -> 2 figure has no screen and no hue",
     "bayyinah-tv": 31,
     "care-api": null,
-    "care-platform": 185,
+    "care-platform": 297,
     "viva-fresh": 23,
-    "design-system": 254,
+    "design-system": 230,
     "read-to-feed": 78,
     "incentiv": 282
   },

@@ -1,12 +1,10 @@
 import {
-  Suspense,
   useCallback,
   useEffect,
   useLayoutEffect,
   useRef,
   useState,
   useSyncExternalStore,
-  type CSSProperties,
   type KeyboardEvent,
   type MouseEvent,
   type RefObject,
@@ -14,7 +12,7 @@ import {
 import { Link } from "react-router";
 import { ArrowRightIcon, ArrowUpRightIcon } from "@phosphor-icons/react";
 import { links } from "../../content/links";
-import { recreations } from "../../lib/recreations";
+import { CropShot } from "../../components/CropShot";
 import { recordById, records, type DecisionRecord, type Evidence } from "./data";
 import "./decision-record.css";
 
@@ -96,21 +94,8 @@ function Lane({
 }
 
 function Stage({ evidence }: { evidence: Evidence }) {
-  if (evidence.kind === "recreation") {
-    const entry = recreations[evidence.recreation];
-    const Recreation = entry.Component;
-    const style = {
-      "--a-base": entry.aspect.base,
-      "--a-sm": entry.aspect.sm,
-      "--a-lg": entry.aspect.lg,
-    } as CSSProperties;
-    return (
-      <div className="dr-stage" data-world={entry.world} style={style}>
-        <Suspense fallback={<div className="dr-stage-wait" />}>
-          <Recreation />
-        </Suspense>
-      </div>
-    );
+  if (evidence.kind === "shot") {
+    return <CropShot shot={evidence.shot} className="dr-shot" style={{ maxWidth: evidence.shot.crop.w }} />;
   }
   return (
     <div className="dr-shots" data-kind={evidence.kind} data-count={evidence.images.length}>
@@ -490,8 +475,8 @@ export default function Draft() {
 
       <footer className="dr-foot">
         <p>
-          Every Vianova screen on this page is a recreation with invented data. Other screens come from public pages
-          and store listings.
+          The Vianova care and design-system screens on this page are real product screens with invented data. Other
+          screens come from public pages and store listings.
         </p>
         <p>
           Bachelor's degree, UBT. Based in Kosovo, working remotely.

@@ -1,4 +1,5 @@
 import type { RecreationKey } from "../../content/projects";
+import { careShots, dsShots } from "../../content/careShots";
 
 /** A box in source pixels of an image, or in design pixels of a live plate. */
 export interface Box {
@@ -35,6 +36,8 @@ export interface ShotPlate {
   crop: Box;
   /** 4:3 crop under 1024 px. */
   narrow: Box;
+  /** Paints the part of a crop that lies outside the image. */
+  ground?: string;
 }
 
 /** A result with no screen: the figure is the plate, and the page stays grey. */
@@ -126,11 +129,16 @@ export const rows: Row[] = [
     year: "2023–26",
     line: "Many client organizations use the same system.",
     result: "Each one sees only its own patients",
-    plate: { kind: "live", key: "care", width: 576, narrowWidth: 460 },
-    caption: "Vitals card. Recreation · invented data.",
-    target: { kind: "selector", css: 'button[aria-label^="Organization"]' },
-    lane: ".border-t",
-    hue: 185,
+    plate: {
+      kind: "shot",
+      ...careShots.overview,
+      alt: "Care team dashboard: 24 patients by program, and the patients of each provider. Invented data.",
+      crop: { x: 240, y: 120, w: 594, h: 742 },
+      narrow: { x: 240, y: 80, w: 594, h: 446 },
+    },
+    caption: "Patient count. Real product screens · invented data.",
+    target: { kind: "shot", box: { x: 286, y: 313, w: 154, h: 154 } },
+    hue: 297,
     link: { label: "Open the case", href: "/work/care-platform" },
   },
   {
@@ -158,10 +166,15 @@ export const rows: Row[] = [
     year: "2026",
     line: "The new care dashboard needed one set of buttons, menus and forms.",
     result: "36 building blocks, 20 releases in about six weeks",
-    plate: { kind: "live", key: "design-system", width: 440, narrowWidth: 480 },
-    caption: "Button set. Recreation · invented data.",
-    target: { kind: "selector", css: ".dsr-area-buttons .dsr-button-rows" },
-    hue: 254,
+    plate: {
+      kind: "shot",
+      ...dsShots.buttonAlert,
+      crop: { x: 0, y: -152, w: 720, h: 900 },
+      narrow: { x: 8, y: -40, w: 704, h: 528 },
+    },
+    caption: "Buttons and alerts. Real product screens · invented data.",
+    target: { kind: "shot", box: { x: 16, y: 24, w: 652, h: 92 } },
+    hue: 230,
     link: { label: "Open the case", href: "/work/design-system-react" },
   },
   {
@@ -206,7 +219,7 @@ export const record: RecordRow[] = [
     decision: "Move the care platform to a new framework, one screen at a time.",
     project: "Care-management platform",
     years: "2026",
-    result: "Each screen checked against the old app",
+    result: "Each screen passes the same tests first",
     href: "/work/care-platform",
   },
   {

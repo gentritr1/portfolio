@@ -21,7 +21,7 @@ The owner wants many directions, kept as live drafts, iterated round after round
 ## Content
 
 - Facts only from CONTENT.md and src/content/projects.ts + caseNarratives.ts (30 projects; featured: care platform, Bayyinah TV, Read to Feed, Viva Fresh, Incentiv, Dukagjini Bookstore, Design System v2).
-- NDA: Vianova screens are recreations with invented data only (use the existing recreations in src/lib/recreations.tsx, e.g. 'care' and 'design-system'). Never real Vianova screenshots. High level only for internal work.
+- Vianova screens (owner, 2026-10-06, with permission): real product screens captured on invented data only, labelled "Real product screens, invented data." (public/showcase/care-dashboard/, design-system/button-alert.webp). No hand-made recreations. No blur. Phone shots of the dashboard only for overview screens. High level only for internal work.
 - Seniority signals that are true: two platform rewrites, a design system (36 components, 805 tokens), multi-tenant platform work, store releases, 5+ years, web + mobile + full stack.
 
 ## Skills to apply (read the SKILL.md files)

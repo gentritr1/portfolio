@@ -1,3 +1,4 @@
+import { REAL_SCREENS, careShots, dsShots, type ScreenShot } from '../../content/careShots'
 import { projects, type Project, type PublicLink, type RecreationKey } from '../../content/projects'
 
 export type Variant = 'frontend' | 'mobile' | 'fullstack'
@@ -114,6 +115,8 @@ export interface Frame {
 
 export type Canvas =
   | { kind: 'recreation'; key: RecreationKey }
+  /** A real product screen. `brief` is the crop for a closed brief card. */
+  | { kind: 'screen'; shot: ScreenShot; brief?: ScreenShot }
   | { kind: 'web'; frames: Frame[] }
   | { kind: 'phone'; frames: Frame[] }
 
@@ -153,6 +156,7 @@ const base = (slug: string) => {
 }
 
 const recreationLabel = 'Recreation with invented data'
+const realLabel = REAL_SCREENS.replace(/\.$/, '')
 const publicLabel = 'Public pages'
 const storeLabel = 'Public store listing'
 
@@ -174,12 +178,12 @@ export const examples: Example[] = [
     problem: 'A React rewrite needed one shared, accessible base of controls.',
     built: 'One token source in three tiers, generated to CSS, TypeScript and Figma; 36 components on top.',
     result: '20 releases in about six weeks. A Button-only consumer ships 96.6% less JavaScript.',
-    canvas: { kind: 'recreation', key: 'design-system' },
+    canvas: { kind: 'screen', shot: dsShots.buttonAlert, brief: dsShots.top },
     more: {
       text: 'Each component is built to WCAG 2.1 AA floors with automated, rendered evidence: axe tests and in-browser contrast checks, with negative controls that prove the checks can fail. The new React dashboard uses the system through one adapter layer; it is not in production yet.',
       links: [],
     },
-    label: recreationLabel,
+    label: realLabel,
   },
   {
     ...care,
@@ -189,12 +193,12 @@ export const examples: Example[] = [
     problem: 'A live multi-tenant care platform had to move from Vue to React.',
     built: 'Route by route. Each route moves only after its parity test passes against both apps.',
     result: 'Most screens are rebuilt in React. One billing report went from 16 queries to 2.',
-    canvas: { kind: 'recreation', key: 'care' },
+    canvas: { kind: 'screen', shot: careShots.patients },
     more: {
       text: 'Care teams follow vitals from connected devices, care plans, labs, claims, calls and chat, in four languages. Every screen keeps each organization’s data separate and respects each user’s role and timezone. The Laravel API gained enrollment drafts, a lab catalog and multi-tenant security fixes.',
       links: [],
     },
-    label: recreationLabel,
+    label: realLabel,
   },
   {
     ...bay,

@@ -2,8 +2,8 @@
   "id": "live-objects",
   "title": "LIVE OBJECTS",
   "band": "Loop 10",
-  "rule": "the first screen runs: the owner's own FORM trefoil, live in WebGL, beside the care recreation (client work, invented data); real client screens follow; the OFFBEAT drum machine plays in the own-work band",
-  "description": "A black page. Top left: 'Gentrit Rashiti builds web and mobile apps. Some of them run on this page.' Under it, in bone: '5+ years. Part of two platform rewrites. Mobile apps shipped to both app stores.' Left: the FORM trefoil, with the plain line 'His own 3D work ... He wrote the 3D code himself, with no library.' Drag it and it turns with inertia; copper, chrome and porcelain re-tint the knot and the page accent in 280 ms. Right: the care recreation, labelled 'Recreation · invented data', with its plain result. Then 'Client work': five shipped products, each with its real screens (Bayyinah TV web and store, Read to Feed, Viva Fresh, Dukagjini, Incentiv) and Design System v2 as text. Then 'Also built, on his own time': Offday as a large light screenshot, the OFFBEAT drum machine (Web Audio only after Play), and four sites that are live on the web.",
+  "rule": "the first screen runs: the owner's own FORM trefoil, live in WebGL, beside a real care-platform screen (client work, invented data); real client screens follow; the OFFBEAT drum machine plays in the own-work band",
+  "description": "A black page. Top left: 'Gentrit Rashiti builds web and mobile apps. Some of them run on this page.' Under it, in bone: '5+ years. Part of two platform rewrites. Mobile apps shipped to both app stores.' Left: the FORM trefoil, with the plain line 'His own 3D work ... He wrote the 3D code himself, with no library.' Drag it and it turns with inertia; copper, chrome and porcelain re-tint the knot and the page accent in 280 ms. Right: a real care-platform screen (one patient's glucose values and day curve), labelled 'Real product screens · invented data', with its plain result. Then 'Client work': five shipped products, each with its real screens (Bayyinah TV web and store, Read to Feed, Viva Fresh, Dukagjini, Incentiv) and Design System v2 with its Storybook screen (buttons and alerts). Then 'Also built, on his own time': Offday as a large light screenshot, the OFFBEAT drum machine (Web Audio only after Play), and four sites that are live on the web.",
   "signature": "Gentrit Display (Hubot Sans) at wdth 120, wght 300, 51 px for the identity line, one sentence per line; Gentrit Text 400 at 17 px for everything else; no mono. Ground #0E0E0E, bone #F2EDE4 (16.6:1), muted #A7A29A (7.6:1), accent = the material: copper #C8773A (5.7:1), chrome #9EB3C7 (8.9:1), porcelain #E9E4DC (15.3:1), a registered @property so the page cross-fades. Motion: load turn 2.4 s on cubic-bezier(.65,0,.35,1); drag hands its release velocity to the knot (decay e^-3t, clamp 6 rad/s); material and page accent 280 ms; drum hit flash 240 ms from bone to the accent. Reduced motion: no load turn, no inertia, no flash, instant swaps; sound still only on Play. No WebGL: the same knot drawn flat in SVG in the accent, with one plain sentence. Phone: the knot fills the first screen, the drum grid turns to 8 rows x 4 columns on the second.",
   "caseSlug": "care-platform",
   "mechanisms": [
@@ -22,7 +22,7 @@
     "typeAndColour": 8
   },
   "hook": "You can spin the copper knot, and the whole site changes colour with the metal.",
-  "holdback": "Lowest: seniority, 7. The level rests on the bone sub-line, the care recreation and the client screens; there is still no case narrative on the first screen. Other limits: the flat no-WebGL knot has one shallow crossing at the lower right that reads as a tight tuck; the phone first screen shows the knot and FORM line, and the care card starts at y = 877 (one short scroll); the live session in the browser pane could not run because the pane is hidden (document.hidden = true stops the knot), so motion is proven by headless mid-frames only.",
+  "holdback": "Lowest: seniority, 7. The level rests on the bone sub-line, the care screen and the client screens; there is still no case narrative on the first screen. Other limits: the flat no-WebGL knot has one shallow crossing at the lower right that reads as a tight tuck; the phone first screen shows the knot and FORM line, and the care screen starts at y = 877 (one short scroll); the live session in the browser pane could not run because the pane is hidden (document.hidden = true stops the knot), so motion is proven by headless mid-frames only.",
   "craft": {
     "cls": "0 on load and after a fast scroll at 1440, 1280, 1024, 540, 390, 375",
     "widthsChecked": [
@@ -33,7 +33,7 @@
       390,
       375
     ],
-    "targets": "0 controls under 44 x 44 px outside the recreation (swatch inputs now 44 px high)",
+    "targets": "0 controls under 44 x 44 px (swatch inputs now 44 px high)",
     "fontWait": "unchanged mechanism: text waits at most 300 ms",
     "chunk": "no new imports; screens are lazy <img> with width and height",
     "reducedMotion": "4 s and 8 s frames are pixel-identical at 1440 and 375",

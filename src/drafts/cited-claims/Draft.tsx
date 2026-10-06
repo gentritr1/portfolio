@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type CSSProperties, type KeyboardEvent as 
 import { Link, useSearchParams } from 'react-router'
 import { links } from '../../content/links'
 import { preloadCase } from '../../lib/routes'
+import { CropShot } from '../../components/CropShot'
 import { claims, groups, rows, total, type Cite, type Claim, type Part, type Row } from './data'
 import './cited-claims.css'
 
@@ -62,6 +63,7 @@ function Media({ row }: { row: Row }) {
     <figure className="cc-media" data-kind={media.kind}>
       <div className="cc-frame">
         {media.kind === 'shot' && <img src={media.src} alt={media.alt} decoding="async" />}
+        {media.kind === 'screen' && <CropShot shot={media.shot} fill />}
         {media.kind === 'phones' &&
           media.srcs.map((src, index) => <img key={src} src={src} alt={index === 0 ? media.alt : ''} decoding="async" />)}
         {media.kind === 'readout' && (
@@ -81,7 +83,7 @@ function Media({ row }: { row: Row }) {
           </div>
         )}
       </div>
-      {media.kind === 'shot' && media.note && <figcaption>{media.note}</figcaption>}
+      {(media.kind === 'shot' || media.kind === 'screen') && media.note && <figcaption>{media.note}</figcaption>}
     </figure>
   )
 }
@@ -336,7 +338,7 @@ export default function CitedClaims() {
         <p>
           Write to <a href={`mailto:${links.email}`}>{links.email}</a>
         </p>
-        <p>Vianova work appears as recreations with invented data. Other images come from public pages and store listings.</p>
+        <p>Vianova care and design-system screens are real product screens with invented data. Other images come from public pages and store listings, or are labelled recreations.</p>
       </footer>
     </div>
   )

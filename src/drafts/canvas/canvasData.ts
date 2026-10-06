@@ -1,3 +1,4 @@
+import { careShots } from '../../content/careShots'
 import type { Area } from './geometry'
 
 export interface Artboard extends Area {
@@ -6,7 +7,7 @@ export interface Artboard extends Area {
   caption: string
   src?: string
   alt?: string
-  live?: 'care' | 'reader'
+  live?: 'reader'
   /** The part of the source the frame shows, in source pixels of a `size` image. The frame keeps the crop's shape. */
   crop?: { x: number; y: number; w: number; h: number; size: [number, number] }
   background: string
@@ -23,13 +24,15 @@ export interface Cluster extends Area {
 export function makeClusters(viewWidth: number): Cluster[] {
   const compact = viewWidth < 650
   const liveWidth = compact ? Math.max(272, viewWidth - 48) : 720
+  const week = compact ? careShots.weekTwoDays : careShots.week
+  const weekWidth = Math.min(liveWidth, week.crop.w)
   return [
     {
       id: 'care', title: 'Care & systems', description: 'Remote patient monitoring. Vue to React, one route at a time.',
       x: compact ? 96 : 890, y: compact ? 520 : 190, width: compact ? liveWidth : 1480, height: 740,
       frames: [
-        { id: 'care-demo', title: 'Care-management platform', caption: 'Live recreation · invented patient data', x: 0, y: 0, width: liveWidth, height: compact ? 400 : 452, live: 'care', background: '#f9faf1' },
-        { id: 'care-claims', title: 'Claims', caption: 'Real screen · invented data', x: 790, y: 110, width: 630, height: 377, src: '/showcase/care-dashboard/claims.webp', alt: 'Claims for one month: counts by status, filters for claims that need attention, and each claim with its program and status. Invented data.', crop: { x: 246, y: 160, w: 1180, h: 706, size: [1440, 900] }, background: '#f5f7fb' },
+        { id: 'care-week', title: 'Care team calendar', caption: 'Real product screens · invented data', x: 0, y: 0, width: weekWidth, height: Math.round(weekWidth * week.crop.h / week.crop.w), src: week.src, alt: week.alt, crop: { ...week.crop, size: [week.width, week.height] }, background: week.ground },
+        { id: 'care-claims', title: 'Claims', caption: 'Real product screens · invented data', x: 790, y: 110, width: 630, height: 377, src: '/showcase/care-dashboard/claims.webp', alt: 'Claims for one month: counts by status, filters for claims that need attention, and each claim with its program and status. Invented data.', crop: { x: 246, y: 160, w: 1180, h: 706, size: [1440, 900] }, background: '#f5f7fb' },
       ],
     },
     {

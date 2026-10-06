@@ -1,5 +1,6 @@
 import { Fragment, Suspense, useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { Link } from 'react-router'
+import { CropShot } from '../../components/CropShot'
 import { recreations } from '../../lib/recreations'
 import type { Card, Pin, Plate, Row } from './data'
 
@@ -36,7 +37,17 @@ function cite(text: string): ReactNode {
 }
 
 /** A text pin measures the glyphs, not the box, so a stretched element does not move the ring away from its words. */
-function findTarget(plate: HTMLElement, pin: Pin): DOMRect | null {
+function findTarget(plate: HTMLElement, pin: Pin, shotWidth: number): DOMRect | null {
+  if (pin.kind === 'shot') {
+    const image = plate.querySelector('img')
+    if (!image || !shotWidth) return null
+    const frame = image.getBoundingClientRect()
+    const scale = frame.width / shotWidth
+    const box = new DOMRect(frame.left + pin.x * scale, frame.top + pin.y * scale, pin.w * scale, pin.h * scale)
+    const edge = plate.getBoundingClientRect()
+    const inside = box.left >= edge.left && box.top >= edge.top && box.right <= edge.right && box.bottom <= edge.bottom
+    return inside ? box : null
+  }
   if (pin.kind !== 'css') return null
   for (const element of plate.querySelectorAll<HTMLElement>(pin.css)) {
     if (pin.text === undefined) return element.getBoundingClientRect()
@@ -137,7 +148,8 @@ function Wire({ points, ring, draw, leaving }: { points: Point[]; ring: Point; d
   )
 }
 
-function PlateView({ plate, mounted, eager }: { plate: Plate; mounted: boolean; eager: boolean }) {
+function PlateView({ plate, mounted, eager, wide }: { plate: Plate; mounted: boolean; eager: boolean; wide: boolean }) {
+  if (plate.kind === 'screen') return <CropShot shot={wide ? plate.shot : plate.narrow} eager={eager} />
   if (plate.kind === 'live') {
     const entry = recreations[plate.key]
     const Recreation = entry.Component
@@ -260,7 +272,8 @@ export function Block({ card, wide, eager, reduced }: BlockProps) {
       if (row.pin.kind === 'point') {
         targets[row.id] = { x: plateBox.x + row.pin.x * plateBox.w, y: plateBox.y + row.pin.y * plateBox.h, w: 0, h: 0 }
       } else {
-        const rect = findTarget(plate, row.pin)
+        const shot = card.plate.kind === 'screen' ? (wide ? card.plate.shot : card.plate.narrow) : null
+        const rect = findTarget(plate, row.pin, shot?.width ?? 0)
         if (rect) targets[row.id] = rel(rect)
       }
     }
@@ -283,7 +296,7 @@ export function Block({ card, wide, eager, reduced }: BlockProps) {
       signature.current = key
       setGeometry(next)
     }
-  }, [card.rows, wide])
+  }, [card.rows, card.plate, wide])
 
   useLayoutEffect(() => {
     const plate = plateRef.current
@@ -378,7 +391,7 @@ export function Block({ card, wide, eager, reduced }: BlockProps) {
     >
       <div ref={wrapRef} className="wr-wrap">
         <div ref={plateRef} className="wr-plate" data-kind={card.plate.kind}>
-          <PlateView plate={card.plate} mounted={mounted} eager={eager} />
+          <PlateView plate={card.plate} mounted={mounted} eager={eager} wide={wide} />
         </div>
         {ghost && <Wire key={`ghost-${ghost.id}`} points={ghost.points} ring={ghost.ring} draw={false} leaving />}
         {wire && <Wire key={wire.id} points={wire.points} ring={wire.ring} draw={!reduced} />}

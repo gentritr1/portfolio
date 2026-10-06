@@ -758,6 +758,10 @@
   caret-color: initial;
 }
 
+.ts-stage-shot {
+  aspect-ratio: auto;
+}
+
 .ts-stage-poster {
   position: absolute;
   inset: 0;

@@ -1,4 +1,4 @@
-import type { RecreationKey } from "../../content/projects";
+import { careShots, dsShots, type ScreenShot } from "../../content/careShots";
 import { links } from "../../content/links";
 
 export interface Shot {
@@ -9,7 +9,7 @@ export interface Shot {
 }
 
 export type Plate =
-  | { kind: "live"; key: RecreationKey }
+  | { kind: "screen"; shot: ScreenShot }
   | { kind: "web"; shot: Shot }
   | { kind: "phones"; shots: Shot[] }
   | { kind: "count"; before: number; after: number; subject: string };
@@ -72,13 +72,15 @@ export const experience: Entry[] = [
         text: "Care-management platform: Vue to React, one route at a time, each route parity-tested.",
         proof: {
           id: "01",
-          kind: "Live recreation · invented data",
-          result:
-            "Many organizations share one system. Switch the organization: the data changes, the controls stay.",
+          kind: "Real product screens · invented data",
+          result: "Each organization sees only its own patients.",
           meta: "Care platform · 2023–26",
           href: "/work/care-platform",
           label: "Open the case",
-          plate: { kind: "live", key: "care" },
+          plate: {
+            kind: "screen",
+            shot: { ...careShots.overview, crop: { x: 236, y: 80, w: 1204, h: 752 } },
+          },
         },
       },
       {
@@ -102,20 +104,19 @@ export const experience: Entry[] = [
         text: "Design System v2: 36 components and 805 tokens, 20 releases in about six weeks.",
         proof: {
           id: "03",
-          kind: "Recreation · invented data",
+          kind: "Real product screens · invented data",
           result:
             "One token source builds the CSS, the TypeScript and the Figma bundle.",
           meta: "Design system · 2026",
           href: "/work/design-system-react",
           label: "Open the case",
           plate: {
-            kind: "web",
-            shot: web(
-              "/showcase/design-system/specimen-light.webp",
-              "Component specimen recreation with invented data: a token table in three tiers, alerts, inputs, steps, buttons, tabs and switches",
-              1920,
-              1200,
-            ),
+            kind: "screen",
+            shot: {
+              ...dsShots.top,
+              alt: "Design System v2 in its Storybook: buttons in four styles, buttons with icons, and alerts for a note, information and success. Invented data.",
+              crop: { x: 8, y: -40, w: 704, h: 440 },
+            },
           },
         },
       },

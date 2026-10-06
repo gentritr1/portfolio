@@ -46,6 +46,13 @@ Project facts below come from git history; contact and education details were co
 - Report query 16 → 2, no more timeouts
 - 4 languages: EN, DE, ES, TR
 
+**How it is built (case part, owner request 2026-10-06; checked on the React repo `origin/main` 9dcd8002, 2026-10-05):**
+- Case text: "AI agents work inside fixed rules and automatic checks. Old bugs are written down, not copied. A person approves each change before it is added." Proof: "A check is trusted only after it is shown to fail."
+- Diagram: Old app → Test first → Agents build → Checks → Person approves; a failed change goes back to Agents build.
+- Home result line: "Rebuilt screen by screen. Old bugs written down, not copied."
+- Sources: each route's test is written on the pinned old app before React code, then runs unchanged on both apps (`CLAUDE.md` "Evidence is an artifact", `docs/CUTOVER.md`). Each departure from the old app is recorded with evidence and an approval column; the product owner confirms a defect before it is fixed (`docs/CUTOVER.md` §4, `migration/inventories/*.md`). Two CI jobs run every gate, and each gate has a negative control that proves it can fail (`tools/gates/run.mjs`, `tools:test`). People merge every pull request (`git log --merges`). State rules: server state in TanStack Query, client state in Zustand, filters in the URL, Zod schemas from captured responses, no feature imports a sibling feature (`CLAUDE.md` "Code invariants", `boundaries:check`).
+- Counts, for reference only. Do not display them (owner rule 2026-10-05, no internal counts): 12 repo skills, one for each stage (`.claude/skills/`); 56 decision records (`docs/adr/`); 2 CI jobs with 21 gate leaves (`tools/gates/run.mjs` PROFILES); 57 parity specs (`tests/parity/*.spec.ts`); 62 slice inventories with about 870 deviation-register rows (`migration/inventories/`). These counts grow each week.
+
 **Stack:** React 19, TypeScript, TanStack Query/Router, Zustand, Zod, Tailwind, Vitest, Playwright · Laravel 13, PHP 8.3, MySQL, Redis, Pest · Twilio, Chime, Pusher, ECharts
 
 **Live recreation (invented data, no brand):** "Vitals trend card". A small card for a fictional patient ("Patient 4821"), showing a 14-day blood-pressure sparkline with a threshold band; two readings cross the threshold and show an alert dot; a toggle switches units; a role chip ("Care manager") and an organization switcher ("Northwind Clinic ▾ / Harbor Health") demonstrate multi-tenancy — switching the org swaps the dataset and the accent colour instantly. Keep it to one card plus the switcher.
@@ -165,6 +172,12 @@ Owner confirmed (2026-10-02): built bayyinah.org, Next.js, 2024–25; repo acces
 
 **Allowed facts (owner, high level only):** 36 components; 805 design tokens in three tiers (core, semantic, component) from one source to CSS, TypeScript and a Figma bundle; 20 releases in about six weeks; 96.6% less JavaScript for a Button-only consumer; built to WCAG 2.1 AA floors with automated, rendered evidence. Research and agent work stays qualitative: a research corpus, a large multi-agent audit of the old frontend, a best-practices guide, decision records, an append-only lessons log, agent skills, fresh independent reviewers, executable gates and the founding rule ("every claim derives from one artifact, through a check that runs"). Adoption: the new React dashboard uses the system across its screens through one adapter layer; a gate keeps raw colours and native controls out; the dashboard is not in production yet.
 
+**How it is built (case part, owner request 2026-10-06; checked on the design-system repo `origin/main` f7e78ed, 2026-09-27):**
+- Case text: "Research into five leading design systems came first. It became written guides for AI agents. The guides advise, but automatic checks decide." Proof: "No guide can overrule a failed check."
+- Diagram: Research → Guides → Agents build → Checks → Person approves; a failed change goes back to Agents build.
+- Sources: the benchmark covers Material, Carbon, Polaris, Atlassian and Primer (`docs/research/README.md` §1). The order of authority: best practices and accepted decision records are the spec, research is the evidence, skills only advise, executable gates decide, and skill judgment cannot override a failed gate (`docs/SKILLS-MAP.md` "Precedence" and "The operating loop"; `tools/skills/contract.json` policy `canon_precedence`). People merge every pull request (`git log --merges`).
+- Counts, for reference only. Do not display them (owner rule above): 7 research studies plus an index (`docs/research/`); 49 skills in one contract with 8 roles (`tools/skills/contract.json`); 44 decision records (`docs/adr/`).
+
 **Do not publish:** old-vs-new dashboard comparisons (tests, CI, lint, file sizes), internal counts (skills, lessons, ADRs, asks, version bumps, routes), client or tenant names, internal URLs, repo or package links, other contributors' names. Never claim "WCAG compliant", "faster" or "more stable in production".
 
 **Readouts:** 36 Components · 805 Design tokens in three tiers · 20 Releases in about six weeks · 96.6% Less JavaScript for a Button-only consumer.
@@ -193,7 +206,7 @@ Render as a compact, scannable index (not cards): grouped by employer, each row 
 ### Vianova (2021 – present)
 | Project (generic name) | Years | Role | Stack | One line | World link |
 |---|---|---|---|---|---|
-| Care-management platform, React rewrite | 2026 | Frontend | React 19, TypeScript, TanStack, Zod, Vitest, Playwright | Route-by-route move from Nuxt 2 to React with parity tests, 31 ADRs, CI gates | #healthcare |
+| Care-management platform, React rewrite | 2026 | Frontend | React 19, TypeScript, TanStack, Zod, Vitest, Playwright | Route-by-route move from Nuxt 2 to React with parity tests, decision records, CI gates | #healthcare |
 | Care-management platform, Vue app | 2023 – 2026 | Frontend | Nuxt 2, Vue 2, Vuex, ECharts, Twilio, Chime | Remote patient care: profiles, care plans, claims, vitals and labs, calls, 4 locales | #healthcare |
 | Care-management API | 2026 | Full stack | Laravel 13, PHP 8.3, MySQL, Redis, Pest | Laravel API for enrollment drafts, a lab catalog, multi-tenant security and fast reports | #healthcare |
 | Design System v2 (featured case, owner 2026-10-05, facts from ds-factsheet) | 2026 | Design system | React 19, TypeScript, CSS Modules, Storybook 10, DTCG tokens, Playwright, axe | 36 components, 805 design tokens and 20 releases in about six weeks | /work/design-system-react |

@@ -1,9 +1,10 @@
-import { Suspense, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent, type PointerEvent } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent, type PointerEvent } from 'react'
 import { animate, motion } from 'motion/react'
 import { flushSync } from 'react-dom'
 import { dur, ease, spring } from './motion'
 import { links } from '../../content/links'
-import { recreations } from '../../lib/recreations'
+import { careShots, dsShots, REAL_SCREENS } from '../../content/careShots'
+import { CropShot } from '../../components/CropShot'
 import { crosswordCells, crosswordColumns, crosswordRows, crosswordWords, type CrosswordWord } from './crossword'
 import { clues, featuredOrder, filledAtStart, nameOf, ownOrder, projectOf } from './clues'
 import { createLetterPhysics } from './letterPhysics'
@@ -87,12 +88,10 @@ const leadShot: Record<string, number> = { incentiv: 2 }
 
 function LeadMedia({ slug }: { slug: string }) {
   const project = projectOf(slug)
-  const rec = slug === 'care-platform' ? recreations.care : slug === 'design-system-react' ? recreations['design-system'] : null
-  if (rec) return <figure className="fk-lead-media" data-kind="recreation">
-    <div className="fk-recreation @container" data-world={rec.world} role="group" aria-label={rec.name + ', recreation with invented data'}>
-      <Suspense fallback={<span className="fk-wait">Loading the recreation</span>}><rec.Component /></Suspense>
-    </div>
-    <figcaption>Recreation · invented data</figcaption>
+  const shot = slug === 'care-platform' ? careShots.patients : slug === 'design-system-react' ? dsShots.top : null
+  if (shot) return <figure className="fk-lead-media" data-kind="shot">
+    <div className="fk-shot"><CropShot shot={shot} /></div>
+    <figcaption>{REAL_SCREENS}</figcaption>
   </figure>
   if (ownOrder.includes(slug)) return null
   const gallery = project.media.galleries?.[0]
@@ -473,7 +472,7 @@ export default function Draft() {
   useEffect(() => {
     function typeAnywhere(event: globalThis.KeyboardEvent) {
       const target = event.target as HTMLElement
-      if (target.closest('input, textarea, select, [contenteditable="true"], .fk-recreation') || event.metaKey || event.ctrlKey || event.altKey || event.isComposing) return
+      if (target.closest('input, textarea, select, [contenteditable="true"]') || event.metaKey || event.ctrlKey || event.altKey || event.isComposing) return
       if (/^[a-zA-ZëË]$/.test(event.key)) {
         event.preventDefault()
         changeAnswer(answer + event.key)

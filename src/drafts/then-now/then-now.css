@@ -64,12 +64,6 @@
   scrollbar-color: var(--tn-struck) var(--tn-paper);
 }
 
-/* The specimen's theme change is a view transition. Without this, the whole page cross-fades with it. */
-:root:has(.tn)::view-transition-old(root),
-:root:has(.tn)::view-transition-new(root) {
-  animation: none;
-}
-
 .tn[data-fallback] {
   --tn-display: "Anton Fallback", "Arial Narrow", sans-serif;
   --tn-text: "Literata Fallback", Georgia, serif;
@@ -544,26 +538,6 @@
   transition: none;
 }
 
-.tn-wait {
-  position: absolute;
-  inset: 0;
-  background: inherit;
-}
-
-.tn-live {
-  position: absolute;
-  inset: 0;
-  container-type: inline-size;
-  background: var(--world-bg);
-  color: var(--ink);
-  font-family: var(--font-sans);
-  font-size: 1rem;
-  line-height: 1.6;
-  font-weight: 400;
-  letter-spacing: normal;
-  -webkit-font-smoothing: auto;
-}
-
 .tn-web,
 .tn-phone {
   position: absolute;
@@ -753,20 +727,12 @@
   border-top: 1px solid var(--tn-ink);
 }
 
-/* The lead plate: the care app above, the billing report below at a fixed height. */
-.tn-care .tn-live {
-  position: relative;
-  inset: auto;
-  flex: 1;
-  min-height: 0;
-}
-
-.tn-care .tn-live footer {
-  display: none;
+.tn-report .tn-shot {
+  background: #ffffff;
 }
 
 /* One weight: the head names it, so the row is the two numbers and the bar. */
-.tn-care .tn-fig-weight {
+.tn-report .tn-fig-weight {
   flex: none;
   height: 34cqw;
   justify-content: flex-start;
@@ -774,32 +740,32 @@
   padding: 5cqw 7.5cqw 0;
 }
 
-.tn-care .tn-fig-head {
+.tn-report .tn-fig-head {
   color: var(--tn-fig-soft);
 }
 
-.tn-care .tn-w {
+.tn-report .tn-w {
   grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
   column-gap: 5cqw;
 }
 
-.tn-care .tn-w .tn-fig-tag {
+.tn-report .tn-w .tn-fig-tag {
   display: none;
 }
 
-.tn-care .tn-w-nums {
+.tn-report .tn-w-nums {
   grid-row: 1;
   font-size: 15cqw;
   gap: 5cqw;
 }
 
-.tn-care .tn-w .tn-fig-strike {
+.tn-report .tn-w .tn-fig-strike {
   height: 1.25cqw;
   margin-top: -0.625cqw;
 }
 
-.tn-care .tn-w-track {
+.tn-report .tn-w-track {
   grid-column: 2;
   grid-row: 1;
   height: 3.75cqw;
@@ -1313,8 +1279,13 @@
     border-radius: 12px;
   }
 
-  /* A phone plate is too short for the card and the report, so it shows the card; the row carries the numbers. */
-  .tn-care .tn-fig-weight {
+  /* A phone plate is too short for the screen and the report, so it shows the screen on its own ground; the row carries the numbers. */
+  .tn-report {
+    justify-content: center;
+    background: #ffffff;
+  }
+
+  .tn-report .tn-fig-weight {
     display: none;
   }
 
@@ -1327,22 +1298,9 @@
     height: 100%;
     transform: none;
   }
-
-  /* The care plate keeps its organization switch and chart; the unit switch and the sync note are left out. */
-  .tn-live-care footer {
-    display: none;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  /* Nothing inside a live plate moves on its own. */
-  .tn-live *,
-  .tn-live *::before,
-  .tn-live *::after {
-    animation-duration: 0s !important;
-    transition-duration: 0s !important;
-  }
-
   .tn-plate,
   .tn-plate[data-state="on"],
   .tn-now-band,

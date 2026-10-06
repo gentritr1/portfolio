@@ -1456,10 +1456,13 @@
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
 }
-.bit-file-front img {
+.bit-file-front > .bit-file-shot {
+  display: grid;
+  place-items: center;
+  flex: none;
   width: 39%;
   height: 145px;
-  object-fit: cover;
+  container-type: size;
 }
 .bit-file-front > span {
   display: flex;
@@ -1499,7 +1502,7 @@
     padding: 14px;
     gap: 13px;
   }
-  .bit-file-front img {
+  .bit-file-front > .bit-file-shot {
     width: 37%;
     height: 135px;
   }

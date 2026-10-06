@@ -1,4 +1,4 @@
-import type { RecreationKey } from "../../content/projects";
+import { careShots, dsShots, type ScreenShot } from "../../content/careShots";
 
 export interface Shot {
   src: string;
@@ -21,15 +21,18 @@ export interface Measure {
 }
 
 export type Plate =
-  | { kind: "live"; key: RecreationKey; still: Shot }
+  /**
+   * A real product screen. `narrow` is the shot for a phone. `center` keeps the crop at its own size in the
+   * middle of the plate, on the screen's own colour, because the file has too few pixels to cover the plate.
+   */
+  | { kind: "screen"; shot: ScreenShot; narrow: ScreenShot; center?: boolean }
   | { kind: "shot"; shot: Shot }
   | { kind: "pair"; shots: [CroppedShot, CroppedShot] }
   | { kind: "record"; context: string; decision: string; consequence: string; measure?: Measure };
 
-/** A pointing pin ends at a part of the plate. `css` finds it in a live plate; `rect` is in image pixels. */
+/** A pointing pin ends at a part of the plate. `rect` is in image pixels, or in the CSS pixels of a screen plate's shot. */
 export interface Point {
-  css?: string;
-  rect?: [number, number, number, number];
+  rect: [number, number, number, number];
   route: "left" | "right" | "over";
 }
 
@@ -65,13 +68,9 @@ export const decisions: Decision[] = [
     project: "Care-management platform",
     role: "Frontend",
     years: "2026",
-    plate: {
-      kind: "live",
-      key: "care",
-      still: { src: "", alt: "", width: 16, height: 10 },
-    },
-    line: "Switch the organization: the data changes, the controls stay.",
-    point: { css: 'button[aria-label^="Organization"]', route: "right" },
+    plate: { kind: "screen", shot: careShots.overview, narrow: careShots.patients },
+    line: "The React dashboard counts the patients in each program: RPM, CCM and RTM.",
+    point: { rect: [282, 309, 532, 162], route: "left" },
     link: { label: "Open the case", href: "/work/care-platform" },
   },
   {
@@ -141,17 +140,16 @@ export const decisions: Decision[] = [
     role: "Design system",
     years: "2026",
     plate: {
-      kind: "live",
-      key: "design-system",
-      still: {
-        src: "/showcase/design-system/specimen-light.webp",
-        alt: "Component specimen for an invented project-tracker kit: a three-tier token strip, alerts, select, input states, steps, buttons, tabs and switches",
-        width: 1920,
-        height: 1200,
+      kind: "screen",
+      shot: {
+        ...dsShots.buttonAlert,
+        alt: "Design System v2 in its Storybook: buttons in four styles, buttons with icons, and alerts for a note, information, success and a warning. Invented data.",
+        crop: { x: 0, y: 0, w: 720, h: 486 },
       },
+      narrow: dsShots.top,
+      center: true,
     },
     line: "One source builds the CSS, the TypeScript and a Figma bundle: 805 tokens in three tiers.",
-    point: { css: ".dsr-pipeline", rect: [40, 444, 406, 30], route: "left" },
     link: { label: "Open the case", href: "/work/design-system-react" },
   },
   {
@@ -205,7 +203,7 @@ export const decisions: Decision[] = [
       kind: "shot",
       shot: {
         src: "/showcase/bayyinah/web-06.webp",
-        alt: "Bayyinah TV pricing: Choose Your Plan with a monthly and annual switch and the Premium plan at $11 a month",
+        alt: "Bayyinah TV pricing: Choose Your Plan with a monthly and annual switch and the Premium plan",
         width: 1440,
         height: 900,
       },

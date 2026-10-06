@@ -204,32 +204,18 @@
   background: var(--pd-ground);
 }
 
-.pd-plate[data-kind="shot"] img,
-.pd-live img {
+.pd-plate[data-kind="shot"] img {
   display: block;
   width: 100%;
   height: auto;
 }
 
-.pd-live {
-  position: relative;
-  aspect-ratio: 4 / 5;
-  container-type: inline-size;
-  background: var(--surface);
-  color: var(--ink);
-  font-family: var(--font-sans);
-  font-size: 1rem;
-  line-height: 1.6;
-}
-
-.pd-live[data-key="design-system"] {
-  aspect-ratio: 16 / 10;
-}
-
-.pd-wait {
+.pd-screen-center {
   position: absolute;
   inset: 0;
-  background: var(--surface);
+  display: grid;
+  place-items: center;
+  box-shadow: inset 0 0 0 1px var(--pd-line);
 }
 
 /* A phone screen pair, cropped to the app screens. */
@@ -714,17 +700,10 @@
     aspect-ratio: 16 / 10;
   }
 
-  .pd-plate[data-kind="shot"] img,
-  .pd-live img {
+  .pd-plate[data-kind="shot"] img {
     height: 100%;
     object-fit: cover;
     object-position: top center;
-  }
-
-  .pd-live,
-  .pd-live[data-key="design-system"] {
-    aspect-ratio: auto;
-    height: 100%;
   }
 
   .pd-pair {
@@ -905,15 +884,4 @@
   .pd-foot > .pd-meta:first-child {
     grid-row: 1;
   }
-}
-
-.pd-scale {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 1600px;
-  height: 1000px;
-  container-type: inline-size;
-  transform: scale(var(--pd-scale, 0.6));
-  transform-origin: 0 0;
 }

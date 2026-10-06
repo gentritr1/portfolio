@@ -1,3 +1,7 @@
+import { careShots, dsShots } from "../../content/careShots";
+
+const REAL_SCREENS_CAPTION = "Real product screens, invented data";
+
 export interface Box {
   x: number;
   y: number;
@@ -8,24 +12,21 @@ export interface Box {
 /** A part of the image, in image pixels. */
 export interface Crop extends Box {}
 
-export type Plate =
-  | {
-      kind: "image";
-      src: string;
-      alt: string;
-      /** Natural size of the file. */
-      width: number;
-      height: number;
-      /** What the plate shows on a wide screen and on a phone. Each crop ends on a whole row. */
-      wide: Crop;
-      narrow: Crop;
-      /** The pixel the pin ends on, in image pixels. */
-      target: Box;
-      /** On a wide screen the pin runs in at this image y, clear of text, then turns to the target. */
-      laneWide?: number;
-      caption: string;
-    }
-  | { kind: "care"; css: string; caption: string };
+export interface Plate {
+  src: string;
+  alt: string;
+  /** Natural size of the file. */
+  width: number;
+  height: number;
+  /** What the plate shows on a wide screen and on a phone. Each crop ends on a whole row. */
+  wide: Crop;
+  narrow: Crop;
+  /** The pixel the pin ends on, in image pixels. */
+  target: Box;
+  /** On a wide screen the pin runs in at this image y, clear of text, then turns to the target. */
+  laneWide?: number;
+  caption: string;
+}
 
 export interface Row {
   decision: string;
@@ -71,7 +72,6 @@ export const cards: Card[] = [
       },
     ],
     plate: {
-      kind: "image",
       src: "/mobile/bookstore-2.webp",
       alt: "Dukagjini Bookstore store listing, cropped to the app screen: book search and the foreign books list with ratings and prices",
       width: 780,
@@ -101,9 +101,8 @@ export const cards: Card[] = [
       },
     ],
     plate: {
-      kind: "image",
       src: "/showcase/bayyinah/web-06.webp",
-      alt: "Bayyinah TV pricing: Choose Your Plan with a monthly and annual switch and the Premium plan at $11 a month",
+      alt: "Bayyinah TV pricing: Choose Your Plan with a monthly and annual switch and the Premium plan",
       width: 1440,
       height: 900,
       wide: { x: 0, y: 0, w: 1440, h: 760 },
@@ -124,23 +123,22 @@ export const cards: Card[] = [
       {
         decision: "Generate every design token from one source, in three tiers.",
         result: "805 tokens to CSS, TypeScript and Figma",
-        pin: true,
       },
       {
         decision: "Ship the components in small releases.",
         result: "36 components, 20 releases in about six weeks",
+        pin: true,
       },
     ],
     plate: {
-      kind: "image",
-      src: "/showcase/design-system/specimen-light.webp",
-      alt: "Component specimen for an invented project-tracker kit: a three-tier token strip, alerts, select, input states, steps, buttons, tabs and switches",
-      width: 1920,
-      height: 1200,
-      wide: { x: 0, y: 0, w: 1920, h: 1200 },
-      narrow: { x: 0, y: 0, w: 1920, h: 1200 },
-      target: { x: 40, y: 444, w: 406, h: 30 },
-      caption: "Recreation, invented kit",
+      src: dsShots.buttonAlert.src,
+      alt: dsShots.buttonAlert.alt,
+      width: 1440,
+      height: 1192,
+      wide: { x: 0, y: 0, w: 1440, h: 1192 },
+      narrow: { x: 16, y: 24, w: 1408, h: 590 },
+      target: { x: 32, y: 48, w: 254, h: 68 },
+      caption: REAL_SCREENS_CAPTION,
     },
     link: { label: "Open the case", href: "/work/design-system-react" },
   },
@@ -165,7 +163,16 @@ export const cards: Card[] = [
         result: "A route moves after its parity test passes",
       },
     ],
-    plate: { kind: "care", css: 'button[aria-label^="Organization"]', caption: "Recreation with invented data" },
+    plate: {
+      src: careShots.overview.src,
+      alt: "Care team dashboard for one organization: its name at the top, patients by program, patient engagement by calls and text messages, and patients for each provider. Invented data.",
+      width: 2880,
+      height: 1800,
+      wide: { x: 488, y: 0, w: 2392, h: 1684 },
+      narrow: { x: 1680, y: 0, w: 1200, h: 1024 },
+      target: { x: 2368, y: 30, w: 312, h: 52 },
+      caption: REAL_SCREENS_CAPTION,
+    },
     link: { label: "Open the case", href: "/work/care-platform" },
   },
 ];

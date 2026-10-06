@@ -270,6 +270,18 @@
   container-type: inline-size;
 }
 
+.mn-real {
+  position: relative;
+  overflow: hidden;
+  border-radius: 6px;
+  outline: 1px solid var(--mn-rule);
+  outline-offset: -1px;
+}
+
+.mn-part {
+  position: absolute;
+}
+
 .mn-shots {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -414,14 +426,6 @@
   text-wrap: pretty;
 }
 
-.mn-live {
-  display: block;
-  margin-top: 6px;
-  color: var(--mn-ink);
-  font-size: 12px;
-  animation: mn-fade 200ms var(--mn-ease) both;
-}
-
 .mn-plain {
   margin-top: 20px;
   padding-top: 14px;
@@ -560,8 +564,7 @@
 @media (prefers-reduced-motion: reduce) {
   .mn-line,
   .mn-outline,
-  .mn-end,
-  .mn-live {
+  .mn-end {
     animation: none;
   }
 

@@ -1,16 +1,32 @@
 import { OldCareFile } from '../../components/portfolio/OldCareFile'
 import { OldDraftMotion } from '../../components/portfolio/OldDraftMotion'
 import { transitionOldDraft } from '../../components/portfolio/oldDraftTransition'
-import { useEffect, useRef, useState, type KeyboardEvent } from 'react'
+import { useEffect, useRef, useState, useSyncExternalStore, type KeyboardEvent } from 'react'
+import { CropShot } from '../../components/CropShot'
+import { careShots, type ScreenShot } from '../../content/careShots'
 import { projects, currentYear, firstYear } from '../../content/projects'
 import { caseNarratives } from '../../content/caseNarratives'
 import { links } from '../../content/links'
 import DitherImage from './DitherImage'
-import CareDemo from './CareDemo'
 import './dither.css'
 
+const phoneQuery = '(max-width: 599px)'
+const cropOf = (shot: ScreenShot) => ({ ...shot.crop, size: [shot.width, shot.height] as [number, number] })
+
+function usePhone() {
+  return useSyncExternalStore(
+    (notify) => {
+      const list = window.matchMedia(phoneQuery)
+      list.addEventListener('change', notify)
+      return () => list.removeEventListener('change', notify)
+    },
+    () => window.matchMedia(phoneQuery).matches,
+    () => false,
+  )
+}
+
 const selected = [
-  { slug: 'care-platform', short: 'Care platform', image: '/signal-posters/healthcare.avif', alt: 'Care-management interface recreation with invented data', source: 'Recreation · invented data' },
+  { slug: 'care-platform', short: 'Care platform', image: careShots.week.src, alt: careShots.week.alt, source: 'Real product screens · invented data' },
   { slug: 'bayyinah-tv', short: 'Bayyinah TV', image: '/showcase/bayyinah/store-02.webp', alt: 'Bayyinah TV public App Store frame', source: 'Public App Store frame' },
   { slug: 'read-to-feed', short: 'Read to Feed', image: '/mobile/reading-1.webp', alt: 'Read to Feed public store frame', source: 'Public store frame' },
 ].map((art) => ({ ...art, project: projects.find((project) => project.slug === art.slug)! }))
@@ -28,6 +44,7 @@ export default function Draft() {
   const tabButtons = useRef<(HTMLButtonElement | null)[]>([])
   const rows = projects.filter((project) => `${project.name} ${project.stack.join(' ')} ${project.group}`.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase()))
   const current = selected[active]
+  const careCrop = cropOf(usePhone() ? careShots.weekTwoDays : careShots.week)
 
   useEffect(() => {
     const timer = window.setTimeout(() => setRevealed(true), 350)
@@ -56,7 +73,7 @@ export default function Draft() {
         <div className="dd-title-block"><h1 id="dd-title"><span>Gentrit</span> <span>Rashiti.</span></h1><div className="dd-intro"><p>Frontend & mobile developer,<br />now full stack.</p><p>Kosovo · Remote<br />{firstYear}—{currentYear}</p><button type="button" aria-pressed={allColour} onClick={() => setAllColour(!allColour)}>{allColour ? 'Restore the dots' : 'Show all in colour'}<Arrow /></button></div></div>
         <div className="dd-plates" role="tablist" aria-label="Selected projects. Arrow keys change the colour preview.">
           {selected.map((item, index) => <button className="dd-plate" type="button" role="tab" id={`dd-tab-${index}`} aria-controls="dd-selection" aria-selected={index === active} tabIndex={index === active ? 0 : -1} key={item.slug} data-selected={index === active} ref={(node) => { tabButtons.current[index] = node }} onClick={() => select(index)} onKeyDown={(event) => moveSelection(event, index)}>
-            <DitherImage src={item.image} alt={item.alt} name={item.short} colour={allColour || item.slug === 'bayyinah-tv' || (revealed && index === active)} />
+            <DitherImage src={item.image} alt={item.alt} name={item.short} crop={item.slug === 'care-platform' ? careCrop : undefined} colour={allColour || item.slug === 'bayyinah-tv' || (revealed && index === active)} />
             <span className="dd-plate-label"><strong>{item.short}</strong><span>{item.source}</span></span>
           </button>)}
         </div>
@@ -65,7 +82,7 @@ export default function Draft() {
 
       <article id="dd-care" className="dd-case" aria-labelledby="dd-case-title">
         <div className="dd-case-heading"><h2 id="dd-case-title">Care,<br />continued.</h2><div><p>{care.story.product}</p><dl><div><dt>Role</dt><dd>Frontend and mobile, full stack since 2026</dd></div><div><dt>Years</dt><dd>2023–26</dd></div></dl></div></div>
-        <OldCareFile slug="care-platform" /><div className="dd-case-demo"><CareDemo /><div><h3>A working interface.<br />A careful rewrite.</h3><p>{care.story.built}</p><p>{care.story.result}</p><p className="dd-source-note">The product is private. The visual above and the interactive example are recreations with invented data.</p></div></div>
+        <OldCareFile slug="care-platform" /><div className="dd-case-demo"><CropShot shot={careShots.glucoseChart} className="dd-case-shot" /><div><h3>A working interface.<br />A careful rewrite.</h3><p>{care.story.built}</p><p>{care.story.result}</p><p className="dd-source-note">The product is private. The care screens on this page are real product screens with invented data.</p></div></div>
       </article>
 
       <section id="dd-work" className="dd-work" aria-labelledby="dd-work-title"><div className="dd-work-heading"><h2 id="dd-work-title">All the work.</h2><p>{projects.length} projects · {firstYear}—{currentYear}</p></div>

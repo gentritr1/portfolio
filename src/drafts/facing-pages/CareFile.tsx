@@ -1,6 +1,10 @@
 import { useState } from "react";
 import { motion } from "motion/react";
 import { spring } from "./motion";
+import { CropShot } from "../../components/CropShot";
+import { careShots } from "../../content/careShots";
+
+const shot = careShots.patients;
 
 export function CareFile({
   reduced,
@@ -45,18 +49,23 @@ export function CareFile({
           transition={reduced ? { duration: 0.01 } : spring.lift}
         >
           <span className="fp-care-front" aria-hidden={open}>
-            <img
-              src="/signal-posters/healthcare.avif"
-              alt={
-                ar
-                  ? "إعادة إنشاء للواجهة ببيانات مختلقة"
-                  : "Care interface recreation with invented data"
-              }
-            />
+            <span className="fp-care-shot">
+              <CropShot
+                shot={shot}
+                style={{
+                  width: `min(100cqw, ${shot.crop.w / shot.crop.h} * 100cqh)`,
+                }}
+                alt={
+                  ar
+                    ? "حلقة إجمالي المرضى: 24 مريضاً في برامج RPM وCCM وRTM. بيانات مختلقة."
+                    : shot.alt
+                }
+              />
+            </span>
             <span>
               {ar
-                ? "إعادة إنشاء · بيانات مختلقة"
-                : "Recreation · invented data"}
+                ? "شاشات منتج حقيقية · بيانات مختلقة"
+                : "Real product screens · invented data"}
             </span>
           </span>
           <span className="fp-care-back" aria-hidden={!open}>
@@ -92,8 +101,8 @@ export function CareFile({
       </motion.button>
       <figcaption>
         {ar
-          ? "عمل خاص. الحقائق عامة؛ إعادة إنشاء الواجهة ببيانات مختلقة."
-          : "Private client work. Public facts; the recreation uses invented data."}
+          ? "عمل خاص. الحقائق عامة؛ الشاشات حقيقية ببيانات مختلقة."
+          : "Private client work. Public facts; real product screens with invented data."}
       </figcaption>
     </figure>
   );

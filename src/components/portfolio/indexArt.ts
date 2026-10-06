@@ -1,4 +1,4 @@
-/** Art direction uses existing public store frames, public pages and authored recreations. */
+/** Art direction uses public store frames, public pages and real care screens on invented data. */
 export const selectedSlugs = [
   "bayyinah-tv",
   "care-platform",
@@ -42,11 +42,11 @@ export const indexArt: Record<string, IndexArt> = {
   },
   "care-platform": {
     background: "#163f38",
-    images: ["/signal-posters/healthcare.avif"],
+    images: ["/showcase/care-dashboard/overview.webp"],
     type: "web",
     proof: "A live platform. A careful rewrite.",
     detail: "Vue → React · parity-tested · Decision records",
-    caption: "Recreation with invented data",
+    caption: "Real product screens, invented data",
   },
   "read-to-feed": {
     background: "#16769a",

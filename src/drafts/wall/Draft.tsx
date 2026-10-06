@@ -6,6 +6,7 @@ import { projects, findProject, type Project } from '../../content/projects'
 import { links } from '../../content/links'
 import { wallAssets as sharedAssets, wallPosters, wallYear, type WallAsset } from '../../components/portfolio/wallAssets'
 import { wallPreviews } from './previews'
+import { REAL_SCREENS } from '../../content/careShots'
 import type { WallScene } from './scene'
 import './wall.css'
 
@@ -140,7 +141,7 @@ export default function Draft() {
         if (event.pointerType !== 'mouse') return
         const box = event.currentTarget.getBoundingClientRect()
         sceneRef.current?.activate(project.slug, (event.clientX - box.left) / box.width, (event.clientY - box.top) / box.height)
-      }} onPointerLeave={() => sceneRef.current?.leave()}><TileImage project={project} eager={index < 8} />{wallAssets[project.slug]?.recreation && <span className="draft-wall-provenance">Recreation · invented data</span>}<span className="draft-wall-caption"><span>{project.name}</span><span>{project.years ?? project.group}<Arrow /></span></span></button></motion.div>)}</AnimatePresence></div>
+      }} onPointerLeave={() => sceneRef.current?.leave()}><TileImage project={project} eager={index < 8} />{wallAssets[project.slug]?.inventedData && <span className="draft-wall-provenance">{REAL_SCREENS}</span>}<span className="draft-wall-caption"><span>{project.name}</span><span>{project.years ?? project.group}<Arrow /></span></span></button></motion.div>)}</AnimatePresence></div>
       <div className="draft-wall-gallery-foot"><p>{projects.length} projects. Web, mobile, APIs and libraries.</p>{!reduced && <button type="button" aria-pressed={paused} onClick={() => setPaused(value => !value)}>{paused ? 'Resume motion' : 'Pause motion'}</button>}<p role="status" className="draft-wall-sr-only">{announcement}</p></div>
     </section>
 

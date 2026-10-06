@@ -1,0 +1,139 @@
+/**
+ * Real screens of the care dashboard and of Design System v2, captured on invented data.
+ * Sizes and crops are in CSS pixels. Each file has twice these pixels, so a crop stays sharp
+ * up to `crop.w` CSS pixels wide.
+ */
+
+export interface Px {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+}
+
+export interface ScreenShot {
+  src: string;
+  alt: string;
+  width: number;
+  height: number;
+  /** The part that a plate shows. */
+  crop: Px;
+  /** The screen's own colour, behind the shot while it loads. */
+  ground: string;
+}
+
+export const REAL_SCREENS = "Real product screens, invented data.";
+
+const OVERVIEW = "/showcase/care-dashboard/overview.webp";
+const CLAIMS = "/showcase/care-dashboard/claims.webp";
+const GLUCOSE = "/showcase/care-dashboard/rpm-overview-cgm.webp";
+const WEEK = "/showcase/care-dashboard/appointments-week.webp";
+const BUTTON_ALERT = "/showcase/design-system/button-alert.webp";
+
+const care = (src: string, alt: string, crop: Px): ScreenShot => ({
+  src,
+  alt,
+  width: 1440,
+  height: 900,
+  crop,
+  ground: "#f5f7fb",
+});
+
+const storybook = (alt: string, crop: Px): ScreenShot => ({
+  src: BUTTON_ALERT,
+  alt,
+  width: 720,
+  height: 596,
+  crop,
+  ground: "#ffffff",
+});
+
+export const careShots = {
+  /** The dashboard without the app menu. */
+  overview: care(
+    OVERVIEW,
+    "Care team dashboard: patients by program, patient engagement by calls and text messages, and patients for each provider. Invented data.",
+    { x: 236, y: 56, w: 1204, h: 786 },
+  ),
+  /** Both ring cards, for a wide plate. */
+  overviewCards: care(
+    OVERVIEW,
+    "Care team dashboard: 24 patients by program, and patient engagement by calls and text messages. Invented data.",
+    { x: 236, y: 148, w: 1204, h: 370 },
+  ),
+  /** One ring card, for a small tile. */
+  patients: care(
+    OVERVIEW,
+    "Total patients ring: 24 patients, split into RPM, CCM and RTM programs. Invented data.",
+    { x: 240, y: 198, w: 590, h: 314 },
+  ),
+  engagement: care(
+    OVERVIEW,
+    "Engagement ring: talk time, calls and text messages with patients. Invented data.",
+    { x: 843, y: 198, w: 590, h: 314 },
+  ),
+  claims: care(
+    CLAIMS,
+    "Claims for one month: counts by status, filters for updated claims and claims that need attention, and each claim with its program, CPT codes and status. Invented data.",
+    { x: 246, y: 160, w: 1194, h: 714 },
+  ),
+  claimsCounts: care(
+    CLAIMS,
+    "Claim counts by status, and the filters for updated claims and claims that need attention. Invented data.",
+    { x: 256, y: 270, w: 776, h: 280 },
+  ),
+  /** Four claim rows: patient, program, CPT codes, date and status. */
+  claimsRows: care(
+    CLAIMS,
+    "Four claims, each with its patient, program, CPT codes, date of service and status. One needs attention. Invented data.",
+    { x: 262, y: 578, w: 940, h: 294 },
+  ),
+  glucose: care(
+    GLUCOSE,
+    "Glucose overview for one patient: time in range, average, highest and lowest values, device usage, one day's glucose curve, and the first row of the readings for the last seven days. Invented data.",
+    { x: 236, y: 76, w: 1204, h: 810 },
+  ),
+  /** The values and one day's curve, without the readings table. */
+  glucoseChart: care(
+    GLUCOSE,
+    "Glucose for one patient: time in range, average, highest and lowest values, device usage, and one day's glucose curve. Invented data.",
+    { x: 247, y: 68, w: 1183, h: 674 },
+  ),
+  week: care(
+    WEEK,
+    "Care team calendar for one week: calls, video calls and office visits for each patient, filters for priority, status, type, assignee and patient, and a line at the current time. Invented data.",
+    { x: 240, y: 70, w: 1200, h: 748 },
+  ),
+  /** Monday to Wednesday, 8 AM to 1 PM. */
+  weekDays: care(
+    WEEK,
+    "Three days of the care team calendar, Monday to Wednesday, from 8 AM to 1 PM, with calls, visits and a line at the current time. Invented data.",
+    { x: 248, y: 212, w: 702, h: 500 },
+  ),
+  /** Tuesday and Wednesday, for a phone. */
+  weekTwoDays: care(
+    WEEK,
+    "Two days of the care team calendar, Tuesday and Wednesday, from 8 AM to 1 PM, with a line at the current time. Invented data.",
+    { x: 630, y: 208, w: 321, h: 530 },
+  ),
+} satisfies Record<string, ScreenShot>;
+
+export const dsShots = {
+  buttonAlert: storybook(
+    "Design System v2 in its Storybook: buttons in four styles, buttons with icons, and alerts for a note, information, success, a warning and an error. Invented data.",
+    { x: 0, y: 0, w: 720, h: 596 },
+  ),
+  buttons: storybook(
+    "Design System v2 buttons in its Storybook: solid, outline and text buttons, and buttons with icons. Invented data.",
+    { x: 8, y: 12, w: 670, h: 116 },
+  ),
+  alerts: storybook(
+    "Design System v2 alerts in its Storybook: a note, information, success, a warning and an error. Invented data.",
+    { x: 8, y: 138, w: 704, h: 450 },
+  ),
+  /** Buttons and the first two alerts. */
+  top: storybook(
+    "Design System v2 in its Storybook: buttons in four styles, buttons with icons, a note and an information alert. Invented data.",
+    { x: 8, y: 12, w: 704, h: 295 },
+  ),
+} satisfies Record<string, ScreenShot>;

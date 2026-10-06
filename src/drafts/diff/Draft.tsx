@@ -21,6 +21,8 @@ import {
 } from "./parity";
 import { dur, ease, spring } from "./motion";
 import CareFile from "./CareFile";
+import { CropShot } from "../../components/CropShot";
+import { careShots, dsShots, REAL_SCREENS, type ScreenShot } from "../../content/careShots";
 import "./diff.css";
 
 type Version = "v1" | "v2";
@@ -156,6 +158,12 @@ function Count({
   return <span ref={ref}>{reduced ? to : from}</span>;
 }
 
+/** Real product screens of the private work, captured on invented data. */
+const realScreens: Record<string, ScreenShot> = {
+  "care-platform": careShots.claimsRows,
+  "design-system-react": dsShots.buttonAlert,
+};
+
 function Detail({
   project,
   result,
@@ -170,6 +178,7 @@ function Detail({
   reduced: boolean;
 }) {
   const story = caseNarratives[project.slug];
+  const screen = realScreens[project.slug];
   const legacy = version === "v1";
   const focus = legacy ? -1 : undefined;
   const gallery =
@@ -274,11 +283,17 @@ function Detail({
               loading="lazy"
             />
           )}
-          {project.channel === "healthcare" && (
-            <p className="diff-disclosure">
-              A labelled recreation. No patient information or care-platform
-              screens are shown.
-            </p>
+          {screen ? (
+            <figure className="diff-screen">
+              <CropShot shot={screen} />
+              <figcaption className="diff-disclosure">{REAL_SCREENS}</figcaption>
+            </figure>
+          ) : (
+            project.channel === "healthcare" && (
+              <p className="diff-disclosure">
+                No patient information or care-platform screens are shown.
+              </p>
+            )
           )}
           {project.links.length > 0 && (
             <nav aria-label={`${project.name} links`}>

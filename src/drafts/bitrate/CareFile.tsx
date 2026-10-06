@@ -1,6 +1,10 @@
 import { useState } from "react";
 import { motion } from "motion/react";
 import { spring } from "./motion";
+import { CropShot } from "../../components/CropShot";
+import { careShots } from "../../content/careShots";
+
+const shot = careShots.patients;
 
 export default function CareFile({ reduced }: { reduced: boolean }) {
   const [open, setOpen] = useState(false);
@@ -38,14 +42,17 @@ export default function CareFile({ reduced }: { reduced: boolean }) {
         transition={reduced ? { duration: 0.01 } : spring.ui}
       >
         <span className="bit-file-front" aria-hidden={open}>
-          <img
-            src="/signal-posters/healthcare.avif"
-            alt="Care-interface recreation with invented data"
-            loading="lazy"
-          />
+          <span className="bit-file-shot">
+            <CropShot
+              shot={shot}
+              style={{
+                width: `min(100cqw, ${shot.crop.w / shot.crop.h} * 100cqh)`,
+              }}
+            />
+          </span>
           <span>
             <strong>Open the facts.</strong>
-            <small>Recreation · invented data</small>
+            <small>Real product screens · invented data</small>
           </span>
         </span>
         <span className="bit-file-back" aria-hidden={!open}>

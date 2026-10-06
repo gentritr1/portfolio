@@ -45,8 +45,8 @@ export interface Weight {
 
 export type Plate =
   | { kind: "figure"; which: "bundle" }
-  /** The care app (a recreation) over the measured billing report. */
-  | { kind: "care"; head: string; weights: Weight[] }
+  /** A care app screen over the measured billing report. On a phone the screen sits on its own ground and the report is left out. */
+  | { kind: "report"; shot: Shot; head: string; weights: Weight[] }
   | { kind: "proof"; shot: Shot; weights: Weight[] }
   /** "center": the crop keeps its own ratio and sits on the ground colour, which matches the screen's own background. */
   | { kind: "web"; shot: Shot; ground: string; dark?: boolean; fit?: "center" }
@@ -99,12 +99,20 @@ export const rows: Row[] = [
     now: "It asks 2 times and finishes.",
     note: "Most screens are already rebuilt in React; a screen moves over only after it passes the same tests in both apps.",
     plate: {
-      kind: "care",
+      kind: "report",
+      shot: {
+        src: "/showcase/care-dashboard/claims.webp",
+        alt: "Claims page of the care app: claim counts by status, filters, and four claims with their program, CPT codes, date of service and status. Invented data.",
+        width: 1440,
+        height: 900,
+        crop: box(266, 266, 1144, 612, 1440, 900),
+        narrow: box(262, 576, 534, 298, 1440, 900),
+      },
       head: "One billing report · requests to the database",
       weights: [{ tag: "Requests", from: "16", to: "2", ratio: 2 / 16, ring: true }],
     },
-    caption: "Vitals card: recreation · invented data. The bar is the measured report, drawn to scale.",
-    captionNarrow: "The care app's vitals card: recreation · invented data.",
+    caption: "Claims page: real product screens · invented data.",
+    captionNarrow: "The care app's claims page: real product screens · invented data.",
     target: { kind: "selector", css: "[data-to]" },
     route: { kind: "lane", y: 0.735 },
     link: { label: "Open the case", href: "/work/care-platform" },

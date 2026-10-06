@@ -1,5 +1,4 @@
 import {
-  Suspense,
   useCallback,
   useEffect,
   useRef,
@@ -9,7 +8,7 @@ import {
 } from "react";
 import { flushSync } from "react-dom";
 import { Link } from "react-router";
-import { recreations } from "../../lib/recreations";
+import { CropShot } from "../../components/CropShot";
 import {
   contact,
   education,
@@ -74,17 +73,7 @@ function near(id: string) {
 }
 
 function PlateView({ plate, eager }: { plate: Plate; eager: boolean }) {
-  if (plate.kind === "live") {
-    const entry = recreations[plate.key];
-    const Recreation = entry.Component;
-    return (
-      <div className="pc-live" data-world={entry.world}>
-        <Suspense fallback={null}>
-          <Recreation />
-        </Suspense>
-      </div>
-    );
-  }
+  if (plate.kind === "screen") return <CropShot shot={plate.shot} fill eager={eager} />;
   if (plate.kind === "web")
     return (
       <img
@@ -398,9 +387,9 @@ export default function Draft() {
               ))}
             </nav>
             <p className="pc-note">
-              The care platform and the design system are recreations with
-              invented data. The other proofs come from public store and web
-              pages.
+              The Vianova care and design-system screens are real product
+              screens with invented data. The other proofs come from public
+              store and web pages.
             </p>
           </footer>
         </div>

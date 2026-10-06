@@ -1,5 +1,4 @@
 import {
-  Suspense,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -19,7 +18,6 @@ import {
   ArrowUpRightIcon,
 } from "@phosphor-icons/react";
 import { links } from "../../content/links";
-import { recreations } from "../../lib/recreations";
 import {
   index,
   lead,
@@ -35,8 +33,6 @@ import "./proof-tiles.css";
 const fonts = [
   "/fonts/Archivo.woff2",
   "/fonts/MartianMono.woff2",
-  "/fonts/creative/GentritText-Latin.woff2",
-  "/fonts/creative/JetBrainsMono-Latin.woff2",
 ];
 
 function useMedia(query: string, fallback: boolean) {
@@ -186,87 +182,6 @@ function ShotView({
   );
 }
 
-const live = {
-  care: recreations.care,
-  "design-system": recreations["design-system"],
-};
-
-function LiveView({
-  which,
-  mark,
-  alt,
-  scale,
-}: {
-  which: keyof typeof live;
-  mark: string;
-  alt: string;
-  scale: number;
-}) {
-  const entry = live[which];
-  const Live = entry.Component;
-  const ref = useRef<HTMLDivElement>(null);
-  const [ring, setRing] = useState<CSSProperties | null>(null);
-
-  useEffect(() => {
-    const host = ref.current;
-    if (!host) return;
-    let frame = 0;
-    // The specimen plays a demo loop until its own pause button is pressed. The tile shows it still.
-    const pause = () => {
-      const button = host.querySelector<HTMLButtonElement>(
-        '.dsr-demo[aria-pressed="true"]',
-      );
-      if (button) button.click();
-    };
-    const measure = () => {
-      cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(() => {
-        pause();
-        const part = host.querySelector<HTMLElement>(mark);
-        if (!part) return;
-        const a = host.getBoundingClientRect();
-        const b = part.getBoundingClientRect();
-        if (a.width === 0 || b.width === 0) return;
-        setRing(
-          ringStyle(
-            (b.left - a.left) / a.width,
-            (b.top - a.top) / a.height,
-            b.width / a.width,
-            b.height / a.height,
-          ),
-        );
-      });
-    };
-    const mutations = new MutationObserver(measure);
-    mutations.observe(host, { childList: true, subtree: true });
-    const sizes = new ResizeObserver(measure);
-    sizes.observe(host);
-    measure();
-    return () => {
-      cancelAnimationFrame(frame);
-      mutations.disconnect();
-      sizes.disconnect();
-    };
-  }, [mark]);
-
-  return (
-    <span className="pt-live-frame" role="img" aria-label={alt}>
-      <div
-        ref={ref}
-        className={`pt-live pt-live-${which}`}
-        data-world={entry.world}
-        style={{ "--pt-k": scale } as CSSProperties}
-        inert
-      >
-        <Suspense fallback={null}>
-          <Live />
-        </Suspense>
-      </div>
-      {ring && <span className="pt-ring" aria-hidden="true" style={ring} />}
-    </span>
-  );
-}
-
 function Figure() {
   return (
     <div
@@ -364,8 +279,8 @@ function TileView({
               · {tile.role} · <span className="pt-year">{tile.year}</span>
             </span>
           </span>
-          {tile.recreation && (
-            <span className="pt-note">Recreation · invented data</span>
+          {tile.real && (
+            <span className="pt-note">Real product screens · invented data</span>
           )}
         </span>
         {link && (
@@ -410,14 +325,6 @@ function TileView({
         style={crop ? { aspectRatio: `${crop.w} / ${crop.h}` } : undefined}
       >
         {media.kind === "figure" && <Figure />}
-        {media.kind === "live" && (
-          <LiveView
-            which={media.key}
-            mark={media.mark}
-            alt={media.alt}
-            scale={Math.min(1, width / 432)}
-          />
-        )}
         {media.kind === "shot" && crop && (
           <ShotView shot={media.shot} crop={crop} eager={eager} />
         )}
@@ -800,7 +707,7 @@ export default function Draft() {
                 <p>
                   A care platform shared by many client organizations, its
                   design system and a bookshop app. The two care-platform cards
-                  are recreations with invented data.
+                  are real product screens with invented data.
                 </p>
               </div>
               <ol className="pt-grid" {...listProps}>
@@ -902,8 +809,8 @@ export default function Draft() {
               </li>
             </ul>
             <p className="pt-foot-note">
-              The care card and the button card are recreations with invented
-              data. Every other picture is a crop of a public web page, a store
+              The care card and the button card are real product screens with
+              invented data. Every other picture is a crop of a public web page, a store
               listing or a screenshot of an own project.
             </p>
           </footer>

@@ -542,7 +542,11 @@ li[data-open="true"] .dep-detail {
 .dep-shot[data-phone="true"] {
   width: min(100%, var(--w), 300px);
 }
-.dep-shot img {
+.dep-crop {
+  outline: 1px solid var(--ink);
+  outline-offset: -1px;
+}
+.dep-shot > img {
   display: block;
   width: 100%;
   height: auto;

@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type CSSProperties } from 'react'
+import type { Px } from '../../content/careShots'
 
 const bayer = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5]
 
@@ -7,10 +8,12 @@ interface DitherImageProps {
   alt: string
   name: string
   colour: boolean
+  /** A part of the image in `size` units. The plate covers its box with this part only. */
+  crop?: Px & { size: [number, number] }
 }
 
 /** A finite image conversion, not a running render loop. The real image stays underneath. */
-export default function DitherImage({ src, alt, name, colour }: DitherImageProps) {
+export default function DitherImage({ src, alt, name, colour, crop }: DitherImageProps) {
   const canvas = useRef<HTMLCanvasElement>(null)
   const [ready, setReady] = useState(false)
   const [loaded, setLoaded] = useState(false)
@@ -25,10 +28,12 @@ export default function DitherImage({ src, alt, name, colour }: DitherImageProps
       const context = node.getContext('2d', { willReadFrequently: true })
       if (!context) return
       // A deliberately coarse dot, with a bounded ~150k-pixel maximum conversion.
-      const scale = Math.min(1, 430 / image.width, 530 / image.height)
-      node.width = Math.round(image.width * scale)
-      node.height = Math.round(image.height * scale)
-      context.drawImage(image, 0, 0, node.width, node.height)
+      const k = crop ? image.width / crop.size[0] : 1
+      const part = crop ? { x: crop.x * k, y: crop.y * k, w: crop.w * k, h: crop.h * k } : { x: 0, y: 0, w: image.width, h: image.height }
+      const scale = Math.min(1, 430 / part.w, 530 / part.h)
+      node.width = Math.round(part.w * scale)
+      node.height = Math.round(part.h * scale)
+      context.drawImage(image, part.x, part.y, part.w, part.h, 0, 0, node.width, node.height)
       const frame = context.getImageData(0, 0, node.width, node.height)
       for (let y = 0; y < node.height; y++) {
         for (let x = 0; x < node.width; x++) {
@@ -45,11 +50,24 @@ export default function DitherImage({ src, alt, name, colour }: DitherImageProps
       setReady(true)
     }).catch(() => { /* The factual name poster and native image remain as fallbacks. */ })
     return () => { disposed = true }
-  }, [src])
+  }, [src, crop])
+  const place: CSSProperties | undefined = crop && {
+    inset: 'auto',
+    left: `${(-crop.x / crop.w) * 100}%`,
+    top: `${(-crop.y / crop.h) * 100}%`,
+    width: `${(crop.size[0] / crop.w) * 100}%`,
+    height: `${(crop.size[1] / crop.h) * 100}%`,
+    maxWidth: 'none',
+  }
+  const layers = <>
+    <img className="dd-image-base" src={src} alt={alt} decoding="async" style={place} onLoad={() => setLoaded(true)} />
+    <canvas ref={canvas} aria-hidden="true" data-ready={ready} />
+    {crop
+      ? <span className="dd-image-colour dd-image-layer"><img src={src} alt="" aria-hidden="true" decoding="async" style={place} /></span>
+      : <img className="dd-image-colour" src={src} alt="" aria-hidden="true" decoding="async" />}
+  </>
   return <div className="dd-image" data-colour={colour} data-loaded={loaded}>
     <span className="dd-image-fallback" aria-hidden="true">{name}</span>
-    <img className="dd-image-base" src={src} alt={alt} decoding="async" onLoad={() => setLoaded(true)} />
-    <canvas ref={canvas} aria-hidden="true" data-ready={ready} />
-    <img className="dd-image-colour" src={src} alt="" aria-hidden="true" decoding="async" />
+    {crop ? <span className="dd-image-crop"><span style={{ '--ratio': crop.w / crop.h } as CSSProperties}>{layers}</span></span> : layers}
   </div>
 }

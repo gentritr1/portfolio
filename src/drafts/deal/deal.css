@@ -1095,12 +1095,12 @@
   display: flex;
   flex-direction: column;
 }
-.draft-deal .dl-care-front > img {
-  display: block;
+.draft-deal .dl-care-front > .dl-care-shot {
+  display: grid;
+  place-items: center;
   min-height: 0;
   flex: 1;
-  object-fit: cover;
-  width: 100%;
+  container-type: size;
 }
 .draft-deal .dl-care-front > span {
   font-size: 14px;

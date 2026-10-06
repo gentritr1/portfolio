@@ -404,25 +404,9 @@ li[data-id] .dr-row-title {
   text-wrap: pretty;
 }
 
-.dr-stage {
-  position: relative;
-  width: 100%;
-  aspect-ratio: var(--a-base);
-  overflow: hidden;
-  container-type: inline-size;
+.dr-shot {
   border: 1px solid var(--dr-rule);
   border-radius: 10px;
-  background: var(--surface);
-  color: var(--ink);
-  font-family: var(--font-sans);
-  font-size: 1rem;
-  line-height: 1.6;
-}
-
-.dr-stage-wait {
-  position: absolute;
-  inset: 0;
-  background: var(--dr-paper);
 }
 
 .dr-shots {
@@ -558,10 +542,6 @@ li[data-id] .dr-row-title {
 
   .dr-shots[data-kind="phone"] {
     max-width: 520px;
-  }
-
-  .dr-stage {
-    aspect-ratio: var(--a-sm);
   }
 }
 
@@ -701,10 +681,6 @@ li[data-id] .dr-row-title {
 
   .dr-evidence figcaption {
     margin-left: 128px;
-  }
-
-  .dr-stage {
-    aspect-ratio: var(--a-lg);
   }
 
   .dr-shots[data-kind="phone"] {

@@ -29,12 +29,6 @@
   scrollbar-color: var(--pj-muted) var(--pj-field);
 }
 
-/* The specimen's theme change is a view transition. Without this, the whole page cross-fades with it. */
-:root:has(.pj)::view-transition-old(root),
-:root:has(.pj)::view-transition-new(root) {
-  animation: none;
-}
-
 .pj {
   min-height: 100dvh;
   background: var(--pj-field);
@@ -451,57 +445,17 @@
   transition: none;
 }
 
-.pj-wait {
+/* A screenshot smaller than the frame stands in the middle of its own ground, at no more than its CSS size. */
+.pj-canvas {
   position: absolute;
   inset: 0;
-  background: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.pj-live {
-  position: absolute;
-  inset: 0;
-  container-type: inline-size;
-  background: var(--world-bg);
-  color: var(--ink);
-  font-family: var(--font-sans);
-  font-size: 1rem;
-  line-height: 1.6;
-  font-weight: 400;
-  letter-spacing: normal;
-  -webkit-font-smoothing: auto;
-}
-
-/* The specimen shows four cards of the set: buttons, fields, switches and alerts. */
-.pj-live-design-system .dsr-top,
-.pj-live-design-system .dsr-area-tokens,
-.pj-live-design-system .dsr-area-steps,
-.pj-live-design-system .dsr-area-tasks,
-.pj-live-design-system .dsr-area-filters,
-.pj-live-design-system .dsr-area-alerts .dsr-card-meta,
-.pj-live-design-system .dsr-alert:nth-child(n + 4),
-.pj-live-design-system .dsr-toasts {
-  display: none;
-}
-
-.pj-live-design-system .dsr-scroll {
-  overflow: hidden;
-}
-
-.pj-live-design-system .dsr-board {
-  height: 100%;
-  padding: 16px;
-  gap: 16px;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  grid-template-rows: auto auto;
-  align-content: center;
-  grid-template-areas:
-    "buttons fields"
-    "team alerts";
-}
-
-/* The busy button keeps its spinner still: nothing in the frame loops. */
-.pj-live-design-system .dsr-spinner {
-  animation-play-state: paused;
+.pj-canvas-box {
+  flex: none;
 }
 
 .pj-web,
@@ -857,7 +811,7 @@
   font-weight: 500;
 }
 
-.pj-rec {
+.pj-real {
   white-space: nowrap;
 }
 
@@ -1367,30 +1321,6 @@
     transform: none;
   }
 
-  .pj-live-design-system .dsr-board {
-    padding: 8px;
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: minmax(0, 1fr);
-    grid-template-areas: "buttons";
-  }
-
-  .pj-live-design-system .dsr-area-fields,
-  .pj-live-design-system .dsr-area-alerts,
-  .pj-live-design-system .dsr-area-team {
-    display: none;
-  }
-
-  /* The phone crop ends on whole button rows. */
-  .pj-live-design-system .dsr-button-link,
-  .pj-live-design-system .dsr-button-rows > :nth-child(n + 3) {
-    display: none;
-  }
-
-  /* The care plate keeps its organization switch and chart; the unit switch and the sync note are left out. */
-  .pj-live-care footer {
-    display: none;
-  }
-
   .pj-phone-side {
     display: none;
   }
@@ -1474,12 +1404,6 @@
   }
 }
 
-@media (min-width: 480px) and (max-width: 1023px) {
-  .pj-live-design-system .dsr-button-rows > :nth-child(3) {
-    display: flex;
-  }
-}
-
 /* The name column is too narrow for role and years on one line, so the years take their own line. */
 @media (min-width: 1024px) and (max-width: 1279px) {
   .pj-year {
@@ -1494,14 +1418,6 @@
 @media (prefers-reduced-motion: reduce) {
   .pj-plate:first-child .pj-shot img {
     transition: none;
-  }
-
-  /* Nothing inside a live plate moves on its own. */
-  .pj-live *,
-  .pj-live *::before,
-  .pj-live *::after {
-    animation-duration: 0s !important;
-    transition-duration: 0s !important;
   }
 
   .pj-plate,

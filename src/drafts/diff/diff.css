@@ -672,6 +672,13 @@
   height: auto;
   width: min(100%, 560px);
 }
+.diff-screen {
+  width: min(100%, 560px);
+  margin: 24px 0;
+}
+.diff-screen figcaption {
+  margin-top: 8px;
+}
 .diff-shot {
   display: block;
   width: 256px;

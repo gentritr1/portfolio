@@ -1,8 +1,10 @@
 import { useId, useState } from 'react'
 import { motion, useReducedMotion } from 'motion/react'
+import { careShots, REAL_SCREENS } from '../../content/careShots'
+import { CropShot } from '../CropShot'
 import './old-care-file.css'
 
-/** The private platform's public facts; no confidential interface is reproduced. */
+/** The private platform's public facts, with one real screen on invented data. */
 export function OldCareFile({ slug }: { slug: string }) {
   const [open, setOpen] = useState(false)
   const reduced = useReducedMotion()
@@ -18,7 +20,7 @@ export function OldCareFile({ slug }: { slug: string }) {
       </span>
       <span className="old-care-file-back" aria-hidden={!open}>
         <span className="old-care-file-facts" id={factsId}><strong>Architecture decisions, written down.</strong><span>Parity tests before each route moves from Vue to React.</span><span>API billing report: 16 queries → 2.</span><span className="old-care-file-hint">Press again to close the file.</span></span>
-        <span className="old-care-file-recreation"><img src="/signal-posters/healthcare.avif" alt="Care interface recreation using invented data" loading="lazy" /><span>Recreation · invented data</span></span>
+        <span className="old-care-file-screen"><CropShot shot={careShots.patients} /><span>{REAL_SCREENS}</span></span>
       </span>
     </motion.span>
   </button>

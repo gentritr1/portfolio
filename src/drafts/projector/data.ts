@@ -24,21 +24,20 @@ export interface Shot {
 }
 
 /**
- * Where the hairline ends. A selector names a part of a live plate. An image
+ * Where the hairline ends. A selector names a part of a plate. An image
  * box names a part of the plate's shot, in fractions of the whole image.
  */
 export type Target =
-  | { kind: "selector"; css: string; round?: boolean }
+  | { kind: "selector"; css: string }
   | { kind: "shot"; box: Box }
   | { kind: "figure"; css: string };
 
 /**
  * "side": the line enters the plate at the part's own height.
  * "lane": the line enters along a clear row (a fraction of the plate height),
- * then turns down or up onto the part. "along": the clear row is the top edge
- * of a rule inside a live plate.
+ * then turns down or up onto the part.
  */
-export type Route = { kind: "side" } | { kind: "lane"; y: number } | { kind: "along"; css: string };
+export type Route = { kind: "side" } | { kind: "lane"; y: number };
 
 export interface StoreLink {
   label: string;
@@ -54,7 +53,8 @@ export interface Platform {
 }
 
 export type Plate =
-  | { kind: "live"; key: "design-system" | "care" }
+  /** The shot stands at no more than its own CSS size, in the middle of its ground, so it is never upscaled. */
+  | { kind: "canvas"; shot: Shot; ground: string }
   | { kind: "duo"; ground: string; web: Shot; store: Shot; kicker: string; stores: StoreLink[] }
   | { kind: "pair"; kicker: string; platforms: Platform[]; mark: Box; narrowMark: Box }
   | { kind: "web"; shot: Shot; ground: string; dark?: boolean }
@@ -72,8 +72,8 @@ export interface Row {
   year: string;
   plate: Plate;
   caption: string;
-  /** The plate is a recreation of a private screen. The caption then says so. */
-  recreation?: boolean;
+  /** The plate is a real screen of a private product with invented data. The caption then says so. */
+  realScreen?: boolean;
   target: Target;
   /** The part the ring marks under 1024 px, when the wide target is not in the phone crop. */
   narrowTarget?: Target;
@@ -149,11 +149,24 @@ export const leadRows: Row[] = [
     result: "Each one sees only its own patients",
     role: "Frontend, core team",
     year: "2023–26",
-    plate: { kind: "live", key: "care" },
-    caption: "Vitals card for one organization.",
-    recreation: true,
-    target: { kind: "selector", css: 'button[aria-haspopup="listbox"]', round: true },
-    route: { kind: "along", css: ".border-t" },
+    plate: {
+      kind: "web",
+      ground: "#f5f7fb",
+      shot: {
+        src: "/showcase/care-dashboard/overview.webp",
+        alt: "Care team dashboard for one organization, Larkspur Valley Health: 24 patients by program, and patient engagement by calls and text messages. Invented data.",
+        width: 1440,
+        height: 900,
+        crop: px(246, 0, 1172, 900, 1440, 900),
+        narrow: px(243, 140, 579, 434.25, 1440, 900),
+        bounds: px(243, 140, 579, 434.25, 1440, 900),
+      },
+    },
+    caption: "Care team dashboard for one organization.",
+    realScreen: true,
+    target: { kind: "shot", box: px(1184, 14, 156, 28, 1440, 900) },
+    narrowTarget: { kind: "shot", box: px(330, 362, 66, 56, 1440, 900) },
+    route: { kind: "side" },
     link: { label: "Open the case", href: "/work/care-platform" },
   },
   {
@@ -193,10 +206,21 @@ export const moreRows: Row[] = [
     result: "36 building blocks, released 20 times in about six weeks",
     role: "Design system, with the team",
     year: "2026",
-    plate: { kind: "live", key: "design-system" },
-    caption: "A few of the 36 building blocks.",
-    recreation: true,
-    target: { kind: "selector", css: ".dsr-area-buttons" },
+    plate: {
+      kind: "canvas",
+      ground: "#ffffff",
+      shot: {
+        src: "/showcase/design-system/button-alert.webp",
+        alt: "Design System v2 in its Storybook: buttons in four styles, buttons with icons, and alerts for a note, information, success, a warning and an error. Invented data.",
+        width: 720,
+        height: 596,
+        crop: px(0, 0, 720, 596, 720, 596),
+        narrow: px(8, 12, 704, 295, 720, 596),
+      },
+    },
+    caption: "Buttons and alerts of the set, in its Storybook.",
+    realScreen: true,
+    target: { kind: "shot", box: px(8, 12, 670, 116, 720, 596) },
     route: { kind: "side" },
     link: { label: "Open the case", href: "/work/design-system-react" },
   },

@@ -34,37 +34,30 @@
   scrollbar-color: oklch(0.72 0.0109 268) oklch(0.995 0.002 268);
 }
 
-/* The specimen's theme change is a view transition. Without this, the whole page cross-fades with it. */
-:root:has(.ts)::view-transition-old(root),
-:root:has(.ts)::view-transition-new(root) {
-  animation: none;
-}
-
 .ts {
   --ts-display: "Gentrit Display", ui-sans-serif, system-ui, sans-serif;
   --ts-mono: "JetBrains Mono", ui-monospace, monospace;
   --ts-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --ts-wrap: 1200px;
   --ts-gutter: max(16px, calc((100vw - var(--ts-wrap)) / 2));
-  --ts-plate-h: 370px;
+  --ts-plate-h: 343px;
   --ts-pin-top: 24px;
-  --ts-follow: 200ms ease 200ms;
 
-  /* Token values. The specimen overwrites these with what it computes; the defaults are its light values. */
-  --ts-ground: oklch(0.995 0.002 268);
-  --ts-plate-ground: oklch(0.975 0.0019 268);
-  --ts-ink: oklch(0.205 0.0054 268);
-  --ts-muted: oklch(0.535 0.016 268);
-  --ts-line: oklch(0.9 0.0064 268);
-  --ts-band: oklch(0.535 0.19 259);
-  --ts-card: oklch(0.995 0.002 268);
-  --ts-card-line: oklch(0.9 0.0064 268);
-  --ts-card-ink: oklch(0.29 0.0064 268);
-  --ts-card-muted: oklch(0.535 0.016 268);
-  --ts-link: oklch(0.535 0.19 259);
-  --ts-soft: oklch(0.975 0.0228 259);
-  --ts-soft-ink: oklch(0.46 0.171 259);
-  --ts-focus: oklch(0.62 0.19 259);
+  /* The token variables come from the inline style that Draft.tsx sets from the token file. */
+  --ts-ground: var(--core-stone-0);
+  --ts-plate-ground: var(--core-stone-50);
+  --ts-ink: var(--core-stone-950);
+  --ts-muted: var(--core-stone-600);
+  --ts-line: var(--core-stone-200);
+  --ts-band: var(--core-cobalt-600);
+  --ts-card: var(--card-surface);
+  --ts-card-line: var(--card-border);
+  --ts-card-ink: var(--text-primary);
+  --ts-card-muted: var(--text-secondary);
+  --ts-link: var(--action-primary);
+  --ts-soft: var(--action-soft);
+  --ts-soft-ink: var(--action-soft-text);
+  --ts-focus: var(--border-focus);
 
   position: relative;
   min-height: 100dvh;
@@ -204,10 +197,8 @@
   padding: 24px var(--ts-gutter) 120px;
 }
 
-.ts-zone {
-  height: calc(
-    var(--ts-plate-px, var(--ts-plate-h)) + var(--ts-pin-length, 0px)
-  );
+.ts-pin-run {
+  height: var(--ts-pin-length, 0px);
 }
 
 .ts-pin {
@@ -218,35 +209,19 @@
 
 .ts-plate {
   position: relative;
-  height: var(--ts-plate-h);
-  overflow: hidden;
+  padding: 24px;
   border-radius: 12px;
   background: var(--ts-plate-ground);
   box-shadow: 0 18px 40px -22px color-mix(in oklab, var(--ts-ink) 45%, transparent);
-  isolation: isolate;
 }
 
-/* The plate is the Tokens panel; the Alert panel waits one row below it. */
-.ts-plate .dsr-top {
-  display: none;
-}
-
-.ts-plate .dsr-pipeline {
-  align-self: flex-start;
-}
-
-@container (min-width: 640px) {
-  .ts-plate .dsr-board {
-    padding: 12px;
-    gap: 14px;
-    grid-template-rows: 1fr 1fr;
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-    grid-template-areas:
-      "tokens tokens tokens tokens tokens tokens tokens tokens tokens tokens tokens tokens"
-      "alerts alerts alerts alerts alerts alerts alerts steps steps steps steps steps"
-      "filters filters filters filters filters fields fields fields fields fields fields fields"
-      "buttons buttons buttons buttons tasks tasks tasks tasks tasks team team team";
-  }
+/* The shot keeps two file pixels for each CSS pixel up to its crop width. */
+.ts-shot {
+  max-width: 704px;
+  margin: 0 auto;
+  overflow: hidden;
+  border-radius: 8px;
+  box-shadow: 0 0 0 1px var(--ts-line);
 }
 
 .ts-wait {
@@ -277,9 +252,6 @@
   border-radius: 12px;
   background: var(--ts-soft);
   color: var(--ts-card-ink);
-  transition:
-    background-color var(--ts-follow),
-    color var(--ts-follow);
 }
 
 .ts-marker {
@@ -290,7 +262,6 @@
   height: 9px;
   border-radius: 50%;
   background: var(--ts-soft-ink);
-  transition: background-color var(--ts-follow);
 }
 
 .ts-figure {
@@ -302,7 +273,6 @@
   letter-spacing: -0.015em;
   color: var(--ts-soft-ink);
   padding-top: 1px;
-  transition: color var(--ts-follow);
 }
 
 .ts-note-text {
@@ -314,18 +284,7 @@
 .ts-path {
   grid-area: path;
   color: var(--ts-soft-ink);
-  transition: color var(--ts-follow);
   overflow-wrap: anywhere;
-}
-
-.ts-outline-sample {
-  display: inline-block;
-  padding: 0 6px;
-  margin-left: 2px;
-  border-radius: 6px;
-  outline: 2px solid var(--ts-focus);
-  outline-offset: 1px;
-  color: var(--ts-card-ink);
 }
 
 .ts-wires {
@@ -353,7 +312,6 @@
 
 .ts-wire-out {
   stroke: var(--ts-band);
-  transition: stroke var(--ts-follow);
 }
 
 .ts-wire-in {
@@ -379,8 +337,7 @@
   transition: opacity 120ms ease-out;
 }
 
-.ts-ring[data-on="false"],
-.ts-ring[data-visible="false"] {
+.ts-ring[data-on="false"] {
   opacity: 0;
 }
 
@@ -403,20 +360,11 @@
   color: var(--ts-card-ink);
   box-shadow: inset 0 0 0 1px var(--ts-card-line);
   scroll-margin-top: var(--ts-pin-top);
-  transition:
-    background-color var(--ts-follow),
-    color var(--ts-follow),
-    box-shadow var(--ts-follow);
-}
-
-.ts[data-theme="dark"] .ts-card {
-  color-scheme: dark;
 }
 
 .ts-card-media {
   min-width: 0;
   border-right: 1px solid var(--ts-card-line);
-  transition: border-color var(--ts-follow);
 }
 
 .ts-card-plate {
@@ -424,10 +372,9 @@
   aspect-ratio: 2 / 1;
   overflow: hidden;
   border-bottom: 1px solid var(--ts-card-line);
-  transition: border-color var(--ts-follow);
 }
 
-/* The NDA needs this label on or directly under every recreation plate. */
+/* The NDA needs this label on or directly under every product plate. */
 .ts-plate-label {
   font-family: var(--ts-mono);
   font-size: 12px;
@@ -447,7 +394,6 @@
 .ts-card-media .ts-plate-label {
   padding: 7px 20px;
   color: var(--ts-card-muted);
-  transition: color var(--ts-follow);
 }
 
 .ts-crop {
@@ -508,7 +454,6 @@
   font-size: 13px;
   font-weight: 500;
   color: var(--ts-card-muted);
-  transition: color var(--ts-follow);
 }
 
 .ts-card-name {
@@ -532,13 +477,11 @@
   font-size: 12.5px;
   line-height: 1.6;
   color: var(--ts-card-muted);
-  transition: color var(--ts-follow);
 }
 
 .ts .ts-card-token {
   font-size: 12px;
   color: var(--ts-card-muted);
-  transition: color var(--ts-follow);
 }
 
 .ts-link {
@@ -556,7 +499,6 @@
   text-underline-offset: 5px;
   text-decoration-color: color-mix(in oklab, var(--ts-link) 40%, transparent);
   transition:
-    color var(--ts-follow),
     text-decoration-color 160ms ease,
     text-underline-offset 160ms ease;
 }
@@ -780,10 +722,6 @@
 }
 
 @media (max-width: 1023px) {
-  .ts {
-    --ts-plate-h: 520px;
-  }
-
   .ts-claim {
     grid-template-columns: minmax(0, 1fr);
     gap: 16px;
@@ -825,9 +763,13 @@
 
 @media (max-width: 639px) {
   .ts {
-    --ts-plate-h: 200px;
+    --ts-plate-h: 164px;
     --ts-pin-top: 10px;
     font-size: 16px;
+  }
+
+  .ts-plate {
+    padding: 12px;
   }
 
   .ts-top {
@@ -904,10 +846,6 @@
     gap: 10px;
   }
 
-  .ts-card[data-plate="care"] .ts-card-plate {
-    aspect-ratio: 4 / 5;
-  }
-
   .ts-card-result {
     font-size: 22px;
   }
@@ -930,21 +868,12 @@
 
 @media (prefers-reduced-motion: reduce) {
   .ts-pin {
-    position: static;
+    position: relative;
+    top: 0;
   }
 
-  .ts-card-facts,
-  .ts-card-token,
-  .ts-note,
-  .ts-marker,
-  .ts-figure,
-  .ts-path,
-  .ts-card,
-  .ts-card-plate,
-  .ts-card-meta,
   .ts-link,
   .ts-wire,
-  .ts-wire-out,
   .ts-ring {
     transition: none;
   }

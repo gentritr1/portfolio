@@ -748,7 +748,7 @@
 }
 
 @media (max-height: 820px) and (min-width: 1200px) {
-  .oi-frame {
+  .oi-media:not([data-kind='screen']) .oi-frame {
     aspect-ratio: 2 / 1;
   }
 }

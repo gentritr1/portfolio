@@ -102,12 +102,13 @@ function ProjectNotes({
               <p>{story.story.result}</p>
             </>
           )}
-          {project.channel === "healthcare" && (
-            <p className="bit-note-label">
-              The player shows an authored recreation with invented data. No
-              private care-platform screens or patient information.
-            </p>
-          )}
+          {project.channel === "healthcare" &&
+            reelFrames(project).length > 0 && (
+              <p className="bit-note-label">
+                The player shows real product screens with invented data. No
+                real patient information.
+              </p>
+            )}
         </div>
         <aside>
           <dl>
@@ -909,7 +910,7 @@ export default function Draft() {
             <p>
               Quality changes this rendering, not your connection.
               <br />
-              Public images and labelled recreations. No live viewers.
+              Public images, real product screens and labelled recreations. No live viewers.
             </p>
           </footer>
         </div>

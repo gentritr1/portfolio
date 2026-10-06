@@ -2,7 +2,8 @@ import { OldCareFile } from '../../components/portfolio/OldCareFile'
 import { currentYear, firstYear, projects } from '../../content/projects'
 import { links } from '../../content/links'
 import { caseNarratives } from '../../content/caseNarratives'
-import { CareArtboard } from './LiveArtboards'
+import { CropShot } from '../../components/CropShot'
+import { careShots, REAL_SCREENS } from '../../content/careShots'
 import { useLayoutEffect } from 'react'
 
 const care = projects.find((project) => project.slug === 'care-platform')!
@@ -45,8 +46,8 @@ export default function ReadPage({ destination, onCanvas }: { destination: strin
         <h2 id="dc-case-title">Care management,<br />one route at a time.</h2>
         <OldCareFile slug="care-platform" /><div className="dc-case-story"><p>{story.product}</p><p>{story.built}</p></div>
         <div className="dc-case-demo">
-          <div className="dc-case-demo-title"><h3>Vitals trend card</h3><p>Interactive recreation. All clinic names and patient readings are invented.</p></div>
-          <CareArtboard />
+          <div className="dc-case-demo-title"><h3>Glucose overview</h3><p>{REAL_SCREENS}</p></div>
+          <CropShot shot={careShots.glucoseChart} className="dc-case-shot" />
         </div>
         <div className="dc-case-results"><h3>What changed</h3><p>{story.result}</p></div>
         <dl className="dc-case-facts"><div><dt>Role</dt><dd>{care.role}</dd></div><div><dt>Period</dt><dd>{care.years}</dd></div><div><dt>Platforms</dt><dd>Web and mobile apps · Laravel API</dd></div><div><dt>Languages</dt><dd>English · German · Spanish · Turkish</dd></div></dl>

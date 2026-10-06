@@ -12,7 +12,9 @@ import {
 } from "react";
 import { Link } from "react-router";
 import { links } from "../../content/links";
-import { projects, type RecreationKey } from "../../content/projects";
+import { careShots, dsShots, type Px, type ScreenShot } from "../../content/careShots";
+import { projects } from "../../content/projects";
+import { CropShot } from "../../components/CropShot";
 import { recreations } from "../../lib/recreations";
 import "./redline.css";
 
@@ -28,8 +30,19 @@ interface Note {
   body: string;
   target: Find;
   route: Route;
-  /** Where the numbered pin sits on a phone; the default corner covers this part's label. */
-  pin?: "right";
+  /** On a phone the pin moves to another corner of the ring when the top-right corner covers another pin or a label. */
+  pin?: "left" | "below";
+  /** On a screenshot plate: the part, in the shot's CSS px. */
+  at?: Px;
+  /** The part in the phone crop, when it differs. */
+  atNarrow?: Px;
+}
+
+/** A real screenshot, with its desktop and phone crops. */
+interface Screen {
+  shot: ScreenShot;
+  wide: Px;
+  narrow: Px;
 }
 
 interface Sheet {
@@ -39,24 +52,14 @@ interface Sheet {
   role: string;
   years: string;
   title: string;
-  plate: RecreationKey;
+  plate: "live-room" | Screen;
+  caption: string;
   slug: string;
   notes: Note[];
 }
 
 const css = (selector: string): Find => (root) => root.querySelector(selector);
-
-/** The smallest element whose own text is exactly `text`. */
-const byText =
-  (text: string, within = "*"): Find =>
-  (root) => {
-    let best: Element | null = null;
-    for (const element of root.querySelectorAll(within)) {
-      if (element.textContent?.trim() !== text) continue;
-      if (!best || best.contains(element)) best = element;
-    }
-    return best;
-  };
+const spot = (n: number): Find => css(`[data-spot="${n}"]`);
 
 const sheets: Sheet[] = [
   {
@@ -67,6 +70,7 @@ const sheets: Sheet[] = [
     years: "2023–26",
     title: "Rebuild on Nuxt 3: 34 routes, 270+ components.",
     plate: "live-room",
+    caption: "recreation, invented data",
     slug: "bayyinah-tv",
     notes: [
       {
@@ -110,40 +114,45 @@ const sheets: Sheet[] = [
     role: "Design system",
     years: "2026",
     title: "One token source: 36 components in 20 releases.",
-    plate: "design-system",
+    plate: { shot: dsShots.buttonAlert, wide: dsShots.buttonAlert.crop, narrow: dsShots.buttonAlert.crop },
+    caption: "real product screens, invented data",
     slug: "design-system-react",
     notes: [
       {
         n: 1,
         side: "left",
-        title: "Three tiers",
-        body: "805 tokens: core value, semantic role, component part.",
-        target: css(".dsr-lane-list > li:nth-child(1)"),
+        title: "One Button",
+        body: "A Button-only app loads 96.6% less JavaScript.",
+        target: spot(1),
         route: { kind: "direct" },
+        at: { x: 15, y: 23, w: 129, h: 36 },
       },
       {
         n: 2,
         side: "left",
-        title: "One source",
-        body: "Built to CSS, TypeScript and a Figma bundle.",
-        target: css(".dsr-pipeline"),
+        title: "Three tiers",
+        body: "805 tokens: core value, semantic role, component part.",
+        target: spot(2),
         route: { kind: "direct" },
+        at: { x: 16, y: 232, w: 688, h: 68 },
       },
       {
         n: 3,
         side: "right",
-        title: "Light, Dark",
-        body: "A theme re-points the semantic tier. Component names stay.",
-        target: css(".dsr-segment"),
+        title: "WCAG 2.1 AA",
+        body: "Built to AA floors, with rendered evidence.",
+        target: spot(3),
         route: { kind: "direct" },
+        at: { x: 16, y: 408, w: 688, h: 68 },
       },
       {
         n: 4,
         side: "right",
-        title: "WCAG 2.1 AA",
-        body: "Focus has its own token. Built to AA floors, with rendered evidence.",
-        target: css(".dsr-lane-list > li:nth-child(5) .dsr-chip-component"),
+        title: "Two of 36",
+        body: "Button and Alert are two of the 36 components.",
+        target: spot(4),
         route: { kind: "direct" },
+        at: { x: 16, y: 496, w: 688, h: 88 },
       },
     ],
   },
@@ -154,44 +163,51 @@ const sheets: Sheet[] = [
     role: "Frontend",
     years: "2026",
     title: "From Vue to React, one route at a time, parity-tested on both apps.",
-    plate: "care",
+    plate: { shot: careShots.glucoseChart, wide: { x: 0, y: 0, w: 1440, h: 760 }, narrow: { x: 860, y: 0, w: 580, h: 676 } },
+    caption: "real product screens, invented data",
     slug: "care-platform",
     notes: [
       {
         n: 1,
         side: "left",
-        title: "Roles",
-        body: "Each screen respects the role of the user who opens it.",
-        target: byText("Care manager", "span"),
+        title: "Organizations",
+        body: "Many share one system. Each sees only its own data.",
+        target: spot(1),
         route: { kind: "direct" },
+        at: { x: 14, y: 12, w: 184, h: 32 },
+        atNarrow: { x: 1182, y: 14, w: 160, h: 28 },
+        pin: "left",
       },
       {
         n: 2,
         side: "left",
-        title: "Vitals",
-        body: "Care teams follow readings from connected devices.",
-        target: (root) => root.querySelector('svg circle[style*="hc-alert"]')?.parentElement ?? null,
-        route: { kind: "under", band: "header + div" },
-        pin: "right",
+        title: "Roles",
+        body: "Each screen respects the role of the user who opens it.",
+        target: spot(2),
+        route: { kind: "direct" },
+        at: { x: 12, y: 78, w: 212, h: 664 },
+        atNarrow: { x: 1354, y: 14, w: 68, h: 28 },
+        pin: "below",
       },
       {
         n: 3,
         side: "right",
-        title: "Organizations",
-        body: "Many share one system. Each sees only its own data.",
-        target: css('button[aria-label^="Organization"]'),
+        title: "Timezones",
+        body: "Multi-tenant covers timezones too, not only data and roles.",
+        target: spot(3),
         route: { kind: "direct" },
+        at: { x: 1236, y: 248, w: 176, h: 36 },
       },
       {
         n: 4,
         side: "right",
-        title: "Timezones",
-        body: "Multi-tenant covers timezones too, not only data and roles.",
-        target: (root) => {
-          for (const p of root.querySelectorAll("footer p")) if (p.textContent?.includes("Timezone")) return p.parentElement;
-          return null;
-        },
+        title: "Vitals",
+        body: "Care teams follow readings from connected devices.",
+        target: spot(4),
         route: { kind: "direct" },
+        at: { x: 314, y: 302, w: 1078, h: 346 },
+        atNarrow: { x: 866, y: 302, w: 526, h: 346 },
+        pin: "left",
       },
     ],
   },
@@ -331,7 +347,7 @@ interface Box {
 
 interface Mark {
   n: number;
-  pin?: "right";
+  pin?: "left" | "below";
   ring: Box;
   path: string;
   start: { x: number; y: number };
@@ -464,7 +480,47 @@ function measure(
 /* ---------- Plate ---------- */
 
 function Plate({ sheet, mounted, wide }: { sheet: Sheet; mounted: boolean; wide: boolean }) {
-  const entry = recreations[sheet.plate];
+  return typeof sheet.plate === "string" ? (
+    <LivePlate mounted={mounted} wide={wide} />
+  ) : (
+    <ShotPlate screen={sheet.plate} notes={sheet.notes} wide={wide} />
+  );
+}
+
+const pct = (value: number, of: number) => `${(value / of) * 100}%`;
+
+function ShotPlate({ screen, notes, wide }: { screen: Screen; notes: Note[]; wide: boolean }) {
+  const crop = wide ? screen.wide : screen.narrow;
+  return (
+    <div className="rl-shot" style={{ background: screen.shot.ground }}>
+      <div className="rl-shot-frame" style={{ maxWidth: crop.w }}>
+        <CropShot shot={screen.shot} crop={crop} />
+        {notes.map((note) => {
+          const at = (!wide && note.atNarrow) || note.at;
+          if (!at) return null;
+          const inside = at.x >= crop.x && at.y >= crop.y && at.x + at.w <= crop.x + crop.w && at.y + at.h <= crop.y + crop.h;
+          if (!inside) return null;
+          return (
+            <span
+              key={note.n}
+              className="rl-spot"
+              data-spot={note.n}
+              style={{
+                left: pct(at.x - crop.x, crop.w),
+                top: pct(at.y - crop.y, crop.h),
+                width: pct(at.w, crop.w),
+                height: pct(at.h, crop.h),
+              }}
+            />
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function LivePlate({ mounted, wide }: { mounted: boolean; wide: boolean }) {
+  const entry = recreations["live-room"];
   const Recreation = entry.Component as ComponentType<{ demoPlaying?: boolean }>;
   const holder = useRef<HTMLDivElement>(null);
   const [playing, setPlaying] = useState(true);
@@ -473,33 +529,21 @@ function Plate({ sheet, mounted, wide }: { sheet: Sheet; mounted: boolean; wide:
     const node = holder.current;
     if (!node || !mounted) return;
     const check = () => {
-      if (sheet.plate === "design-system") {
-        const demo = node.querySelector<HTMLButtonElement>('.dsr-demo[aria-pressed="true"]');
-        if (demo) {
-          demo.click();
-          return true;
-        }
-      }
-      if (sheet.plate === "live-room") {
-        const count = node.querySelectorAll('ol[aria-label="Messages"] > li').length;
-        if (count >= 8) {
-          setPlaying(false);
-          return true;
-        }
-      }
-      return sheet.plate !== "design-system" && sheet.plate !== "live-room";
+      if (node.querySelectorAll('ol[aria-label="Messages"] > li').length < 8) return false;
+      setPlaying(false);
+      return true;
     };
     if (check()) return;
     const observer = new MutationObserver(() => {
       if (check()) observer.disconnect();
     });
-    observer.observe(node, { subtree: true, childList: true, attributes: true, attributeFilter: ["aria-pressed"] });
+    observer.observe(node, { subtree: true, childList: true });
     return () => observer.disconnect();
-  }, [mounted, sheet.plate]);
+  }, [mounted]);
 
-  /* A plate stops on a whole part: the specimen under its Tokens card, the phone live room under its pinned note. */
+  /* On a phone the live room stops under its pinned note. */
   const [height, setHeight] = useState<number | null>(null);
-  const edge = sheet.plate === "design-system" ? ".dsr-area-tokens" : sheet.plate === "live-room" && !wide ? 'section[aria-label="Live chat"] > div:first-of-type' : null;
+  const edge = wide ? null : 'section[aria-label="Live chat"] > div:first-of-type';
   useLayoutEffect(() => {
     const node = holder.current;
     if (!node || !mounted || !edge) {
@@ -511,7 +555,7 @@ function Plate({ sheet, mounted, wide }: { sheet: Sheet; mounted: boolean; wide:
       if (!card) return;
       let top = 0;
       for (let el: HTMLElement | null = card; el && el !== node; el = el.offsetParent as HTMLElement | null) top += el.offsetTop;
-      setHeight(Math.ceil(top + card.offsetHeight + (sheet.plate === "live-room" ? 10 : 12)));
+      setHeight(Math.ceil(top + card.offsetHeight + 10));
     };
     fit();
     const resize = new ResizeObserver(fit);
@@ -522,13 +566,13 @@ function Plate({ sheet, mounted, wide }: { sheet: Sheet; mounted: boolean; wide:
       resize.disconnect();
       mutation.disconnect();
     };
-  }, [mounted, edge, sheet.plate]);
+  }, [mounted, edge]);
 
   return (
     <div
       className="rl-stage"
       data-world={entry.world}
-      data-plate={sheet.plate}
+      data-plate="live-room"
       ref={holder}
       style={height ? { aspectRatio: "auto", height } : undefined}
     >
@@ -707,7 +751,7 @@ function SheetView({ sheet, index, wide, mounted, drawn, instant, register }: Sh
       <footer className="rl-foot">
         <p className="rl-foot-note">
           {sheet.role}
-          <span className="rl-foot-sep"> · recreation, invented data</span>
+          <span className="rl-foot-sep"> · {sheet.caption}</span>
         </p>
         <Link className="rl-link" to={`/work/${sheet.slug}`}>
           Open the case
@@ -736,10 +780,14 @@ function SheetView({ sheet, index, wide, mounted, drawn, instant, register }: Sh
             const order = sheet.notes.findIndex((item) => item.n === mark.n);
             const style = { "--i": order } as CSSProperties;
             const rx = Math.min(8, mark.ring.h / 2);
-            const badge =
-              mark.pin === "right"
-                ? { x: mark.ring.x + mark.ring.w + 12, y: mark.ring.y + mark.ring.h / 2 }
-                : { x: mark.ring.x + mark.ring.w + 3, y: mark.ring.y - 3 };
+            const corner = {
+              x: mark.pin === "left" ? mark.ring.x - 3 : mark.ring.x + mark.ring.w + 3,
+              y: mark.pin === "below" ? mark.ring.y + mark.ring.h + 3 : mark.ring.y - 3,
+            };
+            const badge = {
+              x: Math.max(plateBox.x + 11, Math.min(corner.x, plateBox.x + plateBox.w - 11)),
+              y: Math.max(corner.y, plateBox.y + 11),
+            };
             return (
               <g key={mark.n} className="rl-mark" data-n={mark.n} style={style}>
                 {mark.path && (
@@ -757,8 +805,8 @@ function SheetView({ sheet, index, wide, mounted, drawn, instant, register }: Sh
                   <rect className="rl-ring-in" x={mark.ring.x} y={mark.ring.y} width={mark.ring.w} height={mark.ring.h} rx={rx} />
                   {!wide && (
                     <g className="rl-pin">
-                      <circle cx={Math.min(badge.x, plateBox.x + plateBox.w - 11)} cy={Math.max(badge.y, plateBox.y + 11)} r={10} />
-                      <text x={Math.min(badge.x, plateBox.x + plateBox.w - 11)} y={Math.max(badge.y, plateBox.y + 11)} dy="0.35em">
+                      <circle cx={badge.x} cy={badge.y} r={10} />
+                      <text x={badge.x} y={badge.y} dy="0.35em">
                         {mark.n}
                       </text>
                     </g>
@@ -802,12 +850,7 @@ export default function Redline() {
     root.style.scrollBehavior = "auto";
     root.style.scrollPaddingTop = "0px";
     void recreations["live-room"].load();
-    const idle = window.setTimeout(() => {
-      void recreations["design-system"].load();
-      void recreations.care.load();
-    }, 1200);
     return () => {
-      window.clearTimeout(idle);
       root.style.background = previous.root;
       body.style.background = previous.body;
       root.style.colorScheme = previous.scheme;
@@ -1021,7 +1064,7 @@ export default function Redline() {
           </li>
         </ul>
         <p>Kosovo, working remotely. Bachelor’s degree, UBT.</p>
-        <p>The three screens are recreations with invented data. No screen of client work is shown.</p>
+        <p>The live room is a recreation with invented data. The Design System v2 and care screens are real product screens with invented data.</p>
       </footer>
     </div>
   );

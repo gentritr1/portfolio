@@ -4,10 +4,7 @@ import { cn } from '../lib/cn'
 import type { PageWorld } from '../lib/worlds'
 
 export type ThumbKind =
-  | 'dashboard-vitals'
-  | 'care-plan'
   | 'api-terminal'
-  | 'component-sheet'
   | 'tokens'
   | 'player-chat'
   | 'chat-choices'
@@ -29,7 +26,6 @@ const onPanel = 'fill-(--thumb-on-panel)'
 const outline = 'fill-none stroke-(--thumb-bar) stroke-[1.5]'
 const lineBar = 'fill-none stroke-(--thumb-bar) stroke-2 [stroke-linecap:round] [stroke-linejoin:round]'
 const lineAcc = 'fill-none stroke-(--thumb-accent) stroke-2 [stroke-linecap:round] [stroke-linejoin:round]'
-const tick = 'fill-none stroke-on-accent stroke-2 [stroke-linecap:round] [stroke-linejoin:round]'
 const icon = 'text-(--thumb-accent)'
 
 const range = (n: number) => Array.from({ length: n }, (_, i) => i)
@@ -38,27 +34,6 @@ const qr = [1, 0, 1, 0, 1, 1, 1, 1, 0]
   .join('')
 
 const drawings: Record<ThumbKind, ReactNode> = {
-  'dashboard-vitals': (
-    <>
-      <rect width="18" height="64" className={base} />
-      <rect x="26" y="9" width="30" height="4" rx="2" className={bar} />
-      <rect x="26" y="20" width="62" height="36" rx="4" className={soft} />
-      <polyline points="32,47 39,41 46,44 53,34 60,39 67,31" className={lineAcc} />
-      <circle cx="75" cy="28" r="2.5" className={acc} />
-      <circle cx="81" cy="28" r="2.5" className={acc} />
-    </>
-  ),
-  'care-plan': (
-    <>
-      {[44, 36, 40].map((width, i) => (
-        <g key={i}>
-          <circle cx="18" cy={14 + i * 18} r="5.5" className={i === 0 ? acc : outline} />
-          <rect x="30" y={12 + i * 18} width={width} height="4" rx="2" className={i === 0 ? base : bar} />
-        </g>
-      ))}
-      <path d="M15.5 14l2 2 3.5-4" className={tick} />
-    </>
-  ),
   'api-terminal': (
     <>
       <rect x="8" y="8" width="80" height="48" rx="5" className={panel} />
@@ -67,20 +42,6 @@ const drawings: Record<ThumbKind, ReactNode> = {
       <rect x="25" y="29" width="30" height="3.5" rx="1.75" className={onPanel} />
       <rect x="25" y="35" width="42" height="3.5" rx="1.75" className={bar} />
       <rect x="25" y="41" width="22" height="3.5" rx="1.75" className={acc} />
-    </>
-  ),
-  'component-sheet': (
-    <>
-      <rect x="10" y="17" width="20" height="8" rx="4" className={acc} />
-      <rect x="40" y="16.5" width="17" height="9" rx="4.5" className={acc} />
-      <circle cx="52.5" cy="21" r="3" className="fill-surface" />
-      <rect x="65" y="16.5" width="22" height="9" rx="2.5" className={outline} />
-      <path d="M69 19v4" className={lineAcc} />
-      <rect x="11" y="39" width="18" height="8" rx="4" className={soft} />
-      <rect x="43.5" y="38.5" width="9" height="9" rx="2" className={acc} />
-      <path d="M45.5 43l2 2 3-3.5" className={tick} />
-      <circle cx="72" cy="43" r="4" className={acc} />
-      <circle cx="81" cy="43" r="4" className={soft} />
     </>
   ),
   tokens: (

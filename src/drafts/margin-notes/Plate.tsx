@@ -6,10 +6,12 @@ import {
   useMemo,
   useRef,
   useState,
+  useSyncExternalStore,
   type CSSProperties,
   type PointerEvent,
 } from "react";
 import { Link } from "react-router";
+import { CropShot } from "../../components/CropShot";
 import { recreations } from "../../lib/recreations";
 import type { MarkerSide, Note, Plate, Target } from "./plates";
 
@@ -42,20 +44,6 @@ function find(root: HTMLElement, target: Target) {
       return element;
   }
   return null;
-}
-
-function readCareOrg(root: HTMLElement) {
-  const org = root
-    .querySelector('button[aria-label^="Organization"]')
-    ?.getAttribute("aria-label");
-  const live = root.querySelector('[aria-live="polite"]')?.textContent ?? "";
-  const zone = [...root.querySelectorAll("p")].find((p) =>
-    p.textContent?.includes("Timezone"),
-  );
-  const offset = zone?.textContent?.match(/\(([^)]+)\)/)?.[1];
-  const patient = live.split(", ")[1];
-  if (!org || !patient) return "";
-  return `${org.replace("Organization: ", "")} → ${patient}${offset ? `, ${offset}` : ""}`;
 }
 
 function rounded(points: Array<[number, number]>, radius = 8) {
@@ -100,7 +88,44 @@ function markerPoint(box: Box, stage: Box, side: MarkerSide = "left") {
   };
 }
 
+const PHONE = "(max-width: 639px)";
+
+function usePhone() {
+  return useSyncExternalStore(
+    (notify) => {
+      const list = window.matchMedia(PHONE);
+      list.addEventListener("change", notify);
+      return () => list.removeEventListener("change", notify);
+    },
+    () => window.matchMedia(PHONE).matches,
+    () => false,
+  );
+}
+
 function Stage({ plate }: { plate: Plate }) {
+  const phone = usePhone();
+  if (plate.stage.kind === "screen") {
+    const { shot, parts } = plate.stage;
+    const crop = (phone && plate.stage.phone) || plate.stage.crop;
+    return (
+      <div className="mn-real" style={{ maxWidth: crop.w }}>
+        <CropShot shot={shot} crop={crop} eager={plate.id === "care"} />
+        {parts.map((part) => (
+          <span
+            key={part.id}
+            className="mn-part"
+            data-part={part.id}
+            style={{
+              left: `${((part.box.x - crop.x) / crop.w) * 100}%`,
+              top: `${((part.box.y - crop.y) / crop.h) * 100}%`,
+              width: `${(part.box.w / crop.w) * 100}%`,
+              height: `${(part.box.h / crop.h) * 100}%`,
+            }}
+          />
+        ))}
+      </div>
+    );
+  }
   if (plate.stage.kind === "recreation") {
     const entry = recreations[plate.stage.key];
     const Recreation = entry.Component;
@@ -162,12 +187,10 @@ export function PlateView({
   const noteRefs = useRef<Record<string, HTMLElement | null>>({});
   const elements = useRef<Record<string, HTMLElement>>({});
   const touched = useRef(false);
-  const paused = useRef(false);
   const signature = useRef("");
   const [geometry, setGeometry] = useState<Geometry | null>(null);
   const [active, setActive] = useState<string | null>(null);
   const [inView, setInView] = useState(false);
-  const [live, setLive] = useState("");
 
   const pinned = useMemo(
     () => plate.notes.filter((note) => note.target),
@@ -235,22 +258,7 @@ export function PlateView({
       signature.current = key;
       setGeometry(next);
     }
-    if (plate.notes.some((note) => note.live === "care-org"))
-      setLive(readCareOrg(stage));
-    if (
-      plate.stage.kind === "recreation" &&
-      plate.stage.pauseDemo &&
-      !paused.current
-    ) {
-      const demo = stage.querySelector<HTMLButtonElement>(
-        '.dsr-demo[aria-pressed="true"]',
-      );
-      if (demo) {
-        paused.current = true;
-        demo.click();
-      }
-    }
-  }, [pinned, plate, wide]);
+  }, [pinned, wide]);
 
   useLayoutEffect(() => {
     const root = plateRef.current;
@@ -452,14 +460,7 @@ export function PlateView({
                 <span className="mn-num" aria-hidden="true">
                   {number(note)}
                 </span>
-                <span className="mn-text">
-                  {note.text}
-                  {note.live && live && (
-                    <span className="mn-live" key={live}>
-                      Now: {live}
-                    </span>
-                  )}
-                </span>
+                <span className="mn-text">{note.text}</span>
               </button>
             </li>
           ))}

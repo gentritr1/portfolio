@@ -318,6 +318,14 @@
   object-position: top center;
 }
 
+.si-screen {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  container-type: size;
+}
+
 .si-media[data-kind="phones"] .si-frame {
   display: flex;
   justify-content: center;

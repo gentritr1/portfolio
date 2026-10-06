@@ -1,6 +1,5 @@
 import {
   Fragment,
-  Suspense,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -12,7 +11,7 @@ import {
 } from "react";
 import { Link } from "react-router";
 import { links } from "../../content/links";
-import { recreations } from "../../lib/recreations";
+import { CropShot } from "../../components/CropShot";
 import {
   cards,
   clauses,
@@ -153,19 +152,21 @@ function Sentence({ entry }: { entry: Entry }) {
 }
 
 function PlateView({ plate }: { plate: Plate }) {
-  if (plate.kind === "care") {
-    const entry = recreations.care;
-    const Recreation = entry.Component;
-    const style = {
-      "--a-base": entry.aspect.base,
-      "--a-sm": entry.aspect.sm,
-      "--a-lg": entry.aspect.lg,
-    } as CSSProperties;
+  if (plate.kind === "real") {
     return (
-      <div className="sr-stage" data-world={entry.world} style={style}>
-        <Suspense fallback={<div className="sr-stage-wait" />}>
-          <Recreation />
-        </Suspense>
+      <div className="sr-real" style={{ background: plate.shot.ground }}>
+        <CropShot
+          className={plate.phone ? "sr-real-wide" : undefined}
+          shot={plate.shot}
+          style={{ maxWidth: plate.shot.crop.w }}
+        />
+        {plate.phone && (
+          <CropShot
+            className="sr-real-phone"
+            shot={plate.phone}
+            style={{ maxWidth: plate.phone.crop.w }}
+          />
+        )}
       </div>
     );
   }
@@ -175,8 +176,8 @@ function PlateView({ plate }: { plate: Plate }) {
         className="sr-shot"
         src={plate.src}
         alt={plate.alt}
-        width={plate.src.includes("specimen") ? 1920 : 1440}
-        height={plate.src.includes("specimen") ? 1200 : 900}
+        width={1440}
+        height={900}
         loading="lazy"
         decoding="async"
       />
@@ -346,7 +347,6 @@ export default function StatementOfRecord() {
     root.style.colorScheme = "light";
     root.style.scrollBehavior = "auto";
     root.style.scrollPaddingTop = "0px";
-    void recreations.care.load();
     return () => {
       root.style.background = previous.root;
       body.style.background = previous.body;
@@ -592,8 +592,9 @@ export default function StatementOfRecord() {
         </ul>
         <p>Kosovo, working remotely. Bachelor’s degree, UBT.</p>
         <p>
-          Care-platform screens are recreations with invented data. Every other
-          image comes from a public page, a store listing or an own project.
+          Care-platform and Design System v2 screens are real product screens
+          with invented data. Every other image comes from a public page, a
+          store listing or an own project.
         </p>
       </footer>
     </div>

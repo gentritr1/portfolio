@@ -1,11 +1,12 @@
 import { Suspense, type CSSProperties } from 'react'
 import { Link } from 'react-router'
 import { ArrowRightIcon, ArrowUpRightIcon } from '@phosphor-icons/react'
+import { CropShot } from '../../components/CropShot'
+import { REAL_SCREENS } from '../../content/careShots'
 import { recreations } from '../../lib/recreations'
 import type { Proof, Row } from './data'
 
 const posters: Partial<Record<string, string>> = {
-  care: '/signal-posters/healthcare.avif',
   'doc-chat': '/signal-posters/ai.avif',
 }
 
@@ -20,6 +21,13 @@ function Stage({ proof }: { proof: Proof }) {
         <Suspense fallback={poster ? <img className="ts-stage-poster" src={poster} alt="" /> : null}>
           <Recreation />
         </Suspense>
+      </div>
+    )
+  }
+  if (proof.kind === 'shot') {
+    return (
+      <div className="ts-stage ts-stage-shot" style={{ maxWidth: proof.shot.crop.w }}>
+        <CropShot shot={proof.shot} />
       </div>
     )
   }
@@ -54,6 +62,7 @@ function Stage({ proof }: { proof: Proof }) {
 function sourceNote(row: Row) {
   const { proof } = row
   if (proof.kind === 'recreation') return `Recreation with invented data. ${proof.hint}`
+  if (proof.kind === 'shot') return REAL_SCREENS
   if (proof.kind === 'phones' || proof.kind === 'small') return 'Screens from the public store listing.'
   if (proof.kind === 'web') return 'Screen from the public website.'
   return null

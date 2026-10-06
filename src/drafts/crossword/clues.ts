@@ -29,7 +29,7 @@ export const clues: Record<string, Clue> = {
   'design-dashboard': { result: 'One care screen, built again with demo data for designers.' },
   'bayyinah-institute': { result: 'Live at bayyinah.org, with links to both app stores.' },
   'chatbot-runtime': { result: 'Quizzes that run like a chat, with pictures and timers.', name: 'Scripted chat engine' },
-  'chatbot-runtime-web': { result: 'The same chat quizzes, built again for the web.', name: 'Scripted chat engine, web' },
+  'chatbot-runtime-web': { result: 'The same scripted chats, built again for the web.', name: 'Scripted chat engine, web' },
   'epub-reader-prototype': { result: "The first test of the reading app's book reader.", name: 'Book reader prototype' },
   'donation-app': { result: 'Give once or every month. Badges mark each good deed.', name: 'Sadaqah app' },
   'coaching-app': { result: 'Sign in through your organization. See your day at a glance.' },

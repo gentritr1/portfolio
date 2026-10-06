@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent, type PointerEvent } from 'react'
 import { makeClusters, type Artboard } from './canvasData'
 import { contain, fit, worldSize, zoomAt, type Area, type Camera } from './geometry'
-import { CareArtboard, ReadingArtboard } from './LiveArtboards'
+import { ReadingArtboard } from './LiveArtboards'
 
 function Icon({ name }: { name: 'left' | 'right' | 'plus' | 'minus' | 'fit' }) {
   const paths = { left: 'M15 5l-7 7 7 7', right: 'M9 5l7 7-7 7', plus: 'M12 4v16M4 12h16', minus: 'M4 12h16', fit: 'M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5' }
@@ -10,7 +10,7 @@ function Icon({ name }: { name: 'left' | 'right' | 'plus' | 'minus' | 'fit' }) {
 
 function Picture({ frame, interactive }: { frame: Artboard; interactive: boolean }) {
   const [loaded, setLoaded] = useState(false)
-  if (frame.live) return <div className="dc-artboard-live" inert={!interactive} aria-hidden={!interactive}>{frame.live === 'care' ? <CareArtboard /> : <ReadingArtboard />}</div>
+  if (frame.live) return <div className="dc-artboard-live" inert={!interactive} aria-hidden={!interactive}><ReadingArtboard /></div>
   return <div className="dc-picture" style={{ background: frame.background, color: frame.ink ?? '#172114' }}>
     <span aria-hidden="true">{frame.title}</span>
     <img src={frame.src} alt={frame.alt} draggable={false} loading="lazy" decoding="async" data-loaded={loaded} style={frame.crop && { inset: 'auto', left: `${-frame.crop.x / frame.crop.w * 100}%`, top: `${-frame.crop.y / frame.crop.h * 100}%`, width: `${frame.crop.size[0] / frame.crop.w * 100}%`, height: 'auto', maxWidth: 'none' }} onLoad={(event) => {
@@ -107,7 +107,7 @@ export default function CanvasStage({ onRead }: { onRead: (section?: string) => 
     travel({ scale: 1, x: (size.current.width - liveFrame.width) / 2 - active.x - liveFrame.x, y: (size.current.height - liveFrame.height) / 2 - active.y - liveFrame.y + 12 }, 300, () => {
       setInteractive(liveFrame.id)
       setNotice(`${liveFrame.title} demo is interactive. All displayed data is invented. Escape returns to the canvas.`)
-      requestAnimationFrame(() => world.current?.querySelector<HTMLElement>(`[data-frame="${liveFrame.id}"] select, [data-frame="${liveFrame.id}"] button`)?.focus({ preventScroll: true }))
+      requestAnimationFrame(() => world.current?.querySelector<HTMLElement>(`[data-frame="${liveFrame.id}"] button`)?.focus({ preventScroll: true }))
     })
   }
 

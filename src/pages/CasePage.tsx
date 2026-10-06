@@ -11,7 +11,7 @@ import {
   type ReactNode,
 } from "react";
 import { Link, useParams } from "react-router";
-import { ArrowRightIcon, ArrowUpRightIcon } from "@phosphor-icons/react";
+import { ArrowRightIcon, ArrowUpRightIcon, UserIcon } from "@phosphor-icons/react";
 import { findProject, type Project } from "../content/projects";
 import { recreations } from "../lib/recreations";
 import { caseCopy, nextSlug, type CaseCopy, type LiveKey, type Part, type Plate, type Px, type Shot } from "./caseCopy";
@@ -180,29 +180,8 @@ function LiveBody({ Live }: { Live: ComponentType<object> }) {
 function LivePlate({ which }: { which: LiveKey }) {
   const entry = recreations[which];
   const Live = entry.Component;
-  const ref = useRef<HTMLDivElement>(null);
-
-  // The specimen runs a demo loop until it is paused. The page shows it still, as a picture of the work.
-  useEffect(() => {
-    if (which !== "design-system") return;
-    const element = ref.current;
-    if (!element) return;
-    const pause = () => {
-      const button = element.querySelector<HTMLButtonElement>('.dsr-demo[aria-pressed="true"]');
-      if (!button) return false;
-      button.click();
-      return true;
-    };
-    if (pause()) return;
-    const observer = new MutationObserver(() => {
-      if (pause()) observer.disconnect();
-    });
-    observer.observe(element, { childList: true, subtree: true });
-    return () => observer.disconnect();
-  }, [which]);
-
   return (
-    <div ref={ref} className={`cs-live cs-live-${which}`} data-world={entry.world} inert aria-hidden="true">
+    <div className={`cs-live cs-live-${which}`} data-world={entry.world} inert aria-hidden="true">
       <Suspense fallback={<div className="cs-wait" />}>
         <LiveBody Live={Live} />
       </Suspense>
@@ -305,6 +284,36 @@ function NumberFigure({ plate }: { plate: Extract<Plate, { kind: "number" }> }) 
   );
 }
 
+/** A work loop: the steps in order, and the way back when a step fails. */
+function FlowFigure({ plate, caption }: { plate: Extract<Plate, { kind: "flow" }>; caption: string }) {
+  const { steps, back } = plate;
+  const style = { "--n": steps.length, "--from": back.from, "--to": back.to } as CSSProperties;
+  return (
+    <figure className="cs-flow" style={style}>
+      <figcaption className="cs-flow-title">{caption}</figcaption>
+      <div className="cs-flow-body">
+        <ol className="cs-flow-steps">
+          {steps.map((step) => (
+            <li key={step.name} className="cs-flow-step" data-person={step.person ? "" : undefined}>
+              <span className="cs-flow-name">
+                {step.person && <UserIcon className="cs-flow-icon" weight="bold" aria-hidden="true" />}
+                {step.name}
+              </span>
+              <span className="cs-flow-note">{step.note}</span>
+            </li>
+          ))}
+        </ol>
+        <p className="cs-flow-back">
+          <span className="cs-sr">
+            From step {back.from + 1} back to step {back.to + 1}:{" "}
+          </span>
+          <span className="cs-flow-back-label">{back.label}</span>
+        </p>
+      </div>
+    </figure>
+  );
+}
+
 const inside = (box: Px, crop: Px) =>
   box.x >= crop.x && box.y >= crop.y && box.x + box.w <= crop.x + crop.w && box.y + box.h <= crop.y + crop.h;
 
@@ -323,6 +332,7 @@ interface PlateProps {
 function PartPlate({ part, plate, caption, narrow, first, page }: PlateProps) {
   const [ref, near] = useNear<HTMLDivElement>(first);
   if (plate.kind === "number") return <NumberFigure plate={plate} />;
+  if (plate.kind === "flow") return <FlowFigure plate={plate} caption={caption} />;
   let screen: ReactNode;
   if (plate.kind === "live") {
     const { aspect } = recreations[plate.key];
@@ -615,6 +625,13 @@ function Case({ project, copy }: { project: Project; copy: CaseCopy }) {
           <p>
             <strong>Built with:</strong> {copy.builtWith}
           </p>
+          {copy.engineering && (
+            <ul className="cs-engineers-list">
+              {copy.engineering.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+          )}
         </section>
 
         <nav className="cs-next" aria-label="Next project">

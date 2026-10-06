@@ -1,4 +1,5 @@
-import { findProject, type RecreationKey } from "../../content/projects";
+import { careShots, dsShots, type ScreenShot } from "../../content/careShots";
+import { findProject } from "../../content/projects";
 
 export type ChangeKind =
   | "Rebuilt"
@@ -14,9 +15,9 @@ export interface PlateImage {
   alt: string;
 }
 
-export type Plate = { title: string; thumb: string; thumbDark?: string } & (
-  | { kind: "recreation"; recreation: RecreationKey; hint: string }
-  | { kind: "web" | "phone"; images: PlateImage[] }
+export type Plate = { title: string } & (
+  | { kind: "shot"; shot: ScreenShot; thumb: ScreenShot }
+  | { kind: "web" | "phone"; images: PlateImage[]; thumb: string }
 );
 
 export interface PlateLink {
@@ -94,27 +95,14 @@ export const releases: Release[] = [
         kind: "Rebuilt",
         text: "A care-management platform, moved from Vue to React one route at a time. A route moves over only after its parity tests show the same behaviour in both apps.",
         meta: "2026 · Healthcare · Multi-tenant, four languages",
-        plate: {
-          kind: "recreation",
-          recreation: "care",
-          title: "Vitals trend card",
-          thumb: "/signal-posters/healthcare.avif",
-          hint: "Switch the organization: the patient data and the colour change with it.",
-        },
+        plate: { kind: "shot", title: "Total patients card", shot: careShots.patients, thumb: careShots.patients },
         caseSlug: "care-platform",
       },
       {
         kind: "Added",
         text: "Design System v2: 36 components and 805 design tokens in three tiers, from one source to CSS, TypeScript and Figma. 20 releases in about six weeks.",
         meta: "2026 · React, TypeScript, Storybook",
-        plate: {
-          kind: "recreation",
-          recreation: "design-system",
-          title: "Component specimen",
-          thumb: "/showcase/design-system/specimen-light.webp",
-          thumbDark: "/showcase/design-system/specimen-dark.webp",
-          hint: "Switch Light and Dark: the semantic tokens re-point live.",
-        },
+        plate: { kind: "shot", title: "Buttons and alerts in Storybook", shot: dsShots.top, thumb: dsShots.buttonAlert },
         caseSlug: "design-system-react",
       },
       {

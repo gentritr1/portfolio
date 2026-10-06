@@ -461,6 +461,10 @@
   object-position: top center;
 }
 
+.cc-media[data-kind='screen'] .cc-frame {
+  position: relative;
+}
+
 .cc-media[data-kind='phones'] .cc-frame {
   display: flex;
   justify-content: center;

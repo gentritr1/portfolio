@@ -10,9 +10,10 @@ import {
   type MouseEvent,
 } from "react";
 import { Link } from "react-router";
+import { CropShot } from "../../components/CropShot";
 import { links } from "../../content/links";
 import { recreations } from "../../lib/recreations";
-import { moreCount, record, rewrites, type Rewrite } from "./data";
+import { moreCount, record, rewrites, type Rewrite, type Screen } from "./data";
 import "./rebuilt-twice.css";
 
 const FIRST_DELAY = 650;
@@ -155,13 +156,39 @@ function routeOf({ plate, target, dot }: Geometry, side: "left" | "right") {
   return rounded([[dot.x, dot.y], [dot.x, band], [gx, band], [gx, ty], [target.x + target.w + 5, ty]]);
 }
 
-function Plate({ rewrite, mounted }: { rewrite: Rewrite; mounted: boolean }) {
+const pct = (value: number, of: number) => `${(value / of) * 100}%`;
+
+function ShotPlate({ screen, wide }: { screen: Screen; wide: boolean }) {
+  const shot = wide ? screen.shot : screen.shotNarrow;
+  const crop = shot.crop;
+  const at = wide ? screen.spot : screen.spotNarrow;
+  return (
+    <div className="rt-shot" style={{ background: shot.ground }}>
+      <div className="rt-shot-frame" style={{ maxWidth: crop.w }}>
+        <CropShot shot={shot} />
+        <span
+          className="rt-spot"
+          data-spot=""
+          style={{
+            left: pct(at.x - crop.x, crop.w),
+            top: pct(at.y - crop.y, crop.h),
+            width: pct(at.w, crop.w),
+            height: pct(at.h, crop.h),
+          }}
+        />
+      </div>
+    </div>
+  );
+}
+
+function Plate({ rewrite, mounted, wide }: { rewrite: Rewrite; mounted: boolean; wide: boolean }) {
+  if (typeof rewrite.plate !== "string") return <ShotPlate screen={rewrite.plate} wide={wide} />;
   const entry = recreations[rewrite.plate];
   const Recreation = entry.Component;
   const style = {
     "--a-base": entry.aspect.base,
     "--a-sm": entry.aspect.sm,
-    "--a-lg": rewrite.plate === "care" ? "2 / 1" : entry.aspect.lg,
+    "--a-lg": entry.aspect.lg,
   } as CSSProperties;
   return (
     <div className="rt-stage" data-world={entry.world} data-plate={rewrite.plate} style={style}>
@@ -276,7 +303,7 @@ function Card({ rewrite, current, solved, instant, mounted, wide, register }: Ca
         <Sentence rewrite={rewrite} />
       </header>
       <div className="rt-plate" ref={plateRef}>
-        <Plate rewrite={rewrite} mounted={mounted} />
+        <Plate rewrite={rewrite} mounted={mounted} wide={wide} />
       </div>
       <footer className="rt-card-foot">
         <p className="rt-note">
@@ -285,6 +312,7 @@ function Card({ rewrite, current, solved, instant, mounted, wide, register }: Ca
         </p>
         <p className="rt-role">
           {rewrite.role} · {rewrite.years}
+          {rewrite.caption && ` · ${rewrite.caption}`}
         </p>
         <Link className="rt-link" to={`/work/${rewrite.slug}`}>
           Open the case <span aria-hidden="true">→</span>
@@ -395,9 +423,7 @@ export default function RebuiltTwice() {
     root.style.scrollBehavior = "auto";
     root.style.scrollPaddingTop = "0px";
     void recreations["live-room"].load();
-    const idle = window.setTimeout(() => void recreations.care.load(), 1200);
     return () => {
-      window.clearTimeout(idle);
       root.style.background = previous.root;
       body.style.background = previous.body;
       root.style.colorScheme = previous.scheme;
@@ -629,7 +655,7 @@ export default function RebuiltTwice() {
           </li>
         </ul>
         <p>Kosovo, working remotely. Bachelor’s degree, UBT.</p>
-        <p>The two live plates are recreations with invented data. No screen of client work is shown.</p>
+        <p>The live room is a recreation with invented data. The care screens are real product screens with invented data.</p>
       </footer>
     </div>
   );

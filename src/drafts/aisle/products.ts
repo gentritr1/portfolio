@@ -1,6 +1,7 @@
 import { projects } from '../../content/projects'
 import { wallAssets } from '../../components/portfolio/wallAssets'
 import type { ChannelKey } from '../../content/channels'
+import { careShots, dsShots, type ScreenShot } from '../../content/careShots'
 
 export const shelves = [
   { id: 'platforms', title: 'Platforms & systems', note: 'Web, API, architecture', slugs: ['bayyinah-tv', 'care-platform', 'incentiv', 'care-api', 'design-system-react', 'design-system-vue', 'design-dashboard', 'bayyinah-institute', 'member-portal', 'ai-dashboard'] },
@@ -63,26 +64,26 @@ const brandPacks: Record<string, { field: string; ink: string; window: string }>
 /** Window crops for full-size captures, so the phone screen fills the box window. */
 const windowCrop: Record<string, [number, number]> = {
   'bayyinah-tv': [0.5, 0.64],
-  'care-platform': [0.3, 0.3],
   incentiv: [0.5, 0.18],
   'bayyinah-institute': [0.5, 0.3],
 }
 
-/** Captures of an authored recreation with invented data, shown in the box window. */
-const recreationImages: Record<string, { src: string; alt: string; position: [number, number] }> = {
-  'design-system-react': { src: '/showcase/design-system/specimen-light.webp', alt: 'Component specimen recreation with invented data', position: [0.32, 0.12] },
+/** Real screens of the private work, captured on invented data: one crop for the box window, one for the label. */
+const realScreens: Record<string, { window: ScreenShot; label: ScreenShot }> = {
+  'care-platform': { window: careShots.patients, label: careShots.patients },
+  'design-system-react': { window: { ...dsShots.buttonAlert, crop: { x: 0, y: 0, w: 720, h: 400 } }, label: dsShots.buttonAlert },
 }
 
 export const aisleProducts = projects.map((project, index) => {
   const asset = wallAssets[project.slug]
   const shot = project.media.shot
-  const authored = recreationImages[project.slug]
-  const image = shot
-    ? { src: shot.src, alt: shot.alt, position: [0.5, 0.5] as [number, number], recreation: false }
-    : authored
-      ? { ...authored, recreation: true }
-      : asset
-      ? { src: asset.src, alt: asset.recreation ? 'Care-management interface recreation with invented data' : project.name + ', public product image', position: windowCrop[project.slug] ?? asset.position ?? [0.5, 0.35], recreation: Boolean(asset.recreation) }
+  const real = realScreens[project.slug]
+  const image = real
+    ? { src: real.label.src, alt: real.label.alt, position: [0.5, 0.5] as [number, number], real }
+    : shot
+    ? { src: shot.src, alt: shot.alt, position: [0.5, 0.5] as [number, number] }
+    : asset
+      ? { src: asset.src, alt: project.name + ', public product image', position: windowCrop[project.slug] ?? asset.position ?? [0.5, 0.35] }
       : null
   return {
     project,
@@ -90,7 +91,7 @@ export const aisleProducts = projects.map((project, index) => {
     fact: facts[project.slug],
     pack: brandPacks[project.slug] ?? packs[project.channel],
     image,
-    poster: asset?.src ?? shot?.src ?? authored?.src ?? null,
+    poster: real ? null : asset?.src ?? shot?.src ?? null,
   }
 })
 

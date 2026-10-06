@@ -597,73 +597,6 @@
 
 /* ---------- Plates ---------- */
 
-.tr-live {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-  background: var(--world-bg);
-}
-
-.tr-live-in {
-  position: absolute;
-  top: 0;
-  left: 0;
-  transform-origin: 0 0;
-  container-type: inline-size;
-  background: var(--world-bg);
-  color: var(--ink);
-  font-family: var(--font-sans);
-  font-size: 1rem;
-  line-height: 1.6;
-  font-weight: 400;
-  letter-spacing: normal;
-  -webkit-font-smoothing: auto;
-}
-
-.tr-live-design-system .dsr-top {
-  display: none;
-}
-
-.tr-live-design-system .dsr-scroll {
-  height: 100%;
-  overflow: hidden;
-}
-
-.tr-live-design-system .dsr-board {
-  display: block;
-  height: 100%;
-  padding: 16px;
-}
-
-/* The hiring manager sees ready-made parts; the engineer sees the token card that builds them. */
-.tr[data-read="engineer"] .tr-live-design-system .dsr-board > :not(.dsr-area-tokens),
-.tr[data-read="plain"] .tr-live-design-system .dsr-board > :not(.dsr-area-buttons, .dsr-area-fields) {
-  display: none;
-}
-
-.tr[data-read="plain"] .tr-live-design-system .dsr-board {
-  display: grid;
-  align-content: start;
-  gap: 12px;
-}
-
-.tr-live-design-system .dsr-button-rows {
-  gap: 16px;
-}
-
-/* The spinner row stays out, so nothing in the plate plays. */
-.tr-live-design-system .dsr-button-rows > :nth-child(3) {
-  display: none;
-}
-
-.tr-live-design-system .dsr-toasts {
-  display: none;
-}
-
-.tr-live-design-system .dsr-area-tokens {
-  height: 100%;
-}
-
 .tr-shot {
   position: absolute;
   inset: 0;
@@ -1354,15 +1287,6 @@
     padding-top: 32px;
   }
 
-  .tr[data-read="plain"] .tr-phone-plate .tr-live-design-system .dsr-board {
-    align-content: center;
-  }
-
-  .tr-phone-plate .dsr-lane-list > li:nth-child(n + 3),
-  .tr[data-read="plain"] .tr-phone-plate .tr-live-design-system .dsr-board > .dsr-area-fields {
-    display: none;
-  }
-
   .tr-end-links {
     margin-top: 16px;
   }
@@ -1431,14 +1355,6 @@
 
   .tr-switch button:active {
     transform: none;
-  }
-
-  /* Nothing inside a live plate moves on its own. */
-  .tr-live *,
-  .tr-live *::before,
-  .tr-live *::after {
-    animation-duration: 0s !important;
-    transition-duration: 0s !important;
   }
 }
 

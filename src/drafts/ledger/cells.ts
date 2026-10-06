@@ -132,30 +132,6 @@ function textLines(
     rect(c, x, y + i * gap, width * (0.62 + 0.38 * hash(seed + i)), 1.5, fill);
 }
 
-const vitals: Draw = ({ c, col, t }) => {
-  faded(c, 0.14, () => rect(c, 0, 4, W, 12, col));
-  faded(c, 0.6, () => {
-    for (let x = 2; x < W; x += 6) rect(c, x, 16, 3, 1, col);
-  });
-  const s = t * 2.2;
-  const base = Math.floor(s);
-  const frac = s - base;
-  const value = (n: number) =>
-    29 + 6 * Math.sin(n * 0.5) + 3 * Math.sin(n * 1.9 + 1) - (hash(n) > 0.87 ? 15 : 0);
-  const points: Array<[number, number]> = [];
-  for (let i = 0; i <= 30; i++) points.push([4 + (i - frac) * 5, value(base + i)]);
-  c.lineWidth = 1.5;
-  c.lineJoin = "round";
-  c.strokeStyle = col;
-  c.beginPath();
-  points.forEach(([x, y], i) => (i ? c.lineTo(x, y) : c.moveTo(x, y)));
-  c.stroke();
-  for (const [x, y] of points) if (y < 16 && x > 2) dot(c, x, y, 2.2, PAPER);
-  const [hx, hy] = points[points.length - 1];
-  dot(c, hx, hy, 2.6, col);
-  faded(c, 1 - frac, () => ring(c, hx, hy, 3 + frac * 6, col));
-};
-
 const queries: Draw = ({ c, col, t }) => {
   const p = (t % 4.8) / 4.8;
   const k = p < 0.9 ? io((p - 0.28) / 0.36) : 1 - io((p - 0.9) / 0.1);
@@ -167,45 +143,6 @@ const queries: Draw = ({ c, col, t }) => {
   }
   label(c, String(Math.round(lerp(16, 2, k))).padStart(2, "0"), 98, 30, col, 20);
   faded(c, 0.72, () => label(c, "QUERIES", 98, 42, PAPER));
-};
-
-const components: Draw = ({ c, col, t }) => {
-  const step = t / 0.9;
-  const index = Math.floor(step) % 5;
-  const previous = (index + 4) % 5;
-  const k = out((step % 1) * 3);
-  const on = Math.floor(t / 1.8) % 2 === 0;
-  c.lineWidth = 1.5;
-  for (let i = 0; i < 5; i++) {
-    const x = 8 + i * 30;
-    const tone = i === index ? col : PAPER;
-    if (i === 0) {
-      round(c, x, 18, 22, 12, 3, tone);
-      rect(c, x + 6, 23.5, 10, 1.5, INK);
-    } else if (i === 1) {
-      round(c, x, 18, 22, 12, 6, undefined, tone);
-      dot(c, x + (on ? 16 : 6), 24, 3.5, tone);
-    } else if (i === 2) {
-      round(c, x + 5, 18, 12, 12, 2, undefined, tone);
-      if (on) {
-        c.beginPath();
-        c.moveTo(x + 8, 24);
-        c.lineTo(x + 10.5, 27);
-        c.lineTo(x + 14.5, 21);
-        c.stroke();
-      }
-    } else if (i === 3) {
-      ring(c, x + 11, 24, 6, tone);
-      if (!on) dot(c, x + 11, 24, 3, tone);
-    } else {
-      round(c, x, 18, 24, 12, 2, undefined, tone);
-      if (Math.floor(t * 2) % 2) rect(c, x + 4 + (on ? 8 : 4), 20.5, 1.5, 7, tone);
-      rect(c, x + 4, 23.5, on ? 8 : 4, 1.5, tone);
-    }
-  }
-  const fx = lerp(5 + previous * 30, 5 + index * 30, k);
-  c.lineWidth = 2;
-  round(c, fx, 13, 28, 22, 5, undefined, col);
 };
 
 const tokens: Draw = ({ c, col, t }) => {
@@ -1043,9 +980,7 @@ const forks: Draw = ({ c, col, t }) => {
 };
 
 const draws: Record<string, Draw> = {
-  "care-platform": vitals,
   "care-api": queries,
-  "design-system-react": components,
   "design-system-vue": tokens,
   "design-dashboard": calls,
   "bayyinah-tv": stream,

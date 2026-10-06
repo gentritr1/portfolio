@@ -138,7 +138,7 @@ export default function Draft() {
             LinkedIn
           </a>
         </p>
-        <p className="wr-foot-note">Vianova and AvahiTech screens are recreations with invented data. The others come from public store and web pages.</p>
+        <p className="wr-foot-note">Vianova screens are real product screens with invented data. The AvahiTech screen is a recreation with invented data. The others come from public store and web pages.</p>
       </footer>
     </div>
   )

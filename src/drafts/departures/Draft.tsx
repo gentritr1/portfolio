@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type KeyboardEvent as KeyEvent, type PointerEvent } from "react";
 import { links } from "../../content/links";
+import { CropShot } from "../../components/CropShot";
 import { Frame } from "./glyphs";
 import { lines, others, type Line } from "./lines";
 import { contactFrame, identityFrame, keyFrame, layouts, lineFrame, type Page } from "./signs";
@@ -610,8 +611,13 @@ export default function Draft() {
                       </p>
                     </div>
                     {line.shot && (
-                      <figure className="dep-shot" data-phone={line.shot.height > line.shot.width} style={{ "--w": `${line.shot.width / 2}px`, "--ratio": `${line.shot.width} / ${line.shot.height}` } as CSSProperties}>
-                        {seen.has(line.slug) && <img src={line.shot.src} width={line.shot.width} height={line.shot.height} alt={line.shot.alt} decoding="async" />}
+                      <figure className="dep-shot" data-phone={line.shot.height > line.shot.width} style={{ "--w": `${(line.shot.crop?.w ?? line.shot.width) / 2}px`, "--ratio": `${line.shot.width} / ${line.shot.height}` } as CSSProperties}>
+                        {seen.has(line.slug) &&
+                          (line.shot.crop ? (
+                            <CropShot className="dep-crop" shot={{ ...line.shot, crop: line.shot.crop, ground: "#f5f7fb" }} />
+                          ) : (
+                            <img src={line.shot.src} width={line.shot.width} height={line.shot.height} alt={line.shot.alt} decoding="async" />
+                          ))}
                         <figcaption>{line.shot.caption}</figcaption>
                       </figure>
                     )}

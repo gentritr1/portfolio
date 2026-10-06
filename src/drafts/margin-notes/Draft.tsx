@@ -72,9 +72,9 @@ export default function Draft() {
           </a>
         </p>
         <p className="mn-foot-note">
-          No screenshots of client work. Every Vianova screen above is a
-          recreation with invented data; the others come from public store and
-          web pages.
+          The Vianova care and design-system screens are real product screens
+          with invented data. Bayyinah TV and Read to Feed are recreations with
+          invented data; the others come from public store and web pages.
         </p>
       </footer>
     </div>

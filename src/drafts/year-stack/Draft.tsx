@@ -1,5 +1,4 @@
 import {
-  Suspense,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -14,7 +13,6 @@ import { Link } from "react-router";
 import { useMotionValueEvent, useScroll } from "motion/react";
 import { ArrowUpRightIcon } from "@phosphor-icons/react";
 import { links } from "../../content/links";
-import { recreations } from "../../lib/recreations";
 import { present, record, sentenceOf, years, type Box, type Plate, type Year } from "./data";
 import "./year-stack.css";
 
@@ -203,17 +201,6 @@ function Statement({ says, mode, narrow }: { says: readonly [string, string, str
 /* ---------- Plate and pin ---------- */
 
 function PlateView({ plate, eager }: { plate: Plate; eager: boolean }) {
-  if (plate.kind === "care") {
-    const entry = recreations.care;
-    const Care = entry.Component;
-    return (
-      <div className="ys-live ys-surface" data-world={entry.world}>
-        <Suspense fallback={<div className="ys-wait" />}>
-          <Care />
-        </Suspense>
-      </div>
-    );
-  }
   const { shot, crop } = plate;
   return (
     <div
@@ -300,10 +287,7 @@ function measurePin(card: HTMLElement, data: Year, wide: boolean): PinGeometry |
   const imageBox = image ? offsetIn(image, card) : null;
   let target: Box | null = null;
   const { pin } = data;
-  if (pin.target.kind === "selector") {
-    const element = surface.querySelector<HTMLElement>(pin.target.css);
-    target = element ? offsetIn(element, card) : null;
-  } else if (imageBox && imageBox.w > 0) {
+  if (imageBox && imageBox.w > 0) {
     const { box } = pin.target;
     target = {
       x: imageBox.x + box.x * imageBox.w,
@@ -326,22 +310,14 @@ function measurePin(card: HTMLElement, data: Year, wide: boolean): PinGeometry |
     outside.push([gutter, ty], [edge, ty]);
     inside.push([edge, ty], [Math.round(target.x - 6), ty]);
   } else {
-    let lane: number | null = null;
-    if ("along" in pin.route) {
-      const rule = surface.querySelector<HTMLElement>(pin.route.along);
-      const box = rule ? offsetIn(rule, card) : null;
-      lane = box ? Math.round(box.y) : null;
-    } else if (imageBox) {
-      lane = Math.round(imageBox.y + pin.route.y * imageBox.h);
-    }
-    if (lane === null) return null;
+    if (!imageBox) return null;
+    const lane = Math.round(imageBox.y + pin.route.y * imageBox.h);
     const end = target.y > lane ? Math.round(target.y - 6) : Math.round(target.y + target.h + 6);
     outside.push([gutter, lane], [edge, lane]);
     inside.push([edge, lane], [cx, lane], [cx, end]);
   }
   const pad = 5;
-  const ring = { x: target.x - pad, y: target.y - pad, w: target.w + pad * 2, h: target.h + pad * 2, r: 0 };
-  ring.r = pin.pill ? ring.h / 2 : 6;
+  const ring = { x: target.x - pad, y: target.y - pad, w: target.w + pad * 2, h: target.h + pad * 2, r: 6 };
   const outLength = lengthOf(outside);
   const inLength = lengthOf(inside);
   return {
@@ -696,8 +672,8 @@ export default function Draft() {
           <Link to="/">All 30 projects →</Link>
         </p>
         <p className="ys-foot-note">
-          No screenshots of client work: the care screen is a recreation with invented data. The other screens come
-          from public web pages and store listings.
+          The care screen is a real product screen with invented data. The other screens come from public web pages
+          and store listings.
         </p>
       </footer>
     </div>

@@ -73,7 +73,7 @@ export const client: Row[] = [
     id: "care",
     name: "Care-management platform",
     line: "Care teams follow patients' readings, care plans, lab results and bills.",
-    result: "Rebuilt screen by screen. Each passes the same tests first.",
+    result: "Rebuilt screen by screen. Old bugs written down, not copied.",
     role: "Frontend and mobile, full stack since 2026",
     years: "2023–26",
     note: "Real product screens, invented data.",
@@ -181,15 +181,15 @@ export const client: Row[] = [
     result: "36 building blocks, released 20 times in about six weeks.",
     role: "Design system",
     years: "2026",
-    note: "Recreation · invented data",
+    note: "Real product screens, invented data.",
     links: [],
     plate: {
-      src: "/showcase/design-system/specimen-light.webp",
-      width: 1920,
-      height: 1200,
-      alt: "Component specimen for an invented project-tracker kit: alerts in five tones on a wide screen, buttons on a phone",
-      crop: { x: 1114, y: 68, w: 794, h: 436 },
-      narrowCrop: { x: 29, y: 845, w: 470, h: 345 },
+      src: "/showcase/design-system/button-alert.webp",
+      width: 1440,
+      height: 1192,
+      alt: "Design System v2 in its Storybook: buttons in four styles, buttons with icons, and alerts for a note, information and success. Invented data.",
+      crop: { x: 16, y: 24, w: 1408, h: 760 },
+      narrowCrop: { x: 16, y: 24, w: 1408, h: 590 },
     },
   },
   {
@@ -313,8 +313,8 @@ export const screenColours: Record<string, string> = {
     "67825f8ea8889eb69786a180d6ded6dde5dddce8ded4e2dcf3f1f1f7f7f7dfe6e9ebeeefeee6e6efeeeeebebecf2f2f2",
   "/mobile/bookstore-1.webp":
     "f8efe9eddfdaede0daf8eee8f7e6dcdcc6b7dcc6b7f7e6dcf5f5f4ebebebecebebf3e8e8f1f1f1efefefedededf4f4f4",
-  "/showcase/design-system/specimen-light.webp":
-    "f1f1f3f7f7faf7f7faf6f6f9e4eceee5edefedf6f8f0f7f9e5e8e0ebede5f7f8eff7f9f1f3ebebf6efeefcf4f3fcf5f4",
+  "/showcase/design-system/button-alert.webp":
+    "b0ccd8c2dee9cadde5d6e8f0e5eceee4ebedecf2f4f0f6f9ebf3e6edf5e8f2faedf5fdf0f6ebe5f9ede7f7eee7faf0e9",
   "/showcase/incentiv/web-03.webp":
     "1c1c1a1c1c1b1b1b1a1d1d1b4444412d2c2a20201e20201e302c292b2a272121201c1d1c1b1b1a1b1b1a1b18151e1a17",
   "/personal/shots/offbeat-home-desktop.webp":

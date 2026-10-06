@@ -521,12 +521,23 @@
   background: var(--ink);
   overflow: hidden;
 }
-.linja-arrival-picture img {
+.linja-arrival-picture > img {
   display: block;
   width: 100%;
   height: 100%;
   max-height: 600px;
   object-fit: contain;
+}
+.linja-arrival-shot {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 48px 16px 16px;
+  container-type: size;
+}
+.linja-arrival-shot > span {
+  border-radius: 4px;
 }
 .linja-arrival-picture > p {
   display: grid;
@@ -785,7 +796,7 @@
     height: 200px;
     flex-shrink: 0;
   }
-  .linja-arrival-picture img {
+  .linja-arrival-picture > img {
     height: 200px;
   }
   .linja-arrival-picture > p {

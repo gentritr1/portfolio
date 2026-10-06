@@ -12,9 +12,9 @@ export interface PublicLink {
 }
 
 /** Live recreations with invented data. Each key maps to one lazy component in `src/lib/recreations.tsx`. */
-export type RecreationKey = 'care' | 'live-room' | 'reader' | 'wallet' | 'doc-chat' | 'design-system'
+export type RecreationKey = 'live-room' | 'reader' | 'wallet' | 'doc-chat'
 
-/** What the case-page monitor shows: a live recreation, or the first gallery as a phone wall. */
+/** What the case-page monitor shows: a live recreation, or the first gallery. */
 export type MonitorKind = Exclude<RecreationKey, 'doc-chat'> | 'gallery'
 
 export interface Fact {
@@ -104,6 +104,21 @@ const careScreensGallery: Gallery = {
     web('/showcase/care-dashboard/rpm-overview-cgm.webp', "Glucose overview for one patient: time in range, average, highest and lowest values, device usage, and one day's glucose curve. Invented data.", 'Glucose overview'),
     web('/showcase/care-dashboard/claims.webp', 'Claims for one month: counts by status, filters for updated claims and claims that need attention, and each claim with its program, CPT codes and status. Invented data.', 'Claims'),
     web('/showcase/care-dashboard/appointments-week.webp', 'Care team calendar for one week: calls, video calls and office visits for each patient. Invented data.', 'Care team calendar'),
+  ],
+}
+
+const designSystemGallery: Gallery = {
+  title: 'Real product screens, invented data',
+  aspect: 'web',
+  links: [],
+  items: [
+    {
+      src: '/showcase/design-system/button-alert.webp',
+      alt: 'Design System v2 in its Storybook: buttons in four styles, buttons with icons, and alerts for a note, information, success, a warning and an error. Invented data.',
+      caption: 'Button and Alert, from the Storybook',
+      width: 720,
+      height: 596,
+    },
   ],
 }
 
@@ -262,12 +277,12 @@ export const projects: Project[] = [
     stack: ['React 19', 'TypeScript', 'TanStack', 'Zod', 'Nuxt 2', 'Laravel 13', 'Playwright'],
     line: 'Remote patient care: a Vue app since 2023, now rebuilt in React with parity tests',
     summary:
-      'A care-management platform for remote patient monitoring. Care teams follow vitals from connected devices, care plans, lab results, billing claims, calls and chat, and many client organizations share one multi-tenant system. Its features were built on Vue (Nuxt 2) from 2023. In 2026 the frontend moves to React route by route, with parity tests that compare each screen with the old app, decision records and automated quality gates, on Design System v2. The Laravel API gained enrollment drafts, a lab catalog and multi-tenant security fixes.',
+      'A care-management platform for remote patient monitoring. Care teams follow vitals from connected devices, care plans, lab results, billing claims, calls and chat, and many client organizations share one multi-tenant system. Its features were built on Vue (Nuxt 2) from 2023. In 2026 the frontend moves to React route by route, with parity tests that compare each screen with the old app, decision records and automated quality gates, on Design System v2. AI agents work inside fixed rules and automatic checks, old bugs are written down rather than copied, and a person approves each change. The Laravel API gained enrollment drafts, a lab catalog and multi-tenant security fixes.',
     links: [],
-    media: { thumb: 'dashboard-vitals', galleries: [careScreensGallery] },
+    media: { galleries: [careScreensGallery] },
     featured: {
       order: 1,
-      monitor: 'care',
+      monitor: 'gallery',
       readouts: [
         { value: '16', to: '2', label: 'Queries in one billing report' },
         { value: '4', label: 'Languages: EN, DE, ES, TR' },
@@ -302,12 +317,12 @@ export const projects: Project[] = [
     stack: ['React 19', 'TypeScript', 'CSS Modules', 'Storybook 10', 'DTCG tokens', 'Playwright', 'axe'],
     line: '36 components, 805 design tokens and 20 releases in about six weeks',
     summary:
-      "Design System v2 is a token-driven React component library for the new dashboard of a care-management platform. The team defined 805 design tokens in three tiers (core, semantic and component) in one source that generates CSS, TypeScript and a Figma bundle, and shipped 36 components in 20 releases in about six weeks. Each component is built to WCAG 2.1 AA floors with automated, rendered evidence, and per-component builds cut a Button-only consumer's JavaScript by 96.6%. Research and AI agents shaped the work, and executable gates check each claim. The new React dashboard, not yet in production, uses the system across its screens through one adapter layer.",
+      "Design System v2 is a token-driven React component library for the new dashboard of a care-management platform. The team defined 805 design tokens in three tiers (core, semantic and component) in one source that generates CSS, TypeScript and a Figma bundle, and shipped 36 components in 20 releases in about six weeks. Each component is built to WCAG 2.1 AA floors with automated, rendered evidence, and per-component builds cut a Button-only consumer's JavaScript by 96.6%. Research into five leading design systems came first and became written guides for AI agents. The guides advise, automatic checks decide, and a person approves each change. The new React dashboard, not yet in production, uses the system across its screens through one adapter layer.",
     links: [],
-    media: { thumb: 'component-sheet' },
+    media: { galleries: [designSystemGallery] },
     featured: {
       order: 7,
-      monitor: 'design-system',
+      monitor: 'gallery',
       readouts: [
         { value: '36', label: 'Components' },
         { value: '805', label: 'Design tokens in three tiers' },

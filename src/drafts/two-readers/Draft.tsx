@@ -1,5 +1,4 @@
 import {
-  Suspense,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -13,7 +12,6 @@ import {
 } from "react";
 import { Link, useSearchParams } from "react-router";
 import { links } from "../../content/links";
-import { recreations } from "../../lib/recreations";
 import {
   figure,
   hook,
@@ -22,7 +20,6 @@ import {
   ownIntro,
   rows,
   type Box,
-  type LivePlate,
   type OwnShot,
   type Plate,
   type Reader,
@@ -117,42 +114,6 @@ function Pair({ plain, engineer, reader }: { plain: ReactNode; engineer: ReactNo
 }
 
 /* ---------- Plates ---------- */
-
-function LiveView({ plate, size, narrow }: { plate: LivePlate; size: Size; narrow: boolean }) {
-  const entry = recreations[plate.key];
-  const Recreation = entry.Component;
-  const ref = useRef<HTMLDivElement>(null);
-  const width = narrow ? plate.narrowWidth : plate.width;
-  const k = size.w > 0 ? size.w / width : 1;
-
-  // The specimen runs a demo loop until it is paused. The frame shows it still.
-  useEffect(() => {
-    if (plate.key !== "design-system") return;
-    const element = ref.current;
-    if (!element) return;
-    const pause = () => {
-      const button = element.querySelector<HTMLButtonElement>('.dsr-demo[aria-pressed="true"]');
-      if (button) button.click();
-      return Boolean(element.querySelector(".dsr-demo"));
-    };
-    if (pause()) return;
-    const observer = new MutationObserver(() => {
-      if (pause()) observer.disconnect();
-    });
-    observer.observe(element, { childList: true, subtree: true });
-    return () => observer.disconnect();
-  }, [plate.key]);
-
-  return (
-    <div ref={ref} className={`tr-live tr-live-${plate.key}`} data-world={entry.world}>
-      <div className="tr-live-in" style={{ width, height: size.h / k, transform: `scale(${k})` }}>
-        <Suspense fallback={null}>
-          <Recreation />
-        </Suspense>
-      </div>
-    </div>
-  );
-}
 
 function ShotView({ plate, size, narrow, eager }: { plate: ShotPlate; size: Size; narrow: boolean; eager: boolean }) {
   const crop = narrow ? plate.narrow : plate.crop;
@@ -250,7 +211,6 @@ function PlateView({
 }) {
   if (plate.kind === "figure") return <FigureView reader={reader} />;
   if (!load || size.w === 0) return <div className="tr-wait" />;
-  if (plate.kind === "live") return <LiveView plate={plate} size={size} narrow={narrow} />;
   return <ShotView plate={plate} size={size} narrow={narrow} eager={eager} />;
 }
 
@@ -335,12 +295,9 @@ interface Wire {
   tone: "light" | "dark" | "accent";
 }
 
-function ringOf(row: Row, reader: Reader, target: Box) {
+function ringOf(target: Box) {
   const pad = 5;
-  const ring = { x: target.x - pad, y: target.y - pad, w: target.w + pad * 2, h: target.h + pad * 2, r: 8 };
-  const spec = row[reader].target;
-  if (spec.kind === "selector" && spec.round) ring.r = ring.h / 2;
-  return ring;
+  return { x: target.x - pad, y: target.y - pad, w: target.w + pad * 2, h: target.h + pad * 2, r: 8 };
 }
 
 function measureWire(row: Row, reader: Reader, rowElement: HTMLElement, plate: HTMLElement): Wire | null {
@@ -354,22 +311,9 @@ function measureWire(row: Row, reader: Reader, rowElement: HTMLElement, plate: H
   const last = fragments[fragments.length - 1];
   const start: Point = [Math.round(last.right + 12), Math.round(last.top + last.height / 2)];
   const gutter = Math.round(edge - 24);
-  const outside: Point[] = [start, [gutter, start[1]]];
-  const inside: Point[] = [];
-  const route = row[reader].route;
-  if (route.kind === "side") {
-    const ty = Math.round(target.y + target.h / 2);
-    outside.push([gutter, ty], [edge, ty]);
-    inside.push([edge, ty], [Math.round(target.x - 6), ty]);
-  } else {
-    const rule = plate.querySelector<HTMLElement>(route.css);
-    if (!rule) return null;
-    const lane = Math.round(rule.getBoundingClientRect().top);
-    const cx = Math.round(target.x + target.w / 2);
-    const end = target.y > lane ? Math.round(target.y - 6) : Math.round(target.y + target.h + 6);
-    outside.push([gutter, lane], [edge, lane]);
-    inside.push([edge, lane], [cx, lane], [cx, end]);
-  }
+  const ty = Math.round(target.y + target.h / 2);
+  const outside: Point[] = [start, [gutter, start[1]], [gutter, ty], [edge, ty]];
+  const inside: Point[] = [[edge, ty], [Math.round(target.x - 6), ty]];
   const outLength = lengthOf(outside);
   const inLength = lengthOf(inside);
   return {
@@ -377,7 +321,7 @@ function measureWire(row: Row, reader: Reader, rowElement: HTMLElement, plate: H
     inside: rounded(inside),
     split: outLength / Math.max(1, outLength + inLength),
     start,
-    ring: ringOf(row, reader, target),
+    ring: ringOf(target),
     tone: row.plate.kind === "figure" ? "accent" : row.plate.kind === "shot" && row.plate.dark ? "dark" : "light",
   };
 }
@@ -482,21 +426,6 @@ export default function Draft() {
   const missing = near.filter((i) => i >= 0 && i < rows.length && !loaded.has(i));
   if (missing.length > 0) setLoaded(new Set([...loaded, ...missing]));
 
-  /* Live plates mount hidden once the page is idle, so their first draw is over before their row is shown. */
-  useEffect(() => {
-    if (!fonts) return;
-    const idle = window.requestIdleCallback ?? ((callback: () => void) => window.setTimeout(callback, 600));
-    const handle = idle(() => {
-      const live = rows.flatMap((row, i) => (row.plate.kind === "live" ? [i] : []));
-      void Promise.all(live.map((i) => (rows[i].plate.kind === "live" ? recreations[(rows[i].plate as LivePlate).key].load() : undefined))).then(
-        () => setLoaded((was) => new Set([...was, ...live])),
-      );
-    });
-    return () => {
-      if (window.cancelIdleCallback && typeof handle === "number") window.cancelIdleCallback(handle);
-    };
-  }, [fonts]);
-
   /* ---------- Phone: each row's plate and ring ---------- */
   const [phonePlate, setPhonePlate] = useState<Size>({ w: 0, h: 0 });
   useLayoutEffect(() => {
@@ -540,7 +469,7 @@ export default function Draft() {
         return;
       }
       const p = plate.getBoundingClientRect();
-      const box = ringOf(row, reader, target);
+      const box = ringOf(target);
       const x = Math.max(2, box.x - p.left);
       const y = Math.max(2, box.y - p.top);
       ring.style.transform = `translate(${Math.round(x)}px, ${Math.round(y)}px)`;
@@ -1084,7 +1013,7 @@ export default function Draft() {
       <footer className="tr-end">
         <div className="tr-end-in">
           <p>
-            Gentrit Rashiti. Bachelor's degree, UBT. The care and design-system screens are recreations with invented data.
+            Gentrit Rashiti. Bachelor's degree, UBT. The care and design-system screens are real product screens with invented data.
             The other screens come from public pages, store listings and the own projects themselves.
           </p>
           <p className="tr-end-links">

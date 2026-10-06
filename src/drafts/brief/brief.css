@@ -449,18 +449,12 @@ html.bf-html body {
   box-shadow: 0 0 0 1px var(--bf-rule);
 }
 
-.bf-stage {
-  aspect-ratio: var(--a-base);
-  border-radius: 12px;
+.bf-shot {
+  border-radius: 10px;
   box-shadow: 0 0 0 1px var(--bf-rule), 0 18px 40px -24px rgb(21 22 26 / 0.35);
-  color-scheme: light;
 }
 
 @media (min-width: 640px) {
-  .bf-stage {
-    aspect-ratio: var(--a-sm);
-  }
-
   .bf-phones {
     gap: 14px;
   }
@@ -635,10 +629,6 @@ html.bf-html body {
     gap: 56px;
     margin-top: 40px;
     align-items: start;
-  }
-
-  .bf-stage {
-    aspect-ratio: var(--a-lg);
   }
 
   .bf-phones {

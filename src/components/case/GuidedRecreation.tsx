@@ -3,11 +3,9 @@ import { MotionConfig } from 'motion/react'
 import type { MonitorKind } from '../../content/projects'
 
 const demonstrations = {
-  care: lazy(() => import('../../worlds/healthcare/Recreation').then((module) => ({ default: module.Recreation }))),
   'live-room': lazy(() => import('../../worlds/streaming/Recreation').then((module) => ({ default: module.Recreation }))),
   reader: lazy(() => import('../../worlds/reading/Recreation').then((module) => ({ default: module.Recreation }))),
   wallet: lazy(() => import('../../worlds/web3/Recreation').then((module) => ({ default: module.Recreation }))),
-  'design-system': lazy(() => import('../../worlds/design-system/Recreation').then((module) => ({ default: module.Recreation }))),
 }
 
 export default function GuidedRecreation({ kind, step, playing, reduced }: {

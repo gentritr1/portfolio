@@ -16,6 +16,7 @@ import {
 } from "motion/react";
 import { caseNarratives } from "../../content/caseNarratives";
 import { links } from "../../content/links";
+import { CropShot } from "../../components/CropShot";
 import { registerCell } from "./cells";
 import { rows, type LedgerRow } from "./data";
 import { dur, ease, spring } from "./motion";
@@ -56,13 +57,15 @@ function LiveCell({
   const firstDelay = useRef(delay);
   useEffect(
     () =>
-      registerCell(
-        canvas.current!,
-        row.project.slug,
-        row.colour,
-        row.order,
-        firstDelay.current,
-      ),
+      row.screen
+        ? undefined
+        : registerCell(
+            canvas.current!,
+            row.project.slug,
+            row.colour,
+            row.order,
+            firstDelay.current,
+          ),
     [row],
   );
   const shot = row.project.media.shot;
@@ -73,7 +76,7 @@ function LiveCell({
       className="ld-cell"
       data-open={open}
       aria-pressed={pinned}
-      aria-label={`${pinned ? "Shrink" : "Enlarge"} the ${row.project.name} live recreation`}
+      aria-label={`${pinned ? "Shrink" : "Enlarge"} the ${row.project.name} ${row.screen ? "screen" : "live recreation"}`}
       onPointerEnter={(event) => event.pointerType === "mouse" && onPreview(true)}
       onFocus={() => onPreview(true)}
       onBlur={() => onPreview(false)}
@@ -81,8 +84,16 @@ function LiveCell({
       whileTap={reduced ? undefined : { scale: 0.97 }}
       transition={reduced ? { duration: 0.01 } : spring.ui}
     >
-      <canvas ref={canvas} aria-hidden="true" />
-      {shot && (
+      {row.screen ? (
+        <CropShot
+          shot={row.screen}
+          alt=""
+          style={{ width: "auto", height: "100%", margin: "0 auto" }}
+        />
+      ) : (
+        <canvas ref={canvas} aria-hidden="true" />
+      )}
+      {shot && !row.screen && (
         <img
           className="ld-shot"
           src={shot.src}
@@ -534,7 +545,8 @@ export default function Draft() {
           <span className="ld-no">*</span>
           <span>
             Live recreations use invented data. Screenshots come from public
-            store and web pages.
+            store and web pages. The care platform and Design System v2 rows
+            show real product screens with invented data.
           </span>
           <a href="/drafts">All art directions</a>
         </p>

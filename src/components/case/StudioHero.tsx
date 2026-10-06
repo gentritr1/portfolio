@@ -74,7 +74,7 @@ export function StudioHero({ project }: { project: Project }) {
             </div>)}
           </div>
           <div ref={host} className="studio-webgl" aria-hidden data-ready={rendered} />
-          {project.slug === 'care-platform' && <p className="studio-source">Recreation · invented data</p>}
+          {(project.slug === 'care-platform' || project.slug === 'design-system-react') && <p className="studio-source">Real product screens, invented data.</p>}
         </div>
         <div className="studio-caption">
           <p>{composition.platform}</p>

@@ -4,8 +4,6 @@
  */
 @font-face { font-family: "PT Archivo"; src: url("/fonts/Archivo.woff2") format("woff2"); font-weight: 100 900; font-stretch: 62% 125%; font-display: optional; }
 @font-face { font-family: "PT Martian"; src: url("/fonts/MartianMono.woff2") format("woff2"); font-weight: 100 800; font-stretch: 75% 112.5%; font-display: optional; }
-@font-face { font-family: "PT Text"; src: url("/fonts/creative/GentritText-Latin.woff2") format("woff2"); font-weight: 200 900; font-display: optional; }
-@font-face { font-family: "PT Code"; src: url("/fonts/creative/JetBrainsMono-Latin.woff2") format("woff2"); font-weight: 100 800; font-display: optional; }
 
 /*
  * One spacing scale: 4, 8, 12, 16, 24, 32, 48, 64, 96 px.
@@ -511,11 +509,6 @@
   -webkit-user-drag: none;
 }
 
-.pt-live-frame {
-  position: absolute;
-  inset: 0;
-}
-
 .pt-ring {
   position: absolute;
   z-index: 3;
@@ -748,82 +741,6 @@
   font-size: 12px;
   line-height: 16px;
   font-stretch: 87.5%;
-}
-
-/* ---------- Live recreations ---------- */
-
-/* A recreation is drawn at 432 x 270 and scaled down to the tile, never up. */
-.pt-live {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 432px;
-  height: 270px;
-  container-type: inline-size;
-  transform: scale(var(--pt-k, 1));
-  transform-origin: 0 0;
-  background: var(--world-bg);
-  color: var(--ink);
-  font-family: var(--font-sans);
-  font-size: 1rem;
-  line-height: 1.6;
-  letter-spacing: normal;
-  -webkit-font-smoothing: auto;
-}
-
-.pt-live {
-  --font-sans: "PT Archivo", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "PT Martian", ui-monospace, monospace;
-}
-
-.pt-live .dsr {
-  --font-ui: "PT Text", ui-sans-serif, system-ui, sans-serif;
-  --font-code: "PT Code", ui-monospace, monospace;
-}
-
-.pt-live-care footer {
-  display: none;
-}
-
-/* The chart is shown drawn. Its draw-in is for the case page. */
-.pt-live-care svg path {
-  stroke-dasharray: none !important;
-  stroke-dashoffset: 0 !important;
-}
-
-.pt-live-care svg g {
-  opacity: 1 !important;
-  transform: none !important;
-}
-
-.pt-live-design-system .dsr-top,
-.pt-live-design-system .dsr-board > :not(.dsr-area-buttons),
-.pt-live-design-system .dsr-button-rows > :nth-child(n + 3) {
-  display: none;
-}
-
-.pt-live-design-system .dsr-card {
-  opacity: 1 !important;
-  transform: none !important;
-}
-
-.pt-live-design-system .dsr-scroll {
-  overflow: hidden;
-}
-
-.pt-live-design-system .dsr-board {
-  height: 100%;
-  padding: 12px;
-  grid-template-columns: minmax(0, 1fr);
-  grid-template-rows: minmax(0, 1fr);
-  grid-template-areas: "buttons";
-}
-
-/* Nothing inside a tile moves on its own. */
-.pt-live *,
-.pt-live *::before,
-.pt-live *::after {
-  animation-play-state: paused !important;
 }
 
 /* ---------- Own projects ---------- */
@@ -1165,12 +1082,5 @@
 
   .pt > * {
     animation: none;
-  }
-
-  .pt-live *,
-  .pt-live *::before,
-  .pt-live *::after {
-    animation-duration: 0s !important;
-    transition-duration: 0s !important;
   }
 }

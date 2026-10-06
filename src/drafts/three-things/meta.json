@@ -1,0 +1,33 @@
+{
+  "id": "three-things",
+  "title": "THREE THINGS THAT RUN",
+  "band": "Loop 11",
+  "rule": "three things on the page run, and all three are the owner's own projects built from their real code (OFFBEAT drum row, FORM trefoil, Morse Trainer key); everything else is text and real screens; nothing moves until a visitor touches it, except one 16 → 2 figure that plays once in view",
+  "description": "A black page in OFFBEAT's palette. First screen: 'Gentrit Rashiti builds web and mobile apps.' then 'Three things on this page run: a drum machine, a sculpture and a Morse key. Try them.' then '5+ years · part of two platform rewrites · Kosovo, works remotely', and the real care team calendar as a still (Real product screens, invented data). Under it two explaining figures: a stepper 'How a change gets into the new app' (old app, test first, agents build, checks, person approves; a check fails and the dot goes back) with the AI-workflow sentence and links to the care and design-system cases, and 'One billing report' where 16 marks become 2. Then six client screens that open their case pages, then the three live objects, then Offday, FJALË and Za!, then contact.",
+  "signature": "Gentrit Display (Hubot Sans) with the width axis set once for each element: identity wdth 112 wght 700 at 72 px, section names wdth 80 wght 800 caps 28 px, object names and big glyphs wdth 120 wght 700; Public Sans 17/14 for everything else. Ink #0E0E0E, bone #F2EDE4 (16.6:1), muted #A7A29A (7.6:1), hot #FF5A36 for the thing you touch now (6.2:1), acid #D9F26B only for drum cells that are on; the FORM band takes the metal colour. Motion only on a touch: flow dot 450 ms ease-in-out, way-back line 500 ms stroke draw, 16 → 2 in 0.9 s once in view; keyboard presses change state with no motion; reduced motion shows every state still.",
+  "caseSlug": "care-platform",
+  "mechanisms": ["M3 material honesty", "M4 one obsession", "M5 interaction reveals", "M8 sound", "M9 specificity"],
+  "slopCount": 1,
+  "rounds": 1,
+  "loopScores": {
+    "straightToThePoint": 8,
+    "actionsAndSeniority": 8,
+    "original": 7,
+    "hooks": 8,
+    "typeAndColour": 8
+  },
+  "hook": "You tap a few steps on the OFFBEAT drum row and it plays; then you key a K on his Morse trainer and the page tells you it is right.",
+  "holdback": "Lowest: original, 7. 'Live objects on a dark page' is the same family as round 10's live-objects draft, and dark plus one hot accent is close to a slop marker (counted as 1), even though the palette is OFFBEAT's own. Other limits: the phone page is long (8,900 px at 390); the client tiles are a two-column grid, which is a familiar pattern; the trefoil only holds 60 fps with a real GPU (0 frames over 20 ms at 4x throttle on Metal; SwiftShader in plain headless drops about half its frames); sound was not heard in a real browser in this run, only the scheduler and states were checked.",
+  "craft": {
+    "cls": "0 at 375, 390, 540, 1024, 1280, 1440 after a full scroll",
+    "overflow": "0 at all six widths",
+    "targets": "0 controls under 44 px (inline text links in sentences excepted)",
+    "fontWait": "text waits at most 300 ms, font-display optional",
+    "chunk": "Draft chunk 13.0 kB gzip JS + 4.4 kB gzip CSS",
+    "reducedMotion": "0 running animations after the stepper and 16 → 2 clicks; 16 → 2 starts final; no drum step light; no trefoil coast",
+    "framesOver20msAt4x": "stepper 0, 16 → 2 0, drum 0, trefoil 0 (Metal GPU)"
+  },
+  "evidence": {
+    "dir": "scratchpad/r11-concepts/three-things"
+  }
+}

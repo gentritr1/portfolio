@@ -1,5 +1,4 @@
 import {
-  Suspense,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -14,8 +13,8 @@ import {
 import { Link } from "react-router";
 import { useMotionValueEvent, useScroll } from "motion/react";
 import { links } from "../../content/links";
-import { recreations } from "../../lib/recreations";
-import { decisions, type CroppedShot, type Decision, type Measure, type Point } from "./data";
+import { CropShot } from "../../components/CropShot";
+import { decisions, type CroppedShot, type Decision, type Measure, type Plate, type Point } from "./data";
 import "./pinned-decisions.css";
 
 type Pin = "idle" | "anim" | "still";
@@ -166,34 +165,12 @@ function useRideState(pin: Pin) {
   return { state, done: useCallback(() => setRan(true), []) };
 }
 
-/** The specimen lays out for a wide screen, so it renders at that size and scales to the plate. */
-const SPECIMEN = { width: 1600, height: 1000 };
-
-function LivePlate({ decision, mount }: { decision: Decision; mount: boolean }) {
-  const boxRef = useRef<HTMLDivElement>(null);
-  const scaled = decision.plate.kind === "live" && decision.plate.key === "design-system" && mount;
-  useLayoutEffect(() => {
-    const box = boxRef.current;
-    if (!scaled || !box) return;
-    const observer = new ResizeObserver(([entry]) => {
-      box.style.setProperty("--pd-scale", String(entry.contentRect.width / SPECIMEN.width));
-    });
-    observer.observe(box);
-    return () => observer.disconnect();
-  }, [scaled]);
-  if (decision.plate.kind !== "live") return null;
-  const entry = recreations[decision.plate.key];
-  const Recreation = entry.Component;
-  const still = decision.plate.still;
-  const wait = still.src ? (
-    <img src={still.src} alt={still.alt} width={still.width} height={still.height} loading="lazy" decoding="async" />
-  ) : (
-    <div className="pd-wait" />
-  );
-  const live = <Suspense fallback={wait}>{<Recreation />}</Suspense>;
+function ScreenPlate({ plate, wide }: { plate: Extract<Plate, { kind: "screen" }>; wide: boolean }) {
+  if (!wide) return <CropShot shot={plate.narrow} />;
+  if (!plate.center) return <CropShot shot={plate.shot} fill />;
   return (
-    <div className="pd-live" ref={boxRef} data-world={entry.world} data-key={decision.plate.key}>
-      {!mount ? wait : scaled ? <div className="pd-scale">{live}</div> : live}
+    <div className="pd-screen-center" style={{ background: plate.shot.ground }}>
+      <CropShot shot={plate.shot} style={{ width: plate.shot.crop.w, maxWidth: "100%" }} />
     </div>
   );
 }
@@ -315,7 +292,6 @@ function Card({
   pin,
   current,
   wide,
-  mount,
   onJump,
 }: {
   decision: Decision;
@@ -323,17 +299,14 @@ function Card({
   pin: Pin;
   current: boolean;
   wide: boolean;
-  mount: boolean;
   onJump: (id: string, instant: boolean) => void;
 }) {
   const cardRef = useRef<HTMLElement>(null);
   const plateRef = useRef<HTMLDivElement>(null);
   const dotRef = useRef<HTMLSpanElement>(null);
-  const paused = useRef(false);
   const signature = useRef("");
   const [geometry, setGeometry] = useState<Geometry | null>(null);
   const { plate, point } = decision;
-  const liveNow = plate.kind === "live" && mount && (wide || plate.key === "care");
 
   const measure = useCallback(() => {
     const card = cardRef.current;
@@ -348,29 +321,18 @@ function Card({
     });
     const p = rel(plateBox.getBoundingClientRect());
     let target: Box | null = null;
-    if (liveNow && point.css) {
-      const element = plateBox.querySelector<HTMLElement>(point.css);
-      if (element) target = rel(element.getBoundingClientRect());
-    } else if (point.rect) {
-      const image =
-        plate.kind === "shot" ? plate.shot : plate.kind === "live" && plate.still.src ? plate.still : null;
-      if (image) {
-        const scale = p.w / image.width;
-        const [x, y, w, h] = point.rect;
-        target = {
-          x: Math.round(p.x + x * scale),
-          y: Math.round(p.y + y * scale),
-          w: Math.round(w * scale),
-          h: Math.round(h * scale),
-        };
-      }
-    }
-    if (liveNow && plate.kind === "live" && plate.key === "design-system" && !paused.current) {
-      const demo = plateBox.querySelector<HTMLButtonElement>('.dsr-demo[aria-pressed="true"]');
-      if (demo) {
-        paused.current = true;
-        demo.click();
-      }
+    const [x, y, w, h] = point.rect;
+    const image = plate.kind === "screen" ? plateBox.querySelector("img") : null;
+    const frame = image ? rel(image.getBoundingClientRect()) : plate.kind === "shot" ? p : null;
+    const width = plate.kind === "screen" ? (wide ? plate.shot : plate.narrow).width : plate.kind === "shot" ? plate.shot.width : 0;
+    if (frame && width) {
+      const scale = frame.w / width;
+      target = {
+        x: Math.round(frame.x + x * scale),
+        y: Math.round(frame.y + y * scale),
+        w: Math.round(w * scale),
+        h: Math.round(h * scale),
+      };
     }
     if (!target || target.w === 0) return;
     const dot = dotRef.current?.getBoundingClientRect();
@@ -385,7 +347,7 @@ function Card({
       signature.current = key;
       setGeometry(next);
     }
-  }, [point, plate, liveNow]);
+  }, [point, plate, wide]);
 
   useLayoutEffect(() => {
     const card = cardRef.current;
@@ -455,7 +417,7 @@ function Card({
       </header>
 
       <div className="pd-plate" ref={plateRef} data-kind={plate.kind}>
-        {plate.kind === "live" && <LivePlate decision={decision} mount={liveNow} />}
+        {plate.kind === "screen" && <ScreenPlate plate={plate} wide={wide} />}
         {plate.kind === "shot" && (
           <img
             src={plate.shot.src}
@@ -586,7 +548,6 @@ export default function Draft() {
   const reduced = useMedia("(prefers-reduced-motion: reduce)");
   const [current, setCurrent] = useState(0);
   const [pins, setPins] = useState<Record<string, Pin>>({});
-  const [near, setNear] = useState<Record<string, boolean>>({ "0010": true });
   const stackRef = useRef<HTMLDivElement>(null);
   const rowsRef = useRef<HTMLOListElement>(null);
   const tops = useRef<number[]>([]);
@@ -655,20 +616,6 @@ export default function Draft() {
 
   useMotionValueEvent(scrollY, "change", read);
 
-  useEffect(() => {
-    const stack = stackRef.current;
-    if (!stack) return;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const seen = entries.filter((entry) => entry.isIntersecting).map((entry) => (entry.target as HTMLElement).id.slice(2));
-        if (seen.length) setNear((previous) => ({ ...previous, ...Object.fromEntries(seen.map((id) => [id, true])) }));
-      },
-      { rootMargin: "100% 0px" },
-    );
-    stack.querySelectorAll(".pd-card").forEach((card) => observer.observe(card));
-    return () => observer.disconnect();
-  }, []);
-
   const jump = useCallback(
     (id: string, keyboard: boolean) => {
       const index = decisions.findIndex((decision) => decision.id === id);
@@ -717,7 +664,6 @@ export default function Draft() {
               pin={pins[decision.id] ?? "idle"}
               current={index === current}
               wide={wide}
-              mount={Boolean(near[decision.id])}
               onJump={jump}
             />
           ))}
@@ -732,8 +678,8 @@ export default function Draft() {
 
       <footer className="pd-end-note">
         <p>
-          Every Vianova screen on this page is a recreation with invented data. The other screens come from public
-          pages and store listings. Bachelor's degree, UBT. Based in Kosovo, working remotely.
+          The Vianova care and design-system screens are real product screens with invented data. The other screens
+          come from public pages and store listings. Bachelor's degree, UBT. Based in Kosovo, working remotely.
         </p>
         <p className="pd-end-links">
           <a href={`mailto:${links.email}`}>{links.email}</a>

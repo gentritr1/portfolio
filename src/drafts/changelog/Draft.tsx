@@ -15,7 +15,7 @@ import {
 } from "motion/react";
 import { PlusIcon } from "@phosphor-icons/react";
 import { links } from "../../content/links";
-import { recreations } from "../../lib/recreations";
+import { CropShot } from "../../components/CropShot";
 import {
   addedScope,
   newest,
@@ -137,9 +137,6 @@ function ChangeRow({ release, change, index, open, instant, layout, onToggle, on
   const number = `${release.major}.${index + 1}`;
   const plateId = `cl-plate-${release.major}-${index + 1}`;
   const plate = change.plate;
-  const preload = () => {
-    if (plate?.kind === "recreation") void recreations[plate.recreation].load();
-  };
   return (
     <motion.li layout="position" transition={{ layout }} className="cl-change">
       <span className="cl-kind">{change.kind}</span>
@@ -165,16 +162,13 @@ function ChangeRow({ release, change, index, open, instant, layout, onToggle, on
           aria-controls={plateId}
           aria-label={`${open ? "Hide" : "Show"} plate ${number}: ${plate.title}`}
           onClick={onToggle}
-          onPointerEnter={preload}
-          onFocus={preload}
         >
           <span className="cl-fig-thumb">
-            <picture>
-              {plate.thumbDark && (
-                <source media="(prefers-color-scheme: dark)" srcSet={plate.thumbDark} />
-              )}
+            {plate.kind === "shot" ? (
+              <CropShot shot={plate.thumb} alt="" fill />
+            ) : (
               <img src={plate.thumb} alt="" loading="lazy" decoding="async" width={128} height={80} />
-            </picture>
+            )}
           </span>
           <span className="cl-fig-label">
             Plate {number}
@@ -374,9 +368,9 @@ export default function Draft() {
               <motion.footer layout="position" transition={{ layout }} className="cl-colophon">
                 <h2>Colophon</h2>
                 <p>
-                  Set in Newsreader. The care platform and the design system are
-                  recreations with invented data; every other screen comes from a
-                  public page or a store listing.
+                  Set in Newsreader. The Vianova care and design-system screens are
+                  real product screens with invented data. Every other screen comes
+                  from a public page or a store listing.
                 </p>
                 <p className="cl-colophon-links">
                   <a href={`mailto:${links.email}`}>{links.email}</a>

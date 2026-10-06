@@ -1,96 +1,15 @@
-import { useEffect, useRef, useState, type MouseEvent } from "react";
 import { Link } from "react-router";
+import { CropShot } from "../../components/CropShot";
+import { careShots } from "../../content/careShots";
 import { links } from "../../content/links";
-import {
-  areas,
-  facts,
-  orgs,
-  scenarioOf,
-  units,
-  work,
-  type Action,
-  type ScreenState,
-} from "./data";
-import { Plate, Swap } from "./Plate";
+import { areas, facts, work } from "./data";
 import "./same-behaviour.css";
 
-interface Run {
-  scenario: string;
-  instant: boolean;
-  pending: boolean;
-}
-
-const controls: Array<{
-  action: Action;
-  label: [string, string];
-  short: [string, string];
-}> = [
-  {
-    action: "org",
-    label: ["Switch organization", "Switch organization"],
-    short: ["Switch org", "Switch org"],
-  },
-  {
-    action: "unit",
-    label: ["Toggle unit", "Toggle unit"],
-    short: ["Toggle unit", "Toggle unit"],
-  },
-  {
-    action: "alert",
-    label: ["Open alert", "Close alert"],
-    short: ["Open alert", "Close alert"],
-  },
-];
+const screen = careShots.glucoseChart;
 
 export default function Draft() {
-  const [state, setState] = useState<ScreenState>({
-    org: 0,
-    unit: 0,
-    alert: false,
-  });
-  const [run, setRun] = useState<Run>({
-    scenario: "open the vitals card",
-    instant: true,
-    pending: false,
-  });
-  const timer = useRef<number | undefined>(undefined);
-
-  useEffect(() => () => window.clearTimeout(timer.current), []);
-
-  function act(action: Action, instant: boolean) {
-    const scenario = scenarioOf(action, state);
-    setState((s) =>
-      action === "org"
-        ? { ...s, org: s.org ? 0 : 1 }
-        : action === "unit"
-          ? { ...s, unit: s.unit ? 0 : 1 }
-          : { ...s, alert: !s.alert },
-    );
-    window.clearTimeout(timer.current);
-    setRun({ scenario, instant, pending: !instant });
-    if (!instant) {
-      const reduce = window.matchMedia(
-        "(prefers-reduced-motion: reduce)",
-      ).matches;
-      timer.current = window.setTimeout(
-        () => setRun((r) => ({ ...r, pending: false })),
-        reduce ? 120 : 200,
-      );
-    }
-  }
-
-  const fromControl =
-    (action: Action) => (event: MouseEvent<HTMLButtonElement>) =>
-      act(action, event.detail === 0);
-  const fromPlate = (action: Action) => act(action, false);
-
-  const org = orgs[state.org];
-  const said = `${run.scenario}: both apps show ${org.name}, ${org.patient}, ${units[state.unit]}${
-    state.alert ? ", alert open" : ""
-  }. Same behaviour.`;
-
   return (
-    <div className="sb" data-instant={run.instant || undefined}>
+    <div className="sb">
       <title>Gentrit Rashiti — same behaviour</title>
       <section className="sb-stage" aria-labelledby="sb-who">
         <header className="sb-head">
@@ -104,67 +23,13 @@ export default function Draft() {
           </nav>
         </header>
 
-        <div className="sb-pair">
-          <figure className="sb-side sb-side-a">
-            <figcaption className="sb-label">
-              <span>Nuxt 2 · 2023</span>
-              <span>Recreation · invented data</span>
-            </figcaption>
-            <div className="sb-plate">
-              <Plate era="nuxt" state={state} onAct={fromPlate} />
-            </div>
-          </figure>
-
-          <div className="sb-verdict" data-pending={run.pending || undefined}>
-            <p className="sb-scenario">{run.scenario}</p>
-            <p className="sb-check">
-              same behaviour
-              <svg viewBox="0 0 12 12" aria-hidden="true">
-                <path d="M2.5 6.4 5 8.8l4.6-5.6" />
-              </svg>
-            </p>
-          </div>
-
-          <figure className="sb-side sb-side-b">
-            <figcaption className="sb-label">
-              <span>React · 2026</span>
-              <span>Recreation · invented data</span>
-            </figcaption>
-            <div className="sb-plate">
-              <Plate era="react" state={state} onAct={fromPlate} />
-            </div>
-          </figure>
-        </div>
-
-        <p className="sb-live" aria-live="polite">
-          {run.pending ? "" : said}
-        </p>
-
-        <div
-          className="sb-controls"
-          role="group"
-          aria-label="Run one scenario on both apps"
-        >
-          {controls.map((c) => {
-            const on = c.action === "alert" && state.alert ? 1 : 0;
-            return (
-              <button
-                key={c.action}
-                type="button"
-                className="sb-control"
-                aria-label={c.label[on]}
-                onClick={fromControl(c.action)}
-              >
-                <span className="sb-long">
-                  <Swap index={on} items={c.label} />
-                </span>
-                <span className="sb-short" aria-hidden="true">
-                  <Swap index={on} items={c.short} />
-                </span>
-              </button>
-            );
-          })}
-        </div>
+        <figure className="sb-screen" style={{ maxWidth: screen.crop.w }}>
+          <figcaption className="sb-label">
+            <span>React · 2026</span>
+            <span>Real product screens · invented data</span>
+          </figcaption>
+          <CropShot shot={screen} className="sb-plate" eager />
+        </figure>
 
         <p className="sb-rule">
           A route moves to React only after its test passes on both apps.
@@ -203,7 +68,7 @@ export default function Draft() {
               <li key={a}>
                 <span>{a}</span>
                 {a === "Labs and vitals" ? (
-                  <span className="sb-here">the card above</span>
+                  <span className="sb-here">the screen above</span>
                 ) : null}
               </li>
             ))}
@@ -254,8 +119,7 @@ export default function Draft() {
           </a>
         </nav>
         <p className="sb-note">
-          The two care screens are recreations with invented data. No
-          screenshots of client work.
+          The care screen is a real product screen with invented data.
         </p>
       </footer>
     </div>

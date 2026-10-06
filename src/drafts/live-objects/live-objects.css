@@ -36,8 +36,8 @@
 }
 .lo[data-material="chrome"] { --lo-accent: #9eb3c7; }
 .lo[data-material="porcelain"] { --lo-accent: #a3c9b4; }
-.lo:not([data-ready]) :is(.lo-head, .lo-intro, .lo-caption, .lo-swatch, .lo-form-foot > .lo-link, .lo-track, .lo-steps, .lo-drum-foot, .lo-care > :not(.lo-world), .lo-band-title, .lo-client-text, .lo-offday-text, .lo-own-list, .lo-foot),
-.lo:not([data-ready]) :is(.lo-head, .lo-intro, .lo-caption, .lo-swatch, .lo-form-foot > .lo-link, .lo-track, .lo-steps, .lo-drum-foot, .lo-care > :not(.lo-world), .lo-band-title, .lo-client-text, .lo-offday-text, .lo-own-list, .lo-foot) * { color: transparent !important; text-decoration-color: transparent !important; }
+.lo:not([data-ready]) :is(.lo-head, .lo-intro, .lo-caption, .lo-swatch, .lo-form-foot > .lo-link, .lo-track, .lo-steps, .lo-drum-foot, .lo-care > :not(.lo-care-frame), .lo-band-title, .lo-client-text, .lo-offday-text, .lo-own-list, .lo-foot),
+.lo:not([data-ready]) :is(.lo-head, .lo-intro, .lo-caption, .lo-swatch, .lo-form-foot > .lo-link, .lo-track, .lo-steps, .lo-drum-foot, .lo-care > :not(.lo-care-frame), .lo-band-title, .lo-client-text, .lo-offday-text, .lo-own-list, .lo-foot) * { color: transparent !important; text-decoration-color: transparent !important; }
 .lo *, .lo *::before, .lo *::after { box-sizing: border-box; }
 .lo :focus-visible { outline: 2px solid var(--lo-accent); outline-offset: 3px; }
 .lo a { color: inherit; }
@@ -237,7 +237,7 @@
 }
 .lo-play:active { transform: scale(0.96); }
 
-/* ---------- Care recreation ---------- */
+/* ---------- Care platform ---------- */
 
 .lo-result {
   margin: 8px 0 0;
@@ -249,20 +249,8 @@
   line-height: 1.25;
   letter-spacing: -0.005em;
 }
-.lo-care-frame { margin-top: 16px; aspect-ratio: 16 / 10; }
+.lo-care-frame { margin-top: 16px; border-radius: 12px; }
 .lo-care-note { margin: 12px 0 0; max-width: 56ch; color: var(--lo-muted); font-size: 15px; line-height: 1.45; }
-.lo-world {
-  position: relative;
-  container-type: inline-size;
-  border-radius: 12px;
-  overflow: hidden;
-  background: var(--world-bg);
-  color: var(--ink);
-  font-size: 16px;
-  line-height: 1.6;
-  -webkit-font-smoothing: auto;
-}
-.lo-world .font-mono { font-family: var(--lo-text); font-variant-numeric: tabular-nums; letter-spacing: 0; }
 
 /* ---------- Bands ---------- */
 
@@ -359,14 +347,12 @@
   .lo-objects { grid-template-columns: minmax(0, 1fr) minmax(0, 500px); gap: 40px; }
   .lo-client-row, .lo-offday { grid-template-columns: minmax(0, 300px) minmax(0, 1fr); gap: 40px; }
   .lo-client-row { --shot-h: 300px; }
-  .lo-care-frame { aspect-ratio: 4 / 3; }
 }
 
 @media (max-width: 960px) {
   .lo { padding: 0 32px; }
   .lo-objects { grid-template-columns: 1fr; gap: 64px; }
   .lo-client-row, .lo-offday, .lo-drums { grid-template-columns: 1fr; gap: 24px; }
-  .lo-care-frame { aspect-ratio: 16 / 10; }
 }
 
 @media (max-width: 720px) {
@@ -381,7 +367,6 @@
   .lo-stage { height: clamp(280px, calc(100svh - 500px), 380px); }
   .lo-swatches { gap: 4px; }
   .lo-swatch { padding: 0 12px 0 10px; font-size: 14px; }
-  .lo-care-frame { aspect-ratio: 1 / 1; }
   .lo-result, .lo-lede, .lo-row-name { font-size: 20px; }
 
   .lo-band-title { font-size: 26px; margin-bottom: 32px; }
@@ -404,10 +389,6 @@
   .lo-steps span { grid-row: calc(var(--s) + 2); grid-column: 1; height: 44px; line-height: 44px; text-align: left; }
 
   .lo-foot { margin-top: 96px; }
-}
-
-@media (max-width: 480px) {
-  .lo-care-frame { aspect-ratio: 4 / 5; }
 }
 
 @media (min-width: 1024px) {

@@ -1,9 +1,11 @@
 import { projects, groupPeriods, type Project, type ProjectGroupName } from '../../content/projects'
+import { careShots, dsShots, REAL_SCREENS, type ScreenShot } from '../../content/careShots'
 
 export type Scope = 'Web' | 'API' | 'System' | 'Mobile' | 'Site' | 'Library' | 'Game' | '3D'
 
 export type Media =
   | { kind: 'shot'; src: string; alt: string; note?: string }
+  | { kind: 'screen'; shot: ScreenShot; note: string }
   | { kind: 'phones'; srcs: string[]; alt: string }
   | { kind: 'readout'; value: string; to?: string; label: string }
 
@@ -27,7 +29,7 @@ const entries: Record<string, Entry> = {
     accent: '#7fd1c4',
     problem: 'A live multi-tenant care platform had to leave Vue without losing a behaviour.',
     result: 'Each route moves to React only after its parity tests pass against both apps.',
-    media: { kind: 'shot', src: '/signal-posters/healthcare.avif', alt: 'Vitals trend card for Patient 4821 at Northwind Clinic, two readings marked as alerts', note: recreation },
+    media: { kind: 'screen', shot: careShots.glucoseChart, note: REAL_SCREENS },
   },
   'care-api': {
     name: 'Care-management API',
@@ -45,7 +47,7 @@ const entries: Record<string, Entry> = {
     accent: '#a3b0ff',
     problem: 'A new React dashboard needed one accessible base, from tokens to controls.',
     result: '36 components, 20 releases in about six weeks. A Button-only consumer loads 96.6% less JavaScript.',
-    media: { kind: 'shot', src: '/showcase/design-system/specimen-dark.webp', alt: 'Component specimen of an invented project-tracker kit: token tiers, alerts, inputs, steps and a toast', note: recreation },
+    media: { kind: 'screen', shot: { ...dsShots.top, crop: { x: 8, y: 12, w: 704, h: 396 } }, note: REAL_SCREENS },
   },
   'design-system-vue': {
     name: 'Design system, Vue',

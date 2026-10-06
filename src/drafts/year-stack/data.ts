@@ -1,3 +1,4 @@
+import { careShots, REAL_SCREENS } from "../../content/careShots";
 import { findProject } from "../../content/projects";
 
 export interface Box {
@@ -7,21 +8,19 @@ export interface Box {
   h: number;
 }
 
-/** A pin ends on a part of a live plate (a selector) or on a box in the plate's image, in fractions of the whole image. */
-export type PinTarget = { kind: "selector"; css: string } | { kind: "image"; box: Box };
+/** A pin ends on a box in the plate's image, in fractions of the whole image. */
+export type PinTarget = { kind: "image"; box: Box };
 
 /**
  * The line enters the plate from its left edge. "side" enters at the part's height.
- * "lane" enters along a rule of the plate (an element's top edge) or at a clear row
- * (a fraction of the image height), then turns onto the part, so it never crosses
- * the plate's top edge.
+ * "lane" enters at a clear row (a fraction of the image height), then turns onto the
+ * part, so it never crosses the plate's top edge.
  */
-export type PinRoute = { kind: "side" } | { kind: "lane"; along: string } | { kind: "lane"; y: number };
+export type PinRoute = { kind: "side" } | { kind: "lane"; y: number };
 
 export interface Pin {
   target: PinTarget;
   route: PinRoute;
-  pill?: boolean;
 }
 
 export interface Shot {
@@ -33,7 +32,6 @@ export interface Shot {
 
 /** A crop keeps the box of the image, in fractions; it always ends on a whole row of the screen. */
 export type Plate =
-  | { kind: "care"; caption: string }
   | { kind: "web"; shot: Shot; crop: Box; caption: string; dark?: boolean }
   | { kind: "phone"; shot: Shot; crop: Box; caption: string };
 
@@ -85,12 +83,13 @@ export const years: Year[] = [
         result: "36 components, 805 tokens, 20 releases",
       },
     ],
-    plate: { kind: "care", caption: "Recreation with invented data" },
-    pin: {
-      target: { kind: "selector", css: 'button[aria-label^="Organization"]' },
-      route: { kind: "lane", along: ".border-t" },
-      pill: true,
+    plate: {
+      kind: "web",
+      shot: { src: careShots.overview.src, alt: careShots.overview.alt, width: 1440, height: 900 },
+      crop: { x: 0.1639, y: 0.0622, w: 0.8361, h: 0.8733 },
+      caption: REAL_SCREENS,
     },
+    pin: { target: { kind: "image", box: { x: 0.1993, y: 0.3478, w: 0.1056, h: 0.1711 } }, route: { kind: "side" } },
     link: { label: "Open the case", href: "/work/care-platform" },
   },
   {

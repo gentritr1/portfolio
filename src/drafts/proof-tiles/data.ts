@@ -1,3 +1,5 @@
+import { careShots, dsShots } from "../../content/careShots";
+
 /** A rectangle in source pixels of an image. */
 export interface Box {
   x: number;
@@ -38,7 +40,6 @@ export interface Shot {
 
 export type Media =
   | { kind: "shot"; shot: Shot }
-  | { kind: "live"; key: "care" | "design-system"; mark: string; alt: string }
   | { kind: "figure" };
 
 export interface Tile {
@@ -57,7 +58,8 @@ export interface Tile {
   /** Mean colour of the crop. The tile shows it until the picture arrives. */
   ground: string;
   dark?: boolean;
-  recreation?: boolean;
+  /** A real product screen with invented data. */
+  real?: boolean;
   link?: { href: string; label: string; external?: boolean };
 }
 
@@ -77,19 +79,28 @@ export const work: Tile[] = [
   {
     id: "care",
     project: "Care platform",
-    caption: "Each client organization sees only its own patients.",
-    proof: "Each client organization",
+    caption: "Care teams follow vitals from connected devices.",
+    proof: "vitals from connected devices",
     role: "Frontend",
     year: "2023–26",
     media: {
-      kind: "live",
-      key: "care",
-      mark: 'button[aria-haspopup="listbox"]',
-      alt: "Vitals card for one patient, with a switch between two client organizations. Recreation with invented data.",
+      kind: "shot",
+      shot: {
+        src: careShots.glucose.src,
+        alt: careShots.glucoseChart.alt,
+        width: 2880,
+        height: 1800,
+        density: 2,
+        crops: [
+          { x: 510, y: 168, w: 1160, h: 290, phone: true },
+          { x: 510, y: 300, w: 1520, h: 950 },
+        ],
+        mark: { x: 1436, y: 326, w: 210, h: 106 },
+      },
     },
-    hue: 185,
-    ground: "#eef4f2",
-    recreation: true,
+    hue: 45,
+    ground: "#fdfdfe",
+    real: true,
     link: { href: "/work/care-platform", label: "Open the case" },
   },
   {
@@ -126,14 +137,28 @@ export const work: Tile[] = [
     role: "Design system, with the team",
     year: "2026",
     media: {
-      kind: "live",
-      key: "design-system",
-      mark: ".dsr-area-buttons .dsr-row",
-      alt: "Button card of a component specimen: primary, secondary and ghost buttons in three sizes. Recreation with invented data.",
+      kind: "shot",
+      shot: {
+        src: dsShots.buttonAlert.src,
+        alt: dsShots.buttonAlert.alt,
+        width: 1440,
+        height: 1192,
+        density: 2,
+        crops: [
+          {
+            x: 16,
+            y: 0,
+            w: 1376,
+            h: 860,
+            clip: { x: 16, y: 0, w: 1376, h: 796 },
+          },
+        ],
+        mark: { x: 32, y: 48, w: 1304, h: 184 },
+      },
     },
-    hue: 253,
-    ground: "#f2f4f8",
-    recreation: true,
+    hue: 225,
+    ground: "#ffffff",
+    real: true,
     link: { href: "/work/design-system-react", label: "Open the case" },
   },
   {

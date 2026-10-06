@@ -196,7 +196,7 @@
 .draft-aisle .as-label-detail dt{font-weight:650}
 .draft-aisle .as-label-detail nav{display:flex;flex-wrap:wrap;gap:0 24px;margin-top:16px}
 .draft-aisle .as-label-detail nav>a{display:flex;align-items:center;gap:12px;min-height:44px;font-size:13px;font-weight:600}
-.draft-aisle .as-label-detail img{display:block;width:100%;max-height:420px;object-fit:contain;object-position:top left}
+.draft-aisle .as-label-detail>figure>img{display:block;width:100%;max-height:420px;object-fit:contain;object-position:top left}
 .draft-aisle .as-label-detail figcaption{margin-top:8px;font-family:'Courier Prime',monospace;font-size:11px}
 
 /* Footer */
@@ -215,7 +215,8 @@
 .draft-aisle .as-care-paper{position:relative;display:block;width:100%;height:100%;transform-style:preserve-3d;z-index:1}
 .draft-aisle .as-care-front,.draft-aisle .as-care-back{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;background:#fffbed;box-shadow:0 6px 13px #17191322}
 .draft-aisle .as-care-front{display:flex;flex-direction:column;padding:8px}
-.draft-aisle .as-care-front>img{display:block;min-height:0;flex:1;width:100%;height:calc(100% - 24px);object-fit:cover}
+.draft-aisle .as-care-shot{flex:none;width:100%}
+.draft-aisle .as-care-front{justify-content:space-between}
 .draft-aisle .as-care-front>span{font:10px 'Courier Prime',monospace;line-height:1.3;padding-top:8px}
 .draft-aisle .as-care-back{transform:rotateY(180deg);display:flex;flex-direction:column;justify-content:center;padding:12px 16px;gap:4px}
 .draft-aisle .as-care-back>strong{font-size:20px;line-height:1.2;margin-top:8px}

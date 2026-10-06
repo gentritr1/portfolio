@@ -1,8 +1,8 @@
-import { Suspense, useEffect, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { Link } from "react-router";
 import { ArrowRightIcon, ArrowUpRightIcon } from "@phosphor-icons/react";
 import { links } from "../../content/links";
-import { recreations } from "../../lib/recreations";
+import { CropShot } from "../../components/CropShot";
 import { briefs, otherProjects, type Brief, type Media } from "./briefs";
 import { Proof } from "./Proof";
 import "./brief.css";
@@ -19,20 +19,10 @@ function go(id: string) {
 }
 
 function Work({ media, name }: { media: Media; name: string }) {
-  if (media.kind === "recreation") {
-    const entry = recreations[media.key];
-    const Recreation = entry.Component;
+  if (media.kind === "shot") {
     return (
-      <figure className="bf-work" data-kind="recreation" data-key={media.key}>
-        <div
-          className="bf-stage @container relative overflow-hidden bg-surface"
-          data-world={entry.world}
-          style={{ "--a-base": entry.aspect.base, "--a-sm": entry.aspect.sm, "--a-lg": entry.aspect.lg } as CSSProperties}
-        >
-          <Suspense fallback={null}>
-            <Recreation />
-          </Suspense>
-        </div>
+      <figure className="bf-work" data-kind="shot">
+        <CropShot shot={media.shot} className="bf-shot" style={{ maxWidth: media.shot.crop.w }} />
         <figcaption>{media.label}</figcaption>
       </figure>
     );
@@ -280,8 +270,8 @@ export default function Draft() {
             </li>
           </ul>
           <p className="bf-note">
-            Bachelor's degree, UBT. Vianova screens on this page are recreations with invented data; every screenshot
-            comes from a public page or store listing.
+            Bachelor's degree, UBT. The Vianova care and design-system screens on this page are real product screens
+            with invented data. Every other screenshot comes from a public page or store listing.
           </p>
         </footer>
       </main>

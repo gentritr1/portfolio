@@ -74,27 +74,6 @@
 .draft-canvas .dc-sr { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 
 /* The live artboards use the same native controls in the spatial and linear views. */
-.draft-canvas .dc-care { height: 100%; display: flex; flex-direction: column; padding: 20px 24px; background: #f9faf1; color: #16372f; --chart: #167365; }
-.draft-canvas .dc-care[data-clinic="1"] { --chart: #394fc3; }
-.draft-canvas .dc-care-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; border-bottom: 1px solid #d6dfd1; padding-bottom: 8px; }
-.draft-canvas .dc-care-top select { background: transparent; border: 0; padding: 0 20px 0 0; max-width: 65%; font-size: 15px; color: #16372f; font-weight: 600; }
-.draft-canvas .dc-care-top > span { font-size: 13px; }
-.draft-canvas .dc-care-reading { display: flex; align-items: center; justify-content: space-between; margin-top: 16px; gap: 16px; }
-.draft-canvas .dc-care-reading p { font-size: 13px; }
-.draft-canvas .dc-care-reading strong { display: block; margin-top: 4px; font-size: 42px; line-height: 1.05; font-weight: 550; letter-spacing: -.025em; font-variant-numeric: tabular-nums; }
-.draft-canvas .dc-care-reading strong span { color: #658176; }
-.draft-canvas .dc-care-reading button { border: 1px solid #8dada0; min-width: 64px; padding: 0 12px; font-size: 14px; }
-.draft-canvas .dc-care > svg { flex: 1; min-height: 100px; width: 100%; margin: 10px 0; overflow: visible; }
-.draft-canvas .dc-care svg text { font: 12px "Archivo", sans-serif; fill: #426052; }
-.draft-canvas .dc-chart-grid { stroke: #d9e2d5; stroke-width: 1; }
-.draft-canvas .dc-chart-threshold { stroke: #b94e34; stroke-width: 1; stroke-dasharray: 5 6; }
-.draft-canvas .dc-chart-sys { stroke: var(--chart); stroke-width: 3; fill: none; stroke-linejoin: round; }
-.draft-canvas .dc-chart-dia { stroke: #93aaa1; stroke-width: 2; fill: none; stroke-linejoin: round; }
-.draft-canvas .dc-chart-marker { stroke: #849e92; stroke-width: 1; stroke-dasharray: 2 4; }
-.draft-canvas .dc-chart-point { fill: var(--chart); stroke: #fff; stroke-width: 3; }
-.draft-canvas .dc-care-bottom { display: flex; align-items: center; justify-content: space-between; gap: 8px; border-top: 1px solid #d6dfd1; padding-top: 4px; font-size: 13px; }
-.draft-canvas .dc-care-bottom button { padding: 0 8px; }
-.draft-canvas .dc-care-bottom button:hover:not(:disabled) { background: #e2ecdd; }
 .draft-canvas .dc-reader { height: 100%; padding: 24px 30px; display: flex; flex-direction: column; background: #fff8e7; color: #452b1b; }
 .draft-canvas .dc-reader-top, .draft-canvas .dc-reader-bottom { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 13px; }
 .draft-canvas .dc-reader button { padding: 0 8px; border: 1px solid #aa8f6f; }
@@ -140,9 +119,9 @@
 .draft-canvas .dc-case-story p { max-width: 65ch; }
 .draft-canvas .dc-case-demo { max-width: 920px; margin: 56px auto; }
 .draft-canvas .dc-case-demo-title { margin-bottom: 18px; }
+.draft-canvas .dc-case-shot { border-radius: 6px; box-shadow: 0 0 0 1px #35441424, 0 18px 40px -24px #35441440; }
 .draft-canvas .dc-case-demo-title h3 { font-size: 24px; font-weight: 550; }
 .draft-canvas .dc-case-demo-title p { margin-top: 6px; font-size: 15px; }
-.draft-canvas .dc-case-demo > .dc-care { height: 520px; padding: 28px 36px; }
 .draft-canvas .dc-case-results { display: grid; grid-template-columns: 1fr 2fr; gap: 48px; margin-top: 48px; }
 .draft-canvas .dc-case-results h3 { font-size: 28px; font-weight: 550; }
 .draft-canvas .dc-case-results p { max-width: 70ch; font-size: 18px; line-height: 1.7; }
@@ -193,15 +172,6 @@
   .draft-canvas .dc-project-controls button { padding: 0 9px; font-size: 12px; }
   .draft-canvas .dc-project-controls .dc-solid { padding: 0 12px; }
   .draft-canvas .dc-camera-controls { margin: 0; }
-  .draft-canvas .dc-care { padding: 12px 14px; }
-  .draft-canvas .dc-care-top { gap: 6px; }
-  .draft-canvas .dc-care-top select { font-size: 13px; max-width: 72%; }
-  .draft-canvas .dc-care-top > span { font-size: 10px; max-width: 60px; }
-  .draft-canvas .dc-care-reading strong { font-size: 32px; }
-  .draft-canvas .dc-care-reading { margin-top: 12px; }
-  .draft-canvas .dc-care-reading button { min-width: 54px; padding: 0 7px; font-size: 12px; }
-  .draft-canvas .dc-care-bottom { font-size: 11px; }
-  .draft-canvas .dc-care-bottom button { padding: 0 4px; }
   .draft-canvas .dc-reader { padding: 14px 18px; }
   .draft-canvas .dc-reader h3 { font-size: 25px; margin-top: 16px; }
   .draft-canvas .dc-reader-passage { font-size: 16px; line-height: 1.45; margin-top: 16px; }
@@ -223,7 +193,6 @@
   .draft-canvas .dc-case-story, .draft-canvas .dc-case-results { grid-template-columns: 1fr; gap: 24px; margin-top: 28px; }
   .draft-canvas .dc-case-story, .draft-canvas .dc-case-results p { font-size: 16px; }
   .draft-canvas .dc-case-demo { margin: 36px 0; }
-  .draft-canvas .dc-case-demo > .dc-care { height: 390px; padding: 14px; }
   .draft-canvas .dc-case-demo-title h3 { font-size: 22px; }
   .draft-canvas .dc-case-demo-title p { font-size: 14px; }
   .draft-canvas .dc-case-facts { gap: 24px 16px; }

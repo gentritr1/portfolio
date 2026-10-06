@@ -383,6 +383,7 @@ body:has(.cl) {
 }
 
 .cl-fig-thumb {
+  position: relative;
   display: block;
   width: 100%;
   aspect-ratio: 16 / 10;
@@ -392,10 +393,6 @@ body:has(.cl) {
   outline: 1px solid var(--cl-rule);
   outline-offset: -1px;
   transition: transform 160ms var(--cl-ease), outline-color 160ms ease;
-}
-
-.cl-fig-thumb picture {
-  display: contents;
 }
 
 .cl-fig-thumb img {
@@ -439,42 +436,10 @@ body:has(.cl) {
   margin: 20px 0 4px;
 }
 
-.cl-stage {
-  position: relative;
-  font-family: var(--font-sans);
-  font-size: 1rem;
-  line-height: 1.6;
-  font-variant-numeric: normal;
-  color: var(--ink);
-  caret-color: var(--signal);
-  width: 100%;
-  aspect-ratio: var(--a-base);
-  overflow: hidden;
-  container-type: inline-size;
-  background: var(--surface);
+.cl-shot {
   border-radius: 4px;
   outline: 1px solid var(--cl-rule);
   outline-offset: -1px;
-}
-
-@media (min-width: 640px) {
-  .cl-stage {
-    aspect-ratio: var(--a-sm);
-  }
-}
-
-@media (min-width: 1024px) {
-  .cl-stage {
-    aspect-ratio: var(--a-lg);
-  }
-}
-
-.cl-stage-poster {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
 }
 
 .cl-shots {

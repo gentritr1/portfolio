@@ -1,3 +1,10 @@
+import {
+  REAL_SCREENS,
+  careShots,
+  dsShots,
+  type Px,
+  type ScreenShot,
+} from "../../content/careShots";
 import type { RecreationKey } from "../../content/projects";
 import { links } from "../../content/links";
 
@@ -17,7 +24,6 @@ export interface Note {
   marker?: MarkerSide;
   /** "over" and "under" route the hairline outside the screen, for a part with other controls to its right. */
   route?: "side" | "over" | "under";
-  live?: "care-org";
 }
 
 export interface Shot {
@@ -33,8 +39,16 @@ export type Stage =
   | {
       kind: "recreation";
       key: RecreationKey;
-      pauseDemo?: boolean;
       fit?: "square";
+    }
+  | {
+      kind: "screen";
+      shot: ScreenShot;
+      crop: Px;
+      /** The crop under 640 px. */
+      phone?: Px;
+      /** Parts a note can point at, in the shot's CSS pixels. Each one is `[data-part="<id>"]`. */
+      parts: { id: string; box: Px }[];
     }
   | { kind: "shots"; shots: Shot[] };
 
@@ -77,24 +91,32 @@ export const plates: Plate[] = [
     id: "care",
     title: "A care platform, rebuilt one route at a time",
     meta: "Vianova · 2023 to now · Frontend and mobile, full stack since 2026",
-    source: "Recreation with invented data",
-    stage: { kind: "recreation", key: "care" },
+    source: REAL_SCREENS,
+    stage: {
+      kind: "screen",
+      shot: careShots.glucose,
+      crop: { x: 252, y: 0, w: 1188, h: 752 },
+      phone: { x: 560, y: 0, w: 880, h: 684 },
+      parts: [
+        { id: "org", box: { x: 1180, y: 14, w: 164, h: 28 } },
+        { id: "vitals", box: { x: 267, y: 296, w: 1130, h: 372 } },
+      ],
+    },
     notes: [
       {
         id: "org",
         text: "Many organizations share one system. Each sees only its own patients, roles and timezone.",
-        target: { css: 'button[aria-label^="Organization"]' },
-        live: "care-org",
-      },
-      {
-        id: "role",
-        text: "Every screen respects the role of the person who reads it.",
-        target: { css: "span", text: "Care manager" },
+        target: { css: '[data-part="org"]' },
+        route: "over",
       },
       {
         id: "vitals",
         text: "Care teams follow vitals from connected devices.",
-        target: { css: '[role="group"][aria-label^="Blood pressure"]' },
+        target: { css: '[data-part="vitals"]' },
+      },
+      {
+        id: "role",
+        text: "Every screen respects the role of the person who reads it.",
       },
       {
         id: "rewrite",
@@ -113,29 +135,34 @@ export const plates: Plate[] = [
     id: "design-system",
     title: "Design System v2, from one token source",
     meta: "Vianova · 2026 · Design system",
-    source: "Recreation with invented data",
-    stage: { kind: "recreation", key: "design-system", pauseDemo: true },
+    source: REAL_SCREENS,
+    stage: {
+      kind: "screen",
+      shot: dsShots.buttonAlert,
+      crop: dsShots.buttonAlert.crop,
+      parts: [
+        { id: "components", box: { x: 16, y: 24, w: 652, h: 92 } },
+        { id: "a11y", box: { x: 16, y: 144, w: 688, h: 440 } },
+      ],
+    },
     notes: [
-      {
-        id: "tiers",
-        text: "805 design tokens in three tiers: core, semantic and component.",
-        target: { css: '[aria-label^="How tokens resolve"]' },
-      },
-      {
-        id: "source",
-        text: "One source builds the CSS, the TypeScript and the Figma bundle.",
-        target: { css: ".dsr-pipeline" },
-        marker: "right",
-      },
       {
         id: "components",
         text: "36 components, each with a story, unit tests and axe tests.",
-        target: { css: ".dsr-area-steps" },
-        marker: "top",
+        target: { css: '[data-part="components"]' },
       },
       {
         id: "a11y",
         text: "Built to WCAG 2.1 AA floors, with automated, rendered checks.",
+        target: { css: '[data-part="a11y"]' },
+      },
+      {
+        id: "tiers",
+        text: "805 design tokens in three tiers: core, semantic and component.",
+      },
+      {
+        id: "source",
+        text: "One source builds the CSS, the TypeScript and the Figma bundle.",
       },
       {
         id: "releases",

@@ -51,32 +51,13 @@ const hues = Array.from(new Set(rows.flatMap((row) => (row.hue === null ? [] : [
 function LiveView({ plate, frame, narrow }: { plate: LivePlate; frame: Size; narrow: boolean }) {
   const entry = recreations[plate.key];
   const Recreation = entry.Component;
-  const ref = useRef<HTMLDivElement>(null);
   const width = narrow ? plate.narrowWidth : plate.width;
   const shift = (narrow ? plate.narrowShift : plate.shift) ?? 0;
   const k = frame.w / width;
 
-  // The specimen runs a demo loop until it is paused. The frame shows it still.
-  useEffect(() => {
-    if (plate.key !== "design-system") return;
-    const element = ref.current;
-    if (!element) return;
-    const pause = () => {
-      const button = element.querySelector<HTMLButtonElement>('.dsr-demo[aria-pressed="true"]');
-      if (button) button.click();
-      return Boolean(element.querySelector(".dsr-demo"));
-    };
-    if (pause()) return;
-    const observer = new MutationObserver(() => {
-      if (pause()) observer.disconnect();
-    });
-    observer.observe(element, { childList: true, subtree: true });
-    return () => observer.disconnect();
-  }, [plate.key]);
-
   const props = plate.key === "live-room" ? { demoPlaying: false } : {};
   return (
-    <div ref={ref} className={`sf-live sf-live-${plate.key}`} data-world={entry.world}>
+    <div className={`sf-live sf-live-${plate.key}`} data-world={entry.world}>
       <div
         className="sf-live-in"
         style={{
@@ -97,7 +78,7 @@ function ShotView({ plate, frame, narrow, eager }: { plate: ShotPlate; frame: Si
   const crop = narrow ? plate.narrow : plate.crop;
   const k = frame.w / crop.w;
   return (
-    <div className="sf-shot">
+    <div className="sf-shot" style={{ background: plate.ground }}>
       <img
         src={plate.src}
         alt={plate.alt}
@@ -843,8 +824,9 @@ export default function Draft() {
           </a>
         </p>
         <p>
-          Gentrit Rashiti. Bachelor's degree, UBT. The care, button, reader and wallet screens are recreations with
-          invented data. The other screens come from public pages and store listings. The page takes its colour from the
+          Gentrit Rashiti. Bachelor's degree, UBT. The care dashboard and the design-system screens are real
+          product screens with invented data. The reader and wallet screens are recreations with invented data. The other
+          screens come from public pages and store listings. The page takes its colour from the
           screen in the frame. A result with no screen stays grey.
         </p>
       </footer>

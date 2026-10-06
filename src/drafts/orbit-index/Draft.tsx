@@ -2,6 +2,7 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, typ
 import { Link, useNavigate } from 'react-router'
 import { links } from '../../content/links'
 import { preloadCase } from '../../lib/routes'
+import { CropShot } from '../../components/CropShot'
 import { firstYear, groups, lastYear, match, rows, type Row } from './data'
 import { createMark } from './mark'
 import './orbit-index.css'
@@ -76,6 +77,7 @@ function Media({ row, caption = false }: { row: Row; caption?: boolean }) {
     <figure className="oi-media" data-kind={media.kind}>
       <div className="oi-frame">
         {media.kind === 'shot' && <img src={media.src} alt={media.alt} decoding="async" />}
+        {media.kind === 'screen' && <CropShot shot={media.shot} fill />}
         {media.kind === 'phones' &&
           media.srcs.map((src, index) => (
             <img key={src} src={src} alt={index === 0 ? media.alt : ''} decoding="async" />
@@ -95,7 +97,7 @@ function Media({ row, caption = false }: { row: Row; caption?: boolean }) {
           </div>
         )}
       </div>
-      {caption && media.kind === 'shot' && media.note && <figcaption>{media.note}</figcaption>}
+      {caption && (media.kind === 'shot' || media.kind === 'screen') && media.note && <figcaption>{media.note}</figcaption>}
     </figure>
   )
 }
@@ -298,7 +300,7 @@ export default function OrbitIndex() {
     if (prefetched.current) return
     prefetched.current = true
     for (const row of rows) {
-      const srcs = row.media.kind === 'shot' ? [row.media.src] : row.media.kind === 'phones' ? row.media.srcs : []
+      const srcs = row.media.kind === 'shot' ? [row.media.src] : row.media.kind === 'screen' ? [row.media.shot.src] : row.media.kind === 'phones' ? row.media.srcs : []
       for (const src of srcs) new Image().src = src
     }
   }
@@ -560,7 +562,7 @@ export default function OrbitIndex() {
               Write to <a href={`mailto:${links.email}`}>{links.email}</a>
             </p>
             <p className="oi-note">
-              Vianova work appears as recreations with invented data. Other images come from public pages and store listings.
+              Vianova care and design-system screens are real product screens with invented data. Other images come from public pages and store listings, or are labelled recreations.
             </p>
           </footer>
         </main>
@@ -581,7 +583,7 @@ export default function OrbitIndex() {
                 </div>
                 <p className="oi-kind">
                   {current.project.kind}
-                  {current.media.kind === 'shot' && current.media.note && <span>{current.media.note}</span>}
+                  {(current.media.kind === 'shot' || current.media.kind === 'screen') && current.media.note && <span>{current.media.note}</span>}
                 </p>
                 <Outcome row={current} />
                 <div className="oi-pv-foot">

@@ -1,7 +1,8 @@
+import { careShots, dsShots, REAL_SCREENS, type ScreenShot } from "../../content/careShots";
 import { findProject, projects, type Project } from "../../content/projects";
 
 export type Media =
-  | { kind: "recreation"; key: "care" | "design-system"; label: string }
+  | { kind: "shot"; shot: ScreenShot; label: string }
   | { kind: "web"; src: string; alt: string; label: string }
   | { kind: "phones"; items: { src: string; alt: string }[]; label: string };
 
@@ -30,7 +31,7 @@ export const briefs: Brief[] = [
       "A care platform [runs on Nuxt 2|moves to React, route by route], and one billing report [times out on 16|needs 2] queries.",
     decision:
       "Rebuild one route at a time. A parity test runs each scenario against both apps, and a route moves over only when both behave the same. Decision records and automated quality gates keep every step reviewable.",
-    media: { kind: "recreation", key: "care", label: "Recreation with invented data. The product is private." },
+    media: { kind: "shot", shot: careShots.claims, label: REAL_SCREENS },
   },
   {
     project: need("bayyinah-tv"),
@@ -55,7 +56,7 @@ export const briefs: Brief[] = [
       "A React dashboard [needs|gets 36] components and [|805] tokens from one source, [without loading the whole library|and a Button-only consumer loads 96.6% less JavaScript].",
     decision:
       "One token source in three tiers, core, semantic and component, generates CSS variables, TypeScript and a Figma bundle. Each component builds on its own and ships with axe tests and in-browser contrast checks. Twenty releases in about six weeks.",
-    media: { kind: "recreation", key: "design-system", label: "Recreation of an invented kit, in its own palette." },
+    media: { kind: "shot", shot: dsShots.buttonAlert, label: REAL_SCREENS },
   },
   {
     project: need("read-to-feed"),

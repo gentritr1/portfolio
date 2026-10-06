@@ -1,5 +1,4 @@
 import {
-  Suspense,
   useEffect,
   useRef,
   useState,
@@ -10,7 +9,8 @@ import {
 import { preload } from "react-dom";
 import { Link } from "react-router";
 import { links } from "../../content/links";
-import { recreations } from "../../lib/recreations";
+import { CropShot } from "../../components/CropShot";
+import { careShots, dsShots } from "../../content/careShots";
 import { Drums, TEMPO, preset, tracks } from "./drums";
 import { createKnot, flatKnot, materials, type Knot } from "./trefoil";
 import "./live-objects.css";
@@ -375,26 +375,21 @@ function DrumGrid() {
   );
 }
 
-/* ---------- The care recreation ---------- */
+/* ---------- The care platform ---------- */
 
 function Care() {
-  const Live = recreations.care.Component;
   return (
     <section className="lo-object lo-care" aria-labelledby="lo-care-title">
       <h2 id="lo-care-title" className="lo-name">
-        Care-management platform <span>Recreation · invented data</span>
+        Care-management platform <span>Real product screens · invented data</span>
       </h2>
       <p className="lo-result">
         Care teams follow each patient’s vitals, care plans and lab results.
       </p>
-      <div className="lo-care-frame lo-world" data-world="healthcare">
-        <Suspense fallback={null}>
-          <Live />
-        </Suspense>
-      </div>
+      <CropShot className="lo-care-frame" shot={careShots.glucoseChart} eager />
       <p className="lo-care-note">
         Client work, 2023–26. Frontend and mobile. Many client organizations use
-        it, and each sees only its own patients. Switch the clinic to try it.
+        it, and each sees only its own patients.
       </p>
       <Link className="lo-link" to="/work/care-platform">
         Open the case
@@ -527,6 +522,14 @@ const client: ClientRow[] = [
       "36 ready-made building blocks, released 20 times in about six weeks.",
     role: "Design system. The care platform’s new React screens use it.",
     href: "/work/design-system-react",
+    shots: [
+      {
+        src: dsShots.buttonAlert.src,
+        width: 1440,
+        height: 1192,
+        alt: dsShots.buttonAlert.alt,
+      },
+    ],
   },
 ];
 
@@ -737,7 +740,7 @@ export default function Draft() {
       <footer className="lo-foot">
         <p>
           FORM and OFFBEAT are concepts: made-up brands, built to show the work.
-          The care card is a recreation with invented data.
+          The care and design-system screens are real product screens with invented data.
         </p>
         <p>Bachelor’s degree, UBT, Kosovo.</p>
         <nav aria-label="Contact">

@@ -610,10 +610,31 @@ html.kt-page[data-kt-dark="true"] {
 
 /* ---------- Sections and rows ---------- */
 
-/* Each part of the page opens under its own strip of sky that fades down to the ground. */
+/* Each part of the page opens under its own strip of sky that fades down to the ground.
+   While the sun moves, the code sets the band colours on the section box only; they do not inherit, so the rows are not restyled. */
+@property --kt-band-lit {
+  syntax: "*";
+  inherits: false;
+}
+
+@property --kt-band-haze {
+  syntax: "*";
+  inherits: false;
+}
+
 .kt-section,
 .kt-foot {
-  background: linear-gradient(to bottom, var(--kt-lit), var(--kt-haze) 72px, var(--kt-lit) 300px);
+  background: linear-gradient(
+    to bottom,
+    var(--kt-band-lit, var(--kt-lit)),
+    var(--kt-band-haze, var(--kt-haze)) 72px,
+    var(--kt-band-lit, var(--kt-lit)) 300px
+  );
+}
+
+/* The parts that take the light one by one (LIT_PARTS in Draft.tsx) read the text colour from their own light. */
+:where(.kt-top, .kt-first, .kt-section > h2, .kt-rows > li, .kt-pair, .kt-games-title, .kt-games, .kt-foot) {
+  color: var(--kt-ink);
 }
 
 .kt-section {

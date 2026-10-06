@@ -1,4 +1,5 @@
 import { projects } from "../../content/projects";
+import { careShots, dsShots, type Px } from "../../content/careShots";
 
 export interface Shot {
   src: string;
@@ -6,6 +7,8 @@ export interface Shot {
   height: number;
   alt: string;
   caption: string;
+  /** The part to show, in file pixels. */
+  crop?: Px;
 }
 
 export interface Result {
@@ -56,13 +59,14 @@ export const lines: Line[] = [
     detail:
       "Care teams follow patients’ vitals, labs, claims, calls and chat. Many client organizations share the system, and each one sees only its own records. Most screens are already rebuilt in React. A screen moves over only after it passes the same tests in both apps. One billing report asked the database 16 times and gave up. Now it asks 2 times and finishes.",
     result: { figure: "16→2", label: "DATABASE ASKS", line: "IN ONE REPORT." },
-    note: "In use by client organizations. Its row shows a recreation with invented data.",
+    note: "In use by client organizations. Its row shows real product screens with invented data.",
     shot: {
-      src: "/signal-posters/healthcare.avif",
-      width: 512,
-      height: 320,
-      alt: "Recreation with invented data: a 14-day blood-pressure chart for a made-up patient, with two alerts",
-      caption: "Recreation · invented data",
+      src: careShots.claims.src,
+      width: 2880,
+      height: 1800,
+      crop: { x: 492, y: 320, w: 2388, h: 1428 },
+      alt: careShots.claims.alt,
+      caption: "Real product screens · invented data",
     },
     links: [],
     caseHref: featured("care-platform"),
@@ -198,9 +202,16 @@ export const lines: Line[] = [
     years: [2026],
     role: "Design system, with the team.",
     detail:
-      "Colours, sizes and type are set once, for code and for Figma. An app that uses only the button downloads 96.6% less code. Built to the WCAG 2.1 AA accessibility level, with automatic checks on screen. The new care dashboard, not yet live, uses it. No public screen exists. The case page has a working recreation.",
+      "Colours, sizes and type are set once, for code and for Figma. An app that uses only the button downloads 96.6% less code. Built to the WCAG 2.1 AA accessibility level, with automatic checks on screen. The new care dashboard, not yet live, uses it.",
     result: { figure: "36", label: "BLOCKS", line: "20 RELEASES IN ABOUT 6 WEEKS." },
-    note: "Used inside the client company. No public screen.",
+    note: "Used inside the client company. Its row shows real product screens with invented data.",
+    shot: {
+      src: dsShots.buttonAlert.src,
+      width: 1440,
+      height: 1192,
+      alt: dsShots.buttonAlert.alt,
+      caption: "Real product screens · invented data",
+    },
     links: [],
     caseHref: featured("design-system-react"),
   },
@@ -372,7 +383,7 @@ export const others: { name: string; years: string; line: string }[] = [
   { name: "Care platform, server side", years: "2026", line: "The server behind the care app." },
   { name: "Bayyinah institute website", years: "2024–25", line: "The institute’s public website, on one page." },
   { name: "Scripted chat engine", years: "2022–25", line: "Quizzes that run like a chat, on phones." },
-  { name: "Scripted chat engine, web", years: "2025", line: "The same chat quizzes, rebuilt for the web." },
+  { name: "Scripted chat engine, web", years: "2025", line: "The same scripted chats, rebuilt for the web." },
   { name: "Sadaqah app", years: "2021–22", line: "Donations and subscriptions in a phone app." },
   { name: "Coaching app", years: "2022–23", line: "Sign-in, a daily calendar and reactions." },
   { name: "Member portal", years: "2025", line: "The start of a members’ website." },

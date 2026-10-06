@@ -4,15 +4,22 @@ import { OldDraftMotion } from '../../components/portfolio/OldDraftMotion'
 import { useEffect, useRef, useState } from "react";
 import { projects } from "../../content/projects";
 import { links } from "../../content/links";
+import { CropShot } from "../../components/CropShot";
+import { careShots, type ScreenShot } from "../../content/careShots";
 import "./swiss.css";
 
 const care = projects.find((p) => p.slug === "care-platform")!;
 const offsets = [0, 18, -10, 24, -7, 15, 0];
-const selected = [
+const calendar: ScreenShot = {
+  ...careShots.week,
+  alt: "Care team calendar from Sunday to Wednesday, 8 AM to 2 PM, with calls, visits and a line at the current time. Invented data.",
+  crop: { x: 248, y: 212, w: 702, h: 566 },
+};
+const selected: { slug: string; image: string | ScreenShot; caption: string }[] = [
   {
     slug: "care-platform",
-    image: "/signal-posters/healthcare.avif",
-    caption: "Recreation · invented data",
+    image: calendar,
+    caption: "Real product screens · invented data",
   },
   {
     slug: "bayyinah-tv",
@@ -153,12 +160,16 @@ export default function Draft() {
                   }
                   key={p.slug}
                 >
-                  <figure>
-                    <img
-                      src={item.image}
-                      alt={`${p.name}. ${item.caption}`}
-                      loading="lazy"
-                    />
+                  <figure className={typeof item.image === "string" ? undefined : "sw-shot"}>
+                    {typeof item.image === "string" ? (
+                      <img
+                        src={item.image}
+                        alt={`${p.name}. ${item.caption}`}
+                        loading="lazy"
+                      />
+                    ) : (
+                      <CropShot shot={item.image} />
+                    )}
                     <figcaption>{item.caption}</figcaption>
                   </figure>
                   <h3>{p.name}</h3>

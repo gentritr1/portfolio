@@ -1,4 +1,5 @@
 import { projects, type RecreationKey } from "../../content/projects";
+import { careShots, dsShots, type Px, type ScreenShot } from "../../content/careShots";
 
 export interface Box {
   x: number;
@@ -57,6 +58,15 @@ export interface Card {
 }
 
 const box = (x: number, y: number, w: number, h: number): Box => ({ x, y, w, h });
+
+/** A shot of the care dashboard or the Storybook, cropped in its own CSS pixels. */
+const real = (shot: ScreenShot, alt: string, crop: Px): Shot => ({
+  src: shot.src,
+  alt,
+  width: shot.width,
+  height: shot.height,
+  crop: box(crop.x / shot.width, crop.y / shot.height, crop.w / shot.width, crop.h / shot.height),
+});
 
 const vivaIphone = {
   src: "/mobile/grocery-3.webp",
@@ -148,13 +158,18 @@ export const cards: Card[] = [
     project: "Design System v2",
     short: "Design System v2",
     role: "Design system · 2026",
-    decision: "Keep 805 tokens in three tiers in one source.",
-    result: "It generates CSS, TypeScript and a Figma bundle.",
-    plate: { kind: "live", key: "design-system", design: [860, 430], narrow: { width: 360, height: 900, top: 580, band: 198 } },
-    caption: "Recreation with invented data",
-    pin: { kind: "selector", css: ".dsr-pipeline" },
+    decision: "Ship 36 components as one typed, versioned package.",
+    result: "20 releases.",
+    plate: {
+      kind: "shot",
+      shot: real(dsShots.top, dsShots.top.alt, dsShots.top.crop),
+      narrow: real(dsShots.top, dsShots.top.alt, dsShots.top.crop),
+      native: true,
+    },
+    caption: "Real product screens, invented data",
+    pin: { kind: "image", index: 0, box: box(16 / 720, 24 / 596, 652 / 720, 92 / 596) },
     narrowRoute: "left",
-    hue: 253,
+    hue: 229,
     link: { label: "Open the case", href: "/work/design-system-react" },
   },
   {
@@ -164,11 +179,23 @@ export const cards: Card[] = [
     role: "Frontend · 2026",
     decision: "Serve many client organizations from one care platform.",
     result: "Each sees only its own patients.",
-    plate: { kind: "live", key: "care", design: [1100, 550], narrow: { width: 360, height: 520, top: 0, band: 520 } },
-    caption: "Recreation with invented data",
-    pin: { kind: "selector", css: 'button[aria-label^="Organization"]' },
+    plate: {
+      kind: "shot",
+      shot: real(
+        careShots.overview,
+        "Care team dashboard of one organization: its name, 24 patients by program, patient engagement by calls and text messages, and the top of the provider card. Invented data.",
+        { x: 240, y: 4, w: 1200, h: 600 },
+      ),
+      narrow: real(
+        careShots.overview,
+        "Care team dashboard of one organization: its name, and patient engagement by calls and text messages. Invented data.",
+        { x: 846, y: 0, w: 594, h: 520 },
+      ),
+    },
+    caption: "Real product screens, invented data",
+    pin: { kind: "image", index: 0, box: box(1186 / 1440, 16 / 900, 152 / 1440, 24 / 900) },
     narrowRoute: "right",
-    hue: 186,
+    hue: 297,
     link: { label: "Open the case", href: "/work/care-platform" },
   },
 ];
@@ -201,10 +228,10 @@ export const record: Row[] = [
     slug: "care-platform",
   },
   {
-    decision: "Ship 36 components as one typed, versioned package.",
+    decision: "Keep 805 tokens in three tiers in one source.",
     project: "Design System v2",
     years: "2026",
-    result: "20 releases",
+    result: "CSS, TypeScript and Figma",
     slug: "design-system-react",
   },
   {

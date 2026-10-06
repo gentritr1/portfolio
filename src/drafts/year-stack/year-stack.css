@@ -273,28 +273,6 @@
   position: relative;
 }
 
-.ys-live {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 10 / 11;
-  overflow: hidden;
-  container-type: inline-size;
-  border: 1px solid var(--ys-line);
-  border-radius: 8px;
-  background: var(--surface);
-  color: var(--ink);
-  font-family: var(--font-sans);
-  font-size: 1rem;
-  line-height: 1.6;
-  font-variant-numeric: normal;
-}
-
-.ys-wait {
-  position: absolute;
-  inset: 0;
-  background: var(--world-bg, #f4f8f8);
-}
-
 .ys-crop {
   position: relative;
   width: 100%;
@@ -726,10 +704,6 @@
     line-height: 23px;
   }
 
-
-  .ys-live {
-    aspect-ratio: 16 / 10;
-  }
 
   .ys-crop-phone {
     width: auto;

@@ -12,6 +12,8 @@ import { projects, type Project } from "../../content/projects";
 import type { ChannelKey } from "../../content/channels";
 import { links } from "../../content/links";
 import { wallAssets } from "../../components/portfolio/wallAssets";
+import { CropShot } from "../../components/CropShot";
+import { careShots, type ScreenShot } from "../../content/careShots";
 import {
   DISC_COUNT,
   fillRect,
@@ -42,10 +44,15 @@ const routes = [...projects].sort(
     (routeOrder.indexOf(b.slug) < 0 ? 99 : routeOrder.indexOf(b.slug)),
 );
 
+/** Real product screens, captured on invented data. */
+const realScreens: Record<string, ScreenShot> = {
+  "care-platform": careShots.patients,
+};
+
 /** What each line says on the discs: a short name, one big figure and its unit. */
 const signs: Record<string, [string, string, string]> = {
   "bayyinah-tv": ["BAYYINAH TV", "34", "ROUTES"],
-  "care-platform": ["CARE PLATFORM", "31", "ADRS"],
+  "care-platform": ["CARE PLATFORM", "ADR", "RECORDS"],
   "read-to-feed": ["READ TO FEED", "~14", "RELEASES"],
   "viva-fresh": ["VIVA FRESH", "IOS", "+ ANDROID"],
   incentiv: ["INCENTIV", "EN/FR", "PASSKEY UI"],
@@ -100,7 +107,7 @@ const cards: Record<
   contact: ["C", "CONTACT", "-.-.", "@", "EMAIL + CV"],
   help: ["?", "THE KEY", "..--..", "", ""],
 };
-const conceptArt: Record<string, { src: string; recreation?: boolean }> = {
+const conceptArt: Record<string, { src: string }> = {
   offbeat: { src: "/personal/shots/offbeat-home-desktop.webp" },
   form: { src: "/personal/shots/form-home-desktop.webp" },
 };
@@ -262,7 +269,8 @@ export default function Draft() {
   const shown = preview ?? index,
     selected = routes[shown],
     arriving = routes[index],
-    art = wallAssets[arriving.slug]?.src ? wallAssets[arriving.slug] : conceptArt[arriving.slug];
+    shot = realScreens[arriving.slug],
+    art = shot ? null : wallAssets[arriving.slug]?.src ? wallAssets[arriving.slug] : conceptArt[arriving.slug];
   const live = useRef({ shown, mode, narrow, boot, preview });
   live.current = { shown, mode, narrow, boot, preview };
 
@@ -708,16 +716,18 @@ export default function Draft() {
                         }
                   }
                 >
-                  <div className="linja-arrival-picture" data-art={!!art}>
-                    {art ? (
-                      <img
-                        src={art.src}
-                        alt={
-                          art.recreation
-                            ? "Recreation with invented data"
-                            : `${arriving.name} public screen`
-                        }
-                      />
+                  <div className="linja-arrival-picture" data-art={!!(art || shot)}>
+                    {shot ? (
+                      <div className="linja-arrival-shot">
+                        <CropShot
+                          shot={shot}
+                          style={{
+                            width: `min(100cqw, ${shot.crop.w / shot.crop.h} * 100cqh, ${shot.crop.w}px)`,
+                          }}
+                        />
+                      </div>
+                    ) : art ? (
+                      <img src={art.src} alt={`${arriving.name} public screen`} />
                     ) : (
                       <p aria-hidden="true">
                         <span>{two(index)}</span>
@@ -725,8 +735,8 @@ export default function Draft() {
                       </p>
                     )}
                     <span>
-                      {art?.recreation
-                        ? "Recreation · invented data"
+                      {shot
+                        ? "Real product screens · invented data"
                         : art
                           ? "Public project imagery"
                           : arriving.kind}

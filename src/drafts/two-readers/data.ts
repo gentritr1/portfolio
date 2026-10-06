@@ -1,23 +1,13 @@
-import type { RecreationKey } from "../../content/projects";
+import { careShots, dsShots } from "../../content/careShots";
 
 export type Reader = "plain" | "engineer";
 
-/** A box in source pixels of an image, or in design pixels of a live plate. */
+/** A box in source pixels of an image. */
 export interface Box {
   x: number;
   y: number;
   w: number;
   h: number;
-}
-
-/** A live plate renders at its design width and scales to the frame's width. */
-export interface LivePlate {
-  kind: "live";
-  key: Extract<RecreationKey, "care" | "design-system">;
-  /** Design width in the 4:5 frame. */
-  width: number;
-  /** Design width in the 4:3 phone plate. */
-  narrowWidth: number;
 }
 
 /**
@@ -43,12 +33,9 @@ export interface FigurePlate {
   kind: "figure";
 }
 
-export type Plate = LivePlate | ShotPlate | FigurePlate;
+export type Plate = ShotPlate | FigurePlate;
 
-export type Target = { kind: "selector"; css: string; round?: boolean } | { kind: "shot"; box: Box };
-
-/** "side": the line enters at the part's height. "along": it runs on a rule inside the plate, then turns onto the part. */
-export type Route = { kind: "side" } | { kind: "along"; css: string };
+export type Target = { kind: "selector"; css: string } | { kind: "shot"; box: Box };
 
 export interface Words {
   /** Role and years for the plain reader; the stack for the engineer. */
@@ -58,7 +45,6 @@ export interface Words {
   /** The result. It carries the hairline. */
   result: string;
   target: Target;
-  route: Route;
 }
 
 export interface Row {
@@ -70,8 +56,6 @@ export interface Row {
   engineer: Words;
   link: { href: string; name: string };
 }
-
-const side: Route = { kind: "side" };
 
 export const identity: Record<Reader, { title: string; line: string }> = {
   plain: {
@@ -120,14 +104,12 @@ export const rows: Row[] = [
       line: "A reading app for children. About 14 updates shipped to both stores.",
       result: "It kept each child's place in every book.",
       target: { kind: "shot", box: { x: 330, y: 852, w: 312, h: 54 } },
-      route: side,
     },
     engineer: {
       meta: "React Native · Redux Toolkit · epub.js",
       line: "PDF and EPUB reader on maintained forks. About 14 releases.",
       result: "Progress per book, React Native 0.63 to 0.81.",
       target: { kind: "shot", box: { x: 330, y: 852, w: 312, h: 54 } },
-      route: side,
     },
     link: { href: "/work/read-to-feed", name: "Read to Feed" },
   },
@@ -141,35 +123,40 @@ export const rows: Row[] = [
       line: "One billing report asked the database 16 times and gave up.",
       result: "Now it asks 2 times and finishes.",
       target: { kind: "selector", css: "[data-proof='done']" },
-      route: side,
     },
     engineer: {
       meta: "Laravel 13 · PHP 8.3 · MySQL · Redis",
       line: "Laravel billing report: 16 queries, then a timeout.",
       result: "2 queries, no timeout.",
       target: { kind: "selector", css: "[data-proof='count']" },
-      route: side,
     },
     link: { href: "/work/care-platform", name: "the care platform" },
   },
   {
     id: "03",
     project: "Care-management platform",
-    plate: { kind: "live", key: "care", width: 520, narrowWidth: 460 },
-    caption: "Vitals card for one organization. Recreation · invented data.",
+    plate: {
+      kind: "shot",
+      src: careShots.patients.src,
+      alt: careShots.overview.alt,
+      width: 1440,
+      height: 900,
+      crop: { x: 236, y: 74, w: 608, h: 760 },
+      narrow: careShots.patients.crop,
+      fill: careShots.patients.ground,
+    },
+    caption: "Patients of one organization. Real product screens · invented data.",
     plain: {
       meta: "Frontend · 2023–26",
       line: "Many client organizations use the same system.",
       result: "Each one sees only its own patients.",
-      target: { kind: "selector", css: 'button[aria-label^="Organization"]', round: true },
-      route: { kind: "along", css: ".border-t" },
+      target: { kind: "shot", box: { x: 287, y: 313, w: 152, h: 154 } },
     },
     engineer: {
       meta: "Nuxt 2 → React 19 · TanStack · Zod",
       line: "Multi-tenant Nuxt 2 app. Most screens rebuilt in React in 2026.",
       result: "Data and roles scoped per organization.",
-      target: { kind: "selector", css: 'button[aria-label^="Organization"]', round: true },
-      route: { kind: "along", css: ".border-t" },
+      target: { kind: "shot", box: { x: 287, y: 313, w: 152, h: 154 } },
     },
     link: { href: "/work/care-platform", name: "the care platform" },
   },
@@ -192,14 +179,12 @@ export const rows: Row[] = [
       line: "One grocery app, built once for iPhone and Android.",
       result: "Shopping in Albanian, live in both app stores.",
       target: { kind: "shot", box: { x: 128, y: 500, w: 522, h: 148 } },
-      route: side,
     },
     engineer: {
       meta: "React Native · Redux Toolkit · Firebase",
       line: "One React Native codebase, shipped to iOS and Android.",
       result: "Category grid, cart and delivery slots, in Albanian.",
       target: { kind: "shot", box: { x: 128, y: 500, w: 522, h: 148 } },
-      route: side,
     },
     link: { href: "/work/viva-fresh", name: "Viva Fresh" },
   },
@@ -222,14 +207,12 @@ export const rows: Row[] = [
       line: "Version 2 of a video-learning platform, built from nothing: 34 pages.",
       result: "Members subscribe on the web, iPhone or Android.",
       target: { kind: "shot", box: { x: 40, y: 522, w: 272, h: 44 } },
-      route: side,
     },
     engineer: {
       meta: "Nuxt 3 · Vue 3 · Pinia · AWS IVS · Stripe",
       line: "Nuxt 3 rebuild from an empty template: 34 pages, 270+ components.",
       result: "Stripe, Apple and Google subscriptions, with a premium paywall.",
       target: { kind: "shot", box: { x: 40, y: 522, w: 272, h: 44 } },
-      route: side,
     },
     link: { href: "/work/bayyinah-tv", name: "Bayyinah TV" },
   },
@@ -253,35 +236,40 @@ export const rows: Row[] = [
       line: "Screens for a crypto wallet. Teammates built the wallet itself.",
       result: "Sign in with a passkey (no password) or a wallet.",
       target: { kind: "shot", box: { x: 224, y: 500, w: 102, h: 40 } },
-      route: side,
     },
     engineer: {
       meta: "Next.js 14 · RTK Query · next-intl",
       line: "Next.js 14 UI. Teammates built the wallet and chain.",
       result: "Passkey, MetaMask or WalletConnect, EN and FR.",
       target: { kind: "shot", box: { x: 224, y: 500, w: 470, h: 40 } },
-      route: side,
     },
     link: { href: "/work/incentiv", name: "Incentiv" },
   },
   {
     id: "07",
     project: "Design System v2",
-    plate: { kind: "live", key: "design-system", width: 460, narrowWidth: 440 },
-    caption: "Shared parts. Recreation · invented data.",
+    plate: {
+      kind: "shot",
+      src: dsShots.buttonAlert.src,
+      alt: dsShots.buttonAlert.alt,
+      width: dsShots.buttonAlert.width,
+      height: dsShots.buttonAlert.height,
+      crop: dsShots.buttonAlert.crop,
+      narrow: dsShots.top.crop,
+      fill: dsShots.buttonAlert.ground,
+    },
+    caption: "Shared parts in Storybook. Real product screens · invented data.",
     plain: {
       meta: "Design system, with the team · 2026",
       line: "The team built shared screen parts for the new care dashboard.",
       result: "36 ready-made parts, released 20 times in about six weeks.",
-      target: { kind: "selector", css: ".dsr-area-buttons .dsr-row:first-child" },
-      route: side,
+      target: { kind: "shot", box: { x: 14, y: 22, w: 522, h: 38 } },
     },
     engineer: {
       meta: "React 19 · CSS Modules · Storybook 10",
       line: "36 components, 805 tokens in three tiers, 20 releases in about six weeks.",
       result: "One source builds CSS, TypeScript and a Figma bundle.",
-      target: { kind: "selector", css: ".dsr-pipeline" },
-      route: side,
+      target: { kind: "shot", box: { x: 16, y: 144, w: 690, h: 156 } },
     },
     link: { href: "/work/design-system-react", name: "Design System v2" },
   },

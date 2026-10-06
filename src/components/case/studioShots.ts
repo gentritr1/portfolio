@@ -1,6 +1,6 @@
-// First-paint copies of the paired public/recreation assets: 160px wide, WebP quality 45.
+// First-paint copies of the paired screenshots: 160px wide, WebP quality 45.
 // Keep these inline; fetching another placeholder would reintroduce an empty device.
-import carePreview from './studio-previews/healthcare.webp?inline'
+import carePreview from './studio-previews/care-overview.webp?inline'
 import bayyinahLibraryPreview from './studio-previews/bayyinah-library.webp?inline'
 import bayyinahPricingPreview from './studio-previews/bayyinah-pricing.webp?inline'
 import readingBooksPreview from './studio-previews/reading-books.webp?inline'
@@ -13,8 +13,7 @@ import incentivPortalPreview from './studio-previews/incentiv-portal.webp?inline
 import bookstoreHomePreview from './studio-previews/bookstore-home.webp?inline'
 import bookstoreBooksPreview from './studio-previews/bookstore-books.webp?inline'
 import bookstoreFavouritesPreview from './studio-previews/bookstore-favourites.webp?inline'
-import designSystemLightPreview from './studio-previews/design-system-light.webp?inline'
-import designSystemDarkPreview from './studio-previews/design-system-dark.webp?inline'
+import designSystemPreview from './studio-previews/design-system-storybook.webp?inline'
 
 export interface StudioShot {
   src: string
@@ -36,7 +35,7 @@ export interface StudioComposition {
 export const studioShots: Record<string, StudioComposition> = {
   'care-platform': {
     title: 'Care platform', colour: '#3c807e', device: 'display', platform: 'Web application · Laravel API',
-    shots: [{ src: '/signal-posters/healthcare.avif', preview: carePreview, alt: 'A fictional patient’s blood-pressure trend in the care-platform recreation' }],
+    shots: [{ src: '/showcase/care-dashboard/overview.webp', preview: carePreview, alt: 'Care team dashboard: patients by program and patient engagement by calls and text messages. Invented data.' }],
   },
   'bayyinah-tv': {
     title: 'Bayyinah TV', colour: '#a84430', device: 'display', platform: 'Web · iOS · Android',
@@ -72,8 +71,7 @@ export const studioShots: Record<string, StudioComposition> = {
   'design-system-react': {
     title: 'Design System v2', colour: '#2454e8', device: 'display', platform: 'React component library',
     shots: [
-      { src: '/showcase/design-system/specimen-light.webp', preview: designSystemLightPreview, crop: [0, 0, 1, 0.74], alt: 'Component specimen recreation with invented data: tokens in three tiers, alerts, fields, steps, tabs and buttons in the light theme' },
-      { src: '/showcase/design-system/specimen-dark.webp', preview: designSystemDarkPreview, alt: 'The same component specimen in the dark theme, with the Select menu open' },
+      { src: '/showcase/design-system/button-alert.webp', preview: designSystemPreview, crop: [0, 0, 1, 0.755], alt: 'Design System v2 in its Storybook: buttons in four styles, buttons with icons, and alerts for a note, information and success. Invented data.' },
     ],
   },
   incentiv: {

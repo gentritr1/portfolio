@@ -1,4 +1,5 @@
-import { findProject, type PublicLink, type RecreationKey } from "../../content/projects";
+import { careShots, dsShots, REAL_SCREENS, type ScreenShot } from "../../content/careShots";
+import { findProject, type PublicLink } from "../../content/projects";
 
 export interface EvidenceImage {
   src: string;
@@ -6,7 +7,7 @@ export interface EvidenceImage {
 }
 
 export type Evidence =
-  | { kind: "recreation"; recreation: RecreationKey; caption: string }
+  | { kind: "shot"; shot: ScreenShot; caption: string }
   | { kind: "web" | "phone"; images: EvidenceImage[]; caption: string };
 
 /** A number that the Context states and the Consequence changes. */
@@ -65,11 +66,7 @@ export const records: DecisionRecord[] = [
       "Most screens are already rebuilt in React. A route moves over only after its parity tests show the same behaviour in both apps.",
     status: "Accepted",
     supersedes: "0004",
-    evidence: {
-      kind: "recreation",
-      recreation: "care",
-      caption: "Vitals trend card. Recreation with invented data: switch the organization and the data, role and timezone change with it.",
-    },
+    evidence: { kind: "shot", shot: careShots.claims, caption: `Claims page. ${REAL_SCREENS}` },
     caseSlug: "care-platform",
   },
   {
@@ -100,16 +97,7 @@ export const records: DecisionRecord[] = [
     consequence:
       "36 components and 805 design tokens, in 20 releases over about six weeks. A Button-only consumer loads 96.6% less JavaScript. The dashboard uses the system through one adapter layer.",
     status: "Accepted",
-    evidence: {
-      kind: "web",
-      images: [
-        {
-          src: "/showcase/design-system/specimen-light.webp",
-          alt: "Component specimen for an invented project-tracker kit: a three-tier token strip, alerts, select, input states, steps, buttons, tabs and switches",
-        },
-      ],
-      caption: "Component specimen. Recreation with invented data.",
-    },
+    evidence: { kind: "shot", shot: dsShots.buttonAlert, caption: `Buttons and alerts in Storybook. ${REAL_SCREENS}` },
     caseSlug: "design-system-react",
   },
   {

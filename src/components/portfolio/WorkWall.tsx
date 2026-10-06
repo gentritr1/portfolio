@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent } from 'react'
 import { currentYear, firstYear, projects, type Project } from '../../content/projects'
+import { REAL_SCREENS } from '../../content/careShots'
 import { ArrowUpRightIcon } from '../ShellIcons'
 import { wallAssets, wallColour, wallPlatform, wallPosters, wallYear, type WallAsset } from './wallAssets'
 import type { WallHoverScene } from './wallHoverScene'
@@ -72,7 +73,7 @@ function WallImage({ project, asset, height, eager }: { project: Project; asset:
         ref={image} src={asset.src} alt="" loading={eager ? 'eager' : 'lazy'} decoding="async" data-ready={ready}
         style={{ objectPosition: `${(asset.position?.[0] ?? 0.5) * 100}% ${(asset.position?.[1] ?? 0.5) * 100}%`, transform: `scale(${asset.zoom ?? 1})`, transformOrigin: `${(asset.position?.[0] ?? 0.5) * 100}% ${(asset.position?.[1] ?? 0.5) * 100}%` } as CSSProperties}
       />
-      {asset.recreation && <span className="work-wall-provenance">Recreation · invented data</span>}
+      {asset.inventedData && <span className="work-wall-provenance">{REAL_SCREENS}</span>}
     </span>
   )
 }

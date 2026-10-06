@@ -1,11 +1,16 @@
+import { careShots, REAL_SCREENS, type ScreenShot } from '../../content/careShots'
 import { groupPeriods, projects, type ProjectGroupName, type RecreationKey } from '../../content/projects'
 
 export type WorkspaceId = 'vianova' | 'agency' | 'incentiv' | 'avahitech' | 'personal'
 
-/** Where a row's hairline ends: an element inside a live plate, or a point in a screenshot (fractions of its box). */
+/**
+ * Where a row's hairline ends: an element inside a live plate, a point in a screenshot (fractions of its box),
+ * or a box in a screen plate's shot (CSS pixels of the whole shot).
+ */
 export type Pin =
   | { kind: 'css'; css: string; text?: string; at?: 'edge' | 'mid' }
   | { kind: 'point'; x: number; y: number }
+  | { kind: 'shot'; x: number; y: number; w: number; h: number }
 
 export interface Shot {
   id: string
@@ -21,6 +26,8 @@ export type Plate =
   | { kind: 'live'; key: RecreationKey; world: string; ratio: number; phoneRatio: number }
   | { kind: 'shot'; shot: Shot }
   | { kind: 'phones'; shots: Shot[] }
+  /** A real product screen. `narrow` is the shot for a phone. */
+  | { kind: 'screen'; shot: ScreenShot; narrow: ScreenShot }
 
 export interface Row {
   id: string
@@ -60,6 +67,12 @@ export interface Workspace {
 const phone = (id: string, src: string, alt: string, crop?: Shot['crop']): Shot => ({ id, src, alt, width: 780, height: 1689, crop })
 const web = (id: string, src: string, alt: string): Shot => ({ id, src, alt, width: 1440, height: 900 })
 
+const claimsLeft: ScreenShot = {
+  ...careShots.claimsRows,
+  alt: 'Four claims, each with its patient, program and CPT codes. Invented data.',
+  crop: { x: 262, y: 578, w: 548, h: 294 },
+}
+
 export const workspaces: Workspace[] = [
   {
     id: 'vianova',
@@ -72,19 +85,19 @@ export const workspaces: Workspace[] = [
       {
         id: 'care',
         name: 'Care-management platform',
-        source: 'Recreation, invented data',
+        source: REAL_SCREENS.slice(0, -1),
         line: 'Many client organizations share one system → every screen keeps their data apart.',
         meta: 'Frontend and mobile, full stack since 2026 · 2023–26',
         href: '/work/care-platform',
-        plate: { kind: 'live', key: 'care', world: 'healthcare', ratio: 16 / 10, phoneRatio: 1 },
+        plate: { kind: 'screen', shot: careShots.claims, narrow: claimsLeft },
         rows: [
           {
             id: 'vn-react',
             slug: 'care-platform',
             text: 'Move the frontend from Vue to React {one route at a time}.',
             result: 'parity test on both apps first',
-            caption: 'Switch the organization: the data changes, the controls stay.',
-            pin: { kind: 'css', css: 'button[aria-label^="Organization"]' },
+            caption: 'Claims, rebuilt in React: one filter finds the claims that need attention.',
+            pin: { kind: 'shot', x: 814, y: 504, w: 166, h: 32 },
           },
           {
             id: 'vn-report',
@@ -104,7 +117,6 @@ export const workspaces: Workspace[] = [
             slug: 'care-platform',
             text: 'Build profiles, care plans, labs and vitals, and claims on Vue.',
             result: '4 languages: EN, DE, ES, TR',
-            pin: { kind: 'css', css: '[role="group"][aria-label^="Blood pressure"]', at: 'mid' },
           },
         ],
       },

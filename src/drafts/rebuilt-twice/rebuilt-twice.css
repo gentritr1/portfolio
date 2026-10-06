@@ -413,6 +413,20 @@
   line-height: 1.6;
 }
 
+.rt-shot {
+  display: flex;
+  justify-content: center;
+}
+
+.rt-shot-frame {
+  position: relative;
+  flex: 1 1 auto;
+}
+
+.rt-spot {
+  position: absolute;
+}
+
 .rt-stage-wait {
   position: absolute;
   inset: 0;

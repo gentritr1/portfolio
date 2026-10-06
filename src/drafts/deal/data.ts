@@ -122,7 +122,7 @@ export const art: Record<
 };
 
 const facts: Record<string, [string, string]> = {
-  "care-platform": ["31", "architecture decisions"],
+  "care-platform": ["Decision records", "architecture decisions, written down"],
   "care-api": ["16 → 2", "billing report queries"],
   "design-system-react": ["34", "accessible components"],
   "design-system-vue": ["Vue 2", "Figma tokens to components"],
