@@ -1,0 +1,25 @@
+{
+  "id": "kosovo-time-2",
+  "title": "KOSOVO TIME II",
+  "band": "Loop 11",
+  "rule": "the real sun over Kosovo lights the page at the visitor's time and every screen stands on the ground and casts its computed shadow; nothing on the page explains the mechanism, the time alone says it",
+  "description": "C-B from the round-11 study. First screen: 'Gentrit Rashiti builds web and mobile apps, from Kosovo.', '5+ years. Part of two platform rewrites. Working remotely.', and one line across the page with today's sun on it; the time ('17:45 in Kosovo') rides beside the disc, and a drag or the arrow keys move the hour. Below the horizon the care team calendar (web) and the Viva Fresh cart (phone) stand on the ground and cast their shadows; each one is a link that walks into its case page. Then 'Client work' and 'Own projects', each on a band of the shade colour. Rows: the plate is the link (press feedback), text beside it. The care and Design System rows add a white card that stands on the ground like a screen and shows the AI work loop (old app, test first, agents build, checks, person approves, and the way back); the care row adds 16 marks that fall to 2 (database requests for one billing report).",
+  "signature": "Fraunces (opsz 144) at 64 px for the one sentence, Public Sans for everything else; four sizes on the first screen (64, 20, 17, 14). Colours come from the sun's altitude (light.ts, unchanged from KOSOVO TIME). New token --k2-band = shade at 30 % over ground: the second surface for section heads and the footer. The floor of the first screen is the WebGL shadow shader (SVG fallback), compiled after the arrival.",
+  "caseSlug": "care-platform",
+  "mechanisms": [
+    "M3",
+    "M5",
+    "M7",
+    "M9"
+  ],
+  "slopCount": 0,
+  "rounds": 3,
+  "loopScores": {
+    "straightToThePoint": 9,
+    "actionsAndSeniority": 8,
+    "original": 7,
+    "hooks": 8,
+    "typeAndColour": 8
+  },
+  "holdback": "Lowest: original, 7/10. It is the live home's mechanism (real sun, computed shadows) with the noise cut, so a reader who knows KOSOVO TIME sees an edit, not a new idea; the new parts are the work card, the 16 → 2 marks and the plate hand-off. Also open: the page is about 7,000 px at 1440 and 7,600 px at 390 (study target 5,500 at 390), and on a phone at 4x CPU a scroll into the care row shows one 33 ms frame in 3 of 4 runs (the main thread works 5 ms in that frame; with motion off there is none)."
+}
