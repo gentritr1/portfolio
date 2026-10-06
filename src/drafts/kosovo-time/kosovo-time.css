@@ -394,10 +394,12 @@ html.kt-page[data-kt-dark="true"] {
   transform: scale(0.94);
 }
 
+/* The sun path code sets --hx so the label stays inside the screen at every hour. */
 .kt-path-hint {
   position: absolute;
   top: -15px;
-  left: 30px;
+  left: 0;
+  transform: translateX(var(--hx, 30px));
   display: inline-flex;
   align-items: center;
   height: 30px;
@@ -420,23 +422,8 @@ html.kt-page[data-kt-dark="true"] {
   content: "\2002\2192";
 }
 
-.kt-path-sun[data-side="left"] .kt-path-hint {
-  left: auto;
-  right: 30px;
-}
-
 .kt-path-sun[data-below="true"] .kt-path-hint {
   top: -74px;
-  left: -40px;
-}
-
-.kt-path-sun[data-below="true"][data-side="start"] .kt-path-hint {
-  left: -18px;
-}
-
-.kt-path-sun[data-below="true"][data-side="left"] .kt-path-hint {
-  left: auto;
-  right: -18px;
 }
 
 .kt-path-hint[data-gone] {
@@ -1003,7 +990,6 @@ html.kt-page[data-kt-dark="true"] {
   }
 
   .kt-path-hint {
-    left: 26px;
     font-size: 13px;
   }
 

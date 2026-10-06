@@ -43,8 +43,8 @@ function useMedia(query: string, fallback: boolean) {
   );
 }
 
-/* The two faces are asked for before the first render. Text never waits for them. */
-for (const face of ["PublicSans-Latin", "BigShouldersDisplay-Latin"]) {
+/* These faces are asked for before the first render. Text never waits for them. */
+for (const face of ["PublicSans-Latin", "BigShouldersDisplay-Latin", "GentritText-Latin"]) {
   const href = `/fonts/creative/${face}.woff2`;
   if (!document.head.querySelector(`link[rel="preload"][href="${href}"]`)) {
     const link = document.createElement("link");

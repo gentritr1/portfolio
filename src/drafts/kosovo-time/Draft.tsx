@@ -332,6 +332,8 @@ function SunPath() {
   const clock = useClock();
   const track = useRef<HTMLDivElement>(null);
   const dot = useRef<HTMLSpanElement>(null);
+  const hint = useRef<HTMLSpanElement>(null);
+  const spot = useRef({ x: 0.5, below: false });
   const [minute, setMinute] = useState(() => Math.floor(kosovoMinutes(clock.current.ms)));
   const [altitude, setAltitude] = useState(() => Math.round(clock.current.sun.altitude));
   const [touched, setTouched] = useState(false);
@@ -343,6 +345,35 @@ function SunPath() {
   const down = (PATH_H - HORIZON - 4) / Math.max(10, -bottom);
   const yOf = (a: number) => HORIZON - (a > 0 ? a * up : a * down);
 
+  const placeHint = () => {
+    const label = hint.current;
+    const box = track.current?.getBoundingClientRect();
+    if (!label || !box) return;
+    const { x, below } = spot.current;
+    const sunX = box.left + x * box.width;
+    const w = label.offsetWidth;
+    const gap = (dot.current?.firstElementChild as HTMLElement | null)?.offsetWidth ?? 38;
+    const fits = (at: number) => at >= box.left && at + w <= box.right;
+    const after = sunX + gap / 2 + 11;
+    const before = sunX - gap / 2 - 11 - w;
+    let left: number;
+    if (below) left = Math.max(box.left, Math.min(box.right - w, sunX - w / 2));
+    else if (fits(after)) left = after;
+    else if (fits(before)) left = before;
+    else left = box.right - (after + w) < before - box.left ? before : after;
+    left = Math.max(8, Math.min(document.documentElement.clientWidth - 8 - w, left));
+    label.style.setProperty("--hx", `${Math.round(left - sunX)}px`);
+  };
+
+  useLayoutEffect(placeHint);
+  useEffect(() => {
+    const observer = new ResizeObserver(() => placeHint());
+    if (track.current) observer.observe(track.current);
+    return () => observer.disconnect();
+    // placeHint reads only refs.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   useEffect(
     () =>
       clock.subscribe((f) => {
@@ -353,9 +384,9 @@ function SunPath() {
           const y = yOf(f.sun.altitude) / PATH_H;
           node.style.setProperty("--x", `${(x * 100).toFixed(3)}%`);
           node.style.setProperty("--y", `${(y * 100).toFixed(3)}%`);
-          node.dataset.below = String(f.sun.altitude < RISE);
-          const width = track.current?.clientWidth ?? 1000;
-          node.dataset.side = x * width > width - 200 ? "left" : x * width < 180 ? "start" : "right";
+          spot.current = { x, below: f.sun.altitude < RISE };
+          node.dataset.below = String(spot.current.below);
+          placeHint();
         }
         const whole = Math.floor(kosovoMinutes(f.ms));
         setMinute((was) => (was === whole ? was : whole));
@@ -472,7 +503,7 @@ function SunPath() {
       )}
       <span ref={dot} className="kt-path-sun" aria-hidden="true">
         <span className="kt-path-disc" />
-        <span className="kt-path-hint" data-gone={touched || undefined}>
+        <span ref={hint} className="kt-path-hint" data-gone={touched || undefined}>
           {below ? "Drag the sun up" : "Drag the sun"}
         </span>
       </span>
