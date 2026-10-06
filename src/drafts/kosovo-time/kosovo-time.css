@@ -649,6 +649,23 @@ html.kt-page[data-kt-dark="true"] {
   font-weight: 600;
 }
 
+.kt-case {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  margin-top: 4px;
+  font-size: 15px;
+  font-weight: 600;
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-thickness: 1px;
+}
+
+.kt-case:hover {
+  text-decoration-thickness: 2px;
+}
+
 .kt-links {
   display: flex;
   flex-wrap: wrap;

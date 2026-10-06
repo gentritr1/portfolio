@@ -116,3 +116,7 @@ Polish pass 9b was started on projector, then-now, two-readers, proof-tiles and 
 ## Round 10: divergence round and new rubric (owner, 2026-10-06)
 
 Owner approved DIAGNOSIS.md: score straight to the point, seniority, original, hooks and "type and colour as a designer judges them" (target 9 on original and hooks); calm, harmony and motion become a pass/fail craft gate; hooks and motion are judged live; the jury is calibrated on an anchor set first. Round 10 builds six concepts with no shared layout brief: live-objects (C1), kosovo-time (C2), four-languages (C3), the-seam (C4, from diff), departures (C5, from linja), crossword (C6, from fjalekryq). Home stays projector.
+
+## Home page: kosovo-time (owner, 2026-10-06)
+
+The owner made kosovo-time the home page ("/"). Its client rows link to the case pages (/work/<slug>), which use its light and type. projector is parked as a draft at /drafts/projector. Still to do after the switch: a real-phone test (mid-range Android, iPhone Safari) of the sun intro, the drag and the slow-frame fallback.

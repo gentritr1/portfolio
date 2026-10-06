@@ -14,6 +14,7 @@ import {
   type ReactNode,
 } from "react";
 import { preload } from "react-dom";
+import { Link as RouterLink, useLocation } from "react-router";
 import { links } from "../../content/links";
 import { recreations } from "../../lib/recreations";
 import { Clock, type Frame } from "./clock";
@@ -596,6 +597,26 @@ function CarePlate() {
   );
 }
 
+const caseSlugs: Record<string, string> = {
+  care: "care-platform",
+  bayyinah: "bayyinah-tv",
+  "read-to-feed": "read-to-feed",
+  "viva-fresh": "viva-fresh",
+  dukagjini: "dukagjini-bookstore",
+  "design-system": "design-system-react",
+  incentiv: "incentiv",
+};
+
+function CaseLink({ id, name }: { id: string; name: string }) {
+  const slug = caseSlugs[id];
+  if (!slug) return null;
+  return (
+    <RouterLink className="kt-case" to={`/work/${slug}`}>
+      Read the case<span className="kt-sr">: {name}</span> →
+    </RouterLink>
+  );
+}
+
 function Links({ items }: { items: Link[] }) {
   if (!items.length) return null;
   return (
@@ -634,6 +655,7 @@ function RowText({ row }: { row: Row }) {
           </>
         )}
       </p>
+      <CaseLink id={row.id} name={row.name} />
       <Links items={row.links} />
     </div>
   );
@@ -719,6 +741,7 @@ function LeadPlate({ shot, name, note, kind }: { shot: Shot; name: string; note:
 /* ---------- Page ---------- */
 
 export default function Draft() {
+  const home = useLocation().pathname === "/";
   preload(FRAUNCES, { as: "font", type: "font/woff2", crossOrigin: "anonymous" });
   preload(PUBLIC_SANS, { as: "font", type: "font/woff2", crossOrigin: "anonymous" });
   const reduced = useMedia("(prefers-reduced-motion: reduce)");
@@ -808,7 +831,7 @@ export default function Draft() {
   return (
     <ClockContext value={clock}>
       <div className="kt" data-fonts={fonts} data-reduced={reduced || undefined}>
-        <title>Gentrit Rashiti · lit by the sun over Kosovo</title>
+        <title>{home ? "Gentrit Rashiti — web, mobile & full stack" : "Gentrit Rashiti · lit by the sun over Kosovo"}</title>
         <header className="kt-top">
           <a className="kt-name" href="#top">
             Gentrit Rashiti

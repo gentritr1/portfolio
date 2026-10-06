@@ -7,7 +7,7 @@ import { fontsReady, preloadCaseFonts } from "./pages/caseFonts";
 import { groundNow } from "./pages/caseLight";
 const NotFoundPage = lazy(() => import("./pages/NotFoundPage").then((m) => fontsReady().then(() => m)));
 const DraftApp = lazy(() => import("./drafts/DraftApp"));
-const ProjectorHome = lazy(() => import("./drafts/projector/Draft"));
+const KosovoHome = lazy(() => import("./drafts/kosovo-time/Draft"));
 
 const CaseStudyPage = caseStudyPage.Component;
 
@@ -27,8 +27,8 @@ export default function App() {
     return (
       <>
         <ScrollToTop />
-        <Suspense fallback={<div className="min-h-[100svh] bg-[#d9f26b]" />}>
-          <ProjectorHome />
+        <Suspense fallback={<div className="min-h-[100svh]" style={{ background: groundNow() }} />}>
+          <KosovoHome />
         </Suspense>
       </>
     );
