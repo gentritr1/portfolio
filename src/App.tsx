@@ -4,6 +4,7 @@ import { ScrollToTop } from "./components/ScrollToTop";
 import { featuredProjects } from "./content/projects";
 import { caseStudyPage } from "./lib/routes";
 import { fontsReady, preloadCaseFonts } from "./pages/caseFonts";
+import { groundNow } from "./pages/caseLight";
 const NotFoundPage = lazy(() => import("./pages/NotFoundPage").then((m) => fontsReady().then(() => m)));
 const DraftApp = lazy(() => import("./drafts/DraftApp"));
 const ProjectorHome = lazy(() => import("./drafts/projector/Draft"));
@@ -36,7 +37,7 @@ export default function App() {
     return (
       <>
         <ScrollToTop />
-        <Suspense fallback={<div className="min-h-[100svh] bg-[#d9f26b]" />}>
+        <Suspense fallback={<div className="min-h-[100svh]" style={{ background: groundNow() }} />}>
           <Routes>
             <Route path="/work/:slug" element={<CaseStudyRoute />} />
           </Routes>
@@ -64,7 +65,7 @@ export default function App() {
   return (
     <>
       <ScrollToTop />
-      <Suspense fallback={<div className="min-h-[100svh] bg-[#d9f26b]" />}>
+      <Suspense fallback={<div className="min-h-[100svh]" style={{ background: groundNow() }} />}>
         <NotFoundPage />
       </Suspense>
     </>

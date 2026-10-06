@@ -13,9 +13,9 @@ export interface Shot {
   alt: string;
   width: number;
   height: number;
-  /** The part the desktop frame shows. Its scale in the frame is never above 1. */
+  /** The part a wide screen shows. It is never shown above its source pixels. */
   crop: Px;
-  /** The page's own colour, for the frame area outside the crop. */
+  /** The page's own colour, behind the shot while it loads. */
   ground: string;
 }
 
@@ -27,23 +27,17 @@ export type Plate =
   | { kind: "live"; key: LiveKey }
   | { kind: "number"; from?: string; to: string; unit: string; note: string };
 
-/** Where the hairline ends: a box in the plate's shot, a part of a live plate, or the figure of a number plate. */
+/** The proving part of the plate. A box in a shot gets a ring. */
 export type Target = { kind: "shot"; box: Px } | { kind: "selector"; css: string; round?: boolean } | { kind: "figure" };
 
 export interface Part {
   heading: "The product" | "What was built" | "The result";
   text: string;
-  /** The line that carries the hairline into the frame. */
+  /** The result line under the part's text. */
   proof: string;
   /** Index into `plates`. */
   plate: number;
   target: Target;
-  /**
-   * How the hairline enters the plate. Default: at the target's own height.
-   * "lane": along a clear row (a fraction of the plate height), then down or up onto the target.
-   * "along": along the top edge of a rule inside a live plate.
-   */
-  route?: { kind: "lane"; y: number } | { kind: "along"; css: string };
   /**
    * The crop the phone layout shows under this part. "stores": only the plate's link panel.
    * Omitted: the part shows no plate on a phone. The first part's plate is the phone hero, under the title.
@@ -74,11 +68,11 @@ export interface CaseCopy {
 const RECREATION = "Recreation · invented data.";
 const BOTH_STORES = "Live in both app stores";
 
-/* Desktop crops stay at 1:1 or close, so the screen's own text stays readable in the frame. */
+/* Wide crops stay at 1:1 or close, so the screen's own text stays readable. */
 
 const bayyinahPricing: Shot = {
   src: "/showcase/bayyinah/web-06.webp",
-  alt: "Bayyinah TV pricing: a monthly and annual switch, the course list and the Premium plan at $11 a month with a Start 7-Day Free Trial button",
+  alt: "Bayyinah TV pricing: a monthly and annual switch, the course list and the Premium plan and its Start 7-Day Free Trial button",
   width: 1440,
   height: 900,
   crop: { x: 508, y: 92, w: 904, h: 694 },
@@ -155,7 +149,6 @@ export const caseCopy: Record<string, CaseCopy> = {
         proof: "Each organization sees only its own patients.",
         plate: 1,
         target: { kind: "selector", css: 'button[aria-haspopup="listbox"]', round: true },
-        route: { kind: "lane", y: 0.022 },
       },
     ],
     figures: [
@@ -198,7 +191,6 @@ export const caseCopy: Record<string, CaseCopy> = {
         proof: "Courses, video series and live classes in one library.",
         plate: 1,
         target: { kind: "shot", box: { x: 414, y: 592, w: 54, h: 36 } },
-        route: { kind: "lane", y: 0.497 },
         narrow: { x: 404, y: 566, w: 300, h: 320 },
       },
       {
@@ -246,7 +238,6 @@ export const caseCopy: Record<string, CaseCopy> = {
         proof: "Each book shows how far the child has read.",
         plate: 0,
         target: { kind: "shot", box: { x: 330, y: 850, w: 312, h: 52 } },
-        route: { kind: "lane", y: 0.47 },
         narrow: { x: 100, y: 616, w: 580, h: 680 },
       },
       {
