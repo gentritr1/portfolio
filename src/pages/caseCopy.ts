@@ -123,7 +123,7 @@ export const caseCopy: Record<string, CaseCopy> = {
     title: "One billing report used to give up. Now it finishes.",
     sentence:
       "Care teams in many client organizations use this platform to follow patients at home. Each organization sees only its own patients.",
-    platforms: "Web app and the server behind it",
+    platforms: "Web and mobile, and the server behind them",
     privateNote: "Private app. Shown as a recreation.",
     plates: [
       { kind: "number", from: "16", to: "2", unit: "Database requests", note: "One billing report, before and after" },
