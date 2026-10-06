@@ -263,18 +263,60 @@ function LiveStage({ which }: { which: LiveKey }) {
   );
 }
 
+/** The "2" marks start after the arrow, at the same pace as the "16" marks, so the short row reads as fast. */
+const MARK_MS = 30;
+const MARKS_TO_MS = 640;
+/** Longer than the bar's shrink: 240 ms wait and 640 ms move. */
+const SHARE_MS = 1000;
+
+function Marks({ count, at }: { count: number; at: number }) {
+  return (
+    <span className="cs-marks">
+      {Array.from({ length: count }, (_, k) => (
+        <i key={k} style={{ "--d": `${at + k * MARK_MS}ms` } as CSSProperties} />
+      ))}
+    </span>
+  );
+}
+
 function NumberFigure({ plate }: { plate: Extract<Plate, { kind: "number" }> }) {
+  const marks = plate.marks && plate.from !== undefined;
+  const to = <span className={plate.from ? "cs-number-to" : undefined}>{plate.to}</span>;
   return (
     <figure className="cs-number">
-      <p className="cs-number-figure" aria-hidden="true">
+      <p className="cs-number-figure" aria-hidden="true" data-marks={marks ? "" : undefined}>
         {plate.from && (
           <>
-            <span>{plate.from}</span>
+            {marks ? (
+              <span className="cs-number-col">
+                {plate.from}
+                <Marks count={Number(plate.from)} at={0} />
+              </span>
+            ) : (
+              <span>{plate.from}</span>
+            )}
             <ArrowRightIcon className="cs-number-arrow" weight="bold" />
           </>
         )}
-        <span className={plate.from ? "cs-number-to" : undefined}>{plate.to}</span>
+        {marks ? (
+          <span className="cs-number-col">
+            {to}
+            <Marks count={Number(plate.to)} at={MARKS_TO_MS} />
+          </span>
+        ) : (
+          to
+        )}
       </p>
+      {plate.share && (
+        <div className="cs-share" data-draw-ms={SHARE_MS} aria-hidden="true">
+          <p>{plate.share.before}</p>
+          <span className="cs-share-bar" />
+          <p>{plate.share.now}</p>
+          <span className="cs-share-bar cs-share-track">
+            <span className="cs-share-now" style={{ "--part": plate.share.part } as CSSProperties} />
+          </span>
+        </div>
+      )}
       <figcaption>
         <span className="cs-sr">{plate.from ? `${plate.from} to ${plate.to} ` : `${plate.to} `}</span>
         <span className="cs-number-unit">{plate.unit}</span>
@@ -284,17 +326,21 @@ function NumberFigure({ plate }: { plate: Extract<Plate, { kind: "number" }> }) 
   );
 }
 
+/** Longer than the flow's play in caseMotion.ts: one pass, the way back, the second pass. */
+const FLOW_MS = 2900;
+
 /** A work loop: the steps in order, and the way back when a step fails. */
 function FlowFigure({ plate, caption }: { plate: Extract<Plate, { kind: "flow" }>; caption: string }) {
   const { steps, back } = plate;
   const style = { "--n": steps.length, "--from": back.from, "--to": back.to } as CSSProperties;
   return (
-    <figure className="cs-flow" style={style}>
+    <figure className="cs-flow" style={style} data-from={back.from} data-to={back.to} data-draw-ms={FLOW_MS}>
       <figcaption className="cs-flow-title">{caption}</figcaption>
       <div className="cs-flow-body">
         <ol className="cs-flow-steps">
           {steps.map((step) => (
             <li key={step.name} className="cs-flow-step" data-person={step.person ? "" : undefined}>
+              <span className="cs-flow-lit" aria-hidden="true" />
               <span className="cs-flow-name">
                 {step.person && <UserIcon className="cs-flow-icon" weight="bold" aria-hidden="true" />}
                 {step.name}
@@ -309,6 +355,7 @@ function FlowFigure({ plate, caption }: { plate: Extract<Plate, { kind: "flow" }
           </span>
           <span className="cs-flow-back-label">{back.label}</span>
         </p>
+        <span className="cs-flow-dot" aria-hidden="true" />
       </div>
     </figure>
   );
@@ -465,6 +512,36 @@ function groupsOf(parts: Part[]) {
   return groups;
 }
 
+const TWIN_SIDES = ["Old app", "New app"];
+/** Longer than the last tick on the new app: 400 + 360 + 2 × 80 + 240 ms. */
+const TWIN_MS = 1300;
+
+/** One test on two small screens: the old app ticks each line first, then the new app ticks the same lines. */
+function TwinCheck({ lines }: { lines: string[] }) {
+  return (
+    <figure className="cs-twin" data-draw-ms={TWIN_MS}>
+      <div className="cs-twin-pair">
+        {TWIN_SIDES.map((name, side) => (
+          <div key={name} className="cs-twin-screen" style={{ "--side": side } as CSSProperties}>
+            <p className="cs-twin-bar">{name}</p>
+            <ul>
+              {lines.map((line, i) => (
+                <li key={line} style={{ "--i": i } as CSSProperties}>
+                  <svg className="cs-twin-tick" viewBox="0 0 12 12" aria-hidden="true">
+                    <path d="M2.25 6.5 5 9.25 9.75 3" pathLength={1} />
+                  </svg>
+                  {line}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+      <figcaption className="cs-twin-same">The same test passed on both apps.</figcaption>
+    </figure>
+  );
+}
+
 interface PartTextProps {
   part: Part;
   index: number;
@@ -481,6 +558,7 @@ function PartText({ part, index, plate, project, children }: PartTextProps) {
       <h2 id={`cs-part-${index}`}>{part.heading}</h2>
       <p className="cs-text">{keepWords(part.text)}</p>
       <p className="cs-proof">{keepWords(part.proof)}</p>
+      {part.twin && <TwinCheck lines={part.twin} />}
       {stores && (
         <p className="cs-links">
           <OutLinks links={project.links} />

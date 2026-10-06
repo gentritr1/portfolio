@@ -29,6 +29,8 @@ const CLAIMS = "/showcase/care-dashboard/claims.webp";
 const GLUCOSE = "/showcase/care-dashboard/rpm-overview-cgm.webp";
 const WEEK = "/showcase/care-dashboard/appointments-week.webp";
 const BUTTON_ALERT = "/showcase/design-system/button-alert.webp";
+const DATE_RANGE = "/showcase/design-system/date-range.webp";
+const STATUS_BADGES = "/showcase/design-system/status-badges.webp";
 
 const care = (src: string, alt: string, crop: Px): ScreenShot => ({
   src,
@@ -44,6 +46,15 @@ const storybook = (alt: string, crop: Px): ScreenShot => ({
   alt,
   width: 720,
   height: 596,
+  crop,
+  ground: "#ffffff",
+});
+
+const workshop = (src: string, alt: string, crop: Px): ScreenShot => ({
+  src,
+  alt,
+  width: 1440,
+  height: 900,
   crop,
   ground: "#ffffff",
 });
@@ -119,6 +130,24 @@ export const careShots = {
 } satisfies Record<string, ScreenShot>;
 
 export const dsShots = {
+  /** The date range picker, open, with a range across two months. */
+  dateRange: workshop(
+    DATE_RANGE,
+    "Design System v2 date range picker in its Storybook, open: presets from Today to All time, June and July 2026 side by side, a range from June 22 to July 9, the start and end dates as text, and Cancel and Apply buttons. Invented data.",
+    { x: 4, y: 36, w: 780, h: 432 },
+  ),
+  /** The trigger, the presets and June, for a phone. */
+  dateRangeJune: workshop(
+    DATE_RANGE,
+    "Design System v2 date range picker, open: the presets and June 2026, with the range that starts on June 22. Invented data.",
+    { x: 8, y: 36, w: 476, h: 364 },
+  ),
+  /** One colour family for each status meaning. */
+  statuses: workshop(
+    STATUS_BADGES,
+    "Design System v2 status badges in its Storybook: one colour family for each meaning, from Active and Approved to Pending approval, Rejected, Scheduled, Draft, Transferred and Prior episode.",
+    { x: 8, y: 8, w: 444, h: 300 },
+  ),
   buttonAlert: storybook(
     "Design System v2 in its Storybook: buttons in four styles, buttons with icons, and alerts for a note, information, success, a warning and an error. Invented data.",
     { x: 0, y: 0, w: 720, h: 596 },

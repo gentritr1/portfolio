@@ -41,23 +41,23 @@ const iphone = (src: string, alt: string): Shot => ({ src, width: 780, height: 1
 export const leadWeb = {
   shot: {
     ...web(
-      "/showcase/bayyinah/web-02.webp",
-      "Bayyinah TV library, Subject row: course cards Remarkable Stories, From Jerusalem to Makkah and Ramadan LIVE 2026",
+      "/showcase/care-dashboard/appointments-week.webp",
+      "Care team calendar, Monday to Saturday, 8 AM to noon: wound checks, lung function tests, a medication review and check-in calls, and a line at the current time. Invented data.",
     ),
-    crop: { x: 95, y: 505, w: 910, h: 390 },
-    narrowCrop: { x: 100, y: 515, w: 310, h: 375 },
+    crop: { x: 471, y: 208, w: 959, h: 417 },
+    narrowCrop: { x: 631, y: 214, w: 320, h: 410 },
   } satisfies Shot,
-  name: "Bayyinah TV",
+  name: "Care platform",
   note: "Web app",
 };
 
 export const leadPhone = {
   shot: {
     ...iphone(
-      "/mobile/grocery-1.webp",
-      "Viva Fresh home screen in Albanian: product categories, the latest products with prices and quantity buttons",
+      "/mobile/grocery-3.webp",
+      "Viva Fresh cart in Albanian: three products with prices and quantity buttons, the total discount, a button that empties the cart, and the checkout button with the total of 25.11 euros",
     ),
-    crop: { x: 100, y: 476, w: 580, h: 766 },
+    crop: { x: 90, y: 664, w: 600, h: 804 },
   } satisfies Shot,
   name: "Viva Fresh",
   note: "Phone app",
@@ -101,11 +101,11 @@ export const client: Row[] = [
     ],
     plate: {
       ...web(
-        "/showcase/bayyinah/web-06.webp",
-        "Bayyinah TV pricing: the Premium plan with its monthly price, a tick for each feature, and its Start 7-Day Free Trial button",
+        "/showcase/bayyinah/web-05.webp",
+        "Bayyinah TV series page: Moses 2, Adventures of Young Moses (Part 2), its summary and three episode cards with their length and date",
       ),
-      crop: { x: 508, y: 104, w: 904, h: 624 },
-      narrowCrop: { x: 964, y: 104, w: 436, h: 196 },
+      crop: { x: 344, y: 180, w: 1000, h: 690 },
+      narrowCrop: { x: 346, y: 552, w: 334, h: 282 },
     },
   },
   {
@@ -167,11 +167,11 @@ export const client: Row[] = [
     ],
     plate: {
       ...iphone(
-        "/mobile/bookstore-1.webp",
-        "Dukagjini Bookstore home screen: book search, top categories and books on sale",
+        "/mobile/bookstore-2.webp",
+        "Dukagjini Bookstore Foreign Books list: book search, and two books with their star ratings, authors, prices and favourite hearts",
       ),
-      crop: { x: 106, y: 740, w: 568, h: 694 },
-      narrowCrop: { x: 118, y: 850, w: 544, h: 395 },
+      crop: { x: 106, y: 852, w: 540, h: 654 },
+      narrowCrop: { x: 106, y: 1000, w: 540, h: 496 },
     },
   },
   {
@@ -184,12 +184,12 @@ export const client: Row[] = [
     note: "Real product screens, invented data.",
     links: [],
     plate: {
-      src: "/showcase/design-system/button-alert.webp",
-      width: 1440,
-      height: 1192,
-      alt: "Design System v2 in its Storybook: buttons in four styles, buttons with icons, and alerts for a note, information and success. Invented data.",
-      crop: { x: 16, y: 24, w: 1408, h: 760 },
-      narrowCrop: { x: 16, y: 24, w: 1408, h: 590 },
+      src: "/showcase/design-system/date-range.webp",
+      width: 2880,
+      height: 1800,
+      alt: "Design System v2 date range picker in its Storybook, open: presets from Today to All time, June and July 2026 side by side, a range from June 22 to July 9, and Cancel and Apply buttons. Invented data.",
+      crop: { x: 8, y: 72, w: 1560, h: 864 },
+      narrowCrop: { x: 16, y: 72, w: 952, h: 728 },
     },
   },
   {
@@ -232,9 +232,9 @@ export const concepts: Concept[] = [
     result: "A working eight-step drum machine plays in the browser.",
     links: [{ label: "GitHub", href: "https://github.com/gentritr1/offbeat" }],
     plate: desktop(
-      "/personal/shots/offbeat-home-desktop.webp",
-      "OFFBEAT home: a hot-orange portable speaker in 3D with finish swatches and the line Plays your songs. Makes its own.",
-      { x: 1440, y: 335, w: 1300, h: 880 },
+      "/personal/shots/offbeat-studio-desktop.webp",
+      "OFFBEAT studio while Kitchen disco plays: the speaker in 3D, an eight-step drum grid for kick, snare, hi-hat and bass, and tempo, volume and swing controls",
+      { x: 1220, y: 380, w: 1480, h: 620 },
     ),
   },
   {
@@ -301,24 +301,24 @@ export const games: Note[] = [
 export const screenColours: Record<string, string> = {
   "/showcase/care-dashboard/overview.webp":
     "f0f2f6f5f7fbf5f7fbf5f7fbefeff1fafbfcf3f4f5fbfbfcecf0f0f9f9f9ececf1f6f6f7f0f1f7f8f8f8f3f2f2f9f9f9",
-  "/showcase/bayyinah/web-02.webp":
-    "3d3332212025261f243f312d7260582c485736373a856a62896b6f2d2a2a3c363894726f242022221e20262123262224",
-  "/mobile/grocery-1.webp":
-    "c9c9c3cbb8aac1c6cbc8c3bce8e6e6ebe8e8f2f1f0eee9eae8e0d4ede7dff0e5e2ecded9f0ececf6f5f3f0ececf5f4f3",
-  "/showcase/bayyinah/web-06.webp":
-    "2314151d141818131518131421191d1e1519100b0d100b0d2a212522191d100b0d100b0d251b1f1f151926100f25100f",
+  "/showcase/care-dashboard/appointments-week.webp":
+    "fdfdfdfdfdfdfdfdfdfdfdfdf8f6fdf9f7fdf8f5fdfdfcfefefefff8fafbf6faf8fefefefbf9fcf2f7f5fbfafdfdfcfe",
+  "/mobile/grocery-3.webp":
+    "c8b3a9e4dbdaeaeaeaedeeeee5dbcaeae5e5e4e5e5eeefefead6d0e9e5e4e4e4e4edededf4aaaaf5a1a1cb8b7bc99585",
+  "/showcase/bayyinah/web-05.webp":
+    "4640423a34372e272a2720232f292b2d26292d26292720232e3b45333d46373f463a3e442c27292c27292e28292d2729",
   "/mobile/reading-1.webp":
     "e0ebedd3e2e7cbdee7d8e7ee9bb6af76a2a72e84ac4591b475bbdd5fb1d85db0d973badcabd5e79fcfe59fd0e5aed7e8",
   "/mobile/grocery-2.webp":
     "67825f8ea8889eb69786a180d6ded6dde5dddce8ded4e2dcf3f1f1f7f7f7dfe6e9ebeeefeee6e6efeeeeebebecf2f2f2",
-  "/mobile/bookstore-1.webp":
-    "f8efe9eddfdaede0daf8eee8f7e6dcdcc6b7dcc6b7f7e6dcf5f5f4ebebebecebebf3e8e8f1f1f1efefefedededf4f4f4",
-  "/showcase/design-system/button-alert.webp":
-    "b0ccd8c2dee9cadde5d6e8f0e5eceee4ebedecf2f4f0f6f9ebf3e6edf5e8f2faedf5fdf0f6ebe5f9ede7f7eee7faf0e9",
+  "/mobile/bookstore-2.webp":
+    "f2f2f2f0f0f0f7f7f7f9eceddec7b1ece6def4f3f3fdfbfbbed5d7dfe7e6f0f0eef9f9f9b5dbe0dae4e8f8f6f6fdfdfd",
+  "/showcase/design-system/date-range.webp":
+    "fafafafbfbfbfffffffbfbfbf6f6f6f9f9f9f4f7f8ebf1f4f5f6f6e4edf1f3f5f6f6f7f7fbfbfbf8f8f9f9f9f9e1ebef",
   "/showcase/incentiv/web-03.webp":
     "1c1c1a1c1c1b1b1b1a1d1d1b4444412d2c2a20201e20201e302c292b2a272121201c1d1c1b1b1a1b1b1a1b18151e1a17",
-  "/personal/shots/offbeat-home-desktop.webp":
-    "14141210100e17140f23201e454643323230412d263a26202e2e2c0f0f0d1f16111d16121d1d142f2a1412110c10100d",
+  "/personal/shots/offbeat-studio-desktop.webp":
+    "27211d2e291f1919140f0f0d1a1a172421185b5c293c3d1f25261b1b1b161414101919161213101d1d131b1c110e0e0c",
   "/personal/shots/form-home-desktop.webp":
     "2927261e1c1b29211c201d1a3f332b25201c77563c3e2d22413e3d1b19186549313f2f221c1a191b191830292324201c",
   "/personal/shots/offday-light-shifts-desktop.webp":

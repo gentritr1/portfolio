@@ -356,6 +356,116 @@
   margin-top: 4px;
 }
 
+/* ---------- One test on two small screens ---------- */
+
+.cs-twin {
+  --twin-line: color-mix(in srgb, var(--cs-ink) 40%, transparent);
+  max-width: 420px;
+  margin-top: 24px;
+}
+
+/* The contact shades stand behind the screens, not behind the page. */
+.cs-twin-pair {
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 12px;
+}
+
+.cs-twin-screen {
+  position: relative;
+  border-radius: 4px;
+  background: var(--cs-lit);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--cs-ink) 22%, transparent);
+}
+
+.cs-twin-screen::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  left: -4px;
+  right: -4px;
+  bottom: -6px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--cs-shade);
+  filter: blur(4px);
+  opacity: 0.8;
+}
+
+.cs-twin-bar {
+  padding: 5px 10px;
+  border-radius: 4px 4px 0 0;
+  background: var(--cs-ink);
+  color: var(--cs-lit);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.cs-twin-screen ul {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 10px 12px;
+}
+
+.cs-twin-screen li {
+  display: grid;
+  grid-template-columns: 14px minmax(0, 1fr);
+  column-gap: 6px;
+  font-size: 13px;
+  line-height: 1.35;
+  text-wrap: pretty;
+}
+
+.cs-twin-tick {
+  width: 14px;
+  height: 14px;
+  margin-top: 1px;
+  fill: none;
+  stroke: var(--cs-accent);
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* A bracket joins the two screens under their middles. */
+.cs-twin-same {
+  position: relative;
+  margin-top: 10px;
+  padding-top: 18px;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.35;
+  text-align: center;
+}
+
+.cs-twin-same::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: calc(25% - 3px);
+  right: calc(25% - 3px);
+  height: 12px;
+  border: 1.5px solid var(--twin-line);
+  border-top: 0;
+  border-radius: 0 0 10px 10px;
+}
+
+.cs-twin[data-draw] .cs-twin-tick path {
+  stroke-dasharray: 1;
+}
+
+.cs-twin[data-draw="before"] .cs-twin-tick path {
+  stroke-dashoffset: 1;
+}
+
+.cs-twin[data-draw="run"] .cs-twin-tick path {
+  transition: stroke-dashoffset 240ms var(--cs-out);
+  transition-delay: calc(400ms + var(--side) * 360ms + var(--i) * 80ms);
+}
+
 /* ---------- Ground: one screen standing in the sun ---------- */
 
 .cs-ground {
@@ -619,6 +729,103 @@
   height: 0.42em;
 }
 
+/* One mark for each request. Both rows keep the pitch of the "16" row, so the two counts compare at a glance. */
+.cs-number-figure[data-marks] {
+  --mark-w: 3px;
+  --mark-h: 14px;
+  padding-bottom: calc(var(--mark-h) + 0.04em);
+}
+
+.cs-number-col {
+  position: relative;
+}
+
+.cs-number-col > .cs-number-to {
+  display: inline-block;
+}
+
+.cs-marks {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% + 0.04em);
+  display: flex;
+  justify-content: center;
+  gap: calc(0.052em - var(--mark-w));
+  height: var(--mark-h);
+}
+
+.cs-marks i {
+  flex: none;
+  width: var(--mark-w);
+  height: 100%;
+  border-radius: 1px;
+  background: currentColor;
+  opacity: 0.4;
+  transform-origin: 50% 100%;
+}
+
+[data-draw="before"] .cs-marks i {
+  opacity: 0;
+  transform: scaleY(0.3);
+}
+
+[data-draw="run"] .cs-marks i {
+  transition:
+    opacity 160ms var(--cs-out) var(--d),
+    transform 160ms var(--cs-out) var(--d);
+}
+
+.cs-number-figure[data-marks][data-draw="run"] .cs-number-arrow {
+  transition-delay: 480ms;
+}
+
+.cs-number-figure[data-marks][data-draw="run"] .cs-number-to {
+  transition-delay: 600ms;
+}
+
+/* Two bars to scale. The empty track keeps the size of the bundle that no longer loads. */
+.cs-share {
+  order: 2;
+  display: grid;
+  gap: 6px;
+  width: min(100%, 420px);
+  margin-top: 16px;
+  font-size: 14px;
+  line-height: 1.35;
+  text-align: left;
+  color: var(--cs-soft);
+}
+
+.cs-share-bar {
+  display: block;
+  height: 10px;
+  margin-bottom: 8px;
+  background: color-mix(in srgb, var(--cs-ink) 22%, transparent);
+}
+
+.cs-share-track {
+  margin-bottom: 0;
+  background: none;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--cs-ink) 22%, transparent);
+}
+
+.cs-share-now {
+  display: block;
+  height: 100%;
+  background: var(--cs-accent);
+  transform-origin: 0 50%;
+  transform: scaleX(var(--part));
+}
+
+.cs-share[data-draw="before"] .cs-share-now {
+  transform: scaleX(1);
+}
+
+.cs-share[data-draw="run"] .cs-share-now {
+  transition: transform 640ms cubic-bezier(0.77, 0, 0.175, 1) 240ms;
+}
+
 .cs-number figcaption {
   display: flex;
   flex-direction: column;
@@ -778,6 +985,33 @@
   line-height: 1.35;
   text-align: center;
   text-wrap: balance;
+}
+
+/* The light and the dot are hidden in the static plate; caseMotion.ts plays them once. */
+.cs-flow-lit {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 2px var(--cs-ink);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.cs-flow-step[data-person] .cs-flow-lit {
+  box-shadow: inset 0 0 0 3px var(--cs-accent);
+}
+
+.cs-flow-dot {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--cs-accent);
+  box-shadow: 0 0 0 2.5px var(--cs-lit);
+  opacity: 0;
+  pointer-events: none;
 }
 
 /* Too narrow for a row: the steps stand in a column of equal rows, and the way back runs on the right. */
@@ -1193,6 +1427,11 @@
 
   .cs-number-figure {
     font-size: min(160px, 26vw);
+  }
+
+  .cs-number-figure[data-marks] {
+    --mark-w: 2px;
+    --mark-h: 12px;
   }
 }
 

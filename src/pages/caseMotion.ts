@@ -4,13 +4,96 @@ import { canWalk, caseScreen, inView, wait, walk } from "../lib/plateWalk";
 import { preloadCase, takeBack } from "../lib/routes";
 import { HOME_WORK } from "./caseLight";
 
-const MARKS = ".cs-shot-ring, .cs-proof, .cs-number-figure, .cs-figures ul";
+const MARKS = ".cs-shot-ring, .cs-proof, .cs-number-figure, .cs-figures ul, .cs-flow, .cs-twin, .cs-share";
 /** A mark that is set back and on screen but has not drawn by then draws now. */
 const SAFETY_MS = 2000;
 /** An off-screen mark waits for its observer; the safety looks again after this time. */
 const RECHECK_MS = 500;
-/** Longer than the slowest mark with its delays. */
+/** Longer than the slowest mark with its delays. A longer mark gives its own time in `data-draw-ms`. */
 const DONE_MS = 1000;
+
+const OUT = "cubic-bezier(0.215, 0.61, 0.355, 1)";
+const IN_OUT = "cubic-bezier(0.77, 0, 0.175, 1)";
+/** The light passes one step in this time. */
+const FLOW_STEP_MS = 240;
+const LIT_MS = 480;
+const DOT_MS = 640;
+
+/** Points along a polyline whose inner corners are rounded with radius r. */
+function rounded(points: number[][], r: number) {
+  const out = [points[0]];
+  for (let i = 1; i < points.length - 1; i++) {
+    const [px, py] = points[i - 1];
+    const [cx, cy] = points[i];
+    const [nx, ny] = points[i + 1];
+    const a = Math.hypot(px - cx, py - cy);
+    const b = Math.hypot(nx - cx, ny - cy);
+    const k = Math.min(r, a / 2, b / 2);
+    const inX = cx + ((px - cx) / a) * k;
+    const inY = cy + ((py - cy) / a) * k;
+    const outX = cx + ((nx - cx) / b) * k;
+    const outY = cy + ((ny - cy) / b) * k;
+    for (let s = 0; s <= 4; s++) {
+      const t = s / 4;
+      const u = 1 - t;
+      out.push([u * u * inX + 2 * u * t * cx + t * t * outX, u * u * inY + 2 * u * t * cy + t * t * outY]);
+    }
+  }
+  out.push(points.at(-1)!);
+  return out;
+}
+
+/**
+ * The flow plate plays one change: a light passes through the steps, a dot runs the way back, and the light passes
+ * the steps again from there. Geometry is read once, before the first frame. Nothing is filled, so the end is the static plate.
+ */
+function playFlow(figure: HTMLElement): Animation[] {
+  const body = figure.querySelector<HTMLElement>(".cs-flow-body");
+  const back = figure.querySelector<HTMLElement>(".cs-flow-back");
+  const dot = figure.querySelector<HTMLElement>(".cs-flow-dot");
+  const lit = [...figure.querySelectorAll<HTMLElement>(".cs-flow-lit")];
+  const from = Number(figure.dataset.from);
+  const to = Number(figure.dataset.to);
+  if (!body || !back || !dot || lit.length < 2 || !(from > to)) return [];
+  const o = body.getBoundingClientRect();
+  const b = back.getBoundingClientRect();
+  const x = b.left - o.left;
+  const y = b.top - o.top;
+  const column = lit[1].getBoundingClientRect().top > lit[0].getBoundingClientRect().top;
+  // The dot runs on the centre line of the way back that case.css draws: 1.5 px wide, corner radius 14 px.
+  const path = column
+    ? [[x, y + b.height - 0.75], [x + 27.25, y + b.height - 0.75], [x + 27.25, y + 0.75], [x, y + 0.75]]
+    : [[x + b.width - 0.75, y], [x + b.width - 0.75, y + b.height - 30.75], [x + 0.75, y + b.height - 30.75], [x + 0.75, y]];
+  const points = rounded(path, 13.25);
+  const lengths = points.slice(1).map(([px, py], i) => Math.hypot(px - points[i][0], py - points[i][1]));
+  const total = lengths.reduce((sum, length) => sum + length, 0);
+  let run = 0;
+  const frames = points.map(([px, py], i) => {
+    if (i) run += lengths[i - 1];
+    return { transform: `translate(${(px - 5).toFixed(2)}px, ${(py - 5).toFixed(2)}px)`, offset: run / total };
+  });
+  const light = (k: number, at: number, hold = 0) =>
+    lit[k].animate(
+      [
+        { opacity: 0, easing: OUT },
+        { opacity: 1, offset: (0.25 * LIT_MS) / (LIT_MS + hold) },
+        { opacity: 1, offset: (0.5 * LIT_MS + hold) / (LIT_MS + hold), easing: "ease" },
+        { opacity: 0 },
+      ],
+      { duration: LIT_MS + hold, delay: at },
+    );
+  const list = lit.map((_, k) => light(k, k * FLOW_STEP_MS, k === from ? FLOW_STEP_MS : 0));
+  const leave = (from + 1) * FLOW_STEP_MS;
+  list.push(dot.animate(frames, { duration: DOT_MS, delay: leave, easing: IN_OUT }));
+  list.push(
+    dot.animate([{ opacity: 0 }, { opacity: 1, offset: 0.12 }, { opacity: 1, offset: 0.84 }, { opacity: 0 }], {
+      duration: DOT_MS,
+      delay: leave,
+    }),
+  );
+  for (let k = to; k <= from; k++) list.push(light(k, leave + DOT_MS + (k - to) * FLOW_STEP_MS));
+  return list;
+}
 
 /**
  * Each proof mark draws once, when it comes on screen. A mark is complete by default. It is set back only
@@ -21,10 +104,12 @@ export function useDraw(root: RefObject<HTMLElement | null>) {
     const scope = root.current;
     if (!scope || !("IntersectionObserver" in window) || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const timers: number[] = [];
+    const played: Animation[] = [];
     const run = (mark: HTMLElement) => {
       if (mark.dataset.draw !== "before") return;
       mark.dataset.draw = "run";
-      timers.push(window.setTimeout(() => delete mark.dataset.draw, DONE_MS));
+      if (mark.matches(".cs-flow")) played.push(...playFlow(mark));
+      timers.push(window.setTimeout(() => delete mark.dataset.draw, Number(mark.dataset.drawMs) || DONE_MS));
     };
     const enter = new IntersectionObserver(
       (entries) => {
@@ -69,6 +154,7 @@ export function useDraw(root: RefObject<HTMLElement | null>) {
       enter.disconnect();
       near.disconnect();
       timers.forEach((timer) => window.clearTimeout(timer));
+      played.forEach((animation) => animation.cancel());
       scope.querySelectorAll<HTMLElement>("[data-draw]").forEach((mark) => delete mark.dataset.draw);
     };
   }, [root]);

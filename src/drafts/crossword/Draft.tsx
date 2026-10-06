@@ -84,11 +84,11 @@ function Tiles({ text }: { text: string }) {
   return <span className="fk-tiles" aria-hidden="true">{text.split(' ').map(part => <span key={part}>{Array.from(part).map((letter, index) => <i key={index}>{letter}</i>)}</span>)}</span>
 }
 
-const leadShot: Record<string, number> = { incentiv: 2 }
+const leadShot: Record<string, number> = { incentiv: 2, 'bayyinah-tv': 1 }
 
 function LeadMedia({ slug }: { slug: string }) {
   const project = projectOf(slug)
-  const shot = slug === 'care-platform' ? careShots.patients : slug === 'design-system-react' ? dsShots.top : null
+  const shot = slug === 'care-platform' ? careShots.patients : slug === 'design-system-react' ? dsShots.dateRange : null
   if (shot) return <figure className="fk-lead-media" data-kind="shot">
     <div className="fk-shot"><CropShot shot={shot} /></div>
     <figcaption>{REAL_SCREENS}</figcaption>
