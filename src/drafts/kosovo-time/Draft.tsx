@@ -32,7 +32,7 @@ import {
   type Row,
   type Shot,
 } from "./data";
-import { anchors, contrast, lightAt, luminance } from "./light";
+import { anchors, contrast, lightAt, luminance, type Light } from "./light";
 import {
   cameraFor,
   cellsFrom,
@@ -505,6 +505,15 @@ interface Box {
   t: number;
   b: number;
 }
+interface Geometry {
+  width: number;
+  height: number;
+  left: number;
+  viewport: number;
+  radius: number;
+  marks: Record<Edge, { w: number; anchor: number; t: number; h: number } | null>;
+  label: { w: number; h: number };
+}
 const overlaps = (a: Box, b: Box) => a.l < b.r && b.l < a.r && a.t < b.b && b.t < a.b;
 /** A touch must move this far, mostly sideways, before it moves the sun. A vertical move scrolls the page. */
 const INTENT_PX = 8;
@@ -528,8 +537,8 @@ function SunPath() {
   const hint = useRef<HTMLSpanElement>(null);
   const marks = useRef<Partial<Record<Edge, HTMLSpanElement | null>>>({});
   const spot = useRef({ x: 0.5, y: 0.5, below: false });
-  const [minute, setMinute] = useState(() => Math.floor(kosovoMinutes(clock.current.ms)));
-  const [altitude, setAltitude] = useState(() => Math.round(clock.current.sun.altitude));
+  /** Layout reads for `place`. A sun move changes only transforms, so they stay valid until a resize, a font load or new words. */
+  const geometry = useRef<Geometry | null>(null);
   const [below, setBelow] = useState(() => clock.current.sun.altitude < RISE);
   const [touched, setTouched] = useState(false);
   const touchedNow = useRef(false);
@@ -558,31 +567,44 @@ function SunPath() {
     return false;
   };
 
-  /** Keeps the path marks off the disc, the hint and the curve, at every hour and width.
-   * Sunrise stands only left of its point and Sunset only right of it, where the curve is below the horizon. */
-  const place = () => {
+  const measure = (): Geometry | null => {
     const el = track.current;
     const sun = dot.current;
     const label = hint.current;
-    if (!el || !sun || !label) return;
-    const width = el.clientWidth;
-    const height = el.clientHeight;
-    const left = el.getBoundingClientRect().left;
-    const viewport = document.documentElement.clientWidth;
+    if (!el || !sun || !label) return null;
+    const read = (edge: Edge) => {
+      const mark = marks.current[edge];
+      return mark ? { w: mark.offsetWidth, anchor: mark.offsetLeft, t: mark.offsetTop, h: mark.offsetHeight } : null;
+    };
+    return {
+      width: el.clientWidth,
+      height: el.clientHeight,
+      left: el.getBoundingClientRect().left,
+      viewport: document.documentElement.clientWidth,
+      radius: (sun.firstElementChild as HTMLElement).offsetWidth / 2 + 6,
+      marks: { rise: read("rise"), noon: read("noon"), set: read("set") },
+      label: { w: label.offsetWidth, h: label.offsetHeight },
+    };
+  };
+
+  /** Keeps the path marks off the disc, the hint and the curve, at every hour and width.
+   * Sunrise stands only left of its point and Sunset only right of it, where the curve is below the horizon. */
+  const place = () => {
+    const label = hint.current;
+    const g = (geometry.current ??= measure());
+    if (!g || !label) return;
+    const { width, height, left, viewport, radius } = g;
     const inView = (b: Box) => left + b.l >= 4 && left + b.r <= viewport - 4;
     const sx = spot.current.x * width;
     const sy = spot.current.y * height;
-    const radius = (sun.firstElementChild as HTMLElement).offsetWidth / 2 + 6;
     const disc: Box = { l: sx - radius, r: sx + radius, t: sy - radius, b: sy + radius };
 
     const shown: { mark: HTMLSpanElement; box: Box }[] = [];
     for (const edge of ["rise", "noon", "set"] as const) {
       const mark = marks.current[edge];
-      if (!mark) continue;
-      const w = mark.offsetWidth;
-      if (!w) continue;
-      const anchor = mark.offsetLeft;
-      const t = mark.offsetTop;
+      const size = g.marks[edge];
+      if (!mark || !size?.w) continue;
+      const { w, anchor, t } = size;
       const toView = { l: 4 - left - anchor, r: viewport - 4 - left - anchor - w };
       const shifts =
         edge === "rise"
@@ -592,7 +614,7 @@ function SunPath() {
             : [-w / 2, -w - 28, 28, Math.min(-w - 12, disc.l - 6 - w - anchor), Math.max(12, disc.r + 6 - anchor)];
       let pick: { dx: number; box: Box } | null = null;
       for (const dx of shifts) {
-        const box = { l: anchor + dx, r: anchor + dx + w, t, b: t + mark.offsetHeight };
+        const box = { l: anchor + dx, r: anchor + dx + w, t, b: t + size.h };
         if (inView(box) && !overlaps(box, disc) && !crossed(box, width, height)) {
           pick = { dx, box };
           break;
@@ -606,8 +628,7 @@ function SunPath() {
     }
 
     if (touchedNow.current) return;
-    const w = label.offsetWidth;
-    const h = label.offsetHeight;
+    const { w, h } = g.label;
     const side = radius + 5;
     const spots: [number, number][] = spot.current.below
       ? [
@@ -634,13 +655,25 @@ function SunPath() {
     label.style.setProperty("--hy", `${Math.round(box.t - sy)}px`);
   };
 
+  const remeasure = () => {
+    geometry.current = null;
+    place();
+  };
+  // The hint's words change when the sun crosses the horizon, and a new day brings new marks.
+  useLayoutEffect(() => {
+    geometry.current = null;
+  }, [below, day]);
   useLayoutEffect(place);
   useEffect(() => {
-    const observer = new ResizeObserver(() => place());
-    if (track.current) observer.observe(track.current);
-    void document.fonts?.ready.then(() => place());
-    return () => observer.disconnect();
-    // place reads only refs.
+    const observer = new ResizeObserver(remeasure);
+    for (const node of [track.current, hint.current, ...Object.values(marks.current)]) if (node) observer.observe(node);
+    window.addEventListener("resize", remeasure);
+    void document.fonts?.ready.then(remeasure);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", remeasure);
+    };
+    // place and remeasure read only refs.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -658,10 +691,14 @@ function SunPath() {
           node.dataset.below = String(spot.current.below);
           place();
         }
-        const whole = Math.floor(kosovoMinutes(f.ms));
-        setMinute((was) => (was === whole ? was : whole));
-        const a = Math.round(f.sun.altitude);
-        setAltitude((was) => (was === a ? was : a));
+        // The slider values change on most frames of a move, so they are written here and not rendered by React.
+        const slider = track.current;
+        if (slider) {
+          const a = Math.round(f.sun.altitude);
+          const side = f.sun.altitude < RISE ? "below" : "above";
+          slider.setAttribute("aria-valuenow", String(Math.floor(kosovoMinutes(f.ms))));
+          slider.setAttribute("aria-valuetext", `${clockText(f.ms)} in Kosovo, sun ${Math.abs(a)}° ${side} the horizon`);
+        }
         setBelow(f.sun.altitude < RISE);
       }),
     // yOf only reads the day, which is in the list.
@@ -772,7 +809,6 @@ function SunPath() {
   };
 
   const at = (ms: number) => ((ms - day.midnight) / 60000 / 1440) * 100;
-  const valueText = `${clockText(clock.current.ms)} in Kosovo, sun ${Math.abs(altitude)}° ${below ? "below" : "above"} the horizon`;
 
   return (
     <div
@@ -783,8 +819,6 @@ function SunPath() {
       aria-label="Time in Kosovo today. Drag the sun or use the arrow keys."
       aria-valuemin={0}
       aria-valuemax={1439}
-      aria-valuenow={minute}
-      aria-valuetext={valueText}
       onPointerDown={onDown}
       onPointerMove={onMove}
       onPointerUp={onUp}
@@ -1162,6 +1196,27 @@ function Lights({ current }: { current: string }) {
 
 /* ---------- Page ---------- */
 
+/** While the sun moves, the light goes to these parts one by one, and only to the parts near the screen.
+ * A new value on the page root restyles every element of the page, so the root takes the light only after the sun stops. */
+const LIT_PARTS = ".kt-top, .kt-first, .kt-section > h2, .kt-rows > li, .kt-pair, .kt-games-title, .kt-games, .kt-foot";
+/** A part this far outside the screen, as a part of the screen height, keeps its light until the sun stops. */
+const LIT_REACH = 0.5;
+const ROOT_LIGHT_MS = 150;
+const lightVars = (light: Light): [string, string][] => [
+  ["--kt-sky", light.sky],
+  ["--kt-mid", light.mid],
+  ["--kt-haze", light.haze],
+  ["--kt-lit", light.lit],
+  ["--kt-shade", light.shade],
+  ["--kt-ink", light.ink],
+  ["--kt-soft", light.soft],
+  ["--kt-accent", light.accent],
+  ["--kt-sun", light.sun],
+];
+const paintLight = (element: HTMLElement, vars: [string, string][]) => {
+  for (const [name, value] of vars) element.style.setProperty(name, value);
+};
+
 /** False after the first visit in this tab, so a return to the home page never replays the intro. */
 let openedBefore = false;
 const RETURN_Y = "kt-y";
@@ -1199,6 +1254,7 @@ export default function Draft() {
   const time = useRef<HTMLTimeElement>(null);
   const yours = useRef<HTMLSpanElement>(null);
   const sentence = useRef<HTMLParagraphElement>(null);
+  const page = useRef<HTMLDivElement>(null);
   const [lightName, setLightName] = useState(clock.current.light.name);
   const [live, setLive] = useState(clock.current.live);
   const settled = fonts !== "wait";
@@ -1288,17 +1344,73 @@ export default function Draft() {
     const names = ["--kt-sun", "--kt-sky", "--kt-mid", "--kt-haze", "--kt-lit", "--kt-shade", "--kt-ink", "--kt-soft", "--kt-accent"];
     const chrome = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
     const chromeBefore = chrome?.content;
+    const kt = page.current;
+    const near = new Set<Element>();
+    let parts: HTMLElement[] = [];
+    let sections: HTMLElement[] = [];
+    let scoped = false;
+    let started = false;
+    let rootTimer = 0;
+    const watch = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) near.delete(entry.target);
+          else {
+            near.add(entry.target);
+            if (scoped) paintLight(entry.target as HTMLElement, lightVars(clock.current.light));
+          }
+        }
+      },
+      { rootMargin: `${LIT_REACH * 100}% 0px` },
+    );
+    const scope = () => {
+      parts = [...document.querySelectorAll<HTMLElement>(LIT_PARTS)];
+      sections = [...document.querySelectorAll<HTMLElement>(".kt-section")];
+      const reach = window.innerHeight * LIT_REACH;
+      for (const part of parts) {
+        const box = part.getBoundingClientRect();
+        if (box.bottom > -reach && box.top < window.innerHeight + reach) near.add(part);
+        watch.observe(part);
+      }
+      scoped = true;
+    };
+    const unscope = () => {
+      watch.disconnect();
+      near.clear();
+      for (const part of parts) for (const name of names) part.style.removeProperty(name);
+      for (const section of sections) {
+        section.style.removeProperty("--kt-band-lit");
+        section.style.removeProperty("--kt-band-haze");
+      }
+      kt?.style.removeProperty("background-color");
+      html.style.removeProperty("background-color");
+      parts = [];
+      sections = [];
+      scoped = false;
+    };
+    const lightRoot = (light: Light) => {
+      window.clearTimeout(rootTimer);
+      paintLight(html, lightVars(light));
+      if (scoped) unscope();
+    };
+    const lightParts = (light: Light) => {
+      if (!scoped) scope();
+      const vars = lightVars(light);
+      for (const part of near) paintLight(part as HTMLElement, vars);
+      for (const section of sections) {
+        section.style.setProperty("--kt-band-lit", light.lit);
+        section.style.setProperty("--kt-band-haze", light.haze);
+      }
+      kt?.style.setProperty("background-color", light.lit);
+      html.style.setProperty("background-color", light.lit);
+      window.clearTimeout(rootTimer);
+      rootTimer = window.setTimeout(() => lightRoot(clock.current.light), ROOT_LIGHT_MS);
+    };
     const off = clock.subscribe((frame) => {
       const { ms, sun, light } = frame;
-      html.style.setProperty("--kt-sky", light.sky);
-      html.style.setProperty("--kt-mid", light.mid);
-      html.style.setProperty("--kt-haze", light.haze);
-      html.style.setProperty("--kt-lit", light.lit);
-      html.style.setProperty("--kt-shade", light.shade);
-      html.style.setProperty("--kt-ink", light.ink);
-      html.style.setProperty("--kt-soft", light.soft);
-      html.style.setProperty("--kt-accent", light.accent);
-      html.style.setProperty("--kt-sun", light.sun);
+      if (started) lightParts(light);
+      else lightRoot(light);
+      started = true;
       html.dataset.ktDark = luminance(light.lit) < 0.2 ? "true" : "false";
       if (chrome && chrome.content !== light.sky) chrome.content = light.sky;
       if (time.current) time.current.textContent = clockText(ms);
@@ -1316,6 +1428,8 @@ export default function Draft() {
     });
     return () => {
       off();
+      window.clearTimeout(rootTimer);
+      unscope();
       html.classList.remove("kt-page");
       for (const name of names) html.style.removeProperty(name);
       delete html.dataset.ktDark;
@@ -1333,7 +1447,7 @@ export default function Draft() {
   return (
     <ClockContext value={clock}>
       <NarrowContext value={narrow}>
-        <div className="kt" data-fonts={fonts} data-reduced={reduced || undefined}>
+        <div className="kt" ref={page} data-fonts={fonts} data-reduced={reduced || undefined}>
           <title>{home ? "Gentrit Rashiti — web, mobile & full stack" : "Gentrit Rashiti · lit by the sun over Kosovo"}</title>
           <header className="kt-top">
             <a className="kt-name" href="#top">
