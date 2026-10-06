@@ -5,8 +5,10 @@ import { preloadCase, takeBack } from "../lib/routes";
 import { HOME_WORK } from "./caseLight";
 
 const MARKS = ".cs-shot-ring, .cs-proof, .cs-number-figure, .cs-figures ul";
-/** A mark that is set back but has not drawn by then draws now. */
+/** A mark that is set back and on screen but has not drawn by then draws now. */
 const SAFETY_MS = 2000;
+/** An off-screen mark waits for its observer; the safety looks again after this time. */
+const RECHECK_MS = 500;
 /** Longer than the slowest mark with its delays. */
 const DONE_MS = 1000;
 
@@ -37,7 +39,16 @@ export function useDraw(root: RefObject<HTMLElement | null>) {
     const arm = (mark: HTMLElement) => {
       mark.dataset.draw = "before";
       enter.observe(mark);
-      timers.push(window.setTimeout(() => run(mark), SAFETY_MS));
+      const safety = (ms: number) =>
+        timers.push(
+          window.setTimeout(() => {
+            if (mark.dataset.draw !== "before") return;
+            const box = mark.getBoundingClientRect();
+            if (box.bottom > 0 && box.top < window.innerHeight) run(mark);
+            else safety(RECHECK_MS);
+          }, ms),
+        );
+      safety(SAFETY_MS);
     };
     const near = new IntersectionObserver(
       (entries) => {

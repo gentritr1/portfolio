@@ -490,8 +490,8 @@
 
 .cs-proof[data-draw="run"] {
   transition:
-    opacity 320ms var(--cs-out) 120ms,
-    transform 320ms var(--cs-out) 120ms;
+    opacity 320ms var(--cs-out) 400ms,
+    transform 320ms var(--cs-out) 400ms;
 }
 
 .cs-number-arrow,

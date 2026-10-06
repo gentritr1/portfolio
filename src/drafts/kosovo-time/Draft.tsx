@@ -134,14 +134,14 @@ const GL_GLOW = 4;
 
 /** Grounds whose screens arrived in this visit. A return to the page never plays an arrival again. */
 const arrived = new Set<string>();
-const STAND_MS = 560;
+const STAND_MS = 620;
 const SWITCH_MS = 420;
 const ARRIVE_STAGGER_MS = 90;
 /** A screen on view never keeps its "before" state longer than this. */
 const ARRIVE_SAFETY_MS = 2000;
 const LEAD_BEAT_MS = 160;
 /** At the start of a stand-up the shadow has this part of its full reach. */
-const STUB = 0.35;
+const STUB = 0.2;
 /** The same curve as --kt-out, so the floor keeps step with the screen. */
 const out = cubic(0.215, 0.61, 0.355, 1);
 

@@ -585,12 +585,12 @@ html.kt-page[data-kt-dark="true"] {
 }
 
 [data-arrive="before"][data-arrive-kind="day"] {
-  transform: perspective(1200px) rotateX(8deg);
+  transform: perspective(900px) rotateX(14deg);
 }
 
 [data-arrive="run"][data-arrive-kind="day"] {
-  transform: perspective(1200px) rotateX(0deg);
-  transition: transform 560ms var(--kt-out);
+  transform: perspective(900px) rotateX(0deg);
+  transition: transform 620ms var(--kt-out);
 }
 
 .kt-plate[data-arrive-kind="night"]::after,
