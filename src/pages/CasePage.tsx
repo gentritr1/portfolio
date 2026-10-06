@@ -254,7 +254,7 @@ const inside = (box: Px, crop: Px) =>
 const fitWidth = (crop: Px) => `min(100%, ${crop.w}px, ${Math.round((SCREEN_MAX_H * crop.w) / crop.h)}px)`;
 
 interface PlateProps {
-  part: Part;
+  part: Pick<Part, "narrow" | "narrowAlt" | "target">;
   plate: Plate;
   caption: string;
   narrow: boolean;
@@ -408,6 +408,9 @@ function Case({ project, copy }: { project: Project; copy: CaseCopy }) {
   const page = usePageLight();
   const narrow = useMedia("(max-width: 1023px)", false);
   const { parts, plates, captions } = copy;
+  const loose = plates.flatMap((plate, at) =>
+    (plate.kind === "web" || plate.kind === "phone") && !parts.some((part) => part.plate === at) ? [{ plate, at }] : [],
+  );
   const next = findProject(nextSlug(project.slug)) ?? project;
   const nextCopy = caseCopy[next.slug];
   const seen = new Set<number>();
@@ -487,6 +490,20 @@ function Case({ project, copy }: { project: Project; copy: CaseCopy }) {
                   </div>
                 </div>
               ))}
+          {loose.map(({ plate, at }) => (
+            <div key={at} className="cs-part cs-loose" data-plate={plate.kind}>
+              <div className="cs-part-plate">
+                <PartPlate
+                  part={{ target: { kind: "figure" }, narrow: plate.narrow, narrowAlt: plate.narrowAlt }}
+                  plate={plate}
+                  caption={captions[at]}
+                  narrow={narrow}
+                  first={false}
+                  page={page}
+                />
+              </div>
+            </div>
+          ))}
         </div>
       </main>
 

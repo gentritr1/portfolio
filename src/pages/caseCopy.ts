@@ -21,9 +21,12 @@ export interface Shot {
 
 export type LiveKey = "care" | "design-system" | "wallet";
 
-/** A shot plate may carry the product's public links beside the shot. The value is the panel title. */
+/**
+ * A shot plate may carry the product's public links beside the shot. The value is the panel title.
+ * A plate that no part names stands after the parts, with no ring; `narrow` is its phone crop.
+ */
 export type Plate =
-  | ({ kind: "web" | "phone"; stores?: string } & Shot)
+  | ({ kind: "web" | "phone"; stores?: string; narrow?: Px; narrowAlt?: string } & Shot)
   | { kind: "live"; key: LiveKey }
   | { kind: "number"; from?: string; to: string; unit: string; note: string };
 
@@ -126,6 +129,15 @@ const careClaims: Shot = {
   ground: "#f5f7fb",
 };
 
+const careWeek: Shot = {
+  src: "/showcase/care-dashboard/appointments-week.webp",
+  alt: "Care team calendar for one week: calls, video calls and office visits for each patient, filters for priority, status, type, assignee and patient, and a line at the current time. Invented data.",
+  width: 1440,
+  height: 900,
+  crop: { x: 240, y: 70, w: 1200, h: 748 },
+  ground: "#f5f7fb",
+};
+
 const phone = (src: string, alt: string, crop: Px): { kind: "phone" } & Shot => ({
   kind: "phone",
   src,
@@ -149,11 +161,18 @@ export const caseCopy: Record<string, CaseCopy> = {
       { kind: "number", from: "16", to: "2", unit: "Database requests", note: "One billing report, before and after" },
       { kind: "web", ...careGlucose },
       { kind: "web", ...careClaims },
+      {
+        kind: "web",
+        ...careWeek,
+        narrow: { x: 630, y: 208, w: 321, h: 530 },
+        narrowAlt: "Two days of the care team calendar, Tuesday and Wednesday, from 8 AM to 1 PM, with a line at the current time. Invented data.",
+      },
     ],
     captions: [
       "Database requests for one billing report, before and after.",
       `Glucose overview for one patient. ${REAL_SCREENS}`,
       `Claims for one month. ${REAL_SCREENS}`,
+      `Care team calendar for one week. ${REAL_SCREENS}`,
     ],
     parts: [
       {
