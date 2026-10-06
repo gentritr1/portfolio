@@ -30,7 +30,7 @@ export interface Row {
   /** Scope or label that must stay visible. */
   note?: string;
   links: Link[];
-  plate: Shot | "care";
+  plate: Shot;
 }
 
 const desktop = (src: string, alt: string, narrowCrop?: Crop): Shot => ({ src, width: 2880, height: 1800, alt, narrowCrop });
@@ -76,9 +76,16 @@ export const client: Row[] = [
     result: "Rebuilt screen by screen. Each passes the same tests first.",
     role: "Frontend and mobile, full stack since 2026",
     years: "2023–26",
-    note: "Recreation · invented data",
+    note: "Real product screens, invented data.",
     links: [],
-    plate: "care",
+    plate: {
+      ...desktop(
+        "/showcase/care-dashboard/overview.webp",
+        "Care team dashboard: patients by program and patient engagement by calls and text messages. Invented data.",
+        { x: 492, y: 410, w: 1160, h: 600 },
+      ),
+      crop: { x: 460, y: 112, w: 2412, h: 908 },
+    },
   },
   {
     id: "bayyinah",
@@ -290,6 +297,8 @@ export const games: Note[] = [
 /** Each screen's colours as a 4 x 4 grid of sRGB hex, top row first, sampled from the part the plate shows.
  * They light the floor at night, so the page never fetches a screenshot only to sample it. */
 export const screenColours: Record<string, string> = {
+  "/showcase/care-dashboard/overview.webp":
+    "f0f2f6f5f7fbf5f7fbf5f7fbefeff1fafbfcf3f4f5fbfbfcecf0f0f9f9f9ececf1f6f6f7f0f1f7f8f8f8f3f2f2f9f9f9",
   "/showcase/bayyinah/web-02.webp":
     "21282e2f22233228284739330635455d49456a554b997759161a1d5f4c4c725a547061511d191b262023272122262020",
   "/mobile/grocery-1.webp":

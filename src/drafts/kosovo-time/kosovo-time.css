@@ -613,42 +613,13 @@ html.kt-page[data-kt-dark="true"] {
   max-width: 34em;
 }
 
-.kt-plate[data-shape="wide"],
-.kt-plate[data-shape="care"] {
+.kt-plate[data-shape="wide"] {
   width: 100%;
   aspect-ratio: 16 / 10;
 }
 
 .kt-plate[data-shape="phone"] {
   aspect-ratio: 780 / 1689;
-}
-
-.kt-care {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  background: var(--world-bg, #fff);
-  color: var(--ink, #141414);
-}
-
-.kt-care-inner {
-  width: 720px;
-  height: 450px;
-  container-type: inline-size;
-  transform: scale(var(--kt-care-scale, 0.5));
-  transform-origin: 0 0;
-  font-family: var(--kt-sans);
-  font-size: 1rem;
-  line-height: 1.5;
-}
-
-.kt-care-inner footer {
-  display: none;
-}
-
-.kt-care-inner :where(.font-mono, .font-display, .font-sans) {
-  font-family: var(--kt-sans);
 }
 
 .kt-row-text h3,

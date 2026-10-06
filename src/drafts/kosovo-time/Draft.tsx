@@ -1,6 +1,5 @@
 import {
   createContext,
-  Suspense,
   use,
   useEffect,
   useId,
@@ -16,7 +15,6 @@ import {
 import { preload } from "react-dom";
 import { Link as RouterLink, useLocation, useNavigationType } from "react-router";
 import { links } from "../../content/links";
-import { recreations } from "../../lib/recreations";
 import { Clock, openingHour, type Frame } from "./clock";
 import {
   client,
@@ -756,59 +754,6 @@ function ShotImage({ shot, crop, eager = false }: { shot: Shot; crop?: Crop; eag
   );
 }
 
-const CARE_WIDTH = 720;
-
-/** The live recreation loads its code only when its row comes near the screen. */
-function CarePlate() {
-  const entry = recreations.care;
-  const Live = entry.Component;
-  const outer = useRef<HTMLDivElement>(null);
-  const [near, setNear] = useState(false);
-  useEffect(() => {
-    const element = outer.current;
-    if (!element) return;
-    const watch = new IntersectionObserver(
-      ([seen]) => {
-        if (!seen.isIntersecting) return;
-        setNear(true);
-        watch.disconnect();
-      },
-      { rootMargin: "400px 0px" },
-    );
-    // The first screen never fetches this code: the watch starts at the first scroll.
-    const begin = () => watch.observe(element);
-    if (window.scrollY > 0) begin();
-    else window.addEventListener("scroll", begin, { once: true, passive: true });
-    return () => {
-      window.removeEventListener("scroll", begin);
-      watch.disconnect();
-    };
-  }, []);
-  useEffect(() => {
-    if (near) void entry.load();
-  }, [entry, near]);
-  useLayoutEffect(() => {
-    const element = outer.current;
-    if (!element) return;
-    const fit = () => element.style.setProperty("--kt-care-scale", String(element.clientWidth / CARE_WIDTH));
-    const watch = new ResizeObserver(fit);
-    watch.observe(element);
-    fit();
-    return () => watch.disconnect();
-  }, []);
-  return (
-    <div className="kt-care" ref={outer} data-world={entry.world} inert aria-hidden="true">
-      <div className="kt-care-inner">
-        {near && (
-          <Suspense fallback={null}>
-            <Live />
-          </Suspense>
-        )}
-      </div>
-    </div>
-  );
-}
-
 const caseSlugs: Record<string, string> = {
   care: "care-platform",
   bayyinah: "bayyinah-tv",
@@ -854,7 +799,6 @@ function Links({ items }: { items: Link[] }) {
 const cropOf = (shot: Shot, narrow: boolean) => (narrow && shot.narrowCrop) || shot.crop;
 /** The plate's shape. With `narrow`, a phone screen may show a wide crop of its proving row, so its text stays readable. */
 const shapeOf = (plate: Row["plate"], narrow = false) => {
-  if (plate === "care") return "care";
   const c = cropOf(plate, narrow) ?? { w: plate.width, h: plate.height };
   return c.h > c.w ? "phone" : "wide";
 };
@@ -897,16 +841,10 @@ function ShotPlate({ shot, shape }: { shot: Shot; shape: string }) {
 
 function Plate({ row }: { row: Row }) {
   const narrow = use(NarrowContext);
-  if (row.plate === "care")
-    return (
-      <figure className="kt-plate" data-kt-panel data-shape="care">
-        <CarePlate />
-      </figure>
-    );
   return <ShotPlate shot={row.plate} shape={shapeOf(row.plate, narrow)} />;
 }
 
-const sourceOf = (row: Row) => (row.plate === "care" ? null : row.plate.src);
+const sourceOf = (row: Row) => row.plate.src;
 
 function WorkRow({ row }: { row: Row }) {
   const narrow = use(NarrowContext);

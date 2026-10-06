@@ -106,6 +106,26 @@ const incentivSignIn: Shot = {
   ground: "#111111",
 };
 
+const REAL_SCREENS = "Real product screens, invented data.";
+
+const careGlucose: Shot = {
+  src: "/showcase/care-dashboard/rpm-overview-cgm.webp",
+  alt: "Glucose overview for one patient: time in range, average, highest and lowest values, device usage, and one day's glucose curve. Invented data.",
+  width: 1440,
+  height: 900,
+  crop: { x: 236, y: 84, w: 1204, h: 768 },
+  ground: "#f4f6fa",
+};
+
+const careClaims: Shot = {
+  src: "/showcase/care-dashboard/claims.webp",
+  alt: "Claims for one month: counts by status, filters for updated claims and claims that need attention, and each claim with its program, CPT codes and status. Invented data.",
+  width: 1440,
+  height: 900,
+  crop: { x: 246, y: 160, w: 1194, h: 714 },
+  ground: "#f5f7fb",
+};
+
 const phone = (src: string, alt: string, crop: Px): { kind: "phone" } & Shot => ({
   kind: "phone",
   src,
@@ -124,12 +144,17 @@ export const caseCopy: Record<string, CaseCopy> = {
     sentence:
       "Care teams in many client organizations use this platform to follow patients at home. Each organization sees only its own patients.",
     platforms: "Web and mobile, and the server behind them",
-    privateNote: "Private app. Shown as a recreation.",
+    privateNote: `Private app. ${REAL_SCREENS}`,
     plates: [
       { kind: "number", from: "16", to: "2", unit: "Database requests", note: "One billing report, before and after" },
-      { kind: "live", key: "care" },
+      { kind: "web", ...careGlucose },
+      { kind: "web", ...careClaims },
     ],
-    captions: ["Database requests for one billing report, before and after.", `Vitals card for one organization. ${RECREATION}`],
+    captions: [
+      "Database requests for one billing report, before and after.",
+      `Glucose overview for one patient. ${REAL_SCREENS}`,
+      `Claims for one month. ${REAL_SCREENS}`,
+    ],
     parts: [
       {
         heading: "The result",
@@ -144,15 +169,18 @@ export const caseCopy: Record<string, CaseCopy> = {
         text: "Care teams follow vitals from connected devices, care plans, lab results, billing claims, calls and chat. The whole app works in English, German, Spanish and Turkish.",
         proof: "Vitals from connected devices, for each patient.",
         plate: 1,
-        target: { kind: "selector", css: '[role="group"][aria-label^="Blood pressure"]' },
-        narrow: "live",
+        target: { kind: "shot", box: { x: 716, y: 256, w: 110, h: 68 } },
+        narrow: { x: 700, y: 238, w: 740, h: 532 },
+        narrowAlt: "Device usage, the spread of glucose values, and one afternoon and evening of the glucose curve for one patient. Invented data.",
       },
       {
         heading: "What was built",
         text: "Built the frontend of the patient profile, care plans, labs and vitals, claims, calls and chat, with the team, from 2023. Since 2026, rebuilds the web app in React, one screen at a time. On the server: drafts for half-done patient sign-ups, a list of lab tests and the billing report fix.",
-        proof: "Every screen follows each user's role and timezone.",
-        plate: 1,
-        target: { kind: "selector", css: 'button[aria-haspopup="listbox"]', round: true },
+        proof: "Claims that need another look are flagged.",
+        plate: 2,
+        target: { kind: "shot", box: { x: 676, y: 500, w: 308, h: 40 } },
+        narrow: { x: 256, y: 270, w: 776, h: 280 },
+        narrowAlt: "Claim counts by status, and the filters for updated claims and claims that need attention. Invented data.",
       },
     ],
     figures: [
