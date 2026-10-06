@@ -156,7 +156,7 @@ html.kt-page[data-kt-dark="true"] {
   position: relative;
   z-index: 2;
   padding-top: 68px;
-  background: linear-gradient(to bottom, var(--kt-sky), var(--kt-haze));
+  background: linear-gradient(to bottom, var(--kt-sky), var(--kt-mid), var(--kt-haze));
 }
 
 .kt-hero {
@@ -202,9 +202,10 @@ html.kt-page[data-kt-dark="true"] {
   margin-top: 4px;
 }
 
+/* "in Kosovo" stands on the time's baseline; the line under it is always reserved, so nothing moves when it fills. */
 .kt-now {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   gap: 14px;
   white-space: nowrap;
 }
@@ -234,6 +235,35 @@ html.kt-page[data-kt-dark="true"] {
   font-weight: 400;
   color: var(--kt-soft);
   font-variant-numeric: tabular-nums;
+}
+
+/* The target is 44 px tall; the negative margins keep it to one text line in the layout. */
+.kt-back {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
+  min-height: 44px;
+  margin: calc((1.3em - 44px) / 2) 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--kt-soft);
+  font: inherit;
+  font-weight: 400;
+  cursor: pointer;
+}
+
+.kt-back-now {
+  color: var(--kt-ink);
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.kt-back:hover .kt-back-now {
+  text-decoration-thickness: 2px;
 }
 
 .kt-sentence {
@@ -1217,5 +1247,10 @@ html.kt-page[data-kt-dark="true"] {
   .kt *::after {
     transition-duration: 0.01s !important;
     animation-duration: 0.01s !important;
+  }
+
+  /* The sun and its labels are placed in the same frame; a transition would leave the sun one step behind. */
+  .kt .kt-path-sun {
+    transition: none !important;
   }
 }

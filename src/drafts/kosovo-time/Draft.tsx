@@ -107,6 +107,22 @@ interface GroundProps {
   children: ReactNode;
 }
 
+function afterFirstPaint() {
+  return new Promise<void>((resolve) => {
+    if (performance.getEntriesByName("first-contentful-paint").length) return resolve();
+    try {
+      const watch = new PerformanceObserver((list) => {
+        if (!list.getEntriesByName("first-contentful-paint").length) return;
+        watch.disconnect();
+        resolve();
+      });
+      watch.observe({ type: "paint", buffered: true });
+    } catch {
+      resolve();
+    }
+  });
+}
+
 /** A floor that cannot keep this many slow frames in a row falls back to the flat shadow. */
 const SLOW_FRAME_MS = 50;
 const SLOW_RUN = 18;
@@ -181,7 +197,6 @@ function Ground({ className, sources, gl = false, fade = 56, sides = 0, children
     canvas.className = "kt-floor";
     canvas.setAttribute("aria-hidden", "true");
     let made: GroundRenderer | null = null;
-    // The shader compiles after the first paint, so a slow GPU never holds back the first screen.
     const begin = () => {
       made = createGround(canvas, () => {
         renderer.current = null;
@@ -195,8 +210,15 @@ function Ground({ className, sources, gl = false, fade = 56, sides = 0, children
       setMode("gl");
     };
     const idle = "requestIdleCallback" in window;
-    const handle = idle ? window.requestIdleCallback(begin, { timeout: 1500 }) : window.setTimeout(begin, 400);
+    let handle = 0;
+    let cancelled = false;
+    // The shader compiles after the intro and after the first paint, so a slow GPU holds back neither.
+    void clock.ready.then(afterFirstPaint).then(() => {
+      if (cancelled) return;
+      handle = idle ? window.requestIdleCallback(begin, { timeout: 1500 }) : window.setTimeout(begin, 400);
+    });
     return () => {
+      cancelled = true;
       if (idle) window.cancelIdleCallback(handle);
       else window.clearTimeout(handle);
       made?.dispose();
@@ -204,7 +226,7 @@ function Ground({ className, sources, gl = false, fade = 56, sides = 0, children
       renderer.current = null;
       setMode("svg");
     };
-  }, [gl, slow]);
+  }, [clock, gl, slow]);
 
   useEffect(() => {
     const element = box.current;
@@ -229,6 +251,9 @@ function Ground({ className, sources, gl = false, fade = 56, sides = 0, children
         stops[1]?.setAttribute("offset", edge.toFixed(4));
         stops[2]?.setAttribute("offset", (1 - edge).toFixed(4));
         root.querySelector(`#${id}-across rect`)?.setAttribute("width", rect.width.toFixed(1));
+        // A row's floor shows only in front of its screens; a shadow cast behind them would stand beside them as a block.
+        const base = Math.min(...made.panels.map((panel) => project(made.camera, [panel.x, 0, 0])[1]));
+        root.querySelector(`#${id}-front rect`)?.setAttribute("y", (base - 1).toFixed(1));
         made.panels.forEach((panel, i) => {
           const c = made.camera;
           const [bx, by] = project(c, [panel.x, 0, 0]);
@@ -288,6 +313,9 @@ function Ground({ className, sources, gl = false, fade = 56, sides = 0, children
             <mask id={`${id}-mask`} maskUnits="userSpaceOnUse" x="-10000" y="-10000" width="20000" height="20000">
               <rect x="-10000" y="-10000" width="20000" height="20000" fill={`url(#${id}-fade)`} />
             </mask>
+            <clipPath id={`${id}-front`}>
+              <rect x="-10000" y="0" width="20000" height="20000" />
+            </clipPath>
             <mask id={`${id}-across`} maskUnits="userSpaceOnUse" x="-10000" y="-10000" width="20000" height="20000">
               <rect x="0" y="-10000" width="1" height="20000" fill={`url(#${id}-sides)`} />
             </mask>
@@ -304,7 +332,12 @@ function Ground({ className, sources, gl = false, fade = 56, sides = 0, children
                 <g key={i}>
                   <ellipse data-glow={i} fill={`url(#${id}-glow-${i})`} style={{ opacity: 0 }} />
                   <ellipse data-ao={i} className="kt-ao" filter={`url(#${id}-ao)`} />
-                  <polygon data-shadow={i} className="kt-shadow" filter={`url(#${id}-soft)`} />
+                  <polygon
+                    data-shadow={i}
+                    className="kt-shadow"
+                    filter={`url(#${id}-soft)`}
+                    clipPath={sides ? `url(#${id}-front)` : undefined}
+                  />
                 </g>
               ))}
             </g>
@@ -367,7 +400,24 @@ function SunPath() {
   const down = (PATH_H - HORIZON - 4) / Math.max(10, -bottom);
   const yOf = (a: number) => HORIZON - (a > 0 ? a * up : a * down);
 
-  /** Keeps the path marks and the hint clear of the disc and of each other, at every hour and width. */
+  /** True when the drawn sun curve passes through the box (track px), with room for the stroke. */
+  const crossed = (b: Box, width: number, height: number) => {
+    const pad = 3;
+    for (let i = 0; i < day.path.length - 1; i++) {
+      const x0 = (i / 144) * width;
+      const x1 = ((i + 1) / 144) * width;
+      if (x1 < b.l - pad || x0 > b.r + pad) continue;
+      const y0 = (yOf(day.path[i]) / PATH_H) * height;
+      const y1 = (yOf(day.path[i + 1]) / PATH_H) * height;
+      const ya = y0 + ((y1 - y0) * (Math.max(x0, b.l - pad) - x0)) / (x1 - x0);
+      const yb = y0 + ((y1 - y0) * (Math.min(x1, b.r + pad) - x0)) / (x1 - x0);
+      if (Math.max(ya, yb) >= b.t - pad && Math.min(ya, yb) <= b.b + pad) return true;
+    }
+    return false;
+  };
+
+  /** Keeps the path marks off the disc, the hint and the curve, at every hour and width.
+   * Sunrise stands only left of its point and Sunset only right of it, where the curve is below the horizon. */
   const place = () => {
     const el = track.current;
     const sun = dot.current;
@@ -391,18 +441,17 @@ function SunPath() {
       if (!w) continue;
       const anchor = mark.offsetLeft;
       const t = mark.offsetTop;
-      const clearRight = Math.max(12, disc.r + 6 - anchor);
-      const clearLeft = Math.min(-w - 12, disc.l - 6 - w - anchor);
+      const toView = { l: 4 - left - anchor, r: viewport - 4 - left - anchor - w };
       const shifts =
         edge === "rise"
-          ? [-w - 12, 12, clearLeft, clearRight]
+          ? [-w - 12, Math.max(-w - 12, toView.l), Math.min(-w - 12, disc.l - 6 - w - anchor)].filter((dx) => dx <= -w - 6)
           : edge === "set"
-            ? [12, -w - 12, clearRight, clearLeft]
-            : [-w / 2, -w - 28, 28, clearLeft, clearRight];
+            ? [12, Math.min(12, toView.r), Math.max(12, disc.r + 6 - anchor)].filter((dx) => dx >= 6)
+            : [-w / 2, -w - 28, 28, Math.min(-w - 12, disc.l - 6 - w - anchor), Math.max(12, disc.r + 6 - anchor)];
       let pick: { dx: number; box: Box } | null = null;
       for (const dx of shifts) {
         const box = { l: anchor + dx, r: anchor + dx + w, t, b: t + mark.offsetHeight };
-        if (inView(box) && !overlaps(box, disc)) {
+        if (inView(box) && !overlaps(box, disc) && !crossed(box, width, height)) {
           pick = { dx, box };
           break;
         }
@@ -432,10 +481,10 @@ function SunPath() {
         ];
     const boxes = spots
       .map(([l, t]) => ({ l, r: l + w, t, b: t + h }))
-      .filter((b) => inView(b) && b.t >= -6 && b.b <= height + 6);
+      .filter((b) => b.l >= 0 && b.r <= width && b.t >= -6 && b.b <= height + 6);
     let box = boxes.find((b) => shown.every((s) => !overlaps(b, s.box))) ?? boxes[0];
     if (!box) {
-      const l = Math.max(8 - left, Math.min(viewport - 8 - left - w, sx + side));
+      const l = Math.max(0, Math.min(width - w, sx + side));
       box = { l, r: l + w, t: sy - h / 2, b: sy + h / 2 };
     }
     for (const s of shown) if (overlaps(box, s.box)) s.mark.dataset.hidden = "true";
@@ -726,8 +775,14 @@ function CarePlate() {
       },
       { rootMargin: "400px 0px" },
     );
-    watch.observe(element);
-    return () => watch.disconnect();
+    // The first screen never fetches this code: the watch starts at the first scroll.
+    const begin = () => watch.observe(element);
+    if (window.scrollY > 0) begin();
+    else window.addEventListener("scroll", begin, { once: true, passive: true });
+    return () => {
+      window.removeEventListener("scroll", begin);
+      watch.disconnect();
+    };
   }, []);
   useEffect(() => {
     if (near) void entry.load();
@@ -797,9 +852,10 @@ function Links({ items }: { items: Link[] }) {
 }
 
 const cropOf = (shot: Shot, narrow: boolean) => (narrow && shot.narrowCrop) || shot.crop;
-const shapeOf = (plate: Row["plate"]) => {
+/** The plate's shape. With `narrow`, a phone screen may show a wide crop of its proving row, so its text stays readable. */
+const shapeOf = (plate: Row["plate"], narrow = false) => {
   if (plate === "care") return "care";
-  const c = plate.crop ?? { w: plate.width, h: plate.height };
+  const c = cropOf(plate, narrow) ?? { w: plate.width, h: plate.height };
   return c.h > c.w ? "phone" : "wide";
 };
 
@@ -840,20 +896,22 @@ function ShotPlate({ shot, shape }: { shot: Shot; shape: string }) {
 }
 
 function Plate({ row }: { row: Row }) {
+  const narrow = use(NarrowContext);
   if (row.plate === "care")
     return (
       <figure className="kt-plate" data-kt-panel data-shape="care">
         <CarePlate />
       </figure>
     );
-  return <ShotPlate shot={row.plate} shape={shapeOf(row.plate)} />;
+  return <ShotPlate shot={row.plate} shape={shapeOf(row.plate, narrow)} />;
 }
 
 const sourceOf = (row: Row) => (row.plate === "care" ? null : row.plate.src);
 
 function WorkRow({ row }: { row: Row }) {
+  const narrow = use(NarrowContext);
   return (
-    <li className="kt-row" data-shape={shapeOf(row.plate)}>
+    <li className="kt-row" data-shape={shapeOf(row.plate, narrow)}>
       <Ground className="kt-row-stage" sources={[sourceOf(row)]} sides={40}>
         <Plate row={row} />
       </Ground>
@@ -982,6 +1040,19 @@ function Lights({ current }: { current: string }) {
 /** False after the first visit in this tab, so a return to the home page never replays the intro. */
 let openedBefore = false;
 const RETURN_Y = "kt-y";
+/** A load or a reload of the page itself takes too long for the intro on this device: the page opens at the hour. */
+const SLOW_LOAD_MS = 2000;
+
+/** True when the visitor comes back from another page of this visit, not on a new load or a reload of the home page. */
+function returning() {
+  if (openedBefore || window.location.hash === "#work") return true;
+  try {
+    const entry = performance.getEntriesByType("navigation")[0];
+    return entry ? new URL(entry.name).pathname !== "/" : false;
+  } catch {
+    return false;
+  }
+}
 
 export default function Draft() {
   const location = useLocation();
@@ -993,15 +1064,17 @@ export default function Draft() {
   const narrow = useMedia("(max-width: 639px)");
   const stacked = useMedia("(max-width: 1023px)");
   const [clock] = useState(() => {
-    const { minutes, chosen } = openingHour();
+    const back = returning();
+    const { minutes, chosen } = openingHour(back);
     const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    return new Clock(minutes, !openedBefore && !chosen && !window.location.hash && !still);
+    return new Clock(minutes, !back && !chosen && !window.location.hash && !still);
   });
   const [fonts, setFonts] = useState<"wait" | "real" | "fallback">("wait");
   const time = useRef<HTMLTimeElement>(null);
   const yours = useRef<HTMLSpanElement>(null);
   const sentence = useRef<HTMLParagraphElement>(null);
   const [lightName, setLightName] = useState(clock.current.light.name);
+  const [live, setLive] = useState(clock.current.live);
   const settled = fonts !== "wait";
 
   useEffect(() => {
@@ -1038,8 +1111,8 @@ export default function Draft() {
     clock.run(reduced);
   }, [clock, reduced]);
 
-  useEffect(() => {
-    if (settled) clock.start();
+  useLayoutEffect(() => {
+    if (settled) clock.start(performance.now() > SLOW_LOAD_MS);
   }, [clock, settled]);
 
   useEffect(() => () => clock.stop(), [clock]);
@@ -1078,11 +1151,13 @@ export default function Draft() {
   useLayoutEffect(() => {
     const html = document.documentElement;
     html.classList.add("kt-page");
-    const names = ["--kt-sun", "--kt-sky", "--kt-haze", "--kt-lit", "--kt-shade", "--kt-ink", "--kt-soft", "--kt-accent"];
+    const names = ["--kt-sun", "--kt-sky", "--kt-mid", "--kt-haze", "--kt-lit", "--kt-shade", "--kt-ink", "--kt-soft", "--kt-accent"];
     const chrome = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
     const chromeBefore = chrome?.content;
-    const off = clock.subscribe(({ ms, sun, light }) => {
+    const off = clock.subscribe((frame) => {
+      const { ms, sun, light } = frame;
       html.style.setProperty("--kt-sky", light.sky);
+      html.style.setProperty("--kt-mid", light.mid);
       html.style.setProperty("--kt-haze", light.haze);
       html.style.setProperty("--kt-lit", light.lit);
       html.style.setProperty("--kt-shade", light.shade);
@@ -1094,6 +1169,7 @@ export default function Draft() {
       if (chrome && chrome.content !== light.sky) chrome.content = light.sky;
       if (time.current) time.current.textContent = clockText(ms);
       if (yours.current) yours.current.textContent = visitorText(ms) ?? "";
+      setLive((was) => (was === frame.live ? was : frame.live));
       if (sentence.current) {
         const abs = Math.abs(sun.altitude);
         const a = abs < 9.95 ? abs.toFixed(1) : Math.round(abs);
@@ -1112,6 +1188,10 @@ export default function Draft() {
       if (chrome && chromeBefore) chrome.content = chromeBefore;
     };
   }, [clock]);
+
+  useLayoutEffect(() => {
+    if (live && yours.current) yours.current.textContent = visitorText(clock.current.ms) ?? "";
+  }, [clock, live]);
 
   const phones = client.filter((r) => shapeOf(r.plate) === "phone");
   const firstPhone = client.findIndex((r) => shapeOf(r.plate) === "phone");
@@ -1155,7 +1235,13 @@ export default function Draft() {
                       </time>
                       <span className="kt-where">
                         in Kosovo
-                        <span ref={yours} className="kt-yours" />
+                        {live ? (
+                          <span ref={yours} className="kt-yours" />
+                        ) : (
+                          <button type="button" className="kt-back" onClick={() => clock.follow()}>
+                            <span>Chosen hour ·</span> <span className="kt-back-now">Back to now</span>
+                          </button>
+                        )}
                       </span>
                     </p>
                     <p ref={sentence} className="kt-sentence" />

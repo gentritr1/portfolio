@@ -94,6 +94,8 @@ interface Key {
 }
 
 export interface Light extends Omit<Key, "at"> {
+  /** The sky at the middle of the gradient. */
+  mid: string;
   /** The colour of the sun's disc: orange low, near white high. */
   sun: string;
   /** 0 to 1: how much of the light is direct sun. */
@@ -104,7 +106,7 @@ export interface Light extends Omit<Key, "at"> {
 
 const night: Key = { at: -12, sky: "#07060f", haze: "#1a1636", lit: "#0f0d14", shade: "#0b0a10", ink: "#e8e2d6", soft: "#b9b1c4", accent: "#f2c27e" };
 const deep: Key = { at: -6, sky: "#110d2a", haze: "#32265a", lit: "#1d1532", shade: "#160f27", ink: "#f3ecdf", soft: "#c6b8dc", accent: "#f6c587" };
-const noon: Key = { at: 32, sky: "#a9c8e6", haze: "#e6eef2", lit: "#f7f4ec", shade: "#aeb3c3", ink: "#141414", soft: "#3a3a40", accent: "#1f2e7a" };
+const noon: Key = { at: 32, sky: "#4f9ee0", haze: "#f6d7a4", lit: "#f7eedb", shade: "#8f84d6", ink: "#141414", soft: "#2a2a31", accent: "#17236c" };
 
 /* Each list runs from the horizon up. The two lists meet at the noon key. */
 const morningDark: Key[] = [night, deep, { at: RISE, sky: "#1f1b4c", haze: "#6b4673", lit: "#272052", shade: "#1e1842", ink: "#fff3e6", soft: "#d3c9ec", accent: "#ffc98f" }];
@@ -172,6 +174,13 @@ const smooth = (e0: number, e1: number, x: number) => {
   return t * t * (3 - 2 * t);
 };
 
+/** The middle of the sky gradient: the plain sRGB middle, lifted toward a bright haze as the sun climbs past 12°,
+ * so the high sun reads as blue over a sunlit horizon, not as grey between them. */
+const middle = (sky: string, haze: string, altitude: number) => {
+  const avg = "#" + [1, 3, 5].map((i) => Math.round((parseInt(sky.slice(i, i + 2), 16) + parseInt(haze.slice(i, i + 2), 16)) / 2).toString(16).padStart(2, "0")).join("");
+  return mixHex(avg, "#fbf6ec", 0.72 * smooth(12, 32, altitude));
+};
+
 export function lightAt(altitude: number, evening: boolean): Light {
   const up = altitude >= RISE;
   const keys = up ? (evening ? eveningLit : morningLit) : evening ? eveningDark : morningDark;
@@ -183,6 +192,7 @@ export function lightAt(altitude: number, evening: boolean): Light {
   for (const f of tokens) c[f] = mixHex(keys[i][f], keys[i + 1][f], t);
   return {
     ...c,
+    mid: middle(c.sky, c.haze, up ? altitude : 0),
     sun: mixHex("#ff7a2e", "#fff2c2", smooth(0, 28, altitude)),
     direct: up ? smooth(RISE, 3, altitude) : 0,
     name: !up && altitude < -6 ? "Night" : altitude > 12 ? "Day" : evening ? "Dusk" : "Dawn",
@@ -227,7 +237,7 @@ export interface PageLight {
   fallback: boolean;
 }
 
-const NAMES = ["sky", "haze", "lit", "shade", "ink", "soft", "accent", "sun"] as const;
+const NAMES = ["sky", "mid", "haze", "lit", "shade", "ink", "soft", "accent", "sun"] as const;
 
 /** The page takes the light of the Kosovo sun once, when it opens, and writes it to the root as tokens. */
 export function usePageLight(): PageLight {

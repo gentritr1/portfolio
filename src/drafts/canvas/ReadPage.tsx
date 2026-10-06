@@ -49,7 +49,7 @@ export default function ReadPage({ destination, onCanvas }: { destination: strin
           <CareArtboard />
         </div>
         <div className="dc-case-results"><h3>What changed</h3><p>{story.result}</p></div>
-        <dl className="dc-case-facts"><div><dt>Role</dt><dd>{care.role}</dd></div><div><dt>Period</dt><dd>{care.years}</dd></div><div><dt>Platforms</dt><dd>Web app · Laravel API</dd></div><div><dt>Languages</dt><dd>English · German · Spanish · Turkish</dd></div></dl>
+        <dl className="dc-case-facts"><div><dt>Role</dt><dd>{care.role}</dd></div><div><dt>Period</dt><dd>{care.years}</dd></div><div><dt>Platforms</dt><dd>Web and mobile apps · Laravel API</dd></div><div><dt>Languages</dt><dd>English · German · Spanish · Turkish</dd></div></dl>
       </article>
 
       <section id="dc-about" className="dc-about" aria-labelledby="dc-about-title">

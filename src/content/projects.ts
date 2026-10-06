@@ -142,7 +142,7 @@ const bayyinahWebsiteGallery: Gallery = {
     web('/showcase/bayyinah/web-03.webp', 'Bayyinah TV library, Arabic tab: beginner courses and the flagship Arabic program', 'Library: Arabic'),
     web('/showcase/bayyinah/web-04.webp', 'Bayyinah TV library, Stories tab: filters by prophet and a row of story courses', 'Library: Stories'),
     web('/showcase/bayyinah/web-05.webp', 'Bayyinah TV series page: episode list in a side column, series summary and video cards', 'Series page'),
-    web('/showcase/bayyinah/web-06.webp', 'Bayyinah TV pricing: "Choose Your Plan" with a monthly and annual switch and the Premium plan at $11 a month', 'Pricing'),
+    web('/showcase/bayyinah/web-06.webp', 'Bayyinah TV pricing: "Choose Your Plan" with a monthly and annual switch and the Premium plan', 'Pricing'),
   ],
 }
 

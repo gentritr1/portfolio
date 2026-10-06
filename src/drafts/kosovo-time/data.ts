@@ -65,7 +65,7 @@ export const leadPhone = {
 
 export const results = [
   "Rebuilding a live care platform while care teams use it.",
-  "One report asked the database 16 times. Now it asks 2.",
+  "One report made 16 database requests. Now it makes 2.",
 ];
 
 export const client: Row[] = [
@@ -73,7 +73,7 @@ export const client: Row[] = [
     id: "care",
     name: "Care-management platform",
     line: "Care teams follow patients' readings, care plans, lab results and bills.",
-    result: "Moves to the new app one tested screen at a time.",
+    result: "Rebuilt screen by screen. Each passes the same tests first.",
     role: "Frontend and mobile, full stack since 2026",
     years: "2023–26",
     note: "Recreation · invented data",
@@ -84,7 +84,7 @@ export const client: Row[] = [
     id: "bayyinah",
     name: "Bayyinah TV",
     line: "A video-learning platform, rebuilt from an empty page: 34 pages.",
-    result: "Members subscribe on the web or in the iPhone and Android apps.",
+    result: "Members subscribe on the web, iPhone or Android.",
     role: "Frontend, core team",
     years: "2023–26",
     links: [
@@ -97,14 +97,14 @@ export const client: Row[] = [
         "/showcase/bayyinah/web-05.webp",
         "Bayyinah TV series page: episode list in a side column, series summary and video cards",
       ),
-      narrowCrop: { x: 90, y: 180, w: 520, h: 360 },
+      narrowCrop: { x: 92, y: 455, w: 583, h: 375 },
     },
   },
   {
     id: "read-to-feed",
     name: "Read to Feed",
-    line: "A reading app for children. Books open inside the app.",
-    result: "About 14 updates in both app stores.",
+    line: "A reading app for children, with a built-in book reader.",
+    result: "The app remembers the page in every book.",
     role: "Mobile, iOS and Android",
     years: "2022–25",
     links: [
@@ -123,13 +123,14 @@ export const client: Row[] = [
         "Read to Feed My Books screen: reading progress for The Tale of Peter Rabbit and Anne of Green Gables",
       ),
       crop: { x: 100, y: 530, w: 580, h: 708 },
+      narrowCrop: { x: 100, y: 655, w: 580, h: 285 },
     },
   },
   {
     id: "viva-fresh",
     name: "Viva Fresh",
-    line: "A grocery and loyalty app, with an Albanian interface.",
-    result: "One grocery app, built once for iPhone and Android.",
+    line: "A grocery and loyalty app, built once for iPhone and Android.",
+    result: "Shopping in Albanian, live in both app stores.",
     role: "Mobile",
     years: "2023",
     links: [
@@ -142,6 +143,7 @@ export const client: Row[] = [
         "Viva Fresh Fresh category in Albanian: a grid of products with prices and cart buttons",
       ),
       crop: { x: 92, y: 560, w: 596, h: 728 },
+      narrowCrop: { x: 95, y: 775, w: 595, h: 550 },
     },
   },
   {
@@ -161,13 +163,14 @@ export const client: Row[] = [
         "Dukagjini Bookstore home screen: book search, top categories and books on sale",
       ),
       crop: { x: 106, y: 740, w: 568, h: 694 },
+      narrowCrop: { x: 118, y: 850, w: 544, h: 395 },
     },
   },
   {
     id: "design-system",
     name: "Design System v2",
     line: "Colours, sizes and type are set once, for code and for Figma.",
-    result: "36 ready-made building blocks, released 20 times in about six weeks.",
+    result: "36 building blocks, released 20 times in about six weeks.",
     role: "Design system",
     years: "2026",
     note: "Recreation · invented data",
@@ -184,7 +187,7 @@ export const client: Row[] = [
     id: "incentiv",
     name: "Incentiv",
     line: "Sign-in and dashboard screens for a crypto wallet.",
-    result: "Sign in with a passkey (no password) or an existing wallet.",
+    result: "Sign in with a passkey or a wallet, no password.",
     role: "Frontend",
     years: "2024",
     note: "Built the screens; teammates built the wallet.",
@@ -243,7 +246,7 @@ export const offday: Row = {
   id: "offday",
   name: "Offday",
   line: "Time off for teams: requests, approvals and one shared calendar.",
-  result: "About 200 tests, including tests that keep each team's data apart.",
+  result: "About 200 tests, including ones that keep teams' data apart.",
   role: "Own project",
   years: "2026",
   note: "Private code. No public link.",

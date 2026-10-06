@@ -13,6 +13,8 @@ const STIFFNESS = 350;
 const DAMPING = 35;
 const INTRO_MS = 1100;
 const INTRO_SPAN = 90 * 60000;
+/** A frame gap longer than this ends the intro at the real hour, so a busy phone never shows a frozen, wrong time. */
+const SLOW_GAP_MS = 120;
 
 /** The case pages and the 404 read this key, so a visitor's chosen hour follows them. Value: "HH:MM", Kosovo time. */
 const CHOSEN = "kt-at";
@@ -22,10 +24,29 @@ const toMinutes = (text: string | null) => {
   return match ? Math.min(1439, Number(match[1]) * 60 + Number(match[2])) : null;
 };
 
-/** The hour the page opens at: `?at=18:40` first, then the hour chosen earlier in this tab, else null (now). */
-export function openingHour(): { minutes: number | null; chosen: boolean } {
+function store(text: string | null) {
+  try {
+    if (text === null) sessionStorage.removeItem(CHOSEN);
+    else sessionStorage.setItem(CHOSEN, text);
+  } catch {
+    // Blocked storage only loses the hour on the next page.
+  }
+}
+
+const remember = (ms: number | null) => store(ms === null ? null : clockText(ms));
+
+/** The hour the page opens at. `?at=18:40` wins and stays for the visit. A fresh visit opens at the real hour;
+ * the hour chosen earlier in this tab comes back only when the visitor returns from another page of the site. */
+export function openingHour(returning: boolean): { minutes: number | null; chosen: boolean } {
   const fromUrl = toMinutes(new URLSearchParams(location.search).get("at"));
-  if (fromUrl !== null) return { minutes: fromUrl, chosen: false };
+  if (fromUrl !== null) {
+    store(`${String(Math.floor(fromUrl / 60)).padStart(2, "0")}:${String(fromUrl % 60).padStart(2, "0")}`);
+    return { minutes: fromUrl, chosen: false };
+  }
+  if (!returning) {
+    store(null);
+    return { minutes: null, chosen: false };
+  }
   let stored: string | null = null;
   try {
     stored = sessionStorage.getItem(CHOSEN);
@@ -34,15 +55,6 @@ export function openingHour(): { minutes: number | null; chosen: boolean } {
   }
   const minutes = toMinutes(stored);
   return { minutes, chosen: minutes !== null };
-}
-
-function remember(ms: number | null) {
-  try {
-    if (ms === null) sessionStorage.removeItem(CHOSEN);
-    else sessionStorage.setItem(CHOSEN, clockText(ms));
-  } catch {
-    // Blocked storage only loses the hour on the next page.
-  }
 }
 
 /** cubic-bezier(0.65, 0, 0.35, 1), the one long event curve. */
@@ -70,8 +82,13 @@ export class Clock {
   private listeners = new Set<Listener>();
   private frame = 0;
   private last = 0;
-  private intro: { from: number; start: number } | null = null;
+  private intro: { from: number; start: number; last: number } | null = null;
   private timer = 0;
+  private done: () => void = () => undefined;
+  /** Resolves when the intro has ended or did not play. Heavy work waits for it, so it never stalls the intro. */
+  readonly ready = new Promise<void>((resolve) => {
+    this.done = resolve;
+  });
   current: Frame;
 
   /** With `intro`, the first frame already shows the hour the intro starts from, so the clock never runs backward. */
@@ -113,9 +130,13 @@ export class Clock {
     const dt = this.last ? Math.min((time - this.last) / 1000, 1 / 30) : 1 / 60;
     this.last = time;
     if (this.intro) {
-      const p = Math.min(1, (time - this.intro.start) / INTRO_MS);
+      // The intro starts on its first frame; a long gap after that ends it.
+      if (!this.intro.last) this.intro.start = time;
+      const gap = this.intro.last ? time - this.intro.last : 0;
+      this.intro.last = time;
+      const p = gap > SLOW_GAP_MS ? 1 : Math.min(1, (time - this.intro.start) / INTRO_MS);
       this.shown = this.intro.from + (this.target - this.intro.from) * story(p);
-      if (p >= 1) this.intro = null;
+      if (p >= 1) this.endIntro();
     } else {
       for (let i = 0; i < 2; i++) {
         const force = (this.target - this.shown) * STIFFNESS - this.velocity * DAMPING;
@@ -132,13 +153,20 @@ export class Clock {
     else this.last = 0;
   };
 
-  /** Show today's sun moving from the first frame's hour to now, or go to now at once. */
-  start() {
-    if (this.reduced || this.shown === this.target) {
+  private endIntro() {
+    this.intro = null;
+    this.done();
+  }
+
+  /** Show today's sun moving from the first frame's hour to now, or, with `skip`, go to now before the next paint. */
+  start(skip = false) {
+    if (skip || this.reduced || this.shown === this.target) {
       this.shown = this.target;
-      return this.emit();
+      this.emit();
+      this.done();
+      return;
     }
-    this.intro = { from: this.shown, start: performance.now() };
+    this.intro = { from: this.shown, start: performance.now(), last: 0 };
     this.request();
   }
 
@@ -149,7 +177,7 @@ export class Clock {
   /** A visitor picks a time. `velocity` is in ms of sun time per second. */
   set(ms: number, options: { instant?: boolean; velocity?: number } = {}) {
     this.live = false;
-    this.intro = null;
+    if (this.intro) this.endIntro();
     this.target = this.clamp(ms);
     remember(this.target);
     if (this.reduced || options.instant) {
@@ -167,7 +195,7 @@ export class Clock {
     const now = Date.now();
     if (kosovoMidnight(now) !== this.day.midnight) this.day = sunDay(now);
     this.live = true;
-    this.intro = null;
+    if (this.intro) this.endIntro();
     this.target = now;
     remember(null);
     if (this.reduced) {

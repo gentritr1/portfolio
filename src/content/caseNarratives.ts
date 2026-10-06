@@ -19,7 +19,7 @@ export const caseNarratives: Partial<Record<string, CaseNarrative>> = {
     facts: [
     { label: 'Role', value: 'Frontend and mobile, full stack since 2026' },
     { label: 'Years', value: '2023–26' },
-    { label: 'Platforms', value: 'Web app, Laravel API' },
+    { label: 'Platforms', value: 'Web and mobile apps, Laravel API' },
     { label: 'Languages', value: 'English, German, Spanish, Turkish' },
     { label: 'Frontend', value: 'React 19, TypeScript, TanStack Query/Router, Zustand, Zod, Tailwind, Vitest, Playwright' },
     { label: 'Backend', value: 'Laravel 13, PHP 8.3, MySQL, Redis, Pest' },
