@@ -1,20 +1,21 @@
 import { Link } from "react-router";
-import { ArrowLeftIcon } from "@phosphor-icons/react";
 import { links } from "../content/links";
-import { clockText, RISE, type PageLight } from "./caseLight";
+import { clockText, HOME_WORK, RISE, type PageLight } from "./caseLight";
 
+/** The home page header: the same items, in the same order, at every width. */
 export function CaseTop() {
   return (
     <header className="cs-top">
-      <Link to="/" className="cs-back">
-        <ArrowLeftIcon aria-hidden="true" size={16} weight="bold" />
-        All work
+      <Link to={HOME_WORK} className="cs-home">
+        Gentrit Rashiti
       </Link>
       <nav aria-label="Contact">
-        <a href={links.cv} download>
-          CV (PDF)
+        <Link to={HOME_WORK}>Work</Link>
+        <a href={links.github} target="_blank" rel="noreferrer">
+          GitHub<span className="cs-sr"> (opens in a new tab)</span>
         </a>
         <a href={`mailto:${links.email}`}>Email</a>
+        <a href={links.cv}>CV (PDF)</a>
       </nav>
     </header>
   );
@@ -36,15 +37,13 @@ export function CaseEnd() {
       <p>Gentrit Rashiti. Based in Kosovo, working remotely.</p>
       <p className="cs-end-links">
         <a href={`mailto:${links.email}`}>{links.email}</a>
-        <a href={links.cv} download>
-          Download CV (PDF)
-        </a>
         <a href={links.github} target="_blank" rel="noreferrer">
           GitHub<span className="cs-sr"> (opens in a new tab)</span>
         </a>
         <a href={links.linkedin} target="_blank" rel="noreferrer">
           LinkedIn<span className="cs-sr"> (opens in a new tab)</span>
         </a>
+        <a href={links.cv}>CV (PDF)</a>
       </p>
     </footer>
   );

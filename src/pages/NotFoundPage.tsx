@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router";
 import { ArrowRightIcon } from "@phosphor-icons/react";
-import { featuredProjects } from "../content/projects";
+import { findProject } from "../content/projects";
 import { caseCopy } from "./caseCopy";
 import { usePageLight } from "./caseLight";
 import { CaseEnd, CaseTop, LitLine } from "./caseShell";
@@ -10,6 +10,7 @@ import "./case.css";
 export default function NotFoundPage() {
   const { pathname } = useLocation();
   const page = usePageLight();
+  const cases = Object.keys(caseCopy).flatMap((slug) => findProject(slug) ?? []);
 
   return (
     <div className="cs cs-404" data-fonts={page.fallback ? "fallback" : undefined}>
@@ -20,14 +21,11 @@ export default function NotFoundPage() {
         <div className="cs-sky">
           <header className="cs-head">
             <div className="cs-id">
-              <p className="cs-name">Gentrit Rashiti</p>
               <h1>There is no page at this address.</h1>
               <p className="cs-sentence">
                 The link to <span className="cs-404-path">{pathname}</span> may be old, or the address may have a typing
                 error. Every case is in the list.
               </p>
-            </div>
-            <div className="cs-side">
               <LitLine page={page} />
             </div>
           </header>
@@ -36,7 +34,7 @@ export default function NotFoundPage() {
         <section className="cs-404-list" aria-labelledby="cs-404-list-title">
           <h2 id="cs-404-list-title">Open a case</h2>
           <ol>
-            {featuredProjects.map((project) => (
+            {cases.map((project) => (
               <li key={project.slug}>
                 <Link to={`/work/${project.slug}`}>
                   <span className="cs-404-name">

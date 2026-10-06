@@ -11,9 +11,9 @@ import {
 } from "react";
 import { Link, useParams } from "react-router";
 import { ArrowRightIcon, ArrowUpRightIcon } from "@phosphor-icons/react";
-import { findProject, nextFeatured, type Project } from "../content/projects";
+import { findProject, type Project } from "../content/projects";
 import { recreations } from "../lib/recreations";
-import { caseCopy, type CaseCopy, type LiveKey, type Part, type Plate, type Px, type Shot } from "./caseCopy";
+import { caseCopy, nextSlug, type CaseCopy, type LiveKey, type Part, type Plate, type Px, type Shot } from "./caseCopy";
 import { shadowOf, usePageLight, type PageLight } from "./caseLight";
 import { CaseEnd, CaseTop, LitLine } from "./caseShell";
 import NotFoundPage from "./NotFoundPage";
@@ -154,12 +154,20 @@ function LivePlate({ which }: { which: LiveKey }) {
   );
 }
 
-function ShotView({ shot, crop, eager, ring }: { shot: Shot; crop: Px; eager: boolean; ring: Px | null }) {
+interface ShotProps {
+  shot: Shot;
+  crop: Px;
+  alt: string;
+  eager: boolean;
+  ring: Px | null;
+}
+
+function ShotView({ shot, crop, alt, eager, ring }: ShotProps) {
   return (
     <div className="cs-shot" style={{ aspectRatio: `${crop.w} / ${crop.h}`, background: shot.ground }}>
       <img
         src={shot.src}
-        alt={shot.alt}
+        alt={alt}
         width={shot.width}
         height={shot.height}
         loading={eager ? "eager" : "lazy"}
@@ -238,6 +246,9 @@ function NumberFigure({ plate }: { plate: Extract<Plate, { kind: "number" }> }) 
   );
 }
 
+const inside = (box: Px, crop: Px) =>
+  box.x >= crop.x && box.y >= crop.y && box.x + box.w <= crop.x + crop.w && box.y + box.h <= crop.y + crop.h;
+
 const fitWidth = (crop: Px) => `min(100%, ${crop.w}px, ${Math.round((SCREEN_MAX_H * crop.w) / crop.h)}px)`;
 
 interface PlateProps {
@@ -268,11 +279,13 @@ function PartPlate({ part, plate, caption, narrow, first, page }: PlateProps) {
       </Screen>
     );
   } else {
-    const crop = narrow && typeof part.narrow === "object" ? part.narrow : plate.crop;
-    const ring = part.target.kind === "shot" ? part.target.box : null;
+    const own = narrow && typeof part.narrow === "object";
+    const crop = own && typeof part.narrow === "object" ? part.narrow : plate.crop;
+    const box = part.target.kind === "shot" ? part.target.box : null;
+    const ring = box && inside(box, crop) ? box : null;
     screen = (
       <Screen caption={caption} width={fitWidth(crop)}>
-        <ShotView shot={plate} crop={crop} eager={first} ring={ring} />
+        <ShotView shot={plate} crop={crop} alt={(own && part.narrowAlt) || plate.alt} eager={first} ring={ring} />
       </Screen>
     );
   }
@@ -315,7 +328,7 @@ function Facts({ project, copy }: { project: Project; copy: CaseCopy }) {
     <dl className="cs-facts">
       <div>
         <dt>Role</dt>
-        <dd>{copy.role}</dd>
+        <dd>{copy.role ?? project.role}</dd>
       </div>
       <div>
         <dt>Years</dt>
@@ -341,17 +354,59 @@ function Facts({ project, copy }: { project: Project; copy: CaseCopy }) {
   );
 }
 
-/** Desktop: each plate stands once, by the first part that names it. Phone: each part shows its own crop. */
-function showsPlate(part: Part, plate: Plate, first: boolean, narrow: boolean) {
-  if (!narrow) return first;
+/** Phone: each part shows its own crop; the first part's plate is the hero under the title. */
+function showsPlate(part: Part, plate: Plate, first: boolean) {
   return part.narrow !== undefined && part.narrow !== "stores" && (first || plate.kind !== "live");
+}
+
+interface Group {
+  plate: number;
+  parts: { part: Part; index: number }[];
+}
+
+/** Desktop: each plate stands once, and the parts after it that name no new plate read beside it. */
+function groupsOf(parts: Part[]) {
+  const groups: Group[] = [];
+  const seen = new Set<number>();
+  parts.forEach((part, index) => {
+    const last = groups.at(-1);
+    if (last && seen.has(part.plate)) last.parts.push({ part, index });
+    else groups.push({ plate: part.plate, parts: [{ part, index }] });
+    seen.add(part.plate);
+  });
+  return groups;
+}
+
+interface PartTextProps {
+  part: Part;
+  index: number;
+  plate: Plate;
+  project: Project;
+  children?: ReactNode;
+}
+
+function PartText({ part, index, plate, project, children }: PartTextProps) {
+  const stores = (plate.kind === "web" || plate.kind === "phone") && plate.stores !== undefined && project.links.length > 0;
+  return (
+    <>
+      {children}
+      <h2 id={`cs-part-${index}`}>{part.heading}</h2>
+      <p className="cs-text">{keepWords(part.text)}</p>
+      <p className="cs-proof">{keepWords(part.proof)}</p>
+      {stores && (
+        <p className="cs-links">
+          <OutLinks links={project.links} />
+        </p>
+      )}
+    </>
+  );
 }
 
 function Case({ project, copy }: { project: Project; copy: CaseCopy }) {
   const page = usePageLight();
   const narrow = useMedia("(max-width: 1023px)", false);
   const { parts, plates, captions } = copy;
-  const next = nextFeatured(project);
+  const next = findProject(nextSlug(project.slug)) ?? project;
   const nextCopy = caseCopy[next.slug];
   const seen = new Set<number>();
 
@@ -377,45 +432,59 @@ function Case({ project, copy }: { project: Project; copy: CaseCopy }) {
         </div>
 
         <div className="cs-parts">
-          {parts.map((part, index) => {
-            const plate = plates[part.plate];
-            const first = !seen.has(part.plate);
-            seen.add(part.plate);
-            const shown = showsPlate(part, plate, first, narrow);
-            const stores = (plate.kind === "web" || plate.kind === "phone") && plate.stores !== undefined && project.links.length > 0;
-            return (
-              <section
-                key={part.heading}
-                className="cs-part"
-                data-plate={shown ? plate.kind : "none"}
-                aria-labelledby={`cs-part-${index}`}
-              >
-                {shown && (
+          {narrow
+            ? parts.map((part, index) => {
+                const plate = plates[part.plate];
+                const shown = showsPlate(part, plate, !seen.has(part.plate));
+                seen.add(part.plate);
+                return (
+                  <section
+                    key={part.heading}
+                    className="cs-part"
+                    data-plate={shown ? plate.kind : "none"}
+                    aria-labelledby={`cs-part-${index}`}
+                  >
+                    {shown && (
+                      <div className="cs-part-plate">
+                        <PartPlate
+                          part={part}
+                          plate={plate}
+                          caption={captions[part.plate]}
+                          narrow
+                          first={index === 0}
+                          page={page}
+                        />
+                      </div>
+                    )}
+                    <div className="cs-part-text">
+                      <PartText part={part} index={index} plate={plate} project={project}>
+                        {index === 0 && <Facts project={project} copy={copy} />}
+                      </PartText>
+                    </div>
+                  </section>
+                );
+              })
+            : groupsOf(parts).map(({ plate: at, parts: group }) => (
+                <div key={at} className="cs-group" data-plate={plates[at].kind}>
                   <div className="cs-part-plate">
                     <PartPlate
-                      part={part}
-                      plate={plate}
-                      caption={captions[part.plate]}
-                      narrow={narrow}
-                      first={index === 0}
+                      part={group[0].part}
+                      plate={plates[at]}
+                      caption={captions[at]}
+                      narrow={false}
+                      first={group[0].index === 0}
                       page={page}
                     />
                   </div>
-                )}
-                <div className="cs-part-text">
-                  {narrow && index === 0 && <Facts project={project} copy={copy} />}
-                  <h2 id={`cs-part-${index}`}>{part.heading}</h2>
-                  <p className="cs-text">{keepWords(part.text)}</p>
-                  <p className="cs-proof">{keepWords(part.proof)}</p>
-                  {stores && (
-                    <p className="cs-links">
-                      <OutLinks links={project.links} />
-                    </p>
-                  )}
+                  <div className="cs-group-text">
+                    {group.map(({ part, index }) => (
+                      <section key={part.heading} className="cs-part-text" aria-labelledby={`cs-part-${index}`}>
+                        <PartText part={part} index={index} plate={plates[part.plate]} project={project} />
+                      </section>
+                    ))}
+                  </div>
                 </div>
-              </section>
-            );
-          })}
+              ))}
         </div>
       </main>
 

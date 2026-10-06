@@ -43,6 +43,8 @@ export interface Part {
    * Omitted: the part shows no plate on a phone. The first part's plate is the phone hero, under the title.
    */
   narrow?: Px | "live" | "number" | "stores";
+  /** What the phone crop shows, when it is a different part of the shot. */
+  narrowAlt?: string;
 }
 
 export interface Figure {
@@ -54,7 +56,8 @@ export interface Figure {
 export interface CaseCopy {
   title: string;
   sentence: string;
-  role: string;
+  /** Omitted: the role from projects.ts, the same words as the home page row. */
+  role?: string;
   platforms: string;
   /** Shown in the facts row when the product has no public page. */
   privateNote?: string;
@@ -72,10 +75,10 @@ const BOTH_STORES = "Live in both app stores";
 
 const bayyinahPricing: Shot = {
   src: "/showcase/bayyinah/web-06.webp",
-  alt: "Bayyinah TV pricing: a monthly and annual switch, the course list and the Premium plan and its Start 7-Day Free Trial button",
+  alt: "Bayyinah TV pricing: what the Premium plan includes, a tick for each feature, and its Start 7-Day Free Trial button",
   width: 1440,
   height: 900,
-  crop: { x: 508, y: 92, w: 904, h: 694 },
+  crop: { x: 508, y: 304, w: 904, h: 424 },
   ground: "#1f1518",
 };
 
@@ -113,12 +116,13 @@ const phone = (src: string, alt: string, crop: Px): { kind: "phone" } & Shot => 
   ground: "#ffffff",
 });
 
+
+/** In the order of the home page rows, so "Next project" walks the same list. */
 export const caseCopy: Record<string, CaseCopy> = {
   "care-platform": {
-    title: "One billing report now finishes: 2 database requests, not 16.",
+    title: "One billing report used to give up. Now it finishes.",
     sentence:
       "Care teams in many client organizations use this platform to follow patients at home. Each organization sees only its own patients.",
-    role: "Frontend. Full stack since 2026: the web app and its server.",
     platforms: "Web app and the server behind it",
     privateNote: "Private app. Shown as a recreation.",
     plates: [
@@ -129,8 +133,8 @@ export const caseCopy: Record<string, CaseCopy> = {
     parts: [
       {
         heading: "The result",
-        text: "On the server side, one billing report asked the database 16 times and gave up. Now it asks 2 times and finishes. In the web app, most screens are already rebuilt in React; a screen moves over only after it passes the same tests in both apps.",
-        proof: "One billing report: 16 database requests became 2.",
+        text: "On the server side, the report now finishes instead of giving up. In the web app, most screens are already rebuilt in React. The new app is not live yet.",
+        proof: "A screen moves over only after it passes the same tests in both apps.",
         plate: 0,
         target: { kind: "figure" },
         narrow: "number",
@@ -145,8 +149,8 @@ export const caseCopy: Record<string, CaseCopy> = {
       },
       {
         heading: "What was built",
-        text: "From 2023 the team built the features: patient profile, care plans, labs and vitals, claims, calls and chat. Many client organizations share one system, so every screen keeps each organization's data apart and respects each user's role and timezone. In 2026 the web app moves to React, one screen at a time.",
-        proof: "Each organization sees only its own patients.",
+        text: "Built the frontend of the patient profile, care plans, labs and vitals, claims, calls and chat, with the team, from 2023. Since 2026, rebuilds the web app in React, one screen at a time. On the server: drafts for half-done patient sign-ups, a list of lab tests and the billing report fix.",
+        proof: "Every screen follows each user's role and timezone.",
         plate: 1,
         target: { kind: "selector", css: 'button[aria-haspopup="listbox"]', round: true },
       },
@@ -164,7 +168,6 @@ export const caseCopy: Record<string, CaseCopy> = {
     title: "Members subscribe on the web, iPhone or Android.",
     sentence:
       "Bayyinah TV is a video-learning platform for an online community: courses, a scripture reader, videos and live classes.",
-    role: "Frontend, core team",
     platforms: "Web, and inside the iPhone and Android apps",
     plates: [
       { kind: "web", ...bayyinahPricing },
@@ -179,11 +182,12 @@ export const caseCopy: Record<string, CaseCopy> = {
     parts: [
       {
         heading: "The product",
-        text: "Members follow courses and playlists, keep their learning progress, read scripture and watch videos. They subscribe on the web or in the iPhone and Android apps, which run the same web app. The whole site also works in Arabic, read from right to left.",
+        text: "Members follow courses and playlists, keep their learning progress, read scripture and watch videos. The iPhone and Android apps run the same web app. The whole site also works in Arabic, read from right to left.",
         proof: "Members subscribe here, on the web or in the apps.",
         plate: 0,
         target: { kind: "shot", box: { x: 1068, y: 651, w: 228, h: 40 } },
-        narrow: { x: 964, y: 104, w: 436, h: 612 },
+        narrow: bayyinahPlans.crop,
+        narrowAlt: bayyinahPlans.alt,
       },
       {
         heading: "What was built",
@@ -195,7 +199,7 @@ export const caseCopy: Record<string, CaseCopy> = {
       },
       {
         heading: "The result",
-        text: "Bayyinah TV is live at bayyinahtv.com, in the App Store and on Google Play. Members choose a monthly or a yearly plan, on the web or in the apps.",
+        text: "Bayyinah TV is live at bayyinahtv.com. Members choose a monthly or a yearly plan, on the web or in the apps.",
         proof: "Live on the web, in the App Store and on Google Play.",
         plate: 2,
         target: { kind: "selector", css: ".cs-stores ul" },
@@ -213,9 +217,7 @@ export const caseCopy: Record<string, CaseCopy> = {
 
   "read-to-feed": {
     title: "The app remembers the page in every book.",
-    sentence:
-      "Read to Feed is a reading app for children on iPhone and Android, where books open inside the app. About 14 updates shipped to both app stores.",
-    role: "Mobile, iPhone and Android",
+    sentence: "Read to Feed is a reading app for children on iPhone and Android, where books open inside the app.",
     platforms: "iPhone, Android",
     plates: [
       phone(
@@ -228,9 +230,8 @@ export const caseCopy: Record<string, CaseCopy> = {
         "Read to Feed's achievements from its store listing: eggs collected, eggs provided and quiz badges",
         { x: 96, y: 600, w: 588, h: 740 },
       ),
-      { kind: "number", to: "≈14", unit: "Updates", note: "To the App Store and Google Play, 2022 to 2025" },
     ],
-    captions: ["My Books, from the store listing.", "Achievements, from the store listing.", "Updates to both app stores."],
+    captions: ["My Books, from the store listing.", "Achievements, from the store listing."],
     parts: [
       {
         heading: "The product",
@@ -250,11 +251,10 @@ export const caseCopy: Record<string, CaseCopy> = {
       },
       {
         heading: "The result",
-        text: "About 14 updates went to the App Store and Google Play. The app was kept current through three major upgrades. The store listings are now removed, so the links open archived copies of both pages.",
+        text: "The app was kept current through three major upgrades. The store listings are now removed, so the links open archived copies of both pages.",
         proof: "About 14 updates, shipped to both app stores.",
-        plate: 2,
+        plate: 1,
         target: { kind: "figure" },
-        narrow: "number",
       },
     ],
     figures: [
@@ -269,7 +269,6 @@ export const caseCopy: Record<string, CaseCopy> = {
   "viva-fresh": {
     title: "Shopping in Albanian, live in both app stores.",
     sentence: "Viva Fresh is a grocery shopping and loyalty app for iPhone and Android, built once for both.",
-    role: "Mobile",
     platforms: "iPhone, Android",
     plates: [
       phone(
@@ -311,7 +310,7 @@ export const caseCopy: Record<string, CaseCopy> = {
       },
       {
         heading: "The result",
-        text: "Viva Fresh is live in the App Store and on Google Play. Shoppers order groceries with a delivery time, use the loyalty programme and keep a wishlist.",
+        text: "Shoppers check out with a delivery time. The cart shows the quantities, the discount and the total.",
         proof: "Live in the App Store and on Google Play.",
         plate: 2,
         target: { kind: "selector", css: ".cs-stores ul" },
@@ -321,50 +320,9 @@ export const caseCopy: Record<string, CaseCopy> = {
     builtWith: "React Native, Redux Toolkit, Maps, Firebase.",
   },
 
-  incentiv: {
-    title: "Passkey (no password) or wallet sign-in, in English and French.",
-    sentence:
-      "Incentiv's portal is a dashboard where people and businesses manage an on-chain smart wallet and incentive programs.",
-    role: "Frontend. Built the screens; teammates built the wallet.",
-    platforms: "Web",
-    plates: [
-      { kind: "web", ...incentivSignIn },
-      { kind: "live", key: "wallet" },
-    ],
-    captions: ["Incentiv portal sign-in, public screen.", `Wallet card. ${RECREATION}`],
-    parts: [
-      {
-        heading: "The product",
-        text: "People and businesses sign in, then see balances, assets, fees saved and transactions in dashboard cards. The website, the docs and the portal's sign-in screen are public.",
-        proof: "Sign in with a passkey (no password) or an existing wallet.",
-        plate: 0,
-        target: { kind: "shot", box: { x: 224, y: 500, w: 100, h: 40 } },
-        narrow: { x: 186, y: 488, w: 350, h: 144 },
-      },
-      {
-        heading: "What was built",
-        text: "Built the sign-in and dashboard screens. Teammates built the wallet. The screens cover sign-in, an animated first-run tour, dashboard cards, a list of assets and a balance pop-up with a QR code to receive.",
-        proof: "Balances and assets in dashboard cards.",
-        plate: 1,
-        target: { kind: "selector", css: '[class*="rounded-[22px]"]' },
-        narrow: "live",
-      },
-      {
-        heading: "The result",
-        text: "The portal is live at portal.incentiv.io, the website at incentiv.io and the docs at docs.incentiv.io. The screens run in English and French, and private pages stay behind sign-in.",
-        proof: "Live at portal.incentiv.io, in English and French.",
-        plate: 0,
-        target: { kind: "shot", box: { x: 196, y: 286, w: 330, h: 128 } },
-      },
-    ],
-    builtWith:
-      "Next.js 14 with the App Router, React 18, TypeScript, Redux Toolkit and RTK Query, next-intl, Framer Motion, Tailwind, ApexCharts.",
-  },
-
   "dukagjini-bookstore": {
     title: "Search, sales and checkout, live in both app stores.",
     sentence: "Dukagjini Bookstore is a publisher's bookshop app for readers on iPhone and Android.",
-    role: "Mobile",
     platforms: "iPhone, Android",
     plates: [
       phone(
@@ -406,7 +364,7 @@ export const caseCopy: Record<string, CaseCopy> = {
       },
       {
         heading: "The result",
-        text: "Dukagjini Bookstore is live in the App Store and on Google Play. Readers keep favourite lists, browse categories and check out with promo codes.",
+        text: "Readers open their favourite lists and the book categories from one panel.",
         proof: "Live in the App Store and on Google Play.",
         plate: 2,
         target: { kind: "selector", css: ".cs-stores ul" },
@@ -420,23 +378,14 @@ export const caseCopy: Record<string, CaseCopy> = {
     title: "36 building blocks, released 20 times in about six weeks.",
     sentence:
       "Design System v2 is the shared set of buttons, menus and forms that the team built for the new dashboard of a care platform. A colour changes in one place, and the code and the Figma file follow.",
-    role: "Design system, with the team",
     platforms: "A library of screen parts, for code and for Figma",
     privateNote: "Not public. Shown as a recreation.",
-    plates: [
-      { kind: "live", key: "design-system" },
-      { kind: "number", to: "96.6%", unit: "Less JavaScript", note: "For a page that uses only a button" },
-      { kind: "number", to: "20", unit: "Releases", note: "In about six weeks" },
-    ],
-    captions: [
-      `A few of the 36 building blocks. ${RECREATION}`,
-      "JavaScript a page downloads when it uses only a button.",
-      "Releases in about six weeks.",
-    ],
+    plates: [{ kind: "live", key: "design-system" }],
+    captions: [`A few of the building blocks. ${RECREATION}`],
     parts: [
       {
         heading: "The product",
-        text: "Colours, sizes and type are set once, for code and for Figma. 805 shared style values, in three levels, feed 36 ready-made building blocks, from buttons and alerts to date pickers and pop-up messages.",
+        text: "Colours, sizes and type are set once, for code and for Figma. 805 shared style values, in three levels, feed ready-made building blocks, from buttons and alerts to date pickers and pop-up messages.",
         proof: "Buttons, fields, switches and alerts, ready for every screen.",
         plate: 0,
         target: { kind: "selector", css: ".dsr-area-buttons" },
@@ -446,17 +395,15 @@ export const caseCopy: Record<string, CaseCopy> = {
         heading: "What was built",
         text: "The work started with research: a study of leading design systems and an audit of the old app. Each decision is written down. Automatic checks stop a change that breaks a rule, and independent reviewers check each change. Each building block also loads on its own, so a page loads only the blocks it uses.",
         proof: "96.6% less JavaScript for a page that uses only a button.",
-        plate: 1,
+        plate: 0,
         target: { kind: "figure" },
-        narrow: "number",
       },
       {
         heading: "The result",
-        text: "The team shipped 20 releases in about six weeks. Each building block is built to the WCAG 2.1 AA accessibility level, with automatic checks on screen. The new care dashboard uses the system on its screens. That dashboard is not live yet.",
-        proof: "20 releases in about six weeks.",
-        plate: 2,
+        text: "Each building block is built to the WCAG 2.1 AA accessibility level, with automatic checks on screen. The care dashboard that uses it is not live yet.",
+        proof: "The new care dashboard uses it on its screens.",
+        plate: 0,
         target: { kind: "figure" },
-        narrow: "number",
       },
     ],
     figures: [
@@ -468,4 +415,50 @@ export const caseCopy: Record<string, CaseCopy> = {
     builtWith:
       "React 19, TypeScript, CSS Modules, Storybook 10, DTCG tokens, Style Dictionary, Playwright, axe, Changesets. 805 tokens in three tiers: core, semantic, component.",
   },
+
+  incentiv: {
+    title: "Sign in with a passkey (no\u00a0password) or an existing wallet.",
+    sentence:
+      "Incentiv's portal is a dashboard where people and businesses manage an on-chain smart wallet and incentive programs.",
+    role: "Frontend",
+    platforms: "Web",
+    plates: [
+      { kind: "web", ...incentivSignIn },
+      { kind: "live", key: "wallet" },
+    ],
+    captions: ["Incentiv portal sign-in, public screen.", `Balance card. ${RECREATION}`],
+    parts: [
+      {
+        heading: "The product",
+        text: "People and businesses sign in, then see balances, assets, fees saved and transactions in dashboard cards. The website, the docs and the portal's sign-in screen are public.",
+        proof: "Three ways in: a passkey, MetaMask or WalletConnect.",
+        plate: 0,
+        target: { kind: "shot", box: { x: 224, y: 500, w: 100, h: 40 } },
+        narrow: { x: 186, y: 488, w: 350, h: 144 },
+      },
+      {
+        heading: "What was built",
+        text: "Built the sign-in and dashboard screens. Teammates built the wallet itself and its link to the blockchain. The screens cover sign-in, a first-run tour, dashboard cards, a list of assets and a balance pop-up with a QR code to receive.",
+        proof: "Balance, fees saved, transactions and assets in one card.",
+        plate: 1,
+        target: { kind: "selector", css: '[class*="rounded-[22px]"]' },
+        narrow: "live",
+      },
+      {
+        heading: "The result",
+        text: "The website is live at incentiv.io and the docs at docs.incentiv.io. Private pages of the portal stay behind sign-in.",
+        proof: "Live at portal.incentiv.io, in English and French.",
+        plate: 1,
+        target: { kind: "figure" },
+      },
+    ],
+    builtWith:
+      "Next.js 14 with the App Router, React 18, TypeScript, Redux Toolkit and RTK Query, next-intl, Framer Motion, Tailwind, ApexCharts.",
+  },
 };
+
+/** The case after this one, in the home page order. */
+export function nextSlug(slug: string) {
+  const order = Object.keys(caseCopy);
+  return order[(order.indexOf(slug) + 1) % order.length];
+}

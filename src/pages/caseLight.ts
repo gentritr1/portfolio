@@ -190,10 +190,25 @@ export function lightAt(altitude: number, evening: boolean): Light {
   };
 }
 
-/** The instant the page is lit for: now, or `?at=HH:MM` Kosovo time today, as on the home page. */
+/** Every way back to the home page lands on its work section. */
+export const HOME_WORK = "/#work";
+
+const HOUR = /^(\d{1,2}):(\d{2})$/;
+/** The home page keeps the hour the visitor chose here, as "HH:MM" Kosovo time, until they press Now. */
+export const CHOSEN_KEY = "kt-at";
+
+function chosenHour() {
+  try {
+    return sessionStorage.getItem(CHOSEN_KEY) ?? "";
+  } catch {
+    return "";
+  }
+}
+
+/** The instant the page is lit for: `?at=HH:MM`, else the hour chosen on the home page, else now. Kosovo time, today. */
 export function litInstant(search = typeof location === "undefined" ? "" : location.search) {
   const now = Date.now();
-  const match = /^(\d{1,2}):(\d{2})$/.exec(new URLSearchParams(search).get("at") ?? "");
+  const match = HOUR.exec(new URLSearchParams(search).get("at") ?? "") ?? HOUR.exec(chosenHour());
   if (!match) return now;
   return kosovoMidnight(now) + Math.min(1439, Number(match[1]) * 60 + Number(match[2])) * 60000;
 }
@@ -225,9 +240,13 @@ export function usePageLight(): PageLight {
     const html = document.documentElement;
     for (const name of NAMES) html.style.setProperty(`--cs-${name}`, page.light[name]);
     html.dataset.csDark = String(page.light.dark);
+    const chrome = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+    const before = chrome?.content;
+    chrome?.setAttribute("content", page.light.sky);
     return () => {
       for (const name of NAMES) html.style.removeProperty(`--cs-${name}`);
       delete html.dataset.csDark;
+      if (chrome && before !== undefined) chrome.setAttribute("content", before);
     };
   }, [page]);
   return page;

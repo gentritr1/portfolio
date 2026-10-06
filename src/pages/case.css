@@ -53,7 +53,6 @@
   --cs-serif: "Case Fraunces", "Case Serif Fallback", Georgia, serif;
   --cs-sans: "Case Public Sans", "Case Sans Fallback", Arial, sans-serif;
   --cs-gutter: 48px;
-  --cs-rule: color-mix(in srgb, var(--cs-ink, #141414) 22%, transparent);
   position: relative;
   min-height: 100svh;
   background: var(--cs-lit, #f7f4ec);
@@ -144,7 +143,6 @@
 .cs-top a {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
   min-width: 44px;
   min-height: 44px;
   padding: 0 10px;
@@ -169,7 +167,6 @@
 .cs-sky {
   padding-top: 68px;
   background: linear-gradient(to bottom, var(--cs-sky), var(--cs-haze));
-  border-bottom: 1px solid color-mix(in srgb, var(--cs-ink) 40%, transparent);
 }
 
 .cs-head {
@@ -212,27 +209,13 @@
 .cs-facts {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  border-top: 1.5px solid var(--cs-ink);
-}
-
-.cs-facts > div {
-  padding: 10px 0;
-  border-bottom: 1px solid var(--cs-rule);
+  gap: 14px 24px;
 }
 
 /* Role and the live links take a whole row; years and platforms share one. */
 .cs-facts > div:first-child,
 .cs-facts > div:last-child {
   grid-column: 1 / -1;
-}
-
-.cs-facts > div:nth-child(2) {
-  padding-right: 16px;
-}
-
-.cs-facts > div:nth-child(3) {
-  padding-left: 16px;
-  border-left: 1px solid var(--cs-rule);
 }
 
 .cs-facts dt {
@@ -249,7 +232,7 @@
 }
 
 .cs-facts .cs-links {
-  margin: -8px 0;
+  margin: -10px 0;
 }
 
 .cs-links {
@@ -312,12 +295,33 @@
   min-width: 0;
 }
 
-.cs-part-text {
+.cs-group {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 420px);
+  column-gap: 64px;
+  padding: 24px 0;
+}
+
+/* The plate stays in view while its parts are read. */
+.cs-group > .cs-part-plate {
+  position: sticky;
+  top: 24px;
+  align-self: start;
+}
+
+.cs-group-text {
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+  padding-top: 24px;
+}
+
+.cs-part > .cs-part-text {
   grid-column: 2;
   padding-top: 24px;
 }
 
-.cs-part h2 {
+.cs-part-text h2 {
   font-family: var(--cs-serif);
   font-size: 32px;
   font-weight: 500;
@@ -539,6 +543,11 @@
   display: contents;
 }
 
+.cs-live :where(.font-mono, .label, .label-lg) {
+  font-family: inherit;
+  font-stretch: normal;
+}
+
 .cs-inline-live {
   position: relative;
   aspect-ratio: var(--cs-aspect-base);
@@ -639,7 +648,7 @@
 
 .cs-figures ul {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
   gap: 32px;
   margin-top: 28px;
 }
@@ -741,7 +750,6 @@
 .cs-end {
   padding-top: 32px !important;
   padding-bottom: 64px !important;
-  border-top: 1px solid var(--cs-rule);
   font-size: 16px;
   line-height: 1.5;
 }
@@ -762,6 +770,15 @@
 
 /* ---------- Page not found ---------- */
 
+.cs-404 .cs-head {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.cs-404 .cs-head h1 {
+  margin-top: 0;
+  max-width: 16em;
+}
+
 .cs-404-path {
   font-weight: 600;
   overflow-wrap: anywhere;
@@ -774,16 +791,10 @@
 }
 
 .cs-404-list ol {
-  max-width: 960px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 64px;
   margin-top: 20px;
-}
-
-.cs-404-list li {
-  border-top: 1px solid var(--cs-rule);
-}
-
-.cs-404-list li:last-child {
-  border-bottom: 1px solid var(--cs-rule);
 }
 
 .cs-404-list a {
@@ -792,7 +803,7 @@
   align-items: center;
   gap: 16px;
   min-height: 72px;
-  padding: 14px 0;
+  padding: 12px 0;
   text-decoration: none;
 }
 
@@ -834,6 +845,7 @@
 
 @media (max-width: 1279px) {
   .cs-head,
+  .cs-group,
   .cs-part {
     grid-template-columns: minmax(0, 1fr) minmax(0, 360px);
     column-gap: 40px;
@@ -863,8 +875,12 @@
     padding: 20px 0;
   }
 
-  .cs-part-text {
+  .cs-part > .cs-part-text {
     padding-top: 0;
+  }
+
+  .cs-404-list ol {
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .cs-part:first-child .cs-part-text {
@@ -907,6 +923,17 @@
 
   .cs-top {
     height: 60px;
+    gap: 0;
+    padding: 0 4px;
+  }
+
+  .cs-top a {
+    padding: 0 6px;
+    font-size: 14px;
+  }
+
+  .cs-top nav {
+    gap: 0;
   }
 
   .cs-sky {
@@ -932,7 +959,7 @@
     margin-top: 12px;
   }
 
-  .cs-part h2 {
+  .cs-part-text h2 {
     font-size: 26px;
   }
 
