@@ -113,6 +113,17 @@ export function sampleScreen(src: string): Promise<Cells> {
   }
   return samples.get(src)!;
 }
+/** The screen as a 2 x 2 grid of linear RGB (top row first): four area lights for the floor. */
+export function quarters(cells: Cells): number[] {
+  const out: number[] = [];
+  for (const [r, c] of [[0, 0], [0, 1], [1, 0], [1, 1]])
+    for (let k = 0; k < 3; k++) {
+      let sum = 0;
+      for (const dr of [0, 1]) for (const dc of [0, 1]) sum += cells[((r * 2 + dr) * 4 + c * 2 + dc) * 3 + k];
+      out.push(sum / 4);
+    }
+  return out;
+}
 /** Average linear colour of the lower half of the screen, which faces the ground. */
 export function lowerAverage(cells: Cells): Vec {
   const out: Vec = [0, 0, 0];
@@ -120,8 +131,9 @@ export function lowerAverage(cells: Cells): Vec {
   return out;
 }
 
-/** Most luminance the screens may add to the ground, so text on it keeps 4.5:1. */
-export const GLOW_LIMIT = 0.045;
+/** Most luminance the screens may add to the floor. No text stands on the floor, so only the screens' glare limits it. */
+export const GLOW_LIMIT = 0.14;
+export const MAX_PANELS = 4;
 
 /* ---------- The lit ground, rendered per pixel ---------- */
 
@@ -130,7 +142,8 @@ const fragment = `#extension GL_OES_standard_derivatives : enable
 precision highp float;
 uniform vec2 uSize;uniform float uDpr;
 uniform vec4 uCam;
-uniform vec3 uPanel;
+uniform vec3 uPanels[4];
+uniform float uCount;
 uniform vec3 uRay;
 uniform float uDirect,uGlow,uGlowLimit,uFade;
 uniform vec3 uLit,uShade;
@@ -145,39 +158,44 @@ void main(){
   float d=uCam.w*uCam.z/dy;
   float z=uCam.w-d;
   float x=(p.x-uCam.x)*d/uCam.w;
-  float u0=x-uPanel.x;
-  float shadow=0.;
-  if(uDirect>0.&&abs(uRay.z)>1e-4){
-   float t=-z/uRay.z;
-   if(t>0.){
-    vec3 hit=vec3(x,0.,z)+t*uRay;
-    float u=hit.x-uPanel.x,v=hit.y;
-    // The sun is a disc 0.53 degrees wide: the penumbra grows with the distance to the panel.
-    float r=t*.00465/max(abs(uRay.z),.08);
-    float ru=max(r,fwidth(u)),rv=max(r,fwidth(v));
-    float cu=clamp((uPanel.y-abs(u))/ru*.5+.5,0.,1.);
-    float cv=clamp(v/rv*.5+.5,0.,1.)*clamp((uPanel.z-v)/rv*.5+.5,0.,1.);
-    shadow=cu*cv*uDirect;
+  float shade=0.;
+  vec3 e=vec3(0.);
+  for(int k=0;k<4;k++){
+   if(float(k)>=uCount)break;
+   vec3 P=uPanels[k];
+   float u0=x-P.x;
+   if(uDirect>0.&&abs(uRay.z)>1e-4){
+    float t=-z/uRay.z;
+    if(t>0.){
+     vec3 hit=vec3(x,0.,z)+t*uRay;
+     float u=hit.x-P.x,v=hit.y;
+     // The sun is a disc 0.53 degrees wide: the penumbra grows with the distance to the panel.
+     float r=t*.00465/max(abs(uRay.z),.08);
+     float ru=max(r,fwidth(u)),rv=max(r,fwidth(v));
+     float cu=clamp((P.y-abs(u))/ru*.5+.5,0.,1.);
+     float cv=clamp(v/rv*.5+.5,0.,1.)*clamp((P.z-v)/rv*.5+.5,0.,1.);
+     shade=max(shade,cu*cv*uDirect);
+    }
+   }
+   // The panel hides part of the sky from the ground near its base.
+   float s=max(abs(z),.5);
+   float wall=.5*(1.-s/sqrt(s*s+P.z*P.z));
+   float span=clamp((atan((P.y-u0)/s)+atan((P.y+u0)/s))/3.14159265,0.,1.);
+   shade=max(shade,clamp(wall*span*1.15,0.,1.)*.6);
+   if(uGlow>0.&&z>0.){
+    for(int i=0;i<4;i++){
+     float column=float(i-(i/2)*2),row=float(i/2);
+     vec3 l=vec3(P.x-P.y+(column+.5)*P.y-x,P.z*(1.-(row+.5)*.5),-z);
+     float dd=dot(l,l),il=inversesqrt(dd);
+     e+=uCells[k*4+i]*(z*il)*(l.y*il)/dd*(P.y*P.z*.5);
+    }
    }
   }
-  // The panel hides part of the sky from the ground near its base.
-  float s=max(abs(z),.5);
-  float wall=.5*(1.-s/sqrt(s*s+uPanel.z*uPanel.z));
-  float span=clamp((atan((uPanel.y-u0)/s)+atan((uPanel.y+u0)/s))/3.14159265,0.,1.);
-  float occluded=clamp(wall*span*1.15,0.,1.);
-  float shade=max(shadow,occluded*.6);
   float fade=smoothstep(uSize.y,uSize.y-uFade,p.y);
   col=mix(uLit,uShade,shade*fade);
   touched=shade*fade;
-  if(uGlow>0.&&z>0.){
-   vec3 e=vec3(0.);
-   for(int i=0;i<16;i++){
-    float column=float(i-(i/4)*4),row=float(i/4);
-    vec3 l=vec3(uPanel.x-uPanel.y+(column+.5)*uPanel.y*.5-x,uPanel.z*(1.-(row+.5)*.25),-z);
-    float dd=dot(l,l),il=inversesqrt(dd);
-    e+=uCells[i]*(z*il)*(l.y*il)/dd;
-   }
-   vec3 add=e*(uPanel.y*.5*uPanel.z*.25)/3.14159265*uGlow*fade;
+  if(uGlow>0.){
+   vec3 add=e/3.14159265*uGlow*fade;
    float lum=dot(add,vec3(.2126,.7152,.0722));
    if(lum>uGlowLimit)add*=uGlowLimit/lum;
    col+=add;
@@ -192,13 +210,14 @@ void main(){
 
 export interface GroundFrame {
   camera: Camera;
-  panel: Panel;
+  panels: Panel[];
   ray: Vec;
   direct: number;
   glow: number;
   lit: Vec;
   shade: Vec;
-  cells: Cells;
+  /** Four area lights for each panel, from `quarters`. */
+  cells: number[][];
   fade: number;
 }
 export interface GroundRenderer {
@@ -239,7 +258,7 @@ export function createGround(canvas: HTMLCanvasElement, lost: () => void): Groun
   g.vertexAttribPointer(position, 2, g.FLOAT, false, 0, 0);
   const u = (name: string) => g.getUniformLocation(program, name);
   const at = {
-    size: u("uSize"), dpr: u("uDpr"), cam: u("uCam"), panel: u("uPanel"), ray: u("uRay"),
+    size: u("uSize"), dpr: u("uDpr"), cam: u("uCam"), panels: u("uPanels"), count: u("uCount"), ray: u("uRay"),
     direct: u("uDirect"), glow: u("uGlow"), limit: u("uGlowLimit"), fade: u("uFade"),
     lit: u("uLit"), shade: u("uShade"), cells: u("uCells"),
   };
@@ -267,7 +286,15 @@ export function createGround(canvas: HTMLCanvasElement, lost: () => void): Groun
       g.uniform2f(at.size, width, height);
       g.uniform1f(at.dpr, canvas.width / width);
       g.uniform4f(at.cam, f.camera.cx, f.camera.horizon, f.camera.height, f.camera.distance);
-      g.uniform3f(at.panel, f.panel.x, f.panel.half, f.panel.h);
+      const panels = f.panels.slice(0, MAX_PANELS);
+      const flat = new Float32Array(MAX_PANELS * 3);
+      const cells = new Float32Array(MAX_PANELS * 12);
+      panels.forEach((p, i) => {
+        flat.set([p.x, p.half, p.h], i * 3);
+        cells.set(f.cells[i] ?? new Array(12).fill(0.8), i * 12);
+      });
+      g.uniform3fv(at.panels, flat);
+      g.uniform1f(at.count, panels.length);
       g.uniform3f(at.ray, f.ray[0], f.ray[1], f.ray[2]);
       g.uniform1f(at.direct, f.direct);
       g.uniform1f(at.glow, f.glow);
@@ -275,7 +302,7 @@ export function createGround(canvas: HTMLCanvasElement, lost: () => void): Groun
       g.uniform1f(at.fade, f.fade);
       g.uniform3fv(at.lit, f.lit);
       g.uniform3fv(at.shade, f.shade);
-      g.uniform3fv(at.cells, f.cells);
+      g.uniform3fv(at.cells, cells);
       g.drawArrays(g.TRIANGLES, 0, 3);
     },
     dispose() {

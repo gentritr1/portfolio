@@ -3,18 +3,49 @@
   "title": "KOSOVO TIME",
   "band": "Loop 10",
   "rule": "the sun over Kosovo lights the page at the visitor's time: every screen stands on the page and casts the shadow that the real sun gives it, computed from the sun's altitude and direction, never drawn",
-  "description": "The page is lit by the real sun over Kosovo (42.6° N, 20.9° E) at the visitor's clock. First screen: 'Gentrit Rashiti builds web and mobile apps, from Kosovo.', then '5+ years. Part of two platform rewrites. Working remotely.'; at the right the time in Kosovo, one plain sentence ('The sun is 3.8° above the horizon, in the west. It lights this page.') and today's sun path, which is the control that moves the hour (drag, arrow keys, or Now / Dawn / Noon / Dusk / Night). Under them Offday (own project, light theme, team calendar) stands on the page and casts its shadow; under it a caption and three result lines: Part of two platform rewrites. Three apps shipped to both app stores. One report asked the database 16 times. Now it asks 2. Then 'Client work' (care platform as a labelled recreation, Bayyinah TV library, Read to Feed, Viva Fresh, Dukagjini Bookstore, Design System v2 recreation, Incentiv) and 'Own projects' (OFFBEAT and FORM as large concept plates on one shared ground, then Offday, FJALË, Za! and Morse Trainer). Every screen casts the same sun's shadow, so a scrub swings all of them together. The footer states the four lights with their colours and measured contrast.",
+  "description": "The page is lit by the real sun over Kosovo (42.6° N, 20.9° E) at the visitor's clock. The first screen is a landscape. In the sky: 'Gentrit Rashiti builds web and mobile apps, from Kosovo.', '5+ years. Part of two platform rewrites. Working remotely.', two result lines, the time in Kosovo with the same instant on the visitor's clock, one display sentence ('The sun is 3° above the horizon, in the west. It lights this page.') and Now / Dawn / Noon / Dusk / Night; under them today's sun path across the page width, with a large sun disc labelled 'Drag the sun'. Below the horizon: a public Bayyinah TV library screen (client work) and Offday (own project) stand on the ground and cast the shadows the sun gives them. Then 'Client work' (care platform as a labelled recreation, Bayyinah TV, three phone apps side by side on one ground, Design System v2 recreation, Incentiv) and 'Own projects' (OFFBEAT and FORM as large concept plates on one ground, then Offday, FJALË, Za! and Morse Trainer). No text stands where a shadow can fall. The footer states the four lights with their colours and measured contrast.",
   "signature": "Fraunces (opsz 144, wght 500, SOFT 100, WONK 1) at 72 px for the identity line, Public Sans for everything else, no mono. The ground colour, the shade colour, the text and the result lines are computed from the sun's altitude, morning or evening: dawn apricot #F5C59E, day paper #F7F4EC, dusk orange #FFA667 with violet shade #A58CC5, night #0F0D14 with amber results. The ground flips from sky light to sunlight when the sun's edge crosses the horizon. The first screen's floor is a WebGL fragment shader: each pixel is unprojected to the ground, a ray goes toward the sun and tests the screen's rectangle (soft edge from the sun's 0.53° disc), the screen's base hides part of the sky (contact shade), and at night the screen's own 4 x 4 colours light the ground in front of it (lab move 01). Rows use the same projection as an SVG polygon; the SVG is also the no-WebGL path. The viewer faces south-west. Load: today's sun runs from 90 minutes ago to now in 1.1 s. Scrub: spring (350/35) with a short flick coast. Reduced motion: the hour of page load, static; jumps are instant.",
   "caseSlug": "offday",
-  "mechanisms": ["M3", "M7", "M9"],
+  "mechanisms": [
+    "M3",
+    "M7",
+    "M9"
+  ],
   "slopCount": 0,
   "rounds": 1,
   "loopScores": {
-    "straightToThePoint": 8,
-    "actionsAndSeniority": 7,
-    "original": 8,
-    "hooks": 8,
-    "typeAndColour": 8
+    "straightToThePoint": 9,
+    "actionsAndSeniority": 8,
+    "original": 9,
+    "hooks": 9,
+    "typeAndColour": 9
   },
-  "holdback": "Lowest: seniority, 7/10. The client rows are a plain list with small plates; the scope and level live in one line each. The shadows are honest geometry, so at some hours a screen is nearly edge-on to the sun and its shadow is a thin sliver (mid-morning for this south-west view). Long shadows run past the bottom of a row and fade there (a 56-72 px fade, not light). The care platform plate is the live recreation scaled to half size, so its text is small. At night the care recreation follows the page's dark colour scheme. The Offday hero plate shows the 2880 px capture at about 630 css px (no upscale)."
+  "holdback": "Lowest: seniority, 8/10. The client screen is a crop of the public Bayyinah TV library at 0.74 of source pixels; the web plates in the rows (about 680 css px from 1440 or 2880 px sources) stay too small to read body text. The desktop page is longer (7,650 px at 1440) because the plates are larger. The per-pixel floor falls back to the flat SVG shadow on software GL, so a headless reviewer sees the SVG floor after a scrub. The hidden in-app pane pauses requestAnimationFrame, so only instant key steps can be driven there.",
+  "polish": [
+    {
+      "round": 10,
+      "pass": "b",
+      "score": {
+        "straightToThePoint": 9,
+        "actionsAndSeniority": 8,
+        "original": 9,
+        "hooks": 9,
+        "typeAndColour": 9
+      },
+      "fixed": [
+        "Day state is no longer paper plus one accent: a computed sky (zenith to horizon haze, per altitude, morning and evening) stands above a real horizon; the ground and shadows sit under it. Noon: #A9C8E6 sky, #F7F4EC ground, #AEB3C3 shade (critic 1, devil 'noon wedge')",
+        "Sun sentence in display type (Fraunces 24 px, opsz 36) beside the identity line; the sun path is now the hero control across the page width with a 38 px sun disc and a 'Drag the sun' label that leaves after the first drag or key (critic 1)",
+        "Evening and night visitors: night is an indigo sky over a dark ground lit only by the screens (floor light cap 0.045 -> 0.14 luminance); the label reads 'Drag the sun up'; under the Kosovo time the same instant on the visitor's clock ('16:30 where you are', San Francisco zone in frames) (devil time-zone problem)",
+        "A public client screen on the first screen: Bayyinah TV library crop at 0.74 of source pixels (course titles about 11 px) beside Offday, each with its own title bar ('Bayyinah TV · Client work, 2023-26'); on a phone a closer crop at 0.57, inside the first 812 px (critic 3, devil 'hero is an own project')",
+        "No text on the ground: results moved into the sky; row floors only span the plate column with a 40 px side fade; shelf and concept text stand above their ground (devil 'wedge runs under the results', 'violet band crosses Part of two platform rewrites')",
+        "Row plates at readable size: wide plates 92 -> 676 css px at 1440; the three phone apps stand side by side on one ground at 320 css px (was 92); concepts 644 css px (critic 2)",
+        "Care recreation plate fits its width (inner 720 px scaled to the plate), so it no longer cuts 'Northwi' or 'Systol' on a phone (devil, display rule 8)",
+        "Phone page 9,336 -> 7,851 px at 390: phone apps sit beside their text, tighter row spacing, footer lights 2 x 2 (critic 4)",
+        "Shader takes up to four panels; it falls back to the flat SVG shadow after 18 frames in a row slower than 50 ms (critic 5)",
+        "Copy: 'Part of two platform rewrites' appears once (it was in the sub-line and the results); results are 'Mobile apps shipped to both app stores.' and the 16 -> 2 line (devil)",
+        "Sun disc moves by transform only: load CLS 0.0011-0.0025 -> 0 at 375/390/540/1024/1280/1440; header colour set directly so a stale paint cannot show it pale",
+        "Care recreation small print uses the sans, not mono (round-10 ban)"
+      ]
+    }
+  ]
 }

@@ -3,7 +3,7 @@
   "title": "THREE LANGUAGES, ONE PAGE",
   "band": "Loop 10",
   "rule": "the home page exists in English, Shqip and Arabic; the switch re-sets the whole page live, and Arabic mirrors the layout right to left for real (dir=rtl, logical properties), so the page proves the right-to-left skill by being one",
-  "description": "Concept C3. The first screen sets one fact in three scripts: the identity line large in the current language, and the same line in the two other languages under it, each one a button that opens the page in that language. Language names sit top-centre in their own scripts (English, Shqip, العربية). Beside the lines, two public Bayyinah TV captures (the web library on its Arabic courses tab and the App Store frame for the Arabic courses); the caption says that these show the English interface, because no Arabic-interface capture exists. Below: six rows that say what was built and the languages it shipped in, each language name in its own script (Bayyinah TV English + العربية, the care platform English, Deutsch, Español, Türkçe as text only, Viva Fresh Shqip, Read to Feed 3 languages, Incentiv English + Français, FJALË Shqip). Then 'In Albanian': FJALË (his own word game) and a Viva Fresh store frame, large. Then 'His own products': Offday (light team calendar, 2x capture, 'about 200 automatic tests', code private, no link), OFFBEAT (sound studio, cropped on its whole sequencer panel) and FORM (home with the copper trefoil), both labelled 'Concept, 2026' with their GitHub links. Footer with email, GitHub, LinkedIn and the CV. The fourth language of the title is not a page language: no fact supports a fourth language the owner writes, so the care platform's four languages are named in its row only.",
+  "description": "Concept C3. The first screen: 'Gentrit Rashiti builds web and mobile apps.' at 64 px, the level line 'Part of two platform rewrites. 5+ years, based in Kosovo, working remotely.' at 24 px, then 'This page also reads in' with the same identity line in the two other languages as buttons; the one that changes direction says so ('right to left'). Beside them, two public Bayyinah TV captures of the same library page: the laptop view and a flat phone-width capture (no device frame); at phone width only the phone capture shows. Below: six rows with a result line and the languages each app shipped in, each language name in its own script, no rules between rows. Then 'In Albanian': FJALË and a flat crop of the Viva Fresh home screen. Then 'His own products': Offday (light, about 200 automatic tests, code private), OFFBEAT and FORM labelled 'Concept' with GitHub links. Footer with email, GitHub, LinkedIn and the CV. The Arabic switch mirrors the whole layout in three stages (header, columns, rows; 480 ms).",
   "signature": "Type: one family name, two scripts. Literata (opsz 7-72, wght 400-600, subset 75 kB) for Latin and Albanian; Amiri Regular and Bold (Arabic subsets, 41 kB each) for Arabic, joined by unicode-range and size-adjusted 122% so an Arabic word sits at the size of a Latin word on the same line. Identity line 64 px Literata 500 at opsz 64, -0.025 em; Arabic 56 px Amiri Bold, line-height 1.5, never tracked. Arabic-Indic digits for Arabic years. No mono. Colour: a manuscript palette, ultramarine ground #1A2466, vellum text #F2EADB (11.8:1), gold #E0B252 for the active language, language names and link underlines (7.2:1), muted #C3C6E0 (8.4:1). Motion: one View Transition of 320 ms on cubic-bezier(0.32, 0.72, 0, 1); about 50 named parts move from their old box to their mirrored box, old text fades out in 200 ms, new text fades in from 140 to 320 ms, captures move as objects and never cross-fade, the root never fades, the header stays on top, and the block the reader is on keeps its height on screen. The chosen alternate line grows into the headline while the old headline shrinks into its place. Reduced motion: instant switch. The language is in the URL (?lang=sq, ?lang=ar), on html lang and dir, and in the document title.",
   "caseSlug": "bayyinah-tv",
   "mechanisms": [
@@ -14,7 +14,7 @@
   ],
   "slopCount": 0,
   "rounds": 1,
-  "hook": "His site flips into Arabic for real: the whole page slides to the other side and reads right to left.",
+  "hook": "His site flips into Arabic for real: the header, then the columns, then the rows slide to the other side and the page reads right to left.",
   "loopScores": {
     "straightToThePoint": 8,
     "actionsAndSeniority": 7,
@@ -23,8 +23,8 @@
     "typeAndColour": 8,
     "craftGate": "pass"
   },
-  "holdback": "Lowest: actions and seniority, 7. The page proves one skill (right-to-left and multi-language interfaces) very well; depth of the platform work sits in one sub-line ('Part of two platform rewrites') and the row roles. No Arabic-interface capture of Bayyinah TV exists in public/showcase, so the screens stay the English interface and only the layout and text mirror; the caption says so. The view transition is proven headless with paused mid-frames; the in-app browser pane was hidden during this run, and a hidden document skips view transitions, so the live click there switched instantly (dir=rtl, title changed) without the motion. At 60-120 ms the header items cross over each other. The Albanian and Arabic copy needs an owner check (translationsToCheck). Own products sit low on the page (about 3,000 px down at 1440), after the language material.",
-  "translationsNote": "Every Albanian and Arabic string that differs from English. Strings left the same in all three (product names, App Store, Google Play, CV (PDF) in Albanian, Email in Albanian, Frontend and Mobile in Albanian, Latin years) are not listed.",
+  "holdback": "Lowest: actions and seniority, 7 to 8. The level line is now 24 px under the name, but the platform depth is still one line and the row roles. No public Arabic Bayyinah TV page exists: bayyinahtv.com shows no language switch and no rtl markup to a visitor who is not signed in (checked on the home and /library/arabic pages and in the public bundles), and bayyinah.org has no Arabic page. So the hero shows the English interface, and the page no longer claims anything the captures cannot prove: the identity line says what he builds, the Arabic claim stays as text in the Bayyinah TV row (CONTENT §3), and the page itself shows the right-to-left skill. Every Albanian and Arabic string is listed in translationsToCheck for the owner and a native reader; the page does not mark them. The in-app browser pane was hidden, so the live click there switched with no transition; the mirror is proven headless in real time at 0.04 playback rate.",
+  "translationsNote": "Every Albanian and Arabic string that differs from English, generated from copy.ts. Strings that are the same in all three languages (product names, App Store, Google Play, Latin years) are not listed. The owner checks the Albanian and a native reader checks the Arabic before the page is public.",
   "translationsToCheck": [
     {
       "lang": "sq",
@@ -47,32 +47,32 @@
     {
       "lang": "sq",
       "key": "page.line",
-      "en": "Gentrit Rashiti builds web and mobile apps in the user’s own language.",
-      "text": "Gentrit Rashiti ndërton aplikacione web dhe mobile në gjuhën e përdoruesit."
+      "en": "Gentrit Rashiti builds web and mobile apps.",
+      "text": "Gentrit Rashiti ndërton aplikacione web dhe mobile."
     },
     {
       "lang": "sq",
       "key": "page.readIn",
-      "en": "Read this page in",
-      "text": "Lexoje këtë faqe në"
+      "en": "This page also reads in",
+      "text": "Kjo faqe lexohet edhe në"
     },
     {
       "lang": "sq",
       "key": "page.sub",
-      "en": "5+ years. Part of two platform rewrites. Based in Kosovo, working remotely.",
-      "text": "Mbi 5 vjet përvojë. Pjesë e dy rishkrimeve të platformave. Në Kosovë, punon në distancë."
+      "en": "Part of two platform rewrites. 5+ years, based in Kosovo, working remotely.",
+      "text": "Pjesë e dy rishkrimeve të platformave. Mbi 5 vjet përvojë, në Kosovë, punon në distancë."
+    },
+    {
+      "lang": "sq",
+      "key": "page.flips",
+      "en": "right to left",
+      "text": "nga e djathta në të majtë"
     },
     {
       "lang": "sq",
       "key": "page.heroCaption",
-      "en": "Bayyinah TV: the Arabic courses, on the web and in the app. Public pages.",
-      "text": "Bayyinah TV: kurset e arabishtes, në web dhe në aplikacion. Faqe publike."
-    },
-    {
-      "lang": "sq",
-      "key": "page.heroNote",
-      "en": "The site also has an Arabic interface. These captures show the English one.",
-      "text": "Faqja ka edhe ndërfaqe në arabisht. Këto pamje tregojnë atë në anglisht."
+      "en": "Bayyinah TV library, Arabic courses tab. Public pages.",
+      "text": "Biblioteka e Bayyinah TV, skeda e kurseve të arabishtes. Faqe publike."
     },
     {
       "lang": "sq",
@@ -83,8 +83,8 @@
     {
       "lang": "sq",
       "key": "page.altPhone",
-      "en": "App Store frame of Bayyinah TV: Study Quranic Arabic Step by Step, with the Arabic courses",
-      "text": "Pamje e Bayyinah TV nga App Store: Study Quranic Arabic Step by Step, me kurset e arabishtes"
+      "en": "Bayyinah TV library at phone width: the Arabic tab, New to Arabic, and two beginner courses",
+      "text": "Biblioteka e Bayyinah TV në gjerësinë e telefonit: skeda Arabisht, New to Arabic dhe dy kurse për fillestarë"
     },
     {
       "lang": "sq",
@@ -125,14 +125,14 @@
     {
       "lang": "sq",
       "key": "page.vivaCaption",
-      "en": "Viva Fresh: a store frame, Albanian interface.",
-      "text": "Viva Fresh: pamje nga dyqani, ndërfaqe në shqip."
+      "en": "Viva Fresh home screen, Albanian interface.",
+      "text": "Viva Fresh, ekrani kryesor, ndërfaqe në shqip."
     },
     {
       "lang": "sq",
       "key": "page.vivaAlt",
-      "en": "Viva Fresh store screenshot on iPhone: home with product categories and the latest products, Albanian interface",
-      "text": "Pamje e Viva Fresh në iPhone: faqja kryesore me kategoritë dhe produktet e fundit, në shqip"
+      "en": "Viva Fresh home screen: product categories and the latest products, Albanian interface",
+      "text": "Ekrani kryesor i Viva Fresh: kategoritë e produkteve dhe produktet e fundit, ndërfaqe në shqip"
     },
     {
       "lang": "sq",
@@ -143,8 +143,8 @@
     {
       "lang": "sq",
       "key": "page.footLine",
-      "en": "Every screen on this page is a public page or a store frame.",
-      "text": "Çdo ekran në këtë faqe është faqe publike ose pamje nga dyqani."
+      "en": "Each client screen on this page is a public page or a store screenshot.",
+      "text": "Çdo ekran klienti në këtë faqe është faqe publike ose pamje nga dyqani i aplikacioneve."
     },
     {
       "lang": "sq",
@@ -203,8 +203,8 @@
     {
       "lang": "sq",
       "key": "page.concept",
-      "en": "Concept, 2026",
-      "text": "Koncept, 2026"
+      "en": "Concept",
+      "text": "Koncept"
     },
     {
       "lang": "sq",
@@ -377,32 +377,32 @@
     {
       "lang": "ar",
       "key": "page.line",
-      "en": "Gentrit Rashiti builds web and mobile apps in the user’s own language.",
-      "text": "جنتريت راشيتي يبني تطبيقات الويب والجوّال بلغة المستخدم نفسه."
+      "en": "Gentrit Rashiti builds web and mobile apps.",
+      "text": "جنتريت راشيتي يبني تطبيقات الويب والجوّال."
     },
     {
       "lang": "ar",
       "key": "page.readIn",
-      "en": "Read this page in",
-      "text": "اقرأ هذه الصفحة بـ"
+      "en": "This page also reads in",
+      "text": "تُقرأ هذه الصفحة أيضاً بـ"
     },
     {
       "lang": "ar",
       "key": "page.sub",
-      "en": "5+ years. Part of two platform rewrites. Based in Kosovo, working remotely.",
-      "text": "أكثر من ٥ سنوات. شارك في إعادة كتابة منصّتين. يقيم في كوسوفو ويعمل عن بُعد."
+      "en": "Part of two platform rewrites. 5+ years, based in Kosovo, working remotely.",
+      "text": "شارك في إعادة كتابة منصّتين. أكثر من ٥ سنوات، يقيم في كوسوفو ويعمل عن بُعد."
+    },
+    {
+      "lang": "ar",
+      "key": "page.flips",
+      "en": "right to left",
+      "text": "من اليسار إلى اليمين"
     },
     {
       "lang": "ar",
       "key": "page.heroCaption",
-      "en": "Bayyinah TV: the Arabic courses, on the web and in the app. Public pages.",
-      "text": "Bayyinah TV: دورات اللغة العربية على الموقع وفي التطبيق. صفحات عامة."
-    },
-    {
-      "lang": "ar",
-      "key": "page.heroNote",
-      "en": "The site also has an Arabic interface. These captures show the English one.",
-      "text": "للموقع واجهة عربية أيضاً. هذه الصور تعرض الواجهة الإنجليزية."
+      "en": "Bayyinah TV library, Arabic courses tab. Public pages.",
+      "text": "مكتبة Bayyinah TV، تبويب دورات العربية. صفحات عامة."
     },
     {
       "lang": "ar",
@@ -413,8 +413,8 @@
     {
       "lang": "ar",
       "key": "page.altPhone",
-      "en": "App Store frame of Bayyinah TV: Study Quranic Arabic Step by Step, with the Arabic courses",
-      "text": "صورة Bayyinah TV من App Store: ‏Study Quranic Arabic Step by Step، مع دورات العربية"
+      "en": "Bayyinah TV library at phone width: the Arabic tab, New to Arabic, and two beginner courses",
+      "text": "مكتبة Bayyinah TV بعرض الهاتف: تبويب العربية، وNew to Arabic، ودورتان للمبتدئين"
     },
     {
       "lang": "ar",
@@ -455,14 +455,14 @@
     {
       "lang": "ar",
       "key": "page.vivaCaption",
-      "en": "Viva Fresh: a store frame, Albanian interface.",
-      "text": "Viva Fresh: صورة من المتجر، بواجهة ألبانية."
+      "en": "Viva Fresh home screen, Albanian interface.",
+      "text": "Viva Fresh، الشاشة الرئيسية، بواجهة ألبانية."
     },
     {
       "lang": "ar",
       "key": "page.vivaAlt",
-      "en": "Viva Fresh store screenshot on iPhone: home with product categories and the latest products, Albanian interface",
-      "text": "صورة Viva Fresh على آيفون: الصفحة الرئيسية بفئات المنتجات وأحدثها، بواجهة ألبانية"
+      "en": "Viva Fresh home screen: product categories and the latest products, Albanian interface",
+      "text": "الشاشة الرئيسية لـ Viva Fresh: فئات المنتجات وأحدثها، بواجهة ألبانية"
     },
     {
       "lang": "ar",
@@ -473,8 +473,8 @@
     {
       "lang": "ar",
       "key": "page.footLine",
-      "en": "Every screen on this page is a public page or a store frame.",
-      "text": "كل شاشة في هذه الصفحة صفحة عامة أو صورة من المتجر."
+      "en": "Each client screen on this page is a public page or a store screenshot.",
+      "text": "كل شاشة لعميل في هذه الصفحة صفحة عامة أو صورة من متجر التطبيقات."
     },
     {
       "lang": "ar",
@@ -533,8 +533,8 @@
     {
       "lang": "ar",
       "key": "page.concept",
-      "en": "Concept, 2026",
-      "text": "مشروع تصوّري، ٢٠٢٦"
+      "en": "Concept",
+      "text": "مشروع تصوّري"
     },
     {
       "lang": "ar",
@@ -726,14 +726,14 @@
       390,
       375
     ],
-    "cls": "0 at every width in en, sq and ar, on load and after a fast scroll to the bottom (cold profile)",
+    "cls": "0 at 1440, 1280, 1024, 540, 390 and 375 in en and ar, on load and after a fast scroll to the bottom (round 10b probe)",
     "targets": "every link and button is at least 44 x 44 px (0 smaller at every width)",
     "focus": "2 px gold ring, 3 px offset, on every link and button",
     "hover": "hover only adds a tint or underline; every action has a visible control",
     "reducedMotion": "switch is instant: 0 animations 16 ms after the click, dir already rtl",
     "noWebGL": "no WebGL, no canvas, no sound",
     "contrast": "lowest text pair 7.16:1 (gold on ultramarine)",
-    "chunk": "Draft JS 7.0 kB gzip, CSS 2.9 kB gzip (fonts excluded); fonts 75 + 41 + 41 kB, preloaded",
+    "chunk": "Draft chunk 8.1 kB gzip in a production build",
     "fontWait": "render waits at most 300 ms; late faces fall back to a sized Georgia and Geeza Pro for the whole visit",
     "images": "no capture above its pixels on a 2x screen (largest scale 1.00); Offday 0.70, OFFBEAT 0.50, FORM 0.46 at 1440"
   },
@@ -789,6 +789,36 @@
       "m375-ar-own-2.png",
       "mirror-own-en-ar-120ms.png",
       "mirror-own-en-ar-done.png"
-    ]
-  }
+    ],
+    "dir10b": "scratchpad/review/loop10b/four-languages/final"
+  },
+  "polish": [
+    {
+      "round": 10,
+      "pass": "b",
+      "score": {
+        "straightToThePoint": 9,
+        "actionsAndSeniority": 8,
+        "original": 8,
+        "hooks": 8,
+        "typeAndColour": 9,
+        "craftGate": "pass"
+      },
+      "fixed": [
+        "Right-to-left proof: searched bayyinahtv.com (home, /ar, ?lang=ar, /library/arabic, all public bundles) and bayyinah.org; no public Arabic interface exists without a login, so no Arabic capture was made or invented. The hero caption no longer argues against itself ('These captures show the English one' removed); it says what the pictures show: 'Bayyinah TV library, Arabic courses tab. Public pages.' (devil 1, critic 3)",
+        "Claim: 'builds web and mobile apps in the user's own language' replaced with 'Gentrit Rashiti builds web and mobile apps.' plus 'This page also reads in', and a 'right to left' note on the button that flips direction; the page proves it on press (devil 2)",
+        "Mockups: the tilted-phone App Store frame (store-04) is replaced by a flat 2x phone-width capture of the same public library page (shots/bayyinah-phone-arabic-tab.webp); the Viva Fresh iPhone mockup is replaced by a flat crop of its screen (shots/viva-fresh-home.webp) (devil 4, display rule 10)",
+        "Mirror staged: header and headline 0 ms, columns 80 ms, rows 160 ms, 480 ms in total; column and row text is invisible while it moves, so no headline or text crosses a capture; the headline box keeps one width, so text never scales (critic 2). Frames: after-mirror-en-ar-000..560ms.png against before-mirror-en-ar-120ms.png",
+        "Level line moved under the name at 24 px vellum (was 17 px muted at the bottom of the left column) (critic 4)",
+        "Latin name now shows in the header at every width, also on phones in Arabic (devil: a non-Arabic reader on ?lang=ar did not see 'Gentrit Rashiti')",
+        "Phone hero: only the phone capture shows, at 280 px, so its text is 11 px or more; the client screen is in the first screen at 375 (y about 380)",
+        "1 px rules removed: rows, header and footer separate by space only (round-10 ban)",
+        "Exact label 'Concept' for OFFBEAT and FORM; footer line corrected to 'Each client screen on this page is a public page or a store screenshot.' (Offday is not a public page)",
+        "Font wait measured on a production build, cold profile: faces arrive 4–10 ms after request; 300 ms cap kept with the fallback face (critic 5)",
+        "translationsToCheck regenerated from copy.ts: 115 strings (53 Albanian, 62 Arabic); no mark in the UI (critic 1 and devil 3 stay owner actions)"
+      ],
+      "followed": "Critic and devil agree on the hero proof; where the critic asked to capture the Arabic interface, the evidence (no public Arabic page) decided, and the devil's fallback (change the claim) was followed.",
+      "evidence": "scratchpad/review/loop10b/four-languages/final (before-*.png and after-*.png pairs; after-mirror-en-ar-*ms.png and after-m375-mirror-en-ar-*ms.png are real-time frames at 0.04 playback rate)"
+    }
+  ]
 }

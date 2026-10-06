@@ -3,8 +3,8 @@
   "title": "DEPARTURES",
   "band": "Loop 10",
   "rule": "the first screen is one flip-disc board; the HTML under it is a printed bus timetable of the work",
-  "description": "A flip-disc board writes the work as bus departures: the owner's name as the destination, then one line every 6 s with its route plate, years, three stops and the next line, and a page where the real screen is quantised into the discs. Under it, a printed timetable in Archivo Narrow with dot leaders and hanging figures.",
-  "signature": "Letters write in Morse time (one dit, 60 ms, between letters). Pictures develop in 16 Bayer levels across 128 x 56 discs. Sound is off until pressed; then each flip is a panned granular click (64 voices). Hold Space or press the board to key Morse: W opens the work, C the email. Two controls only: Sound and Pause.",
+  "description": "A flip-disc board writes the work as bus departures: the owner's name as the first destination, then one line every 6 s with its route plate, years, three stops and the next line, then what changed in large discs (16→2, 34 pages, 14 updates). Under it, a printed timetable in Archivo Narrow with dot leaders and tint bands, where each row opens its real screen.",
+  "signature": "Letters write in Morse time (one dit, 60 ms, between letters). Results write as large figures at 2× or 3× disc scale; concepts draw a step grid or a trefoil knot. Sound is off until pressed; then each flip is a panned granular click (64 voices). Focus the board and hold Space, or press the board, to key Morse: a dot–dash meter teaches the timing, W opens the work, C the email. Two controls only: Sound and Pause.",
   "caseSlug": "morse-trainer",
   "mechanisms": [
     "M3",
@@ -21,5 +21,33 @@
     "hooks": 9,
     "typeAndColour": 8
   },
-  "holdback": "Lowest: actions and seniority, 7/10. The board names results in stops and the strip, but the deeper proof (16 to 2, the rebuild) sits one click down in the timetable. Phone-store pictures read as phone silhouettes, not as screens; the care line shows a chart recreation. Motion and sound were verified in headless Chrome with SwiftShader (slow) and with virtual time; the browser pane was hidden, so its screenshots were stale."
+  "holdback": "Lowest: actions and seniority, 7/10. The board and the identity line now carry 5+ years, two rewrites and both app stores, and each client line ends on a plain result. But no client screen is in the first screen: real screens open from the timetable rows, one short scroll down. Motion was proved in headless Chrome with SwiftShader under a load average near 99, so wall-clock timing and font arrival were noisy; Space was proved in the in-app browser pane.",
+  "polish": [
+    {
+      "round": 10,
+      "pass": "b",
+      "score": {
+        "straightToThePoint": 8,
+        "actionsAndSeniority": 7,
+        "original": 9,
+        "hooks": 9,
+        "typeAndColour": 8
+      },
+      "fixed": [
+        "Identity on the board: GENTRIT RASHITI is the first destination, with 'Part of 2 platform rewrites' (page 1) and '5+ years / apps in both app stores' (page 2). The HTML identity line is 27 px paper (was 15 px grey) with a persistent sub-line: 5+ years, two platform rewrites, mobile apps shipped to both app stores. After one round the board rests on the name.",
+        "Illegible disc pictures removed: the second page of each line is its result in large discs (16→2 database asks, 34 pages, 1 app, 2 app stores, 14 updates, 0 passwords, 36 blocks, 200 tests, 5 letters, 2-8 players, 337 KB). OFFBEAT and FORM draw a step grid and a trefoil with crossing gaps, labelled CONCEPT; Morse Trainer draws the W and C keys. A sentence that does not fit whole is left out, never cut. Dither code removed.",
+        "Space: the board takes Space only when it has focus. Proved in the pane: nothing focused, Space scrolls 0 to 842 px; board focused, Space keys a dot and scrollY stays 0.",
+        "Order: shipped client apps (Viva Fresh, Dukagjini, Read to Feed, Incentiv) and the design system now come before Offday, OFFBEAT and FORM, on the board and in the timetable.",
+        "Blocked words: 'Care-management API' is 'Care platform, server side'; 'Chatbot runtime' is 'Scripted chat engine'.",
+        "Exact labels: the care screen caption is 'Recreation · invented data'; OFFBEAT and FORM show a 'Concept' tag in their rows, 'CONCEPT' on the board, 'Concept.' in the strip and 'Concept' as the screen caption.",
+        "iOS audio: every press resumes the AudioContext inside the gesture and plays one silent sample; with sound on, audioSession.type is 'playback'; on an iOS without audioSession a small line names the silent switch.",
+        "Lamp test from the first frame: the board is lit in CSS before the canvas exists and the canvas starts lit; the boot no longer skips under React StrictMode.",
+        "Morse key teaching: a dot–dash meter fills while a press is held and turns red past 200 ms; the dot limit moved from 180 to 200 ms and the letter gap from 420 to 700 ms, so a first W is not split into E and M.",
+        "Thin 1 px row rules removed: timetable rows use a printed tint band; the other-lines list uses space only.",
+        "Nothing loops: the board stops after one full round and the Pause control becomes Play."
+      ],
+      "followed": "Critic item 2 and the devil's radical alternative agree: the discs say what changed, the timetable carries the screens. I did not add a crisp screen beside the board, because it would shrink the board or need a sticky frame (banned this round).",
+      "evidence": "scratchpad/review/loop10b/departures/final (before-*, r1-*, after-*), series/frames-wide.png and frames-phone.png (every result page from the frame data), craft/ (CLS 0, overflow 0, 0 targets under 44 px at 375 to 1440)"
+    }
+  ]
 }

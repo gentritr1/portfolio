@@ -2,6 +2,8 @@
 
 Rule: the sun over Kosovo (42.6° N, 20.9° E) lights the page at the visitor's time. Every screen stands upright on the page and casts the shadow that the real sun gives it. The shadow is computed, never drawn.
 
+Layout rule (pass 10b): text lives in the sky or beside the ground, never on it. The first screen is a landscape: the sky (identity, results, the time, and the sun path as the hero control) above a real horizon, and the ground below it, where a public client screen (Bayyinah TV library, cropped, 0.74 of source pixels at 1440) and Offday stand and cast their shadows. Each screen carries its own title bar, so its label is part of the screen. Rows confine the floor to the plate column with a soft side fade; phone apps and the two concepts share one ground with their text above it.
+
 ## Type
 
 Two faces. No mono.
@@ -14,14 +16,16 @@ Two faces. No mono.
 | Use | Face | Size / line height | Optical size | Weight | Tracking | Measure |
 | --- | --- | --- | --- | --- | --- | --- |
 | Identity line | Fraunces | clamp(40px, 5vw, 72px) / 1.02; 36–48px on a phone | 144 (fixed) | 500 | -0.022em | 11.5em, 2 lines at 1024–1440 |
-| Time ("17:45") | Fraunces | 40px / 1 (32px phone) | 72 | 500, tabular lining figures | -0.01em | fixed box 2.6em |
+| Time ("17:45") | Fraunces | 52px / 1 (38px phone) | 72 | 500, tabular lining figures | -0.01em | fixed box 2.55em |
+| Sun sentence (display) | Fraunces | 24px / 1.22 (19px phone) | 36 | 400 | -0.005em | 440px column, 3 lines reserved |
 | Section name | Fraunces | 44px / 1.05 (34px phone) | 96 | 500 | -0.016em | — |
-| Row name | Fraunces | 30px / 1.1 (26px phone) | 36 | 500 | -0.01em | — |
-| Result lines (first screen) | Public Sans | 20px / 1.3 | — | 600 | -0.005em | one third of 1040px, balanced |
+| Row name | Fraunces | 32px / 1.1 (25px phone) | 36 | 500 | -0.01em | — |
+| Result lines (first screen, in the sky) | Public Sans | 19px / 1.35 | — | 600 | -0.005em | left column |
+| Drag hint, plate title bar | Public Sans | 14px, 13px | — | 600 / 700 | 0 | one line |
 | Row line and row result | Public Sans | 18px / 1.45 | — | 400 and 600 | 0 | 36em |
-| Body, sun sentence | Public Sans | 17px / 1.5; 15px / 1.45 | — | 400 | 0 | 32em |
+| Body | Public Sans | 17px / 1.5; 15px / 1.45 | — | 400 | 0 | 32em |
 | Role, notes, caption | Public Sans | 14–15px | — | 400 | 0 | — |
-| Sun path marks | Public Sans | 12px, tabular | — | 400 | 0 | — |
+| Sun path marks | Public Sans | 13px (12px phone), tabular | — | 400 | 0 | — |
 
 Why 72px and not the brief's 64px: the identity line is the only picture made of type, and it sits in a 780px column; at 72px it still breaks in two lines and the wonky Fraunces `n`, `h` and `m` read at a glance. Optical size 144 stays fixed, as the brief asks.
 
@@ -31,26 +35,28 @@ Font wait: both faces are preloaded. The page waits at most 220 ms for them. If 
 
 The page has no fixed colour. The ground is the colour of the page in sunlight, and the shade is the colour of the page in shadow (sky light only). Both come from the sun's altitude, morning or evening, with OKLab steps between keys (`light.ts`). The ground flips from sky light to sunlight when the sun's edge crosses the horizon (altitude -0.833°).
 
-| Light | Ground (sun) | Shade | Text | Small text | Result lines |
-| --- | --- | --- | --- | --- | --- |
-| Dawn (4°, morning) | #F5C59E | #B8A4C2 | #2A1A12 | #4A3226 | #003B73 |
-| Day (40°) | #F7F4EC | #AEB3C3 | #141414 | #3A3A40 | #1F2E7A |
-| Dusk (2°, evening) | #FFA667 | #A58CC5 | #1E1233 | #2E1E46 | #002A58 |
-| Night (-30°) | #0F0D14 | #0B0A10 | #E8E2D6 | #B9B1C4 | #F2C27E |
+| Light | Sky (top → horizon) | Ground (sun) | Shade | Text | Small text | Result lines |
+| --- | --- | --- | --- | --- | --- | --- |
+| Dawn (4°, morning) | #B5B7DE → #F8CBAC | #F5C59E | #B8A4C2 | #2A1A12 | #4A3226 | #003B73 |
+| Day (40°) | #A9C8E6 → #E6EEF2 | #F7F4EC | #AEB3C3 | #141414 | #3A3A40 | #1F2E7A |
+| Dusk (2°, evening) | #B2A3D8 → #FFB581 | #FFA667 | #A58CC5 | #1E1233 | #2E1E46 | #002A58 |
+| Night (-30°) | #07060F → #1A1636 | #0F0D14 | #0B0A10 | #E8E2D6 | #B9B1C4 | #F2C27E |
 
-Jobs: ground = the page in sun; shade = every shadow and the contact shade at a screen's base; text = all reading text; small text = roles, captions, the sun sentence; result lines = the complementary hue of the ground at a fixed lightness (OKLCH L 0.34 on light grounds), so a result reads as the opposite of the light it sits in.
+Jobs: sky = the band behind the identity, the time and the sun path, and a soft strip at the top of each section; ground = the page in sun; shade = every shadow and the contact shade at a screen's base; text = all reading text and the plate title bars (inverted); small text = roles, marks, the visitor's time; result lines = the complementary hue of the ground at a fixed lightness (OKLCH L 0.34 on light grounds). The sun disc is its own colour: #FF7A2E low, #FFF2C2 high.
 
-Measured contrast (WCAG), worst case over every quarter degree of the day, morning and evening:
+Measured contrast (WCAG), worst case over every quarter degree from -30° to 45°, morning and evening (`light.ts`, measured with a script):
 
 | Pair | Worst | Where |
 | --- | --- | --- |
+| Text on sky | 7.1:1 | morning, -1° |
+| Small text on sky | 4.9:1 | morning, -1° |
+| Result line on sky | 5.1:1 | evening, -1° |
 | Text on ground | 8.4:1 | evening, just above sunset |
-| Text in shadow | 5.8:1 | same |
-| Small text in shadow | 5.0:1 | same |
-| Result line in shadow | 4.7:1 | same |
-| Small text on the brightest screen light at night | 5.1:1 (light added is capped at 0.045 luminance) | night |
+| Small text on ground | 7.2:1 | morning, sunrise |
+| Result line on ground | 6.8:1 | morning, sunrise |
+| Plate title bar (ground on text colour) | 8.4:1 | evening, sunset |
 
-The shadow can never be darker than the shade colour: the renderer only mixes the ground toward the shade. So text keeps 4.5:1 where a shadow crosses it. A rendered pixel inside the noon shadow reads exactly #AEB3C3.
+No text stands on the floor, so shadows and screen light never lower a text pair. The screens' light on the floor at night is capped at 0.14 luminance (glare only).
 
 Departures from the brief, with the evidence:
 
@@ -61,5 +67,8 @@ Departures from the brief, with the evidence:
 ## Motion
 
 - Load: the page runs today's sun from 90 minutes ago to now in 1.1 s (`cubic-bezier(0.65, 0, 0.35, 1)`). Under reduced motion it starts at the hour of page load and stays there.
-- Scrub: the sun path is a slider. The hour follows the pointer through a spring (stiffness 350, damping 35). A flick coasts at most one hour past the release point. Arrow keys move 10 minutes, Shift or Page keys one hour, at once.
+- Scrub: the sun path spans the page width under the identity. The sun disc (38 px) carries "Drag the sun" (at night "Drag the sun up") until the first drag or key press. It moves by transform only (CLS 0).
+- Scrub mechanics: the sun path is a slider. The hour follows the pointer through a spring (stiffness 350, damping 35). A flick coasts at most one hour past the release point. Arrow keys move 10 minutes, Shift or Page keys one hour, at once.
 - The visitor's clock moves the page every 30 seconds. Nothing else moves.
+- The per-pixel floor gives way to the flat SVG shadow after 18 frames in a row slower than 50 ms (software GL, a weak phone GPU).
+- Under the time, the same instant on the visitor's clock ("08:52 where you are"), shown only when the zones differ.

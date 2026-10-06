@@ -5,6 +5,8 @@ import { dirOf, langs, names, otherNames, page, rows, type Lang, type Row } from
 import literata from "./fonts/Literata-Latin-400-600.woff2";
 import amiri from "./fonts/Amiri-Regular-Arabic.woff2";
 import amiriBold from "./fonts/Amiri-Bold-Arabic.woff2";
+import bayyinahPhone from "./shots/bayyinah-phone-arabic-tab.webp";
+import vivaHome from "./shots/viva-fresh-home.webp";
 import "./four-languages.css";
 
 const faces = [literata, amiri, amiriBold];
@@ -169,30 +171,29 @@ export default function Draft() {
 
       <main id="fl-main">
         <section className="fl-hero" aria-labelledby="fl-line" data-anchor>
-          <h1 id="fl-line" className="fl-line" style={vt(`fl-line-${lang}`)}>
+          <h1 id="fl-line" className="fl-line" style={vt("fl-h1")}>
             {t.line}
           </h1>
+          <p className="fl-sub" style={vt("fl-sub")}>
+            {t.sub}
+          </p>
           <div className="fl-side">
             <p className="fl-readin" id="fl-readin" style={vt("fl-readin")}>
               {t.readIn}
             </p>
             <ul className="fl-alts" aria-labelledby="fl-readin">
-              {others.map((l) => (
+              {others.map((l, i) => (
                 <li key={l}>
-                  <button type="button" lang={l} dir={dirOf(l)} onClick={() => change(l)}>
-                    <span className="fl-alt-name" style={vt(`fl-name-${l}`)}>
-                      {names[l]}
+                  <button type="button" lang={l} dir={dirOf(l)} onClick={() => change(l)} style={vt(`fl-alt-${i}`)}>
+                    <span className="fl-alt-name" lang={lang} dir={dirOf(lang)}>
+                      <bdi lang={l}>{names[l]}</bdi>
+                      {dirOf(l) !== dirOf(lang) && <span className="fl-alt-flips">{t.flips}</span>}
                     </span>
-                    <span className="fl-alt-line" style={vt(`fl-line-${l}`)}>
-                      {page[l].line}
-                    </span>
+                    <span className="fl-alt-line">{page[l].line}</span>
                   </button>
                 </li>
               ))}
             </ul>
-            <p className="fl-sub" style={vt("fl-sub")}>
-              {t.sub}
-            </p>
           </div>
           <figure className="fl-shots">
             <div className="fl-pair">
@@ -208,16 +209,16 @@ export default function Draft() {
               />
               <img
                 className="fl-phone"
-                src="/showcase/bayyinah/store-04.webp"
-                width={778}
-                height={1690}
+                src={bayyinahPhone}
+                width={780}
+                height={1290}
                 alt={t.altPhone}
                 decoding="async"
                 style={vt("fl-shot-phone")}
               />
             </div>
             <figcaption style={vt("fl-cap-hero")}>
-              <span>{t.heroCaption}</span> <span className="fl-note">{t.heroNote}</span>
+              {t.heroCaption}
             </figcaption>
           </figure>
         </section>
@@ -285,9 +286,9 @@ export default function Draft() {
             </figure>
             <figure className="fl-fig-phone">
               <img
-                src="/mobile/grocery-1.webp"
-                width={780}
-                height={1689}
+                src={vivaHome}
+                width={596}
+                height={862}
                 alt={t.vivaAlt}
                 loading="lazy"
                 decoding="async"

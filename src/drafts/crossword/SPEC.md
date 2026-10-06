@@ -20,11 +20,12 @@ The mono appears on one kind of glyph only: the clue number (in the cell corner,
 | --- | --- | --- | --- | --- | --- |
 | Tile letter (board, scale 1) | Franklin 700 caps | 26 px in a 44 px cell; shown at camera scale (0.58–1) | – | +0.04 em | 1 letter |
 | Name tiles (header, own band) | Franklin 700 caps | 14 px in 25 px tiles; 30 px in 48 px tiles | – | +0.04 em | – |
-| Identity line (h1) | Fraunces 400 | 38/1.08 desktop, 30/1.1 phone | 96 | −0.02 em | 18 ch |
-| Clue result (recruiter path) | Fraunces 400 | 19/1.3 | 20 | 0 | 34 ch |
+| Identity line (h1) | Fraunces 400 | 40/1.06 desktop (one line over the board), 34 at ≤ 1100, 30/1.1 phone | 96 | −0.02 em | one line at 1440 |
+| Identity sub-line | Fraunces 400 | 19/1.35 (17 at ≤ 1100) | 20 | 0 | 66 ch |
+| Lead result (open answer) | Fraunces 400 | 28/1.14 desktop, 24 at ≤ 1100 and phone | 36 | −0.015 em | 24 ch |
+| Lead scope | Franklin 500 | 15/1.45 | – | 0 | 52 ch |
+| Clue result (recruiter path) | Fraunces 400 | 18/1.26 | 20 | 0 | 44 ch |
 | Clue result (index of other answers) | Fraunces 400 | 16/1.38 | 16 | 0 | 38 ch |
-| Case title | Fraunces 500 | clamp(34–50)/1.04 | 72 | −0.025 em | 14 ch |
-| Case lede | Fraunces 400 | 22/1.32 | 24 | −0.005 em | 30 ch |
 | Own-band result | Fraunces 400 | 30/1.15 desktop, 23/1.2 phone | 48 | −0.015 em | 22 ch |
 | Name over a clue | Franklin 700 caps | 12/1.3 | – | +0.06 em | – |
 | Puzzle title "Fjalëkryq" | Franklin 800 | 30/1 | – | −0.03 em | – |
@@ -32,6 +33,8 @@ The mono appears on one kind of glyph only: the clue number (in the cell corner,
 | Clue number | Martian Mono 500 | 11 px | – | 0 | – |
 
 The opsz values follow the size: small clue text uses a low optical size (open counters, sturdier serifs) and the identity line uses a display cut. This is the brief's "Fraunces opsz 20 for the clues", extended to the display sizes.
+
+Pass 10b: no 1 px rules. Rows separate by space; links and controls are 2 px ink boxes or 2 px underlines.
 
 ## Colour
 

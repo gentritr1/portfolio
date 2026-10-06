@@ -1,12 +1,12 @@
 import { Frame, measure } from "./glyphs";
-import type { Line } from "./lines";
+import type { Line, Result } from "./lines";
 
 export interface Layout {
   cols: number;
   rows: number;
   phone: boolean;
-  /** The window the picture page fills, in discs. Plate and years stay outside it. */
-  picture: { x: number; y: number; w: number; h: number };
+  /** The window under the destination that the two pages share. Plate, years and destination stay outside it. */
+  region: { x: number; y: number; w: number; h: number };
   /** Where the Morse key writes its marks. */
   trace: { x: number; y: number; w: number };
 }
@@ -16,14 +16,14 @@ export const layouts: Record<"wide" | "phone", Layout> = {
     cols: 160,
     rows: 60,
     phone: false,
-    picture: { x: 30, y: 2, w: 128, h: 56 },
+    region: { x: 28, y: 23, w: 130, h: 37 },
     trace: { x: 28, y: 46, w: 74 },
   },
   phone: {
     cols: 70,
     rows: 100,
     phone: true,
-    picture: { x: 1, y: 19, w: 68, h: 80 },
+    region: { x: 1, y: 47, w: 68, h: 53 },
     trace: { x: 1, y: 60, w: 68 },
   },
 };
@@ -115,34 +115,168 @@ function divider(f: Frame, x: number, at: number) {
   for (let y = 22; y <= 57; y += 2) f.cell(x, y, true, at + y * 6);
 }
 
-export type Page = "text" | "picture";
+export type Page = "text" | "result";
 
-export function lineFrame(
-  line: Line,
-  number: number,
-  layout: Layout,
-  page: Page,
-  picture: Uint8Array | null | "parts",
-  following: { name: string; number: number },
-) {
-  const f = new Frame(layout.cols, layout.rows),
-    { x: px, y: py, w: pw, h: ph } = layout.picture;
+const morseOf: Record<string, string> = { W: ".--", C: "-.-." };
+
+/** A step sequencer: lit squares play, outlined squares rest. Columns write in time. */
+function drums(f: Frame, x: number, y: number, at: number) {
+  const pattern = ["10101010", "00100010", "10010010", "00000101"];
+  pattern.forEach((row, r) =>
+    [...row].forEach((on, c) => {
+      const left = x + c * 7,
+        top = y + r * 7,
+        t = at + c * 110;
+      for (let yy = 0; yy < 5; yy++)
+        for (let xx = 0; xx < 5; xx++) {
+          const edge = xx === 0 || yy === 0 || xx === 4 || yy === 4;
+          f.cell(left + xx, top + yy, on === "1" || edge, t);
+        }
+    }),
+  );
+  return { w: 54, h: 26 };
+}
+
+/** A trefoil knot drawn as a thick strand. The strand that passes under leaves a gap at each crossing. */
+function knot(f: Frame, x: number, y: number, size: number, at: number) {
+  const samples: [number, number, number, number][] = [];
+  for (let i = 0; i < 900; i++) {
+    const t = (i / 900) * Math.PI * 2;
+    samples.push([Math.sin(t) + 2 * Math.sin(2 * t), Math.cos(t) - 2 * Math.cos(2 * t), -Math.sin(3 * t), t]);
+  }
+  const xs = samples.map((p) => p[0]),
+    ys = samples.map((p) => p[1]),
+    minX = Math.min(...xs),
+    minY = Math.min(...ys),
+    span = Math.max(Math.max(...xs) - minX, Math.max(...ys) - minY),
+    stroke = size / 13,
+    halo = stroke + 1.4,
+    fit = (size - 2 * stroke - 2) / span;
+  for (const p of samples) {
+    p[0] = x + stroke + 1 + (p[0] - minX) * fit;
+    p[1] = y + stroke + 1 + (p[1] - minY) * fit;
+  }
+  const apart = (a: number, b: number) => {
+    const d = Math.abs(a - b) % (Math.PI * 2);
+    return Math.min(d, Math.PI * 2 - d) > 0.9;
+  };
+  for (let row = y; row < y + size; row++)
+    for (let col = x; col < x + size; col++) {
+      let near = Infinity,
+        depth = 0,
+        when = 0;
+      for (const [px, py, pz, t] of samples) {
+        const d = Math.hypot(px - col - 0.5, py - row - 0.5);
+        if (d < near) {
+          near = d;
+          depth = pz;
+          when = t;
+        }
+      }
+      if (near > stroke) continue;
+      const under = samples.some(([px, py, pz, t]) => pz > depth && apart(t, when) && Math.hypot(px - col - 0.5, py - row - 0.5) <= halo);
+      if (!under) f.cell(col, row, true, at + (when / (Math.PI * 2)) * 1100);
+    }
+  return { w: size, h: size };
+}
+
+/** The two letters the key answers, with their marks: W opens the work, C the email. */
+function keyShape(f: Frame, x: number, y: number, at: number) {
+  let t = at;
+  ["W", "C"].forEach((letter, i) => {
+    const top = y + i * 14;
+    f.text(letter, x, top, "large", { at: t });
+    let cx = x + 11;
+    for (const mark of morseOf[letter]) {
+      const w = mark === "-" ? 9 : 3;
+      f.rect(cx, top + 3, w, 3, true, t);
+      t += (mark === "-" ? 3 : 1) * DIT * 2;
+      cx += w + 3;
+    }
+    t += DIT * 4;
+  });
+  return { w: 44, h: 23 };
+}
+
+const shapeSize = (shape: NonNullable<Result["shape"]>, layout: Layout) =>
+  shape === "drums" ? { w: 54, h: 26 } : shape === "knot" ? { w: layout.phone ? 30 : layout.region.h, h: layout.phone ? 30 : layout.region.h } : { w: 44, h: 23 };
+
+/**
+ * Places a result page. The figure takes the largest scale that leaves the label and the whole line room.
+ * A line that does not fit whole is left out; the strip under the board carries it.
+ */
+export function placeResult(result: Result, layout: Layout) {
+  const { x, y, w, h } = layout.region,
+    bottom = y + h;
+  const options = result.shape ? [0] : [3, 2, 1];
+  function attempt(scale: number) {
+    const used = result.shape ? shapeSize(result.shape, layout) : { w: measure(result.figure ?? "", "large") * scale, h: 9 * scale },
+      left = layout.phone ? x : x + used.w + 8,
+      width = layout.phone ? w : x + w - left,
+      top = layout.phone ? y + used.h + 5 : y,
+      largeLabel = measure(result.label, "large") <= width,
+      label = largeLabel ? [result.label] : wrap(result.label, width),
+      lineTop = top + (largeLabel ? 13 : label.length * 9),
+      line = wrap(result.line, width),
+      fits = used.w <= w && used.h <= h && (largeLabel || label.every((part) => measure(part, "small") <= width)) && lineTop - 2 <= bottom,
+      lineFits = line.every((part) => measure(part, "small") <= width) && lineTop + line.length * 9 - 2 <= bottom;
+    return { scale, used, left, top, largeLabel, label, lineTop, line: lineFits ? line : [], fits, lineFits };
+  }
+  for (const scale of options.filter((n) => n !== 1)) {
+    const next = attempt(scale);
+    if (next.fits && next.lineFits) return next;
+  }
+  for (const scale of options) {
+    const next = attempt(scale);
+    if (next.fits) return next;
+  }
+  return attempt(1);
+}
+
+/** The result page: a large figure or a drawn shape, then a label and one short line. */
+function resultPage(f: Frame, result: Result, layout: Layout, at: number) {
+  const { x, y } = layout.region,
+    place = placeResult(result, layout);
+  if (result.shape === "drums") drums(f, x, y + (layout.phone ? 0 : 2), at);
+  else if (result.shape === "knot") knot(f, x, y, place.used.w, at);
+  else if (result.shape === "key") keyShape(f, x, y + (layout.phone ? 0 : 2), at);
+  else if (result.figure) f.big(result.figure, x, y, place.scale, { at, step: DIT * 3 });
+  let top = place.top,
+    t = at + 500;
+  for (const part of place.label) {
+    f.text(part, place.left, top, place.largeLabel ? "large" : "small", { at: t, step: DIT, word: DIT * 3 });
+    t += part.length * DIT;
+    top += place.largeLabel ? 13 : 9;
+  }
+  t += 200;
+  top = place.lineTop;
+  for (const part of place.line) {
+    f.text(part, place.left, top, "small", { at: t, step: DIT / 2, word: DIT * 1.5 });
+    t += part.length * (DIT / 2) + 120;
+    top += 9;
+  }
+}
+
+export function lineFrame(line: Line, number: number, layout: Layout, page: Page, following: { name: string; number: number }) {
+  const f = new Frame(layout.cols, layout.rows);
   head(f, two(number), line.years, layout);
-  if (page === "picture") {
-    if (picture === "parts") partsSheet(f, px, py, pw, ph, 0);
-    else if (picture) f.picture(picture, px, py, pw, ph, 0);
+  if (layout.phone) {
+    destination(f, line.board, 1, 19, 68, 21, 120);
+    f.dotted(1, 68, 43, 0);
+  } else {
+    destination(f, line.board, 28, 2, 130, 15, 120);
+    f.dotted(2, 157, 19, 0);
+  }
+  if (page === "result") {
+    resultPage(f, line.result, layout, 200);
     f.sweep(0, 2);
     return f;
   }
   if (layout.phone) {
-    destination(f, line.board, 1, 19, 68, 21, 120);
-    f.dotted(1, 68, 43, 0);
     stops(f, line.stops.slice(0, 2), 1, 47, 11, 520);
     f.dotted(1, 68, 67, 300);
     next(f, following.name, following.number, 1, 71, 68, 1100);
   } else {
-    destination(f, line.board, 28, 2, 130, 15, 120);
-    f.dotted(2, 157, 19, 0);
     stops(f, line.stops, 28, 23, 12, 520);
     divider(f, 104, 300);
     next(f, following.name, following.number, 108, 23, 50, 1200);
@@ -151,52 +285,30 @@ export function lineFrame(
   return f;
 }
 
-/** A drawn sheet of interface parts, for the line that has no public screen. */
-function partsSheet(f: Frame, x: number, y: number, w: number, h: number, at: number) {
-  const cell = 9,
-    cols = Math.floor((w + 3) / cell),
-    rows = Math.floor((h + 3) / cell),
-    ox = x + Math.floor((w - (cols * cell - 3)) / 2),
-    oy = y + Math.floor((h - (rows * cell - 3)) / 2);
-  for (let r = 0; r < rows; r++)
-    for (let c = 0; c < cols; c++) {
-      const left = ox + c * cell,
-        top = oy + r * cell,
-        kind = (r * 5 + c * 3) % 5,
-        t = at + (r + c) * 40;
-      for (let yy = 0; yy < 6; yy++)
-        for (let xx = 0; xx < 6; xx++) {
-          const edge = xx === 0 || yy === 0 || xx === 5 || yy === 5,
-            corner = (xx === 0 || xx === 5) && (yy === 0 || yy === 5);
-          const lit =
-            kind === 0
-              ? edge && !corner
-              : kind === 1
-                ? !corner
-                : kind === 2
-                  ? yy === 2 || yy === 3
-                  : kind === 3
-                    ? (edge && !corner) || (xx >= 2 && xx <= 3 && yy >= 2 && yy <= 3)
-                    : yy === 0 || (yy === 3 && xx < 4);
-          f.cell(left + xx, top + yy, lit, t);
-        }
-    }
-}
+export const identityResult: Result = { figure: "5+", label: "YEARS", line: "APPS IN BOTH APP STORES." };
 
-export function identityFrame(layout: Layout) {
+export function identityFrame(layout: Layout, page: Page) {
   const f = new Frame(layout.cols, layout.rows);
   head(f, "→", [2021, 2026], layout);
   if (layout.phone) {
     destination(f, "GENTRIT RASHITI", 1, 19, 68, 21, 120);
     f.dotted(1, 68, 43, 0);
+  } else {
+    destination(f, "GENTRIT RASHITI", 28, 2, 130, 15, 120);
+    f.dotted(2, 157, 19, 0);
+  }
+  if (page === "result") {
+    resultPage(f, identityResult, layout, 200);
+    f.sweep(0, 2);
+    return f;
+  }
+  if (layout.phone) {
     stops(f, ["WEB APPS", "MOBILE APPS"], 1, 47, 11, 900);
     f.dotted(1, 68, 67, 300);
     ["PART OF TWO", "PLATFORM", "REWRITES"].forEach((text, i) =>
       f.text(text, 1, 71 + i * 9, "small", { at: 1400 + i * 200, step: DIT / 2 }),
     );
   } else {
-    destination(f, "GENTRIT RASHITI", 28, 2, 130, 15, 120);
-    f.dotted(2, 157, 19, 0);
     stops(f, ["WEB APPS", "MOBILE APPS", "SERVER SIDE"], 28, 23, 12, 1000);
     divider(f, 104, 300);
     (

@@ -82,20 +82,30 @@
 }
 .dep-bezel {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 24px;
-  min-height: 64px;
+  padding: 18px 0 20px;
+}
+.dep-id {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
 }
 .dep-bezel h1 {
+  font: 400 27px/32px var(--face);
+  letter-spacing: -0.008em;
+  color: var(--paper);
+  text-wrap: pretty;
+}
+.dep-bezel h1 b {
+  font-weight: 700;
+}
+.dep-id p {
   font: 400 17px/24px var(--face);
   letter-spacing: 0.005em;
   color: var(--cream-2);
   font-variant-numeric: oldstyle-nums;
-}
-.dep-bezel h1 b {
-  font-weight: 700;
-  color: var(--paper);
 }
 .dep-bezel nav {
   display: flex;
@@ -119,7 +129,7 @@
 }
 
 .dep-board {
-  --chrome: 196px;
+  --chrome: 236px;
   position: relative;
   width: 100%;
   max-width: calc((100svh - var(--chrome)) * var(--cols) / var(--rows));
@@ -138,6 +148,12 @@
     0 0 0 1px #2b2924,
     0 0 0 7px #070707,
     0 0 0 8px #24221d;
+}
+/* The lamp test before the first canvas frame: every disc lit. */
+.dep-board[data-renderer=""] {
+  background:
+    radial-gradient(circle closest-side, var(--disc) 0 86%, transparent 92%) 0 0 / calc(100% / var(--cols)) calc(100% / var(--rows)),
+    var(--board);
 }
 .dep-board canvas {
   position: absolute;
@@ -216,6 +232,51 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+.dep-teach {
+  display: flex !important;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 16px;
+  white-space: normal !important;
+}
+.dep-meter {
+  --fill: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--paper);
+}
+.dep-meter b {
+  font-weight: 600;
+}
+.dep-meter-track {
+  position: relative;
+  width: 150px;
+  height: 10px;
+  border-radius: 5px;
+  background: #2e2c27;
+  overflow: hidden;
+}
+/* The mark at the dot–dash border: 200 ms of a 600 ms meter. */
+.dep-meter-track::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(100% / 3);
+  width: 2px;
+  background: var(--paper);
+}
+.dep-meter-fill {
+  position: absolute;
+  inset: 0;
+  background: var(--disc);
+  transform: scaleX(var(--fill));
+  transform-origin: left;
+}
+.dep-meter[data-dash="true"] .dep-meter-fill {
+  background: var(--red);
+}
 .dep-now-line {
   display: -webkit-box;
   -webkit-box-orient: vertical;
@@ -225,7 +286,16 @@
 .dep-controls {
   display: flex;
   flex: none;
+  flex-wrap: wrap;
+  justify-content: flex-end;
   gap: 8px;
+  max-width: 240px;
+}
+.dep-sound-note {
+  flex-basis: 100%;
+  text-align: right;
+  font: 400 15px/20px var(--face);
+  color: var(--cream-2);
 }
 .dep-controls button {
   display: inline-flex;
@@ -267,7 +337,8 @@
     background-color 0.15s var(--out),
     box-shadow 0.15s var(--out);
 }
-.dep-controls button[aria-pressed="true"] i {
+.dep-controls button[aria-pressed="true"] i,
+.dep-controls button[data-on="true"] i {
   background: var(--disc);
   box-shadow: 0 0 10px rgb(245 196 0 / 0.55);
 }
@@ -304,8 +375,7 @@
   display: grid;
   grid-template-columns: var(--grid);
   column-gap: 24px;
-  padding: 12px 0 8px;
-  border-bottom: 1px solid var(--ink);
+  padding: 12px 0 10px;
   font: 600 12px/16px var(--face);
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -333,8 +403,9 @@
     opacity 0.2s var(--out);
   pointer-events: none;
 }
-.dep-lines > li {
-  border-bottom: 1px solid var(--ink);
+/* Rows are told apart by a printed tint band, as on a paper timetable. */
+.dep-lines > li:nth-child(odd) {
+  background: var(--paper-2);
 }
 .dep-lines button {
   display: grid;
@@ -347,7 +418,7 @@
   transition: background-color 0.15s var(--out);
 }
 .dep-lines button:hover {
-  background: var(--paper-2);
+  background: rgb(21 19 15 / 0.07);
 }
 .dep-lines button:focus-visible {
   outline-offset: -3px;
@@ -364,6 +435,17 @@ li[data-current="true"] .dep-no {
 .dep-dest {
   font: 600 20px/24px var(--face);
   letter-spacing: -0.01em;
+}
+.dep-tag {
+  display: inline-block;
+  margin-left: 10px;
+  padding: 2px 6px 1px;
+  border: 2px solid currentColor;
+  border-radius: 3px;
+  font: 600 12px/14px var(--face);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  vertical-align: 3px;
 }
 .dep-via,
 .dep-platform {
@@ -492,8 +574,7 @@ li[data-open="true"] .dep-detail {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 72px;
   column-gap: 16px;
-  padding: 12px 0;
-  border-bottom: 1px solid var(--ink);
+  padding: 10px 0;
   break-inside: avoid;
 }
 .dep-others b {
@@ -567,9 +648,12 @@ li[data-open="true"] .dep-detail {
     padding: 10px 8px 12px;
   }
   .dep-bezel h1 {
+    font-size: 21px;
+    line-height: 26px;
+  }
+  .dep-id p {
     font-size: 15px;
     line-height: 21px;
-    padding-top: 2px;
   }
   .dep-bezel nav {
     flex-direction: column;
@@ -577,7 +661,7 @@ li[data-open="true"] .dep-detail {
     margin: -4px -8px 0 0;
   }
   .dep-board {
-    --chrome: 290px;
+    --chrome: 400px;
     min-width: min(100%, 300px);
     border-radius: 3px;
   }
@@ -605,6 +689,12 @@ li[data-open="true"] .dep-detail {
     display: -webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
+  }
+  .dep-controls {
+    max-width: none;
+  }
+  .dep-sound-note {
+    text-align: left;
   }
   .dep-controls button {
     flex: 1;

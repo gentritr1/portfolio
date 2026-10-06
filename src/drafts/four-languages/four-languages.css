@@ -53,7 +53,6 @@
   --vellum: #f2eadb;
   --gold: #e0b252;
   --muted: #c3c6e0;
-  --rule: rgba(242, 234, 219, 0.16);
   --gutter: 48px;
   --gap: 24px;
   --serif: "FL Serif", "FL Fallback", "Geeza Pro", "Noto Naskh Arabic", Georgia, serif;
@@ -98,7 +97,6 @@
   height: 64px;
   padding-inline: var(--gutter);
   background: var(--lapis);
-  border-block-end: 1px solid var(--rule);
 }
 .fl-mark,
 .fl-langs a,
@@ -144,14 +142,24 @@
 }
 .fl-line {
   grid-column: 1 / -1;
-  max-width: 21em;
   font-size: 64px;
   font-weight: 500;
   line-height: 1.06;
   letter-spacing: -0.025em;
   text-wrap: balance;
 }
-.fl:lang(ar) .fl-line { font-size: 56px; line-height: 1.5; max-width: 18em; }
+.fl:lang(ar) .fl-line { font-size: 56px; line-height: 1.5; }
+.fl-sub {
+  grid-column: 1 / -1;
+  max-width: 960px;
+  margin-block-start: 20px;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 1.35;
+  letter-spacing: -0.005em;
+  text-wrap: pretty;
+}
+.fl:lang(ar) .fl-sub { line-height: 1.7; }
 .fl-side {
   grid-column: 1 / span 4;
   display: flex;
@@ -181,11 +189,10 @@
 .fl-alts button:hover { background: rgba(242, 234, 219, 0.07); }
 .fl-alts button:active { background: rgba(242, 234, 219, 0.12); }
 .fl-alt-name { display: block; font-size: 14px; font-weight: 500; color: var(--gold); }
+.fl-alt-flips { margin-inline-start: 10px; font-weight: 400; color: var(--muted); }
 .fl-alt-line { display: block; font-size: 20px; line-height: 1.35; text-wrap: pretty; }
 .fl-alts button:lang(ar) .fl-alt-line { line-height: 1.7; }
 .fl-alts button:hover .fl-alt-line { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 5px; }
-.fl-sub { max-width: 32em; color: var(--muted); font-variant-numeric: oldstyle-nums; }
-.fl:lang(ar) .fl-sub { line-height: 1.9; }
 
 .fl-shots {
   grid-column: 5 / -1;
@@ -198,7 +205,7 @@
 }
 /* Equal heights: each width grows with its own aspect ratio. Max height is 400 px, so no capture is drawn above its pixels on a 2x screen. */
 .fl-web { flex: 1.6 1 0; min-width: 0; max-width: 640px; aspect-ratio: 1440 / 900; }
-.fl-phone { flex: 0.4604 1 0; min-width: 0; max-width: 184px; aspect-ratio: 778 / 1690; }
+.fl-phone { flex: 0.6047 1 0; min-width: 0; max-width: 242px; aspect-ratio: 780 / 1290; }
 .fl-pair img { width: 100%; border-radius: 6px; background: #0e0b10; }
 .fl-shots figcaption,
 .fl-alb figcaption {
@@ -209,7 +216,6 @@
   text-align: end;
 }
 .fl:lang(ar) :is(.fl-shots, .fl-alb) figcaption { line-height: 1.8; }
-.fl-note { display: block; }
 
 /* ---------- Rows ---------- */
 
@@ -221,15 +227,13 @@
   letter-spacing: -0.015em;
 }
 .fl:lang(ar) h2 { line-height: 1.6; }
-.fl-rows h2 { margin-block-end: 32px; }
+.fl-rows h2 { margin-block-end: 40px; }
+.fl-rows ol { display: grid; row-gap: 56px; }
 .fl-row {
   display: grid;
   grid-template-columns: 4fr 4fr 2fr 2fr;
   gap: var(--gap);
-  padding-block: 24px 28px;
-  border-block-start: 1px solid var(--rule);
 }
-.fl-row:last-child { border-block-end: 1px solid var(--rule); }
 .fl-row-what h3 { font-size: 17px; font-weight: 600; line-height: 1.4; }
 .fl-row-what p { margin-block-start: 4px; color: var(--muted); max-width: 30em; }
 .fl:lang(ar) .fl-row-what p { line-height: 1.85; }
@@ -291,10 +295,10 @@
   gap: var(--gap);
   justify-content: flex-end;
 }
-.fl-fig-web { flex: 1.6 1 0; min-width: 0; max-width: 720px; }
-.fl-fig-phone { flex: 0.4618 1 0; min-width: 0; max-width: 208px; }
+.fl-fig-web { flex: 1.6 1 0; min-width: 0; max-width: 690px; }
+.fl-fig-phone { flex: 0.6914 1 0; min-width: 0; max-width: 298px; }
 .fl-fig-web img { aspect-ratio: 1440 / 900; width: 100%; border-radius: 6px; background: #000; }
-.fl-fig-phone img { aspect-ratio: 780 / 1689; width: 100%; border-radius: 6px; background: #e8262d; }
+.fl-fig-phone img { aspect-ratio: 596 / 862; width: 100%; border-radius: 6px; background: #f3f2f0; }
 .fl-alb figcaption { text-align: start; }
 .fl-alb figcaption a { vertical-align: middle; }
 
@@ -346,9 +350,8 @@
   display: grid;
   grid-template-columns: 3fr 9fr;
   gap: 16px var(--gap);
-  margin-block-start: 120px;
-  padding: 48px var(--gutter) 64px;
-  border-block-start: 1px solid var(--rule);
+  margin-block-start: 160px;
+  padding: 0 var(--gutter) 64px;
 }
 .fl-foot ul { display: flex; flex-wrap: wrap; gap: 0 32px; }
 .fl-foot ul a { font-size: 20px; }
@@ -356,19 +359,86 @@
 
 /* ---------- The mirror ---------- */
 
+/*
+ * Three stages: the header and the headline row at 0 ms, the columns at 80 ms,
+ * the rows and the footer at 160 ms. Each part moves for 320 ms, so a switch
+ * ends at 480 ms. Text in the columns and rows fades out in 100 ms and fades in
+ * only near its new box, so no text is visible while it crosses a capture. The
+ * headline row keeps one width in every language, so its text never scales.
+ * Captures and the language names move as objects.
+ */
 ::view-transition-group(*) {
   animation-duration: 320ms;
   animation-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
+  animation-delay: 160ms;
+  animation-fill-mode: both;
 }
 ::view-transition-old(*) {
-  animation: fl-leave 200ms cubic-bezier(0.55, 0, 1, 0.45) both;
+  animation: fl-leave 100ms cubic-bezier(0.55, 0, 1, 0.45) 160ms both;
 }
 ::view-transition-new(*) {
-  animation: fl-enter 180ms cubic-bezier(0.215, 0.61, 0.355, 1) 140ms both;
+  animation: fl-enter 120ms cubic-bezier(0.215, 0.61, 0.355, 1) 360ms both;
 }
+::view-transition-group(fl-top),
+::view-transition-group(fl-mark),
+::view-transition-group(fl-nav-en),
+::view-transition-group(fl-nav-sq),
+::view-transition-group(fl-nav-ar),
+::view-transition-group(fl-nav-mark),
+::view-transition-group(fl-cv),
+::view-transition-group(fl-email),
+::view-transition-group(fl-h1),
+::view-transition-group(fl-sub) { animation-delay: 0ms; }
+::view-transition-old(fl-cv),
+::view-transition-old(fl-email),
+::view-transition-old(fl-h1),
+::view-transition-old(fl-sub) { animation-delay: 0ms; animation-duration: 120ms; }
+::view-transition-new(fl-cv),
+::view-transition-new(fl-email),
+::view-transition-new(fl-h1),
+::view-transition-new(fl-sub) { animation-delay: 100ms; }
+::view-transition-group(fl-readin),
+::view-transition-group(fl-alt-0),
+::view-transition-group(fl-alt-1),
+::view-transition-group(fl-shot-web),
+::view-transition-group(fl-shot-phone),
+::view-transition-group(fl-cap-hero),
+::view-transition-group(fl-alb-text),
+::view-transition-group(fl-fjale),
+::view-transition-group(fl-fjale-cap),
+::view-transition-group(fl-viva),
+::view-transition-group(fl-viva-cap),
+::view-transition-group(fl-own-text),
+::view-transition-group(fl-offday),
+::view-transition-group(fl-offday-cap),
+::view-transition-group(fl-offbeat),
+::view-transition-group(fl-offbeat-cap),
+::view-transition-group(fl-form),
+::view-transition-group(fl-form-cap) { animation-delay: 80ms; }
+::view-transition-old(fl-readin),
+::view-transition-old(fl-alt-0),
+::view-transition-old(fl-alt-1),
+::view-transition-old(fl-cap-hero),
+::view-transition-old(fl-alb-text),
+::view-transition-old(fl-fjale-cap),
+::view-transition-old(fl-viva-cap),
+::view-transition-old(fl-own-text),
+::view-transition-old(fl-offday-cap),
+::view-transition-old(fl-offbeat-cap),
+::view-transition-old(fl-form-cap) { animation-delay: 80ms; }
+::view-transition-new(fl-readin),
+::view-transition-new(fl-alt-0),
+::view-transition-new(fl-alt-1),
+::view-transition-new(fl-cap-hero),
+::view-transition-new(fl-alb-text),
+::view-transition-new(fl-fjale-cap),
+::view-transition-new(fl-viva-cap),
+::view-transition-new(fl-own-text),
+::view-transition-new(fl-offday-cap),
+::view-transition-new(fl-offbeat-cap),
+::view-transition-new(fl-form-cap) { animation-delay: 280ms; }
 ::view-transition-old(root),
 ::view-transition-new(root) { animation: none; }
-/* A capture moves as one object; it does not fade into itself. */
 ::view-transition-old(fl-shot-web),
 ::view-transition-old(fl-shot-phone),
 ::view-transition-old(fl-fjale),
@@ -376,6 +446,10 @@
 ::view-transition-old(fl-offday),
 ::view-transition-old(fl-offbeat),
 ::view-transition-old(fl-form),
+::view-transition-old(fl-mark),
+::view-transition-old(fl-nav-en),
+::view-transition-old(fl-nav-sq),
+::view-transition-old(fl-nav-ar),
 ::view-transition-old(fl-nav-mark),
 ::view-transition-old(fl-top) { display: none; }
 ::view-transition-new(fl-shot-web),
@@ -385,6 +459,10 @@
 ::view-transition-new(fl-offday),
 ::view-transition-new(fl-offbeat),
 ::view-transition-new(fl-form),
+::view-transition-new(fl-mark),
+::view-transition-new(fl-nav-en),
+::view-transition-new(fl-nav-sq),
+::view-transition-new(fl-nav-ar),
 ::view-transition-new(fl-nav-mark),
 ::view-transition-new(fl-top) { animation: none; }
 ::view-transition-group(fl-top) { z-index: 10; animation: none; }
@@ -395,8 +473,8 @@
 ::view-transition-group(fl-cv),
 ::view-transition-group(fl-email),
 ::view-transition-group(fl-nav-mark) { z-index: 11; }
-@keyframes fl-leave { to { opacity: 0; filter: blur(2px); } }
-@keyframes fl-enter { from { opacity: 0; filter: blur(2px); } }
+@keyframes fl-leave { to { opacity: 0; } }
+@keyframes fl-enter { from { opacity: 0; } }
 
 @media (prefers-reduced-motion: reduce) {
   ::view-transition-group(*),
@@ -434,31 +512,38 @@
 
 @media (max-width: 719px) {
   .fl { --gutter: 16px; --gap: 16px; }
-  .fl-top { grid-template-columns: 1fr; height: 56px; }
-  .fl-mark,
+  .fl-top { grid-template-columns: auto 1fr; gap: 8px; height: 56px; }
+  .fl-mark { font-size: 15px; }
   .fl-out { display: none; }
-  .fl-langs { justify-content: center; gap: 4px; }
+  .fl-langs { justify-content: flex-end; gap: 0; margin-inline-end: -10px; }
+  .fl-langs a { padding-inline: 10px; font-size: 15px; }
+  .fl-langs-mark { inset-inline: 10px; }
   .fl-hero { padding-block-start: 32px; }
   .fl-line { font-size: 36px; line-height: 1.1; letter-spacing: -0.02em; }
   .fl:lang(ar) .fl-line { font-size: 32px; line-height: 1.55; }
   .fl-alt-line { font-size: 18px; }
+  .fl-sub { font-size: 19px; margin-block-start: 16px; }
   .fl-side { gap: 12px; padding-block-start: 24px; }
   .fl-shots { padding-block-start: 32px; }
   .fl-shots figcaption { text-align: start; }
+  /* At phone width the phone capture leads; 280 px keeps its text at 11 px or more. */
+  .fl-web { display: none; }
+  .fl-phone { flex: none; width: min(100%, 280px); max-width: none; }
   .fl-rows,
   .fl-alb { padding-block-start: 80px; }
   .fl h2 { font-size: 26px; }
   .fl-rows h2 { margin-block-end: 20px; }
-  .fl-row { grid-template-columns: 1fr; gap: 8px; padding-block: 20px; }
+  .fl-rows ol { row-gap: 44px; }
+  .fl-row { grid-template-columns: 1fr; gap: 8px; }
   .fl-row-result { font-size: 21px; }
   .fl-row-langs { grid-column: auto; }
   .fl-alb-text { margin-block-end: 24px; }
   .fl-alb-pair { display: grid; grid-template-columns: 1fr; gap: 24px; }
-  .fl-fig-phone { max-width: 208px; }
+  .fl-fig-phone { max-width: 298px; }
   .fl-own { padding-block-start: 80px; gap: 40px var(--gap); }
   .fl-own-concept { grid-column: 1 / -1; }
   .fl-own .fl-own-result { font-size: 18px; }
-  .fl-foot { grid-template-columns: 1fr; margin-block-start: 80px; padding-block: 40px 48px; }
+  .fl-foot { grid-template-columns: 1fr; margin-block-start: 104px; padding-block: 0 48px; }
   .fl-foot p { grid-column: 1; }
   .fl-foot ul { flex-direction: column; }
   .fl-foot ul a { font-size: 18px; }

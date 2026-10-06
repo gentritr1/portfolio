@@ -252,82 +252,39 @@ export class Frame {
     const width = measure(label, "large");
     this.text(label, x + Math.round((w - width) / 2), y + Math.round((h - 9) / 2), "large", { at: at + 60, step: 60 });
   }
-  /** Copies a dithered picture in. Each disc waits for its Bayer level, so the picture develops in 16 steps. */
-  picture(bits: Uint8Array, x: number, y: number, w: number, h: number, at: number) {
-    for (let row = 0; row < h; row++)
-      for (let col = 0; col < w; col++)
-        this.cell(x + col, y + row, bits[row * w + col] === 1, at + bayer[(row % 4) * 4 + (col % 4)] * 45 + (col + row) * 2);
+  /** Draws the large face with each disc of a glyph as a scale × scale block. Rows write top to bottom. */
+  big(value: string, x: number, y: number, scale: number, { at = 0, step = 60 }: { at?: number; step?: number } = {}) {
+    let t = at,
+      previous = false;
+    for (const char of normalise(value)) {
+      if (char === " ") {
+        x += space.large * scale;
+        t += step;
+        previous = false;
+        continue;
+      }
+      if (previous) {
+        this.claim(x, y, scale, faceHeight.large * scale, t);
+        x += scale;
+      }
+      const rows = glyph("large", char),
+        top = y - (rows.length - faceHeight.large) * scale;
+      this.claim(x, top, rows[0].length * scale, rows.length * scale, t);
+      rows.forEach((row, r) =>
+        [...row].forEach((mark, c) => {
+          if (mark !== "#") return;
+          for (let dy = 0; dy < scale; dy++)
+            for (let dx = 0; dx < scale; dx++) this.cell(x + c * scale + dx, top + r * scale + dy, true, t + (r * scale + dy) * 14);
+        }),
+      );
+      x += rows[0].length * scale;
+      t += step;
+      previous = true;
+    }
+    return x;
   }
   /** Discs no element owns turn in a left-to-right sweep, as a sign's driver writes column by column. */
   sweep(at = 0, step = 3) {
     for (let i = 0; i < this.bits.length; i++) if (!this.owned[i]) this.delay[i] = at + (i % this.cols) * step;
   }
-}
-
-export const bayer = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
-
-export interface Crop {
-  /** Centre of the crop, 0 to 1 of the source. */
-  x: number;
-  y: number;
-  /** Share of the source width that the crop covers. */
-  w: number;
-  invert?: boolean;
-  gamma?: number;
-  /** Tone quantiles that become black and full yellow. The ground of a screen should fall under `floor`. */
-  floor?: number;
-  ceil?: number;
-  /** "value" lights a disc by the brightest channel, so red or amber marks on black stay visible. */
-  tone?: "luminance" | "value";
-}
-
-/** Quantises a picture to discs: crop, stretch the tones, then a 4×4 ordered dither. */
-export function dither(image: HTMLImageElement, width: number, height: number, crop: Crop) {
-  const canvas = document.createElement("canvas");
-  canvas.width = width;
-  canvas.height = height;
-  const ctx = canvas.getContext("2d", { willReadFrequently: true });
-  const bits = new Uint8Array(width * height);
-  if (!ctx) return bits;
-  const sw = image.naturalWidth * crop.w,
-    sh = (sw * height) / width;
-  const sx = Math.min(Math.max(image.naturalWidth * crop.x - sw / 2, 0), image.naturalWidth - sw),
-    sy = Math.min(Math.max(image.naturalHeight * crop.y - sh / 2, 0), Math.max(image.naturalHeight - sh, 0));
-  ctx.imageSmoothingQuality = "high";
-  ctx.drawImage(image, sx, sy, sw, sh, 0, 0, width, height);
-  const pixels = ctx.getImageData(0, 0, width, height).data,
-    tone = new Float32Array(width * height);
-  for (let i = 0; i < tone.length; i++) {
-    const r = pixels[i * 4],
-      g = pixels[i * 4 + 1],
-      b = pixels[i * 4 + 2],
-      value = (crop.tone === "value" ? Math.max(r, g, b) : r * 0.2126 + g * 0.7152 + b * 0.0722) / 255;
-    tone[i] = crop.invert ? 1 - value : value;
-  }
-  const sorted = Float32Array.from(tone).sort(),
-    low = sorted[Math.floor(sorted.length * (crop.floor ?? 0.04))],
-    high = sorted[Math.min(sorted.length - 1, Math.floor(sorted.length * (crop.ceil ?? 0.985)))],
-    range = Math.max(high - low, 0.05),
-    gamma = crop.gamma ?? 1;
-  for (let i = 0; i < bits.length; i++) {
-    const level = Math.pow(Math.min(Math.max((tone[i] - low) / range, 0), 1), gamma),
-      threshold = (bayer[(Math.floor(i / width) % 4) * 4 + ((i % width) % 4)] + 0.5) / 16;
-    bits[i] = level > threshold ? 1 : 0;
-  }
-  return bits;
-}
-
-/** Several phone screens side by side, each cropped the same way, centred in the window. */
-export function ditherRow(images: HTMLImageElement[], width: number, height: number, crop: Crop, gap = 4) {
-  const bits = new Uint8Array(width * height),
-    each = Math.floor((width - gap * (images.length - 1)) / images.length),
-    used = each * images.length + gap * (images.length - 1),
-    left = Math.floor((width - used) / 2);
-  images.forEach((image, n) => {
-    const part = dither(image, each, height, crop),
-      x0 = left + n * (each + gap);
-    for (let row = 0; row < height; row++)
-      for (let col = 0; col < each; col++) bits[row * width + x0 + col] = part[row * each + col];
-  });
-  return bits;
 }

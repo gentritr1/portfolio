@@ -85,6 +85,9 @@ export class Drums {
   onStep: (step: number) => void = () => {};
 
   constructor() {
+    // iOS Safari mutes Web Audio under the silent switch unless the session is "playback".
+    const session = (navigator as Navigator & { audioSession?: { type: string } }).audioSession;
+    if (session) session.type = "playback";
     this.ctx = new AudioContext();
     this.out = this.ctx.createGain();
     this.out.gain.value = 0.38;

@@ -8,6 +8,7 @@ import {
   useRef,
   useState,
   useSyncExternalStore,
+  type CSSProperties,
   type KeyboardEvent,
   type PointerEvent,
   type ReactNode,
@@ -16,14 +17,15 @@ import { preload } from "react-dom";
 import { links } from "../../content/links";
 import { recreations } from "../../lib/recreations";
 import { Clock, type Frame } from "./clock";
-import { client, concepts, lead, own, results, type Concept, type Link, type Row, type Shot } from "./data";
-import { anchors, contrast, lightAt, linear, luminance } from "./light";
+import { client, concepts, lead, leadClient, own, results, type Concept, type Link, type Row, type Shot } from "./data";
+import { anchors, contrast, lightAt, luminance } from "./light";
 import {
   cameraFor,
   createGround,
   GLOW_LIMIT,
   lowerAverage,
   project,
+  quarters,
   sampleScreen,
   shadowPoints,
   type Camera,
@@ -31,7 +33,7 @@ import {
   type GroundRenderer,
   type Panel,
 } from "./scene";
-import { clockText, direction, kosovoMinutes, RISE } from "./sun";
+import { clockText, direction, kosovoMinutes, RISE, ZONE } from "./sun";
 import "./kosovo-time.css";
 
 const FRAUNCES = "/fonts/creative/Fraunces-Latin.woff2";
@@ -60,12 +62,22 @@ function startMinutes() {
   return Math.min(1439, Number(match[1]) * 60 + Number(match[2]));
 }
 
+const visitorZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+const visitorFormat = new Intl.DateTimeFormat("en-GB", { hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
+const kosovoFormat = new Intl.DateTimeFormat("en-GB", { hour: "2-digit", minute: "2-digit", hourCycle: "h23", timeZone: ZONE });
+/** The same instant on the visitor's clock, or null when the visitor's clock shows Kosovo time. */
+function visitorText(ms: number) {
+  if (visitorZone === ZONE) return null;
+  const theirs = visitorFormat.format(ms);
+  return theirs === kosovoFormat.format(ms) ? null : `${theirs} where you are`;
+}
+
 type Vec = [number, number, number];
 const toGamma = (c: number) => (c <= 0.0031308 ? 12.92 * c : 1.055 * c ** (1 / 2.4) - 0.055);
 const hex = (rgb: number[]) =>
   "#" + rgb.map((c) => Math.round(Math.min(1, Math.max(0, toGamma(c))) * 255).toString(16).padStart(2, "0")).join("");
 
-/** The ground colour in front of a glowing screen, never more than the text limit above the ground. */
+/** The ground colour in front of a glowing screen, never more than the glow limit above the ground. */
 function glowColour(frame: Frame, screen: Vec) {
   const base = frame.light.litLinear;
   const add = screen.map((c) => c * 0.5 * frame.light.glow);
@@ -74,27 +86,38 @@ function glowColour(frame: Frame, screen: Vec) {
   return hex(base.map((c, i) => c + add[i] * k));
 }
 
-/* ---------- Ground: a lit floor under one or more upright panels ---------- */
+/* ---------- Ground: a lit floor under one or more upright panels. No text stands on it. ---------- */
 
 interface GroundProps {
   className: string;
   sources: (string | null)[];
   /** Render the floor per pixel when WebGL is there. */
   gl?: boolean;
+  /** Fade at the bottom edge, px. */
   fade?: number;
+  /** Fade at the left and right edges, px. */
+  sides?: number;
   children: ReactNode;
 }
 
-function Ground({ className, sources, gl = false, fade = 56, children }: GroundProps) {
+/** A floor that cannot keep this many slow frames in a row falls back to the flat shadow. */
+const SLOW_FRAME_MS = 50;
+const SLOW_RUN = 18;
+/** The per-pixel floor spreads the screen light thinner than the SVG pool, so it carries more of it. */
+const GL_GLOW = 4;
+
+function Ground({ className, sources, gl = false, fade = 56, sides = 0, children }: GroundProps) {
   const clock = useClock();
   const id = useId().replace(/:/g, "");
   const box = useRef<HTMLDivElement>(null);
   const svg = useRef<SVGSVGElement>(null);
   const renderer = useRef<GroundRenderer | null>(null);
   const [mode, setMode] = useState<"svg" | "gl">("svg");
+  const [slow, setSlow] = useState(false);
   const view = useRef<{ camera: Camera; panels: Panel[]; height: number } | null>(null);
   const cells = useRef<(Cells | null)[]>(sources.map(() => null));
   const visible = useRef(true);
+  const pace = useRef({ last: 0, run: 0 });
   const key = sources.join("|");
 
   const draw = (frame: Frame) => {
@@ -102,15 +125,23 @@ function Ground({ className, sources, gl = false, fade = 56, children }: GroundP
     if (!v || !visible.current) return;
     const { sun, light } = frame;
     if (renderer.current) {
+      const now = performance.now();
+      const gap = now - pace.current.last;
+      pace.current.last = now;
+      pace.current.run = gap > SLOW_FRAME_MS && gap < 400 ? pace.current.run + 1 : 0;
+      if (pace.current.run >= SLOW_RUN) {
+        setSlow(true);
+        return;
+      }
       renderer.current.draw({
         camera: v.camera,
-        panel: v.panels[0],
+        panels: v.panels,
         ray: sun.ray,
         direct: light.direct,
-        glow: light.glow,
+        glow: light.glow * GL_GLOW,
         lit: light.litLinear,
         shade: light.shadeLinear,
-        cells: cells.current[0] ?? new Float32Array(48).fill(0.8),
+        cells: v.panels.map((_, i) => (cells.current[i] ? quarters(cells.current[i]!) : new Array(12).fill(0.8))),
         fade,
       });
       return;
@@ -158,7 +189,7 @@ function Ground({ className, sources, gl = false, fade = 56, children }: GroundP
 
   useEffect(() => {
     const host = box.current;
-    if (!gl || !host || new URLSearchParams(location.search).get("gl") === "0") return;
+    if (!gl || slow || !host || new URLSearchParams(location.search).get("gl") === "0") return;
     const canvas = document.createElement("canvas");
     canvas.className = "kt-floor";
     canvas.setAttribute("aria-hidden", "true");
@@ -170,6 +201,7 @@ function Ground({ className, sources, gl = false, fade = 56, children }: GroundP
     if (!made) return;
     host.prepend(canvas);
     renderer.current = made;
+    pace.current = { last: 0, run: 0 };
     setMode("gl");
     return () => {
       made.dispose();
@@ -177,7 +209,7 @@ function Ground({ className, sources, gl = false, fade = 56, children }: GroundP
       renderer.current = null;
       setMode("svg");
     };
-  }, [gl]);
+  }, [gl, slow]);
 
   useEffect(() => {
     const element = box.current;
@@ -192,9 +224,16 @@ function Ground({ className, sources, gl = false, fade = 56, children }: GroundP
       const root = svg.current;
       if (root) {
         root.setAttribute("viewBox", `0 0 ${rect.width.toFixed(1)} ${rect.height.toFixed(1)}`);
-        const fadeStop = root.querySelector(`#${id}-fade`);
-        fadeStop?.setAttribute("y1", String(rect.height - fade));
-        fadeStop?.setAttribute("y2", String(rect.height));
+        const down = root.querySelector(`#${id}-fade`);
+        down?.setAttribute("y1", String(rect.height - fade));
+        down?.setAttribute("y2", String(rect.height));
+        const across = root.querySelector(`#${id}-sides`);
+        const edge = Math.min(0.49, sides / Math.max(1, rect.width));
+        across?.setAttribute("x2", rect.width.toFixed(1));
+        const stops = root.querySelectorAll(`#${id}-sides stop`);
+        stops[1]?.setAttribute("offset", edge.toFixed(4));
+        stops[2]?.setAttribute("offset", (1 - edge).toFixed(4));
+        root.querySelector(`#${id}-across rect`)?.setAttribute("width", rect.width.toFixed(1));
         made.panels.forEach((panel, i) => {
           const c = made.camera;
           const [bx, by] = project(c, [panel.x, 0, 0]);
@@ -228,7 +267,7 @@ function Ground({ className, sources, gl = false, fade = 56, children }: GroundP
       seen.disconnect();
       off();
     };
-  }, [clock, fade, id, mode]);
+  }, [clock, fade, sides, id, mode]);
 
   return (
     <div className={`kt-ground ${className}`} ref={box} data-floor={mode}>
@@ -245,8 +284,17 @@ function Ground({ className, sources, gl = false, fade = 56, children }: GroundP
               <stop offset="0" stopColor="#fff" />
               <stop offset="1" stopColor="#000" />
             </linearGradient>
+            <linearGradient id={`${id}-sides`} gradientUnits="userSpaceOnUse" x1="0" x2="1" y1="0" y2="0">
+              <stop offset="0" stopColor="#000" />
+              <stop offset="0" stopColor="#fff" />
+              <stop offset="1" stopColor="#fff" />
+              <stop offset="1" stopColor="#000" />
+            </linearGradient>
             <mask id={`${id}-mask`} maskUnits="userSpaceOnUse" x="-10000" y="-10000" width="20000" height="20000">
               <rect x="-10000" y="-10000" width="20000" height="20000" fill={`url(#${id}-fade)`} />
+            </mask>
+            <mask id={`${id}-across`} maskUnits="userSpaceOnUse" x="-10000" y="-10000" width="20000" height="20000">
+              <rect x="0" y="-10000" width="1" height="20000" fill={`url(#${id}-sides)`} />
             </mask>
             {sources.map((_, i) => (
               <radialGradient key={i} id={`${id}-glow-${i}`}>
@@ -256,13 +304,15 @@ function Ground({ className, sources, gl = false, fade = 56, children }: GroundP
             ))}
           </defs>
           <g mask={`url(#${id}-mask)`}>
-            {sources.map((_, i) => (
-              <g key={i}>
-                <ellipse data-glow={i} fill={`url(#${id}-glow-${i})`} style={{ opacity: 0 }} />
-                <ellipse data-ao={i} className="kt-ao" filter={`url(#${id}-ao)`} />
-                <polygon data-shadow={i} className="kt-shadow" filter={`url(#${id}-soft)`} />
-              </g>
-            ))}
+            <g mask={sides ? `url(#${id}-across)` : undefined}>
+              {sources.map((_, i) => (
+                <g key={i}>
+                  <ellipse data-glow={i} fill={`url(#${id}-glow-${i})`} style={{ opacity: 0 }} />
+                  <ellipse data-ao={i} className="kt-ao" filter={`url(#${id}-ao)`} />
+                  <polygon data-shadow={i} className="kt-shadow" filter={`url(#${id}-soft)`} />
+                </g>
+              ))}
+            </g>
           </g>
         </svg>
       )}
@@ -273,57 +323,66 @@ function Ground({ className, sources, gl = false, fade = 56, children }: GroundP
 
 /* ---------- The sun path: today's altitude over Kosovo, and the control that moves the hour ---------- */
 
-const PATH_W = 480;
-const PATH_H = 104;
-const HORIZON = 66;
-const UP = 0.8;
-const DOWN = 0.62;
-const yOf = (altitude: number) => HORIZON - (altitude > 0 ? altitude * UP : altitude * DOWN);
+const PATH_W = 1000;
+const PATH_H = 100;
+/** The horizon line sits this far down the track. Below it, the track overlaps the top of the ground. */
+const HORIZON = 84;
 
 function SunPath() {
   const clock = useClock();
   const track = useRef<HTMLDivElement>(null);
-  const marker = useRef<SVGGElement>(null);
   const dot = useRef<HTMLSpanElement>(null);
-  const [frame, setFrame] = useState(clock.current);
   const [minute, setMinute] = useState(() => Math.floor(kosovoMinutes(clock.current.ms)));
+  const [altitude, setAltitude] = useState(() => Math.round(clock.current.sun.altitude));
+  const [touched, setTouched] = useState(false);
   const drag = useRef<{ id: number; x: number; t: number; v: number } | null>(null);
   const day = clock.day;
+  const top = Math.max(...day.path);
+  const bottom = Math.min(...day.path);
+  const up = (HORIZON - 10) / Math.max(10, top);
+  const down = (PATH_H - HORIZON - 4) / Math.max(10, -bottom);
+  const yOf = (a: number) => HORIZON - (a > 0 ? a * up : a * down);
 
   useEffect(
     () =>
       clock.subscribe((f) => {
         const m = Math.max(0, Math.min(1440, (f.ms - day.midnight) / 60000));
-        marker.current?.setAttribute(
-          "transform",
-          `translate(${((m / 1440) * PATH_W).toFixed(2)} ${yOf(f.sun.altitude).toFixed(2)})`,
-        );
-        dot.current?.style.setProperty("--x", `${((m / 1440) * 100).toFixed(3)}%`);
-        dot.current?.style.setProperty("--y", `${((yOf(f.sun.altitude) / PATH_H) * 100).toFixed(3)}%`);
-        if (dot.current) dot.current.dataset.below = String(f.sun.altitude < RISE);
+        const node = dot.current;
+        if (node) {
+          const x = m / 1440;
+          const y = yOf(f.sun.altitude) / PATH_H;
+          node.style.setProperty("--x", `${(x * 100).toFixed(3)}%`);
+          node.style.setProperty("--y", `${(y * 100).toFixed(3)}%`);
+          node.dataset.below = String(f.sun.altitude < RISE);
+          const width = track.current?.clientWidth ?? 1000;
+          node.dataset.side = x * width > width - 200 ? "left" : x * width < 180 ? "start" : "right";
+        }
         const whole = Math.floor(kosovoMinutes(f.ms));
         setMinute((was) => (was === whole ? was : whole));
-        setFrame((was) => (was.live === f.live && was.light.name === f.light.name ? was : f));
+        const a = Math.round(f.sun.altitude);
+        setAltitude((was) => (was === a ? was : a));
       }),
+    // yOf only reads the day, which is in the list.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [clock, day],
   );
 
-  const curve = day.path
-    .map((a, i) => `${i ? "L" : "M"}${((i / 144) * PATH_W).toFixed(1)} ${yOf(a).toFixed(1)}`)
-    .join(" ");
+  const point = (i: number) => `${((i / 144) * PATH_W).toFixed(1)} ${yOf(day.path[i]).toFixed(1)}`;
+  const curve = day.path.map((_, i) => `${i ? "L" : "M"}${point(i)}`).join(" ");
   const toMs = (clientX: number) => {
     const rect = track.current!.getBoundingClientRect();
     const f = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width));
     return day.midnight + f * 1439 * 60000;
   };
-  const down = (event: PointerEvent<HTMLDivElement>) => {
+  const onDown = (event: PointerEvent<HTMLDivElement>) => {
     if (event.button !== 0) return;
     event.currentTarget.setPointerCapture(event.pointerId);
-    event.currentTarget.focus();
+    event.currentTarget.focus({ preventScroll: true });
+    setTouched(true);
     drag.current = { id: event.pointerId, x: event.clientX, t: performance.now(), v: 0 };
     clock.set(toMs(event.clientX));
   };
-  const move = (event: PointerEvent<HTMLDivElement>) => {
+  const onMove = (event: PointerEvent<HTMLDivElement>) => {
     const d = drag.current;
     if (!d || d.id !== event.pointerId) return;
     const now = performance.now();
@@ -335,18 +394,18 @@ function SunPath() {
     d.t = now;
     clock.set(toMs(event.clientX));
   };
-  const up = (event: PointerEvent<HTMLDivElement>) => {
+  const onUp = (event: PointerEvent<HTMLDivElement>) => {
     const d = drag.current;
     if (!d || d.id !== event.pointerId) return;
     drag.current = null;
-    // A flick coasts a little past the release point, at most one hour, so the hour a visitor aims at stays near.
+    // A flick coasts at most one hour past the release point, so the hour a visitor aims at stays near.
     const fresh = performance.now() - d.t < 50;
     if (fresh && d.v !== 0) {
       const coast = Math.max(-3600000, Math.min(3600000, d.v * 0.06));
       clock.set(clock.target + coast, { velocity: Math.sign(d.v) * Math.min(Math.abs(d.v), 3600000 * 8) });
     }
   };
-  const key = (event: KeyboardEvent<HTMLDivElement>) => {
+  const onKey = (event: KeyboardEvent<HTMLDivElement>) => {
     const step = event.shiftKey || event.key.startsWith("Page") ? 60 : 10;
     const now = clock.target;
     const moves: Record<string, number> = {
@@ -361,80 +420,90 @@ function SunPath() {
     };
     if (!(event.key in moves)) return;
     event.preventDefault();
+    setTouched(true);
     clock.set(moves[event.key], { instant: true });
   };
 
-  const at = (ms: number | null) => (ms === null ? null : ((ms - day.midnight) / 60000 / 1440) * 100);
-  const marks = [
-    { label: "Sunrise", ms: day.rise },
-    { label: "Noon", ms: day.noon },
-    { label: "Sunset", ms: day.set },
-  ];
-  const altitude = Math.round(frame.sun.altitude);
-  const valueText = `${clockText(clock.current.ms)}, sun ${Math.abs(altitude)}° ${altitude >= 0 ? "above" : "below"} the horizon`;
+  const at = (ms: number) => ((ms - day.midnight) / 60000 / 1440) * 100;
+  const valueText = `${clockText(clock.current.ms)} in Kosovo, sun ${Math.abs(altitude)}° ${altitude >= 0 ? "above" : "below"} the horizon`;
+  const below = altitude < RISE;
+
+  return (
+    <div
+      ref={track}
+      className="kt-path"
+      role="slider"
+      tabIndex={0}
+      aria-label="Time in Kosovo today. Drag the sun or use the arrow keys."
+      aria-valuemin={0}
+      aria-valuemax={1439}
+      aria-valuenow={minute}
+      aria-valuetext={valueText}
+      onPointerDown={onDown}
+      onPointerMove={onMove}
+      onPointerUp={onUp}
+      onPointerCancel={onUp}
+      onKeyDown={onKey}
+    >
+      <svg viewBox={`0 0 ${PATH_W} ${PATH_H}`} preserveAspectRatio="none" aria-hidden="true">
+        <clipPath id="kt-above">
+          <rect x="0" y="0" width={PATH_W} height={HORIZON} />
+        </clipPath>
+        <clipPath id="kt-below">
+          <rect x="0" y={HORIZON} width={PATH_W} height={PATH_H - HORIZON} />
+        </clipPath>
+        <path className="kt-path-day" d={`${curve} L${PATH_W} ${HORIZON} L0 ${HORIZON} Z`} clipPath="url(#kt-above)" />
+        <line className="kt-path-horizon" x1="0" x2={PATH_W} y1={HORIZON} y2={HORIZON} vectorEffect="non-scaling-stroke" />
+        <path className="kt-path-curve" d={curve} clipPath="url(#kt-above)" vectorEffect="non-scaling-stroke" />
+        <path className="kt-path-night" d={curve} clipPath="url(#kt-below)" vectorEffect="non-scaling-stroke" />
+      </svg>
+      {day.rise !== null && (
+        <span className="kt-path-mark" data-edge="rise" style={{ left: `${at(day.rise)}%` }} aria-hidden="true">
+          Sunrise {clockText(day.rise)}
+        </span>
+      )}
+      <span className="kt-path-mark" data-edge="noon" style={{ left: `${at(day.noon)}%`, top: `${(yOf(top) / PATH_H) * 100}%` }} aria-hidden="true">
+        Noon {clockText(day.noon)}
+      </span>
+      {day.set !== null && (
+        <span className="kt-path-mark" data-edge="set" style={{ left: `${at(day.set)}%` }} aria-hidden="true">
+          Sunset {clockText(day.set)}
+        </span>
+      )}
+      <span ref={dot} className="kt-path-sun" aria-hidden="true">
+        <span className="kt-path-disc" />
+        <span className="kt-path-hint" data-gone={touched || undefined}>
+          {below ? "Drag the sun up" : "Drag the sun"}
+        </span>
+      </span>
+    </div>
+  );
+}
+
+function Jumps() {
+  const clock = useClock();
+  const [live, setLive] = useState(clock.current.live);
+  useEffect(() => clock.subscribe((f) => setLive((was) => (was === f.live ? was : f.live))), [clock]);
+  const day = clock.day;
   const jumps = [
     { label: "Dawn", ms: day.rise === null ? null : day.rise + 18 * 60000 },
     { label: "Noon", ms: day.noon },
     { label: "Dusk", ms: day.set === null ? null : day.set - 22 * 60000 },
     { label: "Night", ms: day.midnight + 23 * 60 * 60000 },
   ];
-
   return (
-    <div className="kt-path">
-      <div
-        ref={track}
-        className="kt-path-track"
-        role="slider"
-        tabIndex={0}
-        aria-label="Time in Kosovo today"
-        aria-valuemin={0}
-        aria-valuemax={1439}
-        aria-valuenow={minute}
-        aria-valuetext={valueText}
-        onPointerDown={down}
-        onPointerMove={move}
-        onPointerUp={up}
-        onPointerCancel={up}
-        onKeyDown={key}
-      >
-        <svg viewBox={`0 0 ${PATH_W} ${PATH_H}`} preserveAspectRatio="none" aria-hidden="true">
-          <clipPath id="kt-above">
-            <rect x="0" y="0" width={PATH_W} height={HORIZON} />
-          </clipPath>
-          <path className="kt-path-day" d={`${curve} L${PATH_W} ${HORIZON} L0 ${HORIZON} Z`} clipPath="url(#kt-above)" />
-          <line className="kt-path-horizon" x1="0" x2={PATH_W} y1={HORIZON} y2={HORIZON} />
-          <path className="kt-path-curve" d={curve} vectorEffect="non-scaling-stroke" />
-        </svg>
-        <svg className="kt-path-marker" viewBox={`0 0 ${PATH_W} ${PATH_H}`} preserveAspectRatio="none" aria-hidden="true">
-          <g ref={marker}>
-            <line className="kt-path-now" x1="0" x2="0" y1={-200} y2={400} vectorEffect="non-scaling-stroke" />
-          </g>
-        </svg>
-        <span ref={dot} className="kt-path-sun" aria-hidden="true" />
-      </div>
-      <div className="kt-path-marks" aria-hidden="true">
-        {marks.map(
-          (m) =>
-            m.ms !== null && (
-              <span key={m.label} style={{ left: `${at(m.ms)}%` }}>
-                {m.label} {clockText(m.ms)}
-              </span>
-            ),
-        )}
-      </div>
-      <div className="kt-path-jumps" role="group" aria-label="Light the page for">
-        <button type="button" aria-pressed={frame.live} onClick={() => clock.follow()}>
-          Now
-        </button>
-        {jumps.map(
-          (j) =>
-            j.ms !== null && (
-              <button key={j.label} type="button" onClick={() => clock.set(j.ms!)}>
-                {j.label}
-              </button>
-            ),
-        )}
-      </div>
+    <div className="kt-jumps" role="group" aria-label="Light the page for">
+      <button type="button" aria-pressed={live} onClick={() => clock.follow()}>
+        Now
+      </button>
+      {jumps.map(
+        (j) =>
+          j.ms !== null && (
+            <button key={j.label} type="button" onClick={() => clock.set(j.ms!)}>
+              {j.label}
+            </button>
+          ),
+      )}
     </div>
   );
 }
@@ -442,6 +511,17 @@ function SunPath() {
 /* ---------- Plates ---------- */
 
 function ShotImage({ shot, eager = false }: { shot: Shot; eager?: boolean }) {
+  const c = shot.crop;
+  const style: CSSProperties | undefined = c
+    ? {
+        position: "absolute",
+        width: `${(shot.width / c.w) * 100}%`,
+        height: `${(shot.height / c.h) * 100}%`,
+        left: `${(-c.x / c.w) * 100}%`,
+        top: `${(-c.y / c.h) * 100}%`,
+        maxWidth: "none",
+      }
+    : undefined;
   return (
     <img
       src={shot.src}
@@ -451,18 +531,31 @@ function ShotImage({ shot, eager = false }: { shot: Shot; eager?: boolean }) {
       loading={eager ? "eager" : "lazy"}
       decoding="async"
       fetchPriority={eager ? "high" : "auto"}
+      style={style}
     />
   );
 }
 
+const CARE_WIDTH = 720;
+
 function CarePlate() {
   const entry = recreations.care;
   const Live = entry.Component;
+  const outer = useRef<HTMLDivElement>(null);
   useEffect(() => {
     void entry.load();
   }, [entry]);
+  useLayoutEffect(() => {
+    const element = outer.current;
+    if (!element) return;
+    const fit = () => element.style.setProperty("--kt-care-scale", String(element.clientWidth / CARE_WIDTH));
+    const watch = new ResizeObserver(fit);
+    watch.observe(element);
+    fit();
+    return () => watch.disconnect();
+  }, []);
   return (
-    <div className="kt-care" data-world={entry.world} inert aria-hidden="true">
+    <div className="kt-care" ref={outer} data-world={entry.world} inert aria-hidden="true">
       <div className="kt-care-inner">
         <Suspense fallback={null}>
           <Live />
@@ -493,47 +586,102 @@ function Links({ items }: { items: Link[] }) {
   );
 }
 
-function WorkRow({ row }: { row: Row }) {
-  const phone = row.plate !== "care" && row.plate.height > row.plate.width;
+const shapeOf = (plate: Row["plate"]) => (plate === "care" ? "care" : plate.height > plate.width ? "phone" : "wide");
+
+function RowText({ row }: { row: Row }) {
   return (
-    <li className="kt-row">
-      <Ground className="kt-row-ground" sources={[row.plate === "care" ? null : row.plate.src]}>
-        <div className="kt-row-stage">
-          <figure className="kt-plate" data-kt-panel data-shape={row.plate === "care" ? "care" : phone ? "phone" : "wide"}>
-            {row.plate === "care" ? <CarePlate /> : <ShotImage shot={row.plate} />}
-          </figure>
-        </div>
-        <div className="kt-row-text">
-          <h3>{row.name}</h3>
-          <p className="kt-row-line">{row.line}</p>
-          <p className="kt-row-result">{row.result}</p>
-          <p className="kt-row-role">
-            {row.role} · {row.years}
-          </p>
-          {row.note && <p className="kt-row-note">{row.note}</p>}
-          <Links items={row.links} />
+    <div className="kt-row-text">
+      <h3>{row.name}</h3>
+      <p className="kt-row-line">{row.line}</p>
+      <p className="kt-row-result">{row.result}</p>
+      <p className="kt-row-role">
+        {row.role} · {row.years}
+        {row.note && (
+          <>
+            <br />
+            <span className="kt-row-note">{row.note}</span>
+          </>
+        )}
+      </p>
+      <Links items={row.links} />
+    </div>
+  );
+}
+
+function Plate({ row }: { row: Row }) {
+  return (
+    <figure className="kt-plate" data-kt-panel data-shape={shapeOf(row.plate)}>
+      {row.plate === "care" ? <CarePlate /> : <ShotImage shot={row.plate} />}
+    </figure>
+  );
+}
+
+function WorkRow({ row }: { row: Row }) {
+  return (
+    <li className="kt-row" data-shape={shapeOf(row.plate)}>
+      <Ground className="kt-row-stage" sources={[row.plate === "care" ? null : row.plate.src]} sides={40}>
+        <Plate row={row} />
+      </Ground>
+      <RowText row={row} />
+    </li>
+  );
+}
+
+/** Phone apps stand side by side on one ground on a wide screen, so one sun swings all their shadows. */
+function Shelf({ rows, stacked }: { rows: Row[]; stacked: boolean }) {
+  if (stacked) return rows.map((row) => <WorkRow key={row.id} row={row} />);
+  return (
+    <li className="kt-shelf">
+      <div className="kt-shelf-text">
+        {rows.map((row) => (
+          <RowText key={row.id} row={row} />
+        ))}
+      </div>
+      <Ground className="kt-shelf-ground" sources={rows.map((r) => (r.plate === "care" ? null : r.plate.src))} sides={48}>
+        <div className="kt-shelf-slots">
+          {rows.map((row) => (
+            <div key={row.id} className="kt-shelf-slot">
+              <Plate row={row} />
+            </div>
+          ))}
         </div>
       </Ground>
     </li>
   );
 }
 
-/** Both concepts share one camera on a wide screen, so their shadows fall on one ground. */
-function ConceptView({ concept: c }: { concept: Concept }) {
+function ConceptText({ concept: c }: { concept: Concept }) {
   return (
-    <article className="kt-concept">
-      <figure className="kt-plate" data-kt-panel data-shape="wide">
-        <ShotImage shot={c.plate} />
-      </figure>
-      <div className="kt-concept-text">
-        <h3>
-          {c.name} <span className="kt-tag">Concept</span>
-        </h3>
-        <p className="kt-row-line">{c.line}</p>
-        <p className="kt-row-result">{c.result}</p>
-        <Links items={c.links} />
+    <div className="kt-concept-text">
+      <h3>
+        {c.name} <span className="kt-tag">Concept</span>
+      </h3>
+      <p className="kt-row-line">{c.line}</p>
+      <p className="kt-row-result">{c.result}</p>
+      <Links items={c.links} />
+    </div>
+  );
+}
+
+function ConceptPlate({ concept: c }: { concept: Concept }) {
+  return (
+    <figure className="kt-plate" data-kt-panel data-shape="wide">
+      <ShotImage shot={c.plate} />
+    </figure>
+  );
+}
+
+/** The lead plates carry their own title bar, so their labels never stand on the floor. */
+function LeadPlate({ shot, name, note, kind }: { shot: Shot; name: string; note: string; kind: string }) {
+  return (
+    <figure className="kt-lead" data-kt-panel data-kind={kind}>
+      <figcaption>
+        <strong>{name}</strong> {note}
+      </figcaption>
+      <div className="kt-lead-shot" style={shot.crop ? { aspectRatio: `${shot.crop.w} / ${shot.crop.h}` } : undefined}>
+        <ShotImage shot={shot} eager />
       </div>
-    </article>
+    </figure>
   );
 }
 
@@ -547,8 +695,8 @@ export default function Draft() {
   const stacked = useMedia("(max-width: 1023px)");
   const [clock] = useState(() => new Clock(startMinutes()));
   const [fonts, setFonts] = useState<"wait" | "real" | "fallback">("wait");
-  const root = useRef<HTMLDivElement>(null);
   const time = useRef<HTMLTimeElement>(null);
+  const yours = useRef<HTMLSpanElement>(null);
   const sentence = useRef<HTMLParagraphElement>(null);
   const [lightName, setLightName] = useState(clock.current.light.name);
 
@@ -591,37 +739,44 @@ export default function Draft() {
   useLayoutEffect(() => {
     const html = document.documentElement;
     html.classList.add("kt-page");
+    const names = ["--kt-sun", "--kt-sky", "--kt-haze", "--kt-lit", "--kt-shade", "--kt-ink", "--kt-soft", "--kt-accent"];
     const off = clock.subscribe(({ ms, sun, light }) => {
+      html.style.setProperty("--kt-sky", light.sky);
+      html.style.setProperty("--kt-haze", light.haze);
       html.style.setProperty("--kt-lit", light.lit);
       html.style.setProperty("--kt-shade", light.shade);
       html.style.setProperty("--kt-ink", light.ink);
       html.style.setProperty("--kt-soft", light.soft);
       html.style.setProperty("--kt-accent", light.accent);
+      html.style.setProperty("--kt-sun", light.sun);
       html.dataset.ktDark = luminance(light.lit) < 0.2 ? "true" : "false";
       if (time.current) time.current.textContent = clockText(ms);
+      if (yours.current) yours.current.textContent = visitorText(ms) ?? "";
       if (sentence.current) {
         const abs = Math.abs(sun.altitude);
         const a = abs < 9.95 ? abs.toFixed(1) : Math.round(abs);
         sentence.current.textContent =
           sun.altitude >= RISE
             ? `The sun is ${a}° above the horizon, in the ${direction(sun.bearing)}. It lights this page.`
-            : `The sun is ${a}° below the horizon. The screens light this page.`;
+            : `The sun is ${a}° below the horizon. Only the screens light this page.`;
       }
       setLightName((was) => (was === light.name ? was : light.name));
     });
     return () => {
       off();
       html.classList.remove("kt-page");
-      for (const name of ["--kt-lit", "--kt-shade", "--kt-ink", "--kt-soft", "--kt-accent"]) html.style.removeProperty(name);
+      for (const name of names) html.style.removeProperty(name);
       delete html.dataset.ktDark;
     };
   }, [clock]);
 
-  const leadShot = narrow ? lead.narrow : lead.wide;
+  const clientShot = narrow ? { ...leadClient.shot, crop: leadClient.narrowCrop } : leadClient.shot;
+  const phones = client.filter((r) => shapeOf(r.plate) === "phone");
+  const firstPhone = client.findIndex((r) => shapeOf(r.plate) === "phone");
 
   return (
     <ClockContext value={clock}>
-      <div className="kt" ref={root} data-fonts={fonts} data-reduced={reduced || undefined}>
+      <div className="kt" data-fonts={fonts} data-reduced={reduced || undefined}>
         <title>Gentrit Rashiti · lit by the sun over Kosovo</title>
         <header className="kt-top">
           <a className="kt-name" href="#top">
@@ -637,62 +792,93 @@ export default function Draft() {
           </nav>
         </header>
 
-        <main id="top">
-          <section className="kt-hero" aria-labelledby="kt-id">
-            <div className="kt-id">
-              <h1 id="kt-id">Gentrit Rashiti builds web and mobile apps, from Kosovo.</h1>
-              <p>5+ years. Part of two platform rewrites. Working remotely.</p>
+        <main>
+          <div className="kt-first">
+            <div className="kt-sky">
+              <section className="kt-hero" id="top" aria-labelledby="kt-id">
+                <div className="kt-id">
+                  <h1 id="kt-id">Gentrit Rashiti builds web and mobile apps, from Kosovo.</h1>
+                  <p>5+ years. Part of two platform rewrites. Working remotely.</p>
+                  {!narrow && (
+                    <ul className="kt-results">
+                      {results.map((r) => (
+                        <li key={r}>{r}</li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+                <div className="kt-clock">
+                  <p className="kt-now">
+                    <time ref={time} className="kt-hm">
+                      {clockText(clock.current.ms)}
+                    </time>
+                    <span className="kt-where">
+                      in Kosovo
+                      <span ref={yours} className="kt-yours" />
+                    </span>
+                  </p>
+                  <p ref={sentence} className="kt-sentence" />
+                  <Jumps />
+                </div>
+              </section>
+              <SunPath />
             </div>
-            <div className="kt-clock">
-              <p className="kt-now">
-                <time ref={time} className="kt-hm">
-                  {clockText(clock.current.ms)}
-                </time>
-                <span>in Kosovo</span>
-              </p>
-              <p ref={sentence} className="kt-sentence" />
-            </div>
-            <SunPath />
-            <Ground className="kt-stage" sources={[leadShot.src]} gl fade={72}>
-              <figure className="kt-lead" data-kt-panel data-shape={narrow ? "phone" : "wide"}>
-                <ShotImage shot={leadShot} eager />
-              </figure>
-              <div className="kt-under">
-                <p className="kt-caption">{lead.caption}</p>
-                <ul className="kt-results">
-                  {results.map((r) => (
-                    <li key={r}>{r}</li>
-                  ))}
-                </ul>
+            <Ground className="kt-stage" sources={narrow ? [clientShot.src] : [clientShot.src, lead.wide.src]} gl fade={64}>
+              <div className="kt-leads">
+                <LeadPlate shot={clientShot} name={leadClient.name} note={leadClient.note} kind="client" />
+                {!narrow && <LeadPlate shot={lead.wide} name={lead.name} note={lead.note} kind="own" />}
               </div>
             </Ground>
-          </section>
+          </div>
+          {narrow && (
+            <ul className="kt-results">
+              {results.map((r) => (
+                <li key={r}>{r}</li>
+              ))}
+            </ul>
+          )}
 
           <section className="kt-section" id="work" aria-labelledby="kt-client">
             <h2 id="kt-client">Client work</h2>
             <ol className="kt-rows">
-              {client.map((row) => (
-                <WorkRow key={row.id} row={row} />
-              ))}
+              {client.map((row, i) =>
+                shapeOf(row.plate) !== "phone" ? (
+                  <WorkRow key={row.id} row={row} />
+                ) : i === firstPhone ? (
+                  <Shelf key="shelf" rows={phones} stacked={stacked} />
+                ) : null,
+              )}
             </ol>
           </section>
 
           <section className="kt-section" aria-labelledby="kt-own">
             <h2 id="kt-own">Own projects</h2>
             {stacked ? (
-              <div className="kt-pair">
+              <ol className="kt-rows">
                 {concepts.map((c) => (
-                  <Ground key={c.id} className="kt-concept-ground" sources={[c.plate.src]}>
-                    <ConceptView concept={c} />
-                  </Ground>
+                  <li key={c.id} className="kt-row" data-shape="wide">
+                    <Ground className="kt-row-stage" sources={[c.plate.src]} sides={40}>
+                      <ConceptPlate concept={c} />
+                    </Ground>
+                    <ConceptText concept={c} />
+                  </li>
                 ))}
-              </div>
+              </ol>
             ) : (
-              <Ground className="kt-pair" sources={concepts.map((c) => c.plate.src)}>
-                {concepts.map((c) => (
-                  <ConceptView key={c.id} concept={c} />
-                ))}
-              </Ground>
+              <div className="kt-pair">
+                <div className="kt-pair-text">
+                  {concepts.map((c) => (
+                    <ConceptText key={c.id} concept={c} />
+                  ))}
+                </div>
+                <Ground className="kt-pair-ground" sources={concepts.map((c) => c.plate.src)} sides={48}>
+                  <div className="kt-pair-slots">
+                    {concepts.map((c) => (
+                      <ConceptPlate key={c.id} concept={c} />
+                    ))}
+                  </div>
+                </Ground>
+              </div>
             )}
             <ol className="kt-rows">
               {own.map((row) => (
@@ -706,42 +892,46 @@ export default function Draft() {
           <h2>The light on this page</h2>
           <p className="kt-foot-lede">
             The sun's height and direction come from the SunCalc formulas for Kosovo (42.6° N, 20.9° E), at your clock.
-            Every shadow is projected from them. Below are the four lights, with the contrast of the text in each.
+            Every shadow is projected from them, and no text stands where a shadow can fall. Below are the four lights,
+            with the contrast of the text in each.
           </p>
           <ul className="kt-lights">
             {anchors.map((a) => {
               const l = lightAt(a.altitude, a.evening);
-              const dark = luminance(l.lit) < 0.2;
+              const onSky = Math.min(contrast(l.ink, l.sky), contrast(l.ink, l.haze));
+              const result = Math.min(contrast(l.accent, l.sky), contrast(l.accent, l.haze), contrast(l.accent, l.lit));
               return (
                 <li key={a.label} data-current={a.label === lightName || undefined}>
-                  <div className="kt-swatch" style={{ background: l.lit, color: l.ink }}>
-                    <span className="kt-swatch-shade" style={{ background: l.shade }} />
+                  <div
+                    className="kt-swatch"
+                    style={{ "--s-sky": l.sky, "--s-haze": l.haze, "--s-lit": l.lit, "--s-shade": l.shade, color: l.ink } as CSSProperties}
+                  >
                     <strong>{a.label}</strong>
                     <span style={{ color: l.accent }}>Result line</span>
                   </div>
                   <dl>
                     <div>
-                      <dt>Ground</dt>
-                      <dd>{l.lit.toUpperCase()}</dd>
+                      <dt>Sky</dt>
+                      <dd>
+                        {l.sky.toUpperCase()} → {l.haze.toUpperCase()}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt>Ground · shade</dt>
+                      <dd>
+                        {l.lit.toUpperCase()} · {l.shade.toUpperCase()}
+                      </dd>
                     </div>
                     <div>
                       <dt>Text</dt>
                       <dd>
-                        {l.ink.toUpperCase()} · {contrast(l.ink, l.lit).toFixed(1)}:1
-                      </dd>
-                    </div>
-                    <div>
-                      <dt>{dark ? "Screen light" : "Text in shadow"}</dt>
-                      <dd>
-                        {dark
-                          ? `${contrast(l.soft, hex(linear(l.lit).map((c) => c + GLOW_LIMIT))).toFixed(1)}:1 at most light`
-                          : `${contrast(l.soft, l.shade).toFixed(1)}:1 or more`}
+                        {l.ink.toUpperCase()} · {Math.min(onSky, contrast(l.ink, l.lit)).toFixed(1)}:1 or more
                       </dd>
                     </div>
                     <div>
                       <dt>Result lines</dt>
                       <dd>
-                        {l.accent.toUpperCase()} · {contrast(l.accent, dark ? l.lit : l.shade).toFixed(1)}:1
+                        {l.accent.toUpperCase()} · {result.toFixed(1)}:1 or more
                       </dd>
                     </div>
                   </dl>

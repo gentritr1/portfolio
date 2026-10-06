@@ -117,7 +117,7 @@ export const crosswordWords: CrosswordWord[] = [
   },
   {
     "slug": "chatbot-runtime-web",
-    "answer": "CHATBOTWEB",
+    "answer": "QUIZSITE",
     "row": 5,
     "col": 30,
     "direction": "down",
@@ -157,9 +157,9 @@ export const crosswordWords: CrosswordWord[] = [
   },
   {
     "slug": "care-api",
-    "answer": "CAREAPI",
-    "row": 9,
-    "col": 16,
+    "answer": "SERVERSIDE",
+    "row": 20,
+    "col": 8,
     "direction": "across",
     "number": 15
   },
@@ -181,8 +181,8 @@ export const crosswordWords: CrosswordWord[] = [
   },
   {
     "slug": "design-system-vue",
-    "answer": "VUESYSTEM",
-    "row": 12,
+    "answer": "DESIGNKIT",
+    "row": 10,
     "col": 2,
     "direction": "down",
     "number": 18

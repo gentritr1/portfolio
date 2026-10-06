@@ -3,6 +3,8 @@ export interface Shot {
   width: number;
   height: number;
   alt: string;
+  /** The part of the source that the plate shows, in source pixels. */
+  crop?: { x: number; y: number; w: number; h: number };
 }
 export interface Link {
   label: string;
@@ -27,6 +29,21 @@ const desktop = (src: string, alt: string): Shot => ({ src, width: 2880, height:
 const web = (src: string, alt: string): Shot => ({ src, width: 1440, height: 900, alt });
 const iphone = (src: string, alt: string): Shot => ({ src, width: 780, height: 1689, alt });
 
+/** The client screen on the first screen: public, shown at no more than its source pixels. */
+export const leadClient = {
+  shot: {
+    ...web(
+      "/showcase/bayyinah/web-02.webp",
+      "Bayyinah TV library, Subject tab: filters and a row of course cards, From Jerusalem to Makkah, Ramadan LIVE 2026 and The Quran and the Global Economy",
+    ),
+    crop: { x: 95, y: 455, w: 910, h: 445 },
+  } satisfies Shot,
+  /** A closer part for a phone screen: the Subject row and two course cards. */
+  narrowCrop: { x: 105, y: 525, w: 600, h: 375 },
+  name: "Bayyinah TV",
+  note: "Client work, 2023–26",
+};
+
 export const lead = {
   wide: desktop(
     "/personal/shots/offday-light-calendar-desktop.webp",
@@ -38,11 +55,11 @@ export const lead = {
     height: 1688,
     alt: "Offday team calendar on a phone, with the request button, team counts and October leave bars",
   } satisfies Shot,
-  caption: "Offday, a time-off app for teams. Own project, 2026.",
+  name: "Offday",
+  note: "Own project, 2026",
 };
 
 export const results = [
-  "Part of two platform rewrites.",
   "Mobile apps shipped to both app stores.",
   "One report asked the database 16 times. Now it asks 2.",
 ];
@@ -72,8 +89,8 @@ export const client: Row[] = [
       { label: "Google Play", href: "https://play.google.com/store/apps/details?id=com.zombiesoup.bayyinah" },
     ],
     plate: web(
-      "/showcase/bayyinah/web-02.webp",
-      "Bayyinah TV library, Subject tab: library tabs, search, filters and a row of course cards",
+      "/showcase/bayyinah/web-05.webp",
+      "Bayyinah TV series page: episode list in a side column, series summary and video cards",
     ),
   },
   {

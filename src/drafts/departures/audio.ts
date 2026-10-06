@@ -1,6 +1,9 @@
+type Session = { audioSession?: { type: string } };
+
 /** Mechanical clicks and a 600 Hz key. Made only inside a click on the Sound control. */
 export function createBoardAudio() {
   const context = new AudioContext();
+  const silence = context.createBuffer(1, 1, context.sampleRate);
   const master = context.createGain();
   master.gain.value = 0;
   master.connect(context.destination);
@@ -13,10 +16,25 @@ export function createBoardAudio() {
   let voices = 0,
     enabled = false;
   let oscillator: OscillatorNode | undefined, tone: GainNode | undefined;
+  /**
+   * iOS starts and resumes an AudioContext only inside a user gesture, and it suspends the context
+   * when the page goes to the background. Call this synchronously from every press.
+   */
+  function wake() {
+    if (!enabled) return;
+    if (context.state !== "running") void context.resume();
+    const source = context.createBufferSource();
+    source.buffer = silence;
+    source.connect(context.destination);
+    source.start();
+  }
   return {
+    wake,
     enable(value: boolean) {
       enabled = value;
-      if (value) void context.resume();
+      const session = (navigator as Navigator & Session).audioSession;
+      if (session) session.type = value ? "playback" : "auto";
+      if (value) wake();
       master.gain.cancelScheduledValues(context.currentTime);
       master.gain.setValueAtTime(master.gain.value, context.currentTime);
       master.gain.linearRampToValueAtTime(value ? 0.14 : 0, context.currentTime + 0.2);

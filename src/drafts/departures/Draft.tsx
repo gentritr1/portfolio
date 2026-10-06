@@ -1,9 +1,9 @@
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type KeyboardEvent as KeyEvent, type PointerEvent } from "react";
 import { links } from "../../content/links";
-import { Frame, dither, ditherRow } from "./glyphs";
+import { Frame } from "./glyphs";
 import { lines, others, type Line } from "./lines";
-import { contactFrame, identityFrame, keyFrame, layouts, lineFrame, type Layout, type Page } from "./signs";
-import type { Board } from "./board";
+import { contactFrame, identityFrame, keyFrame, layouts, lineFrame, type Page } from "./signs";
+import { createBoard, type Board } from "./board";
 import { createBoardAudio, type BoardAudio } from "./audio";
 import "./departures.css";
 
@@ -20,11 +20,13 @@ if (!document.head.querySelector(`link[rel="preload"][href="${FONT}"]`)) {
 
 const NARROW = "(max-width: 700px)";
 const REDUCED = "(prefers-reduced-motion: reduce)";
-/** Each line shows its text page, then its picture page: one line every 6 s. */
+/** Each line shows its text page, then its result page: one line every 6 s. */
 const PAGE_MS = 3000;
 /** A press shorter than this is a dot. */
-const DASH_MS = 180;
-const LETTER_GAP_MS = 420;
+const DASH_MS = 200;
+/** The meter is full at this hold time. */
+const METER_MS = 600;
+const LETTER_GAP_MS = 700;
 const WORD_GAP_MS = 1400;
 const KEY_IDLE_MS = 9000;
 
@@ -41,38 +43,8 @@ const two = (n: number) => String(n).padStart(2, "0");
 const yearsText = (years: Line["years"]) => (years[1] ? `${years[0]}–${String(years[1]).slice(2)}` : String(years[0]));
 const spoken = (pattern: string) => pattern.replace(/\./g, "·").replace(/-/g, "−");
 let sessionBooted = false;
-const pictures = new Map<string, Uint8Array>();
-const pending = new Map<string, Promise<Uint8Array | null>>();
-
-function loadPicture(line: Line, layout: Layout) {
-  const key = `${line.slug}:${layout.phone ? "phone" : "wide"}`;
-  if (!line.picture) return Promise.resolve(null);
-  const ready = pictures.get(key);
-  if (ready) return Promise.resolve(ready);
-  let job = pending.get(key);
-  if (!job) {
-    const { src, crop, phone } = line.picture,
-      sources = typeof src === "string" ? [src] : src.slice(0, layout.phone ? 2 : 4),
-      { w, h } = layout.picture,
-      chosen = layout.phone && phone ? phone : crop;
-    job = Promise.all(
-      sources.map((url) => {
-        const image = new Image();
-        image.decoding = "async";
-        image.src = url;
-        return image.decode().then(() => image);
-      }),
-    )
-      .then((images) => {
-        const bits = images.length > 1 ? ditherRow(images, w, h, chosen, layout.phone ? 4 : 5) : dither(images[0], w, h, chosen);
-        pictures.set(key, bits);
-        return bits;
-      })
-      .catch(() => null);
-    pending.set(key, job);
-  }
-  return job;
-}
+const iosWithoutSession = () =>
+  !("audioSession" in navigator) && (/iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1));
 
 function useMedia(query: string) {
   const [match, setMatch] = useState(() => matchMedia(query).matches);
@@ -101,12 +73,16 @@ export default function Draft() {
     [legend, setLegend] = useState(false),
     [held, setHeld] = useState(false),
     [status, setStatus] = useState(""),
+    [ready, setReady] = useState(false),
+    [resting, setResting] = useState(false),
+    [soundNote, setSoundNote] = useState(false),
     [renderer, setRenderer] = useState<"instanced" | "canvas" | "">("");
   const host = useRef<HTMLDivElement>(null),
     board = useRef<Board | null>(null),
     audio = useRef<BoardAudio | null>(null),
     listRef = useRef<HTMLOListElement>(null),
     stripe = useRef<HTMLSpanElement>(null),
+    meter = useRef<HTMLSpanElement>(null),
     inView = useRef(1),
     booting = useRef(false);
   const live = useRef({ current, page, mode, sent, layout, reduced });
@@ -129,11 +105,10 @@ export default function Draft() {
           for (let col = start; col < start + length; col++) f.cell(x + col, row, true, 0);
       return f;
     }
-    if (current < 0) return identityFrame(layout);
+    if (current < 0) return identityFrame(layout, page);
     const line = lines[current],
-      key = `${line.slug}:${layout.phone ? "phone" : "wide"}`,
       after = current + 1 < lines.length ? current + 1 : -1;
-    return lineFrame(line, current + 1, layout, page, line.picture ? (pictures.get(key) ?? null) : "parts", {
+    return lineFrame(line, current + 1, layout, page, {
       name: after < 0 ? "GENTRIT RASHITI" : lines[after].board,
       number: after + 1,
     });
@@ -149,41 +124,42 @@ export default function Draft() {
     let cancelled = false;
     const timers: number[] = [];
     const allowWebGL = !new URLSearchParams(location.search).has("nowebgl");
-    void import("./board").then(({ createBoard }) => {
-      if (cancelled || !host.current) return;
-      const created = createBoard(
-        host.current,
-        layout.cols,
-        layout.rows,
-        (count, pan) => audio.current?.flips(count, pan),
-        reduced,
-        allowWebGL,
-      );
-      board.current = created;
-      setRenderer(created.renderer);
-      trace.current = { marks: [], cursor: 0 };
-      if (reduced || sessionBooted) {
-        show(true);
-        return;
-      }
-      sessionBooted = true;
+    if (!host.current) return;
+    /* The lamp test: every disc starts lit, as the CSS board before it was, then the board clears. */
+    const boot = !reduced && !sessionBooted;
+    const created = createBoard(
+      host.current,
+      layout.cols,
+      layout.rows,
+      (count, pan) => audio.current?.flips(count, pan),
+      reduced,
+      allowWebGL,
+      boot,
+    );
+    board.current = created;
+    setRenderer(created.renderer);
+    trace.current = { marks: [], cursor: 0 };
+    if (!boot) {
+      show(true);
+      setReady(true);
+    } else {
       booting.current = true;
-      const all = new Frame(layout.cols, layout.rows);
-      all.bits.fill(1);
-      all.sweep(0, 4);
-      created.set(all.bits, all.delay);
       timers.push(
         window.setTimeout(() => {
+          if (cancelled) return;
           const none = new Frame(layout.cols, layout.rows);
           none.sweep(0, 4);
           created.set(none.bits, none.delay);
-        }, 560),
+        }, 650),
         window.setTimeout(() => {
+          if (cancelled) return;
+          sessionBooted = true;
           booting.current = false;
           show();
-        }, 1300),
+          setReady(true);
+        }, 1350),
       );
-    });
+    }
     return () => {
       cancelled = true;
       timers.forEach(clearTimeout);
@@ -197,36 +173,32 @@ export default function Draft() {
 
   useEffect(() => {
     show();
-    if (mode !== "lines" || current < 0) return;
-    const line = lines[current];
-    if (line.picture && !pictures.has(`${line.slug}:${layout.phone ? "phone" : "wide"}`))
-      void loadPicture(line, layout).then(() => {
-        if (live.current.current === current && live.current.mode === "lines") show();
-      });
-    const next = lines[(current + 1) % lines.length];
-    void loadPicture(next, layout);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [current, page, mode, sent, layout]);
 
+  /*
+   * Every 3 s the board turns a page: text, then result, then the next line. An open row holds its line.
+   * After one full round the board rests on the name. Nothing loops.
+   */
   useEffect(() => {
-    void loadPicture(lines[0], layout);
-  }, [layout]);
-
-  /* Every 3 s the board turns a page: text, then picture, then the next line. An open row holds its line. */
-  useEffect(() => {
-    if (paused || reduced || mode !== "lines") return;
+    if (!ready || paused || reduced || mode !== "lines") return;
     const timer = window.setInterval(() => {
       if (document.hidden || inView.current < 0.25 || booting.current) return;
       const { current, page } = live.current;
-      if (current >= 0 && page === "text") setPage("picture");
+      if (page === "text") setPage("result");
       else if (open && current >= 0) setPage("text");
-      else {
+      else if (current + 1 >= lines.length) {
         setPage("text");
-        setCurrent(current + 1 >= lines.length ? -1 : current + 1);
+        setCurrent(-1);
+        setPaused(true);
+        setResting(true);
+      } else {
+        setPage("text");
+        setCurrent(current + 1);
       }
     }, PAGE_MS);
     return () => clearInterval(timer);
-  }, [paused, reduced, mode, open, current]);
+  }, [ready, paused, reduced, mode, open, current, page]);
 
   useEffect(() => {
     const node = host.current;
@@ -318,10 +290,16 @@ export default function Draft() {
     if (trace.current.cursor + 16 > width) clearTrace();
     hold.current = { downAt: performance.now(), painted: 0, frame: 0, x: trace.current.cursor };
     setHeld(true);
+    audio.current?.wake();
     audio.current?.key(true);
     const write = () => {
       const now = hold.current;
       if (!now.downAt) return;
+      const elapsed = performance.now() - now.downAt;
+      if (meter.current) {
+        meter.current.style.setProperty("--fill", String(Math.min(elapsed / METER_MS, 1)));
+        meter.current.dataset.dash = String(elapsed >= DASH_MS);
+      }
       const length = Math.min(Math.max(1, Math.round((performance.now() - now.downAt) / 20)), width - now.x);
       if (length > now.painted) {
         board.current?.paint(traceCells(now.x + now.painted, length - now.painted), true);
@@ -354,6 +332,10 @@ export default function Draft() {
       if (live.current.mode !== "key") {
         live.current = { ...live.current, mode: "key" };
         setMode("key");
+      }
+      if (meter.current) {
+        meter.current.style.setProperty("--fill", mark === "." ? "0.2" : "0.8");
+        meter.current.dataset.dash = String(mark === "-");
       }
       const length = mark === "." ? 4 : 12;
       if (trace.current.cursor + length > live.current.layout.trace.w) clearTrace();
@@ -394,14 +376,8 @@ export default function Draft() {
   useEffect(() => {
     const interactive = (target: EventTarget | null) =>
       target instanceof HTMLElement && !!target.closest("a,button:not(.dep-board),input,textarea,select,summary,[contenteditable]");
-    const boardOwnsSpace = () => {
-      const active = document.activeElement,
-        box = host.current?.getBoundingClientRect();
-      if (active === host.current) return true;
-      if (!box || (active && active !== document.body)) return false;
-      const shown = Math.min(box.bottom, innerHeight) - Math.max(box.top, 0);
-      return shown >= box.height / 2;
-    };
+    /* Space scrolls the page unless the board itself has focus. */
+    const boardOwnsSpace = () => !!host.current && document.activeElement === host.current;
     const down = (event: KeyboardEvent) => {
       if (event.metaKey || event.ctrlKey || event.altKey || interactive(event.target)) return;
       if (event.code === "Space" && boardOwnsSpace()) {
@@ -443,6 +419,10 @@ export default function Draft() {
     }
     keyDown();
   }
+  function pointerUp() {
+    audio.current?.wake();
+    keyUp();
+  }
   function boardKey(event: KeyEvent<HTMLDivElement>, down: boolean) {
     if (event.key !== "Enter") return;
     event.preventDefault();
@@ -456,7 +436,17 @@ export default function Draft() {
     if (value && !audio.current) audio.current = createBoardAudio();
     audio.current?.enable(value && !reduced);
     setSound(value);
+    setSoundNote(value && iosWithoutSession());
     setStatus(value ? "Sound on." : "Sound off.");
+  }
+  function togglePause() {
+    if (paused && resting) {
+      setResting(false);
+      setPage("text");
+      setCurrent(-1);
+    }
+    setPaused(!paused);
+    setStatus(paused ? "The board runs." : "The board is paused.");
   }
   function choose(index: number) {
     const line = lines[index],
@@ -475,21 +465,30 @@ export default function Draft() {
   const shownLine = mode === "lines" && current >= 0 ? lines[current] : null;
   const caption =
     mode === "key"
-      ? { plate: "·−", title: "Morse key", text: pattern ? `Now: ${spoken(pattern)}` : sent ? `Sent: ${sent}` : "Short press: dot. Long press: dash.", note: "W (·−−) opens the work. C (−·−·) shows the email." }
+      ? { plate: "·−", title: "Morse key", text: pattern ? `Now: ${spoken(pattern)}` : sent ? `Sent: ${sent}` : "A short press is a dot. A long press is a dash.", note: "W (·−−) opens the work. C (−·−·) shows the email." }
       : mode === "contact"
         ? { plate: "@", title: "Contact", text: links.email, note: "LinkedIn and the CV are at the top right." }
         : shownLine
-          ? { plate: two(current + 1), title: shownLine.name, text: shownLine.via, note: `In the discs: ${shownLine.inDiscs.charAt(0).toLowerCase()}${shownLine.inDiscs.slice(1)}` }
-          : { plate: "→", title: "5+ years.", text: "Part of two platform rewrites. Based in Kosovo, working remotely.", note: "Hold Space or press the board. It reads Morse." };
+          ? { plate: two(current + 1), title: shownLine.name, text: shownLine.via, note: shownLine.note }
+          : {
+              plate: "→",
+              title: "Departures.",
+              text: "Each line is a product: what was built, then what changed.",
+              note: resting ? "One full round is done. Press Play to run it again." : "Press and hold the board. It reads Morse, and W (·−−) opens the work.",
+            };
+  const teach = mode === "key" || (legend && mode === "lines");
 
   return (
     <main className="dep" data-reduced={reduced} data-mode={mode}>
       <title>Departures · Gentrit Rashiti</title>
       <section className="dep-housing" aria-label="Departure board">
         <header className="dep-bezel">
-          <h1>
-            <b>Gentrit Rashiti</b> builds web and mobile apps, from the screens people use to the server behind them.
-          </h1>
+          <div className="dep-id">
+            <h1>
+              <b>Gentrit Rashiti</b> builds web and mobile apps, from the screens people use to the server behind them.
+            </h1>
+            <p>5+ years. Part of two platform rewrites. Mobile apps shipped to both app stores. Based in Kosovo, working remotely.</p>
+          </div>
           <nav aria-label="Contact">
             <a href={`mailto:${links.email}`}>Email</a>
             <a href={links.cv} download>
@@ -505,9 +504,9 @@ export default function Draft() {
           data-renderer={renderer}
           data-held={held}
           aria-roledescription="Morse key"
-          aria-label={`Departure board, now: ${shownLine ? `line ${two(current + 1)}, ${shownLine.name}` : caption.title}. It is also a Morse key: hold Space or press for a dash, tap for a dot.`}
+          aria-label={`Departure board, now: ${shownLine ? `line ${two(current + 1)}, ${shownLine.name}` : caption.title}. It is also a Morse key: a short press is a dot, a long press is a dash. With the keyboard, hold Space or Enter.`}
           onPointerDown={pointerDown}
-          onPointerUp={() => keyUp()}
+          onPointerUp={pointerUp}
           onPointerCancel={() => keyUp(true)}
           onKeyDown={(event) => boardKey(event, true)}
           onKeyUp={(event) => boardKey(event, false)}
@@ -529,7 +528,20 @@ export default function Draft() {
               <span className="dep-now-line" key={`${caption.plate}${caption.title}${caption.text}`}>
                 <strong>{caption.title}</strong> {caption.text}
               </span>
-              <small>{legend && mode === "lines" ? "Morse key: short press is a dot, long press a dash. W (·−−) opens the work, C (−·−·) the email." : caption.note}</small>
+              {teach ? (
+                <small className="dep-teach">
+                  <span className="dep-meter" ref={meter} aria-hidden="true">
+                    <b>Dot</b>
+                    <span className="dep-meter-track">
+                      <span className="dep-meter-fill" />
+                    </span>
+                    <b>Dash</b>
+                  </span>
+                  <span>W (·−−) opens the work. C (−·−·) the email.</span>
+                </small>
+              ) : (
+                <small>{caption.note}</small>
+              )}
             </span>
           </p>
           <div className="dep-controls">
@@ -537,10 +549,11 @@ export default function Draft() {
               <i aria-hidden="true" />
               {reduced ? "Sound off" : sound ? "Sound on" : "Sound off"}
             </button>
-            <button type="button" onClick={() => setPaused((value) => !value)} aria-pressed={paused || reduced} disabled={reduced}>
+            <button type="button" onClick={togglePause} data-on={!paused && !reduced} disabled={reduced}>
               <i aria-hidden="true" />
-              {reduced ? "Stopped" : paused ? "Paused" : "Pause"}
+              {reduced ? "Stopped" : paused ? "Play" : "Pause"}
             </button>
+            {soundNote && <p className="dep-sound-note">No sound? Turn off the silent switch.</p>}
           </div>
         </div>
       </section>
@@ -571,7 +584,10 @@ export default function Draft() {
               <li key={line.slug} data-current={mode === "lines" && current === i} data-open={isOpen}>
                 <button type="button" aria-expanded={isOpen} aria-controls={`dep-${line.slug}`} onClick={() => choose(i)}>
                   <span className="dep-no">{two(i + 1)}</span>
-                  <span className="dep-dest">{line.name}</span>
+                  <span className="dep-dest">
+                    {line.name}
+                    {line.remark === "Concept" && <span className="dep-tag">Concept</span>}
+                  </span>
                   <span className="dep-via">{line.via}</span>
                   <span className="dep-platform">{line.platform}</span>
                   <span className="dep-years">{yearsText(line.years)}</span>

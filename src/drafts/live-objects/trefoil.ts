@@ -434,8 +434,8 @@ export function createKnot(
 
 /**
  * The flat drawing shown when WebGL is off: the same curve in the resting pose. The whole
- * strand is drawn once, then the front half is drawn again on top, so each crossing reads
- * over or under.
+ * strand is drawn once. At each place where the drawing crosses itself, a short piece of the
+ * nearer strand is drawn again on top, so each crossing reads over or under.
  */
 export function flatKnot(size: number) {
   const cx = Math.cos(REST.x);
@@ -452,19 +452,39 @@ export function flatKnot(size: number) {
     const k = (size * 0.27) / (1 - Z / 5.9);
     return { X: size / 2 + X * k, Y: size / 2 - y * k, Z };
   });
-  const at = (i: number) => points[(i + n) % n];
+  const at = (i: number) => points[((i % n) + n) % n];
   const xy = (i: number) => `${at(i).X.toFixed(1)} ${at(i).Y.toFixed(1)}`;
   const whole = `M${xy(0)}${points.map((_, i) => `L${xy(i + 1)}`).join("")}Z`;
-  const front: string[] = [];
-  const start = points.findIndex((p, i) => p.Z > 0 && at(i - 1).Z <= 0);
-  let run = "";
-  for (let k = 0; k <= n; k++) {
-    const i = start + k;
-    if (at(i).Z > 0) run += run ? `L${xy(i)}` : `M${xy(i - 1)}L${xy(i)}`;
-    else if (run) {
-      front.push(`${run}L${xy(i)}`);
-      run = "";
+
+  const over: { i: number; reach: number }[] = [];
+  for (let i = 0; i < n; i++) {
+    const a = at(i);
+    const b = at(i + 1);
+    for (let j = i + 2; j < n; j++) {
+      if ((j + 1) % n === i) continue;
+      const c = at(j);
+      const d = at(j + 1);
+      const den = (b.X - a.X) * (d.Y - c.Y) - (b.Y - a.Y) * (d.X - c.X);
+      if (Math.abs(den) < 1e-9) continue;
+      const t = ((c.X - a.X) * (d.Y - c.Y) - (c.Y - a.Y) * (d.X - c.X)) / den;
+      const u = ((c.X - a.X) * (b.Y - a.Y) - (c.Y - a.Y) * (b.X - a.X)) / den;
+      if (t < 0 || t > 1 || u < 0 || u > 1) continue;
+      const za = a.Z + (b.Z - a.Z) * t;
+      const zc = c.Z + (d.Z - c.Z) * u;
+      const sin = Math.abs(den) / (Math.hypot(b.X - a.X, b.Y - a.Y) * Math.hypot(d.X - c.X, d.Y - c.Y));
+      over.push({ i: za > zc ? i : j, reach: Math.min(size * 0.4, Math.max(size * 0.075, (size * 0.071) / sin)) });
     }
   }
+
+  const front = over.map(({ i, reach }) => {
+    const centre = at(i);
+    let lo = i;
+    let hi = i + 1;
+    while (i - lo < n / 6 && Math.hypot(at(lo).X - centre.X, at(lo).Y - centre.Y) < reach) lo--;
+    while (hi - i < n / 6 && Math.hypot(at(hi).X - centre.X, at(hi).Y - centre.Y) < reach) hi++;
+    let d = `M${xy(lo)}`;
+    for (let k = lo + 1; k <= hi; k++) d += `L${xy(k)}`;
+    return d;
+  });
   return { whole, front };
 }

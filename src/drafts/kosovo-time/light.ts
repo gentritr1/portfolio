@@ -1,8 +1,11 @@
 import { RISE } from "./sun";
 
-/** One lighting key. `lit` is the ground in sun, `shade` the ground in shadow (sky light only). */
+/** One lighting key. `lit` is the ground in sun, `shade` the ground in shadow (sky light only),
+ * `sky` the sky at the top of the page and `haze` the sky at the horizon. */
 export interface Key {
   at: number;
+  sky: string;
+  haze: string;
   lit: string;
   shade: string;
   ink: string;
@@ -10,6 +13,8 @@ export interface Key {
   accent: string;
 }
 export interface Light {
+  sky: string;
+  haze: string;
   lit: string;
   shade: string;
   ink: string;
@@ -18,6 +23,8 @@ export interface Light {
   /** Linear RGB for the renderer. */
   litLinear: [number, number, number];
   shadeLinear: [number, number, number];
+  /** The colour of the sun's disc: orange low, near white high. */
+  sun: string;
   /** 0 to 1: how much of the light is direct sun. */
   direct: number;
   /** 0 to 1: how far the screens' own light shows on the ground. */
@@ -25,23 +32,23 @@ export interface Light {
   name: "Night" | "Dawn" | "Day" | "Dusk";
 }
 
-const night: Key = { at: -12, lit: "#0f0d14", shade: "#0b0a10", ink: "#e8e2d6", soft: "#b9b1c4", accent: "#f2c27e" };
-const deep: Key = { at: -6, lit: "#1d1532", shade: "#160f27", ink: "#f3ecdf", soft: "#c6b8dc", accent: "#f6c587" };
-const noon: Key = { at: 32, lit: "#f7f4ec", shade: "#aeb3c3", ink: "#141414", soft: "#3a3a40", accent: "#1f2e7a" };
+const night: Key = { at: -12, sky: "#07060f", haze: "#1a1636", lit: "#0f0d14", shade: "#0b0a10", ink: "#e8e2d6", soft: "#b9b1c4", accent: "#f2c27e" };
+const deep: Key = { at: -6, sky: "#110d2a", haze: "#32265a", lit: "#1d1532", shade: "#160f27", ink: "#f3ecdf", soft: "#c6b8dc", accent: "#f6c587" };
+const noon: Key = { at: 32, sky: "#a9c8e6", haze: "#e6eef2", lit: "#f7f4ec", shade: "#aeb3c3", ink: "#141414", soft: "#3a3a40", accent: "#1f2e7a" };
 
 /* Each list runs from the horizon up. The two lists meet at the noon key. */
-const morningDark: Key[] = [night, deep, { at: RISE, lit: "#272052", shade: "#1e1842", ink: "#fff3e6", soft: "#d3c9ec", accent: "#ffc98f" }];
-const eveningDark: Key[] = [night, deep, { at: RISE, lit: "#2b1a4a", shade: "#20133a", ink: "#fff3e6", soft: "#d8c8ec", accent: "#ffc58f" }];
+const morningDark: Key[] = [night, deep, { at: RISE, sky: "#1f1b4c", haze: "#6b4673", lit: "#272052", shade: "#1e1842", ink: "#fff3e6", soft: "#d3c9ec", accent: "#ffc98f" }];
+const eveningDark: Key[] = [night, deep, { at: RISE, sky: "#21164a", haze: "#7a3f62", lit: "#2b1a4a", shade: "#20133a", ink: "#fff3e6", soft: "#d8c8ec", accent: "#ffc58f" }];
 const morningLit: Key[] = [
-  { at: RISE, lit: "#f4bf98", shade: "#b6a1c1", ink: "#2a1a12", soft: "#4a3226", accent: "#003b73" },
-  { at: 6, lit: "#f6c7a1", shade: "#b9a5c2", ink: "#2a1a12", soft: "#4a3226", accent: "#003b73" },
-  { at: 18, lit: "#f8e5d0", shade: "#b4b0c4", ink: "#1d1712", soft: "#41352d", accent: "#0f3377" },
+  { at: RISE, sky: "#b4acd8", haze: "#f8bf9c", lit: "#f4bf98", shade: "#b6a1c1", ink: "#2a1a12", soft: "#4a3226", accent: "#003b73" },
+  { at: 6, sky: "#b6bce0", haze: "#f8d0b2", lit: "#f6c7a1", shade: "#b9a5c2", ink: "#2a1a12", soft: "#4a3226", accent: "#003b73" },
+  { at: 18, sky: "#afc6e6", haze: "#f2e6dc", lit: "#f8e5d0", shade: "#b4b0c4", ink: "#1d1712", soft: "#41352d", accent: "#0f3377" },
   noon,
 ];
 const eveningLit: Key[] = [
-  { at: RISE, lit: "#ff9a55", shade: "#a388c4", ink: "#1e1233", soft: "#2e1c49", accent: "#002a55" },
-  { at: 7, lit: "#ffbb85", shade: "#a993c6", ink: "#1e1233", soft: "#2f2040", accent: "#002a5c" },
-  { at: 18, lit: "#fae7d2", shade: "#b2adc5", ink: "#18141a", soft: "#3b333f", accent: "#152d78" },
+  { at: RISE, sky: "#b29fd6", haze: "#ffaa74", lit: "#ff9a55", shade: "#a388c4", ink: "#1e1233", soft: "#2e1c49", accent: "#002a55" },
+  { at: 7, sky: "#b3abdc", haze: "#ffc898", lit: "#ffbb85", shade: "#a993c6", ink: "#1e1233", soft: "#2f2040", accent: "#002a5c" },
+  { at: 18, sky: "#b2c5e6", haze: "#f8e6d6", lit: "#fae7d2", shade: "#b2adc5", ink: "#18141a", soft: "#3b333f", accent: "#152d78" },
   noon,
 ];
 
@@ -95,7 +102,7 @@ export function contrast(a: string, b: string) {
   return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05);
 }
 
-const fields = ["lit", "shade", "ink", "soft", "accent"] as const;
+const fields = ["sky", "haze", "lit", "shade", "ink", "soft", "accent"] as const;
 function along(keys: Key[], altitude: number) {
   let i = 0;
   while (i < keys.length - 2 && altitude > keys[i + 1].at) i++;
@@ -120,6 +127,7 @@ export function lightAt(altitude: number, evening: boolean): Light {
   const name = !up && altitude < -6 ? "Night" : altitude > 12 ? "Day" : evening ? "Dusk" : "Dawn";
   return {
     ...c,
+    sun: mixHex("#ff7a2e", "#fff2c2", smooth(0, 28, altitude)),
     litLinear: linear(c.lit),
     shadeLinear: linear(c.shade),
     direct: up ? smooth(RISE, 3, altitude) : 0,

@@ -59,14 +59,15 @@ export function createBoard(
   onFlips: (count: number, pan: number) => void,
   reduced: boolean,
   allowWebGL = true,
+  lit = false,
 ): Board {
   const count = cols * rows;
   const canvas = document.createElement("canvas");
   canvas.setAttribute("aria-hidden", "true");
   host.append(canvas);
-  const state = new Float32Array(count).fill(1),
+  const state = new Float32Array(count).fill(lit ? 0 : 1),
     speed = new Float32Array(count),
-    target = new Float32Array(count).fill(1),
+    target = new Float32Array(count).fill(lit ? 0 : 1),
     start = new Float32Array(count),
     jitter = new Float32Array(count).map(() => Math.random() * 12);
   let renderer: Renderer | undefined,

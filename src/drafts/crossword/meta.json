@@ -3,8 +3,8 @@
   "id": "crossword",
   "title": "Fjalëkryq",
   "band": "Loop 10",
-  "description": "The site map is an Albanian crossword. Ten answers are filled at the start: the seven main pieces of work and three own projects (Offday, OFFBEAT, FORM); the Ë of FJALË is the one given letter. The clue column is the recruiter path: result first, about ten words, then Open. Twenty more answers wait below; Solve it rains their letters into the grid.",
-  "signature": "Type VIVAFRESH anywhere: nine letters fall from the top of the board into their cells with a two-bounce settle, the word floods blue in a wave, and its clue becomes the case title.",
+  "description": "The site map is an Albanian crossword. The identity line sits over the board. The right column opens on one shipped client product with its result, its scope and a real public screen (Bayyinah TV at load), then the other six client results. Ten answers are filled at the start (seven client, three own); twenty are a real puzzle: their names stay hidden until the visitor fills them in, or presses Show the answer or Solve it.",
+  "signature": "Press Try VIVAFRESH (or type it anywhere): nine letters fall from above the board into their cells with a two-bounce settle, the word floods blue in a wave, and Viva Fresh swaps into the lead panel with its store screens.",
   "caseSlug": "viva-fresh",
   "rounds": 1,
   "loopScores": {
@@ -14,7 +14,34 @@
     "hooks": 8,
     "typeAndColour": 8
   },
-  "hookSentence": "His portfolio is an Albanian crossword: type a project name and the letters fall into place, then the clue turns into the project.",
+  "hookSentence": "His portfolio is an Albanian crossword: the letters of a project fall into place, and twenty answers are a real puzzle you can play.",
   "craftGate": "pass: 375/390/540/1024/1280/1440, no horizontal overflow, CLS 0.0000 (0.0001 at 540 and 1024, font swap), 44 px targets, visible focus, board does not trap Tab, reduced motion places letters at once, no WebGL, no sound, own JS 11.9 kB + CSS 4.3 kB gzip",
-  "holdback": "Ten answers start filled, not seven: the three own projects are filled too, so the owner's work is on the first screen. After 'Solve it' some answer words still read as stack words (CAREAPI, VUESYSTEM, CHATBOTWEB); the first screen has none (REACTSYSTEM became SYSTEM, clue 'Design System v2'). Phone first screen shows the board and the identity line; the clue list starts one scroll below. Seniority rests on plain results, not on a case narrative."
+  "holdback": "Seniority still rests on result and scope lines, not on a case narrative. On a phone the board is a fitted map (cells about 11 px), so the falling letters are small there; the work list carries the phone page. At 1280 x 800 the last client row sits one short scroll down. EPUBREADER is still a stack word among the hidden answers.",
+  "polish": [
+    {
+      "round": 10,
+      "pass": "b",
+      "score": {
+        "straightToThePoint": 8,
+        "actionsAndSeniority": 7,
+        "original": 9,
+        "hooks": 9,
+        "typeAndColour": 8
+      },
+      "fixed": [
+        "Real work with no typing: the right column opens on Bayyinah TV with its result, scope and the public landing page; all seven client results stay on the first screen at 1440 (last row y 834-888)",
+        "Phone: work first (identity, lead with one screen at y 392, six results, Play the site), board second",
+        "Phone board fits the width (no side crop), touch-action auto, cells take no pointer, no drag on touch; swipes scroll the page",
+        "One count: board 10 of 30 filled = lead 1 + 6 more client answers + 3 own; the rest section says 20 answers to play and counts down",
+        "Real puzzle where it counts: the 20 other answers hide their names until filled; typed letters go into the selected answer, a wrong word shakes and says so, Show the answer reveals one",
+        "Second door: Play the site (board bar on desktop, dark door after the work list on phone) opens the first hidden answer",
+        "Visible chip Try VIVAFRESH types the word for the visitor",
+        "Plain answers: CAREAPI -> SERVERSIDE, VUESYSTEM -> DESIGNKIT, CHATBOTWEB -> QUIZSITE (grid re-solved, all crossings checked)",
+        "The black cell beside BAYYINAH is gone: the given E-diaeresis is a paper tile, and its clue says the E-diaeresis is given",
+        "No 1 px rules: clue rows, rest list, links and footer use space or 2 px boxes",
+        "Desktop board always fits its column (no side crop at 1024)",
+        "Phone: the board keeps its position when the lead panel above it changes (measured 152 -> 152 px)"
+      ]
+    }
+  ]
 }
