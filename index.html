@@ -18,16 +18,45 @@
     <meta property="og:image:type" content="image/png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="Gentrit Rashiti, frontend and mobile developer, now full stack. A cobalt dithered sphere on graphite accompanies the name." />
+    <meta property="og:image:alt" content="Gentrit Rashiti builds web and mobile apps, from Kosovo. A web screen and a phone screen stand on orange ground at dusk and cast long violet shadows." />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Gentrit Rashiti" />
     <meta name="twitter:description" content="Web and mobile products, from the first screen to release: healthcare, video streaming, e-reading and Web3." />
     <meta name="twitter:image" content="/og-image.png" />
-    <meta name="twitter:image:alt" content="Gentrit Rashiti, frontend and mobile developer, now full stack, beside the portfolio’s cobalt dithered sphere." />
+    <meta name="twitter:image:alt" content="Gentrit Rashiti builds web and mobile apps, from Kosovo. A web screen and a phone screen stand on orange ground at dusk and cast long violet shadows." />
     <meta name="color-scheme" content="dark light" />
-    <meta name="theme-color" content="#101112" />
+    <meta name="theme-color" content="#68a6dc" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="preload" href="/fonts/Archivo.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/creative/Fraunces-Latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/creative/PublicSans-Latin.woff2" as="font" type="font/woff2" crossorigin />
+    <script>
+      (function () {
+        try {
+          var hour = /[?&]at=(\d{1,2}):(\d{2})/.exec(location.search);
+          var chosen = null;
+          try {
+            chosen = /^(\d{1,2}):(\d{2})$/.exec(sessionStorage.getItem('kt-at') || '');
+          } catch (e) {}
+          var pick = hour || chosen;
+          var now = Date.now();
+          var wall = new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Belgrade', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' })
+            .format(now)
+            .split(':');
+          var ms = pick ? now + ((+pick[1] * 60 + +pick[2]) - (+wall[0] * 60 + +wall[1])) * 60000 : now;
+          var rad = Math.PI / 180, d = ms / 86400000 - 10957.5, lat = 42.6 * rad;
+          var m = rad * (357.5291 + 0.98560028 * d);
+          var l = m + rad * (1.9148 * Math.sin(m) + 0.02 * Math.sin(2 * m) + 0.0003 * Math.sin(3 * m)) + rad * 102.9372 + Math.PI;
+          var e = rad * 23.4397;
+          var dec = Math.asin(Math.sin(l) * Math.sin(e));
+          var ra = Math.atan2(Math.sin(l) * Math.cos(e), Math.cos(l));
+          var h = rad * (280.16 + 360.9856235 * d) + rad * 20.9 - ra;
+          var alt = Math.asin(Math.sin(lat) * Math.sin(dec) + Math.cos(lat) * Math.cos(dec) * Math.cos(h)) / rad;
+          var evening = Math.sin(h) > 0;
+          var sky = alt < -6 ? '#07060f' : alt < -0.833 ? '#110d2a' : alt > 12 ? '#68a6dc' : evening ? '#b3abdc' : '#b6bce0';
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', sky);
+        } catch (e) {}
+      })();
+    </script>
     <script>
       (function () {
         var theme = null;
@@ -36,7 +65,7 @@
         } catch (e) {}
         if (theme === 'light' || theme === 'dark') {
           document.documentElement.setAttribute('data-theme', theme);
-          if (theme === 'light') {
+          if (theme === 'light' && location.pathname.indexOf('/drafts') === 0) {
             document.querySelector('meta[name="theme-color"]').setAttribute('content', '#f0efe9');
           }
         }

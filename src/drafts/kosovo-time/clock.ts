@@ -1,4 +1,4 @@
-import { sunAt, sunDay, kosovoMidnight, type Sun, type SunDay } from "./sun";
+import { clockText, kosovoMidnight, sunAt, sunDay, type Sun, type SunDay } from "./sun";
 import { lightAt, type Light } from "./light";
 
 export interface Frame {
@@ -13,6 +13,37 @@ const STIFFNESS = 350;
 const DAMPING = 35;
 const INTRO_MS = 1100;
 const INTRO_SPAN = 90 * 60000;
+
+/** The case pages and the 404 read this key, so a visitor's chosen hour follows them. Value: "HH:MM", Kosovo time. */
+const CHOSEN = "kt-at";
+const HOUR = /^(\d{1,2}):(\d{2})$/;
+const toMinutes = (text: string | null) => {
+  const match = HOUR.exec(text ?? "");
+  return match ? Math.min(1439, Number(match[1]) * 60 + Number(match[2])) : null;
+};
+
+/** The hour the page opens at: `?at=18:40` first, then the hour chosen earlier in this tab, else null (now). */
+export function openingHour(): { minutes: number | null; chosen: boolean } {
+  const fromUrl = toMinutes(new URLSearchParams(location.search).get("at"));
+  if (fromUrl !== null) return { minutes: fromUrl, chosen: false };
+  let stored: string | null = null;
+  try {
+    stored = sessionStorage.getItem(CHOSEN);
+  } catch {
+    stored = null;
+  }
+  const minutes = toMinutes(stored);
+  return { minutes, chosen: minutes !== null };
+}
+
+function remember(ms: number | null) {
+  try {
+    if (ms === null) sessionStorage.removeItem(CHOSEN);
+    else sessionStorage.setItem(CHOSEN, clockText(ms));
+  } catch {
+    // Blocked storage only loses the hour on the next page.
+  }
+}
 
 /** cubic-bezier(0.65, 0, 0.35, 1), the one long event curve. */
 function story(x: number) {
@@ -43,14 +74,15 @@ export class Clock {
   private timer = 0;
   current: Frame;
 
-  constructor(start: number | null) {
+  /** With `intro`, the first frame already shows the hour the intro starts from, so the clock never runs backward. */
+  constructor(start: number | null, intro: boolean) {
     const now = Date.now();
     this.day = sunDay(now);
     if (start !== null) {
       this.live = false;
       this.target = this.day.midnight + start * 60000;
     } else this.target = now;
-    this.shown = this.target;
+    this.shown = intro ? this.target - INTRO_SPAN : this.target;
     this.current = this.make();
   }
 
@@ -100,11 +132,13 @@ export class Clock {
     else this.last = 0;
   };
 
-  /** Show today's sun moving from an hour and a half ago to now. */
+  /** Show today's sun moving from the first frame's hour to now, or go to now at once. */
   start() {
-    if (this.reduced) return this.emit();
-    this.intro = { from: this.target - INTRO_SPAN, start: performance.now() };
-    this.shown = this.intro.from;
+    if (this.reduced || this.shown === this.target) {
+      this.shown = this.target;
+      return this.emit();
+    }
+    this.intro = { from: this.shown, start: performance.now() };
     this.request();
   }
 
@@ -117,6 +151,7 @@ export class Clock {
     this.live = false;
     this.intro = null;
     this.target = this.clamp(ms);
+    remember(this.target);
     if (this.reduced || options.instant) {
       this.shown = this.target;
       this.velocity = 0;
@@ -134,6 +169,7 @@ export class Clock {
     this.live = true;
     this.intro = null;
     this.target = now;
+    remember(null);
     if (this.reduced) {
       this.shown = now;
       this.emit();

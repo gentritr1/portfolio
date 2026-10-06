@@ -66,8 +66,10 @@ function Ground({ page, children }: { page: PageLight; children: ReactNode }) {
       const screen = element.querySelector<HTMLElement>("[data-cs-screen]");
       if (!screen) return;
       const rect = element.getBoundingClientRect();
+      const screenRect = screen.getBoundingClientRect();
+      if (rect.width < 2 || rect.height < 2 || screenRect.height < 2) return;
       root.setAttribute("viewBox", `0 0 ${rect.width.toFixed(1)} ${rect.height.toFixed(1)}`);
-      polygon.setAttribute("points", shadowOf(rect, screen.getBoundingClientRect(), page.sun.ray));
+      polygon.setAttribute("points", shadowOf(rect, screenRect, page.sun.ray));
       polygon.style.opacity = page.light.direct.toFixed(3);
     };
     const resize = new ResizeObserver(draw);

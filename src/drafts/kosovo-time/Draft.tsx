@@ -14,27 +14,40 @@ import {
   type ReactNode,
 } from "react";
 import { preload } from "react-dom";
-import { Link as RouterLink, useLocation } from "react-router";
+import { Link as RouterLink, useLocation, useNavigationType } from "react-router";
 import { links } from "../../content/links";
 import { recreations } from "../../lib/recreations";
-import { Clock, type Frame } from "./clock";
-import { client, concepts, lead, leadClient, own, results, type Concept, type Link, type Row, type Shot } from "./data";
+import { Clock, openingHour, type Frame } from "./clock";
+import {
+  client,
+  concepts,
+  games,
+  leadPhone,
+  leadWeb,
+  offday,
+  results,
+  screenColours,
+  type Concept,
+  type Crop,
+  type Link,
+  type Row,
+  type Shot,
+} from "./data";
 import { anchors, contrast, lightAt, luminance } from "./light";
 import {
   cameraFor,
+  cellsFrom,
   createGround,
   GLOW_LIMIT,
   lowerAverage,
   project,
   quarters,
-  sampleScreen,
   shadowPoints,
   type Camera,
-  type Cells,
   type GroundRenderer,
   type Panel,
 } from "./scene";
-import { clockText, direction, kosovoMinutes, RISE, ZONE } from "./sun";
+import { clockText, direction, kosovoMinutes, RISE, ZONE, type SunDay } from "./sun";
 import "./kosovo-time.css";
 
 const FRAUNCES = "/fonts/creative/Fraunces-Latin.woff2";
@@ -54,13 +67,6 @@ function useMedia(query: string) {
     () => window.matchMedia(query).matches,
     () => false,
   );
-}
-
-/** `?at=18:40` lights the page for that Kosovo time today. */
-function startMinutes() {
-  const match = /^(\d{1,2}):(\d{2})$/.exec(new URLSearchParams(location.search).get("at") ?? "");
-  if (!match) return null;
-  return Math.min(1439, Number(match[1]) * 60 + Number(match[2]));
 }
 
 const visitorZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -116,10 +122,9 @@ function Ground({ className, sources, gl = false, fade = 56, sides = 0, children
   const [mode, setMode] = useState<"svg" | "gl">("svg");
   const [slow, setSlow] = useState(false);
   const view = useRef<{ camera: Camera; panels: Panel[]; height: number } | null>(null);
-  const cells = useRef<(Cells | null)[]>(sources.map(() => null));
+  const cells = sources.map((src) => (src && screenColours[src] ? cellsFrom(screenColours[src]) : null));
   const visible = useRef(true);
   const pace = useRef({ last: 0, run: 0 });
-  const key = sources.join("|");
 
   const draw = (frame: Frame) => {
     const v = view.current;
@@ -142,7 +147,7 @@ function Ground({ className, sources, gl = false, fade = 56, sides = 0, children
         glow: light.glow * GL_GLOW,
         lit: light.litLinear,
         shade: light.shadeLinear,
-        cells: v.panels.map((_, i) => (cells.current[i] ? quarters(cells.current[i]!) : new Array(12).fill(0.8))),
+        cells: v.panels.map((_, i) => (cells[i] ? quarters(cells[i]) : new Array(12).fill(0.8))),
         fade,
       });
       return;
@@ -158,7 +163,7 @@ function Ground({ className, sources, gl = false, fade = 56, sides = 0, children
       const glow = root.querySelector<SVGEllipseElement>(`[data-glow="${i}"]`);
       const stop = root.querySelector<SVGStopElement>(`[data-glow-stop="${i}"]`);
       if (glow && stop) {
-        const screen = cells.current[i] ? lowerAverage(cells.current[i]!) : ([0.8, 0.8, 0.8] as Vec);
+        const screen = cells[i] ? lowerAverage(cells[i]) : ([0.8, 0.8, 0.8] as Vec);
         stop.setAttribute("stop-color", glowColour(frame, screen));
         glow.style.opacity = light.glow > 0.004 ? "1" : "0";
       }
@@ -170,42 +175,31 @@ function Ground({ className, sources, gl = false, fade = 56, sides = 0, children
   });
 
   useEffect(() => {
-    let live = true;
-    sources.forEach((src, i) => {
-      if (!src) return;
-      void sampleScreen(src)
-        .then((c) => {
-          if (!live) return;
-          cells.current[i] = c;
-          drawRef.current(clock.current);
-        })
-        .catch(() => undefined);
-    });
-    return () => {
-      live = false;
-    };
-    // The key holds every source.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [key, clock]);
-
-  useEffect(() => {
     const host = box.current;
     if (!gl || slow || !host || new URLSearchParams(location.search).get("gl") === "0") return;
     const canvas = document.createElement("canvas");
     canvas.className = "kt-floor";
     canvas.setAttribute("aria-hidden", "true");
-    const made = createGround(canvas, () => {
-      renderer.current = null;
-      canvas.remove();
-      setMode("svg");
-    });
-    if (!made) return;
-    host.prepend(canvas);
-    renderer.current = made;
-    pace.current = { last: 0, run: 0 };
-    setMode("gl");
+    let made: GroundRenderer | null = null;
+    // The shader compiles after the first paint, so a slow GPU never holds back the first screen.
+    const begin = () => {
+      made = createGround(canvas, () => {
+        renderer.current = null;
+        canvas.remove();
+        setMode("svg");
+      });
+      if (!made) return;
+      host.prepend(canvas);
+      renderer.current = made;
+      pace.current = { last: 0, run: 0 };
+      setMode("gl");
+    };
+    const idle = "requestIdleCallback" in window;
+    const handle = idle ? window.requestIdleCallback(begin, { timeout: 1500 }) : window.setTimeout(begin, 400);
     return () => {
-      made.dispose();
+      if (idle) window.cancelIdleCallback(handle);
+      else window.clearTimeout(handle);
+      made?.dispose();
       canvas.remove();
       renderer.current = null;
       setMode("svg");
@@ -329,16 +323,43 @@ const PATH_H = 100;
 /** The horizon line sits this far down the track. Below it, the track overlaps the top of the ground. */
 const HORIZON = 84;
 
+type Edge = "rise" | "noon" | "set";
+interface Box {
+  l: number;
+  r: number;
+  t: number;
+  b: number;
+}
+const overlaps = (a: Box, b: Box) => a.l < b.r && b.l < a.r && a.t < b.b && b.t < a.b;
+/** A touch must move this far, mostly sideways, before it moves the sun. A vertical move scrolls the page. */
+const INTENT_PX = 8;
+/** A tap moves the sun only when it lands this close to the path or the disc. */
+const TAP_REACH = 24;
+
+/** The four hours the jump buttons and the footer lights go to. */
+function namedHours(day: SunDay) {
+  return [
+    { label: "Dawn", ms: day.rise === null ? null : day.rise + 18 * 60000 },
+    { label: "Noon", ms: day.noon },
+    { label: "Dusk", ms: day.set === null ? null : day.set - 22 * 60000 },
+    { label: "Night", ms: day.midnight + 23 * 60 * 60000 },
+  ];
+}
+
 function SunPath() {
   const clock = useClock();
   const track = useRef<HTMLDivElement>(null);
   const dot = useRef<HTMLSpanElement>(null);
   const hint = useRef<HTMLSpanElement>(null);
-  const spot = useRef({ x: 0.5, below: false });
+  const marks = useRef<Partial<Record<Edge, HTMLSpanElement | null>>>({});
+  const spot = useRef({ x: 0.5, y: 0.5, below: false });
   const [minute, setMinute] = useState(() => Math.floor(kosovoMinutes(clock.current.ms)));
   const [altitude, setAltitude] = useState(() => Math.round(clock.current.sun.altitude));
+  const [below, setBelow] = useState(() => clock.current.sun.altitude < RISE);
   const [touched, setTouched] = useState(false);
+  const touchedNow = useRef(false);
   const drag = useRef<{ id: number; x: number; t: number; v: number } | null>(null);
+  const press = useRef<{ id: number; x: number; y: number } | null>(null);
   const day = clock.day;
   const top = Math.max(...day.path);
   const bottom = Math.min(...day.path);
@@ -346,32 +367,89 @@ function SunPath() {
   const down = (PATH_H - HORIZON - 4) / Math.max(10, -bottom);
   const yOf = (a: number) => HORIZON - (a > 0 ? a * up : a * down);
 
-  const placeHint = () => {
+  /** Keeps the path marks and the hint clear of the disc and of each other, at every hour and width. */
+  const place = () => {
+    const el = track.current;
+    const sun = dot.current;
     const label = hint.current;
-    const box = track.current?.getBoundingClientRect();
-    if (!label || !box) return;
-    const { x, below } = spot.current;
-    const sunX = box.left + x * box.width;
+    if (!el || !sun || !label) return;
+    const width = el.clientWidth;
+    const height = el.clientHeight;
+    const left = el.getBoundingClientRect().left;
+    const viewport = document.documentElement.clientWidth;
+    const inView = (b: Box) => left + b.l >= 4 && left + b.r <= viewport - 4;
+    const sx = spot.current.x * width;
+    const sy = spot.current.y * height;
+    const radius = (sun.firstElementChild as HTMLElement).offsetWidth / 2 + 6;
+    const disc: Box = { l: sx - radius, r: sx + radius, t: sy - radius, b: sy + radius };
+
+    const shown: { mark: HTMLSpanElement; box: Box }[] = [];
+    for (const edge of ["rise", "noon", "set"] as const) {
+      const mark = marks.current[edge];
+      if (!mark) continue;
+      const w = mark.offsetWidth;
+      if (!w) continue;
+      const anchor = mark.offsetLeft;
+      const t = mark.offsetTop;
+      const clearRight = Math.max(12, disc.r + 6 - anchor);
+      const clearLeft = Math.min(-w - 12, disc.l - 6 - w - anchor);
+      const shifts =
+        edge === "rise"
+          ? [-w - 12, 12, clearLeft, clearRight]
+          : edge === "set"
+            ? [12, -w - 12, clearRight, clearLeft]
+            : [-w / 2, -w - 28, 28, clearLeft, clearRight];
+      let pick: { dx: number; box: Box } | null = null;
+      for (const dx of shifts) {
+        const box = { l: anchor + dx, r: anchor + dx + w, t, b: t + mark.offsetHeight };
+        if (inView(box) && !overlaps(box, disc)) {
+          pick = { dx, box };
+          break;
+        }
+      }
+      if (pick) {
+        mark.style.transform = `translateX(${Math.round(pick.dx)}px)`;
+        shown.push({ mark, box: pick.box });
+      }
+      mark.dataset.hidden = String(!pick);
+    }
+
+    if (touchedNow.current) return;
     const w = label.offsetWidth;
-    const gap = (dot.current?.firstElementChild as HTMLElement | null)?.offsetWidth ?? 38;
-    const fits = (at: number) => at >= box.left && at + w <= box.right;
-    const after = sunX + gap / 2 + 11;
-    const before = sunX - gap / 2 - 11 - w;
-    let left: number;
-    if (below) left = Math.max(box.left, Math.min(box.right - w, sunX - w / 2));
-    else if (fits(after)) left = after;
-    else if (fits(before)) left = before;
-    else left = box.right - (after + w) < before - box.left ? before : after;
-    left = Math.max(8, Math.min(document.documentElement.clientWidth - 8 - w, left));
-    label.style.setProperty("--hx", `${Math.round(left - sunX)}px`);
+    const h = label.offsetHeight;
+    const side = radius + 5;
+    const spots: [number, number][] = spot.current.below
+      ? [
+          [sx - w / 2, sy - 74],
+          [sx - w - 8, sy - 74],
+          [sx + 8, sy - 74],
+        ]
+      : [
+          [sx + side, sy - h / 2],
+          [sx - side - w, sy - h / 2],
+          [sx - w / 2, sy - radius - h - 2],
+          [sx - w / 2, sy + radius + 2],
+        ];
+    const boxes = spots
+      .map(([l, t]) => ({ l, r: l + w, t, b: t + h }))
+      .filter((b) => inView(b) && b.t >= -6 && b.b <= height + 6);
+    let box = boxes.find((b) => shown.every((s) => !overlaps(b, s.box))) ?? boxes[0];
+    if (!box) {
+      const l = Math.max(8 - left, Math.min(viewport - 8 - left - w, sx + side));
+      box = { l, r: l + w, t: sy - h / 2, b: sy + h / 2 };
+    }
+    for (const s of shown) if (overlaps(box, s.box)) s.mark.dataset.hidden = "true";
+    label.style.setProperty("--hx", `${Math.round(box.l - sx)}px`);
+    label.style.setProperty("--hy", `${Math.round(box.t - sy)}px`);
   };
 
-  useLayoutEffect(placeHint);
+  useLayoutEffect(place);
   useEffect(() => {
-    const observer = new ResizeObserver(() => placeHint());
+    const observer = new ResizeObserver(() => place());
     if (track.current) observer.observe(track.current);
+    void document.fonts?.ready.then(() => place());
     return () => observer.disconnect();
-    // placeHint reads only refs.
+    // place reads only refs.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -385,14 +463,15 @@ function SunPath() {
           const y = yOf(f.sun.altitude) / PATH_H;
           node.style.setProperty("--x", `${(x * 100).toFixed(3)}%`);
           node.style.setProperty("--y", `${(y * 100).toFixed(3)}%`);
-          spot.current = { x, below: f.sun.altitude < RISE };
+          spot.current = { x, y, below: f.sun.altitude < RISE };
           node.dataset.below = String(spot.current.below);
-          placeHint();
+          place();
         }
         const whole = Math.floor(kosovoMinutes(f.ms));
         setMinute((was) => (was === whole ? was : whole));
         const a = Math.round(f.sun.altitude);
         setAltitude((was) => (was === a ? was : a));
+        setBelow(f.sun.altitude < RISE);
       }),
     // yOf only reads the day, which is in the list.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -406,15 +485,47 @@ function SunPath() {
     const f = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width));
     return day.midnight + f * 1439 * 60000;
   };
-  const onDown = (event: PointerEvent<HTMLDivElement>) => {
-    if (event.button !== 0) return;
+  const touch = () => {
+    touchedNow.current = true;
+    setTouched(true);
+  };
+  /** True when a tap lands on the drawn path or on the disc, not on the empty sky around them. */
+  const onPath = (clientX: number, clientY: number) => {
+    const rect = track.current!.getBoundingClientRect();
+    const f = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width));
+    const i = f * 144;
+    const lo = Math.floor(i);
+    const a = day.path[lo] + (day.path[Math.min(144, lo + 1)] - day.path[lo]) * (i - lo);
+    const pathY = rect.top + (yOf(a) / PATH_H) * rect.height;
+    const sunX = rect.left + spot.current.x * rect.width;
+    const sunY = rect.top + spot.current.y * rect.height;
+    return Math.abs(clientY - pathY) <= TAP_REACH || Math.hypot(clientX - sunX, clientY - sunY) <= TAP_REACH + 8;
+  };
+  const begin = (event: PointerEvent<HTMLDivElement>) => {
     event.currentTarget.setPointerCapture(event.pointerId);
     event.currentTarget.focus({ preventScroll: true });
-    setTouched(true);
+    touch();
     drag.current = { id: event.pointerId, x: event.clientX, t: performance.now(), v: 0 };
     clock.set(toMs(event.clientX));
   };
+  const onDown = (event: PointerEvent<HTMLDivElement>) => {
+    if (event.button !== 0) return;
+    event.currentTarget.dataset.pointer = "";
+    if (event.pointerType === "mouse") return begin(event);
+    press.current = { id: event.pointerId, x: event.clientX, y: event.clientY };
+  };
   const onMove = (event: PointerEvent<HTMLDivElement>) => {
+    const p = press.current;
+    if (p && p.id === event.pointerId) {
+      const dx = Math.abs(event.clientX - p.x);
+      const dy = Math.abs(event.clientY - p.y);
+      if (dy > INTENT_PX && dy >= dx) press.current = null;
+      else if (dx > INTENT_PX && dx > dy) {
+        press.current = null;
+        begin(event);
+      }
+      return;
+    }
     const d = drag.current;
     if (!d || d.id !== event.pointerId) return;
     const now = performance.now();
@@ -427,6 +538,15 @@ function SunPath() {
     clock.set(toMs(event.clientX));
   };
   const onUp = (event: PointerEvent<HTMLDivElement>) => {
+    const p = press.current;
+    if (p && p.id === event.pointerId) {
+      press.current = null;
+      if (event.type === "pointerup" && onPath(event.clientX, event.clientY)) {
+        touch();
+        clock.set(toMs(event.clientX));
+      }
+      return;
+    }
     const d = drag.current;
     if (!d || d.id !== event.pointerId) return;
     drag.current = null;
@@ -438,6 +558,7 @@ function SunPath() {
     }
   };
   const onKey = (event: KeyboardEvent<HTMLDivElement>) => {
+    delete event.currentTarget.dataset.pointer;
     const step = event.shiftKey || event.key.startsWith("Page") ? 60 : 10;
     const now = clock.target;
     const moves: Record<string, number> = {
@@ -452,13 +573,12 @@ function SunPath() {
     };
     if (!(event.key in moves)) return;
     event.preventDefault();
-    setTouched(true);
+    touch();
     clock.set(moves[event.key], { instant: true });
   };
 
   const at = (ms: number) => ((ms - day.midnight) / 60000 / 1440) * 100;
-  const valueText = `${clockText(clock.current.ms)} in Kosovo, sun ${Math.abs(altitude)}° ${altitude >= 0 ? "above" : "below"} the horizon`;
-  const below = altitude < RISE;
+  const valueText = `${clockText(clock.current.ms)} in Kosovo, sun ${Math.abs(altitude)}° ${below ? "below" : "above"} the horizon`;
 
   return (
     <div
@@ -476,6 +596,7 @@ function SunPath() {
       onPointerUp={onUp}
       onPointerCancel={onUp}
       onKeyDown={onKey}
+      onBlur={(event) => delete event.currentTarget.dataset.pointer}
     >
       <svg viewBox={`0 0 ${PATH_W} ${PATH_H}`} preserveAspectRatio="none" aria-hidden="true">
         <clipPath id="kt-above">
@@ -490,15 +611,39 @@ function SunPath() {
         <path className="kt-path-night" d={curve} clipPath="url(#kt-below)" vectorEffect="non-scaling-stroke" />
       </svg>
       {day.rise !== null && (
-        <span className="kt-path-mark" data-edge="rise" style={{ left: `${at(day.rise)}%` }} aria-hidden="true">
+        <span
+          ref={(node) => {
+            marks.current.rise = node;
+          }}
+          className="kt-path-mark"
+          data-edge="rise"
+          style={{ left: `${at(day.rise)}%` }}
+          aria-hidden="true"
+        >
           Sunrise {clockText(day.rise)}
         </span>
       )}
-      <span className="kt-path-mark" data-edge="noon" style={{ left: `${at(day.noon)}%`, top: `${(yOf(top) / PATH_H) * 100}%` }} aria-hidden="true">
+      <span
+        ref={(node) => {
+          marks.current.noon = node;
+        }}
+        className="kt-path-mark"
+        data-edge="noon"
+        style={{ left: `${at(day.noon)}%`, top: `${(yOf(top) / PATH_H) * 100}%` }}
+        aria-hidden="true"
+      >
         Noon {clockText(day.noon)}
       </span>
       {day.set !== null && (
-        <span className="kt-path-mark" data-edge="set" style={{ left: `${at(day.set)}%` }} aria-hidden="true">
+        <span
+          ref={(node) => {
+            marks.current.set = node;
+          }}
+          className="kt-path-mark"
+          data-edge="set"
+          style={{ left: `${at(day.set)}%` }}
+          aria-hidden="true"
+        >
           Sunset {clockText(day.set)}
         </span>
       )}
@@ -516,19 +661,12 @@ function Jumps() {
   const clock = useClock();
   const [live, setLive] = useState(clock.current.live);
   useEffect(() => clock.subscribe((f) => setLive((was) => (was === f.live ? was : f.live))), [clock]);
-  const day = clock.day;
-  const jumps = [
-    { label: "Dawn", ms: day.rise === null ? null : day.rise + 18 * 60000 },
-    { label: "Noon", ms: day.noon },
-    { label: "Dusk", ms: day.set === null ? null : day.set - 22 * 60000 },
-    { label: "Night", ms: day.midnight + 23 * 60 * 60000 },
-  ];
   return (
     <div className="kt-jumps" role="group" aria-label="Light the page for">
       <button type="button" aria-pressed={live} onClick={() => clock.follow()}>
         Now
       </button>
-      {jumps.map(
+      {namedHours(clock.day).map(
         (j) =>
           j.ms !== null && (
             <button key={j.label} type="button" onClick={() => clock.set(j.ms!)}>
@@ -542,15 +680,16 @@ function Jumps() {
 
 /* ---------- Plates ---------- */
 
-function ShotImage({ shot, eager = false }: { shot: Shot; eager?: boolean }) {
-  const c = shot.crop;
-  const style: CSSProperties | undefined = c
+const NarrowContext = createContext(false);
+
+function ShotImage({ shot, crop, eager = false }: { shot: Shot; crop?: Crop; eager?: boolean }) {
+  const style: CSSProperties | undefined = crop
     ? {
         position: "absolute",
-        width: `${(shot.width / c.w) * 100}%`,
-        height: `${(shot.height / c.h) * 100}%`,
-        left: `${(-c.x / c.w) * 100}%`,
-        top: `${(-c.y / c.h) * 100}%`,
+        width: `${(shot.width / crop.w) * 100}%`,
+        height: `${(shot.height / crop.h) * 100}%`,
+        left: `${(-crop.x / crop.w) * 100}%`,
+        top: `${(-crop.y / crop.h) * 100}%`,
         maxWidth: "none",
       }
     : undefined;
@@ -570,13 +709,29 @@ function ShotImage({ shot, eager = false }: { shot: Shot; eager?: boolean }) {
 
 const CARE_WIDTH = 720;
 
+/** The live recreation loads its code only when its row comes near the screen. */
 function CarePlate() {
   const entry = recreations.care;
   const Live = entry.Component;
   const outer = useRef<HTMLDivElement>(null);
+  const [near, setNear] = useState(false);
   useEffect(() => {
-    void entry.load();
-  }, [entry]);
+    const element = outer.current;
+    if (!element) return;
+    const watch = new IntersectionObserver(
+      ([seen]) => {
+        if (!seen.isIntersecting) return;
+        setNear(true);
+        watch.disconnect();
+      },
+      { rootMargin: "400px 0px" },
+    );
+    watch.observe(element);
+    return () => watch.disconnect();
+  }, []);
+  useEffect(() => {
+    if (near) void entry.load();
+  }, [entry, near]);
   useLayoutEffect(() => {
     const element = outer.current;
     if (!element) return;
@@ -589,9 +744,11 @@ function CarePlate() {
   return (
     <div className="kt-care" ref={outer} data-world={entry.world} inert aria-hidden="true">
       <div className="kt-care-inner">
-        <Suspense fallback={null}>
-          <Live />
-        </Suspense>
+        {near && (
+          <Suspense fallback={null}>
+            <Live />
+          </Suspense>
+        )}
       </div>
     </div>
   );
@@ -612,7 +769,8 @@ function CaseLink({ id, name }: { id: string; name: string }) {
   if (!slug) return null;
   return (
     <RouterLink className="kt-case" to={`/work/${slug}`}>
-      Read the case<span className="kt-sr">: {name}</span> →
+      Read the case<span className="kt-sr">: {name}</span>
+      {" →"}
     </RouterLink>
   );
 }
@@ -638,7 +796,12 @@ function Links({ items }: { items: Link[] }) {
   );
 }
 
-const shapeOf = (plate: Row["plate"]) => (plate === "care" ? "care" : plate.height > plate.width ? "phone" : "wide");
+const cropOf = (shot: Shot, narrow: boolean) => (narrow && shot.narrowCrop) || shot.crop;
+const shapeOf = (plate: Row["plate"]) => {
+  if (plate === "care") return "care";
+  const c = plate.crop ?? { w: plate.width, h: plate.height };
+  return c.h > c.w ? "phone" : "wide";
+};
 
 function RowText({ row }: { row: Row }) {
   return (
@@ -661,18 +824,37 @@ function RowText({ row }: { row: Row }) {
   );
 }
 
-function Plate({ row }: { row: Row }) {
+function ShotPlate({ shot, shape }: { shot: Shot; shape: string }) {
+  const narrow = use(NarrowContext);
+  const crop = cropOf(shot, narrow);
   return (
-    <figure className="kt-plate" data-kt-panel data-shape={shapeOf(row.plate)}>
-      {row.plate === "care" ? <CarePlate /> : <ShotImage shot={row.plate} />}
+    <figure
+      className="kt-plate"
+      data-kt-panel
+      data-shape={shape}
+      style={crop ? { aspectRatio: `${crop.w} / ${crop.h}` } : undefined}
+    >
+      <ShotImage shot={shot} crop={crop} />
     </figure>
   );
 }
 
+function Plate({ row }: { row: Row }) {
+  if (row.plate === "care")
+    return (
+      <figure className="kt-plate" data-kt-panel data-shape="care">
+        <CarePlate />
+      </figure>
+    );
+  return <ShotPlate shot={row.plate} shape={shapeOf(row.plate)} />;
+}
+
+const sourceOf = (row: Row) => (row.plate === "care" ? null : row.plate.src);
+
 function WorkRow({ row }: { row: Row }) {
   return (
     <li className="kt-row" data-shape={shapeOf(row.plate)}>
-      <Ground className="kt-row-stage" sources={[row.plate === "care" ? null : row.plate.src]} sides={40}>
+      <Ground className="kt-row-stage" sources={[sourceOf(row)]} sides={40}>
         <Plate row={row} />
       </Ground>
       <RowText row={row} />
@@ -690,7 +872,7 @@ function Shelf({ rows, stacked }: { rows: Row[]; stacked: boolean }) {
           <RowText key={row.id} row={row} />
         ))}
       </div>
-      <Ground className="kt-shelf-ground" sources={rows.map((r) => (r.plate === "care" ? null : r.plate.src))} sides={48}>
+      <Ground className="kt-shelf-ground" sources={rows.map(sourceOf)} sides={48}>
         <div className="kt-shelf-slots">
           {rows.map((row) => (
             <div key={row.id} className="kt-shelf-slot">
@@ -716,43 +898,115 @@ function ConceptText({ concept: c }: { concept: Concept }) {
   );
 }
 
-function ConceptPlate({ concept: c }: { concept: Concept }) {
-  return (
-    <figure className="kt-plate" data-kt-panel data-shape="wide">
-      <ShotImage shot={c.plate} />
-    </figure>
-  );
-}
-
 /** The lead plates carry their own title bar, so their labels never stand on the floor. */
 function LeadPlate({ shot, name, note, kind }: { shot: Shot; name: string; note: string; kind: string }) {
+  const narrow = use(NarrowContext);
+  const crop = cropOf(shot, narrow);
   return (
     <figure className="kt-lead" data-kt-panel data-kind={kind}>
       <figcaption>
         <strong>{name}</strong> {note}
       </figcaption>
-      <div className="kt-lead-shot" style={shot.crop ? { aspectRatio: `${shot.crop.w} / ${shot.crop.h}` } : undefined}>
-        <ShotImage shot={shot} eager />
+      <div className="kt-lead-shot" style={crop ? { aspectRatio: `${crop.w} / ${crop.h}` } : undefined}>
+        <ShotImage shot={shot} crop={crop} eager />
       </div>
     </figure>
   );
 }
 
+/** The footer lights: each one lights the page for its hour, as the jump buttons do. */
+function Lights({ current }: { current: string }) {
+  const clock = useClock();
+  const hours = namedHours(clock.day);
+  const hourOf: Record<string, number | null> = {
+    Dawn: hours[0].ms,
+    Day: hours[1].ms,
+    Dusk: hours[2].ms,
+    Night: hours[3].ms,
+  };
+  return (
+    <ul className="kt-lights">
+      {anchors.map((a) => {
+        const l = lightAt(a.altitude, a.evening);
+        const onSky = Math.min(contrast(l.ink, l.sky), contrast(l.ink, l.haze));
+        const result = Math.min(contrast(l.accent, l.sky), contrast(l.accent, l.haze), contrast(l.accent, l.lit));
+        const ms = hourOf[a.label];
+        return (
+          <li key={a.label} data-current={a.label === current || undefined}>
+            <button
+              type="button"
+              className="kt-swatch"
+              disabled={ms === null}
+              aria-label={`${a.label}: light the page`}
+              onClick={() => ms !== null && clock.set(ms)}
+              style={{ "--s-sky": l.sky, "--s-haze": l.haze, "--s-lit": l.lit, "--s-shade": l.shade, color: l.ink } as CSSProperties}
+            >
+              <strong>{a.label}</strong>
+              <span style={{ color: l.accent }}>Result line</span>
+            </button>
+            <dl>
+              <div>
+                <dt>Sky</dt>
+                <dd>
+                  {l.sky.toUpperCase()} → {l.haze.toUpperCase()}
+                </dd>
+              </div>
+              <div>
+                <dt>Ground · shade</dt>
+                <dd>
+                  {l.lit.toUpperCase()} · {l.shade.toUpperCase()}
+                </dd>
+              </div>
+              <div>
+                <dt>Text</dt>
+                <dd>
+                  {l.ink.toUpperCase()} · {Math.min(onSky, contrast(l.ink, l.lit)).toFixed(1)}:1 or more
+                </dd>
+              </div>
+              <div>
+                <dt>Result lines</dt>
+                <dd>
+                  {l.accent.toUpperCase()} · {result.toFixed(1)}:1 or more
+                </dd>
+              </div>
+            </dl>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
 /* ---------- Page ---------- */
 
+/** False after the first visit in this tab, so a return to the home page never replays the intro. */
+let openedBefore = false;
+const RETURN_Y = "kt-y";
+
 export default function Draft() {
-  const home = useLocation().pathname === "/";
+  const location = useLocation();
+  const home = location.pathname === "/";
+  const navigation = useNavigationType();
   preload(FRAUNCES, { as: "font", type: "font/woff2", crossOrigin: "anonymous" });
   preload(PUBLIC_SANS, { as: "font", type: "font/woff2", crossOrigin: "anonymous" });
   const reduced = useMedia("(prefers-reduced-motion: reduce)");
   const narrow = useMedia("(max-width: 639px)");
   const stacked = useMedia("(max-width: 1023px)");
-  const [clock] = useState(() => new Clock(startMinutes()));
+  const [clock] = useState(() => {
+    const { minutes, chosen } = openingHour();
+    const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    return new Clock(minutes, !openedBefore && !chosen && !window.location.hash && !still);
+  });
   const [fonts, setFonts] = useState<"wait" | "real" | "fallback">("wait");
   const time = useRef<HTMLTimeElement>(null);
   const yours = useRef<HTMLSpanElement>(null);
   const sentence = useRef<HTMLParagraphElement>(null);
   const [lightName, setLightName] = useState(clock.current.light.name);
+  const settled = fonts !== "wait";
+
+  useEffect(() => {
+    openedBefore = true;
+  }, []);
 
   useEffect(() => {
     let done = false;
@@ -785,15 +1039,48 @@ export default function Draft() {
   }, [clock, reduced]);
 
   useEffect(() => {
-    if (fonts !== "wait") clock.start();
-  }, [clock, fonts]);
+    if (settled) clock.start();
+  }, [clock, settled]);
 
   useEffect(() => () => clock.stop(), [clock]);
+
+  // A return lands where the visitor left: the hash target, or the scroll position of this history entry.
+  useLayoutEffect(() => {
+    if (!settled) return;
+    const target = location.hash ? document.getElementById(decodeURIComponent(location.hash.slice(1))) : null;
+    if (target) {
+      target.scrollIntoView({ block: "start", behavior: "instant" });
+      return;
+    }
+    if (navigation !== "POP") return;
+    let saved: string | null = null;
+    try {
+      saved = sessionStorage.getItem(`${RETURN_Y}:${location.key}`);
+    } catch {
+      saved = null;
+    }
+    if (saved) window.scrollTo({ top: Number(saved), behavior: "instant" });
+    // Only the first settled frame of this visit decides the landing point.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [settled]);
+
+  useLayoutEffect(() => {
+    const key = `${RETURN_Y}:${location.key}`;
+    return () => {
+      try {
+        sessionStorage.setItem(key, String(Math.round(window.scrollY)));
+      } catch {
+        // Without storage, Back opens the page at the top.
+      }
+    };
+  }, [location.key]);
 
   useLayoutEffect(() => {
     const html = document.documentElement;
     html.classList.add("kt-page");
     const names = ["--kt-sun", "--kt-sky", "--kt-haze", "--kt-lit", "--kt-shade", "--kt-ink", "--kt-soft", "--kt-accent"];
+    const chrome = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+    const chromeBefore = chrome?.content;
     const off = clock.subscribe(({ ms, sun, light }) => {
       html.style.setProperty("--kt-sky", light.sky);
       html.style.setProperty("--kt-haze", light.haze);
@@ -804,6 +1091,7 @@ export default function Draft() {
       html.style.setProperty("--kt-accent", light.accent);
       html.style.setProperty("--kt-sun", light.sun);
       html.dataset.ktDark = luminance(light.lit) < 0.2 ? "true" : "false";
+      if (chrome && chrome.content !== light.sky) chrome.content = light.sky;
       if (time.current) time.current.textContent = clockText(ms);
       if (yours.current) yours.current.textContent = visitorText(ms) ?? "";
       if (sentence.current) {
@@ -821,190 +1109,147 @@ export default function Draft() {
       html.classList.remove("kt-page");
       for (const name of names) html.style.removeProperty(name);
       delete html.dataset.ktDark;
+      if (chrome && chromeBefore) chrome.content = chromeBefore;
     };
   }, [clock]);
 
-  const clientShot = narrow ? { ...leadClient.shot, crop: leadClient.narrowCrop } : leadClient.shot;
   const phones = client.filter((r) => shapeOf(r.plate) === "phone");
   const firstPhone = client.findIndex((r) => shapeOf(r.plate) === "phone");
 
   return (
     <ClockContext value={clock}>
-      <div className="kt" data-fonts={fonts} data-reduced={reduced || undefined}>
-        <title>{home ? "Gentrit Rashiti — web, mobile & full stack" : "Gentrit Rashiti · lit by the sun over Kosovo"}</title>
-        <header className="kt-top">
-          <a className="kt-name" href="#top">
-            Gentrit Rashiti
-          </a>
-          <nav aria-label="Contact">
-            <a href="#work">Work</a>
-            <a href={links.github} target="_blank" rel="noreferrer">
-              GitHub<span className="kt-sr"> (opens in a new tab)</span>
+      <NarrowContext value={narrow}>
+        <div className="kt" data-fonts={fonts} data-reduced={reduced || undefined}>
+          <title>{home ? "Gentrit Rashiti — web, mobile & full stack" : "Gentrit Rashiti · lit by the sun over Kosovo"}</title>
+          <header className="kt-top">
+            <a className="kt-name" href="#top">
+              Gentrit Rashiti
             </a>
-            <a href={`mailto:${links.email}`}>Email</a>
-            <a href={links.cv}>CV (PDF)</a>
-          </nav>
-        </header>
+            <nav aria-label="Contact">
+              <a href="#work">Work</a>
+              <a href={links.github} target="_blank" rel="noreferrer">
+                GitHub<span className="kt-sr"> (opens in a new tab)</span>
+              </a>
+              <a href={`mailto:${links.email}`}>Email</a>
+              <a href={links.cv}>CV (PDF)</a>
+            </nav>
+          </header>
 
-        <main>
-          <div className="kt-first">
-            <div className="kt-sky">
-              <section className="kt-hero" id="top" aria-labelledby="kt-id">
-                <div className="kt-id">
-                  <h1 id="kt-id">Gentrit Rashiti builds web and mobile apps, from Kosovo.</h1>
-                  <p>5+ years. Part of two platform rewrites. Working remotely.</p>
-                  {!narrow && (
+          <main>
+            <div className="kt-first">
+              <div className="kt-sky">
+                <section className="kt-hero" id="top" aria-labelledby="kt-id">
+                  <div className="kt-id">
+                    <h1 id="kt-id">Gentrit Rashiti builds web and mobile apps, from Kosovo.</h1>
+                    <p>5+ years. Part of two platform rewrites. Working remotely.</p>
                     <ul className="kt-results">
                       {results.map((r) => (
                         <li key={r}>{r}</li>
                       ))}
                     </ul>
-                  )}
-                </div>
-                <div className="kt-clock">
-                  <p className="kt-now">
-                    <time ref={time} className="kt-hm">
-                      {clockText(clock.current.ms)}
-                    </time>
-                    <span className="kt-where">
-                      in Kosovo
-                      <span ref={yours} className="kt-yours" />
-                    </span>
-                  </p>
-                  <p ref={sentence} className="kt-sentence" />
-                  <Jumps />
-                </div>
-              </section>
-              <SunPath />
-            </div>
-            <Ground className="kt-stage" sources={narrow ? [clientShot.src] : [clientShot.src, lead.wide.src]} gl fade={64}>
-              <div className="kt-leads">
-                <LeadPlate shot={clientShot} name={leadClient.name} note={leadClient.note} kind="client" />
-                {!narrow && <LeadPlate shot={lead.wide} name={lead.name} note={lead.note} kind="own" />}
+                  </div>
+                  <div className="kt-clock">
+                    <p className="kt-now">
+                      <time ref={time} className="kt-hm">
+                        {clockText(clock.current.ms)}
+                      </time>
+                      <span className="kt-where">
+                        in Kosovo
+                        <span ref={yours} className="kt-yours" />
+                      </span>
+                    </p>
+                    <p ref={sentence} className="kt-sentence" />
+                    <Jumps />
+                  </div>
+                </section>
+                <SunPath />
               </div>
-            </Ground>
-          </div>
-          {narrow && (
-            <ul className="kt-results">
-              {results.map((r) => (
-                <li key={r}>{r}</li>
-              ))}
-            </ul>
-          )}
-
-          <section className="kt-section" id="work" aria-labelledby="kt-client">
-            <h2 id="kt-client">Client work</h2>
-            <ol className="kt-rows">
-              {client.map((row, i) =>
-                shapeOf(row.plate) !== "phone" ? (
-                  <WorkRow key={row.id} row={row} />
-                ) : i === firstPhone ? (
-                  <Shelf key="shelf" rows={phones} stacked={stacked} />
-                ) : null,
-              )}
-            </ol>
-          </section>
-
-          <section className="kt-section" aria-labelledby="kt-own">
-            <h2 id="kt-own">Own projects</h2>
-            {stacked ? (
-              <ol className="kt-rows">
-                {concepts.map((c) => (
-                  <li key={c.id} className="kt-row" data-shape="wide">
-                    <Ground className="kt-row-stage" sources={[c.plate.src]} sides={40}>
-                      <ConceptPlate concept={c} />
-                    </Ground>
-                    <ConceptText concept={c} />
-                  </li>
-                ))}
-              </ol>
-            ) : (
-              <div className="kt-pair">
-                <div className="kt-pair-text">
-                  {concepts.map((c) => (
-                    <ConceptText key={c.id} concept={c} />
-                  ))}
+              <Ground className="kt-stage" sources={[leadWeb.shot.src, leadPhone.shot.src]} gl fade={64}>
+                <div className="kt-leads">
+                  <LeadPlate shot={leadWeb.shot} name={leadWeb.name} note={leadWeb.note} kind="web" />
+                  <LeadPlate shot={leadPhone.shot} name={leadPhone.name} note={leadPhone.note} kind="phone" />
                 </div>
-                <Ground className="kt-pair-ground" sources={concepts.map((c) => c.plate.src)} sides={48}>
-                  <div className="kt-pair-slots">
+              </Ground>
+            </div>
+
+            <section className="kt-section" id="work" aria-labelledby="kt-client">
+              <h2 id="kt-client">Client work</h2>
+              <ol className="kt-rows">
+                {client.map((row, i) =>
+                  shapeOf(row.plate) !== "phone" ? (
+                    <WorkRow key={row.id} row={row} />
+                  ) : i === firstPhone ? (
+                    <Shelf key="shelf" rows={phones} stacked={stacked} />
+                  ) : null,
+                )}
+              </ol>
+            </section>
+
+            <section className="kt-section" aria-labelledby="kt-own">
+              <h2 id="kt-own">Own projects</h2>
+              <ol className="kt-rows">
+                <WorkRow row={offday} />
+              </ol>
+              {stacked ? (
+                <ol className="kt-rows">
+                  {concepts.map((c) => (
+                    <li key={c.id} className="kt-row" data-shape="wide">
+                      <Ground className="kt-row-stage" sources={[c.plate.src]} sides={40}>
+                        <ShotPlate shot={c.plate} shape="wide" />
+                      </Ground>
+                      <ConceptText concept={c} />
+                    </li>
+                  ))}
+                </ol>
+              ) : (
+                <div className="kt-pair">
+                  <div className="kt-pair-text">
                     {concepts.map((c) => (
-                      <ConceptPlate key={c.id} concept={c} />
+                      <ConceptText key={c.id} concept={c} />
                     ))}
                   </div>
-                </Ground>
-              </div>
-            )}
-            <ol className="kt-rows">
-              {own.map((row) => (
-                <WorkRow key={row.id} row={row} />
-              ))}
-            </ol>
-          </section>
-        </main>
+                  <Ground className="kt-pair-ground" sources={concepts.map((c) => c.plate.src)} sides={48}>
+                    <div className="kt-pair-slots">
+                      {concepts.map((c) => (
+                        <ShotPlate key={c.id} shot={c.plate} shape="wide" />
+                      ))}
+                    </div>
+                  </Ground>
+                </div>
+              )}
+              <h3 className="kt-games-title">Three small games, live on the web</h3>
+              <ul className="kt-games">
+                {games.map((g) => (
+                  <li key={g.id}>
+                    <h4>{g.name}</h4>
+                    <p>{g.line}</p>
+                    <Links items={[g.link]} />
+                  </li>
+                ))}
+              </ul>
+            </section>
+          </main>
 
-        <footer className="kt-foot">
-          <h2>The light on this page</h2>
-          <p className="kt-foot-lede">
-            The sun's height and direction come from the SunCalc formulas for Kosovo (42.6° N, 20.9° E), at your clock.
-            Every shadow is projected from them, and no text stands where a shadow can fall. Below are the four lights,
-            with the contrast of the text in each.
-          </p>
-          <ul className="kt-lights">
-            {anchors.map((a) => {
-              const l = lightAt(a.altitude, a.evening);
-              const onSky = Math.min(contrast(l.ink, l.sky), contrast(l.ink, l.haze));
-              const result = Math.min(contrast(l.accent, l.sky), contrast(l.accent, l.haze), contrast(l.accent, l.lit));
-              return (
-                <li key={a.label} data-current={a.label === lightName || undefined}>
-                  <div
-                    className="kt-swatch"
-                    style={{ "--s-sky": l.sky, "--s-haze": l.haze, "--s-lit": l.lit, "--s-shade": l.shade, color: l.ink } as CSSProperties}
-                  >
-                    <strong>{a.label}</strong>
-                    <span style={{ color: l.accent }}>Result line</span>
-                  </div>
-                  <dl>
-                    <div>
-                      <dt>Sky</dt>
-                      <dd>
-                        {l.sky.toUpperCase()} → {l.haze.toUpperCase()}
-                      </dd>
-                    </div>
-                    <div>
-                      <dt>Ground · shade</dt>
-                      <dd>
-                        {l.lit.toUpperCase()} · {l.shade.toUpperCase()}
-                      </dd>
-                    </div>
-                    <div>
-                      <dt>Text</dt>
-                      <dd>
-                        {l.ink.toUpperCase()} · {Math.min(onSky, contrast(l.ink, l.lit)).toFixed(1)}:1 or more
-                      </dd>
-                    </div>
-                    <div>
-                      <dt>Result lines</dt>
-                      <dd>
-                        {l.accent.toUpperCase()} · {result.toFixed(1)}:1 or more
-                      </dd>
-                    </div>
-                  </dl>
-                </li>
-              );
-            })}
-          </ul>
-          <div className="kt-foot-contact">
-            <a href={`mailto:${links.email}`}>{links.email}</a>
-            <a href={links.github} target="_blank" rel="noreferrer">
-              GitHub<span className="kt-sr"> (opens in a new tab)</span>
-            </a>
-            <a href={links.linkedin} target="_blank" rel="noreferrer">
-              LinkedIn<span className="kt-sr"> (opens in a new tab)</span>
-            </a>
-            <a href={links.cv}>CV (PDF)</a>
-          </div>
-        </footer>
-      </div>
+          <footer className="kt-foot">
+            <div className="kt-foot-contact">
+              <a href={`mailto:${links.email}`}>{links.email}</a>
+              <a href={links.github} target="_blank" rel="noreferrer">
+                GitHub<span className="kt-sr"> (opens in a new tab)</span>
+              </a>
+              <a href={links.linkedin} target="_blank" rel="noreferrer">
+                LinkedIn<span className="kt-sr"> (opens in a new tab)</span>
+              </a>
+              <a href={links.cv}>CV (PDF)</a>
+            </div>
+            <h2>The light on this page</h2>
+            <p className="kt-foot-lede">
+              The sun's height and direction come from the SunCalc formulas for Kosovo (42.6° N, 20.9° E), at your clock.
+              Every shadow is projected from them. Press a light to see the page in it.
+            </p>
+            <Lights current={lightName} />
+          </footer>
+        </div>
+      </NarrowContext>
     </ClockContext>
   );
 }

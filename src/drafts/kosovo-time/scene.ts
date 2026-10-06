@@ -80,38 +80,21 @@ export function shadowPoints(c: Camera, p: Panel, ray: Vec): string {
     .join(" ");
 }
 
-/* ---------- Screen light: one CPU downsample per source (copied from lab move 01) ---------- */
+/* ---------- Screen light: precomputed 4 x 4 samples (method from lab move 01) ---------- */
 
 export type Cells = Float32Array;
-const samples = new Map<string, Promise<Cells>>();
-/** The screenshot's colours as a 4 x 4 grid of linear RGB, top row first. */
-export function sampleScreen(src: string): Promise<Cells> {
-  if (!samples.has(src)) {
-    samples.set(
-      src,
-      new Promise<Cells>((resolve, reject) => {
-        const image = new Image();
-        image.onload = () => {
-          const mip = document.createElement("canvas");
-          mip.width = mip.height = 4;
-          const context = mip.getContext("2d", { willReadFrequently: true });
-          if (!context) return reject(new Error("Sampling unavailable"));
-          context.drawImage(image, 0, 0, 4, 4);
-          const data = context.getImageData(0, 0, 4, 4).data;
-          const cells = new Float32Array(48);
-          for (let i = 0; i < 16; i++)
-            for (let k = 0; k < 3; k++) {
-              const v = data[i * 4 + k] / 255;
-              cells[i * 3 + k] = v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
-            }
-          resolve(cells);
-        };
-        image.onerror = () => reject(new Error("Screenshot unavailable"));
-        image.src = src;
-      }),
-    );
+const cache = new Map<string, Cells>();
+/** A 4 x 4 grid of sRGB hex (top row first) as linear RGB. */
+export function cellsFrom(hexCells: string): Cells {
+  const hit = cache.get(hexCells);
+  if (hit) return hit;
+  const cells = new Float32Array(48);
+  for (let i = 0; i < 48; i++) {
+    const v = parseInt(hexCells.slice(i * 2, i * 2 + 2), 16) / 255;
+    cells[i] = v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
   }
-  return samples.get(src)!;
+  cache.set(hexCells, cells);
+  return cells;
 }
 /** The screen as a 2 x 2 grid of linear RGB (top row first): four area lights for the floor. */
 export function quarters(cells: Cells): number[] {

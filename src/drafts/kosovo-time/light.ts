@@ -34,7 +34,7 @@ export interface Light {
 
 const night: Key = { at: -12, sky: "#07060f", haze: "#1a1636", lit: "#0f0d14", shade: "#0b0a10", ink: "#e8e2d6", soft: "#b9b1c4", accent: "#f2c27e" };
 const deep: Key = { at: -6, sky: "#110d2a", haze: "#32265a", lit: "#1d1532", shade: "#160f27", ink: "#f3ecdf", soft: "#c6b8dc", accent: "#f6c587" };
-const noon: Key = { at: 32, sky: "#a9c8e6", haze: "#e6eef2", lit: "#f7f4ec", shade: "#aeb3c3", ink: "#141414", soft: "#3a3a40", accent: "#1f2e7a" };
+const noon: Key = { at: 32, sky: "#68a6dc", haze: "#f3e6d2", lit: "#f7f3ea", shade: "#a8a0cc", ink: "#141414", soft: "#2a2a31", accent: "#17236c" };
 
 /* Each list runs from the horizon up. The two lists meet at the noon key. */
 const morningDark: Key[] = [night, deep, { at: RISE, sky: "#1f1b4c", haze: "#6b4673", lit: "#272052", shade: "#1e1842", ink: "#fff3e6", soft: "#d3c9ec", accent: "#ffc98f" }];
@@ -124,7 +124,7 @@ export function lightAt(altitude: number, evening: boolean): Light {
     return t * t * (3 - 2 * t);
   };
   const glow = (1 - smooth(0.02, 0.2, luminance(c.lit))) * 0.2;
-  const name = !up && altitude < -6 ? "Night" : altitude > 12 ? "Day" : evening ? "Dusk" : "Dawn";
+  const name = !up ? "Night" : altitude > 12 ? "Day" : evening ? "Dusk" : "Dawn";
   return {
     ...c,
     sun: mixHex("#ff7a2e", "#fff2c2", smooth(0, 28, altitude)),

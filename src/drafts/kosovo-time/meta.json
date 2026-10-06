@@ -3,7 +3,7 @@
   "title": "KOSOVO TIME",
   "band": "Loop 10",
   "rule": "the sun over Kosovo lights the page at the visitor's time: every screen stands on the page and casts the shadow that the real sun gives it, computed from the sun's altitude and direction, never drawn",
-  "description": "The page is lit by the real sun over Kosovo (42.6° N, 20.9° E) at the visitor's clock. The first screen is a landscape. In the sky: 'Gentrit Rashiti builds web and mobile apps, from Kosovo.', '5+ years. Part of two platform rewrites. Working remotely.', two result lines, the time in Kosovo with the same instant on the visitor's clock, one display sentence ('The sun is 3° above the horizon, in the west. It lights this page.') and Now / Dawn / Noon / Dusk / Night; under them today's sun path across the page width, with a large sun disc labelled 'Drag the sun'. Below the horizon: a public Bayyinah TV library screen (client work) and Offday (own project) stand on the ground and cast the shadows the sun gives them. Then 'Client work' (care platform as a labelled recreation, Bayyinah TV, three phone apps side by side on one ground, Design System v2 recreation, Incentiv) and 'Own projects' (OFFBEAT and FORM as large concept plates on one ground, then Offday, FJALË, Za! and Morse Trainer). No text stands where a shadow can fall. The footer states the four lights with their colours and measured contrast.",
+  "description": "The page is lit by the real sun over Kosovo (42.6° N, 20.9° E) at the visitor's clock. The first screen is a landscape. In the sky: 'Gentrit Rashiti builds web and mobile apps, from Kosovo.', '5+ years. Part of two platform rewrites. Working remotely.', two result lines, the time in Kosovo with the same instant on the visitor's clock, one display sentence ('The sun is 3° above the horizon, in the west. It lights this page.') and Now / Dawn / Noon / Dusk / Night; under them today's sun path across the page width, with a large sun disc labelled 'Drag the sun'. Below the horizon: the Bayyinah TV web library and the Viva Fresh phone app (flat crops, client work) stand on the ground and cast the shadows the sun gives them. Then 'Client work' (care platform as a labelled recreation, Bayyinah TV, three phone apps side by side on one ground, Design System v2 recreation, Incentiv) and 'Own projects' (Offday large, OFFBEAT and FORM as concept plates on one ground, then FJALË, Za! and Morse Trainer as one-line rows). No text stands where a shadow can fall. The footer states the four lights with their colours and measured contrast.",
   "signature": "Fraunces (opsz 144, wght 500, SOFT 100, WONK 1) at 72 px for the identity line, Public Sans for everything else, no mono. The ground colour, the shade colour, the text and the result lines are computed from the sun's altitude, morning or evening: dawn apricot #F5C59E, day paper #F7F4EC, dusk orange #FFA667 with violet shade #A58CC5, night #0F0D14 with amber results. The ground flips from sky light to sunlight when the sun's edge crosses the horizon. The first screen's floor is a WebGL fragment shader: each pixel is unprojected to the ground, a ray goes toward the sun and tests the screen's rectangle (soft edge from the sun's 0.53° disc), the screen's base hides part of the sky (contact shade), and at night the screen's own 4 x 4 colours light the ground in front of it (lab move 01). Rows use the same projection as an SVG polygon; the SVG is also the no-WebGL path. The viewer faces south-west. Load: today's sun runs from 90 minutes ago to now in 1.1 s. Scrub: spring (350/35) with a short flick coast. Reduced motion: the hour of page load, static; jumps are instant.",
   "caseSlug": "offday",
   "mechanisms": [
@@ -15,12 +15,12 @@
   "rounds": 1,
   "loopScores": {
     "straightToThePoint": 9,
-    "actionsAndSeniority": 8,
+    "actionsAndSeniority": 9,
     "original": 9,
     "hooks": 9,
-    "typeAndColour": 9
+    "typeAndColour": 8
   },
-  "holdback": "Lowest: seniority, 8/10. The client screen is a crop of the public Bayyinah TV library at 0.74 of source pixels; the web plates in the rows (about 680 css px from 1440 or 2880 px sources) stay too small to read body text. The desktop page is longer (7,650 px at 1440) because the plates are larger. The per-pixel floor falls back to the flat SVG shadow on software GL, so a headless reviewer sees the SVG floor after a scrub. The hidden in-app pane pauses requestAnimationFrame, so only instant key steps can be driven there.",
+  "holdback": "Lowest: type and colour, 8/10. Noon now has a cerulean sky over a warm haze and a violet shade, but it is still the calmest of the four lights. On a 6x slower phone at 1.6 Mbit/s the first paint is 3.7 s (real faces); the wait is the script chain, not the images. The phone page is 7,229 px at 375.",
   "polish": [
     {
       "round": 10,
@@ -45,6 +45,32 @@
         "Copy: 'Part of two platform rewrites' appears once (it was in the sub-line and the results); results are 'Mobile apps shipped to both app stores.' and the 16 -> 2 line (devil)",
         "Sun disc moves by transform only: load CLS 0.0011-0.0025 -> 0 at 375/390/540/1024/1280/1440; header colour set directly so a stale paint cannot show it pale",
         "Care recreation small print uses the sans, not mono (round-10 ban)"
+      ]
+    },
+    {
+      "round": 10,
+      "pass": "c",
+      "score": {
+        "straightToThePoint": 9,
+        "actionsAndSeniority": 9,
+        "original": 9,
+        "hooks": 9,
+        "typeAndColour": 8
+      },
+      "fixed": [
+        "Sun path marks move aside or fade while the disc or the hint stands on them; 0 overlaps at 375/390/540/1024/1280/1440 and 07:00/12:24/17:48/18:08/23:00 (critic G1)",
+        "No focus box after a mouse or touch drag; the ring shows for keyboard focus only (critic G3)",
+        "Screen colours are precomputed in data.ts, so lazy images stay lazy: 267 kB of images on a phone first load, was 939 kB (critic G2, devil P7)",
+        "index.html preloads Fraunces and Public Sans, not Archivo; the care plate no longer pulls Archivo: the real faces render on a 6x phone at 1.6 Mbit/s (devil P3, P8)",
+        "A touch sets the hour only after a sideways move or a tap on the path or disc; a vertical swipe scrolls (devil P1)",
+        "First screen shows a web app (Bayyinah TV) and a phone app (Viva Fresh) side by side; both results sit above the sun path on a phone (devil §9, critic S1)",
+        "Copy: first result 'Rebuilding a live care platform while care teams use it.'; care result 'Moves to the new app one tested screen at a time.' (critic N1, N2)",
+        "Incentiv plate is the portal sign-in beside the dashboard; shelf phones are flat screen crops (devil §4.4, critic I2)",
+        "Own projects: Offday large, OFFBEAT + FORM pair, three games as one-line rows; 10 projects with plates; 6,113 px at 1440 (critic N4)",
+        "Chosen hour travels in sessionStorage kt-at; no intro on return, with a hash or with a chosen hour; /#work lands on the work section; Back restores the scroll (critic H1, P4, devil P5, P6)",
+        "Footer lights are buttons that light the page; the current light is Night whenever the sun is down (critic H2, devil P12)",
+        "Noon key: cerulean sky, warm haze, violet shade; time at 40 px so the name is the one display line (critic T1, T2)",
+        "Phone crops for wide plates, nbsp before the case arrow, balanced result lines, aligned shelf links, theme-color follows the sky, new dusk share image (critic I1, T4, P1, P2)"
       ]
     }
   ]

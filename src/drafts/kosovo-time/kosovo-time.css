@@ -36,6 +36,8 @@
 html.kt-page {
   background: var(--kt-lit, #f7f4ec);
   color-scheme: light;
+  scroll-behavior: auto;
+  scroll-padding-top: 0;
 }
 
 html.kt-page[data-kt-dark="true"] {
@@ -193,6 +195,7 @@ html.kt-page[data-kt-dark="true"] {
   line-height: 1.35;
   letter-spacing: -0.005em;
   color: var(--kt-accent);
+  text-wrap: balance;
 }
 
 .kt-results li + li {
@@ -210,7 +213,7 @@ html.kt-page[data-kt-dark="true"] {
   display: inline-block;
   min-width: 2.55em;
   font-family: var(--kt-serif);
-  font-size: 52px;
+  font-size: 40px;
   font-weight: 500;
   font-variation-settings: "opsz" 72;
   font-variant-numeric: lining-nums tabular-nums;
@@ -301,6 +304,11 @@ html.kt-page[data-kt-dark="true"] {
   outline-offset: 6px;
 }
 
+/* A pointer press sets data-pointer and a key press clears it, so only keyboard focus draws the ring. */
+.kt-path[data-pointer]:focus-visible {
+  outline: none;
+}
+
 .kt-path svg {
   position: absolute;
   inset: 0;
@@ -343,6 +351,12 @@ html.kt-page[data-kt-dark="true"] {
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
   pointer-events: none;
+  transition: opacity 0.15s var(--kt-out);
+}
+
+/* The sun path code hides a mark while the disc or the hint stands on it. */
+.kt-path-mark[data-hidden="true"] {
+  opacity: 0;
 }
 
 .kt-path-mark[data-edge="rise"] {
@@ -386,7 +400,7 @@ html.kt-page[data-kt-dark="true"] {
 }
 
 .kt-path:hover .kt-path-disc,
-.kt-path:focus-visible .kt-path-disc {
+.kt-path:not([data-pointer]):focus-visible .kt-path-disc {
   transform: scale(1.12);
 }
 
@@ -394,12 +408,12 @@ html.kt-page[data-kt-dark="true"] {
   transform: scale(0.94);
 }
 
-/* The sun path code sets --hx so the label stays inside the screen at every hour. */
+/* The sun path code sets --hx and --hy so the label stays inside the screen and off the marks at every hour. */
 .kt-path-hint {
   position: absolute;
-  top: -15px;
+  top: 0;
   left: 0;
-  transform: translateX(var(--hx, 30px));
+  transform: translate(var(--hx, 30px), var(--hy, -15px));
   display: inline-flex;
   align-items: center;
   height: 30px;
@@ -420,10 +434,6 @@ html.kt-page[data-kt-dark="true"] {
 
 .kt-path-hint::after {
   content: "\2002\2192";
-}
-
-.kt-path-sun[data-below="true"] .kt-path-hint {
-  top: -74px;
 }
 
 .kt-path-hint[data-gone] {
@@ -466,8 +476,9 @@ html.kt-page[data-kt-dark="true"] {
   background: var(--kt-lit);
 }
 
+/* --h divides the width by the sum of the two crops' width-to-height ratios (910 / 390 + 596 / 788). */
 .kt-leads {
-  --h: min(400px, 100cqh - 120px, (100cqw - 2 * var(--kt-gutter) - 72px) / 3.49);
+  --h: min(400px, 100cqh - 120px, (100cqw - 2 * var(--kt-gutter) - 72px) / 3.09);
   display: flex;
   justify-content: center;
   align-items: flex-end;
@@ -507,13 +518,8 @@ html.kt-page[data-kt-dark="true"] {
   background: var(--kt-shade);
 }
 
-.kt-lead[data-kind="client"] .kt-lead-shot {
+.kt-lead-shot {
   height: var(--h);
-}
-
-.kt-lead[data-kind="own"] .kt-lead-shot {
-  height: calc(var(--h) * 0.9);
-  aspect-ratio: 16 / 10;
 }
 
 .kt-lead img,
@@ -526,6 +532,7 @@ html.kt-page[data-kt-dark="true"] {
 }
 
 .kt-plate {
+  position: relative;
   background: var(--kt-shade);
   box-shadow: 0 0 0 1px color-mix(in srgb, var(--kt-ink) 18%, transparent);
   border-radius: 4px;
@@ -601,7 +608,7 @@ html.kt-page[data-kt-dark="true"] {
   container-type: inline-size;
   transform: scale(var(--kt-care-scale, 0.5));
   transform-origin: 0 0;
-  font-family: var(--font-sans, var(--kt-sans));
+  font-family: var(--kt-sans);
   font-size: 1rem;
   line-height: 1.5;
 }
@@ -610,8 +617,8 @@ html.kt-page[data-kt-dark="true"] {
   display: none;
 }
 
-.kt-care-inner :where(.font-mono) {
-  font-family: var(--font-sans, var(--kt-sans));
+.kt-care-inner :where(.font-mono, .font-display, .font-sans) {
+  font-family: var(--kt-sans);
 }
 
 .kt-row-text h3,
@@ -636,6 +643,7 @@ html.kt-page[data-kt-dark="true"] {
   font-weight: 600;
   line-height: 1.4;
   color: var(--kt-accent);
+  text-wrap: balance;
 }
 
 .kt-row-role {
@@ -716,8 +724,34 @@ html.kt-page[data-kt-dark="true"] {
   column-gap: 48px;
 }
 
+/* Each text block spans six shared rows, so the link rows line up when one result wraps. */
+.kt-shelf-text {
+  grid-template-rows: repeat(6, auto);
+}
+
 .kt-shelf-text .kt-row-text {
+  display: grid;
+  grid-row: span 6;
+  grid-template-rows: subgrid;
+  align-content: start;
   padding-top: 0;
+}
+
+.kt-pair-text {
+  grid-template-rows: repeat(4, auto);
+}
+
+.kt-pair-text .kt-concept-text {
+  display: grid;
+  grid-row: span 4;
+  grid-template-rows: subgrid;
+  align-content: start;
+}
+
+.kt-shelf-text .kt-case,
+.kt-pair-text .kt-links {
+  align-self: start;
+  justify-self: start;
 }
 
 .kt-shelf-ground {
@@ -752,10 +786,43 @@ html.kt-page[data-kt-dark="true"] {
   max-width: 34em;
 }
 
+.kt-games-title {
+  margin-top: 40px;
+  font-family: var(--kt-sans);
+  padding: 0 var(--kt-gutter);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--kt-soft);
+}
+
+.kt-games {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px 48px;
+  margin-top: 12px;
+  padding: 0 var(--kt-gutter);
+}
+
+.kt-games h4 {
+  font-family: var(--kt-serif);
+  font-size: 25px;
+  font-weight: 500;
+  font-variation-settings: "opsz" 36;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+}
+
+.kt-games p {
+  margin-top: 6px;
+  max-width: 30em;
+  font-size: 16px;
+  line-height: 1.45;
+}
+
 /* ---------- Footer ---------- */
 
 .kt-foot {
-  padding: 88px 0 48px;
+  padding: 72px 0 48px;
 }
 
 .kt-foot-lede {
@@ -778,6 +845,19 @@ html.kt-page[data-kt-dark="true"] {
   padding: 10px;
   border-radius: 6px;
   outline: 2px solid transparent;
+}
+
+.kt-lights button {
+  width: 100%;
+  border: 0;
+  text-align: left;
+  font-family: inherit;
+  cursor: pointer;
+  transition: transform 0.15s var(--kt-out);
+}
+
+.kt-lights button:active {
+  transform: scale(0.98);
 }
 
 .kt-lights > li[data-current] {
@@ -853,7 +933,7 @@ html.kt-page[data-kt-dark="true"] {
   display: flex;
   flex-wrap: wrap;
   gap: 0 24px;
-  margin-top: 56px;
+  margin-bottom: 48px;
   padding: 0 var(--kt-gutter);
 }
 
@@ -899,7 +979,7 @@ html.kt-page[data-kt-dark="true"] {
   }
 
   .kt-leads {
-    --h: min(400px, (100cqw - 2 * var(--kt-gutter) - 40px) / 3.49);
+    --h: min(400px, (100cqw - 2 * var(--kt-gutter) - 40px) / 3.09);
     gap: 40px;
   }
 
@@ -910,6 +990,10 @@ html.kt-page[data-kt-dark="true"] {
   .kt-row[data-shape="phone"] {
     grid-template-columns: 220px minmax(0, 1fr);
     column-gap: 24px;
+  }
+
+  .kt-games {
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .kt-row-stage {
@@ -940,12 +1024,18 @@ html.kt-page[data-kt-dark="true"] {
     padding-top: 60px;
   }
 
-  .kt-top .kt-name {
-    font-size: 15px;
+  .kt-top {
+    padding: 0 4px;
+    gap: 0;
   }
 
-  .kt-top nav a:is([href="#work"], [href^="https://github"]) {
-    display: none;
+  .kt-top a {
+    padding: 0 6px;
+    font-size: 14px;
+  }
+
+  .kt-top nav {
+    gap: 0;
   }
 
   .kt-hero {
@@ -964,7 +1054,7 @@ html.kt-page[data-kt-dark="true"] {
   }
 
   .kt-hm {
-    font-size: 38px;
+    font-size: 32px;
   }
 
   .kt-sentence {
@@ -1014,17 +1104,27 @@ html.kt-page[data-kt-dark="true"] {
     padding: 24px 16px 44px;
   }
 
+  /* 310 / 375 + 596 / 788: the two phone crops side by side, with a 12 px gap. */
   .kt-leads {
-    --h: calc((100cqw - 2px) * 375 / 600);
+    --h: calc((100cqw - 14px) / 1.583);
+    gap: 12px;
   }
 
-  .kt > main > .kt-results {
-    padding: 0 var(--kt-gutter);
-    margin-top: 0;
+  .kt-lead figcaption {
+    padding: 0 8px;
+    font-size: 12px;
+  }
+
+  .kt-results {
+    margin-top: 10px;
   }
 
   .kt-results li {
-    font-size: 18px;
+    font-size: 17px;
+  }
+
+  .kt-games {
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .kt-section {
@@ -1103,6 +1203,11 @@ html.kt-page[data-kt-dark="true"] {
 
   .kt-lights dd {
     text-align: left;
+  }
+
+  /* On a phone the swatch shows the colours, so the list keeps only the measured contrast. */
+  .kt-lights dl div:nth-child(-n + 2) {
+    display: none;
   }
 }
 

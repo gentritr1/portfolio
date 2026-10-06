@@ -120,3 +120,7 @@ Owner approved DIAGNOSIS.md: score straight to the point, seniority, original, h
 ## Home page: kosovo-time (owner, 2026-10-06)
 
 The owner made kosovo-time the home page ("/"). Its client rows link to the case pages (/work/<slug>), which use its light and type. projector is parked as a draft at /drafts/projector. Still to do after the switch: a real-phone test (mid-range Android, iPhone Safari) of the sun intro, the drag and the slow-frame fallback.
+
+## kosovo-time polish (2026-10-06)
+
+Critic 42/50 with three gate fails and devil objections (kosovo-time-critic.md, kosovo-time-devil.md). Polish: label overlap gone in 30 states; images load lazily (colour samples stored in data.ts; phone first load 267 kB, was 939 kB); real fonts on a throttled phone (LCP 3.7 s at 6x CPU, was 10.8 s); a vertical swipe scrolls the page; first screen shows Bayyinah TV web beside a Viva Fresh phone screen; the chosen hour travels to the case pages (sessionStorage "kt-at") and back to "/#work" without the intro; new share image and theme-color; case pages with the same header and readable phone crops. Builder self-score 44/50; gate pass. Still owed: a real-phone test.
