@@ -8,6 +8,9 @@ import { orbitProjects } from './data'
 import type { OrbitScene } from './scene'
 import './orbit.css'
 
+const pct = (value: number) => `${(value * 100).toFixed(2)}%`
+const viewBox = ([x, y, w, h]: readonly number[]) => `inset(${pct(y)} ${pct(1 - x - w)} ${pct(1 - y - h)} ${pct(x)})`
+
 const reading = findProject('read-to-feed')!
 function Arrow() { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="M5 19 19 5M5 5h14v14" /></svg> }
 
@@ -95,7 +98,7 @@ export default function Draft() {
       <header className="draft-orbit-header"><a href="#orbit-index">Gentrit Rashiti</a><nav aria-label="Orbit navigation"><a href="#orbit-index">All work</a><a href="#orbit-about">About</a><a href="#orbit-contact">Contact<Arrow /></a></nav>{!reduced && <button type="button" aria-pressed={paused} onClick={() => setPaused(value => !value)}>{paused ? 'Resume motion' : 'Pause motion'}</button>}</header>
       <p className="draft-orbit-role">Frontend & mobile developer,<br />now full stack.<span>5+ years · Kosovo</span></p>
       <div className="draft-orbit-stage" data-ready={ready}>
-        <div ref={fallbackRef} className="draft-orbit-fallback">{orbitProjects.map((project, index) => <div className="draft-orbit-still" key={project.slug} hidden={index !== active}><img src={project.preview} alt="" aria-hidden="true" /><img src={project.src} alt={project.alt} data-orbit-texture="true" loading="eager" fetchPriority={index === 0 ? 'high' : 'auto'} style={{ opacity: decoded.includes(index) ? 1 : 0 }} onLoad={event => { void event.currentTarget.decode().then(() => setDecoded(previous => previous.includes(index) ? previous : [...previous, index])).catch(() => {}) }} /></div>)}</div>
+        <div ref={fallbackRef} className="draft-orbit-fallback">{orbitProjects.map((project, index) => <div className="draft-orbit-still" key={project.slug} hidden={index !== active}><img src={project.preview} alt="" aria-hidden="true" /><img src={project.src} alt={project.alt} data-orbit-texture="true" loading="eager" fetchPriority={index === 0 ? 'high' : 'auto'} style={{ opacity: decoded.includes(index) ? 1 : 0, objectViewBox: viewBox(project.crop) } as CSSProperties} onLoad={event => { void event.currentTarget.decode().then(() => setDecoded(previous => previous.includes(index) ? previous : [...previous, index])).catch(() => {}) }} /></div>)}</div>
         <div className="draft-orbit-canvas" ref={canvasRef} aria-hidden="true" />
         <div className="draft-orbit-projects" ref={buttonsRef} role="group" aria-label="Choose the work in orbit">{orbitProjects.map((project, index) => <button type="button" className={`draft-orbit-project draft-orbit-project-${index}`} key={project.slug} aria-pressed={active === index} onClick={() => transitionOldDraft(() => setActive(index))} onPointerEnter={() => setHeld(true)} onPointerLeave={() => setHeld(false)} onFocus={() => setFocused(true)} onBlur={() => setFocused(false)}><img src={project.preview} alt="" aria-hidden="true" /><span>{project.name}</span></button>)}</div>
       </div>

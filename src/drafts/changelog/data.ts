@@ -139,7 +139,7 @@ export const releases: Release[] = [
         kind: "Added",
         text: "The frontend of Incentiv, a smart-wallet dashboard: passkey and wallet sign-in, dashboard cards, a balance popup with a QR address, English and French.",
         meta: "2024 · Web3 · Next.js 14, RTK Query",
-        plate: { kind: "web", title: "Incentiv", thumb: "/showcase/incentiv/web-01.webp", images: shots("incentiv", 3) },
+        plate: { kind: "web", title: "Incentiv", thumb: "/showcase/incentiv/web-03.webp", images: shots("incentiv", 3) },
         caseSlug: "incentiv",
         links: linksOf("incentiv", ["Website", "Portal"]),
       },

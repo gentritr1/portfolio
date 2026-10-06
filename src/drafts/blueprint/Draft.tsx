@@ -3,7 +3,7 @@ import { OldDraftMotion } from '../../components/portfolio/OldDraftMotion'
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { projects, featuredProjects, findProject } from '../../content/projects'
 import { links } from '../../content/links'
-import preview from '../../components/case/studio-previews/bayyinah-home.webp?inline'
+import preview from '../../components/case/studio-previews/bayyinah-library.webp?inline'
 import type { BlueprintScene, PartPoints } from './scene'
 import './blueprint.css'
 
@@ -141,7 +141,7 @@ export default function Draft() {
           <div className="draft-blueprint-static" key={replay}>
             <div className="draft-blueprint-static-device">
               <div className="draft-blueprint-base"><span className="draft-blueprint-trackpad" /></div>
-              <div className="draft-blueprint-display"><img src={preview} alt="" aria-hidden="true" /><img ref={imageRef} src="/showcase/bayyinah/web-01.webp" alt="Bayyinah TV’s public home page" loading="eager" fetchPriority="high" style={{ opacity: decoded ? 1 : 0 }} onLoad={event => { void event.currentTarget.decode().then(() => setDecoded(true)).catch(() => {}) }} /></div>
+              <div className="draft-blueprint-display"><img src={preview} alt="" aria-hidden="true" /><img ref={imageRef} src="/showcase/bayyinah/web-02.webp" alt="Bayyinah TV’s public course library" loading="eager" fetchPriority="high" style={{ opacity: decoded ? 1 : 0 }} onLoad={event => { void event.currentTarget.decode().then(() => setDecoded(true)).catch(() => {}) }} /></div>
               <div className="draft-blueprint-glass" />
             </div>
           </div>

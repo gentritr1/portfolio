@@ -13,7 +13,7 @@ function Picture({ frame, interactive }: { frame: Artboard; interactive: boolean
   if (frame.live) return <div className="dc-artboard-live" inert={!interactive} aria-hidden={!interactive}>{frame.live === 'care' ? <CareArtboard /> : <ReadingArtboard />}</div>
   return <div className="dc-picture" style={{ background: frame.background, color: frame.ink ?? '#172114' }}>
     <span aria-hidden="true">{frame.title}</span>
-    <img src={frame.src} alt={frame.alt} draggable={false} loading="lazy" decoding="async" data-loaded={loaded} onLoad={(event) => {
+    <img src={frame.src} alt={frame.alt} draggable={false} loading="lazy" decoding="async" data-loaded={loaded} style={frame.crop && { inset: 'auto', left: `${-frame.crop.x / frame.crop.w * 100}%`, top: `${-frame.crop.y / frame.crop.h * 100}%`, width: `${frame.crop.size[0] / frame.crop.w * 100}%`, height: 'auto', maxWidth: 'none' }} onLoad={(event) => {
       const image = event.currentTarget
       void image.decode().then(() => setLoaded(true)).catch(() => setLoaded(false))
     }} onError={() => setLoaded(false)} />

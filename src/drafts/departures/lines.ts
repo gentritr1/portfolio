@@ -178,10 +178,10 @@ export const lines: Line[] = [
     result: { figure: "0", label: "PASSWORDS", line: "SIGN IN WITH A PASSKEY." },
     note: "Live. Teammates built the wallet.",
     shot: {
-      src: "/showcase/incentiv/web-01.webp",
+      src: "/showcase/incentiv/web-03.webp",
       width: 1440,
       height: 900,
-      alt: "Incentiv home page: Build. Incentivize. Settle. beside a 3D dog in glowing goggles",
+      alt: "Incentiv portal sign-in: Passkey, MetaMask and WalletConnect options beside the dashboard preview",
       caption: "Public page",
     },
     links: linksOf("incentiv"),

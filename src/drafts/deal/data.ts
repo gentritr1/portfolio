@@ -80,8 +80,8 @@ export const art: Record<
     position: "50% 7%",
   },
   incentiv: {
-    src: "/showcase/incentiv/web-01.webp",
-    position: "70% 55%",
+    src: "/showcase/incentiv/web-03.webp",
+    position: "30% 50%",
     zoom: 1.3,
   },
   offbeat: {
@@ -100,7 +100,7 @@ export const art: Record<
     zoom: 1.2,
   },
   offday: {
-    src: "/personal/shots/offday-app-desktop.webp",
+    src: "/personal/shots/offday-light-calendar-desktop.webp",
     position: "40% 30%",
     zoom: 1.5,
   },

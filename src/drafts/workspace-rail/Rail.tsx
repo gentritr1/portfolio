@@ -161,18 +161,22 @@ function PlateView({ plate, mounted, eager }: { plate: Plate; mounted: boolean; 
   }
   return (
     <div className="wr-phones">
-      {plate.shots.map((shot) => (
-        <img
-          key={shot.id}
-          data-shot={shot.id}
-          src={shot.src}
-          alt={shot.alt}
-          width={shot.width}
-          height={shot.height}
-          loading={eager ? 'eager' : 'lazy'}
-          decoding="async"
-        />
-      ))}
+      {plate.shots.map((shot) => {
+        const crop = shot.crop ?? { x: 0, y: 0, w: shot.width, h: shot.height }
+        return (
+          <span key={shot.id} data-shot={shot.id} className="wr-crop" style={{ aspectRatio: `${crop.w} / ${crop.h}`, flexGrow: crop.w / crop.h }}>
+            <img
+              src={shot.src}
+              alt={shot.alt}
+              width={shot.width}
+              height={shot.height}
+              loading={eager ? 'eager' : 'lazy'}
+              decoding="async"
+              style={{ width: `${(shot.width / crop.w) * 100}%`, left: `${(-crop.x / crop.w) * 100}%`, top: `${(-crop.y / crop.h) * 100}%` }}
+            />
+          </span>
+        )
+      })}
     </div>
   )
 }

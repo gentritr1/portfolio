@@ -204,7 +204,7 @@ const entries: Record<string, Entry> = {
     scope: 'Web',
     problem: 'Many teams share one time-off app, and no data may cross teams.',
     result: 'Approvals and a team calendar. About 200 Playwright tests cover security and tenant isolation.',
-    proof: { kind: 'web', src: '/personal/shots/offday-app-desktop.webp', alt: 'Offday team calendar with October leave bars and the approval queue' },
+    proof: { kind: 'web', src: '/personal/shots/offday-light-calendar-desktop.webp', alt: 'Offday team calendar with October leave bars and the approval queue' },
   },
   'geo-guesser': {
     name: 'Geo Guesser World 3D',

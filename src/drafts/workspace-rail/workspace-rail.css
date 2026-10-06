@@ -462,14 +462,27 @@
   padding: 14px;
 }
 
-.wr-phones img {
+.wr-phones {
+  align-items: center;
+}
+
+.wr-crop {
+  position: relative;
   display: block;
-  width: calc((100% - 20px) / 3);
-  height: auto;
+  flex-basis: 0;
+  min-width: 0;
+  overflow: hidden;
   border-radius: 10px;
   outline: 1px solid var(--wr-line);
   outline-offset: -1px;
-  background: var(--wr-ground);
+  background: #ffffff;
+}
+
+.wr-crop img {
+  position: absolute;
+  display: block;
+  max-width: none;
+  height: auto;
 }
 
 .wr-cardtext {
@@ -732,10 +745,6 @@
     box-sizing: border-box;
   }
 
-  .wr-phones img {
-    width: auto;
-    height: 100%;
-  }
 
   .wr-cardtext {
     padding: 0 0 22px;

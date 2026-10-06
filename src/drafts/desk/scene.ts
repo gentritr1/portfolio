@@ -11,11 +11,12 @@ import {
   Transform,
 } from "ogl";
 import { deviceGeometry } from "./geometry";
+import { objects } from "./objects";
 
 const surfaceVertex = `attribute vec3 position;attribute vec3 normal;uniform mat4 modelViewMatrix;uniform mat4 projectionMatrix;uniform mat3 normalMatrix;varying vec3 vNormal;void main(){vNormal=normalize(normalMatrix*normal);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`;
 const screenVertex = `attribute vec3 position;attribute vec2 uv;uniform mat4 modelViewMatrix;uniform mat4 projectionMatrix;varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`;
 const surface = `precision highp float;varying vec3 vNormal;uniform vec3 uColour;void main(){vec3 n=normalize(vNormal);float light=max(dot(n,normalize(vec3(-.6,1.2,1.5))),0.);float edge=pow(max(dot(n,normalize(vec3(1.2,.3,1.))),0.),12.);gl_FragColor=vec4(uColour*(.56+.44*light)+vec3(edge*.09),1.);}`;
-const screen = `precision highp float;varying vec2 vUv;uniform sampler2D uImage;uniform vec2 uCrop;void main(){vec2 p=(vUv-.5)*uCrop+.5;gl_FragColor=vec4(texture2D(uImage,p).rgb,1.);}`;
+const screen = `precision highp float;varying vec2 vUv;uniform sampler2D uImage;uniform vec4 uBox;void main(){vec2 p=uBox.xy+vUv*uBox.zw;gl_FragColor=vec4(texture2D(uImage,p).rgb,1.);}`;
 
 export interface DeskScene {
   select: (index: number) => void;
@@ -226,16 +227,18 @@ export function createDesk(
         magFilter: gl.LINEAR,
       });
       textures.push(texture);
-      const imageAspect = image.naturalWidth / image.naturalHeight,
+      const area = objects[index].screen ?? { x: 0, y: 0, w: 1, h: 1 };
+      const areaAspect =
+          (area.w * image.naturalWidth) / (area.h * image.naturalHeight),
         aspect = width / height;
-      const crop =
-        imageAspect > aspect
-          ? [aspect / imageAspect, 1]
-          : [1, imageAspect / aspect];
+      const w = areaAspect > aspect ? (area.w * aspect) / areaAspect : area.w;
+      const h = areaAspect > aspect ? area.h : (area.h * areaAspect) / aspect;
+      const top = area.y + (area.h - h) / 2;
+      const box = [area.x + (area.w - w) / 2, 1 - top - h, w, h];
       const program = new Program(gl, {
         vertex: screenVertex,
         fragment: screen,
-        uniforms: { uImage: { value: texture }, uCrop: { value: crop } },
+        uniforms: { uImage: { value: texture }, uBox: { value: box } },
       });
       programs.push(program);
       const shape = new Plane(gl, { width, height });

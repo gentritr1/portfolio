@@ -94,34 +94,16 @@ export interface Project {
 const web = (src: string, alt: string, caption: string): ShowcaseItem => ({ src, alt, caption, width: 1440, height: 900 })
 const phone = (src: string, alt: string, caption: string): ShowcaseItem => ({ src, alt, caption, width: 780, height: 1688 })
 const iphoneFrame = (src: string, alt: string, caption: string): ShowcaseItem => ({ src, alt, caption, width: 780, height: 1689 })
-const androidFrame = (src: string, alt: string, caption: string): ShowcaseItem => ({ src, alt, caption, width: 780, height: 1387 })
 
-const careIntakeGallery: Gallery = {
-  title: 'Public intake pages',
+const careScreensGallery: Gallery = {
+  title: 'Real product screens, invented data',
   aspect: 'web',
-  links: [{ label: 'Website', href: 'https://app.goodcannanow.com/goodcannanow/' }],
+  links: [],
   items: [
-    {
-      src: '/showcase/care/book-1.webp',
-      alt: 'Public patient intake page of a care-platform tenant: welcome and consent step with personal information fields',
-      caption: 'Welcome and consent',
-      width: 1440,
-      height: 727,
-    },
-    {
-      src: '/showcase/care/book-2.webp',
-      alt: 'Public patient intake page: address step and the start of the medical intake form',
-      caption: 'Address and medical intake',
-      width: 1440,
-      height: 727,
-    },
-    {
-      src: '/showcase/care/book-3.webp',
-      alt: 'Public patient intake page: review and consent step before submission',
-      caption: 'Review and consent',
-      width: 1440,
-      height: 727,
-    },
+    web('/showcase/care-dashboard/overview.webp', 'Care team dashboard: patients by program and patient engagement by calls and text messages. Invented data.', 'Care team dashboard'),
+    web('/showcase/care-dashboard/rpm-overview-cgm.webp', "Glucose overview for one patient: time in range, average, highest and lowest values, device usage, and one day's glucose curve. Invented data.", 'Glucose overview'),
+    web('/showcase/care-dashboard/claims.webp', 'Claims for one month: counts by status, filters for updated claims and claims that need attention, and each claim with its program, CPT codes and status. Invented data.', 'Claims'),
+    web('/showcase/care-dashboard/appointments-week.webp', 'Care team calendar for one week: calls, video calls and office visits for each patient. Invented data.', 'Care team calendar'),
   ],
 }
 
@@ -224,9 +206,6 @@ const vivaFreshGallery: Gallery = {
     iphoneFrame('/mobile/grocery-1.webp', 'Viva Fresh store screenshot on iPhone: home with product categories and latest products, Albanian interface', 'Home, iPhone'),
     iphoneFrame('/mobile/grocery-2.webp', 'Viva Fresh store screenshot on iPhone: Fresh category with a product grid and the cart total', 'Fresh, iPhone'),
     iphoneFrame('/mobile/grocery-3.webp', 'Viva Fresh store screenshot on iPhone: cart with quantities, discount and checkout button', 'Cart, iPhone'),
-    androidFrame('/mobile/grocery-4.webp', 'Viva Fresh store screenshot on Android: home with product categories and latest products', 'Home, Android'),
-    androidFrame('/mobile/grocery-5.webp', 'Viva Fresh store screenshot on Android: cart with quantities and checkout button', 'Cart, Android'),
-    androidFrame('/mobile/grocery-6.webp', 'Viva Fresh store screenshot on Android: Fresh category with a product grid', 'Fresh, Android'),
   ],
 }
 
@@ -257,8 +236,6 @@ const incentivGallery: Gallery = {
   aspect: 'web',
   links: incentivLinks,
   items: [
-    web('/showcase/incentiv/web-01.webp', 'Incentiv home: "Build. Incentivize. Settle." hero with a Go to Portal button and a mascot in a visor', 'Home'),
-    web('/showcase/incentiv/web-02.webp', 'Incentiv vision page: "A world built for agents" over a crowd of robot mascots', 'Vision'),
     web('/showcase/incentiv/web-03.webp', 'Incentiv Portal sign-in: Passkey, MetaMask and WalletConnect options beside a dashboard preview', 'Portal sign-in (public screen)'),
   ],
 }
@@ -287,7 +264,7 @@ export const projects: Project[] = [
     summary:
       'A care-management platform for remote patient monitoring. Care teams follow vitals from connected devices, care plans, lab results, billing claims, calls and chat, and many client organizations share one multi-tenant system. Its features were built on Vue (Nuxt 2) from 2023. In 2026 the frontend moves to React route by route, with parity tests that compare each screen with the old app, decision records and automated quality gates, on Design System v2. The Laravel API gained enrollment drafts, a lab catalog and multi-tenant security fixes.',
     links: [],
-    media: { thumb: 'dashboard-vitals', galleries: [careIntakeGallery] },
+    media: { thumb: 'dashboard-vitals', galleries: [careScreensGallery] },
     featured: {
       order: 1,
       monitor: 'care',
@@ -741,7 +718,6 @@ export const projects: Project[] = [
             phone('/personal/shots/offday-light-calendar-phone.webp', 'Offday team calendar on a phone, with the request button, team counts and October leave bars', 'Calendar on a phone'),
             phone('/personal/shots/offday-light-best-dates-phone.webp', 'Offday Find the best dates suggestions on a phone, with breaks around public holidays', 'Best dates on a phone'),
             web('/personal/shots/offday-dark-calendar-desktop.webp', 'Offday team calendar in the dark theme, October leave bars and the approval queue', 'Team calendar, dark'),
-            web('/personal/shots/offday-dark-shifts-desktop.webp', 'Offday Shifts week grid in the dark theme, with two shifts flagged Needs cover', 'Shifts, dark'),
           ],
         },
       ],

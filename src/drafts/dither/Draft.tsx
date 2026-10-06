@@ -56,7 +56,7 @@ export default function Draft() {
         <div className="dd-title-block"><h1 id="dd-title"><span>Gentrit</span> <span>Rashiti.</span></h1><div className="dd-intro"><p>Frontend & mobile developer,<br />now full stack.</p><p>Kosovo · Remote<br />{firstYear}—{currentYear}</p><button type="button" aria-pressed={allColour} onClick={() => setAllColour(!allColour)}>{allColour ? 'Restore the dots' : 'Show all in colour'}<Arrow /></button></div></div>
         <div className="dd-plates" role="tablist" aria-label="Selected projects. Arrow keys change the colour preview.">
           {selected.map((item, index) => <button className="dd-plate" type="button" role="tab" id={`dd-tab-${index}`} aria-controls="dd-selection" aria-selected={index === active} tabIndex={index === active ? 0 : -1} key={item.slug} data-selected={index === active} ref={(node) => { tabButtons.current[index] = node }} onClick={() => select(index)} onKeyDown={(event) => moveSelection(event, index)}>
-            <DitherImage src={item.image} alt={item.alt} name={item.short} colour={allColour || (revealed && index === active)} />
+            <DitherImage src={item.image} alt={item.alt} name={item.short} colour={allColour || item.slug === 'bayyinah-tv' || (revealed && index === active)} />
             <span className="dd-plate-label"><strong>{item.short}</strong><span>{item.source}</span></span>
           </button>)}
         </div>

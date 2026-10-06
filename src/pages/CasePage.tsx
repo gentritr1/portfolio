@@ -219,7 +219,7 @@ function LiveStage({ which }: { which: LiveKey }) {
     return () => observer.disconnect();
   }, []);
   return (
-    <div className="cs-stage-box" ref={stage}>
+    <div className={`cs-stage-box cs-stage-box-${which}`} ref={stage}>
       <div className="cs-stage">
         <LivePlate which={which} />
       </div>
@@ -277,7 +277,7 @@ function PartPlate({ part, plate, caption, narrow, first, page }: PlateProps) {
       </Screen>
     ) : (
       <Screen caption={caption} width={`min(100%, ${STAGE_W}px)`}>
-        {near ? <LiveStage which={plate.key} /> : <div className="cs-stage-box" />}
+        {near ? <LiveStage which={plate.key} /> : <div className={`cs-stage-box cs-stage-box-${plate.key}`} />}
       </Screen>
     );
   } else {

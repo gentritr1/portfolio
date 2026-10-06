@@ -328,7 +328,7 @@ export const personal: Claim[] = [
       plate: {
         kind: "web",
         shot: web(
-          "/personal/shots/offday-app-desktop.webp",
+          "/personal/shots/offday-light-calendar-desktop.webp",
           "Offday team calendar in the demo workspace, October leave bars and approval queue",
         ),
       },

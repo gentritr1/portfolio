@@ -1,8 +1,8 @@
 // First-paint copies of the paired public/recreation assets: 160px wide, WebP quality 45.
 // Keep these inline; fetching another placeholder would reintroduce an empty device.
 import carePreview from './studio-previews/healthcare.webp?inline'
-import bayyinahHomePreview from './studio-previews/bayyinah-home.webp?inline'
 import bayyinahLibraryPreview from './studio-previews/bayyinah-library.webp?inline'
+import bayyinahPricingPreview from './studio-previews/bayyinah-pricing.webp?inline'
 import readingBooksPreview from './studio-previews/reading-books.webp?inline'
 import readingAchievementsPreview from './studio-previews/reading-achievements.webp?inline'
 import readingReaderPreview from './studio-previews/reading-reader.webp?inline'
@@ -10,7 +10,6 @@ import groceryCategoriesPreview from './studio-previews/grocery-categories.webp?
 import groceryProductsPreview from './studio-previews/grocery-products.webp?inline'
 import groceryCartPreview from './studio-previews/grocery-cart.webp?inline'
 import incentivPortalPreview from './studio-previews/incentiv-portal.webp?inline'
-import incentivHomePreview from './studio-previews/incentiv-home.webp?inline'
 import bookstoreHomePreview from './studio-previews/bookstore-home.webp?inline'
 import bookstoreBooksPreview from './studio-previews/bookstore-books.webp?inline'
 import bookstoreFavouritesPreview from './studio-previews/bookstore-favourites.webp?inline'
@@ -42,8 +41,8 @@ export const studioShots: Record<string, StudioComposition> = {
   'bayyinah-tv': {
     title: 'Bayyinah TV', colour: '#a84430', device: 'display', platform: 'Web · iOS · Android',
     shots: [
-      { src: '/showcase/bayyinah/web-01.webp', preview: bayyinahHomePreview, alt: 'Bayyinah TV public home page' },
       { src: '/showcase/bayyinah/web-02.webp', preview: bayyinahLibraryPreview, alt: 'Bayyinah TV public learning library' },
+      { src: '/showcase/bayyinah/web-06.webp', preview: bayyinahPricingPreview, alt: 'Bayyinah TV public pricing page with the Premium plan' },
     ],
   },
   'read-to-feed': {
@@ -81,7 +80,6 @@ export const studioShots: Record<string, StudioComposition> = {
     title: 'Incentiv', colour: '#ad6036', device: 'display', platform: 'Web application',
     shots: [
       { src: '/showcase/incentiv/web-03.webp', preview: incentivPortalPreview, alt: 'The public Incentiv portal sign-in page, with no wallet connected' },
-      { src: '/showcase/incentiv/web-01.webp', preview: incentivHomePreview, alt: 'The public Incentiv website' },
     ],
   },
 }

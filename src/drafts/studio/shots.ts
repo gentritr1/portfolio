@@ -2,13 +2,13 @@ import booksPreview from '../../components/case/studio-previews/reading-books.we
 import readerPreview from '../../components/case/studio-previews/reading-reader.webp?inline'
 import achievementsPreview from '../../components/case/studio-previews/reading-achievements.webp?inline'
 
-/** Crops remove the promotional heading from the public store frames. */
-export const screenCrop = [0.11, 0.295, 0.78, 0.705] as const
+/** Each crop keeps the screen inside the store frame's glass, below its rounded corners, as fractions of the image. */
+const crop = (x: number, y: number, w: number, h: number) => [x / 780, y / 1689, w / 780, h / 1689] as const
 
 export const shots = [
-  { src: '/mobile/reading-1.webp', preview: booksPreview, alt: 'Read to Feed’s My Books screen, from its public store listing' },
-  { src: '/mobile/reading-3.webp', preview: readerPreview, alt: 'Read to Feed’s book reader, from its public store listing' },
-  { src: '/mobile/reading-2.webp', preview: achievementsPreview, alt: 'Read to Feed’s reading achievements, from its public store listing' },
+  { src: '/mobile/reading-1.webp', preview: booksPreview, crop: crop(107, 497, 566, 1192), alt: 'Read to Feed’s My Books screen, from its public store listing' },
+  { src: '/mobile/reading-3.webp', preview: readerPreview, crop: crop(99, 464, 582, 1225), alt: 'Read to Feed’s book reader, from its public store listing' },
+  { src: '/mobile/reading-2.webp', preview: achievementsPreview, crop: crop(121, 556, 538, 1133), alt: 'Read to Feed’s reading achievements, from its public store listing' },
 ] as const
 
 export const chapters = [

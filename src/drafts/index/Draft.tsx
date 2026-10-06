@@ -16,6 +16,14 @@ const selected = selectedSlugs.map((slug) =>
 );
 const featured = projects.find((p) => p.slug === "read-to-feed")!;
 
+/** The screen inside each 780 px store frame, below the glass corners. */
+const screens: Record<string, { x: number; y: number; w: number; h: number }> = {
+  "/mobile/reading-1.webp": { x: 91, y: 540, w: 598, h: 1149 },
+  "/mobile/reading-3.webp": { x: 91, y: 452, w: 598, h: 1237 },
+  "/mobile/grocery-1.webp": { x: 100, y: 360, w: 580, h: 1180 },
+  "/mobile/grocery-2.webp": { x: 100, y: 360, w: 580, h: 1180 },
+};
+
 function LiquidName({ name, source }: { name: string; source: string }) {
   const text = useRef<HTMLSpanElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
@@ -165,14 +173,30 @@ export default function Draft() {
                 preview.current?.style.setProperty("--ry", "0deg");
               }}
             >
-              {art.images.map((src, i) => (
-                <img
-                  key={src}
-                  src={src}
-                  alt={`${current.name}: ${art.caption}, frame ${i + 1}`}
-                  decoding="async"
-                />
-              ))}
+              {art.images.map((src, i) => {
+                const alt = `${current.name}: ${art.caption}, frame ${i + 1}`;
+                const crop = screens[src];
+                if (!crop)
+                  return <img key={src} src={src} alt={alt} decoding="async" />;
+                return (
+                  <span
+                    key={src}
+                    className="di-crop"
+                    style={{ aspectRatio: `${crop.w} / ${crop.h}` }}
+                  >
+                    <img
+                      src={src}
+                      alt={alt}
+                      decoding="async"
+                      style={{
+                        width: `${(780 / crop.w) * 100}%`,
+                        left: `${(-crop.x / crop.w) * 100}%`,
+                        top: `${(-crop.y / crop.h) * 100}%`,
+                      }}
+                    />
+                  </span>
+                );
+              })}
             </div>
             <div className="di-preview-caption">
               <span>

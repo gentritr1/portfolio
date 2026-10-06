@@ -20,7 +20,7 @@ function Arrow({ direction = 'right' }: { direction?: 'left' | 'right' | 'up' | 
 
 function ProjectPicture({ project }: { project: Project }) {
   const gallery = project.media.galleries?.[0]
-  const image = gallery?.items[0] ?? project.media.shot
+  const image = gallery?.items.find(item => item.src !== '/showcase/bayyinah/web-01.webp') ?? project.media.shot
   if (gallery?.aspect === 'phone') return <div className="primetime-phone-show">{gallery.items.slice(0, 3).map(item => <img key={item.src} src={item.src} alt={item.alt} />)}</div>
   if (image) return <img className="primetime-public-screen" src={image.src} alt={image.alt} />
   return <div className="primetime-type-show"><strong>{project.name}</strong><p>{project.summary}</p><span>{project.stack.slice(0, 4).join(' / ')}</span></div>

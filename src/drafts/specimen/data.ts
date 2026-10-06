@@ -108,6 +108,8 @@ export interface Frame {
   alt: string
   width: number
   height: number
+  /** The screen inside a store frame, in source pixels. */
+  crop?: { x: number; y: number; w: number; h: number }
 }
 
 export type Canvas =
@@ -139,6 +141,9 @@ const project = (slug: string): Project => {
 
 const frames = (slug: string, gallery = 0, from = 0, to?: number): Frame[] =>
   (project(slug).media.galleries?.[gallery]?.items ?? []).slice(from, to).map(({ src, alt, width, height }) => ({ src, alt, width, height }))
+
+/** One phone screen from a store frame, cut inside the glass. */
+const screen = (slug: string, index: number, crop: Frame['crop']): Frame[] => frames(slug, 0, index, index + 1).map((f) => ({ ...f, crop }))
 
 const span = (years: string | null) => (years ?? '').replace('–', '-')
 
@@ -201,7 +206,7 @@ export const examples: Example[] = [
     canvas: { kind: 'web', frames: frames('bayyinah-tv', 0, 4, 5) },
     more: {
       text: 'Stripe, Apple and Google subscriptions, gifting and promo codes. The interface runs in English and Arabic with a complete right-to-left layout, and the same web app runs inside the native apps.',
-      canvas: { kind: 'phone', frames: frames('bayyinah-tv', 1, 0, 4) },
+      canvas: { kind: 'phone', frames: frames('bayyinah-tv', 1, 0, 1) },
       links: bay.links,
     },
     label: publicLabel,
@@ -213,10 +218,10 @@ export const examples: Example[] = [
     problem: 'A children’s reading app had to keep shipping through React Native upgrades.',
     built: 'A PDF and EPUB reader, ISBN barcode scanning, badges and streaks, and maintained reader forks.',
     result: 'About 14 releases to both stores, from React Native 0.63 to 0.81.',
-    canvas: { kind: 'phone', frames: frames('read-to-feed', 0, 0, 3) },
+    canvas: { kind: 'phone', frames: screen('read-to-feed', 0, { x: 91, y: 646, w: 598, h: 648 }) },
     more: {
       text: 'Three major React Native upgrades over four years, push notifications with deep links, a notification center and three languages. The forks of epubjs-react-native and react-native-pdf are public on GitHub. The listings are removed, so the links open archived copies.',
-      canvas: { kind: 'phone', frames: frames('read-to-feed', 0, 0, 4) },
+      canvas: { kind: 'phone', frames: screen('read-to-feed', 1, { x: 91, y: 600, w: 598, h: 740 }) },
       links: rtf.links,
     },
     label: storeLabel,
@@ -228,10 +233,10 @@ export const examples: Example[] = [
     problem: 'Shoppers needed to order groceries for delivery from their phone.',
     built: 'Delivery slots, loyalty, a wishlist and address search on a map, in React Native.',
     result: 'Live in the App Store and on Google Play from one codebase.',
-    canvas: { kind: 'phone', frames: frames('viva-fresh', 0, 0, 3) },
+    canvas: { kind: 'phone', frames: screen('viva-fresh', 0, { x: 100, y: 476, w: 580, h: 766 }) },
     more: {
       text: 'The cart keeps quantities, discounts and the running total in view. The interface is in Albanian, and the store listings show the same app on iPhone and on Android.',
-      canvas: { kind: 'phone', frames: frames('viva-fresh', 0, 0, 6) },
+      canvas: { kind: 'phone', frames: screen('viva-fresh', 2, { x: 100, y: 656, w: 580, h: 818 }) },
       links: viva.links,
     },
     label: storeLabel,
@@ -243,7 +248,7 @@ export const examples: Example[] = [
     problem: 'A book publisher needed a shopping app on iOS and Android.',
     built: 'Search, favourites and promo-code checkout. A push notification opens the right book.',
     result: 'Live in both stores from one React Native codebase.',
-    canvas: { kind: 'phone', frames: frames('dukagjini-bookstore', 0, 0, 3) },
+    canvas: { kind: 'phone', frames: screen('dukagjini-bookstore', 1, { x: 117, y: 740, w: 546, h: 730 }) },
     more: {
       text: 'The book-detail header animates as the page scrolls, and modals close with a swipe. Firebase Messaging carries push notifications, and deep links bring readers back to a book.',
       links: duka.links,

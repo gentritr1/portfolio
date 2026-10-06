@@ -1,12 +1,18 @@
 import { OldCareFile } from '../../components/portfolio/OldCareFile'
 import { OldDraftMotion } from '../../components/portfolio/OldDraftMotion'
 import { transitionOldDraft } from '../../components/portfolio/oldDraftTransition'
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
 import { currentYear, projects } from "../../content/projects";
 import { links } from "../../content/links";
-import { objects } from "./objects";
+import { objects, type Screen } from "./objects";
 import type { DeskScene } from "./scene";
 import "./desk.css";
+
+const pct = (value: number) => `${(value * 100).toFixed(2)}%`;
+const screenStyle = (screen?: Screen) =>
+  screen
+    ? ({ objectViewBox: `inset(${pct(screen.y)} ${pct(1 - screen.x - screen.w)} ${pct(1 - screen.y - screen.h)} ${pct(screen.x)})` } as CSSProperties)
+    : undefined;
 
 function Arrow() {
   return (
@@ -147,6 +153,7 @@ export default function Draft() {
                     decoding="async"
                     loading="eager"
                     fetchPriority={index === 0 ? "high" : "auto"}
+                    style={screenStyle(item.screen)}
                   />
                   <span className="dk-object-base" aria-hidden="true" />
                 </button>

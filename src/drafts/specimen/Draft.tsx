@@ -190,9 +190,23 @@ function Stage({ canvas, wide, label }: { canvas: Canvas; wide: boolean; label: 
   }
   return (
     <div className="sp-phones" data-count={canvas.frames.length}>
-      {canvas.frames.map((f) => (
-        <img key={f.src} src={f.src} alt={f.alt} width={f.width} height={f.height} loading="lazy" decoding="async" />
-      ))}
+      {canvas.frames.map((f) =>
+        f.crop ? (
+          <div key={f.src} className="sp-crop" style={{ aspectRatio: `${f.crop.w} / ${f.crop.h}`, width: `min(100%, ${f.crop.w / 2}px)` }}>
+            <img
+              src={f.src}
+              alt={f.alt}
+              width={f.width}
+              height={f.height}
+              loading="lazy"
+              decoding="async"
+              style={{ width: `${(f.width / f.crop.w) * 100}%`, left: `${(-f.crop.x / f.crop.w) * 100}%`, top: `${(-f.crop.y / f.crop.h) * 100}%` }}
+            />
+          </div>
+        ) : (
+          <img key={f.src} src={f.src} alt={f.alt} width={f.width} height={f.height} loading="lazy" decoding="async" />
+        ),
+      )}
     </div>
   )
 }

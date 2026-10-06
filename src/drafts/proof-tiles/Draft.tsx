@@ -453,9 +453,10 @@ const wipe: KeyframeAnimationOptions = {
 function Lead({ reduced }: { reduced: boolean }) {
   const [shown, setShown] = useState(0);
   // The layer on top, and the layer under it while a wipe runs.
-  const [layers, setLayers] = useState<{ top: number; under: number | null }>(
-    { top: 0, under: null },
-  );
+  const [layers, setLayers] = useState<{ top: number; under: number | null }>({
+    top: 0,
+    under: null,
+  });
   const boxRef = useRef<HTMLDivElement>(null);
   const layerRefs = useRef<(HTMLDivElement | null)[]>([]);
   const lineRef = useRef<HTMLSpanElement>(null);
@@ -468,7 +469,9 @@ function Lead({ reduced }: { reduced: boolean }) {
     const done = running.current;
     running.current = [];
     setLayers({ top, under: null });
-    requestAnimationFrame(() => done.forEach((animation) => animation.cancel()));
+    requestAnimationFrame(() =>
+      done.forEach((animation) => animation.cancel()),
+    );
   };
 
   const choose = (next: number) => {
@@ -525,33 +528,35 @@ function Lead({ reduced }: { reduced: boolean }) {
         </p>
         <h2 className="pt-lead-caption">
           One grocery app, built once for{" "}
-          <span className="pt-switch-pair">
-            {platforms.map((platform, i) => (
-              <span key={platform.id}>
-                {i > 0 && " and "}
-                <button
-                  type="button"
-                  className="pt-switch"
-                  aria-pressed={i === shown}
-                  aria-controls="pt-lead-screen"
-                  onClick={() => choose(i)}
-                >
-                  {platform.label}
-                </button>
-              </span>
-            ))}
-            .
-          </span>
+          {platforms.length < 2 ? (
+            "iPhone and Android."
+          ) : (
+            <span className="pt-switch-pair">
+              {platforms.map((platform, i) => (
+                <span key={platform.id}>
+                  {i > 0 && " and "}
+                  <button
+                    type="button"
+                    className="pt-switch"
+                    aria-pressed={i === shown}
+                    aria-controls="pt-lead-screen"
+                    onClick={() => choose(i)}
+                  >
+                    {platform.label}
+                  </button>
+                </span>
+              ))}
+              .
+            </span>
+          )}
         </h2>
       </div>
       <div className="pt-lead-more">
-        <p className="pt-lead-scope">
-          {lead.scope} Live in both app stores.
-        </p>
+        <p className="pt-lead-scope">{lead.scope} Live in both app stores.</p>
         <p className="pt-lead-links">
-          {platforms.map((platform) => (
+          {lead.stores.map((platform) => (
             <a
-              key={platform.id}
+              key={platform.store}
               href={platform.href}
               target="_blank"
               rel="noreferrer"
@@ -760,8 +765,7 @@ export default function Draft() {
               <div className="pt-lead">
                 <div className="pt-intro">
                   <h1 id="pt-name" className="pt-name">
-                    <strong>Gentrit Rashiti</strong> builds web and mobile
-                    apps.{" "}
+                    <strong>Gentrit Rashiti</strong> builds web and mobile apps.{" "}
                     <span className="pt-name-2">
                       Each result here is shown with its proof.
                     </span>
@@ -795,24 +799,24 @@ export default function Draft() {
                 <h2 id="pt-more-title">More client work</h2>
                 <p>
                   A care platform shared by many client organizations, its
-                  design system and a bookshop app. The two care-platform cards are
-                  recreations with invented data.
+                  design system and a bookshop app. The two care-platform cards
+                  are recreations with invented data.
                 </p>
               </div>
-            <ol className="pt-grid" {...listProps}>
-              {renderTiles(
-                work.filter((tile) => !side.includes(tile.id)),
-                0,
-              )}
-            </ol>
+              <ol className="pt-grid" {...listProps}>
+                {renderTiles(
+                  work.filter((tile) => !side.includes(tile.id)),
+                  0,
+                )}
+              </ol>
             </section>
 
             <section className="pt-own" aria-labelledby="pt-own-title">
               <div className="pt-section-head">
                 <h2 id="pt-own-title">Own projects</h2>
                 <p>
-                  Made outside client work. Offday is a working time-off app
-                  for teams, covered by about 200 automated tests; its code is
+                  Made outside client work. Offday is a working time-off app for
+                  teams, covered by about 200 automated tests; its code is
                   private. OFFBEAT and FORM are concepts: the brands are made
                   up, the code is on GitHub.
                 </p>

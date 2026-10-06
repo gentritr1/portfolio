@@ -314,6 +314,8 @@
   background: rgb(242 237 228 / 0.06);
 }
 .lo-shot[data-kind="phone"] { border-radius: 14px; }
+.lo-crop { position: relative; overflow: hidden; width: min(100%, 400px); border-radius: 14px; background: #ffffff; }
+.lo-crop img { position: absolute; display: block; max-width: none; height: auto; }
 
 /* ---------- Own work ---------- */
 
@@ -388,6 +390,7 @@
   .lo-shots { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .lo-shot { width: 100%; height: auto; }
   .lo-shot[data-kind="web"] { grid-column: 1 / -1; }
+  .lo-crop { grid-column: 1 / -1; width: 100%; }
   .lo-shot[data-kind="phone"]:nth-child(3) { display: none; }
   .lo-drums { margin-top: 72px; }
   .lo-own-list { grid-template-columns: 1fr; gap: 32px; margin-top: 72px; }

@@ -28,7 +28,7 @@
 .draft-zine .zn-cover-copy > p:nth-child(2) { margin-top: 12px; font-size: 15px; }
 .draft-zine .zn-cover-copy > a { display: inline-flex; align-items: center; gap: 22px; min-height: 44px; margin-top: 18px; font-size: 16px; font-weight: 600; }
 .draft-zine .zn-cover-collage { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
-.draft-zine .zn-cover-main { position: absolute; top: 44px; right: 3vw; width: min(29vw, 410px); height: min(66vw, 800px); transform: rotate(9deg); }
+.draft-zine .zn-cover-main { position: absolute; top: 44px; right: 7vw; width: min(29vw, 410px); height: min(66vw, 800px); transform: rotate(9deg); }
 .draft-zine .zn-cover-main figcaption { position: absolute; top: 100%; left: 0; padding-top: 8px; font-size: 13px; white-space: nowrap; }
 .draft-zine .zn-cover-crop { position: absolute; top: 360px; right: 25vw; width: min(23vw, 340px); height: 450px; transform: rotate(-13deg); }
 .draft-zine .zn-cover-crop .zn-image img { object-position: 50% 28%; }

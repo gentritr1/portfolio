@@ -42,7 +42,7 @@ export const leadWeb = {
   shot: {
     ...web(
       "/showcase/bayyinah/web-02.webp",
-      "Bayyinah TV library, Subject row: course cards From Jerusalem to Makkah, Ramadan LIVE 2026 and The Quran and the Global Economy",
+      "Bayyinah TV library, Subject row: course cards Remarkable Stories, From Jerusalem to Makkah and Ramadan LIVE 2026",
     ),
     crop: { x: 95, y: 505, w: 910, h: 390 },
     narrowCrop: { x: 100, y: 515, w: 310, h: 375 },
@@ -57,7 +57,7 @@ export const leadPhone = {
       "/mobile/grocery-1.webp",
       "Viva Fresh home screen in Albanian: product categories, the latest products with prices and quantity buttons",
     ),
-    crop: { x: 92, y: 378, w: 596, h: 788 },
+    crop: { x: 100, y: 476, w: 580, h: 766 },
   } satisfies Shot,
   name: "Viva Fresh",
   note: "Phone app",
@@ -101,10 +101,11 @@ export const client: Row[] = [
     ],
     plate: {
       ...web(
-        "/showcase/bayyinah/web-05.webp",
-        "Bayyinah TV series page: episode list in a side column, series summary and video cards",
+        "/showcase/bayyinah/web-06.webp",
+        "Bayyinah TV pricing: the Premium plan with its monthly price, a tick for each feature, and its Start 7-Day Free Trial button",
       ),
-      narrowCrop: { x: 92, y: 455, w: 583, h: 375 },
+      crop: { x: 508, y: 104, w: 904, h: 624 },
+      narrowCrop: { x: 964, y: 104, w: 436, h: 196 },
     },
   },
   {
@@ -186,7 +187,8 @@ export const client: Row[] = [
       src: "/showcase/design-system/specimen-light.webp",
       width: 1920,
       height: 1200,
-      alt: "Component specimen for an invented project-tracker kit: tokens, alerts, select, inputs, steps, buttons, tabs and switches",
+      alt: "Component specimen for an invented project-tracker kit: alerts in five tones on a wide screen, buttons on a phone",
+      crop: { x: 1114, y: 68, w: 794, h: 436 },
       narrowCrop: { x: 29, y: 845, w: 470, h: 345 },
     },
   },
@@ -300,11 +302,11 @@ export const screenColours: Record<string, string> = {
   "/showcase/care-dashboard/overview.webp":
     "f0f2f6f5f7fbf5f7fbf5f7fbefeff1fafbfcf3f4f5fbfbfcecf0f0f9f9f9ececf1f6f6f7f0f1f7f8f8f8f3f2f2f9f9f9",
   "/showcase/bayyinah/web-02.webp":
-    "21282e2f22233228284739330635455d49456a554b997759161a1d5f4c4c725a547061511d191b262023272122262020",
+    "3d3332212025261f243f312d7260582c485736373a856a62896b6f2d2a2a3c363894726f242022221e20262123262224",
   "/mobile/grocery-1.webp":
-    "d8beb9d2bdb3cac3c4d4b6b2dededde5e3e2e8e7e8e4dddcf0ebe4ebe4d8efe3def2eae8ebe3dfede7e1ede4e2f2eeec",
-  "/showcase/bayyinah/web-05.webp":
-    "2b20222c2225251d20311c1d322c2f373033322b2e2821242925292e31372a323a2a2c312821252c26282b272b2a2426",
+    "c9c9c3cbb8aac1c6cbc8c3bce8e6e6ebe8e8f2f1f0eee9eae8e0d4ede7dff0e5e2ecded9f0ececf6f5f3f0ececf5f4f3",
+  "/showcase/bayyinah/web-06.webp":
+    "2314151d141818131518131421191d1e1519100b0d100b0d2a212522191d100b0d100b0d251b1f1f151926100f25100f",
   "/mobile/reading-1.webp":
     "e0ebedd3e2e7cbdee7d8e7ee9bb6af76a2a72e84ac4591b475bbdd5fb1d85db0d973badcabd5e79fcfe59fd0e5aed7e8",
   "/mobile/grocery-2.webp":
@@ -312,9 +314,9 @@ export const screenColours: Record<string, string> = {
   "/mobile/bookstore-1.webp":
     "f8efe9eddfdaede0daf8eee8f7e6dcdcc6b7dcc6b7f7e6dcf5f5f4ebebebecebebf3e8e8f1f1f1efefefedededf4f4f4",
   "/showcase/design-system/specimen-light.webp":
-    "e5eaf0f1f3f6f0f2f3f1f4f5e5e9ebf3f4f5f2f0f0f4f4f2f2f3f6f2f3f6f7f4f7f4f4f7d8e2f2f2f3f6faf9fbf3f3f5",
+    "f1f1f3f7f7faf7f7faf6f6f9e4eceee5edefedf6f8f0f7f9e5e8e0ebede5f7f8eff7f9f1f3ebebf6efeefcf4f3fcf5f4",
   "/showcase/incentiv/web-03.webp":
-    "2424231c1d1b1b1b191d1d1b3c3d3a2728251d1d1a1b1c1a2c2a262829271919191c1c1b1d1c1b1c1b1a1312111c1815",
+    "1c1c1a1c1c1b1b1b1a1d1d1b4444412d2c2a20201e20201e302c292b2a272121201c1d1c1b1b1a1b1b1a1b18151e1a17",
   "/personal/shots/offbeat-home-desktop.webp":
     "14141210100e17140f23201e454643323230412d263a26202e2e2c0f0f0d1f16111d16121d1d142f2a1412110c10100d",
   "/personal/shots/form-home-desktop.webp":

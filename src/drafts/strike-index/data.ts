@@ -95,7 +95,7 @@ export const rows: Row[] = [
     note: "A multi-tenant time-off app: requests, approvals and a team calendar. Playwright covers security and tenant isolation.",
     proof: {
       kind: "shot",
-      src: "/personal/shots/offday-app-desktop.webp",
+      src: "/personal/shots/offday-light-calendar-desktop.webp",
       alt: "Offday team calendar with leave bars and the approval queue",
       note: "Personal project, own capture",
     },

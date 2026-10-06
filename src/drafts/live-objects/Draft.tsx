@@ -411,6 +411,8 @@ interface Shot {
   width: number;
   height: number;
   alt: string;
+  /** The screen inside a store frame, in source pixels. */
+  crop?: { x: number; y: number; w: number; h: number };
 }
 
 interface ClientRow {
@@ -464,18 +466,13 @@ const client: ClientRow[] = [
     role: "Mobile. About 14 updates in both app stores.",
     href: "/work/read-to-feed",
     shots: [
-      phone(
-        "/mobile/reading-1.webp",
-        "Read to Feed store screenshot: My Books list with reading progress",
-      ),
-      phone(
-        "/mobile/reading-3.webp",
-        "Read to Feed store screenshot: chapter reader with a Keep Reading sheet and the mascot",
-      ),
-      phone(
-        "/mobile/reading-2.webp",
-        "Read to Feed store screenshot: achievements screen with eggs collected and quiz badges",
-      ),
+      {
+        ...phone(
+          "/mobile/reading-1.webp",
+          "Read to Feed store screenshot: My Books list with reading progress",
+        ),
+        crop: { x: 91, y: 646, w: 598, h: 648 },
+      },
     ],
   },
   {
@@ -485,18 +482,13 @@ const client: ClientRow[] = [
     role: "Mobile. Live in both app stores.",
     href: "/work/viva-fresh",
     shots: [
-      phone(
-        "/mobile/grocery-1.webp",
-        "Viva Fresh on iPhone: home with product categories and latest products, Albanian interface",
-      ),
-      phone(
-        "/mobile/grocery-2.webp",
-        "Viva Fresh on iPhone: Fresh category with a product grid and the cart total",
-      ),
-      phone(
-        "/mobile/grocery-3.webp",
-        "Viva Fresh on iPhone: cart with quantities, discount and checkout button",
-      ),
+      {
+        ...phone(
+          "/mobile/grocery-1.webp",
+          "Viva Fresh on iPhone: home with product categories and latest products, Albanian interface",
+        ),
+        crop: { x: 100, y: 476, w: 580, h: 766 },
+      },
     ],
   },
   {
@@ -506,18 +498,13 @@ const client: ClientRow[] = [
     role: "Mobile. Live in both app stores.",
     href: "/work/dukagjini-bookstore",
     shots: [
-      phone(
-        "/mobile/bookstore-1.webp",
-        "Dukagjini Bookstore: home with book search, top categories and books on sale",
-      ),
-      phone(
-        "/mobile/bookstore-2.webp",
-        "Dukagjini Bookstore: foreign books list with ratings, prices and favourites",
-      ),
-      phone(
-        "/mobile/bookstore-3.webp",
-        "Dukagjini Bookstore: sheet with favourite lists and book categories",
-      ),
+      {
+        ...phone(
+          "/mobile/bookstore-2.webp",
+          "Dukagjini Bookstore: foreign books list with ratings, prices and favourites",
+        ),
+        crop: { x: 117, y: 740, w: 546, h: 730 },
+      },
     ],
   },
   {
@@ -566,19 +553,41 @@ function ClientWork() {
             </div>
             {r.shots && (
               <div className="lo-shots">
-                {r.shots.map((shot) => (
-                  <img
-                    key={shot.src}
-                    className="lo-shot"
-                    data-kind={shot.width > shot.height ? "web" : "phone"}
-                    src={shot.src}
-                    width={shot.width}
-                    height={shot.height}
-                    alt={shot.alt}
-                    loading="lazy"
-                    decoding="async"
-                  />
-                ))}
+                {r.shots.map((shot) =>
+                  shot.crop ? (
+                    <div
+                      key={shot.src}
+                      className="lo-crop"
+                      style={{ aspectRatio: `${shot.crop.w} / ${shot.crop.h}` }}
+                    >
+                      <img
+                        src={shot.src}
+                        width={shot.width}
+                        height={shot.height}
+                        alt={shot.alt}
+                        loading="lazy"
+                        decoding="async"
+                        style={{
+                          width: `${(shot.width / shot.crop.w) * 100}%`,
+                          left: `${(-shot.crop.x / shot.crop.w) * 100}%`,
+                          top: `${(-shot.crop.y / shot.crop.h) * 100}%`,
+                        }}
+                      />
+                    </div>
+                  ) : (
+                    <img
+                      key={shot.src}
+                      className="lo-shot"
+                      data-kind={shot.width > shot.height ? "web" : "phone"}
+                      src={shot.src}
+                      width={shot.width}
+                      height={shot.height}
+                      alt={shot.alt}
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  ),
+                )}
               </div>
             )}
           </li>

@@ -1,5 +1,5 @@
 import { Camera, Geometry, Mesh, Plane, Program, Renderer, Texture, Transform, type OGLRenderingContext } from 'ogl'
-import { screenCrop } from './shots'
+import { shots } from './shots'
 
 const surfaceVertex = `
 attribute vec3 position;
@@ -204,7 +204,7 @@ export function createScene(host: HTMLElement, images: HTMLImageElement[], openi
     geometries.push(geometry, screen)
     const metal = new Program(gl, { vertex: surfaceVertex, fragment: surfaceFragment })
     programs.push(metal)
-    const devices = images.map(image => {
+    const devices = images.map((image, index) => {
       const device = new Transform()
       device.setParent(assembly)
       new Mesh(gl, { geometry, program: metal }).setParent(device)
@@ -213,7 +213,7 @@ export function createScene(host: HTMLElement, images: HTMLImageElement[], openi
       const program = new Program(gl, {
         vertex: screenVertex, fragment: screenFragment,
         uniforms: {
-          uScreen: { value: texture }, uCrop: { value: [...screenCrop] },
+          uScreen: { value: texture }, uCrop: { value: [...shots[index].crop] },
           uSize: { value: [width - inset * 2, height - inset * 2] }, uRadius: { value: .115 },
         },
       })

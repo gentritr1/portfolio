@@ -13,6 +13,8 @@ export interface Shot {
   alt: string
   width: number
   height: number
+  /** The screen inside a store frame, in source pixels. */
+  crop?: { x: number; y: number; w: number; h: number }
 }
 
 export type Plate =
@@ -55,7 +57,7 @@ export interface Workspace {
   also: string[]
 }
 
-const phone = (id: string, src: string, alt: string): Shot => ({ id, src, alt, width: 780, height: 1689 })
+const phone = (id: string, src: string, alt: string, crop?: Shot['crop']): Shot => ({ id, src, alt, width: 780, height: 1689, crop })
 const web = (id: string, src: string, alt: string): Shot => ({ id, src, alt, width: 1440, height: 900 })
 
 export const workspaces: Workspace[] = [
@@ -126,9 +128,9 @@ export const workspaces: Workspace[] = [
         plate: {
           kind: 'phones',
           shots: [
-            phone('read', '/mobile/reading-1.webp', 'Read to Feed store screenshot: My Books with reading progress'),
-            phone('viva', '/mobile/grocery-1.webp', 'Viva Fresh store screenshot: home with product categories, Albanian interface'),
-            phone('duka', '/mobile/bookstore-1.webp', 'Dukagjini Bookstore store screenshot: home with book search, categories and books on sale'),
+            phone('read', '/mobile/reading-1.webp', 'Read to Feed store screenshot: My Books with reading progress', { x: 91, y: 646, w: 598, h: 648 }),
+            phone('viva', '/mobile/grocery-1.webp', 'Viva Fresh store screenshot: home with product categories, Albanian interface', { x: 100, y: 476, w: 580, h: 766 }),
+            phone('duka', '/mobile/bookstore-1.webp', 'Dukagjini Bookstore store screenshot: book search and top categories', { x: 117, y: 740, w: 546, h: 700 }),
           ],
         },
         rows: [
@@ -304,7 +306,7 @@ export const workspaces: Workspace[] = [
         meta: 'Owner: design, code and release · 2026',
         plate: {
           kind: 'shot',
-          shot: web('off', '/personal/shots/offday-app-desktop.webp', 'Offday team calendar with October leave bars and the approval queue'),
+          shot: web('off', '/personal/shots/offday-light-calendar-desktop.webp', 'Offday team calendar with October leave bars and the approval queue'),
         },
         rows: [
           {

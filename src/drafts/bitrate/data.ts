@@ -47,6 +47,9 @@ export interface ReelFrame {
   src: string;
   caption: string;
 }
+/** Landing-page heroes that show the product on stock devices: marketing art, not a screen of the product. */
+const DEVICE_MONTAGES = new Set(["/showcase/bayyinah/web-01.webp"]);
+
 export function reelFrames(project: Project): ReelFrame[] {
   // Care material is the repository's labelled, invented-data recreation only.
   if (project.channel === "healthcare")
@@ -65,7 +68,7 @@ export function reelFrames(project: Project): ReelFrame[] {
     ];
   const gallery = project.media.galleries?.[0];
   if (gallery)
-    return gallery.items.slice(0, 4).map((image) => ({
+    return gallery.items.filter((image) => !DEVICE_MONTAGES.has(image.src)).slice(0, 4).map((image) => ({
       src: image.src,
       caption: `${image.caption} · public ${gallery.aspect === "phone" ? "store image" : "website"}`,
     }));

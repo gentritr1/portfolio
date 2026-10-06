@@ -48,7 +48,7 @@ export const offday: View[] = [
       const src = shot("offday-light-shifts-desktop");
       const ring = { x: 489, y: 432, w: 165, h: 57 };
       return [
-        { src, ...desk, cx: 461, cy: 461, w: 392, upTo: 420, ring },
+        { src, ...desk, cx: 466, cy: 461, w: 396, upTo: 420, ring },
         { src, ...desk, cx: 520, cy: 470, w: 508, upTo: 720, ring },
         { src, ...desk, cx: 706, cy: 590, w: 960, upTo: 99999, ring },
       ];

@@ -129,8 +129,8 @@ export const work: Work[] = [
     role: "Frontend, UI layer",
     years: "2024",
     shot: {
-      src: "/showcase/incentiv/web-01.webp",
-      alt: "Incentiv home page hero with a Go to Portal button",
+      src: "/showcase/incentiv/web-03.webp",
+      alt: "Incentiv portal sign-in: Passkey, MetaMask and WalletConnect options",
       w: 1440,
       h: 900,
     },

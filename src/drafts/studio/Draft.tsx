@@ -3,7 +3,7 @@ import { OldDraftMotion } from '../../components/portfolio/OldDraftMotion'
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { featuredProjects, findProject, projects, type Project } from '../../content/projects'
 import { links } from '../../content/links'
-import { chapters, screenCrop, shots } from './shots'
+import { chapters, shots } from './shots'
 import type { StudioScene } from './scene'
 import './studio.css'
 
@@ -16,7 +16,7 @@ function Arrow({ direction = 'diagonal' }: { direction?: 'diagonal' | 'down' }) 
 function Screen({ index }: { index: number }) {
   const [decoded, setDecoded] = useState(false)
   const shot = shots[index]
-  const [x, y, width, height] = screenCrop
+  const [x, y, width, height] = shot.crop
   const crop: CSSProperties = { left: `${-x / width * 100}%`, top: `${-y / height * 100}%`, width: `${100 / width}%`, height: `${100 / height}%` }
   return <div className={`draft-studio-phone draft-studio-phone-${index}`}>
     <div className="draft-studio-screen">

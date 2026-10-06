@@ -27,11 +27,11 @@ export const wallAssets: Record<string, WallAsset> = {
   'morse-trainer': { src: '/personal/shots/morse-desktop.webp', aspect: 1.2, colour: 5, position: [0.35, 0.5], fallback: { background: '#d2ac52', ink: '#2c2414' } },
   za: { src: '/personal/shots/za-desktop.webp', aspect: 1, colour: 6, fallback: { background: '#e69bd7', ink: '#2c1737' } },
   fjale: { src: '/personal/shots/fjale-desktop.webp', aspect: 0.95, colour: 7, fallback: { background: '#a9e928', ink: '#172312' } },
-  offday: { src: '/personal/shots/offday-app-desktop.webp', aspect: 1.15, colour: 8, position: [0.64, 0.2], fallback: { background: '#b797fb', ink: '#221244' } },
+  offday: { src: '/personal/shots/offday-light-calendar-desktop.webp', aspect: 1.15, colour: 8, position: [0.64, 0.2], fallback: { background: '#b797fb', ink: '#221244' } },
   'care-platform': { src: '/signal-posters/healthcare.avif', aspect: 1.1, colour: 9, recreation: true, fallback: { background: '#12cbbd', ink: '#102724' } },
   'bayyinah-institute': { src: '/showcase/bayyinah/org-01.webp', aspect: 1.25, colour: 10, fallback: { background: '#2351df', ink: '#fffaf0' } },
   'geo-guesser': { src: '/mobile/thumbs/geoguesser.webp', aspect: 1.6, colour: 11, fallback: { background: '#5adced', ink: '#0b2935' } },
-  incentiv: { src: '/showcase/incentiv/web-01.webp', aspect: 0.9, colour: 12, position: [0.5, 0.2], fallback: { background: '#2b4ae6', ink: '#fffaf0' } },
+  incentiv: { src: '/showcase/incentiv/web-03.webp', aspect: 0.9, colour: 12, position: [0.3, 0.5], fallback: { background: '#2b4ae6', ink: '#fffaf0' } },
 }
 
 /** Editorial poster colours, not invented product branding. Titles retain the project names. */

@@ -460,6 +460,15 @@
   background: var(--cs-shade);
 }
 
+/* The wallet plate shows only its card and the sign-in chip: the stage band from 128 to 548 px. */
+.cs-stage-box-wallet {
+  aspect-ratio: 880 / 420;
+}
+
+.cs-stage-box-wallet .cs-stage {
+  top: calc(var(--k, 1) * -128px);
+}
+
 .cs-stage {
   position: absolute;
   left: 0;

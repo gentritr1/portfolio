@@ -118,7 +118,7 @@ export const entries: Entry[] = [
     },
     plate: {
       kind: "web",
-      src: "/personal/shots/offday-app-desktop.webp",
+      src: "/personal/shots/offday-light-calendar-desktop.webp",
       alt: "Offday team calendar in the demo workspace: October leave bars and the approval queue",
       caption: "Own project, own capture",
     },

@@ -108,9 +108,9 @@ export const work: Tile[] = [
         height: 900,
         crops: [
           { x: 190, y: 486, w: 344, h: 215 },
-          { x: 186, y: 236, w: 512, h: 320 },
+          { x: 172, y: 280, w: 576, h: 360 },
         ],
-        mark: { x: 222, y: 500, w: 106, h: 40 },
+        mark: { x: 201, y: 495, w: 149, h: 50 },
       },
     },
     hue: 40,
@@ -317,13 +317,17 @@ export interface Platform {
   crop: Box;
 }
 
-/** The lead: one Viva Fresh screen, from each store listing. */
+/** The lead: one Viva Fresh screen, from the App Store listing. */
 export const lead = {
   project: "Viva Fresh",
   role: "Mobile",
   year: "2023",
   scope: "Shoppers fill a cart, pick a delivery slot and pay, in Albanian.",
   case: "/work/viva-fresh",
+  stores: [
+    { store: "App Store", href: "https://apps.apple.com/us/app/viva-fresh/id1580739480" },
+    { store: "Google Play", href: "https://play.google.com/store/apps/details?id=com.zs.vivafresh" },
+  ],
   platforms: [
     {
       id: "iphone",
@@ -335,17 +339,6 @@ export const lead = {
       width: 780,
       height: 1689,
       crop: { x: 92, y: 374, w: 596, h: 866 },
-    },
-    {
-      id: "android",
-      label: "Android",
-      store: "Google Play",
-      href: "https://play.google.com/store/apps/details?id=com.zs.vivafresh",
-      src: "/mobile/grocery-4.webp",
-      alt: "Viva Fresh home on Android, from the Google Play listing: the same categories and products, in Albanian",
-      width: 780,
-      height: 1387,
-      crop: { x: 138, y: 370, w: 498, h: 724 },
     },
   ] satisfies Platform[],
 };

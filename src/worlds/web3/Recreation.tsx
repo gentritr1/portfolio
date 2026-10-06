@@ -499,7 +499,7 @@ function WalletCard({ demoStep }: { demoStep?: number }) {
 type Step = 'idle' | 'touch' | 'verified' | 'welcome'
 
 const STEP_COPY: Record<Step, { title: string; detail: string }> = {
-  idle: { title: 'Signed out', detail: 'Use the passkey on this device' },
+  idle: { title: 'Signed out', detail: "Use this device's passkey" },
   touch: { title: 'Touch sensor', detail: 'Hold a finger on the sensor' },
   verified: { title: 'Verified', detail: 'Passkey matched' },
   welcome: { title: 'Welcome, Gentrit', detail: 'Signed in with passkey' },

@@ -208,7 +208,7 @@ export default function Draft() {
           </div>
           <figure>
             <img
-              src="/personal/shots/offday-app-desktop.webp"
+              src="/personal/shots/offday-light-calendar-desktop.webp"
               loading="lazy"
               alt="Offday team calendar in the demo workspace, October leave bars and approval queue"
             />
