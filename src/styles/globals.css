@@ -400,6 +400,28 @@
   view-transition-name: masthead;
 }
 
+/* A plate walk (src/lib/plateWalk.ts) moves one plate; the two pages change at once. */
+:root[data-walk]::view-transition-old(root),
+:root[data-walk]::view-transition-new(root),
+:root[data-walk]::view-transition-new(*):only-child {
+  animation: none;
+}
+
+:root[data-walk]::view-transition-old(*):only-child {
+  animation: none;
+  opacity: 0;
+}
+
+/* The two ends crop the screen differently; the moving box shows only its own crop. */
+:root[data-walk]::view-transition-image-pair(*) {
+  overflow: clip;
+}
+
+:root[data-walk]::view-transition-group(*) {
+  animation-duration: 420ms;
+  animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+}
+
 /* ---------- Reduced motion ---------- */
 
 @media (prefers-reduced-motion: reduce) {

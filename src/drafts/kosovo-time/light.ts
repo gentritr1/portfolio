@@ -34,7 +34,9 @@ export interface Light {
   name: "Night" | "Dawn" | "Day" | "Dusk";
 }
 
-const night: Key = { at: -12, sky: "#07060f", haze: "#1a1636", lit: "#0f0d14", shade: "#0b0a10", ink: "#e8e2d6", soft: "#b9b1c4", accent: "#f2c27e" };
+/** Below this altitude the light does not change: the darkest key holds. */
+export const DARKEST = -12;
+const night: Key = { at: DARKEST, sky: "#07060f", haze: "#1a1636", lit: "#0f0d14", shade: "#0b0a10", ink: "#e8e2d6", soft: "#b9b1c4", accent: "#f2c27e" };
 const deep: Key = { at: -6, sky: "#110d2a", haze: "#32265a", lit: "#1d1532", shade: "#160f27", ink: "#f3ecdf", soft: "#c6b8dc", accent: "#f6c587" };
 const noon: Key = { at: 32, sky: "#4f9ee0", haze: "#f6d7a4", lit: "#f7eedb", shade: "#8f84d6", ink: "#141414", soft: "#2a2a31", accent: "#17236c" };
 

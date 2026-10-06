@@ -14,3 +14,20 @@ export function preloadCase(slug: string): Promise<unknown> {
     : null
   return Promise.all([caseStudyPage.load(), recreation])
 }
+
+let onBack: ((event: PopStateEvent) => boolean) | null = null;
+
+/** Lets the open page take a Back or Forward step before the router sees it. Returns the release. */
+export function takeBack(take: (event: PopStateEvent) => boolean) {
+  onBack = take
+  return () => {
+    if (onBack === take) onBack = null
+  }
+}
+
+// The browser calls window listeners in the order they were added. This module loads before the router mounts, so this one runs first.
+if (typeof window !== 'undefined') {
+  window.addEventListener('popstate', (event) => {
+    if (onBack?.(event)) event.stopImmediatePropagation()
+  })
+}

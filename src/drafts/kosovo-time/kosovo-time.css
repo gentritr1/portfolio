@@ -212,7 +212,7 @@ html.kt-page[data-kt-dark="true"] {
 
 .kt-hm {
   display: inline-block;
-  min-width: 2.55em;
+  min-width: 2.81em;
   font-family: var(--kt-serif);
   font-size: 40px;
   font-weight: 500;
@@ -312,6 +312,18 @@ html.kt-page[data-kt-dark="true"] {
 .kt-jumps button[aria-pressed="true"] {
   background: var(--kt-ink);
   color: var(--kt-haze);
+}
+
+.kt-jumps .kt-play {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+}
+
+.kt-play svg {
+  flex: none;
+  fill: currentColor;
 }
 
 /* ---------- The sun path: the hero control ---------- */
@@ -438,6 +450,11 @@ html.kt-page[data-kt-dark="true"] {
   transform: scale(0.94);
 }
 
+/* A tap presses the disc in; the sun a visitor holds and drags stays grown. */
+.kt-path[data-drag] .kt-path-disc {
+  transform: scale(1.12);
+}
+
 /* The sun path code sets --hx and --hy so the label stays inside the screen and off the marks at every hour. */
 .kt-path-hint {
   position: absolute;
@@ -456,14 +473,6 @@ html.kt-page[data-kt-dark="true"] {
   font-weight: 600;
   white-space: nowrap;
   transition: opacity 0.3s var(--kt-out);
-}
-
-.kt-path-hint::before {
-  content: "\2190\2002";
-}
-
-.kt-path-hint::after {
-  content: "\2002\2192";
 }
 
 .kt-path-hint[data-gone] {
@@ -567,6 +576,36 @@ html.kt-page[data-kt-dark="true"] {
   box-shadow: 0 0 0 1px color-mix(in srgb, var(--kt-ink) 18%, transparent);
   border-radius: 4px;
   overflow: hidden;
+}
+
+/* ---------- Arrival. The code sets these attributes only while a screen arrives; the default is complete. ---------- */
+
+[data-arrive] {
+  transform-origin: 50% 100%;
+}
+
+[data-arrive="before"][data-arrive-kind="day"] {
+  transform: perspective(1200px) rotateX(8deg);
+}
+
+[data-arrive="run"][data-arrive-kind="day"] {
+  transform: perspective(1200px) rotateX(0deg);
+  transition: transform 560ms var(--kt-out);
+}
+
+.kt-plate[data-arrive-kind="night"]::after,
+.kt-lead[data-arrive-kind="night"] .kt-lead-shot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--kt-shade);
+  pointer-events: none;
+}
+
+.kt-plate[data-arrive="run"][data-arrive-kind="night"]::after,
+.kt-lead[data-arrive="run"][data-arrive-kind="night"] .kt-lead-shot::after {
+  opacity: 0;
+  transition: opacity 420ms var(--kt-out);
 }
 
 /* ---------- Sections and rows ---------- */
@@ -1074,6 +1113,10 @@ html.kt-page[data-kt-dark="true"] {
     min-width: 0;
     padding: 0 4px;
     font-size: 13px;
+  }
+
+  .kt-jumps .kt-play {
+    gap: 5px;
   }
 
   .kt-path {

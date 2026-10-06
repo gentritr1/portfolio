@@ -1,6 +1,7 @@
 import {
   Suspense,
   useEffect,
+  useId,
   useLayoutEffect,
   useRef,
   useState,
@@ -14,7 +15,8 @@ import { ArrowRightIcon, ArrowUpRightIcon } from "@phosphor-icons/react";
 import { findProject, type Project } from "../content/projects";
 import { recreations } from "../lib/recreations";
 import { caseCopy, nextSlug, type CaseCopy, type LiveKey, type Part, type Plate, type Px, type Shot } from "./caseCopy";
-import { shadowOf, usePageLight, type PageLight } from "./caseLight";
+import { luminance, shadowOf, usePageLight, type PageLight } from "./caseLight";
+import { useDraw, useWalks } from "./caseMotion";
 import { CaseEnd, CaseTop, LitLine } from "./caseShell";
 import NotFoundPage from "./NotFoundPage";
 import "./case.css";
@@ -52,10 +54,43 @@ function useNear<T extends Element>(start: boolean) {
 
 /* ---------- Ground: a screen stands on the page and casts the sun's shadow ---------- */
 
-function Ground({ page, children }: { page: PageLight; children: ReactNode }) {
+const toLinear = (hex: string) =>
+  [1, 3, 5].map((i) => {
+    const c = parseInt(hex.slice(i, i + 2), 16) / 255;
+    return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+  });
+const toHex = (rgb: number[]) =>
+  "#" +
+  rgb
+    .map((c) => Math.round(Math.min(1, c <= 0.0031308 ? 12.92 * c : 1.055 * c ** (1 / 2.4) - 0.055) * 255).toString(16).padStart(2, "0"))
+    .join("");
+
+/** The floor colour in front of a lit screen in the dark, as on the home page; null while the ground is light. */
+function glowOf(lit: string, screen: string) {
+  const t = Math.min(1, Math.max(0, (luminance(lit) - 0.02) / 0.18));
+  const glow = (1 - t * t * (3 - 2 * t)) * 0.2;
+  if (glow < 0.004) return null;
+  const add = toLinear(screen).map((c) => c * 0.5 * glow);
+  const lum = 0.2126 * add[0] + 0.7152 * add[1] + 0.0722 * add[2];
+  const k = lum > 0.14 ? 0.14 / lum : 1;
+  return toHex(toLinear(lit).map((c, i) => c + add[i] * k));
+}
+
+interface GroundProps {
+  page: PageLight;
+  /** The screen's main colour, which lights the floor in front of it in the dark. */
+  screen: string;
+  small?: boolean;
+  children: ReactNode;
+}
+
+function Ground({ page, screen: screenColour, small, children }: GroundProps) {
+  const id = useId();
   const box = useRef<HTMLDivElement>(null);
   const svg = useRef<SVGSVGElement>(null);
   const shadow = useRef<SVGPolygonElement>(null);
+  const pool = useRef<SVGEllipseElement>(null);
+  const glow = glowOf(page.light.lit, screenColour);
 
   useEffect(() => {
     const element = box.current;
@@ -71,16 +106,35 @@ function Ground({ page, children }: { page: PageLight; children: ReactNode }) {
       root.setAttribute("viewBox", `0 0 ${rect.width.toFixed(1)} ${rect.height.toFixed(1)}`);
       polygon.setAttribute("points", shadowOf(rect, screenRect, page.sun.ray));
       polygon.style.opacity = page.light.direct.toFixed(3);
+      const ellipse = pool.current;
+      if (ellipse) {
+        const base = screenRect.bottom - rect.top;
+        ellipse.setAttribute("cx", (screenRect.left - rect.left + screenRect.width / 2).toFixed(1));
+        ellipse.setAttribute("cy", (base + 4).toFixed(1));
+        ellipse.setAttribute("rx", (screenRect.width * 0.68).toFixed(1));
+        ellipse.setAttribute("ry", Math.min(64, rect.bottom - screenRect.bottom + 8).toFixed(1));
+      }
     };
     const resize = new ResizeObserver(draw);
     resize.observe(element);
     draw();
     return () => resize.disconnect();
-  }, [page]);
+  }, [page, glow]);
 
   return (
-    <div className="cs-ground" ref={box}>
+    <div className={small ? "cs-ground cs-ground-small" : "cs-ground"} ref={box} data-glow={glow ? "" : undefined}>
       <svg ref={svg} className="cs-floor" aria-hidden="true" preserveAspectRatio="none">
+        {glow && (
+          <>
+            <defs>
+              <radialGradient id={`${id}-glow`}>
+                <stop offset="0" stopColor={glow} />
+                <stop offset="1" stopColor={glow} stopOpacity="0" />
+              </radialGradient>
+            </defs>
+            <ellipse ref={pool} fill={`url(#${id}-glow)`} />
+          </>
+        )}
         <polygon ref={shadow} />
       </svg>
       {children}
@@ -182,25 +236,28 @@ function ShotView({ shot, crop, alt, eager, ring }: ShotProps) {
         }}
       />
       {ring && (
-        <span
+        <svg
           className="cs-shot-ring"
           aria-hidden="true"
           style={{
-            left: `calc(${((ring.x - crop.x) / crop.w) * 100}% - 5px)`,
-            top: `calc(${((ring.y - crop.y) / crop.h) * 100}% - 5px)`,
-            width: `calc(${(ring.w / crop.w) * 100}% + 10px)`,
-            height: `calc(${(ring.h / crop.h) * 100}% + 10px)`,
+            left: `calc(${((ring.x - crop.x) / crop.w) * 100}% - 4px)`,
+            top: `calc(${((ring.y - crop.y) / crop.h) * 100}% - 4px)`,
+            width: `calc(${(ring.w / crop.w) * 100}% + 8px)`,
+            height: `calc(${(ring.h / crop.h) * 100}% + 8px)`,
           }}
-        />
+        >
+          <rect className="cs-ring-edge" width="100%" height="100%" rx="7" pathLength={1} />
+          <rect width="100%" height="100%" rx="7" pathLength={1} />
+        </svg>
       )}
     </div>
   );
 }
 
 /** A screen with its own title bar, so its label never stands on the ground. */
-function Screen({ caption, width, children }: { caption: string; width: string; children: ReactNode }) {
+function Screen({ caption, width, plate, children }: { caption: string; width: string; plate?: string; children: ReactNode }) {
   return (
-    <figure className="cs-screen" data-cs-screen style={{ width }}>
+    <figure className="cs-screen" data-cs-screen data-plate={plate} style={{ width }}>
       <figcaption>{caption}</figcaption>
       <div className="cs-screen-body">{children}</div>
     </figure>
@@ -237,7 +294,7 @@ function NumberFigure({ plate }: { plate: Extract<Plate, { kind: "number" }> }) 
             <ArrowRightIcon className="cs-number-arrow" weight="bold" />
           </>
         )}
-        <span>{plate.to}</span>
+        <span className={plate.from ? "cs-number-to" : undefined}>{plate.to}</span>
       </p>
       <figcaption>
         <span className="cs-sr">{plate.from ? `${plate.from} to ${plate.to} ` : `${plate.to} `}</span>
@@ -293,10 +350,29 @@ function PartPlate({ part, plate, caption, narrow, first, page }: PlateProps) {
   }
   return (
     <div ref={ref}>
-      <Ground page={page}>
+      <Ground page={page} screen={plate.kind === "live" ? LIVE_SCREEN : plate.ground}>
         {screen}
       </Ground>
     </div>
+  );
+}
+
+const LIVE_SCREEN = "#f4f4f4";
+
+/** The next case's first screen, small, on its own floor. */
+function NextPlate({ slug, copy, page }: { slug: string; copy: CaseCopy; page: PageLight }) {
+  const at = copy.plates.findIndex((plate) => plate.kind === "web" || plate.kind === "phone");
+  const plate = copy.plates[at];
+  if (!plate || (plate.kind !== "web" && plate.kind !== "phone")) return null;
+  const { crop } = plate;
+  return (
+    <span className="cs-next-plate" aria-hidden="true">
+      <Ground page={page} screen={plate.ground} small>
+        <Screen caption={copy.captions[at]} width={`min(100%, 320px, ${Math.round((220 * crop.w) / crop.h)}px)`} plate={slug}>
+          <ShotView shot={plate} crop={crop} alt="" eager={false} ring={null} />
+        </Screen>
+      </Ground>
+    </span>
   );
 }
 
@@ -414,9 +490,12 @@ function Case({ project, copy }: { project: Project; copy: CaseCopy }) {
   const next = findProject(nextSlug(project.slug)) ?? project;
   const nextCopy = caseCopy[next.slug];
   const seen = new Set<number>();
+  const root = useRef<HTMLDivElement>(null);
+  useDraw(root);
+  useWalks(project.slug);
 
   return (
-    <div className="cs" data-fonts={page.fallback ? "fallback" : undefined}>
+    <div className="cs" ref={root} data-fonts={page.fallback ? "fallback" : undefined}>
       <title>{`${project.name} — Gentrit Rashiti`}</title>
       <CaseTop />
       <main>
@@ -512,15 +591,15 @@ function Case({ project, copy }: { project: Project; copy: CaseCopy }) {
           <section className="cs-figures" aria-labelledby="cs-figures-title">
             <h2 id="cs-figures-title">The numbers</h2>
             <ul>
-              {copy.figures.map((figure) => (
-                <li key={figure.label}>
+              {copy.figures.map((figure, index) => (
+                <li key={figure.label} style={{ "--i": index } as CSSProperties}>
                   <p className="cs-figure">
                     {figure.value}
                     {figure.to && (
                       <>
                         <ArrowRightIcon className="cs-figure-arrow" weight="bold" aria-hidden="true" />
                         <span className="cs-sr"> to </span>
-                        {figure.to}
+                        <span className="cs-figure-to">{figure.to}</span>
                       </>
                     )}
                   </p>
@@ -540,7 +619,8 @@ function Case({ project, copy }: { project: Project; copy: CaseCopy }) {
 
         <nav className="cs-next" aria-label="Next project">
           <p className="cs-label">Next project</p>
-          <Link to={`/work/${next.slug}`} className="cs-next-link">
+          <Link to={`/work/${next.slug}`} className="cs-next-link" data-plated={nextCopy ? "" : undefined}>
+            {nextCopy && <NextPlate slug={next.slug} copy={nextCopy} page={page} />}
             <span className="cs-next-name">{next.name}</span>
             <span className="cs-next-line">{nextCopy?.title ?? next.kind}</span>
             <ArrowRightIcon className="cs-next-arrow" aria-hidden="true" weight="bold" />

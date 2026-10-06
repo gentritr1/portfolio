@@ -13,9 +13,10 @@ import {
   type ReactNode,
 } from "react";
 import { preload } from "react-dom";
-import { Link as RouterLink, useLocation, useNavigationType } from "react-router";
+import { Link as RouterLink, useLocation, useNavigate, useNavigationType } from "react-router";
 import { links } from "../../content/links";
-import { Clock, openingHour, type Frame } from "./clock";
+import { walkInto } from "../../lib/plateWalk";
+import { Clock, cubic, openingHour, type Frame } from "./clock";
 import {
   client,
   concepts,
@@ -102,6 +103,8 @@ interface GroundProps {
   fade?: number;
   /** Fade at the left and right edges, px. */
   sides?: number;
+  /** "enter": the screens arrive when the ground scrolls into view. "lead": they arrive when the intro ends. */
+  arrive?: "enter" | "lead";
   children: ReactNode;
 }
 
@@ -127,7 +130,41 @@ const SLOW_RUN = 18;
 /** The per-pixel floor spreads the screen light thinner than the SVG pool, so it carries more of it. */
 const GL_GLOW = 4;
 
-function Ground({ className, sources, gl = false, fade = 56, sides = 0, children }: GroundProps) {
+/* ---------- Arrival: a screen stands up into the sun, or switches on at night ---------- */
+
+/** Grounds whose screens arrived in this visit. A return to the page never plays an arrival again. */
+const arrived = new Set<string>();
+const STAND_MS = 560;
+const SWITCH_MS = 420;
+const ARRIVE_STAGGER_MS = 90;
+/** A screen on view never keeps its "before" state longer than this. */
+const ARRIVE_SAFETY_MS = 2000;
+const LEAD_BEAT_MS = 160;
+/** At the start of a stand-up the shadow has this part of its full reach. */
+const STUB = 0.35;
+/** The same curve as --kt-out, so the floor keeps step with the screen. */
+const out = cubic(0.215, 0.61, 0.355, 1);
+
+interface Arrival {
+  kind: "day" | "night";
+  amounts: number[];
+}
+
+/** The panel's box without its arrival transform, so the floor camera never reads a leaning screen. */
+function restingRect(panel: HTMLElement, ground: HTMLElement, box: DOMRect) {
+  if (!panel.dataset.arrive) return panel.getBoundingClientRect();
+  let x = 0,
+    y = 0;
+  let node: Element | null = panel;
+  while (node instanceof HTMLElement && node !== ground) {
+    x += node.offsetLeft;
+    y += node.offsetTop;
+    node = node.offsetParent;
+  }
+  return node === ground ? new DOMRect(box.left + x, box.top + y, panel.offsetWidth, panel.offsetHeight) : panel.getBoundingClientRect();
+}
+
+function Ground({ className, sources, gl = false, fade = 56, sides = 0, arrive, children }: GroundProps) {
   const clock = useClock();
   const id = useId().replace(/:/g, "");
   const box = useRef<HTMLDivElement>(null);
@@ -139,11 +176,18 @@ function Ground({ className, sources, gl = false, fade = 56, sides = 0, children
   const cells = sources.map((src) => (src && screenColours[src] ? cellsFrom(screenColours[src]) : null));
   const visible = useRef(true);
   const pace = useRef({ last: 0, run: 0 });
+  const arrival = useRef<Arrival | null>(null);
+  const measureRef = useRef<() => void>(() => undefined);
+  const key = sources.join("|");
 
   const draw = (frame: Frame) => {
     const v = view.current;
     if (!v || !visible.current) return;
     const { sun, light } = frame;
+    const a = arrival.current;
+    const on = (i: number) => (a?.kind === "night" ? (a.amounts[i] ?? 1) : 1);
+    const panels =
+      a?.kind === "day" ? v.panels.map((p, i) => ({ ...p, h: p.h * (STUB + (1 - STUB) * (a.amounts[i] ?? 1)) })) : v.panels;
     if (renderer.current) {
       const now = performance.now();
       const gap = now - pace.current.last;
@@ -155,20 +199,20 @@ function Ground({ className, sources, gl = false, fade = 56, sides = 0, children
       }
       renderer.current.draw({
         camera: v.camera,
-        panels: v.panels,
+        panels,
         ray: sun.ray,
         direct: light.direct,
         glow: light.glow * GL_GLOW,
         lit: light.litLinear,
         shade: light.shadeLinear,
-        cells: v.panels.map((_, i) => (cells[i] ? quarters(cells[i]) : new Array(12).fill(0.8))),
+        cells: panels.map((_, i) => (cells[i] ? quarters(cells[i]) : new Array<number>(12).fill(0.8)).map((c) => c * on(i))),
         fade,
       });
       return;
     }
     const root = svg.current;
     if (!root) return;
-    v.panels.forEach((panel, i) => {
+    panels.forEach((panel, i) => {
       const shadow = root.querySelector<SVGPolygonElement>(`[data-shadow="${i}"]`);
       if (shadow) {
         shadow.setAttribute("points", shadowPoints(v.camera, panel, sun.ray));
@@ -179,7 +223,7 @@ function Ground({ className, sources, gl = false, fade = 56, sides = 0, children
       if (glow && stop) {
         const screen = cells[i] ? lowerAverage(cells[i]) : ([0.8, 0.8, 0.8] as Vec);
         stop.setAttribute("stop-color", glowColour(frame, screen));
-        glow.style.opacity = light.glow > 0.004 ? "1" : "0";
+        glow.style.opacity = light.glow > 0.004 ? on(i).toFixed(3) : "0";
       }
     });
   };
@@ -205,6 +249,8 @@ function Ground({ className, sources, gl = false, fade = 56, sides = 0, children
       host.prepend(canvas);
       renderer.current = made;
       pace.current = { last: 0, run: 0 };
+      // A new canvas is black until its first draw, so it draws before the next paint.
+      measureRef.current();
       setMode("gl");
     };
     const idle = "requestIdleCallback" in window;
@@ -231,7 +277,7 @@ function Ground({ className, sources, gl = false, fade = 56, sides = 0, children
     if (!element) return;
     const measure = () => {
       const rect = element.getBoundingClientRect();
-      const panels = [...element.querySelectorAll<HTMLElement>("[data-kt-panel]")].map((p) => p.getBoundingClientRect());
+      const panels = [...element.querySelectorAll<HTMLElement>("[data-kt-panel]")].map((p) => restingRect(p, element, rect));
       if (!panels.length || rect.width < 2 || panels.some((p) => p.height < 2)) return;
       const made = cameraFor(rect, panels);
       view.current = { ...made, height: rect.height };
@@ -270,6 +316,7 @@ function Ground({ className, sources, gl = false, fade = 56, sides = 0, children
       }
       drawRef.current(clock.current);
     };
+    measureRef.current = measure;
     const resize = new ResizeObserver(measure);
     resize.observe(element);
     element.querySelectorAll("[data-kt-panel]").forEach((p) => resize.observe(p));
@@ -286,6 +333,103 @@ function Ground({ className, sources, gl = false, fade = 56, sides = 0, children
       off();
     };
   }, [clock, fade, sides, id, mode]);
+
+  useEffect(() => {
+    const element = box.current;
+    if (!arrive || !element || arrived.has(key)) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches || !("IntersectionObserver" in window)) return;
+    const panels = [...element.querySelectorAll<HTMLElement>("[data-kt-panel]")];
+    if (!panels.length) return;
+    let state: "idle" | "before" | "run" | "done" = "idle";
+    let safety = 0;
+    let beat = 0;
+    let frame = 0;
+    const settle = () => {
+      for (const p of panels) {
+        delete p.dataset.arrive;
+        delete p.dataset.arriveKind;
+      }
+      arrival.current = null;
+      measureRef.current();
+    };
+    const run = () => {
+      if (state !== "before" || !arrival.current) return;
+      state = "run";
+      window.clearTimeout(safety);
+      const a = arrival.current;
+      const ms = a.kind === "day" ? STAND_MS : SWITCH_MS;
+      let start = 0;
+      const step = (time: number) => {
+        start ||= time;
+        let busy = false;
+        panels.forEach((p, i) => {
+          const t = time - start - i * ARRIVE_STAGGER_MS;
+          if (t >= 0 && p.dataset.arrive !== "run") p.dataset.arrive = "run";
+          a.amounts[i] = out(Math.min(1, Math.max(0, t / ms)));
+          // The CSS transition starts on the frame the attribute changes, so it ends up to a frame after this tween.
+          if (t < ms + 80) busy = true;
+        });
+        drawRef.current(clock.current);
+        if (busy) frame = requestAnimationFrame(step);
+        else {
+          state = "done";
+          arrived.add(key);
+          settle();
+        }
+      };
+      frame = requestAnimationFrame(step);
+    };
+    const check = () => {
+      if (state !== "before") return;
+      const r = element.getBoundingClientRect();
+      if (arrive === "lead" || (r.top < window.innerHeight && r.bottom > 0)) run();
+      else safety = window.setTimeout(check, ARRIVE_SAFETY_MS);
+    };
+    const prep = () => {
+      const light = arrive === "lead" ? clock.settledLight() : clock.current.light;
+      const kind = light.direct > 0.05 ? "day" : "night";
+      arrival.current = { kind, amounts: panels.map(() => 0) };
+      for (const p of panels) {
+        p.dataset.arrive = "before";
+        p.dataset.arriveKind = kind;
+      }
+      state = "before";
+      drawRef.current(clock.current);
+      safety = window.setTimeout(check, ARRIVE_SAFETY_MS);
+    };
+    const watchers: IntersectionObserver[] = [];
+    if (arrive === "lead") {
+      // The page is still hidden behind the font wait here, so the "before" state is never seen to switch on.
+      prep();
+      void clock.ready.then(() => {
+        if (state === "before") beat = window.setTimeout(run, LEAD_BEAT_MS);
+      });
+    } else {
+      // Only a ground still below the screen takes the "before" state; one already on view stays complete.
+      const near = new IntersectionObserver(
+        ([e]) => {
+          if (state === "idle" && e.isIntersecting && e.boundingClientRect.top >= window.innerHeight) prep();
+        },
+        { rootMargin: "0px 0px 25% 0px" },
+      );
+      const inView = new IntersectionObserver(
+        ([e]) => {
+          if (state === "before" && e.isIntersecting && e.intersectionRatio >= 0.29) run();
+        },
+        { rootMargin: "0px 0px -10% 0px", threshold: 0.3 },
+      );
+      near.observe(element);
+      inView.observe(element);
+      watchers.push(near, inView);
+    }
+    return () => {
+      for (const w of watchers) w.disconnect();
+      window.clearTimeout(safety);
+      window.clearTimeout(beat);
+      cancelAnimationFrame(frame);
+      if (state === "before" || state === "run") settle();
+    };
+  }, [arrive, clock, key]);
 
   return (
     <div className={`kt-ground ${className}`} ref={box} data-floor={mode}>
@@ -553,6 +697,7 @@ function SunPath() {
     event.currentTarget.focus({ preventScroll: true });
     touch();
     drag.current = { id: event.pointerId, x: event.clientX, t: performance.now(), v: 0 };
+    if (event.pointerType !== "mouse") event.currentTarget.dataset.drag = "";
     clock.set(toMs(event.clientX));
   };
   const onDown = (event: PointerEvent<HTMLDivElement>) => {
@@ -575,6 +720,7 @@ function SunPath() {
     }
     const d = drag.current;
     if (!d || d.id !== event.pointerId) return;
+    event.currentTarget.dataset.drag = "";
     const now = performance.now();
     const dt = Math.max(1, now - d.t);
     const rect = track.current!.getBoundingClientRect();
@@ -597,6 +743,7 @@ function SunPath() {
     const d = drag.current;
     if (!d || d.id !== event.pointerId) return;
     drag.current = null;
+    delete event.currentTarget.dataset.drag;
     // A flick coasts at most one hour past the release point, so the hour a visitor aims at stays near.
     const fresh = performance.now() - d.t < 50;
     if (fresh && d.v !== 0) {
@@ -697,7 +844,8 @@ function SunPath() {
       <span ref={dot} className="kt-path-sun" aria-hidden="true">
         <span className="kt-path-disc" />
         <span ref={hint} className="kt-path-hint" data-gone={touched || undefined}>
-          {below ? "Drag the sun up" : "Drag the sun"}
+          {/* The arrows share the text node, so a change of words never moves a box (CLS 0). */}
+          {below ? "\u2190\u2002Drag the sun up\u2002\u2192" : "\u2190\u2002Drag the sun\u2002\u2192"}
         </span>
       </span>
     </div>
@@ -706,14 +854,33 @@ function SunPath() {
 
 function Jumps() {
   const clock = useClock();
+  const reduced = useMedia("(prefers-reduced-motion: reduce)");
   const [live, setLive] = useState(clock.current.live);
-  useEffect(() => clock.subscribe((f) => setLive((was) => (was === f.live ? was : f.live))), [clock]);
+  const [playing, setPlaying] = useState(clock.current.playing);
+  useEffect(
+    () =>
+      clock.subscribe((f) => {
+        setLive((was) => (was === f.live ? was : f.live));
+        setPlaying((was) => (was === f.playing ? was : f.playing));
+      }),
+    [clock],
+  );
+  useEffect(() => {
+    if (!playing) return;
+    const first = document.querySelector(".kt-first");
+    const away = () => {
+      if (first && first.getBoundingClientRect().bottom < window.innerHeight * 0.3) clock.stopPlay(true);
+    };
+    window.addEventListener("scroll", away, { passive: true });
+    return () => window.removeEventListener("scroll", away);
+  }, [clock, playing]);
+  const day = clock.day;
   return (
     <div className="kt-jumps" role="group" aria-label="Light the page for">
-      <button type="button" aria-pressed={live} onClick={() => clock.follow()}>
+      <button type="button" aria-pressed={live && !playing} onClick={() => clock.follow()}>
         Now
       </button>
-      {namedHours(clock.day).map(
+      {namedHours(day).map(
         (j) =>
           j.ms !== null && (
             <button key={j.label} type="button" onClick={() => clock.set(j.ms!)}>
@@ -721,6 +888,24 @@ function Jumps() {
             </button>
           ),
       )}
+      {!reduced && day.rise !== null && day.set !== null && (
+        <button
+          type="button"
+          className="kt-play"
+          aria-pressed={playing}
+          onClick={() => (playing ? clock.stopPlay() : clock.playDay())}
+        >
+          <svg viewBox="0 0 10 10" width="10" height="10" aria-hidden="true">
+            {playing ? <rect x="1.5" y="1.5" width="7" height="7" rx="1" /> : <path d="M2 1v8l7-4z" />}
+          </svg>
+          <span>
+            Play<span className="kt-sr"> the day</span>
+          </span>
+        </button>
+      )}
+      <span className="kt-sr" role="status">
+        {playing ? "Playing today's sun, from sunrise to sunset." : ""}
+      </span>
     </div>
   );
 }
@@ -766,9 +951,10 @@ const caseSlugs: Record<string, string> = {
 
 function CaseLink({ id, name }: { id: string; name: string }) {
   const slug = caseSlugs[id];
+  const navigate = useNavigate();
   if (!slug) return null;
   return (
-    <RouterLink className="kt-case" to={`/work/${slug}`}>
+    <RouterLink className="kt-case" to={`/work/${slug}`} onClick={(event) => walkInto(event, slug, () => navigate(`/work/${slug}`))}>
       Read the case<span className="kt-sr">: {name}</span>
       {" →"}
     </RouterLink>
@@ -824,13 +1010,14 @@ function RowText({ row }: { row: Row }) {
   );
 }
 
-function ShotPlate({ shot, shape }: { shot: Shot; shape: string }) {
+function ShotPlate({ shot, shape, plate }: { shot: Shot; shape: string; plate?: string }) {
   const narrow = use(NarrowContext);
   const crop = cropOf(shot, narrow);
   return (
     <figure
       className="kt-plate"
       data-kt-panel
+      data-plate={plate}
       data-shape={shape}
       style={crop ? { aspectRatio: `${crop.w} / ${crop.h}` } : undefined}
     >
@@ -841,7 +1028,7 @@ function ShotPlate({ shot, shape }: { shot: Shot; shape: string }) {
 
 function Plate({ row }: { row: Row }) {
   const narrow = use(NarrowContext);
-  return <ShotPlate shot={row.plate} shape={shapeOf(row.plate, narrow)} />;
+  return <ShotPlate shot={row.plate} shape={shapeOf(row.plate, narrow)} plate={caseSlugs[row.id]} />;
 }
 
 const sourceOf = (row: Row) => row.plate.src;
@@ -850,7 +1037,7 @@ function WorkRow({ row }: { row: Row }) {
   const narrow = use(NarrowContext);
   return (
     <li className="kt-row" data-shape={shapeOf(row.plate, narrow)}>
-      <Ground className="kt-row-stage" sources={[sourceOf(row)]} sides={40}>
+      <Ground className="kt-row-stage" sources={[sourceOf(row)]} sides={40} arrive="enter">
         <Plate row={row} />
       </Ground>
       <RowText row={row} />
@@ -868,7 +1055,7 @@ function Shelf({ rows, stacked }: { rows: Row[]; stacked: boolean }) {
           <RowText key={row.id} row={row} />
         ))}
       </div>
-      <Ground className="kt-shelf-ground" sources={rows.map(sourceOf)} sides={48}>
+      <Ground className="kt-shelf-ground" sources={rows.map(sourceOf)} sides={48} arrive="enter">
         <div className="kt-shelf-slots">
           {rows.map((row) => (
             <div key={row.id} className="kt-shelf-slot">
@@ -1001,11 +1188,12 @@ export default function Draft() {
   const reduced = useMedia("(prefers-reduced-motion: reduce)");
   const narrow = useMedia("(max-width: 639px)");
   const stacked = useMedia("(max-width: 1023px)");
-  const [clock] = useState(() => {
+  const [{ clock, lead }] = useState(() => {
     const back = returning();
     const { minutes, chosen } = openingHour(back);
     const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    return new Clock(minutes, !back && !chosen && !window.location.hash && !still);
+    const fresh = !back && !window.location.hash && !still;
+    return { clock: new Clock(minutes, fresh && !chosen), lead: fresh };
   });
   const [fonts, setFonts] = useState<"wait" | "real" | "fallback">("wait");
   const time = useRef<HTMLTimeElement>(null);
@@ -1077,7 +1265,15 @@ export default function Draft() {
 
   useLayoutEffect(() => {
     const key = `${RETURN_Y}:${location.key}`;
+    let moved = false;
+    const onScroll = () => {
+      moved = true;
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
     return () => {
+      window.removeEventListener("scroll", onScroll);
+      // A StrictMode re-run unmounts before any scroll. It must not replace the saved landing point with 0.
+      if (!moved) return;
       try {
         sessionStorage.setItem(key, String(Math.round(window.scrollY)));
       } catch {
@@ -1188,7 +1384,7 @@ export default function Draft() {
                 </section>
                 <SunPath />
               </div>
-              <Ground className="kt-stage" sources={[leadWeb.shot.src, leadPhone.shot.src]} gl fade={64}>
+              <Ground className="kt-stage" sources={[leadWeb.shot.src, leadPhone.shot.src]} gl fade={64} arrive={lead ? "lead" : undefined}>
                 <div className="kt-leads">
                   <LeadPlate shot={leadWeb.shot} name={leadWeb.name} note={leadWeb.note} kind="web" />
                   <LeadPlate shot={leadPhone.shot} name={leadPhone.name} note={leadPhone.note} kind="phone" />
@@ -1218,7 +1414,7 @@ export default function Draft() {
                 <ol className="kt-rows">
                   {concepts.map((c) => (
                     <li key={c.id} className="kt-row" data-shape="wide">
-                      <Ground className="kt-row-stage" sources={[c.plate.src]} sides={40}>
+                      <Ground className="kt-row-stage" sources={[c.plate.src]} sides={40} arrive="enter">
                         <ShotPlate shot={c.plate} shape="wide" />
                       </Ground>
                       <ConceptText concept={c} />
@@ -1232,7 +1428,7 @@ export default function Draft() {
                       <ConceptText key={c.id} concept={c} />
                     ))}
                   </div>
-                  <Ground className="kt-pair-ground" sources={concepts.map((c) => c.plate.src)} sides={48}>
+                  <Ground className="kt-pair-ground" sources={concepts.map((c) => c.plate.src)} sides={48} arrive="enter">
                     <div className="kt-pair-slots">
                       {concepts.map((c) => (
                         <ShotPlate key={c.id} shot={c.plate} shape="wide" />

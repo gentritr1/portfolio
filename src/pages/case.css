@@ -53,6 +53,7 @@
   --cs-serif: "Case Fraunces", "Case Serif Fallback", Georgia, serif;
   --cs-sans: "Case Public Sans", "Case Sans Fallback", Arial, sans-serif;
   --cs-gutter: 48px;
+  --cs-out: cubic-bezier(0.215, 0.61, 0.355, 1);
   position: relative;
   min-height: 100svh;
   background: var(--cs-lit, #f7f4ec);
@@ -410,6 +411,16 @@
   opacity: 0.8;
 }
 
+/* In the dark the shade colour is the ground colour, so the contact shade stands on the screen's glow instead. */
+.cs-ground[data-glow] > .cs-screen::after {
+  background: #000;
+  opacity: 0.55;
+}
+
+.cs-ground-small {
+  padding: 12px 16px 32px;
+}
+
 .cs-screen figcaption {
   display: flex;
   align-items: center;
@@ -442,12 +453,65 @@
 
 .cs-shot-ring {
   position: absolute;
-  border: 2px solid var(--cs-sun);
-  border-radius: 8px;
-  box-shadow:
-    0 0 0 1px rgb(0 0 0 / 0.55),
-    inset 0 0 0 1px rgb(0 0 0 / 0.55);
+  overflow: visible;
   pointer-events: none;
+}
+
+.cs-shot-ring rect {
+  fill: none;
+  stroke: var(--cs-sun);
+  stroke-width: 2;
+}
+
+.cs-shot-ring .cs-ring-edge {
+  stroke: rgb(0 0 0 / 0.55);
+  stroke-width: 4;
+}
+
+/* ---------- Drawn marks. The complete state is the default; caseMotion.ts sets a mark back just before it draws. ---------- */
+
+.cs-shot-ring[data-draw] rect {
+  stroke-dasharray: 1;
+}
+
+.cs-shot-ring[data-draw="before"] rect {
+  stroke-dashoffset: 1;
+}
+
+.cs-shot-ring[data-draw="run"] rect {
+  transition: stroke-dashoffset 520ms var(--cs-out);
+}
+
+.cs-proof[data-draw="before"],
+[data-draw="before"] :is(.cs-number-to, .cs-figure-to) {
+  opacity: 0;
+  transform: translateY(4px);
+}
+
+.cs-proof[data-draw="run"] {
+  transition:
+    opacity 320ms var(--cs-out) 120ms,
+    transform 320ms var(--cs-out) 120ms;
+}
+
+.cs-number-arrow,
+.cs-figure-arrow {
+  transform-origin: 0 50%;
+}
+
+[data-draw="before"] :is(.cs-number-arrow, .cs-figure-arrow) {
+  transform: scaleX(0);
+}
+
+[data-draw="run"] :is(.cs-number-arrow, .cs-figure-arrow) {
+  transition: transform 360ms var(--cs-out) calc(var(--i, 0) * 80ms);
+}
+
+[data-draw="run"] :is(.cs-number-to, .cs-figure-to) {
+  transition:
+    opacity 320ms var(--cs-out),
+    transform 320ms var(--cs-out);
+  transition-delay: calc(var(--i, 0) * 80ms + 120ms);
 }
 
 /* ---------- Live recreations ---------- */
@@ -758,6 +822,43 @@
   height: 40px;
 }
 
+.cs-next-link[data-plated] {
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-rows: 1fr auto auto 1fr;
+  grid-template-areas:
+    "plate . arrow"
+    "plate name arrow"
+    "plate line arrow"
+    "plate . arrow";
+}
+
+.cs-next-plate {
+  grid-area: plate;
+  display: block;
+  width: 352px;
+  margin-right: 8px;
+}
+
+.cs-next-plate .cs-screen {
+  margin: 0 auto;
+}
+
+.cs-next-plate figcaption {
+  display: block;
+  min-height: 24px;
+  padding: 4px 10px;
+  overflow: hidden;
+  font-size: 11px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.cs-next-link:focus-visible .cs-next-name {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 8px;
+}
+
 @media (hover: hover) and (pointer: fine) {
   .cs-next-link:hover .cs-next-name {
     text-decoration: underline;
@@ -1038,6 +1139,20 @@
 
   .cs-next-link {
     column-gap: 16px;
+  }
+
+  .cs-next-link[data-plated] {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: auto;
+    grid-template-areas:
+      "plate plate"
+      "name arrow"
+      "line arrow";
+  }
+
+  .cs-next-plate {
+    width: 100%;
+    margin: 0 0 8px;
   }
 
   .cs-next-arrow {
