@@ -155,7 +155,7 @@ function EntryView({ entry, lane, onOpen, eager }: { entry: Entry; lane: Lane; o
         {laneLabel}
       </span>
       {entry.shot && <ShotFigure shot={entry.shot} name={entry.name} onOpen={onOpen} eager={eager} />}
-      <h3>
+      <h2 className="tl-h3">
         {caseLink ? (
           <Link className="tl-plain tl-h3link" to={caseLink.href}>
             {entry.name}
@@ -163,7 +163,7 @@ function EntryView({ entry, lane, onOpen, eager }: { entry: Entry; lane: Lane; o
         ) : (
           entry.name
         )}
-      </h3>
+      </h2>
       {entry.kind && <p className="tl-kind">{entry.kind}</p>}
       {(entry.text || entry.ai) && (
         <div className="tl-text">
@@ -193,6 +193,13 @@ function Section({ id, title, children }: { id: string; title: string; children:
 
 export default function Draft() {
   const [sel, setSel] = useState<Sel>('all')
+  const [instant, setInstant] = useState(false)
+  const pointerAt = useRef(0)
+  const choose = (next: Sel) => {
+    const byPointer = performance.now() - pointerAt.current < 400
+    setInstant(!byPointer)
+    setSel(next)
+  }
   const [open, setOpen] = useState<Shot | null>(null)
   const [indexOpen, setIndexOpen] = useState(false)
   const dialogRef = useRef<HTMLDialogElement>(null)
@@ -259,8 +266,8 @@ export default function Draft() {
   })
 
   const options: { key: Sel; label: string; small: string }[] = [
-    ...lanes.map((l) => ({ key: l.key as Sel, label: l.label, small: `${l.since}, ${placed.counts[l.key]} entries` })),
-    { key: 'all', label: 'All', small: 'three lanes' },
+    ...lanes.map((l) => ({ key: l.key as Sel, label: l.label, small: l.since })),
+    { key: 'all', label: 'All', small: '' },
   ]
 
   return (
@@ -306,16 +313,16 @@ export default function Draft() {
                 {site.lead.after}
               </>
             ) : (
-              site.laneLines[sel]
+              site.laneLines[sel].replace('{n}', ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'][placed.counts[sel]] ?? String(placed.counts[sel]))
             )}
           </p>
         </div>
 
         <div className="tl-wrap">
           <section id="work" aria-label="The work, 2021 to 2026, in three lanes">
-            <div className="tl-record" data-sel={sel}>
+            <div className="tl-record" data-sel={sel} data-instant={instant ? '' : undefined}>
               {/* The lanes are the control: choose one and the record answers. A radio group: arrow keys move the choice, a tap or click sets it, pressing the chosen lane again shows all. */}
-              <fieldset className="tl-laneheads">
+              <fieldset className="tl-laneheads" onPointerDown={() => (pointerAt.current = performance.now())}>
                 <legend className="tl-sr">Show one lane</legend>
                 {options.map((o) => (
                   <label className="tl-lanehead" data-lane={o.key} key={o.key} data-on={sel === o.key ? '' : undefined}>
@@ -325,13 +332,13 @@ export default function Draft() {
                       className="tl-sr"
                       value={o.key}
                       checked={sel === o.key}
-                      onChange={() => setSel(o.key)}
+                      onChange={() => choose(o.key)}
                       onClick={() => {
-                        if (sel === o.key && o.key !== 'all') setSel('all')
+                        if (sel === o.key && o.key !== 'all') choose('all')
                       }}
                     />
                     <span className="tl-lanehead-name">{o.label}</span>
-                    <small>{o.small}</small>
+                    {o.small && <small>{o.small}</small>}
                   </label>
                 ))}
               </fieldset>

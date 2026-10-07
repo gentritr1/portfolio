@@ -32,15 +32,14 @@ export interface AppView {
   what: string;
   role: string;
   where: string;
-  builtWith: string;
   hook: string;
-  /** One line under the hook, over the codes. */
-  caption: string;
   /** One checkable result, for the table. */
   result: string;
   stores: Store[];
   site?: PublicLink;
   frames: Frame[];
+  /** The ground colour of each frame, sampled from its top-left pixel. Shows while the image loads. */
+  grounds: string[];
   /** The colour of the app's own store frame. Marks the selected row and nothing else. */
   accent: string;
 }
@@ -80,7 +79,7 @@ function framesOf(slug: string, galleryTitle: string, picks: number[]): Frame[] 
 
 function build(
   slug: string,
-  extra: Pick<AppView, "kind" | "what" | "role" | "where" | "builtWith" | "hook" | "caption" | "result" | "accent"> & { gallery: string; picks: number[] },
+  extra: Pick<AppView, "kind" | "what" | "role" | "where" | "hook" | "result" | "accent" | "grounds"> & { gallery: string; picks: number[] },
 ): AppView {
   const p = projectOrThrow(slug);
   const { gallery, picks, ...rest } = extra;
@@ -104,10 +103,9 @@ export const apps: AppView[] = [
     what: "Children read, scan their own books by barcode and earn badges. About 14 releases in four years.",
     role: "Mobile",
     where: "iOS and Android",
-    builtWith: "React Native",
     hook: "About 14 releases in four years",
-    caption: "Archived copies of the removed store pages.",
     result: "About 14 releases in four years",
+    grounds: ["#50afdc", "#477eed"],
     accent: "#0f72a2",
     gallery: "Store screenshots",
     picks: [0, 1],
@@ -117,10 +115,9 @@ export const apps: AppView[] = [
     what: "Courses, live streams and subscriptions in English and Arabic. The web app also runs inside the phone apps.",
     role: "Frontend, core team",
     where: "Web, iOS and Android",
-    builtWith: "Vue",
     hook: "Live in both stores",
-    caption: "",
     result: "Live on the web and in both stores",
+    grounds: ["#4e0c00", "#4a0a00"],
     accent: "#801402",
     gallery: "Mobile app",
     picks: [0, 1],
@@ -130,11 +127,10 @@ export const apps: AppView[] = [
     what: "Shoppers fill a cart, pick a delivery slot and find their address on a map. In Albanian.",
     role: "Mobile",
     where: "iOS and Android",
-    builtWith: "React Native",
     hook: "Live in both stores",
-    caption: "",
     result: "Live in both stores",
     // The store red is 4.37:1 with white; the band is the same red, 8 percent darker, for 4.5:1 text.
+    grounds: ["#ed1d26", "#ed1d26"],
     accent: "#d9181f",
     gallery: "Store screenshots",
     picks: [0, 2],
@@ -144,10 +140,9 @@ export const apps: AppView[] = [
     what: "Readers search books, keep favourite lists and check out with promo codes.",
     role: "Mobile",
     where: "iOS and Android",
-    builtWith: "React Native",
     hook: "Live in both stores",
-    caption: "",
     result: "Live in both stores",
+    grounds: ["#fba2a2", "#8cd1c8"],
     accent: "#de0016",
     gallery: "Store screenshots",
     picks: [0, 1],

@@ -76,9 +76,9 @@ export const site = {
   lead: { before: '5+ years. Part of two platform rewrites: a care platform and ', link: { label: 'bayyinahtv.com', href: 'https://bayyinahtv.com/' }, after: '. Based in Kosovo, working remotely.' },
   /** What the record says when one lane is chosen. Facts from CONTENT.md; also readable in the entries. */
   laneLines: {
-    phone: 'Phone apps since 2021. Three are live in both stores today: Bayyinah TV, Viva Fresh and Dukagjini Bookstore. Read to Feed shipped about 14 releases.',
-    web: 'Web apps since 2023. A care platform for remote patient monitoring, now moving to React one screen at a time, and Bayyinah TV, rebuilt from scratch.',
-    server: 'The servers since 2026. Behind the care platform, one billing report now makes 2 database requests, not 16. Behind Offday, about 200 tests.',
+    phone: 'Phone apps since 2021, {n} entries. Three are live in both stores today: Bayyinah TV, Viva Fresh and Dukagjini Bookstore. Read to Feed shipped about 14 releases.',
+    web: 'Web apps since 2023, {n} entries. A care platform for remote patient monitoring, now moving to React one screen at a time, and Bayyinah TV, rebuilt from scratch.',
+    server: 'The servers since 2026, {n} entries. Behind the care platform, one billing report now makes 2 database requests, not 16. Behind Offday, about 200 tests.',
   } as Record<Lane, string>,
   nav: [
     { label: 'Work', href: '#work' },

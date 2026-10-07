@@ -22,14 +22,15 @@
   font-display: swap;
 }
 
-/* Metric-matched fallbacks, so the swap to the real faces does not move the lines (measured: widths of the real faces over Arial). */
+/* Metric-matched fallbacks (widths of the real faces over Arial, measured on the claim). The page also holds its first paint
+   for up to 700 ms until the faces are in, because no single ratio keeps the claim's line breaks at every width. */
 @font-face {
   font-family: "PB Display Fallback";
   src: local("Arial Bold"), local("Arial-BoldMT"), local("Liberation Sans Bold"), local("LiberationSans-Bold"), local("Helvetica Bold");
   font-weight: 800;
-  size-adjust: 77.2%;
-  ascent-override: 127.5%;
-  descent-override: 27.6%;
+  size-adjust: 77.5%;
+  ascent-override: 127%;
+  descent-override: 27.5%;
   line-gap-override: 0%;
 }
 @font-face {
@@ -181,6 +182,11 @@
 }
 
 /* ---------- First screen ---------- */
+
+.pb-root[data-fonts="wait"] main,
+.pb-root[data-fonts="wait"] footer {
+  visibility: hidden;
+}
 
 .pb-first {
   display: grid;
@@ -448,13 +454,7 @@
   text-transform: uppercase;
   text-wrap: balance;
   height: 56px;
-}
-.pb-code-caption {
-  margin: 6px 0 12px;
-  min-height: 38px;
-  font-size: 14px;
-  line-height: 1.35;
-  color: var(--pb-ink-2);
+  margin-bottom: 12px;
 }
 .pb-code {
   display: block;

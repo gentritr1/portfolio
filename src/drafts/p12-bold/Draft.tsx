@@ -202,6 +202,7 @@ const StageGroup = memo(function StageGroup({ app, i, selected, pos }: { app: Ap
           fetchPriority={i === 0 && k === 0 ? "high" : "low"}
           decoding="async"
           draggable={false}
+          style={{ backgroundColor: app.grounds[k] }}
         />
       ))}
     </motion.div>
@@ -270,7 +271,7 @@ function Facts({ app }: { app: AppView }) {
       </div>
       <p className="pb-facts-what">{app.what}</p>
       <p className="pb-facts-meta">
-        {app.role}. {app.where}. {app.builtWith}.
+        {app.role}. {app.where}.
       </p>
     </div>
   );
@@ -307,7 +308,6 @@ function Codes({ app, ready }: { app: AppView; ready: boolean }) {
       <p className="pb-hook" aria-live="polite">
         {app.hook}
       </p>
-      <p className="pb-code-caption">{app.caption}</p>
       {app.stores.map((s) => (
         <div className="pb-code" key={s.name}>
           <a className="pb-code-link pb-press" href={s.href} target="_blank" rel="noopener noreferrer" aria-label={`${s.label}, ${app.name}. This code opens the same page (opens a new tab)`}>
@@ -530,6 +530,7 @@ export default function Draft() {
   const anim = useRef<{ stop: () => void } | null>(null);
   const dragging = useRef(false);
   const [ready, setReady] = useState(false);
+  const [fontsIn, setFontsIn] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [platform, setPlatform] = useState<Platform>("other");
   const app = apps[index];
@@ -542,16 +543,35 @@ export default function Draft() {
     const before = [html.style.backgroundColor, body.style.backgroundColor];
     html.style.backgroundColor = PAPER;
     body.style.backgroundColor = PAPER;
+    // The browser bar takes the first theme-color it finds; the host sets one, so change that one and put it back on leaving.
+    const metas = Array.from(document.querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]'));
+    const beforeMetas = metas.map((m) => m.content);
+    let added: HTMLMetaElement | null = null;
+    if (metas.length) metas.forEach((m) => (m.content = PAPER));
+    else {
+      added = document.createElement("meta");
+      added.name = "theme-color";
+      added.content = PAPER;
+      document.head.appendChild(added);
+    }
     let alive = true;
-    const fonts = (document as Document & { fonts?: { ready: Promise<unknown> } }).fonts;
-    const go = () => alive && requestAnimationFrame(() => alive && setReady(true));
-    (fonts ? fonts.ready : Promise.resolve()).then(go, go);
+    // Hold the first paint until the display and text faces are in (never longer than 700 ms), so the claim does not reflow.
+    const fonts = (document as Document & { fonts?: { load: (f: string) => Promise<unknown>; ready: Promise<unknown> } }).fonts;
+    const loaded = fonts ? Promise.all([fonts.load('800 56px "PB Display"'), fonts.load('400 17px "PB Text"'), fonts.ready]) : Promise.resolve();
+    const go = () => {
+      if (!alive) return;
+      setFontsIn(true);
+      requestAnimationFrame(() => alive && setReady(true));
+    };
+    Promise.race([loaded, new Promise((r) => window.setTimeout(r, 700))]).then(go, go);
     const t = window.setTimeout(() => alive && setMounted(true), 500);
     return () => {
       alive = false;
       window.clearTimeout(t);
       html.style.backgroundColor = before[0];
       body.style.backgroundColor = before[1];
+      metas.forEach((m, i) => (m.content = beforeMetas[i]));
+      added?.remove();
     };
   }, []);
 
@@ -596,10 +616,9 @@ export default function Draft() {
   );
 
   return (
-    <div className="pb-root" style={{ "--pb-app": app.accent } as CSSProperties}>
+    <div className="pb-root" data-fonts={fontsIn ? "in" : "wait"} style={{ "--pb-app": app.accent } as CSSProperties}>
       <title>Gentrit Rashiti, phone and web apps</title>
       <meta name="description" content="Gentrit Rashiti builds the phone and web apps that shoppers, readers and care teams use. Scan a code to open the real app in your store." />
-      <meta name="theme-color" content={PAPER} />
       <main>
         <section className="pb-first" aria-label="Introduction">
           <nav className="pb-nav" aria-label="Main">
