@@ -253,7 +253,9 @@
   cursor: pointer;
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
-  transition: transform 120ms var(--ease-out), color 150ms ease;
+  /* Only the press animates. The face itself changes at once: it follows a hand turning the page, and a dozen
+     labels easing their colour on every crossing would restyle each frame of the turn. */
+  transition: transform 120ms var(--ease-out);
 }
 /* The native radio covers its label: one Tab stop, arrow keys, and the focus ring drawn on it. */
 .lx-face input {
@@ -277,7 +279,6 @@
   background: var(--accent);
   transform: scaleX(0);
   transform-origin: left;
-  transition: transform 150ms var(--ease-out);
 }
 .lx-face[data-on] { color: var(--ink); }
 .lx-face[data-on]::after { transform: scaleX(1); }
@@ -312,7 +313,7 @@
 .lx-layer { position: absolute; inset: 0; overflow: hidden; z-index: 2; }
 .lx-layer[data-layer="1"] { z-index: 1; }
 /* Without the lens canvas, the chosen face simply lies on top. */
-.lx-card[data-face="1"] .lx-layer[data-layer="1"] { z-index: 3; }
+.lx-print:not([data-flat]) .lx-card[data-face="1"] .lx-layer[data-layer="1"] { z-index: 3; }
 .lx-tile { position: absolute; overflow: hidden; }
 .lx .lx-tile img {
   position: absolute;
@@ -333,8 +334,11 @@
   pointer-events: none;
 }
 .lx-print[data-ready] .lx-lens { visibility: visible; animation: lx-in 180ms var(--ease-out); }
-/* The lamp's glints and the lens seams: 14 rows, stretched over the card by the compositor. */
-.lx-sheen { z-index: 5; }
+/* After the fade the card stops clipping (the canvas carries its rounded corners in its pixels), so a turn is
+   one plain quad, not an offscreen pass; the pictures under the lens are clipped away but stay in the reading
+   order. A CSS radius on the canvas would bring the offscreen pass back. */
+.lx-print[data-flat] .lx-card { overflow: visible; border-radius: 0; background: none; }
+.lx-print[data-flat] .lx-layer { clip-path: inset(50%); }
 /* The plain picture under the lens has no sheen or edge band; the lens arrives over it as a short fade. */
 @keyframes lx-in { from { opacity: 0; } }
 .lx-cap {
@@ -582,6 +586,8 @@
 }
 .lx-lensctl {
   display: inline-flex;
+  user-select: none;
+  -webkit-user-select: none;
   align-items: center;
   margin: 0 0 0 -8px;
   padding: 0;
@@ -645,6 +651,8 @@
   height: 20px;
   border-radius: 50%;
   background: var(--accent);
+  /* Its own layer: the thumb follows the page angle every frame without repainting the bar. */
+  will-change: transform;
   box-shadow: 0 1px 2px rgb(31 21 24 / 0.35);
 }
 
@@ -656,10 +664,8 @@
   text-decoration-color: transparent;
   transition: text-decoration-color 150ms ease;
 }
-.lx[data-face="0"] .lx-w[data-w="web"],
-.lx[data-face="1"] .lx-w[data-w="phone"] { text-decoration-color: var(--accent); }
-.lx[data-face="0"] .lx-about .lx-w[data-w="web"],
-.lx[data-face="1"] .lx-about .lx-w[data-w="phone"] { text-decoration-color: var(--dark-accent); }
+.lx-w[data-on] { text-decoration-color: var(--accent); }
+.lx-about .lx-w[data-on] { text-decoration-color: var(--dark-accent); }
 
 /* The index marks the rows that run on the current face. No filter, no reordering: every row stays. */
 .lx-plat {
@@ -670,10 +676,8 @@
   background-size: 0% 2px;
   background-position: 0 100%;
   background-repeat: no-repeat;
-  transition: background-size 150ms var(--ease-out), color 150ms ease;
 }
-.lx[data-face="0"] .lx-plat:is([data-plat="web"], [data-plat="both"]),
-.lx[data-face="1"] .lx-plat:is([data-plat="phone"], [data-plat="both"]) {
+.lx-plat[data-on] {
   color: var(--ink);
   background-size: 100% 2px;
 }

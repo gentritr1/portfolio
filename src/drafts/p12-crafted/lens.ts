@@ -7,6 +7,11 @@
  * lens picks which strip it magnifies. That angle depends on the card's tilt and on how far the lens
  * sits from the card's centre, so when the card turns, the switch sweeps across it from the edge that
  * turns away. The sheen is a lamp's reflection in each lens's curved surface.
+ *
+ * Cost per frame: only the lenses whose cut moved are drawn again (three plain blits per band). The sheen is
+ * printed into the two screens once per size: screen A carries the glints as seen flat, screen B the glints as
+ * seen at the second face and the lens seams. A lens that shows B shows its seams; the glints slide less than two
+ * pixels over the whole turn, so each screen keeps its own. Nothing else is drawn while the card turns.
  */
 
 /** Lens width in CSS pixels. */
@@ -31,13 +36,17 @@ const REACH = QB + 0.005;
 
 /** Lens surface: steepest slope at its edge, degrees. */
 const LENS_EDGE = 10 * (Math.PI / 180);
-/** Specular exponent of the lens plastic. */
-const SHINE = 120;
-/** Brightest glint and darkest lens seam, as alpha. */
+/** Brightest glint and darkest lens seam, as alpha. The glint's specular exponent, 120, is applied by squaring. */
 const GLINT = 0.15;
 const SEAM = 0.06;
 /** Rows of the sheen grid; it is stretched to the card height. */
 const SHEEN_ROWS = 14;
+/** RGBA pixels written as one 32-bit word: white with alpha, or black with alpha, in this machine's byte order. */
+const LITTLE = new Uint8Array(new Uint32Array([1]).buffer)[0] === 1;
+const WHITE = LITTLE ? 0x00ffffff : 0xffffff00 | 0;
+const ALPHA = LITTLE ? 24 : 0;
+/** The card's corner radius in CSS px (matches .lx-shadow in draft.css). The canvases carry their own corners. */
+export const RADIUS = 12;
 
 export interface Tile {
   src: string;
@@ -86,18 +95,30 @@ async function paint(face: FacePaint, w: number, h: number): Promise<HTMLCanvasE
   return c;
 }
 
+/** Print the lens sheet's sheen over a screen (SHEEN_ROWS rows stretched down it) and round its corners. */
+function finish(c: HTMLCanvasElement, sheen: HTMLCanvasElement, r: number) {
+  const { width: w, height: h } = c;
+  const ctx = c.getContext("2d")!;
+  ctx.drawImage(sheen, 0, 0, w, SHEEN_ROWS, 0, 0, w, h);
+  // The corners are cut into the picture itself, so the card needs no clip while it turns. Only the four
+  // corner squares are touched.
+  if (!("roundRect" in ctx)) return;
+  const k = Math.ceil(r);
+  ctx.save();
+  ctx.beginPath();
+  for (const [x, y] of [[0, 0], [w - k, 0], [0, h - k], [w - k, h - k]]) ctx.rect(x, y, k, k);
+  ctx.clip();
+  ctx.globalCompositeOperation = "destination-in";
+  ctx.beginPath();
+  ctx.roundRect(0, 0, w, h, r);
+  ctx.fill();
+  ctx.restore();
+}
+
 export class LensPrint {
   private ctx: CanvasRenderingContext2D;
   private a: HTMLCanvasElement | null = null;
   private b: HTMLCanvasElement | null = null;
-  /** The lens sheet's sheen lives on its own small canvas (w × SHEEN_ROWS), stretched by CSS over the card. */
-  private sheen: HTMLCanvasElement;
-  private sheenCtx: CanvasRenderingContext2D;
-  private sheenData: ImageData | null = null;
-  private sheenTh = NaN;
-  private cssW = 0;
-  private cssH = 0;
-  private dpr = 1;
   private w = 0;
   private h = 0;
   private p = PITCH;
@@ -106,57 +127,49 @@ export class LensPrint {
   /** Per lens: how many device px of A it shows (0 = all B, its width = all A), as last drawn. NaN: not drawn. */
   private drawn = new Float32Array(0);
   private next = new Float32Array(0);
-  /** The eye's sideways offset from the card's centre for the glints, CSS px (negative: to the left). */
-  private eyeX = 0;
-  /** sin and cos of the lens surface angle at each device column inside a lens. */
-  private lensTrig: (readonly [number, number])[] = [];
-  /** Per device column, how dark the lens seam is (only drawn while the card is turned). */
-  private seamCol = new Float32Array(0);
+  /** One row: per device column, how much of A its lens shows (alpha). Stretched down the card as a mask. */
+  private mask = document.createElement("canvas");
+  private maskCtx = this.mask.getContext("2d")!;
+  private maskData: ImageData | null = null;
 
   private canvas: HTMLCanvasElement;
 
-  constructor(canvas: HTMLCanvasElement, sheen: HTMLCanvasElement) {
+  constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
     this.ctx = canvas.getContext("2d")!;
-    this.sheen = sheen;
-    this.sheenCtx = sheen.getContext("2d")!;
   }
 
   get ready() {
     return !!(this.a && this.b);
   }
 
-  /** Paint both faces at the card's device size. Call again after a resize. The old frame stays until the new one is ready. */
+  /** Paint both faces and the sheen at the card's device size. Call again after a resize. The old frame stays until the new one is ready. */
   async setup(faces: [FacePaint, FacePaint], cssW: number, cssH: number) {
     const dpr = Math.min(2, window.devicePixelRatio || 1);
     const w = Math.max(1, Math.round(cssW * dpr));
     const h = Math.max(1, Math.round(cssH * dpr));
-    // One face per frame, so painting a print never holds the page for long.
+    const p = Math.max(2, Math.round(PITCH * dpr));
+    // A carries the glints as seen flat; B the glints as seen at the second face, and the lens seams.
+    // Each step gets its own frame, so painting a print never holds the page for long.
     const a = await paint(faces[0], w, h);
+    await nextFrame();
+    finish(a, sheen(w, p, dpr, cssW, cssH, 0, 0), RADIUS * dpr);
     await nextFrame();
     const b = await paint(faces[1], w, h);
     await nextFrame();
+    finish(b, sheen(w, p, dpr, cssW, cssH, FACE_B_DEG, 1), RADIUS * dpr);
+    await nextFrame();
     this.release();
-    // Whole device pixels per lens, so every strip edge but the moving cut falls on a pixel edge.
-    const p = Math.max(2, Math.round(PITCH * dpr));
+    // Whole device pixels per lens (p above), so every strip edge but the moving cut falls on a pixel edge.
     const n = Math.ceil(w / p);
-    Object.assign(this, { dpr, cssW, cssH, w, h, a, b, p, n, eyeX: -0.2 * cssW });
+    Object.assign(this, { w, h, a, b, p, n });
     this.drawn = new Float32Array(n).fill(NaN);
     this.next = new Float32Array(n);
+    this.mask.width = w;
+    this.mask.height = 1;
+    this.maskData = this.maskCtx.createImageData(w, 1);
     this.canvas.width = w;
     this.canvas.height = h;
-    this.sheen.width = w;
-    this.sheen.height = SHEEN_ROWS;
-    this.sheenData = this.sheenCtx.createImageData(w, SHEEN_ROWS);
-    this.sheenTh = NaN;
-    this.seamCol = Float32Array.from({ length: w }, (_, x) => {
-      const k = Math.abs(2 * (((x + 0.5) % p) / p - 0.5));
-      return SEAM * k * k * k;
-    });
-    this.lensTrig = Array.from({ length: p }, (_, x1) => {
-      const phi = 2 * ((x1 + 0.5) / p - 0.5) * LENS_EDGE;
-      return [Math.sin(phi), Math.cos(phi)] as const;
-    });
   }
 
   release() {
@@ -168,12 +181,13 @@ export class LensPrint {
    * Draw the card as seen at a tilt of `deg` degrees about its vertical axis.
    * Each lens shows the end of A's strip, then the start of B's. Only lenses whose cut moved since the last
    * frame are drawn again: at any angle the sweep is a band across part of the card, and every lens outside it
-   * already shows the right screen. Each band costs two blits: A over the band, then B through a clip of the
-   * columns its lenses show (the cut's own column antialiased by the clip).
+   * already shows the right screen. A band is three plain blits: B, then a one-row mask stretched down the band
+   * cuts out the columns that show A (the cut's own column partly), then A fills in behind. No clip path: a
+   * clip of a hundred thin rectangles costs more than the pictures.
    */
   render(deg: number) {
     const { a, b, w, p, n, drawn, next } = this;
-    if (!a || !b || !n || (globalThis as any).__lxNORENDER) return;
+    if (!a || !b || !n) return;
     const turn = deg / FACE_B_DEG;
     for (let i = 0; i < n; i++) {
       const x0 = i * p;
@@ -181,9 +195,9 @@ export class LensPrint {
       const u = (x0 + width / 2) / w;
       const o = strip(REACH * turn + SPREAD * u);
       // Device px of A at the lens's left; an eighth of a pixel is finer than the eye can see move.
-      next[i] = (globalThis as any).__lxNOAA ? Math.round((0.5 - 2 * o) * width) : Math.round((0.5 - 2 * o) * width * 8) / 8;
+      next[i] = Math.round((0.5 - 2 * o) * width * 8) / 8;
     }
-    // Bands of lenses that changed; gaps of a lens or two are drawn too, so a band is one pair of blits.
+    // Bands of lenses that changed; gaps of a lens or two are drawn too, so a band is one set of blits.
     let i = 0;
     while (i < n) {
       if (next[i] === drawn[i]) {
@@ -196,15 +210,15 @@ export class LensPrint {
       for (let j = i; j < end; j++) drawn[j] = next[j];
       i = end;
     }
-    const th = (deg * Math.PI) / 180;
-    if (th !== this.sheenTh && !(globalThis as any).__lxNOSHEEN) this.drawSheen(th);
   }
 
   /** Draw lenses [from, to) at their `next` cut. */
   private band(a: HTMLCanvasElement, b: HTMLCanvasElement, from: number, to: number) {
-    const { ctx, w, h, p, next } = this;
+    const { ctx, w, h, p, next, mask, maskCtx, maskData } = this;
+    if (!maskData) return;
     const xa = from * p;
     const xb = Math.min(w, to * p);
+    const bw = xb - xa;
     let allA = true;
     let allB = true;
     for (let i = from; i < to; i++) {
@@ -212,83 +226,93 @@ export class LensPrint {
       if (next[i] < width) allA = false;
       if (next[i] > 0) allB = false;
     }
-    if (allB) {
-      ctx.drawImage(b, xa, 0, xb - xa, h, xa, 0, xb - xa, h);
+    if (allA || allB) {
+      ctx.drawImage(allA ? a : b, xa, 0, bw, h, xa, 0, bw, h);
       return;
     }
-    ctx.drawImage(a, xa, 0, xb - xa, h, xa, 0, xb - xa, h);
-    if (allA || (globalThis as any).__lxNOB) return;
-    ctx.save();
-    ctx.beginPath();
+    const m = maskData.data;
     for (let i = from; i < to; i++) {
       const x0 = i * p;
       const width = Math.min(p, w - x0);
       const c = next[i];
-      if (c < width) ctx.rect(x0 + c, 0, width - c, h);
+      // A covers the columns left of the cut; the cut's own column is shared.
+      for (let q = 0; q < width; q++) m[(x0 + q) * 4 + 3] = Math.round(255 * Math.min(1, Math.max(0, c - q)));
     }
-    ctx.clip();
-    ctx.drawImage(b, xa, 0, xb - xa, h, xa, 0, xb - xa, h);
-    ctx.restore();
+    maskCtx.putImageData(maskData, 0, 0, xa, 0, bw, 1);
+    ctx.drawImage(b, xa, 0, bw, h, xa, 0, bw, h);
+    ctx.globalCompositeOperation = "destination-out";
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(mask, xa, 0, bw, 1, xa, 0, bw, h);
+    ctx.imageSmoothingEnabled = true;
+    ctx.globalCompositeOperation = "destination-over";
+    ctx.drawImage(a, xa, 0, bw, h, xa, 0, bw, h);
+    ctx.globalCompositeOperation = "source-over";
   }
+}
 
-  /** Lamp reflection in each lens: a band of thin glints that slides as the card turns. */
-  private drawSheen(th: number) {
-    const { w, p, sheenData } = this;
-    if (!sheenData) return;
-    this.sheenTh = th;
-    // Seams show while the card is turned; flat, the lens sheet reads only as its glints and the edge band.
-    // Glints (white) and seams (dark) share one overlay, so the lens costs one more blit, not two.
-    const seamAlpha = Math.min(1, Math.abs(th) / (4 * (Math.PI / 180)));
-    const seamCol = this.seamCol;
-    const sin = Math.sin(th);
-    const cos = Math.cos(th);
-    const W = this.cssW;
-    const H = this.cssH;
-    // Lamp above and to the left of the viewer, in world space around the card's centre.
-    const Lx = -0.12 * W;
-    const Ly = -0.7 * H;
-    const Lz = 1.2 * W;
-    // World to card space (inverse of the card's rotation about y).
-    const lx = Lx * cos - Lz * sin;
-    const lz = Lx * sin + Lz * cos;
-    const ex = this.eyeX * cos - EYE * sin;
-    const ez = this.eyeX * sin + EYE * cos;
-    const data = sheenData.data;
-    const lenses = Math.ceil(w / p);
-    for (let r = 0; r < SHEEN_ROWS; r++) {
-      const y = ((r + 0.5) / SHEEN_ROWS - 0.5) * H;
-      for (let i = 0; i < lenses; i++) {
-        const x0 = i * p;
-        const width = Math.min(p, w - x0);
-        const x = (x0 + width / 2) / this.dpr - W / 2;
-        // Unit vectors to the eye and to the lamp, and their half vector.
-        let vx = ex - x, vy = -y, vz = ez;
-        let n = Math.hypot(vx, vy, vz);
-        vx /= n; vy /= n; vz /= n;
-        let mx = lx - x, my = Ly - y, mz = lz;
-        n = Math.hypot(mx, my, mz);
-        mx /= n; my /= n; mz /= n;
-        let hx = vx + mx, hy = vy + my, hz = vz + mz;
-        n = Math.hypot(hx, hy, hz);
-        hx /= n; hy /= n; hz /= n;
-        const trig = this.lensTrig;
-        for (let x1 = 0; x1 < width; x1++) {
-          const [sn, cs] = trig[x1];
-          const d = sn * hx + cs * hz;
-          const k = (r * w + x0 + x1) * 4;
-          const glint = d > 0.96 ? GLINT * Math.pow(d, SHINE) : 0;
-          const shade = seamAlpha * seamCol[x0 + x1];
-          if (glint >= shade) {
-            data[k] = data[k + 1] = data[k + 2] = 255;
-            data[k + 3] = Math.round(255 * glint);
-          } else {
-            data[k] = data[k + 1] = data[k + 2] = 0;
-            data[k + 3] = Math.round(255 * shade);
-          }
+/**
+ * The lens sheet's sheen for a card turned `deg` degrees: the lamp's reflection in each lens (thin white glints)
+ * and, by `seams` (0 to 1), the dark seams between lenses. SHEEN_ROWS rows, to be stretched down the screen.
+ */
+function sheen(w: number, p: number, dpr: number, W: number, H: number, deg: number, seams: number): HTMLCanvasElement {
+  const canvas = document.createElement("canvas");
+  canvas.width = w;
+  canvas.height = SHEEN_ROWS;
+  const ctx = canvas.getContext("2d")!;
+  const img = ctx.createImageData(w, SHEEN_ROWS);
+  const px = new Uint32Array(img.data.buffer);
+  const seamCol = Float32Array.from({ length: w }, (_, x) => {
+    const k = Math.abs(2 * (((x + 0.5) % p) / p - 0.5));
+    return seams * SEAM * k * k * k;
+  });
+  const th = (deg * Math.PI) / 180;
+  const sin = Math.sin(th);
+  const cos = Math.cos(th);
+  // Lamp above and to the left of the viewer, in world space around the card's centre; the eye a little to
+  // the left of the card's centre.
+  const Lx = -0.12 * W;
+  const Ly = -0.7 * H;
+  const Lz = 1.2 * W;
+  const eyeX = -0.2 * W;
+  // World to card space (inverse of the card's rotation about y).
+  const lx = Lx * cos - Lz * sin;
+  const lz = Lx * sin + Lz * cos;
+  const ex = eyeX * cos - EYE * sin;
+  const ez = eyeX * sin + EYE * cos;
+  const sn = Float32Array.from({ length: p }, (_, x1) => Math.sin(2 * ((x1 + 0.5) / p - 0.5) * LENS_EDGE));
+  const cs = Float32Array.from({ length: p }, (_, x1) => Math.cos(2 * ((x1 + 0.5) / p - 0.5) * LENS_EDGE));
+  for (let r = 0; r < SHEEN_ROWS; r++) {
+    const y = ((r + 0.5) / SHEEN_ROWS - 0.5) * H;
+    for (let x0 = 0; x0 < w; x0 += p) {
+      const width = Math.min(p, w - x0);
+      const x = (x0 + width / 2) / dpr - W / 2;
+      // Unit vectors to the eye and to the lamp, and their half vector.
+      let vx = ex - x, vy = -y, vz = ez;
+      let n = 1 / Math.sqrt(vx * vx + vy * vy + vz * vz);
+      vx *= n; vy *= n; vz *= n;
+      let mx = lx - x, my = Ly - y, mz = lz;
+      n = 1 / Math.sqrt(mx * mx + my * my + mz * mz);
+      mx *= n; my *= n; mz *= n;
+      let hx = vx + mx;
+      const hy = vy + my;
+      let hz = vz + mz;
+      n = 1 / Math.sqrt(hx * hx + hy * hy + hz * hz);
+      hx *= n; hz *= n;
+      for (let x1 = 0; x1 < width; x1++) {
+        const d = sn[x1] * hx + cs[x1] * hz;
+        let glint = 0;
+        if (d > 0.96) {
+          // d^120 by squaring: d^64 · d^32 · d^16 · d^8.
+          const d8 = (d * d * (d * d)) ** 2;
+          const d16 = d8 * d8;
+          const d32 = d16 * d16;
+          glint = GLINT * d32 * d32 * d32 * d16 * d8;
         }
+        const shade = seamCol[x0 + x1];
+        px[r * w + x0 + x1] = glint >= shade ? WHITE | (((255 * glint + 0.5) | 0) << ALPHA) : ((255 * shade + 0.5) | 0) << ALPHA;
       }
     }
-    // The compositor stretches the 14 rows over the card: no full-size blit on the main thread.
-    this.sheenCtx.putImageData(sheenData, 0, 0);
   }
+  ctx.putImageData(img, 0, 0);
+  return canvas;
 }

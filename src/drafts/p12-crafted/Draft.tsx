@@ -3,7 +3,7 @@ import { Link } from "react-router";
 import { useReducedMotion } from "motion/react";
 import { links } from "../../content/links";
 import { REAL_SCREENS } from "../../content/careShots";
-import { FaceSwitch, LensSwitch, Print, useFace, useTilt, type PrintSpec, type Tilt, type TileSpec } from "./Print";
+import { FaceSwitch, LensSwitch, Print, useFace, useTilt, whenIdle, type PrintSpec, type Tilt, type TileSpec } from "./Print";
 import "./draft.css";
 
 /* ---------- Screens (file pixels, from design/portfolio-skill/loop-12/ASSETS.md) ---------- */
@@ -290,16 +290,28 @@ export default function Draft() {
   const reduced = useReducedMotion() ?? false;
   // The page lens: one angle for the whole page. Every print, label, word mark and index tag reads it.
   const lens = useTilt(reduced);
-  // The claim's word, the index tags and About read the face from one attribute, set outside React.
+  // The claim's word, the index tags and About mark the current face. Set outside React, on those few
+  // elements only: a flip restyles two dozen spans, not the whole page.
   const root = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    const sync = () => root.current && (root.current.dataset.face = String(lens.getFace()));
-    sync();
-    return lens.subscribe(sync);
+    const all = [...(root.current?.querySelectorAll<HTMLElement>("[data-w], [data-plat]") ?? [])];
+    // The claim's two words change with the flip; the index tags and About, far down the page, when idle.
+    const near = all.filter((el) => el.closest(".lx-hero"));
+    const far = all.filter((el) => !near.includes(el));
+    const mark = (els: HTMLElement[]) => {
+      const want = lens.getFace() === 0 ? "web" : "phone";
+      for (const el of els) el.toggleAttribute("data-on", (el.dataset.w ?? el.dataset.plat) === want || el.dataset.plat === "both");
+    };
+    const markFar = () => mark(far);
+    mark(all);
+    return lens.subscribe(() => {
+      mark(near);
+      whenIdle(markFar);
+    });
   }, [lens]);
 
   return (
-    <div className="lx" data-face="0" ref={root}>
+    <div className="lx" ref={root}>
       <title>Gentrit Rashiti: web and phone apps</title>
       <meta name="description" content="Gentrit Rashiti builds web and phone apps for learners, care teams and shoppers. Based in Kosovo, working remotely." />
       <meta name="theme-color" content="#f7efea" />
@@ -329,7 +341,7 @@ export default function Draft() {
       <main>
         <section className="lx-hero" aria-labelledby="lx-claim">
           <h1 id="lx-claim" className="lx-claim">
-            Gentrit Rashiti builds <span className="lx-w" data-w="web">web</span> and{" "}
+            Gentrit Rashiti builds <span className="lx-w" data-w="web" data-on="">web</span> and{" "}
             <span className="lx-w" data-w="phone">phone</span> apps for learners, care teams and shoppers.
           </h1>
           <p className="lx-role">
@@ -500,7 +512,7 @@ export default function Draft() {
                     </span>
                     <span className="lx-list-years">{row.years}</span>
                     <span className="lx-list-role">
-                      {row.role} <span className="lx-plat" data-plat={row.plat}>{PLAT_LABEL[row.plat]}</span>
+                      {row.role} <span className="lx-plat" data-plat={row.plat} data-on={row.plat !== "phone" ? "" : undefined}>{PLAT_LABEL[row.plat]}</span>
                     </span>
                     <span className="lx-list-line">{row.line}</span>
                   </li>
@@ -515,7 +527,7 @@ export default function Draft() {
         <div className="lx-about-inner">
           <h2 className="lx-section-h">About</h2>
           <p className="lx-about-lede">
-            Gentrit Rashiti builds <span className="lx-w" data-w="web">web</span> and{" "}
+            Gentrit Rashiti builds <span className="lx-w" data-w="web" data-on="">web</span> and{" "}
             <span className="lx-w" data-w="phone">phone</span> apps, and since 2026 also the server behind them. Based
             in Kosovo, working remotely. Building apps since 2021.
           </p>

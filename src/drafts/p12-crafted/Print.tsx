@@ -229,6 +229,28 @@ export function LensSwitch({ tilt }: { tilt: Tilt }) {
   );
 }
 
+/* ---------- Work that can wait for an idle moment ---------- */
+
+/**
+ * Run `fn` when the page is next idle (within 300 ms). A face flip restyles what is on screen at once and
+ * leaves parts out of view (the index tags, the plain pictures under a lens) to the next idle moment, so the
+ * frame of the flip stays short while a hand is turning the page. Repeated requests for one fn run it once.
+ */
+const waiting = new Set<() => void>();
+let idleId = 0;
+export function whenIdle(fn: () => void) {
+  waiting.add(fn);
+  if (idleId) return;
+  const run = () => {
+    idleId = 0;
+    const list = [...waiting];
+    waiting.clear();
+    for (const f of list) f();
+  };
+  idleId =
+    "requestIdleCallback" in window ? window.requestIdleCallback(run, { timeout: 300 }) : setTimeout(run, 50);
+}
+
 /* ---------- Painting, one print at a time, when the page is idle ---------- */
 
 const jobs: (() => Promise<void>)[] = [];
@@ -303,15 +325,25 @@ export function Print({
   const layout = narrow ? spec.narrow : spec.wide;
   const card = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
-  const sheen = useRef<HTMLCanvasElement>(null);
   const lens = useRef<LensPrint | null>(null);
   const imgs = useRef<(HTMLImageElement | null)[][]>([[], []]);
   const [ready, setReady] = useState(false);
+  // Once the lens has faded in over the plain pictures, the card stops clipping: the canvases round their own
+  // corners and the pictures under them are clipped away (still read by screen readers). A clipped, turning
+  // card must be composited through an offscreen pass every frame; an unclipped one is two plain quads.
+  const [flat, setFlat] = useState(false);
+  useEffect(() => {
+    if (!ready || flat) return;
+    const id = window.setTimeout(() => setFlat(true), 240);
+    return () => window.clearTimeout(id);
+  }, [ready, flat]);
   const born = useRef(performance.now());
 
   const touched = useRef(false);
   const inView = useRef(false);
   const dirty = useRef(true);
+  // The card's own turn follows the page angle only while it is in view; off screen nothing is restyled.
+  const turn = useMotionValue(tilt.theta.get());
 
   // The one authored moment at load: the hero print is turned to its App Store face and back, once,
   // as a hand shows a postcard. It starts and ends on the website. Skipped if the lens is late,
@@ -333,8 +365,7 @@ export function Print({
   useEffect(() => {
     const el = card.current;
     const cv = canvas.current;
-    const sh = sheen.current;
-    if (!el || !cv || !sh) return;
+    if (!el || !cv) return;
     let alive = true;
     let near = false;
     let size = { w: 0, h: 0 };
@@ -363,7 +394,7 @@ export function Print({
             }),
           }),
         ) as [FacePaint, FacePaint];
-        const print = (lens.current ??= new LensPrint(cv, sh));
+        const print = (lens.current ??= new LensPrint(cv));
         try {
           await print.setup(paints, size.w, size.h);
         } catch {
@@ -392,31 +423,40 @@ export function Print({
       build();
     });
     // Only prints in view redraw while the page lens turns; the rest catch up when they enter.
-    const seen = new IntersectionObserver(([entry]) => {
-      inView.current = entry.isIntersecting;
-      if (entry.isIntersecting && dirty.current && lens.current?.ready) {
+    const catchUp = () => {
+      turn.set(tilt.theta.get());
+      if (dirty.current && lens.current?.ready) {
         lens.current.render(tilt.theta.get());
         dirty.current = false;
       }
+    };
+    const seen = new IntersectionObserver(([entry]) => {
+      inView.current = entry.isIntersecting;
+      if (entry.isIntersecting) catchUp();
     });
+    // A print about to scroll in catches up a little before it shows, so its first frame is already current.
+    const approach = new IntersectionObserver(([entry]) => entry.isIntersecting && catchUp(), { rootMargin: "25% 0px" });
     io.observe(el);
     seen.observe(el);
+    approach.observe(el);
     ro.observe(el);
     return () => {
       alive = false;
       io.disconnect();
       seen.disconnect();
+      approach.disconnect();
       ro.disconnect();
       lens.current?.release();
     };
     // The layout object changes only when the breakpoint changes.
-  }, [layout, tilt.theta]);
+  }, [layout, tilt.theta, turn]);
 
-  // Without the lens canvas, the shown face lies on top (CSS reads data-face); set outside React.
+  // Without the lens canvas, the shown face lies on top (CSS reads data-face); set outside React, when idle:
+  // once the lens is up, the plain pictures are out of sight.
   useEffect(() => {
     const sync = () => card.current && (card.current.dataset.face = String(tilt.getFace()));
     sync();
-    return tilt.subscribe(sync);
+    return tilt.subscribe(() => whenIdle(sync));
   }, [tilt]);
 
   // One draw per frame, in motion's render step, at the angle the frame ends on: a burst of pointer events
@@ -426,9 +466,11 @@ export function Print({
     lens.current.render(tilt.theta.get());
     dirty.current = false;
   });
-  useMotionValueEvent(tilt.theta, "change", () => {
-    if (inView.current) frame.render(draw.current);
-    else dirty.current = true;
+  useMotionValueEvent(tilt.theta, "change", (v) => {
+    if (inView.current) {
+      turn.set(v);
+      frame.render(draw.current);
+    } else dirty.current = true;
   });
 
   // Past the ends the card resists, like a print held at one edge (rubber band, never a hard stop).
@@ -478,7 +520,7 @@ export function Print({
   };
 
   return (
-    <figure className="lx-print" data-work={spec.work} data-ready={ready || undefined}>
+    <figure className="lx-print" data-work={spec.work} data-ready={ready || undefined} data-flat={flat || undefined}>
       <div className="lx-stage" style={{ aspectRatio: String(layout.aspect) }}>
         {/* The shadow stays still: at 9° it would move 1%, and repainting a blurred shadow every frame is not worth it. */}
         <div className="lx-shadow" aria-hidden="true" />
@@ -489,7 +531,7 @@ export function Print({
           aria-label={name}
           data-face="0"
           data-motion={story ? "story" : undefined}
-          style={{ rotateY: tilt.theta, transformPerspective: EYE }}
+          style={{ rotateY: turn, transformPerspective: EYE }}
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
           onPointerUp={(e) => release(e, false)}
@@ -523,7 +565,6 @@ export function Print({
             </div>
           ))}
           <canvas ref={canvas} className="lx-lens" aria-hidden="true" />
-          <canvas ref={sheen} className="lx-lens lx-sheen" aria-hidden="true" />
         </motion.div>
       </div>
       {caption && <figcaption className="lx-cap">{caption}</figcaption>}
