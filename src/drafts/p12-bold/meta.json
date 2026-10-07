@@ -7,7 +7,7 @@
   "caseSlug": "read-to-feed",
   "rule": "The page is a launcher that turns each shipped app into a code your phone can scan.",
   "designRead": "Reading this as: a frontend and mobile developer for hiring managers and founders who want shipped phone apps, leading with Read to Feed (about 14 releases in four years), in the rule of a launcher: every public app on the page is a working code that opens it in the visitor's own store, or its archived page.",
-  "hook": "The one where you pick one of his four store apps, the page turns that app's colour, and a code appears that opens it on your phone.",
+  "hook": "The one where you pick one of the four store apps, the page turns that app's colour, and a code appears that opens it on your phone.",
   "lead": "Read to Feed: by CONTENT.md the longest checkable record (about 14 releases to both stores in 2022 to 2025, three major upgrades; the owner's case title is 'four years of releases'). Bayyinah TV is stronger as a live product but p12-crafted leads with it. Viva Fresh, the first lead, has no number. Weakness shown, not hidden: the store pages are removed, so the heading states the record and the archive is the small label under each code.",
   "composition": "first-screen.md #6, one mechanism the visitor operates: claim and list at left, two real store frames in the middle, a fact line and two codes at right; the four answers are text and need no input. On a phone the codes are replaced by store buttons and one frame sits under the list.",
   "fourAnswers": {
