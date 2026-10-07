@@ -538,7 +538,7 @@ export default function Draft() {
           <h2 id="lx-built-h" className="lx-result">Rebuilt from an empty project, then shipped to the web and both stores.</h2>
           <div className="lx-built-text">
             <p>
-              A core frontend team, Gentrit among them, rebuilt the second version from an empty project. It has live
+              The core frontend team rebuilt the second version from an empty project. It has live
               streams with chat and moderation, and a video player that locks premium videos. Members pay with Stripe, Apple or Google, and
               can give gifts and use promo codes. The app runs in English, and in Arabic from right to left.
             </p>
@@ -591,7 +591,7 @@ export default function Draft() {
             <p className="lx-proof">
               <span className="lx-num">16 → 2</span> database requests for one billing report. It no longer times out.
             </p>
-            <p className="lx-ai">Gentrit wrote most of the rules and the checks. AI agents build inside them. A person approves each change.</p>
+            <p className="lx-ai">The team wrote the rules and the checks. AI agents build inside them, and a person on the team approves each change. Old bugs are written down, not copied.</p>
             <p className="lx-meta">Web and mobile, since 2026 also the server · 2023–26</p>
             <p>
               <Link className="lx-go" to="/work/care-platform">
@@ -698,9 +698,9 @@ export default function Draft() {
             <p className="lx-kind">People and businesses manage a crypto wallet and reward programs.</p>
             <p className="lx-result">Sign in with a passkey or a wallet, no password.</p>
             <p>
-              Gentrit built the portal frontend in 2024, in English and French: the sign-in, a first-run tour, the
-              dashboard cards, a list of assets and a balance pop-up with a QR code. The dashboard pages stay private,
-              behind sign-in.
+              The portal frontend, built in 2024 in English and French: the sign-in, a first-run tour, the dashboard
+              cards, a list of assets and a balance pop-up with a QR code. The dashboard pages stay private, behind
+              sign-in.
             </p>
             <p className="lx-scope">Teammates built the wallet itself and its link to the blockchain.</p>
             <p className="lx-meta">Frontend · 2024</p>

@@ -168,8 +168,8 @@ export default function Case() {
             </li>
           </ol>
           <p>
-            Gentrit wrote most of the rules and the checks. AI agents build inside them. A person approves each change.
-            Teammates wrote the rest of the rules. A check is trusted only after it is shown to fail.
+            The team wrote the rules and the checks. AI agents build inside them, and a person on the team approves
+            each change. A check is trusted only after it is shown to fail.
           </p>
         </section>
       </div>

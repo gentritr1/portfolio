@@ -224,8 +224,8 @@ export default function Home() {
               database requests, not <span className="p12p-num">16</span>.
             </p>
             <p className="p12p-scope">
-              Built screens for web and phone since 2023, and the server since 2026. Gentrit wrote most of the rules
-              and the checks. AI agents build inside them. A person approves each change.
+              Built screens for web and phone since 2023, and the server since 2026. The team wrote the rules and the
+              checks. AI agents build inside them, and a person on the team approves each change.
             </p>
             <a className="p12p-action" href={CASE} onClick={toCase}>
               Read the case <Arrow />
@@ -356,8 +356,8 @@ export default function Home() {
             2026. A bachelor's degree from UBT.
           </p>
           <p>
-            The care platform rebuild runs on written rules and automatic checks. Gentrit wrote most of the rules and the
-            checks. AI agents build inside them. A person approves each change.
+            The care platform rebuild runs on rules and automatic checks the team wrote. AI agents build inside them,
+            and a person on the team approves each change.
           </p>
         </div>
       </section>

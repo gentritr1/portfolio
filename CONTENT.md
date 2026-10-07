@@ -2,6 +2,8 @@
 
 Channel labels (owner, 2026-10-02): CH01 Healthcare, CH02 Streaming, CH03 Mobile apps, CH04 Web3, CH05 Web apps & AI, CH06 Games & personal.
 
+**Voice for the work (owner, 2026-10-07):** show what was solved and what was done, not who did each part. Team projects take "the team" as the subject ("The team wrote the rules and the checks"); never "Gentrit wrote / built / laid / turned / merged" in project copy. The person's role sits in the role or meta line, and a line about what teammates built stays where a claim would otherwise reach too far (Incentiv). Git authorship notes below are for reference only and are never displayed.
+
 Project facts below come from git history; contact and education details were confirmed by the owner. Do not invent numbers. Do not add product names, except public products, which are named and linked (§4 rule). Keep copy in plain English, short sentences, no metaphors, no buzzwords. Every number here is safe to show.
 
 ---
@@ -48,11 +50,11 @@ Project facts below come from git history; contact and education details were co
 
 **How it is built (case part, owner request 2026-10-06; checked on the React repo `origin/main` 9dcd8002, 2026-10-05):**
 - Case H1 (owner 2026-10-06): "Rebuilding a live care platform, one tested screen at a time." The 16 → 2 figure is one proof in "The numbers", not the H1 or the first screen.
-- AI line (use this exact line on every page; checked on git 2026-10-06, see below): "Gentrit wrote most of the rules and the checks. AI agents build inside them. A person approves each change."
-- Case text: "Gentrit wrote most of the rules and the checks. AI agents build inside them. A person approves each change. Old bugs are written down, not copied." Proof: "A check is trusted only after it is shown to fail."
+- AI line (use this exact line on every page; team voice, owner 2026-10-07): "The team wrote the rules and the checks. AI agents build inside them, and a person on the team approves each change."
+- Case text: "The team wrote the rules and the checks. AI agents build inside them, and a person on the team approves each change. Old bugs are written down, not copied." Proof: "A check is trusted only after it is shown to fail."
 - Diagram: Old app → Test first → Agents build → Checks → Person approves; the way back runs from Checks to Agents build, label "A check fails? Back to the agents."
 - Home result line: "Being rebuilt screen by screen. Old bugs written down, not copied."
-- Authorship proof for the AI line (React repo `origin/main`, 2026-10-06, `git blame --line-porcelain`): Gentrit wrote 285 of 331 lines of `CLAUDE.md`, 901 of 1,254 lines of `docs/RULESET.md`, 700 of 752 lines in `tools/gates/`, and 2,696 of 3,190 lines in `.claude/skills/`. Other people wrote the rest, and the first harness commit is by a teammate, so the line says "most". Gentrit merged 400 of 523 merges since 2026-08-01, not all, so the line says "A person approves", not "Gentrit approves". AI co-author trailers are on about 1,970 commits since 2026-08-01.
+- Authorship record, for reference only and never displayed (React repo `origin/main`, 2026-10-06, `git blame --line-porcelain`): Gentrit wrote 285 of 331 lines of `CLAUDE.md`, 901 of 1,254 lines of `docs/RULESET.md`, 700 of 752 lines in `tools/gates/`, and 2,696 of 3,190 lines in `.claude/skills/`. Other people wrote the rest, and the first harness commit is by a teammate, so the line says "most". Gentrit merged 400 of 523 merges since 2026-08-01, not all, so the line says "A person approves", not "Gentrit approves". AI co-author trailers are on about 1,970 commits since 2026-08-01.
 - Same-test caption: "The same test passed on both apps. Patient compliance list, September 2026." Source: `migration/reviews/compliance-tracker/build.md` "Local dual-origin run — 2026-09-08"; the route is still `building`.
 - Sources: each route's test is written on the pinned old app before React code, then runs unchanged on both apps (`CLAUDE.md` "Evidence is an artifact", `docs/CUTOVER.md`). Each departure from the old app is recorded with evidence and an approval column; the product owner confirms a defect before it is fixed (`docs/CUTOVER.md` §4, `migration/inventories/*.md`). Two CI jobs run every gate, and each gate has a negative control that proves it can fail (`tools/gates/run.mjs`, `tools:test`). People merge every pull request (`git log --merges`). State rules: server state in TanStack Query, client state in Zustand, filters in the URL, Zod schemas from captured responses, no feature imports a sibling feature (`CLAUDE.md` "Code invariants", `boundaries:check`).
 - Counts, for reference only. Do not display them (owner rule 2026-10-05, no internal counts): 12 repo skills, one for each stage (`.claude/skills/`); 56 decision records (`docs/adr/`); 2 CI jobs with 21 gate leaves (`tools/gates/run.mjs` PROFILES); 57 parity specs (`tests/parity/*.spec.ts`); 62 slice inventories with about 870 deviation-register rows (`migration/inventories/`). These counts grow each week.
@@ -147,7 +149,7 @@ Owner confirmed (2026-10-02): built bayyinah.org, Next.js, 2024–25; repo acces
 
 **No recreation (owner 2026-10-06):** the hand-made wallet card is removed everywhere. Show only the real public sign-in screen of https://portal.incentiv.io/.
 
-**Result line (claims only the portal frontend):** "The portal frontend was built in 2024, in English and French. The dashboard pages stay private, behind sign-in." Do not claim the website (incentiv.io) or the docs; they are not this work. What was built: "Gentrit built the portal frontend: the sign-in, a first-run tour, the dashboard cards, a list of assets and a balance pop-up with a QR code. Teammates built the wallet itself and its link to the blockchain."
+**Result line (claims only the portal frontend):** "The portal frontend was built in 2024, in English and French. The dashboard pages stay private, behind sign-in." Do not claim the website (incentiv.io) or the docs; they are not this work. What was built (the work, not the person, owner 2026-10-07): "The portal frontend: the sign-in, a first-run tour, the dashboard cards, a list of assets and a balance pop-up with a QR code. Teammates built the wallet itself and its link to the blockchain."
 
 ---
 

@@ -48,7 +48,7 @@ Each print is two real screens cut into interlaced strips under a sheet of 4-pix
 
 Order: facts, gate, clarity, phone, craft. The full list is in `meta.json` under `polish`. In short:
 
-- **Facts.** The hero's bayyinahtv.com face is cropped above the site's own marketing band (owner rule 3), so no product number or testimonial is in the first screen. The Design System v2 line is the owner's. The care row says no new screen is live yet. Bayyinah authorship is "a core frontend team, Gentrit among them". The Offday test line matches CONTENT.
+- **Facts.** The hero's bayyinahtv.com face is cropped above the site's own marketing band (owner rule 3), so no product number or testimonial is in the first screen. The Design System v2 line is the owner's. The care row says no new screen is live yet. Bayyinah reads "The core frontend team rebuilt the second version from an empty project" (owner, 2026-10-07: the work, not the person). The Offday test line matches CONTENT.
 - **Clarity and phone.** A role and location line sits under the claim at every width. The claim is shorter (four lines on a phone). Index links are underlined at rest, and the index is grouped by employer. The phone prints show the app screens, not the store art.
 - **Caption decision.** No "drag or tap" instruction, per the hook-line rule. The control teaches itself: a labelled radio pair, the grab cursor, the peek after load, and the resting edge band.
 - **Mechanism.** A native radio group (keyboard instant, pointer spring); capture after 5px; flicks hand their velocity to the spring; rubber band at both ends; the print is a named group.
@@ -186,7 +186,7 @@ Both were index rows only; REVIEW-3 named that as one of three things before the
 
 **Incentiv portal** (facts: CONTENT §5 result line and "what was built")
 - Problem: "People and businesses manage a crypto wallet and reward programs." Result: "Sign in with a passkey or a wallet, no password."
-- Body: "Gentrit built the portal frontend in 2024, in English and French: the sign-in, a first-run tour, the dashboard cards, a list of assets and a balance pop-up with a QR code. The dashboard pages stay private, behind sign-in."
+- Body: "The portal frontend, built in 2024 in English and French: the sign-in, a first-run tour, the dashboard cards, a list of assets and a balance pop-up with a QR code. The dashboard pages stay private, behind sign-in."
 - Scope: "Teammates built the wallet itself and its link to the blockchain." Role · year: "Frontend · 2024". Links: "Portal sign-in" (portal.incentiv.io, the public page shown) and the case page.
 - Print: one public capture, `web-03.webp` (2880×1800): the whole sign-in page ⇄ the same page up close on the sign-in choices (Passkey, MetaMask, WalletConnect). No dashboard capture exists and none is implied; the page's own illustration of the app stays at the size the page gives it.
 
@@ -195,3 +195,7 @@ Not used, and why: 805 design tokens (allowed in CONTENT but not on this pass's 
 Mechanics: tile crops now reach CSS as custom properties (`--ix`, `--iy`, `--iw`, `--tx`…), so a layout switch rewrites variables, not margins (the checker had read 36 margin rewrites on resize as a script animation, M03b). Placeholders regenerated for the two new prints (8 prints, 7.4 kB in all).
 
 Checker (production, 4×, `--owner "Gentrit Rashiti" --facts CONTENT.md --interact "click:.lx-lensctl label:last-of-type" --interact-frames 60,150,300,600`): light PASS, 0 fails, 0 warnings (1440: work 37%, CLS 0.008, LCP 0.81 s; 390: CLS 0.004, LCP 0.79 s); dark PASS, 0, 0 (CLS 0.008 / 0; C06 sampled 144 / 142 text grounds, none under 4.5:1). Gesture test 20/20. Drag with the design-system print in view at 4×: p95 16.8 ms, no long frame. Page height 7164 px at 1440, 10804 px at 390.
+
+## Team voice pass (owner, 2026-10-07)
+
+The page shows what was solved and what was done, not who did each part. Team projects use "the team" as the subject: the care platform reads "The team wrote the rules and the checks. AI agents build inside them, and a person on the team approves each change. Old bugs are written down, not copied."; Design System v2 reads as the team's work with its workflow; Bayyinah reads "The core frontend team rebuilt…". Incentiv keeps its honest scope through the work itself ("The portal frontend, built in 2024…") and "Teammates built the wallet itself and its link to the blockchain." The role sits in each meta line.

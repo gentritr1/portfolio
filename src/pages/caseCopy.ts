@@ -234,7 +234,7 @@ export const caseCopy: Record<string, CaseCopy> = {
       },
       {
         heading: "What was built",
-        text: "Built the frontend of the patient profile, care plans, labs and vitals, claims, calls and chat, with the team, from 2023. Since 2026, rebuilds the web app one screen at a time. On the server: a patient sign-up can be saved half done, a list of lab tests was added, and the billing report was fixed.",
+        text: "From 2023 the team built the frontend of the patient profile, care plans, labs and vitals, claims, calls and chat. Since 2026 it is rebuilding the web app one screen at a time. On the server, a patient sign-up can now be saved half done, a list of lab tests was added, and the billing report was fixed.",
         proof: "Claims that need another look are flagged.",
         plate: 2,
         target: { kind: "shot", box: { x: 676, y: 500, w: 308, h: 40 } },
@@ -242,7 +242,7 @@ export const caseCopy: Record<string, CaseCopy> = {
       },
       {
         heading: "How it is built",
-        text: "Gentrit wrote most of the rules and the checks. AI agents build inside them. A person approves each change. Old bugs are written down, not copied.",
+        text: "The team wrote the rules and the checks. AI agents build inside them, and a person on the team approves each change. Old bugs are written down, not copied.",
         proof: "A check is trusted only after it is shown to fail.",
         plate: 4,
         target: { kind: "figure" },
@@ -618,7 +618,7 @@ export const caseCopy: Record<string, CaseCopy> = {
       },
       {
         heading: "What was built",
-        text: "Gentrit built the portal frontend: the sign-in, a first-run tour, the dashboard cards, a list of assets and a balance pop-up with a QR code. Teammates built the wallet itself and its link to the blockchain.",
+        text: "The portal frontend: the sign-in, a first-run tour, the dashboard cards, a list of assets and a balance pop-up with a QR code. Teammates built the wallet itself and its link to the blockchain.",
         proof: "Built the screens; teammates built the wallet.",
         plate: 0,
         target: { kind: "figure" },

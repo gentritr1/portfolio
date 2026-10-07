@@ -58,7 +58,7 @@ export interface Row {
 }
 
 export const REAL = 'Real product screens, invented data.'
-export const AI_LINE = 'Gentrit wrote most of the rules and the checks. AI agents build inside them. A person approves each change.'
+export const AI_LINE = 'The team wrote the rules and the checks. AI agents build inside them, and a person on the team approves each change.'
 
 const bySlug = (slug: string) => projects.find((p) => p.slug === slug)!
 const store = (slug: string) => bySlug(slug).links.map((l) => ({ label: l.label, href: l.href }))
@@ -352,7 +352,7 @@ export const rows: Row[] = [
           name: 'Incentiv portal',
           kind: 'Sign-in and dashboard of a smart wallet',
           text: [
-            'People sign in with a passkey (no password) or an outside wallet. Gentrit built the portal frontend: the sign-in, a first-run tour, the dashboard cards, an asset list and a balance pop-up with a QR code. Teammates built the wallet itself. English and French.',
+            'People sign in with a passkey (no password) or an outside wallet. The portal frontend covers the sign-in, a first-run tour, the dashboard cards, an asset list and a balance pop-up with a QR code. Teammates built the wallet itself. English and French.',
           ],
           meta: ['Incentiv', 'Frontend, UI layer', '2024'],
           links: [

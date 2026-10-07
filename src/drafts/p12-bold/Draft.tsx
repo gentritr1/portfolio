@@ -392,7 +392,7 @@ const Work = memo(function Work() {
               The care-management platform follows vitals, care plans, lab results, claims and calls for care teams. Its Vue app keeps running while a React version is built. A screen moves over only after the same test passes on both apps. No React screen is live yet.
             </p>
             <p className="pb-proof">One billing report now needs 2 database requests, not 16, and no longer times out.</p>
-            <p className="pb-ai">Gentrit wrote most of the rules and the checks. AI agents build inside them. A person approves each change.</p>
+            <p className="pb-ai">The team wrote the rules and the checks. AI agents build inside them, and a person on the team approves each change.</p>
             <p className="pb-small">Web and mobile, and since 2026 the server. 2023–26.</p>
             <Link className="pb-facts-case pb-link pb-press" to="/work/care-platform" style={{ justifySelf: "start" }}>
               Read the case

@@ -13,10 +13,10 @@ Proof inventory (used on this page):
 
 | Project | What it is | Scope | Years | Live link | Screens | Numbers |
 |---|---|---|---|---|---|---|
-| Care platform | Remote patient care for care teams | Web and mobile; since 2026 also the server; wrote most of the rebuild's rules and checks | 2023–26 | private | care-dashboard/* (real, invented data) | 16 → 2 requests (CONTENT §2), 4 languages |
+| Care platform | Remote patient care for care teams | Web and mobile; since 2026 also the server; the team wrote the rebuild's rules and checks (team voice, owner 2026-10-07) | 2023–26 | private | care-dashboard/* (real, invented data) | 16 → 2 requests (CONTENT §2), 4 languages |
 | Bayyinah TV | Video-learning platform, web + inside both store apps | Frontend, core team | 2023–26 | bayyinahtv.com, App Store, Google Play | bayyinah/web-03 (public page) | — |
 | Viva Fresh, Dukagjini Bookstore, Read to Feed | Grocery, bookstore and children's reading apps | Mobile | 2021–25 | store listings (Read to Feed archived) | mobile/* (public listings) | about 14 releases (Read to Feed) |
-| Design System v2 | Shared building blocks for the new care dashboard | Research and agent guides; a teammate wrote most components | 2026 | private | design-system/date-range-picker (real, invented data) | 20 releases in about six weeks |
+| Design System v2 | Shared building blocks for the new care dashboard | A team effort, no individual credit (owner 2026-10-07) | 2026 | private | design-system/date-range-picker (real, invented data) | 20 releases in about six weeks |
 
 Cannot show: the care platform's old app beside the new one, internal counts → substitute: text only, in the case.
 Constraints: React 19, motion, local fonts, own folder, 375/390 and 1440, keyboard, reduced motion, one light theme.
