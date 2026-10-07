@@ -43,8 +43,31 @@ It writes `report.md` (verdict, findings with fixes, human-made signals, motion 
 | 2. Skill v1 | Synthesis into the skill and a Playwright checker, calibrated on a deliberate "template" page (caught 16 tell types), the live home (pass) and older drafts the jury had already called generic (fail) | skill v1.0 |
 | 2b. Critique | An adversarial review of v1 by a fresh design director: it would make every page the same, it induced its own warnings, decoration counted as work, most banned copy was not checked | `research/05-critique.md`, skill v1.1, checker rebuild |
 | 3. Drafts | Four builders, given only the skill, the facts and the owner rules (no history): a blind free choice, a professional page with a case view, a crafted material idea, a bold mechanism | `src/drafts/p12-*`, `loop-12/` |
-| 4. Review | A fresh reviewer scores the drafts against anchors, then polish and fold lessons into the skill | `loop-12/REVIEW.md` |
+| 4. Review | A fresh reviewer and a devil's advocate scored the drafts against anchors; the skill moved to v1.3 (claim shapes, round table, card review, hook ladder; examples made fictional after they leaked into every draft) | `loop-12/REVIEW.md`, `loop-12/DEVIL.md` |
+| 5. Polish and re-review | One polish pass per draft, then a second fresh review; the checker gained interaction frames, painted-ground contrast, dialog and round checks | `loop-12/REVIEW-2.md` |
 
 ## Results
 
-Filled in after round 4.
+Scores out of 50 from fresh reviewers who first scored three anchors with known totals (all within two points): the live home 43, the earlier no-skill blind draft 33, departures 39.
+
+| Draft | Band, builder brief | First review | After one polish pass | Ship line (42, original and hook ≥ 8) |
+|---|---|---:|---:|---|
+| LENTICULAR (`/drafts/p12-crafted`) | Crafted: one material idea | 40 | **42** | Yes |
+| ACTUAL SIZE (`/drafts/p12-pro`, `/case`) | Professional, with a case page | 40 (case 39) | 41 (case 41) | One point short |
+| IN YOUR STORE (`/drafts/p12-bold`) | Bold: a mechanism the visitor drives | 39, gate fail | 41 | One point short |
+| THREE LANES (`/drafts/p12-blind`) | Free choice, no steer (the blind test) | 39, gate fail | 41 | One point short |
+
+What the numbers say:
+
+- **The skill lifts the floor.** Every draft built from the skill alone scored 6–9 points above the no-skill draft (33), with 0 hard fails from the checker against 11.
+- **Polish moves craft, not the idea.** The polish pass added 1–2 points to every draft, all in straight-to-the-point, proof and type; originality and hook stayed at 8.
+- **The gap to the live home (43) is the hook.** The home's hook is a state the visitor drives across the whole page (the sun). The drafts' hooks change one card, one row or one lane. The skill's hook ladder and the 8-to-9 test now say this before a build.
+- **Parallel builders converge.** Without a round table all four drafts shared one claim shape, one section order and a paper ground; the checker's `--round` now flags this (R01 on all six pairs here).
+
+Reviews: `loop-12/REVIEW.md` (first), `loop-12/DEVIL.md` (devil's advocate), `loop-12/REVIEW-2.md` (after polish).
+
+## Next
+
+- Take LENTICULAR toward a 9: one lens angle for the whole page, driven by the pointer or one control, so every print turns together.
+- Run the next round with the v1.3 process: a round table, a card review before building, then builds.
+- `PRODUCT.md` still says internal care-platform screens stay recreations; the owner's later permission for real screens on invented data (LOOP-BRIEF, 2026-10-06) should be written into `PRODUCT.md` so the two files agree.

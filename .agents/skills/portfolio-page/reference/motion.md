@@ -116,6 +116,8 @@ How reviewers score the hook (and what to aim for):
 | 8 | Triggers a moment that changes what they see of one thing | turning one card, opening one case, choosing one item |
 | 9 | Drives a state continuously, visible across the whole page, and it carries a fact about the person | light from a real sun, a seam between the old and the new app, a filter that re-reads the whole record |
 
+**The 8-to-9 test:** name, in the direction card, the one value the visitor drives (an angle, an hour, a lane, a version) and list every section it changes. If it changes only one row or one card, the hook is an 8; if it changes every section and carries a fact about the person, it can be a 9.
+
 The memory sentence names a verb the visitor does ("drag", "scan", "switch", "turn", "press"). Duration tokens apply to **authored playback**. A state the visitor drives (a drag, a scrub, a dial) has no duration cap; it must follow the pointer, be interruptible and pass the 10% scrub test. The "one story moment" rule limits playback, not driven state.
 
 ## The signature moment

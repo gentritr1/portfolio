@@ -24,6 +24,8 @@ Score five points, 1–10 each. Then pass or fail the craft gate. A failed gate 
 
 Target to ship: gate pass and **≥ 42/50 with original and hook ≥ 8**. A draft at 7/7 on original and hook is parked, not polished: polish moves craft, not those two points.
 
+Where the next point comes from: a draft at 8/8 on original and hook needs 26 from the other three (9/9/8). In the first round run with this skill, one polish pass moved every draft by +1 to +2, all of it in straight-to-the-point, proof and type; original and hook did not move. To pass 42 with a 9, change the idea (the hook ladder's 8-to-9 test), not the craft.
+
 ## The bar to beat
 
 Builders and reviewers compare against these, not against earlier drafts:

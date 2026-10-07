@@ -319,7 +319,7 @@ export const rows: Row[] = [
         {
           id: 'institute',
           name: 'Bayyinah institute website',
-          text: ['A one-page site: the mission, reasons to support it, research funding, impact and questions.'],
+          text: ['The institute\'s public website, on one page.'],
           meta: ['Frontend', '2024–25'],
           links: [{ label: 'bayyinah.org', href: 'https://bayyinah.org/' }],
           years: [2024, 2025],
@@ -426,7 +426,7 @@ export const rows: Row[] = [
         {
           id: 'sadaqah',
           name: 'Sadaqah app for Islamic Relief USA',
-          text: ['Built the payment and subscription screens, the badges, in-app web views and the Android builds, in a small team. No longer in the stores.'],
+          text: ['Built the payment and subscription screens, the badges, in-app web views and the Android builds, as a team member. No longer in the stores.'],
           meta: ['Mobile, team member', '2021–22'],
           years: [2021, 2022],
         },
@@ -478,7 +478,7 @@ export const index: IndexGroup[] = [
       { years: '2022–23', name: 'Coaching app', lane: 'Phone', role: 'Mobile', line: 'Organization sign-in, a daily calendar strip and reactions, with separate test and release builds' },
       { years: '2022', name: 'EPUB reader prototype', lane: 'Phone', role: 'Mobile', line: 'Downloads, renders and resizes an EPUB; the start of the reading app’s reader' },
       { years: '2021–22', name: 'Dukagjini Bookstore', lane: 'Phone', role: 'Mobile', line: 'Book shopping; a push notification opens the right screen; checkout with promo codes', entry: 'dukagjini', links: [{ label: 'Case', href: '/work/dukagjini-bookstore' }] },
-      { years: '2021–22', name: 'Sadaqah app for Islamic Relief USA', lane: 'Phone', role: 'Mobile, team member', line: 'Donations and subscriptions, badges, guided tasks and video; built in a small team', entry: 'sadaqah' },
+      { years: '2021–22', name: 'Sadaqah app for Islamic Relief USA', lane: 'Phone', role: 'Mobile, team member', line: 'Donations and subscriptions, badges, guided tasks and video; team member', entry: 'sadaqah' },
       { years: '2026', name: 'Fuel-station loyalty app', lane: 'Phone', role: 'Mobile', line: 'Kept a loyalty app building on new Macs and fixed its shadows' },
     ],
   },

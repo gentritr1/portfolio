@@ -146,6 +146,7 @@ const CHECKS = [
   ["C02b", "△", "Hero heading over 20 words."],
   ["C03", "✗ at 6+", "Six or more type sizes in the first screen (rounded px; the rubric's limit is five). Text inside `[data-work]` (a screenshot's or live demo's own UI) and screen-reader-only or clipped-away text (clipped box ≤ 2px) do not count."],
   ["C04", "✗", "The page scrolls sideways."],
+  ["C04b", "△", "Content wider than the screen, hidden by a clip on html or body (nothing scrolls, but captures and some browsers see the wider page)."],
   ["C05", "✗ when crowded, △ when spaced", "Target under 24px. Fails only when its 24px circle touches another target (WCAG 2.5.8 spacing exception); inline links in sentences are exempt."],
   ["C05b", "△ when < 44px in both width and height", "Phone target under 44px in both directions (border box with padding; an absolutely positioned ::before/::after hit area counts). A short spaced link such as \"CV\" that is 44px tall passes (WCAG 2.5.8 spacing)."],
   ["C06", "✗", "Text below 4.5:1 (3:1 for large text) on a solid ground. The ground is what is painted under the text: `document.elementsFromPoint` at the centre of its widest line (pointer-events forced on for the call, the text's own subtree skipped), composited down from the text's own background, so a sibling or absolutely positioned band, a transformed layer and a ::before/::after background whose box can be placed all count. Text under an opaque layer that is not fixed or sticky is covered and skipped; a painted aria-hidden copy of page text (a selected-row band that repeats the list) is measured. Text the point test cannot reach (no window scroll to it) uses the ancestor chain."],
@@ -1895,6 +1896,22 @@ const DETECT = ({ phone, mode, owner, fontsOk, phrases, factsText }) => {
       return true;
     });
     add("C04", "fail", `Page scrolls sideways by ${overflow}px`, "Something is wider than the screen.", culprits.slice(0, 4).map(label));
+  } else {
+    // Content wider than the screen but hidden by overflow-x: clip/hidden on html or body: nothing scrolls,
+    // but full-page captures and some phone browsers still see the wider document.
+    // Count only elements whose nearest clipping ancestor is html or body (a crop window clipping its own image is fine).
+    const pageClipped = visibleEls.slice(0, 4000).filter((el) => {
+      if (el.getBoundingClientRect().right <= innerWidth + 8) return false;
+      for (let n = el.parentElement; n; n = n.parentElement) {
+        if (n === document.body || n === document.documentElement) return true;
+        const st = style(n);
+        if (st.overflowX !== "visible" || st.contain.includes("paint")) return false;
+      }
+      return true;
+    });
+    const hidden = pageClipped.length ? Math.max(...pageClipped.map((el) => el.getBoundingClientRect().right)) - innerWidth : 0;
+    if (hidden > 8)
+      add("C04b", "warn", `Content runs ${Math.round(hidden)}px past the screen, clipped`, "Nothing scrolls, but the page is wider than the screen under the clip on html or body. Clip the wide part itself (overflow: clip on its parent).", pageClipped.filter((el, i, arr) => !arr.some((o) => o !== el && o.contains(el))).slice(0, 4).map(label));
   }
 
   // C05 targets, with the WCAG 2.5.8 spacing exception.

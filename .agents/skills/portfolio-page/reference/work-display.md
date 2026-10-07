@@ -23,6 +23,7 @@ Name · one line of what it is (for a stranger) · the person's role · year(s) 
 - Text inside a screenshot must be readable at its displayed size: ≥ 11px on phones. If it is not, crop to the part that proves the caption instead of shrinking the whole screen. The first screen's screen is cropped to the part that proves the sentence, at 1:1 pixels, never the whole app shrunk to fit (a 2880px web capture shown 600px wide makes its text about 4px).
 - When readability and density conflict on phones (a store-listing frame shown at real phone width gives about 1.55× density), readability wins: keep text ≥ 11px and record `allow C08c: <reason>`.
 - Cropping technique and the density numbers: `snippets/crop.md`.
+- **Actual size on a phone:** a 1440px screen cut to a 390px column shows a corner, with sentences cut mid-word. On phones, choose a region that reads as a composition on its own (a card, a list with its header, a chart with its axis), or switch to a fitted view with a toggle for actual size.
 - AVIF or WebP, quality 80–85, `srcset`/`sizes` for widths, `width`/`height` attributes or `aspect-ratio` always. The first-screen image loads eagerly with `fetchpriority="high"`; the rest lazy.
 
 **Crop.**

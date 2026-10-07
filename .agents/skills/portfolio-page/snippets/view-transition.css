@@ -7,7 +7,11 @@
    3. Keyboard-initiated navigation (event.detail === 0) and reduced motion navigate with no
       transition. After the route changes, move focus to the new page's h1.
    4. If the tile is off screen when the visitor navigates, skip the name (plain cross-fade).
-   5. Keep 3–6 named elements at most; snapshots cost paint. */
+   5. Keep 3–6 named elements at most; snapshots cost paint.
+   6. Coming back: restore the scroll position the visitor left (not a few pixels off, so the
+      masthead is not clipped) and return focus to the tile that opened the case.
+   7. Text that moves with or over the growing screen must be clipped or faded before the screen
+      moves, or it is drawn across the incoming snapshot mid-transition. */
 
 ::view-transition-group(*) {
   animation-duration: 380ms;
