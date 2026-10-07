@@ -27,9 +27,9 @@
   font-family: "PB Display Fallback";
   src: local("Arial Bold"), local("Arial-BoldMT"), local("Liberation Sans Bold"), local("LiberationSans-Bold"), local("Helvetica Bold");
   font-weight: 800;
-  size-adjust: 77.5%;
-  ascent-override: 127%;
-  descent-override: 27.5%;
+  size-adjust: 77.2%;
+  ascent-override: 127.5%;
+  descent-override: 27.6%;
   line-gap-override: 0%;
 }
 @font-face {
@@ -90,18 +90,11 @@
   background: var(--pb-ink);
   color: var(--pb-paper);
 }
-.pb-root h1,
-.pb-root h2,
-.pb-root h3,
-.pb-root p,
-.pb-root ul,
-.pb-root dl,
-.pb-root dd,
-.pb-root figure {
+:where(.pb-root) :is(h1, h2, h3, p, ul, dl, dd, figure) {
   margin: 0;
   padding: 0;
 }
-.pb-root ul {
+:where(.pb-root) ul {
   list-style: none;
 }
 .pb-root img {
@@ -121,33 +114,57 @@
 }
 
 /* Links and the quiet layer */
-.pb-root a {
+:where(.pb-root) a {
   color: inherit;
   text-decoration: none;
   -webkit-tap-highlight-color: transparent;
 }
+/* Links in text: underlined at rest, because a phone has no hover. The line is text-decoration, so it sits under
+   the words and never runs under the padding that makes the target 44px. */
 .pb-link {
-  background-image: linear-gradient(currentColor, currentColor);
-  background-size: 100% 1px;
-  background-position: 0 calc(50% + 0.72em);
-  background-repeat: no-repeat;
-  background-origin: content-box;
-  background-clip: content-box;
-}
-/* The masthead links rest bare and underline from the left on hover and focus. */
-.pb-nav .pb-link {
-  background-size: 0% 1px;
+  text-decoration-line: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+  text-decoration-color: color-mix(in oklab, currentColor 45%, transparent);
+  transition: text-decoration-color 150ms ease;
 }
 @media (hover: hover) and (pointer: fine) {
-  .pb-link {
-    transition: background-size 150ms cubic-bezier(0.23, 1, 0.32, 1);
-  }
-  .pb-nav .pb-link:hover {
-    background-size: 100% 1px;
+  .pb-link:hover {
+    text-decoration-color: currentColor;
   }
 }
-.pb-nav .pb-link:focus-visible {
-  background-size: 100% 1px;
+/* The masthead: bare at rest, a line grows from the left on hover and shows on focus. */
+.pb-nav-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-block-size: 44px;
+  min-inline-size: 44px;
+  justify-content: center;
+  padding: 0 12px;
+  letter-spacing: 0.01em;
+}
+.pb-nav-link > span {
+  position: relative;
+}
+.pb-nav-link > span::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  inset-block-end: -0.15em;
+  block-size: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 150ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+@media (hover: hover) and (pointer: fine) {
+  .pb-nav-link:hover > span::after {
+    transform: scaleX(1);
+  }
+}
+.pb-nav-link:focus-visible > span::after {
+  transform: scaleX(1);
 }
 .pb-root a:focus-visible,
 .pb-root button:focus-visible {
@@ -187,20 +204,12 @@
   justify-content: flex-start;
   margin-inline: -12px;
   gap: 0;
-  min-height: 48px;
+  min-height: 44px;
   align-items: center;
   font-size: 14px;
   font-weight: 500;
 }
-.pb-nav a {
-  display: inline-flex;
-  align-items: center;
-  min-height: 44px;
-  min-width: 44px;
-  justify-content: center;
-  padding: 0 12px;
-  letter-spacing: 0.01em;
-}
+
 
 .pb-copy {
   min-width: 0;
@@ -233,7 +242,8 @@
   position: relative;
   height: calc(var(--pb-row) * 4);
   overflow: hidden;
-  touch-action: none;
+  /* The page keeps scrolling under a finger. Dragging is for a mouse; a tap picks a row. */
+  touch-action: pan-y;
   cursor: grab;
   -webkit-user-select: none;
   user-select: none;
@@ -243,9 +253,9 @@
 .pb-wheel-view[data-dragging="true"] {
   cursor: grabbing;
 }
-.pb-wheel:has(input:focus-visible) .pb-wheel-view {
-  outline: 3px solid var(--pb-ink);
-  outline-offset: 4px;
+/* Focus is drawn on the focused row: the band takes a double ring, ink outside and white inside. */
+.pb-wheel:has(input:focus-visible) .pb-wheel-band {
+  box-shadow: inset 0 0 0 3px var(--pb-ink), inset 0 0 0 5px #fff;
 }
 .pb-wheel-list {
   height: calc(var(--pb-row) * 4);
@@ -387,6 +397,14 @@
 .pb-stage {
   display: grid;
   width: min(100%, 358px);
+  /* A sideways drag moves to the next app; a vertical one scrolls the page. */
+  touch-action: pan-y;
+  cursor: grab;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.pb-stage[data-dragging="true"] {
+  cursor: grabbing;
 }
 .pb-group {
   grid-area: 1 / 1;
@@ -400,6 +418,7 @@
   pointer-events: none;
 }
 .pb-frame {
+  -webkit-user-drag: none;
   display: block;
   width: 100%;
   height: auto;
@@ -427,8 +446,15 @@
   line-height: 1;
   letter-spacing: 0.005em;
   text-transform: uppercase;
-  margin-bottom: 12px;
-  min-height: 28px;
+  text-wrap: balance;
+  height: 56px;
+}
+.pb-code-caption {
+  margin: 6px 0 12px;
+  min-height: 38px;
+  font-size: 14px;
+  line-height: 1.35;
+  color: var(--pb-ink-2);
 }
 .pb-code {
   display: block;
@@ -514,6 +540,9 @@
   background: #f5f7fb;
   border-radius: 4px;
 }
+.pb-shot--phone {
+  display: none;
+}
 .pb-shot img {
   position: absolute;
   left: 0;
@@ -560,6 +589,9 @@
   color: var(--pb-ink-2);
   border-top: 0;
   padding-top: 0;
+}
+.pb-table td[data-label="Result"] {
+  max-width: 26ch;
 }
 .pb-table tbody th {
   font-family: var(--pb-display);
@@ -625,6 +657,7 @@
 .pb-foot a {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   justify-self: start;
   min-height: 44px;
   min-width: 44px;
@@ -651,6 +684,12 @@
 }
 
 @media (max-width: 639px) {
+  .pb-shot--wide {
+    display: none;
+  }
+  .pb-shot--phone {
+    display: block;
+  }
   .pb-wheel-item {
     font-size: clamp(24px, 7.7vw, 30px);
   }
@@ -661,10 +700,11 @@
     row-gap: 12px;
   }
   .pb-claim {
-    font-size: clamp(31px, 8.9vw, 36px);
+    font-size: clamp(30px, 8.2vw, 34px);
   }
   .pb-line {
     margin-top: 10px;
+    max-width: none;
     font-size: 14px;
     line-height: 1.35;
   }

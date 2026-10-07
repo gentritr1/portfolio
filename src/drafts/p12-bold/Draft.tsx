@@ -10,6 +10,7 @@ import { links } from "../../content/links";
 
 const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v));
 const N = apps.length;
+const PAPER = "#fbf4ef";
 
 type Platform = "ios" | "android" | "other";
 function detectPlatform(): Platform {
@@ -31,66 +32,106 @@ const Arrow = ({ down = false }: { down?: boolean }) => (
   </svg>
 );
 
+/* ---------- One drag, two controls ---------- */
+
+interface DragOptions {
+  pos: MotionValue<number>;
+  axis: "x" | "y";
+  /** +1: moving the pointer down or right raises the position; -1: the other way. */
+  sign: 1 | -1;
+  /** Pixels of pointer travel for one app. */
+  unit: () => number;
+  /** Touch pointers: the wheel leaves them to the page (touch-action: pan-y); the stage takes horizontal ones. */
+  touch: boolean;
+  onStart: () => void;
+  onEnd: (i: number, velocity: number) => void;
+}
+
+/**
+ * Pointer capture only after 5 px of travel, so a click still works. Under that, a gesture that goes
+ * across the axis (a vertical swipe on the stage) is given back to the page. The release hands its
+ * velocity to the spring. Beyond the first and last app the position stretches with friction.
+ */
+function usePosDrag(o: DragOptions) {
+  const st = useRef<{ id: number; x: number; y: number; origin: number; unit: number; last: number; t: number; v: number; moved: boolean } | null>(null);
+  const justDragged = useRef(false);
+  const [dragging, setDragging] = useState(false);
+
+  const onPointerDown = (e: ReactPointerEvent<HTMLElement>) => {
+    if (e.pointerType === "touch" && !o.touch) return;
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+    const along = o.axis === "x" ? e.clientX : e.clientY;
+    st.current = { id: e.pointerId, x: e.clientX, y: e.clientY, origin: o.pos.get(), unit: o.unit(), last: along, t: performance.now(), v: 0, moved: false };
+  };
+  const onPointerMove = (e: ReactPointerEvent<HTMLElement>) => {
+    const s = st.current;
+    if (!s || s.id !== e.pointerId) return;
+    const dx = e.clientX - s.x;
+    const dy = e.clientY - s.y;
+    const d = o.axis === "x" ? dx : dy;
+    const cross = o.axis === "x" ? dy : dx;
+    if (!s.moved) {
+      if (Math.abs(cross) > 8 && Math.abs(cross) > Math.abs(d)) {
+        st.current = null;
+        return;
+      }
+      if (Math.abs(d) < 5) return;
+      s.moved = true;
+      e.currentTarget.setPointerCapture(e.pointerId);
+      setDragging(true);
+      o.onStart();
+    }
+    const along = o.axis === "x" ? e.clientX : e.clientY;
+    const now = performance.now();
+    s.v = (((along - s.last) / Math.max(1, now - s.t)) * 1000 * 0.6 + s.v * 0.4) * o.sign;
+    s.last = along;
+    s.t = now;
+    let next = s.origin + (o.sign * d) / s.unit;
+    if (next < 0) next *= 0.32;
+    else if (next > N - 1) next = N - 1 + (next - (N - 1)) * 0.32;
+    o.pos.set(next);
+  };
+  const finish = (e: ReactPointerEvent<HTMLElement>) => {
+    const s = st.current;
+    if (!s || s.id !== e.pointerId) return;
+    st.current = null;
+    if (!s.moved) return;
+    setDragging(false);
+    justDragged.current = true;
+    window.setTimeout(() => {
+      justDragged.current = false;
+    }, 0);
+    const vUnits = s.v / s.unit;
+    o.onEnd(clamp(Math.round(o.pos.get() + vUnits * 0.2), 0, N - 1), vUnits);
+  };
+
+  return { handlers: { onPointerDown, onPointerMove, onPointerUp: finish, onPointerCancel: finish }, dragging, justDragged };
+}
+
 /* ---------- The wheel: a band that slides over four names ---------- */
 
 interface WheelProps {
   index: number;
   pos: MotionValue<number>;
   onPick: (i: number, how: "key" | "pointer") => void;
-  onDrag: (state: "start" | "end", i?: number, velocity?: number) => void;
+  onDragStart: () => void;
+  onDragEnd: (i: number, velocity: number) => void;
 }
 
-function Wheel({ index, pos, onPick, onDrag }: WheelProps) {
+function Wheel({ index, pos, onPick, onDragStart, onDragEnd }: WheelProps) {
   const modality = useRef<"key" | "pointer">("pointer");
-  const drag = useRef<{ id: number; start: number; origin: number; rowPx: number; lastY: number; lastT: number; v: number; moved: boolean } | null>(null);
   const viewRef = useRef<HTMLDivElement>(null);
-  const [dragging, setDragging] = useState(false);
   const bandY = useTransform(pos, (p) => `${p * 100}%`);
   const innerY = useTransform(pos, (p) => `${(-p / N) * 100}%`);
-
-  const down = (e: ReactPointerEvent<HTMLDivElement>) => {
-    modality.current = "pointer";
-    if (e.pointerType === "mouse" && e.button !== 0) return;
-    const rowPx = (viewRef.current?.offsetHeight ?? 240) / N;
-    drag.current = { id: e.pointerId, start: e.clientY, origin: pos.get(), rowPx, lastY: e.clientY, lastT: performance.now(), v: 0, moved: false };
-  };
-  const move = (e: ReactPointerEvent<HTMLDivElement>) => {
-    const s = drag.current;
-    if (!s || s.id !== e.pointerId) return;
-    const dy = e.clientY - s.start;
-    if (!s.moved) {
-      if (Math.abs(dy) < 5) return;
-      s.moved = true;
-      viewRef.current?.setPointerCapture(e.pointerId);
-      setDragging(true);
-      onDrag("start");
-    }
-    const now = performance.now();
-    const dt = Math.max(1, now - s.lastT);
-    s.v = ((e.clientY - s.lastY) / dt) * 1000 * 0.6 + s.v * 0.4;
-    s.lastY = e.clientY;
-    s.lastT = now;
-    let next = s.origin + dy / s.rowPx;
-    if (next < 0) next *= 0.32;
-    else if (next > N - 1) next = N - 1 + (next - (N - 1)) * 0.32;
-    pos.set(next);
-  };
-  const up = (e: ReactPointerEvent<HTMLDivElement>) => {
-    const s = drag.current;
-    if (!s || s.id !== e.pointerId) return;
-    if (!s.moved) {
-      drag.current = null;
-      return;
-    }
-    setDragging(false);
-    const vRows = s.v / s.rowPx;
-    const i = clamp(Math.round(pos.get() + vRows * 0.2), 0, N - 1);
-    onDrag("end", i, vRows);
-    // Keep the flag for this event loop turn so the click that follows a drag is ignored.
-    window.setTimeout(() => {
-      drag.current = null;
-    }, 0);
-  };
+  const { handlers, dragging, justDragged } = usePosDrag({
+    pos,
+    axis: "y",
+    sign: 1,
+    unit: () => (viewRef.current?.offsetHeight ?? 224) / N,
+    touch: false,
+    onStart: onDragStart,
+    onEnd: onDragEnd,
+  });
 
   return (
     <fieldset
@@ -104,13 +145,13 @@ function Wheel({ index, pos, onPick, onDrag }: WheelProps) {
         ref={viewRef}
         className="pb-wheel-view"
         data-dragging={dragging}
-        onPointerDown={down}
-        onPointerMove={move}
-        onPointerUp={up}
-        onPointerCancel={up}
+        {...handlers}
+        onPointerDownCapture={() => {
+          modality.current = "pointer";
+        }}
         onClickCapture={(e) => {
           // A drag that ends over a row must not also pick that row.
-          if (drag.current?.moved) {
+          if (justDragged.current) {
             e.preventDefault();
             e.stopPropagation();
           }
@@ -142,13 +183,13 @@ function Wheel({ index, pos, onPick, onDrag }: WheelProps) {
   );
 }
 
-/* ---------- The stage: the store frames follow the wheel ---------- */
+/* ---------- The stage: the store frames follow the wheel, and can be dragged ---------- */
 
 const StageGroup = memo(function StageGroup({ app, i, selected, pos }: { app: AppView; i: number; selected: boolean; pos: MotionValue<number> }) {
   const opacity = useTransform(pos, (p) => clamp(1 - Math.abs(i - p) * 1.35, 0, 1));
-  const y = useTransform(pos, (p) => (i - p) * 30);
+  const x = useTransform(pos, (p) => (i - p) * 36);
   return (
-    <motion.div className="pb-group" style={{ opacity, y }} aria-hidden={!selected} role="group" aria-label={`${app.name}, public store frames`}>
+    <motion.div className="pb-group" style={{ opacity, x }} aria-hidden={!selected} role="group" aria-label={`${app.name}, public store frames`}>
       {app.frames.map((f, k) => (
         <img
           key={f.src}
@@ -160,16 +201,54 @@ const StageGroup = memo(function StageGroup({ app, i, selected, pos }: { app: Ap
           loading={i === 0 && k < 2 ? "eager" : "lazy"}
           fetchPriority={i === 0 && k === 0 ? "high" : "low"}
           decoding="async"
+          draggable={false}
         />
       ))}
     </motion.div>
   );
 });
 
-function Stage({ index, pos, mounted }: { index: number; pos: MotionValue<number>; mounted: boolean }) {
+interface StageProps {
+  index: number;
+  pos: MotionValue<number>;
+  mounted: boolean;
+  onDragStart: () => void;
+  onDragEnd: (i: number, velocity: number) => void;
+  onStep: (dir: 1 | -1) => void;
+}
+
+function Stage({ index, pos, mounted, onDragStart, onDragEnd, onStep }: StageProps) {
+  const ref = useRef<HTMLDivElement>(null);
+  const { handlers, dragging } = usePosDrag({
+    pos,
+    axis: "x",
+    sign: -1,
+    unit: () => clamp((ref.current?.offsetWidth ?? 300) * 0.6, 160, 320),
+    touch: true,
+    onStart: onDragStart,
+    onEnd: onDragEnd,
+  });
+
+  // A sideways swipe on a trackpad steps to the next app. Vertical scrolling is never touched.
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    let lock = 0;
+    const onWheel = (e: WheelEvent) => {
+      if (Math.abs(e.deltaX) < 8 || Math.abs(e.deltaX) < Math.abs(e.deltaY) * 1.5) return;
+      e.preventDefault();
+      const now = performance.now();
+      if (now < lock) return;
+      lock = now + 420;
+      onStep(e.deltaX > 0 ? 1 : -1);
+    };
+    el.addEventListener("wheel", onWheel, { passive: false });
+    return () => el.removeEventListener("wheel", onWheel);
+  }, [onStep]);
+
   return (
     <div className="pb-stage-wrap">
-      <div className="pb-stage">
+      <div ref={ref} className="pb-stage" data-dragging={dragging} {...handlers}>
         {apps.map((app, i) => (i === 0 || mounted ? <StageGroup key={app.id} app={app} i={i} selected={index === i} pos={pos} /> : null))}
       </div>
       <p className="pb-stage-caption">Public store frames.</p>
@@ -228,6 +307,7 @@ function Codes({ app, ready }: { app: AppView; ready: boolean }) {
       <p className="pb-hook" aria-live="polite">
         {app.hook}
       </p>
+      <p className="pb-code-caption">{app.caption}</p>
       {app.stores.map((s) => (
         <div className="pb-code" key={s.name}>
           <a className="pb-code-link pb-press" href={s.href} target="_blank" rel="noopener noreferrer" aria-label={`${s.label}, ${app.name}. This code opens the same page (opens a new tab)`}>
@@ -243,17 +323,37 @@ function Codes({ app, ready }: { app: AppView; ready: boolean }) {
 
 /* ---------- Below the first screen ---------- */
 
+interface Crop {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+}
+
 function CareShot() {
   const shot = careShots.claims;
-  const { crop } = shot;
-  const imgStyle: CSSProperties = {
+  // The wide crop is for desktop. On a phone the same screen is cropped to its first card, the month and the program tabs,
+  // so the text keeps about 94 percent of its size instead of 30 percent.
+  const phoneCrop: Crop = { x: 262, y: 274, w: 380, h: 290 };
+  const view = (crop: Crop): CSSProperties => ({
     width: `${(shot.width / crop.w) * 100}%`,
     transform: `translate(${(-crop.x / shot.width) * 100}%, ${(-crop.y / shot.height) * 100}%)`,
-  };
+  });
   return (
     <figure>
-      <div className="pb-shot" style={{ aspectRatio: `${crop.w} / ${crop.h}` }}>
-        <img src={shot.src} alt={shot.alt} width={2880} height={1800} loading="lazy" decoding="async" style={imgStyle} />
+      <div className="pb-shot pb-shot--wide" style={{ aspectRatio: `${shot.crop.w} / ${shot.crop.h}` }}>
+        <img src={shot.src} alt={shot.alt} width={2880} height={1800} loading="lazy" decoding="async" style={view(shot.crop)} />
+      </div>
+      <div className="pb-shot pb-shot--phone" style={{ aspectRatio: `${phoneCrop.w} / ${phoneCrop.h}` }}>
+        <img
+          src={shot.src}
+          alt="Claims screen: a Draft card with 7 claims and 2 updated, the month September, and the program tabs All Programs, CCM, RPM and RTM. Invented data."
+          width={2880}
+          height={1800}
+          loading="lazy"
+          decoding="async"
+          style={view(phoneCrop)}
+        />
       </div>
       <figcaption className="pb-small" style={{ marginTop: 8 }}>
         {REAL_SCREENS}
@@ -287,9 +387,9 @@ const Work = memo(function Work() {
         <article className="pb-row">
           <CareShot />
           <div className="pb-row-copy">
-            <h3 className="pb-h3">Care teams keep using the app while each screen moves over.</h3>
+            <h3 className="pb-h3">Rebuilding a live care platform, one tested screen at a time.</h3>
             <p>
-              The care-management platform follows vitals, care plans, lab results, claims and calls for care teams. Its Vue app is being rebuilt in React, one screen at a time. A screen moves only after the same test passes on both apps.
+              The care-management platform follows vitals, care plans, lab results, claims and calls for care teams. Its Vue app keeps running while a React version is built. A screen moves over only after the same test passes on both apps. No React screen is live yet.
             </p>
             <p className="pb-proof">One billing report now needs 2 database requests, not 16, and no longer times out.</p>
             <p className="pb-ai">Gentrit wrote most of the rules and the checks. AI agents build inside them. A person approves each change.</p>
@@ -308,13 +408,13 @@ const Work = memo(function Work() {
             Apps in the stores
           </h2>
           <table className="pb-table">
-            <caption className="pb-sr">The four apps on the wheel, with years, role, platforms and store links</caption>
+            <caption className="pb-sr">The four apps on the wheel, with years, role, result and store links</caption>
             <thead>
               <tr>
                 <th scope="col">App</th>
                 <th scope="col">Years</th>
                 <th scope="col">Role</th>
-                <th scope="col">Where</th>
+                <th scope="col">Result</th>
                 <th scope="col">Open</th>
               </tr>
             </thead>
@@ -330,7 +430,7 @@ const Work = memo(function Work() {
                     {a.years}
                   </td>
                   <td data-label="Role">{a.role}</td>
-                  <td data-label="Where">{a.where}</td>
+                  <td data-label="Result">{a.result}</td>
                   <td data-label="Open">
                     <span className="pb-links">
                       {a.site ? (
@@ -436,6 +536,12 @@ export default function Draft() {
 
   useEffect(() => {
     setPlatform(detectPlatform());
+    // The host page is dark. Overscroll and the browser bar on a phone show the document, not this page.
+    const html = document.documentElement;
+    const body = document.body;
+    const before = [html.style.backgroundColor, body.style.backgroundColor];
+    html.style.backgroundColor = PAPER;
+    body.style.backgroundColor = PAPER;
     let alive = true;
     const fonts = (document as Document & { fonts?: { ready: Promise<unknown> } }).fonts;
     const go = () => alive && requestAnimationFrame(() => alive && setReady(true));
@@ -444,6 +550,8 @@ export default function Draft() {
     return () => {
       alive = false;
       window.clearTimeout(t);
+      html.style.backgroundColor = before[0];
+      body.style.backgroundColor = before[1];
     };
   }, []);
 
@@ -462,21 +570,27 @@ export default function Draft() {
     [reduce, select, pos],
   );
 
-  // While a finger or pointer drags the band, the selection follows the nearest row.
+  // While a finger or pointer drags, the selection follows the nearest app.
   useMotionValueEvent(pos, "change", (v) => {
     if (!dragging.current) return;
     const i = clamp(Math.round(v), 0, N - 1);
     if (i !== indexRef.current) select(i);
   });
 
-  const onDrag = useCallback(
-    (state: "start" | "end", i?: number, velocity = 0) => {
-      anim.current?.stop();
-      if (state === "start") dragging.current = true;
-      else {
-        dragging.current = false;
-        goTo(i ?? indexRef.current, "pointer", velocity);
-      }
+  const onDragStart = useCallback(() => {
+    anim.current?.stop();
+    dragging.current = true;
+  }, []);
+  const onDragEnd = useCallback(
+    (i: number, velocity: number) => {
+      dragging.current = false;
+      goTo(i, "pointer", velocity);
+    },
+    [goTo],
+  );
+  const onStep = useCallback(
+    (dir: 1 | -1) => {
+      goTo(clamp(indexRef.current + dir, 0, N - 1), "pointer");
     },
     [goTo],
   );
@@ -485,31 +599,32 @@ export default function Draft() {
     <div className="pb-root" style={{ "--pb-app": app.accent } as CSSProperties}>
       <title>Gentrit Rashiti, phone and web apps</title>
       <meta name="description" content="Gentrit Rashiti builds the phone and web apps that shoppers, readers and care teams use. Scan a code to open the real app in your store." />
+      <meta name="theme-color" content={PAPER} />
       <main>
         <section className="pb-first" aria-label="Introduction">
           <nav className="pb-nav" aria-label="Main">
-            <a href="#work" className="pb-link">
-              Work
+            <a href="#work" className="pb-nav-link">
+              <span>Work</span>
             </a>
-            <a href="#about" className="pb-link">
-              About
+            <a href="#about" className="pb-nav-link">
+              <span>About</span>
             </a>
-            <a href={links.cv} className="pb-link" target="_blank" rel="noopener noreferrer">
-              CV
+            <a href={links.cv} className="pb-nav-link" target="_blank" rel="noopener noreferrer">
+              <span>CV</span>
             </a>
-            <a href={`mailto:${links.email}`} className="pb-link">
-              Email
+            <a href={`mailto:${links.email}`} className="pb-nav-link">
+              <span>Email</span>
             </a>
           </nav>
 
           <div className="pb-copy">
             <h1 className="pb-claim">Gentrit Rashiti builds the phone and web apps that shoppers, readers and care teams use.</h1>
-            <p className="pb-line">Frontend and mobile developer since 2021, based in Kosovo, working remotely.</p>
+            <p className="pb-line">Frontend and mobile developer since 2021, full stack since 2026. Kosovo, remote.</p>
           </div>
 
-          <Wheel index={index} pos={pos} onPick={goTo} onDrag={onDrag} />
+          <Wheel index={index} pos={pos} onPick={goTo} onDragStart={onDragStart} onDragEnd={onDragEnd} />
           <StoreButtons app={app} platform={platform} />
-          <Stage index={index} pos={pos} mounted={mounted} />
+          <Stage index={index} pos={pos} mounted={mounted} onDragStart={onDragStart} onDragEnd={onDragEnd} onStep={onStep} />
           <Facts app={app} />
           <Codes app={app} ready={ready} />
         </section>

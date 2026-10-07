@@ -3,7 +3,7 @@ import { preload } from "react-dom";
 import { Route, Routes } from "react-router";
 import Case from "./Case";
 import Home from "./Home";
-import { calendar } from "./shots";
+import { claims } from "./shots";
 import "./p12-pro.css";
 
 const DISPLAY = "/fonts/creative/GentritDisplay-Latin.woff2";
@@ -27,7 +27,7 @@ const PAPER = "#f5f7fb";
 export default function Draft() {
   preload(DISPLAY, { as: "font", type: "font/woff2", crossOrigin: "anonymous" });
   preload(TEXT, { as: "font", type: "font/woff2", crossOrigin: "anonymous" });
-  preload(calendar.src, { as: "image", fetchPriority: "high" });
+  preload(claims.src, { as: "image", fetchPriority: "high" });
   use(fontsReady);
 
   // The page is printed on the care app's own ground, up to the browser edges.

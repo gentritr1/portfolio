@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useRef, useState, type MouseEvent, type PointerEvent, type ReactNode } from "react";
+import { Fragment, useEffect, useId, useRef, useState, type PointerEvent, type ReactNode } from "react";
 import { animate, motion, useMotionValue, useMotionValueEvent, useTransform, type MotionValue } from "motion/react";
 import { EYE, FACE_B_DEG, FLIP_DEG, LensPrint, type FacePaint } from "./lens";
 
@@ -34,6 +34,8 @@ export interface Tilt {
   face: 0 | 1;
   /** Turn to a face. Pointer: the story spring. Keyboard or reduced motion: no travel. */
   show: (face: 0 | 1, how: "spring" | "instant") => void;
+  /** Turn to the second face and back, once: the print shown to the visitor like a postcard. */
+  peek: () => void;
   reduced: boolean;
 }
 
@@ -42,30 +44,35 @@ const STORY = { type: "spring", visualDuration: 0.5, bounce: 0.12 } as const;
 /** spring.snap, for a drag release with the hand's velocity. */
 const SNAP = { type: "spring", stiffness: 600, damping: 40 } as const;
 
-export function useTilt(reduced: boolean, start: 0 | 1 = 0): Tilt {
-  const theta = useMotionValue(start ? FACE_B_DEG : 0);
-  const [face, setFace] = useState<0 | 1>(start);
-  useMotionValueEvent(theta, "change", (v) => setFace(Math.abs(v) > FLIP_DEG ? 1 : 0));
+export function useTilt(reduced: boolean): Tilt {
+  const theta = useMotionValue(0);
+  const [face, setFace] = useState<0 | 1>(0);
+  useMotionValueEvent(theta, "change", (v) => setFace(v > FLIP_DEG ? 1 : 0));
   const show = (to: 0 | 1, how: "spring" | "instant") => {
-    const now = theta.get();
-    const target = to === 0 ? 0 : now < -0.5 ? -FACE_B_DEG : FACE_B_DEG;
+    const target = to === 0 ? 0 : FACE_B_DEG;
     if (reduced || how === "instant") {
       theta.stop();
       theta.jump(target);
       setFace(to);
     } else animate(theta, target, STORY);
   };
-  return { theta, face, show, reduced };
+  // 760 ms: out on an ease-out, back on the in-out curve; it ends where it started, on the website.
+  const peek = () => {
+    if (reduced) return;
+    animate(theta, [0, FACE_B_DEG, 0], { duration: 0.76, times: [0, 0.45, 1], ease: [[0.23, 1, 0.32, 1], [0.77, 0, 0.175, 1]] });
+  };
+  return { theta, face, show, peek, reduced };
 }
 
 /* ---------- The face labels ---------- */
 
+/** A radio group (one Tab stop, arrow keys, the right announcement). Pointer changes turn the card; keyboard changes jump. */
 export function FaceSwitch({ tilt, labels, name }: { tilt: Tilt; labels: [string, string]; name: string }) {
-  const press = (to: 0 | 1) => (e: MouseEvent<HTMLButtonElement>) =>
-    // A click from the keyboard has detail 0: keyboard actions do not animate.
-    tilt.show(to, e.detail === 0 ? "instant" : "spring");
+  const id = useId();
+  const byPointer = useRef(false);
   return (
-    <div className="lx-switch" role="group" aria-label={`${name}: which screen the print shows`}>
+    <fieldset className="lx-switch">
+      <legend className="lx-sr">{name}: which screen the print shows</legend>
       {labels.map((label, i) => (
         <Fragment key={label}>
           {i === 1 && (
@@ -73,12 +80,22 @@ export function FaceSwitch({ tilt, labels, name }: { tilt: Tilt; labels: [string
               ⇄
             </span>
           )}
-          <button type="button" className="lx-face" aria-pressed={tilt.face === i} onClick={press(i as 0 | 1)}>
-            {label}
-          </button>
+          <label className="lx-face" data-on={tilt.face === i || undefined}>
+            <input
+              type="radio"
+              name={id}
+              checked={tilt.face === i}
+              onPointerDown={() => (byPointer.current = true)}
+              onChange={() => {
+                tilt.show(i as 0 | 1, byPointer.current ? "spring" : "instant");
+                byPointer.current = false;
+              }}
+            />
+            <span>{label}</span>
+          </label>
         </Fragment>
       ))}
-    </div>
+    </fieldset>
   );
 }
 
@@ -105,8 +122,10 @@ function enqueue(job: () => Promise<void>) {
 
 /* ---------- The print ---------- */
 
-const DEG_PER_PX = FACE_B_DEG / 150;
-const LIMIT = 22;
+const DEG_PER_PX = FACE_B_DEG / 120;
+const LIMIT = 16;
+/** A drag starts after this much movement, so a tap is still a tap. */
+const SLOP = 5;
 
 function useNarrow() {
   const query = "(max-width: 719px)";
@@ -137,14 +156,17 @@ export function Print({
   priority = false,
   story = false,
   intro = false,
+  name,
   caption,
 }: {
   spec: PrintSpec;
   tilt: Tilt;
   priority?: boolean;
   story?: boolean;
-  /** Arrive turned to the second face, then settle flat once, when the lens is ready soon enough. */
+  /** Show the second face once after load, then return: the material read without input. */
   intro?: boolean;
+  /** The print's accessible name, for example "Bayyinah TV, website and App Store faces". */
+  name: string;
   caption?: ReactNode;
 }) {
   const narrow = useNarrow();
@@ -156,18 +178,23 @@ export function Print({
   const [ready, setReady] = useState(false);
   const born = useRef(performance.now());
 
-  // The one authored moment at load: the print is set down. It arrives turned (the App Store face)
-  // and settles flat (the website), once. Skipped if the lens is late, if the visitor already
-  // touched it, or with reduced motion.
+  const touched = useRef(false);
+
+  // The one authored moment at load: the hero print is turned to its App Store face and back, once,
+  // as a hand shows a postcard. It starts and ends on the website. Skipped if the lens is late,
+  // if the visitor already touched it, or with reduced motion.
+  const { reduced, theta } = tilt;
+  const peek = useRef(tilt.peek);
+  peek.current = tilt.peek;
   useEffect(() => {
-    if (!intro || !ready || tilt.reduced) return;
-    if (performance.now() - born.current > 2000) return;
+    if (!intro || !ready || reduced) return;
+    if (performance.now() - born.current > 2200) return;
     const id = window.setTimeout(() => {
-      if (!tilt.theta.isAnimating() && tilt.theta.get() === FACE_B_DEG) tilt.show(0, "spring");
-    }, 120);
+      if (!touched.current && !theta.isAnimating() && theta.get() === 0) peek.current();
+    }, 350);
     return () => window.clearTimeout(id);
-  }, [intro, ready, tilt]);
-  const drag = useRef<{ id: number; x: number; from: number; moved: boolean } | null>(null);
+  }, [intro, ready, reduced, theta]);
+  const drag = useRef<{ id: number; x: number; from: number; moved: boolean; trail: [number, number][] } | null>(null);
 
   // Paint the faces when the print comes near the viewport, and again when its size changes.
   useEffect(() => {
@@ -239,44 +266,62 @@ export function Print({
   const shadowScale = useTransform(tilt.theta, (v) => Math.cos((v * Math.PI) / 180));
   const shadowX = useTransform(tilt.theta, (v) => v * 0.6);
 
+  // Past the ends the card resists, like a print held at one edge (rubber band, never a hard stop).
+  const resist = (v: number) => {
+    const lo = -LIMIT / 2;
+    if (v > LIMIT) return LIMIT + (v - LIMIT) * 0.25;
+    if (v < lo) return lo + (v - lo) * 0.25;
+    return v;
+  };
+  const angleAt = (d: NonNullable<typeof drag.current>, x: number) => resist(d.from + (x - d.x) * DEG_PER_PX);
+
   const onPointerDown = (e: PointerEvent<HTMLDivElement>) => {
     if (e.button !== 0) return;
+    touched.current = true;
     tilt.theta.stop();
-    drag.current = { id: e.pointerId, x: e.clientX, from: tilt.theta.get(), moved: false };
+    drag.current = { id: e.pointerId, x: e.clientX, from: tilt.theta.get(), moved: false, trail: [[e.timeStamp, e.clientX]] };
   };
   const onPointerMove = (e: PointerEvent<HTMLDivElement>) => {
     const d = drag.current;
     if (!d || d.id !== e.pointerId) return;
-    const dx = e.clientX - d.x;
+    d.trail.push([e.timeStamp, e.clientX]);
+    if (d.trail.length > 8) d.trail.shift();
     if (!d.moved) {
-      if (Math.abs(dx) < 6) return;
+      if (Math.abs(e.clientX - d.x) < SLOP) return;
+      // Capture only after 5px, so a tap stays a tap and the page still scrolls on a vertical swipe.
       d.moved = true;
       e.currentTarget.setPointerCapture(e.pointerId);
     }
-    let v = d.from + dx * DEG_PER_PX;
-    // Past the limit the card resists, like a print held at one edge.
-    if (Math.abs(v) > LIMIT) v = Math.sign(v) * (LIMIT + (Math.abs(v) - LIMIT) * 0.25);
-    tilt.theta.set(v);
+    tilt.theta.set(angleAt(d, e.clientX));
   };
   const release = (e: PointerEvent<HTMLDivElement>, cancelled: boolean) => {
     const d = drag.current;
     if (!d || d.id !== e.pointerId) return;
     drag.current = null;
-    const now = tilt.theta.get();
-    if (!d.moved && !cancelled) {
-      tilt.show(tilt.face === 0 ? 1 : 0, "spring");
+    d.trail.push([e.timeStamp, e.clientX]);
+    const moved = d.moved || Math.abs(e.clientX - d.x) >= SLOP;
+    if (!moved) {
+      if (!cancelled) tilt.show(tilt.face === 0 ? 1 : 0, "spring");
       return;
     }
-    const velocity = tilt.theta.getVelocity();
+    // The hand's velocity over its last ~100 ms, handed to the spring: a flick turns the card.
+    const end = d.trail[d.trail.length - 1];
+    const start = d.trail.find(([t]) => end[0] - t <= 100) ?? d.trail[0];
+    const dt = Math.max(16, end[0] - start[0]);
+    const velocity = ((end[1] - start[1]) / dt) * 1000 * DEG_PER_PX;
+    const now = angleAt(d, e.clientX);
     const aim = now + velocity * 0.2;
-    const rests = [-FACE_B_DEG, 0, FACE_B_DEG];
-    const target = rests.reduce((best, r) => (Math.abs(r - aim) < Math.abs(best - aim) ? r : best), 0);
-    if (tilt.reduced) tilt.theta.jump(target);
-    else animate(tilt.theta, target, { ...SNAP, velocity });
+    const target = aim > FACE_B_DEG / 2 ? FACE_B_DEG : 0;
+    if (tilt.reduced) {
+      tilt.theta.jump(target);
+      return;
+    }
+    tilt.theta.set(now);
+    animate(tilt.theta, target, { ...SNAP, velocity });
   };
 
   return (
-    <figure className="lx-print" data-work={spec.work} data-ready={ready || undefined}>
+    <figure className="lx-print" data-work={spec.work} data-ready={ready || undefined} role="group" aria-label={name}>
       <div className="lx-stage" style={{ aspectRatio: String(layout.aspect) }}>
         <motion.div className="lx-shadow" aria-hidden="true" style={{ scaleX: shadowScale, x: shadowX }} />
         <motion.div
@@ -291,7 +336,7 @@ export function Print({
           onPointerCancel={(e) => release(e, true)}
         >
           {layout.faces.map((face, f) => (
-            <div key={f} className="lx-layer" data-layer={f} style={{ background: face.ground }}>
+            <div key={f} className="lx-layer" data-layer={f}>
               {face.tiles.map((t, i) => {
                 const st = tileStyle(t);
                 return (
@@ -306,7 +351,7 @@ export function Print({
                       height={t.nat[1]}
                       style={st.img}
                       loading={priority ? "eager" : "lazy"}
-                      fetchPriority={priority && f === tilt.face ? "high" : undefined}
+                      fetchPriority={priority && f === 0 ? "high" : undefined}
                       decoding="async"
                       draggable={false}
                     />

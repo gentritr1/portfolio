@@ -4,36 +4,42 @@ import { about, AI_LINE, index, lanes, REAL, rows, site, type Entry, type Lane, 
 import './draft.css'
 
 const LANES: Lane[] = ['phone', 'web', 'server']
+type Sel = Lane | 'all'
 
 /* ---------- Grid placement: the record is one CSS grid; every item is placed by row number ---------- */
 
 interface Placed {
   todayRow: number
-  ruleRows: { year: number; row: number }[]
+  ruleRows: { year: number; row: number; lanes: Lane[] }[]
   rowOf: number[]
   endRow: number
   bars: { id: string; lane: Lane; start: number; end: number; k: number }[]
+  counts: Record<Lane, number>
 }
 
 function place(): Placed {
   let r = 1
   const todayRow = r++
-  const ruleRows: { year: number; row: number }[] = []
+  const ruleRows: Placed['ruleRows'] = []
   const rowOf: number[] = []
   let lastYear: number | null = null
   rows.forEach((row, i) => {
     if (row.year !== lastYear) {
-      ruleRows.push({ year: row.year, row: r++ })
+      ruleRows.push({ year: row.year, row: r++, lanes: [] })
       lastYear = row.year
     }
+    const rule = ruleRows[ruleRows.length - 1]
+    for (const lane of LANES) if (row.cells[lane]?.some((e) => !e.lineNote) && !rule.lanes.includes(lane)) rule.lanes.push(lane)
     rowOf[i] = r++
   })
   const endRow = r
   const ruleOf = (year: number) => ruleRows.find((x) => x.year === year)?.row
   const raw: { id: string; lane: Lane; start: number; end: number }[] = []
+  const counts: Record<Lane, number> = { phone: 0, web: 0, server: 0 }
   rows.forEach((row, i) => {
     for (const lane of LANES) {
       for (const e of row.cells[lane] ?? []) {
+        if (!e.lineNote) counts[lane] += 1
         if (!e.shot && !e.bar) continue
         const [s, en] = e.years
         const start = rowOf[i]
@@ -53,7 +59,7 @@ function place(): Placed {
       bars.push({ ...b, k })
     }
   }
-  return { todayRow, ruleRows, rowOf, endRow, bars }
+  return { todayRow, ruleRows, rowOf, endRow, bars, counts }
 }
 
 const placed = place()
@@ -72,7 +78,7 @@ function ShotFigure({ shot, name, onOpen, eager }: { shot: Shot; name: string; o
     ...(p && { '--px': p.x, '--py': p.y, '--pw': p.w, '--ph': p.h }),
   } as CSSProperties
   return (
-    <figure className="tl-shot">
+    <figure className="tl-shot" data-wide={shot.wideOnly ? '' : undefined}>
       <button type="button" className="tl-shot-btn tl-press" onClick={() => onOpen(shot)} aria-label={`Enlarge: ${shot.caption}`}>
         <span className="tl-shot-box" style={style} data-work={name}>
           <img
@@ -115,7 +121,7 @@ function Meta({ entry }: { entry: Entry }) {
       ))}
       {entry.links?.map((l) => (
         <li key={l.href}>
-          <Out href={l.href} label={l.label} className="tl-plain" />
+          <Out href={l.href} label={l.label} className="tl-textlink" />
         </li>
       ))}
     </ul>
@@ -186,10 +192,10 @@ function Section({ id, title, children }: { id: string; title: string; children:
 /* ---------- The page ---------- */
 
 export default function Draft() {
-  const [drawn, setDrawn] = useState(false)
+  const [sel, setSel] = useState<Sel>('all')
   const [open, setOpen] = useState<Shot | null>(null)
+  const [indexOpen, setIndexOpen] = useState(false)
   const dialogRef = useRef<HTMLDialogElement>(null)
-  const recordRef = useRef<HTMLDivElement>(null)
 
   // The draft is one light page on a site whose shell is dark by default.
   useEffect(() => {
@@ -198,6 +204,7 @@ export default function Draft() {
     const prevBg = document.body.style.backgroundColor
     html.setAttribute('data-theme', 'light')
     document.body.style.backgroundColor = 'oklch(97% 0.008 50)'
+    setIndexOpen(matchMedia('(min-width: 900px)').matches)
     return () => {
       if (prevTheme === null) html.removeAttribute('data-theme')
       else html.setAttribute('data-theme', prevTheme)
@@ -205,32 +212,18 @@ export default function Draft() {
     }
   }, [])
 
-  // The one story moment: the year bars draw down once, when the record is in view.
-  useEffect(() => {
-    const el = recordRef.current
-    if (!el || drawn) return
-    if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      setDrawn(true)
-      return
-    }
-    const io = new IntersectionObserver(
-      (entries) => {
-        if (entries.some((e) => e.isIntersecting)) {
-          setDrawn(true)
-          io.disconnect()
-        }
-      },
-      { rootMargin: '0px 0px -10% 0px' },
-    )
-    io.observe(el)
-    return () => io.disconnect()
-  }, [drawn])
-
+  // The enlarge dialog: modal, and the page behind it does not scroll.
   useEffect(() => {
     const d = dialogRef.current
     if (!d) return
     if (open && !d.open) d.showModal()
     if (!open && d.open) d.close()
+    const html = document.documentElement
+    const prev = html.style.overflow
+    if (open) html.style.overflow = 'hidden'
+    return () => {
+      html.style.overflow = prev
+    }
   }, [open])
 
   const today = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date())
@@ -242,7 +235,7 @@ export default function Draft() {
     if (row.year !== lastYear) {
       const rule = placed.ruleRows.find((y) => y.year === row.year)!
       record.push(
-        <div className="tl-year" key={`y-${row.year}`} style={{ gridRow: rule.row }}>
+        <div className="tl-year" key={`y-${row.year}`} style={{ gridRow: rule.row }} data-lanes={rule.lanes.join(' ')}>
           {row.year}
         </div>,
       )
@@ -264,6 +257,11 @@ export default function Draft() {
       )
     }
   })
+
+  const options: { key: Sel; label: string; small: string }[] = [
+    ...lanes.map((l) => ({ key: l.key as Sel, label: l.label, small: `${l.since}, ${placed.counts[l.key]} entries` })),
+    { key: 'all', label: 'All', small: 'three lanes' },
+  ]
 
   return (
     <div className="tl">
@@ -298,35 +296,45 @@ export default function Draft() {
       <main id="top">
         <div className="tl-wrap tl-hero">
           <h1 className="tl-claim">{site.claim}</h1>
-          <p className="tl-lead">
-            <b>Phone</b> apps since 2021. <b>Web</b> apps since 2023. The <b>servers</b> behind them since 2026. Based in Kosovo, working remotely.
-          </p>
-          <ul className="tl-proof" aria-label="Open the work">
-            {site.proof.map((p) => (
-              <li key={p.href}>
-                <a className="tl-link" href={p.href} target="_blank" rel="noreferrer">
-                  {p.label}
+          <p className="tl-lead" aria-live="polite">
+            {sel === 'all' ? (
+              <>
+                {site.lead.before}
+                <a className="tl-textlink" href={site.lead.link.href} target="_blank" rel="noreferrer">
+                  {site.lead.link.label}
                 </a>
-              </li>
-            ))}
-            <li>
-              <a className="tl-link" href={site.cv}>
-                CV
-              </a>
-            </li>
-          </ul>
+                {site.lead.after}
+              </>
+            ) : (
+              site.laneLines[sel]
+            )}
+          </p>
         </div>
 
         <div className="tl-wrap">
           <section id="work" aria-label="The work, 2021 to 2026, in three lanes">
-            <div className={`tl-record${drawn ? ' tl-draw tl-drawn' : ' tl-draw'}`} ref={recordRef} data-motion="story">
-              <div className="tl-laneheads">
-                {lanes.map((l) => (
-                  <h2 className="tl-lanehead" data-lane={l.key} key={l.key}>
-                    {l.label} <small>{l.since}</small>
-                  </h2>
+            <div className="tl-record" data-sel={sel}>
+              {/* The lanes are the control: choose one and the record answers. A radio group: arrow keys move the choice, a tap or click sets it, pressing the chosen lane again shows all. */}
+              <fieldset className="tl-laneheads">
+                <legend className="tl-sr">Show one lane</legend>
+                {options.map((o) => (
+                  <label className="tl-lanehead" data-lane={o.key} key={o.key} data-on={sel === o.key ? '' : undefined}>
+                    <input
+                      type="radio"
+                      name="tl-lane"
+                      className="tl-sr"
+                      value={o.key}
+                      checked={sel === o.key}
+                      onChange={() => setSel(o.key)}
+                      onClick={() => {
+                        if (sel === o.key && o.key !== 'all') setSel('all')
+                      }}
+                    />
+                    <span className="tl-lanehead-name">{o.label}</span>
+                    <small>{o.small}</small>
+                  </label>
                 ))}
-              </div>
+              </fieldset>
 
               <div className="tl-grid">
                 <p className="tl-today" style={{ gridRow: placed.todayRow }}>
@@ -335,14 +343,14 @@ export default function Draft() {
                 {record.map((node, i) => (
                   <Fragment key={i}>{node}</Fragment>
                 ))}
-                {placed.bars.map((b, i) => (
+                {placed.bars.map((b) => (
                   <span
                     className="tl-bar"
                     data-lane={b.lane}
                     data-for={b.id}
                     key={b.id}
                     aria-hidden="true"
-                    style={{ gridRow: `${b.start} / ${b.end}`, '--k': b.k, '--i': i } as CSSProperties}
+                    style={{ gridRow: `${b.start} / ${b.end}`, '--k': b.k } as CSSProperties}
                   />
                 ))}
                 <div className="tl-year" data-end style={{ gridRow: placed.endRow }} aria-hidden="true" />
@@ -351,8 +359,8 @@ export default function Draft() {
           </section>
 
           <Section id="index" title="Index">
-            <div className="tl-index">
-              <p className="tl-index-lede">Every product so far, one line each. Rows with a case link open the full write-up.</p>
+            <details className="tl-index" open={indexOpen} onToggle={(e) => setIndexOpen((e.currentTarget as HTMLDetailsElement).open)}>
+              <summary className="tl-summary tl-press">Every product so far, one line each</summary>
               {index.map((g) => (
                 <div className="tl-group" key={g.title}>
                   <h3>{g.title}</h3>
@@ -362,7 +370,7 @@ export default function Draft() {
                         <span className="tl-years">{r.years}</span>
                         <span className="tl-project">
                           {r.entry ? (
-                            <a className="tl-plain tl-rowlink" href={`#e-${r.entry}`}>
+                            <a className="tl-textlink tl-rowlink" href={`#e-${r.entry}`}>
                               {r.name}
                             </a>
                           ) : (
@@ -376,7 +384,7 @@ export default function Draft() {
                         <span className="tl-line">{r.line}</span>
                         <span className="tl-links">
                           {r.links?.map((l) => (
-                            <Out href={l.href} label={l.label} className="tl-plain" key={l.href} />
+                            <Out href={l.href} label={l.label} className="tl-textlink" key={l.href} />
                           ))}
                         </span>
                       </li>
@@ -384,7 +392,7 @@ export default function Draft() {
                   </ul>
                 </div>
               ))}
-            </div>
+            </details>
           </Section>
 
           <Section id="about" title="About">
@@ -397,22 +405,22 @@ export default function Draft() {
               <div>
                 <ul className="tl-contact" aria-label="Contact">
                   <li>
-                    <a className="tl-link" href={`mailto:${site.email}`}>
+                    <a className="tl-textlink" href={`mailto:${site.email}`}>
                       {site.email}
                     </a>
                   </li>
                   <li>
-                    <a className="tl-link" href={site.github} target="_blank" rel="noreferrer">
+                    <a className="tl-textlink" href={site.github} target="_blank" rel="noreferrer">
                       github.com/gentritr1
                     </a>
                   </li>
                   <li>
-                    <a className="tl-link" href={site.linkedin} target="_blank" rel="noreferrer">
+                    <a className="tl-textlink" href={site.linkedin} target="_blank" rel="noreferrer">
                       LinkedIn
                     </a>
                   </li>
                   <li>
-                    <a className="tl-link" href={site.cv}>
+                    <a className="tl-textlink" href={site.cv}>
                       Download the CV
                     </a>
                   </li>

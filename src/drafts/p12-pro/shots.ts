@@ -90,10 +90,10 @@ export const phones: PhoneShot[] = [
     ],
   },
   {
-    src: "/mobile/bookstore-1.webp",
-    alt: "Dukagjini Bookstore home: book search, a banner, top categories and books on sale.",
+    src: "/mobile/bookstore-2.webp",
+    alt: "Dukagjini Bookstore, Foreign Books: Educated by Tara Westover and The Moment of Lift by Melinda Gates, with star ratings and prices in euros.",
     app: "Dukagjini Bookstore",
-    screen: "Search and top categories",
+    screen: "Foreign books",
     box: { x: 108, y: 712, w: 564, h: 977 },
     links: [
       { label: "App Store", href: "https://apps.apple.com/us/app/dukagjini-bookstore/id1587352342" },

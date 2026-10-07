@@ -22,29 +22,34 @@ const bayyinahWeb = (s: TileSpec["s"]): TileSpec => ({
 const storeFrames = [
   ["/showcase/bayyinah/store-01.webp", "Bayyinah TV App Store frame: Quran Studies Made Simple, with the app's home screen on an iPhone."],
   ["/showcase/bayyinah/store-02.webp", "Bayyinah TV App Store frame: Study the Quran Surah by Surah, with the surah list and the video player."],
+  ["/showcase/bayyinah/store-03.webp", "Bayyinah TV App Store frame: Study the Quran Subject by Subject, with subject courses in the app."],
   ["/showcase/bayyinah/store-05.webp", "Bayyinah TV App Store frame: Pick Up Anytime, with the My Learning progress screen."],
 ] as const;
 
+/*
+ * The site's own marketing band (learner counts, testimonials) starts at y 1390 of web-01.
+ * Every crop of the first screen stops above it, so no product number reads as Gentrit's.
+ */
 const BAYYINAH: PrintSpec = {
   id: "bayyinah",
   work: "Bayyinah TV",
   wide: {
-    aspect: 1.6,
+    aspect: 2880 / 1350,
     faces: [
-      { ground: "#1f1518", tiles: [bayyinahWeb([0, 0, 2880, 1800])] },
+      { ground: "#1f1518", tiles: [bayyinahWeb([0, 0, 2880, 1350])] },
       {
         ground: "#1f1518",
-        // Three frames side by side, as the store shows them; the phones' lower edge is cut.
-        tiles: storeFrames.map(([src, alt], k) => ({ src, alt, nat: STORE, s: [0, 0, 778, 1459], d: [k / 3, 0, 1 / 3, 1] })),
+        // Four frames side by side, as the store shows them; the phones' lower edge is cut.
+        tiles: storeFrames.map(([src, alt], k) => ({ src, alt, nat: STORE, s: [0, 0, 778, (778 * 4 * 1350) / 2880], d: [k / 4, 0, 1 / 4, 1] })),
       },
     ],
   },
   narrow: {
     // Both faces cropped to the same words: Quran Studies Made Simple, on the web and in the app.
-    aspect: 1240 / 1040,
+    aspect: 1240 / 990,
     faces: [
-      { ground: "#1f1518", tiles: [bayyinahWeb([40, 360, 1240, 1040])] },
-      { ground: "#1f1518", tiles: [{ src: storeFrames[0][0], alt: storeFrames[0][1], nat: STORE, s: [0, 120, 778, 652.5] }] },
+      { ground: "#1f1518", tiles: [bayyinahWeb([40, 360, 1240, 990])] },
+      { ground: "#1f1518", tiles: [{ src: storeFrames[0][0], alt: storeFrames[0][1], nat: STORE, s: [0, 110, 778, (778 * 990) / 1240] }] },
     ],
   },
 };
@@ -83,24 +88,25 @@ const CARE: PrintSpec = {
 
 const listing = (src: string, alt: string, s: TileSpec["s"]): TileSpec => ({ src, alt, nat: LISTING, s });
 const phonePrint = (id: string, work: string, a: TileSpec, b: TileSpec, ground: [string, string]): PrintSpec => {
-  const layout = { aspect: 780 / 1100, faces: [{ ground: ground[0], tiles: [a] }, { ground: ground[1], tiles: [b] }] as PrintSpec["wide"]["faces"] };
+  const layout = { aspect: a.s[2] / a.s[3], faces: [{ ground: ground[0], tiles: [a] }, { ground: ground[1], tiles: [b] }] as PrintSpec["wide"]["faces"] };
   return { id, work, wide: layout, narrow: layout };
 };
 
+// Cropped to the app screen inside each store frame (boxes from src/content/phoneScreens.ts), not the store art around it.
 const READ_TO_FEED = phonePrint(
   "read-to-feed",
   "Read to Feed",
-  listing("/mobile/reading-1.webp", "Read to Feed store screenshot: My Books, with reading progress for The Tale of Peter Rabbit and Anne of Green Gables.", [0, 0, 780, 1100]),
-  listing("/mobile/reading-3.webp", "Read to Feed store screenshot: a chapter of The Tale of Peter Rabbit in the reader, with a Keep Reading sheet.", [0, 0, 780, 1100]),
-  ["#3fa9e0", "#f6c33a"],
+  listing("/mobile/reading-1.webp", "Read to Feed app screen from its store listing: My Books, with reading progress for The Tale of Peter Rabbit and Anne of Green Gables.", [80, 532, 620, 874]),
+  listing("/mobile/reading-2.webp", "Read to Feed app screen from its store listing: Achievements, with eggs collected and quiz badges.", [80, 586, 620, 874]),
+  ["#fefdf9", "#fefefb"],
 );
 
 const VIVA_FRESH = phonePrint(
   "viva-fresh",
   "Viva Fresh",
-  listing("/mobile/grocery-1.webp", "Viva Fresh store screenshot: the home screen with product categories and products, in Albanian.", [0, 120, 780, 1100]),
-  listing("/mobile/grocery-3.webp", "Viva Fresh store screenshot: the cart with quantities, the total and the checkout button, in Albanian.", [0, 120, 780, 1100]),
-  ["#e8342c", "#e8342c"],
+  listing("/mobile/grocery-1.webp", "Viva Fresh app screen from its store listing: the home screen with product categories and products, in Albanian.", [88, 371, 604, 852]),
+  listing("/mobile/grocery-3.webp", "Viva Fresh app screen from its store listing: the cart with quantities, the total and the checkout button, in Albanian.", [88, 371, 604, 852]),
+  ["#efefef", "#efefef"],
 );
 
 const offday = (theme: "light" | "dark", s: TileSpec["s"]): TileSpec => ({
@@ -140,22 +146,53 @@ interface Line {
   external?: boolean;
 }
 
-const INDEX: Line[] = [
-  { name: "Bayyinah TV", years: "2023–26", role: "Frontend", line: "Video courses and live streams, on the web and in both app stores.", href: "/work/bayyinah-tv" },
-  { name: "bayyinah.org", years: "2024–25", role: "Frontend", line: "A one-page website for the institute, built in Next.js.", href: "https://bayyinah.org/", external: true },
-  { name: "Care-management platform, Vianova", years: "2023–26", role: "Web, mobile, server", line: "Care teams follow patients at home. Being rebuilt one screen at a time.", href: "/work/care-platform" },
-  { name: "Design System v2, Vianova", years: "2026", role: "Design system", line: "A team effort: 36 building blocks, 20 releases in about six weeks. Gentrit laid the foundation.", href: "/work/design-system-react" },
-  { name: "Read to Feed", years: "2022–25", role: "Mobile", line: "A children's reading app. About 14 releases to both stores.", href: "/work/read-to-feed" },
-  { name: "Viva Fresh", years: "2023", role: "Mobile", line: "Grocery orders with delivery slots and loyalty, in Albanian.", href: "/work/viva-fresh" },
-  { name: "Dukagjini Bookstore", years: "2021–22", role: "Mobile", line: "A publisher's book shop for iPhone and Android, with promo codes at checkout.", href: "/work/dukagjini-bookstore" },
-  { name: "Incentiv portal", years: "2024", role: "Frontend", line: "Sign-in, first-run tour and dashboard cards. Teammates built the wallet itself.", href: "/work/incentiv" },
-  { name: "Business dashboard, AvahiTech", years: "Freelance", role: "Frontend", line: "AI headshots from photos, and a chat that answers questions about a PDF." },
-  { name: "Sadaqah app for Islamic Relief USA", years: "2021–22", role: "Mobile, team", line: "Built the payment and subscription screens, badges and Android builds." },
-  { name: "Offday", years: "2026", role: "Own", line: "Time off for teams: requests, approvals, a shared calendar and shift cover." },
-  { name: "FJALË", years: "2026", role: "Own", line: "A daily Albanian word game that also works offline.", href: "https://xn--fjal-opa.com/", external: true },
-  { name: "Za!", years: "2026", role: "Own", line: "An online pizza card game for two to eight players, with bots.", href: "https://za-game.onrender.com/", external: true },
-  { name: "Morse Trainer", years: "2026", role: "Own", line: "Learn Morse code. Letters you miss come back sooner.", href: "https://morse-code-amber.vercel.app/", external: true },
-  { name: "Reader libraries", years: "2022", role: "Maintainer", line: "Two open-source reader libraries kept working for a reading app.", href: links.github, external: true },
+interface Group {
+  title: string;
+  years?: string;
+  rows: Line[];
+}
+
+// Grouped by employer (CONTENT §7b). Vianova is named only on its own group; public products carry no employer name.
+const INDEX: Group[] = [
+  {
+    title: "Vianova",
+    years: "2021–now",
+    rows: [
+      { name: "Care-management platform", years: "2023–26", role: "Web, mobile, server", line: "Care teams follow patients at home. Being rebuilt one screen at a time.", href: "/work/care-platform" },
+      { name: "Design System v2", years: "2026", role: "Design system", line: "A team effort: 36 building blocks, 20 releases in about six weeks. Gentrit laid the foundation.", href: "/work/design-system-react" },
+    ],
+  },
+  {
+    title: "Public products",
+    rows: [
+      { name: "Bayyinah TV", years: "2023–26", role: "Frontend", line: "Video courses and live streams, on the web and in both app stores.", href: "/work/bayyinah-tv" },
+      { name: "bayyinah.org", years: "2024–25", role: "Frontend", line: "A one-page website for the institute, built in Next.js.", href: "https://bayyinah.org/", external: true },
+      { name: "Read to Feed", years: "2022–25", role: "Mobile", line: "A children's reading app. About 14 releases to both stores.", href: "/work/read-to-feed" },
+      { name: "Viva Fresh", years: "2023", role: "Mobile", line: "Grocery orders with delivery slots and loyalty, in Albanian.", href: "/work/viva-fresh" },
+      { name: "Dukagjini Bookstore", years: "2021–22", role: "Mobile", line: "A publisher's book shop for iPhone and Android, with promo codes at checkout.", href: "/work/dukagjini-bookstore" },
+      { name: "Sadaqah app for Islamic Relief USA", years: "2021–22", role: "Mobile, team", line: "Built the payment and subscription screens, badges and Android builds." },
+    ],
+  },
+  {
+    title: "Incentiv",
+    years: "2024",
+    rows: [{ name: "Incentiv portal", years: "2024", role: "Frontend", line: "Sign-in, first-run tour and dashboard cards. Teammates built the wallet itself.", href: "/work/incentiv" }],
+  },
+  {
+    title: "AvahiTech",
+    years: "Freelance",
+    rows: [{ name: "Business dashboard", years: "Freelance", role: "Frontend", line: "AI headshots from photos, and a chat that answers questions about a PDF." }],
+  },
+  {
+    title: "Own products",
+    rows: [
+      { name: "Offday", years: "2026", role: "Own", line: "Time off for teams: requests, approvals, a shared calendar and shift cover." },
+      { name: "FJALË", years: "2026", role: "Own", line: "A daily Albanian word game that also works offline.", href: "https://xn--fjal-opa.com/", external: true },
+      { name: "Za!", years: "2026", role: "Own", line: "An online pizza card game for two to eight players, with bots.", href: "https://za-game.onrender.com/", external: true },
+      { name: "Morse Trainer", years: "2026", role: "Own", line: "Learn Morse code. Letters you miss come back sooner.", href: "https://morse-code-amber.vercel.app/", external: true },
+      { name: "Reader libraries", years: "2022", role: "Maintainer", line: "Two open-source reader libraries kept working for a reading app.", href: links.github, external: true },
+    ],
+  },
 ];
 
 /* ---------- Small parts ---------- */
@@ -184,15 +221,12 @@ function useGround() {
   }, []);
 }
 
-const prefersReduced = () => typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
 /* ---------- The page ---------- */
 
 export default function Draft() {
   useGround();
   const reduced = useReducedMotion() ?? false;
-  // The hero print arrives on its App Store face and settles to the website; with reduced motion it starts flat.
-  const hero = useTilt(reduced, reduced || prefersReduced() ? 0 : 1);
+  const hero = useTilt(reduced);
   const care = useTilt(reduced);
   const rtf = useTilt(reduced);
   const viva = useTilt(reduced);
@@ -210,9 +244,7 @@ export default function Draft() {
       <link rel="preload" href="/fonts/creative/BricolageGrotesque-Latin.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
 
       <header className="lx-mast">
-        <p className="lx-who">
-          Gentrit Rashiti <span className="lx-where">Kosovo, working remotely</span>
-        </p>
+        <p className="lx-who">Gentrit Rashiti</p>
         <nav aria-label="Main">
           <a href="#work">Work</a>
           <a href="#about">About</a>
@@ -224,10 +256,21 @@ export default function Draft() {
       <main>
         <section className="lx-hero" aria-labelledby="lx-claim">
           <h1 id="lx-claim" className="lx-claim">
-            Gentrit Rashiti builds the web and phone apps that learners, care teams and shoppers use.
+            Gentrit Rashiti builds web and phone apps for learners, care teams and shoppers.
           </h1>
+          <p className="lx-role">
+            Frontend and mobile developer since 2021, now full stack. <span>Based in Kosovo, working remotely.</span>
+          </p>
           <div className="lx-hero-grid">
-            <Print spec={BAYYINAH} tilt={hero} priority story intro caption={<span className="lx-prov">One print, two real screens.</span>} />
+            <Print
+              spec={BAYYINAH}
+              tilt={hero}
+              name="Bayyinah TV: the website and the App Store page, in one print"
+              priority
+              story
+              intro
+              caption={<span className="lx-prov">Two real screens in one print: the website and the App Store page.</span>}
+            />
             <div className="lx-hero-side">
               <h2 className="lx-name">Bayyinah TV</h2>
               <p className="lx-kind">Video courses and live streams for an online community.</p>
@@ -247,8 +290,8 @@ export default function Draft() {
           <h2 id="lx-built-h" className="lx-result">Rebuilt from an empty project, then shipped to the web and both stores.</h2>
           <div className="lx-built-text">
             <p>
-              Gentrit built the frontend of the second version in the core team. It has live streams with chat and
-              moderation, and a video player that locks premium videos. Members pay with Stripe, Apple or Google, and
+              A core frontend team, Gentrit among them, rebuilt the second version from an empty project. It has live
+              streams with chat and moderation, and a video player that locks premium videos. Members pay with Stripe, Apple or Google, and
               can give gifts and use promo codes. The app runs in English, and in Arabic from right to left.
             </p>
             <p>
@@ -267,6 +310,7 @@ export default function Draft() {
             <Print
               spec={CARE}
               tilt={care}
+              name="Care platform: the care team's dashboard and one patient's glucose, in one print"
               caption={
                 <>
                   <FaceSwitch tilt={care} name="Care platform" labels={["Care team", "One patient"]} />
@@ -280,9 +324,9 @@ export default function Draft() {
             <p className="lx-kind">Care teams follow patients at home: vitals from devices, care plans, lab results, claims and calls.</p>
             <p className="lx-result">Care teams keep using the app while it is rebuilt, one screen at a time.</p>
             <p>
-              Each screen gets one test that runs on the old app and on the new one before it moves over. Many client
-              organizations share the system, and each one sees only its own data. It runs in English, German, Spanish
-              and Turkish.
+              Each screen gets one test that runs on the old app and on the new one. A screen moves over only when it
+              passes on both, and none is live yet. Many client organizations share the system, and each one sees only
+              its own data. It runs in English, German, Spanish and Turkish.
             </p>
             <p className="lx-proof">
               <span className="lx-num">16 → 2</span> database requests for one billing report. It no longer times out.
@@ -301,7 +345,7 @@ export default function Draft() {
           <h2 id="lx-phones-h" className="lx-section-h">Phone apps, iPhone and Android</h2>
           <div className="lx-phone-grid">
             <article className="lx-phone">
-              <Print spec={READ_TO_FEED} tilt={rtf} caption={<FaceSwitch tilt={rtf} name="Read to Feed" labels={["My books", "Reader"]} />} />
+              <Print spec={READ_TO_FEED} tilt={rtf} name="Read to Feed: My Books and Achievements, in one print" caption={<FaceSwitch tilt={rtf} name="Read to Feed" labels={["My books", "Badges"]} />} />
               <div className="lx-phone-text">
                 <h3 className="lx-name">Read to Feed</h3>
                 <p className="lx-kind">A children's reading app. Children read, scan their own books by barcode and earn badges.</p>
@@ -315,10 +359,10 @@ export default function Draft() {
               </div>
             </article>
             <article className="lx-phone">
-              <Print spec={VIVA_FRESH} tilt={viva} caption={<FaceSwitch tilt={viva} name="Viva Fresh" labels={["Shop", "Cart"]} />} />
+              <Print spec={VIVA_FRESH} tilt={viva} name="Viva Fresh: the shop and the cart, in one print" caption={<FaceSwitch tilt={viva} name="Viva Fresh" labels={["Shop", "Cart"]} />} />
               <div className="lx-phone-text">
                 <h3 className="lx-name">Viva Fresh</h3>
-                <p className="lx-kind">A grocery app in Albanian, with delivery slots, a loyalty programme and a wishlist.</p>
+                <p className="lx-kind">A grocery app in Albanian, with delivery slots, a loyalty program and a wishlist.</p>
                 <p className="lx-result">Live in the App Store and on Google Play.</p>
                 <p>The same code builds the iPhone app and the Android app. A search on a map finds the delivery address.</p>
                 <p className="lx-meta">Mobile · 2023</p>
@@ -335,37 +379,48 @@ export default function Draft() {
           <div className="lx-row-text">
             <h2 id="lx-own-h" className="lx-name">Offday, Gentrit's own product</h2>
             <p className="lx-kind">Time off for teams. People ask for days off, managers approve them, and one calendar shows who is away.</p>
-            <p className="lx-result">About 200 tests check each flow, and that each team sees only its own data.</p>
+            <p className="lx-result">About 200 tests, including checks that each team sees only its own data.</p>
             <p>It warns when a shift has no cover, and it finds the best dates for a long break. It has a light and a dark theme.</p>
             <p className="lx-meta">Own product · 2026</p>
           </div>
           <div className="lx-row-print">
-            <Print spec={OFFDAY} tilt={own} caption={<FaceSwitch tilt={own} name="Offday" labels={["Light", "Dark"]} />} />
+            <Print spec={OFFDAY} tilt={own} name="Offday: the team calendar in the light and the dark theme, in one print" caption={<FaceSwitch tilt={own} name="Offday" labels={["Light", "Dark"]} />} />
           </div>
         </section>
 
         <section id="index" className="lx-index" aria-labelledby="lx-index-h">
           <h2 id="lx-index-h" className="lx-section-h">All work</h2>
-          <ol className="lx-list">
-            {INDEX.map((row) => (
-              <li key={row.name}>
-                <span className="lx-list-name">
-                  {row.href ? (
-                    row.external ? (
-                      <Out href={row.href}>{row.name}</Out>
-                    ) : (
-                      <Link to={row.href}>{row.name}</Link>
-                    )
-                  ) : (
-                    row.name
-                  )}
-                </span>
-                <span className="lx-list-years">{row.years}</span>
-                <span className="lx-list-role">{row.role}</span>
-                <span className="lx-list-line">{row.line}</span>
-              </li>
-            ))}
-          </ol>
+          {INDEX.map((group) => (
+            <section key={group.title} className="lx-group" aria-label={group.title}>
+              <h3 className="lx-group-h">
+                {group.title}
+                {group.years && <span className="lx-list-years">{group.years}</span>}
+              </h3>
+              <ol className="lx-list">
+                {group.rows.map((row) => (
+                  <li key={row.name}>
+                    <span className="lx-list-name">
+                      {row.href ? (
+                        row.external ? (
+                          <Out href={row.href}>{row.name}</Out>
+                        ) : (
+                          <Link to={row.href}>
+                            {row.name}
+                            <span className="lx-arrow" aria-hidden="true">→</span>
+                          </Link>
+                        )
+                      ) : (
+                        row.name
+                      )}
+                    </span>
+                    <span className="lx-list-years">{row.years}</span>
+                    <span className="lx-list-role">{row.role}</span>
+                    <span className="lx-list-line">{row.line}</span>
+                  </li>
+                ))}
+              </ol>
+            </section>
+          ))}
         </section>
       </main>
 
@@ -392,9 +447,10 @@ export default function Draft() {
             </li>
           </ul>
           <p className="lx-note">
-            How the pictures work: each one is a lenticular print. Two real screens are cut into thin strips and laid
-            under a row of lenses 4 pixels wide. The angle of the card picks which strips you see. Care-platform screens
-            are real product screens with invented data.
+            How the pictures work: each one is made like a lenticular postcard. Two real screens are cut into thin
+            strips under a row of tiny lenses, and the angle of the card picks which strips you see. Each card is drawn
+            as seen from a little to its left, so its right edge already shows a few strips of the second screen.
+            Care-platform screens are real product screens with invented data.
           </p>
           <p className="lx-sign">Gentrit Rashiti, 2026</p>
         </div>

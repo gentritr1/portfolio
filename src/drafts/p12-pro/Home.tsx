@@ -1,9 +1,9 @@
-import { useEffect, useRef, type MouseEvent } from "react";
+import { useEffect, useLayoutEffect, useRef, type MouseEvent } from "react";
 import { useNavigate } from "react-router";
 import { links as shared } from "../../content/links";
 import { openWindow, takeFocus } from "./openWindow";
-import { Arrow, Caption, Out, Phone, Shot } from "./parts";
-import { bayyinah, calendar, claims, datePicker, links, phones } from "./shots";
+import { Arrow, Caption, Dim, Out, Phone, Shot } from "./parts";
+import { bayyinah, claims, datePicker, glucose, links, phones } from "./shots";
 
 export const HOME = "/drafts/p12-pro";
 export const CASE = "/drafts/p12-pro/case";
@@ -130,12 +130,21 @@ function ExternalLink({ href, children }: { href: string; children: string }) {
   );
 }
 
+/** Where the visitor left the home, so coming back lands on the same row. */
+let leftAt: number | null = null;
+
 export default function Home() {
   const navigate = useNavigate();
   const heading = useRef<HTMLHeadingElement>(null);
+  useLayoutEffect(() => {
+    if (leftAt !== null) scrollTo({ top: leftAt, behavior: "instant" });
+    leftAt = null;
+  }, []);
   useEffect(() => takeFocus(heading.current), []);
-  const toCase = (event: MouseEvent<HTMLAnchorElement>) =>
+  const toCase = (event: MouseEvent<HTMLAnchorElement>) => {
+    leftAt = scrollY;
     openWindow(event, CASE, navigate, ".p12p-hero-win", ".p12p-case-win");
+  };
 
   return (
     <div className="p12p-home">
@@ -144,9 +153,6 @@ export default function Home() {
           <span className="p12p-name">Gentrit Rashiti</span>
           <nav aria-label="Main">
             <a href="#work">Work</a>
-            <a href={CASE} onClick={toCase}>
-              Case
-            </a>
             <a href={shared.cv}>CV</a>
             <a href={`mailto:${shared.email}`}>Email</a>
           </nav>
@@ -155,7 +161,23 @@ export default function Home() {
         <h1 id="p12p-claim" className="p12p-claim" ref={heading} tabIndex={-1}>
           Gentrit Rashiti builds web and phone apps for care teams, learners and shoppers.
         </h1>
-        <p className="p12p-role">Frontend and mobile developer, now full stack. Works remotely from Kosovo.</p>
+        <p className="p12p-role">Frontend and mobile developer since 2021, now full stack. Works remotely from Kosovo.</p>
+
+        <Dim of="#p12p-shot-hero" total={1440} className="p12p-hero-dim" />
+        <Shot
+          shot={claims}
+          wide={{ x: 248, y: 60 }}
+          narrow={{ x: 256, y: 96 }}
+          work="Care platform"
+          className="p12p-hero-win"
+          id="p12p-shot-hero"
+          eager
+          story
+          href={CASE}
+          label="Claims screen of the care platform, at actual size. Read the care platform case."
+          onClick={toCase}
+        />
+        <Caption title="Claims for one month, care platform." real />
 
         <dl className="p12p-proof">
           <div>
@@ -163,7 +185,7 @@ export default function Home() {
               <span className="p12p-now" aria-hidden="true" />
               Now
             </dt>
-            <dd>Care platform rebuild, Vianova, 2023–26</dd>
+            <dd>Care platform rebuild at Vianova, since 2026</dd>
           </div>
           <div>
             <dt>Live</dt>
@@ -180,25 +202,9 @@ export default function Home() {
           </div>
         </dl>
 
-        <Shot
-          shot={calendar}
-          wide={{ x: 250, y: 0 }}
-          narrow={{ x: 620, y: 328 }}
-          work="Care platform"
-          className="p12p-hero-win"
-          id="p12p-shot-hero"
-          eager
-          story
-          href={CASE}
-          label="Care team calendar at actual size. Read the care platform case."
-          onClick={toCase}
-        />
-        <Caption title="Care team calendar, one week." real measure="#p12p-shot-hero" total={1440} />
-
         <a className="p12p-action" href={CASE} onClick={toCase}>
           Read the care platform case <Arrow />
         </a>
-
       </section>
 
       <section id="work" className="p12p-work" aria-labelledby="p12p-work-h">
@@ -209,24 +215,34 @@ export default function Home() {
         <article className="p12p-row" aria-labelledby="p12p-r1">
           <div className="p12p-row-text">
             <h3 id="p12p-r1">Care platform rebuild</h3>
-            <p className="p12p-meta">Vianova, 2023–26. Web, phone and server.</p>
-            <p className="p12p-problem">A live care app had to move to React without stopping.</p>
-            <p className="p12p-result">Care teams keep using the app while each screen moves over.</p>
+            <p className="p12p-meta">Vianova. Vue app since 2023, React rebuild since 2026.</p>
+            <p className="p12p-problem">Care teams use the app every day, so it cannot stop for a rewrite.</p>
+            <p className="p12p-result">Being rebuilt in React, one tested screen at a time.</p>
             <p className="p12p-proofline">
-              One billing report used to time out. Now it needs <span className="p12p-num">2</span> database requests, not{" "}
-              <span className="p12p-num">16</span>.
+              Each screen must pass the same test on the old and the new app. None is live yet; care teams use the Vue
+              app. On the server, one billing report used to time out. Now it needs <span className="p12p-num">2</span>{" "}
+              database requests, not <span className="p12p-num">16</span>.
             </p>
             <p className="p12p-scope">
-              Built screens for web and phone, and since 2026 the server too. Gentrit wrote most of the rules and the
-              checks. AI agents build inside them. A person approves each change.
+              Built screens for web and phone since 2023, and the server since 2026. Gentrit wrote most of the rules
+              and the checks. AI agents build inside them. A person approves each change.
             </p>
             <a className="p12p-action" href={CASE} onClick={toCase}>
               Read the case <Arrow />
             </a>
           </div>
           <figure className="p12p-row-fig">
-            <Shot shot={claims} wide={{ x: 248, y: 150 }} narrow={{ x: 250, y: 576 }} work="Care platform" className="p12p-row-win" id="p12p-shot-claims" />
-            <Caption title="Claims for one month." real measure="#p12p-shot-claims" total={1440} />
+            <Dim of="#p12p-shot-glucose" total={1440} />
+            <Shot
+              shot={glucose}
+              wide={{ x: 258, y: 128 }}
+              narrow={{ x: 560, y: 340 }}
+              narrowHeight={300}
+              work="Care platform"
+              className="p12p-row-win"
+              id="p12p-shot-glucose"
+            />
+            <Caption title="Glucose for one patient, one day." real />
           </figure>
         </article>
 
@@ -237,22 +253,23 @@ export default function Home() {
             <p className="p12p-problem">A video-learning platform, rebuilt from an empty project.</p>
             <p className="p12p-result">Live on the web and in both app stores.</p>
             <p className="p12p-scope">
-              The rebuild added live streams with chat, a video player with a paywall, and subscriptions. The same web app
-              runs inside the iPhone and Android apps, in English and in Arabic, right to left.
+              The rebuild has 34 pages, live streams with chat, a video player with a paywall, and subscriptions. The same
+              web app runs inside the iPhone and Android apps, in English and in Arabic, right to left.
             </p>
             <p className="p12p-links">
               <ExternalLink href={links.bayyinah}>bayyinahtv.com</ExternalLink>
               <ExternalLink href={links.bayyinahAppStore}>App Store</ExternalLink>
               <ExternalLink href={links.bayyinahPlay}>Google Play</ExternalLink>
               <a href="/work/bayyinah-tv" className="p12p-link">
-                Read the case
+                Case, on the main site
               </a>
             </p>
           </div>
           <figure className="p12p-row-fig">
+            <Dim of="#p12p-shot-bayyinah" total={1440} />
             <Shot
               shot={bayyinah}
-              wide={{ x: 150, y: 112 }}
+              wide={{ x: 280, y: 120 }}
               narrow={{ x: 300, y: 330 }}
               narrowHeight={230}
               work="Bayyinah TV"
@@ -260,7 +277,7 @@ export default function Home() {
               id="p12p-shot-bayyinah"
               ground="#1f1818"
             />
-            <Caption title="Library, Arabic tab. Public page." measure="#p12p-shot-bayyinah" total={1440} />
+            <Caption title="Library, Arabic tab. Public page." />
           </figure>
         </article>
 
@@ -274,15 +291,20 @@ export default function Home() {
               Built in React Native for iPhone and Android. Read to Feed alone had about 14 releases to both stores.
             </p>
           </div>
-          <div className="p12p-phones">
-            {phones.map((p) => (
-              <Phone key={p.src} shot={p} height={600} />
-            ))}
+          <div className="p12p-row-fig p12p-phones">
+            <p className="p12p-dim p12p-dim-phone" data-measured>
+              <span className="p12p-dim-rule" aria-hidden="true" />
+              <span className="p12p-dim-label">Phone size: 390 pixels across</span>
+            </p>
+            <div className="p12p-phones-grid">
+              <Phone shot={phones[0]} height={700} narrowHeight={520} className="p12p-phone-tall" />
+              <Phone shot={phones[1]} height={286} narrowHeight={300} skip={145} />
+              <Phone shot={phones[2]} height={286} narrowHeight={300} />
+            </div>
+            <p className="p12p-caption p12p-phones-caption">
+              Screens from the public store listings. The Read to Feed links go to archived copies.
+            </p>
           </div>
-          <p className="p12p-caption p12p-phones-caption">
-            <span className="p12p-scale">Shown at phone size.</span> Screens from the public store listings. Read to Feed
-            links go to archived copies.
-          </p>
         </article>
 
         <article className="p12p-row" aria-labelledby="p12p-r4">
@@ -296,12 +318,22 @@ export default function Home() {
               The team built the rest on top of it.
             </p>
             <a className="p12p-action" href="/work/design-system-react">
-              Read the case <Arrow />
+              Case, on the main site <Arrow />
             </a>
           </div>
           <figure className="p12p-row-fig p12p-row-fig-whole">
-            <Shot shot={datePicker} wide={{ x: 0, y: 0 }} narrow={{ x: 176, y: 50 }} narrowHeight={384} work="Design System v2" className="p12p-ds-win" id="p12p-shot-ds" ground="#ffffff" />
-            <Caption title="Date range picker." real measure="#p12p-shot-ds" total={780} />
+            <Dim of="#p12p-shot-ds" total={780} />
+            <Shot
+              shot={datePicker}
+              wide={{ x: 0, y: 0 }}
+              narrow={{ x: 176, y: 50 }}
+              narrowHeight={384}
+              work="Design System v2"
+              className="p12p-ds-win"
+              id="p12p-shot-ds"
+              ground="#ffffff"
+            />
+            <Caption title="Date range picker." real />
           </figure>
         </article>
       </section>
@@ -320,13 +352,12 @@ export default function Home() {
         </h2>
         <div className="p12p-about-text">
           <p>
-            Gentrit Rashiti builds frontends and phone apps, and since 2026 also the server behind them. The work so far
-            includes a care platform, a video-learning platform and apps in both stores. Gentrit works remotely from
-            Kosovo and has a bachelor's degree from UBT.
+            Phone apps for iOS and Android since 2021. Web apps since 2023. The server side of the care platform since
+            2026. A bachelor's degree from UBT.
           </p>
           <p>
-            On the care platform rebuild, Gentrit wrote most of the rules and the checks. AI agents build inside them. A
-            person approves each change.
+            The care platform rebuild runs on written rules and automatic checks. Gentrit wrote most of the rules and the
+            checks. AI agents build inside them. A person approves each change.
           </p>
         </div>
       </section>
@@ -345,10 +376,7 @@ export default function Home() {
           <ExternalLink href={shared.github}>GitHub</ExternalLink>
           <ExternalLink href={shared.linkedin}>LinkedIn</ExternalLink>
         </p>
-        <p className="p12p-colophon">
-          Gentrit Rashiti, 2026. Every web screen on this page is shown at actual size, and every phone screen at phone
-          size.
-        </p>
+        <p className="p12p-colophon">Gentrit Rashiti, 2026.</p>
       </footer>
     </div>
   );

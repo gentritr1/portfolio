@@ -34,6 +34,10 @@ export interface AppView {
   where: string;
   builtWith: string;
   hook: string;
+  /** One line under the hook, over the codes. */
+  caption: string;
+  /** One checkable result, for the table. */
+  result: string;
   stores: Store[];
   site?: PublicLink;
   frames: Frame[];
@@ -45,7 +49,7 @@ const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "
 
 function printed(href: string): string {
   const archive = href.match(/^https:\/\/web\.archive\.org\/web\/(\d{4})(\d{2})(\d{2})\d*\//);
-  if (archive) return `web.archive.org, saved ${Number(archive[3])} ${MONTHS[Number(archive[2]) - 1]} ${archive[1]}`;
+  if (archive) return `web.archive.org, ${MONTHS[Number(archive[2]) - 1]} ${archive[1]}`;
   return href.replace(/^https?:\/\//, "");
 }
 
@@ -76,7 +80,7 @@ function framesOf(slug: string, galleryTitle: string, picks: number[]): Frame[] 
 
 function build(
   slug: string,
-  extra: Pick<AppView, "kind" | "what" | "role" | "where" | "builtWith" | "hook" | "accent"> & { gallery: string; picks: number[] },
+  extra: Pick<AppView, "kind" | "what" | "role" | "where" | "builtWith" | "hook" | "caption" | "result" | "accent"> & { gallery: string; picks: number[] },
 ): AppView {
   const p = projectOrThrow(slug);
   const { gallery, picks, ...rest } = extra;
@@ -93,47 +97,58 @@ function build(
 }
 
 export const apps: AppView[] = [
-  build("viva-fresh", {
-    kind: "Grocery and loyalty app",
-    what: "Shoppers fill a cart, pick a delivery slot and find their address on a map. The interface is in Albanian.",
+  // Ordered by strength for a hiring manager, not by date. Read to Feed leads: the longest record in the files
+  // (about 14 releases in four years, three major upgrades), and the owner's own case title is "four years of releases".
+  build("read-to-feed", {
+    kind: "Children's reading app",
+    what: "Children read, scan their own books by barcode and earn badges. About 14 releases in four years.",
     role: "Mobile",
     where: "iOS and Android",
     builtWith: "React Native",
-    hook: "Live in both stores",
-    accent: "#ed1d26",
-    gallery: "Store screenshots",
-    picks: [0, 2],
-  }),
-  build("dukagjini-bookstore", {
-    kind: "Bookstore app for a publisher",
-    what: "Readers search books, keep favourite lists and check out with promo codes. A push notification opens the right screen.",
-    role: "Mobile",
-    where: "iOS and Android",
-    builtWith: "React Native",
-    hook: "Live in both stores",
-    accent: "#de0016",
+    hook: "About 14 releases in four years",
+    caption: "Archived copies of the removed store pages.",
+    result: "About 14 releases in four years",
+    accent: "#0f72a2",
     gallery: "Store screenshots",
     picks: [0, 1],
   }),
   build("bayyinah-tv", {
     kind: "Video-learning platform",
-    what: "Courses, live streams and subscriptions, in English and Arabic. The same web app runs inside the iOS and Android apps.",
+    what: "Courses, live streams and subscriptions in English and Arabic. The web app also runs inside the phone apps.",
     role: "Frontend, core team",
     where: "Web, iOS and Android",
     builtWith: "Vue",
     hook: "Live in both stores",
+    caption: "",
+    result: "Live on the web and in both stores",
     accent: "#801402",
     gallery: "Mobile app",
     picks: [0, 1],
   }),
-  build("read-to-feed", {
-    kind: "Children's reading app",
-    what: "Children read books, scan their own books by barcode and earn badges. About 14 releases went to both stores.",
+  build("viva-fresh", {
+    kind: "Grocery and loyalty app",
+    what: "Shoppers fill a cart, pick a delivery slot and find their address on a map. In Albanian.",
     role: "Mobile",
     where: "iOS and Android",
-    builtWith: "React Native, upgraded three times",
-    hook: "Removed from both stores",
-    accent: "#0f72a2",
+    builtWith: "React Native",
+    hook: "Live in both stores",
+    caption: "",
+    result: "Live in both stores",
+    // The store red is 4.37:1 with white; the band is the same red, 8 percent darker, for 4.5:1 text.
+    accent: "#d9181f",
+    gallery: "Store screenshots",
+    picks: [0, 2],
+  }),
+  build("dukagjini-bookstore", {
+    kind: "Bookstore app for a publisher",
+    what: "Readers search books, keep favourite lists and check out with promo codes.",
+    role: "Mobile",
+    where: "iOS and Android",
+    builtWith: "React Native",
+    hook: "Live in both stores",
+    caption: "",
+    result: "Live in both stores",
+    accent: "#de0016",
     gallery: "Store screenshots",
     picks: [0, 1],
   }),

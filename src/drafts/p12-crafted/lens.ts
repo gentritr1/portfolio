@@ -11,15 +11,21 @@
 
 /** Lens width in CSS pixels. */
 export const PITCH = 4;
-/** Eye distance from the card, CSS pixels (about 1.4 m at 96 dpi). The CSS perspective uses it too. */
-export const EYE = 5200;
+/** Eye distance from the card, CSS pixels (about 2 m at 96 dpi). The CSS perspective uses it too. */
+export const EYE = 8000;
 /** |tan α| below QA shows only A; above QB only B (the lens's focal spot is narrower than a strip). */
-const QA = 0.1;
-const QB = 0.14;
-/** The resting tilt that shows B everywhere on the card. */
-export const FACE_B_DEG = 14;
-/** Past this tilt the centre of the card shows more B than A. */
-export const FLIP_DEG = Math.atan((QA + QB) / 2) * (180 / Math.PI);
+const QA = 0.07;
+const QB = 0.1;
+/**
+ * The eye sits a little to the left of each card, so at rest the card's right edge is seen just inside
+ * the switch: a still shows a thin band of the second screen's strips there, at most 120px or 12% of
+ * the card wide, so the work itself stays clear.
+ */
+const cueFor = (cssW: number) => QA + Math.min(120, 0.12 * cssW) / EYE;
+/** The resting tilt that shows B everywhere on the card (a hero card 980px wide needs about 8°). */
+export const FACE_B_DEG = 9;
+/** Past this tilt the label follows the second face. */
+export const FLIP_DEG = FACE_B_DEG / 2;
 
 /** Lens surface: steepest slope at its edge, degrees. */
 const LENS_EDGE = 10 * (Math.PI / 180);
@@ -90,6 +96,8 @@ export class LensPrint {
   private w = 0;
   private h = 0;
   private p = PITCH;
+  /** The eye's sideways offset from the card's centre, CSS px (negative: to the left). */
+  private eyeX = 0;
   /** sin and cos of the lens surface angle at each device column inside a lens. */
   private lensTrig: (readonly [number, number])[] = [];
 
@@ -111,7 +119,7 @@ export class LensPrint {
     const h = Math.max(1, Math.round(cssH * dpr));
     const [a, b] = await Promise.all([paint(faces[0], w, h), paint(faces[1], w, h)]);
     this.release();
-    Object.assign(this, { dpr, cssW, cssH, w, h, a, b, p: PITCH * dpr });
+    Object.assign(this, { dpr, cssW, cssH, w, h, a, b, p: PITCH * dpr, eyeX: cssW / 2 - cueFor(cssW) * EYE });
     this.canvas.width = w;
     this.canvas.height = h;
     this.sheen.width = w;
@@ -163,7 +171,7 @@ export class LensPrint {
       const width = Math.min(p, w - x0);
       // The lens centre, in CSS px from the card's centre; tan of the angle from the lens to the eye.
       const xc = (x0 + width / 2) / this.dpr - this.cssW / 2;
-      const q = (xc + EYE * sin) / (EYE * cos);
+      const q = (xc + EYE * sin - this.eyeX * cos) / (EYE * cos + this.eyeX * sin);
       const o = strip(q);
       const pure = o <= -0.2499 ? a : o >= 0.2499 ? b : null;
       if (pure) {
@@ -189,7 +197,13 @@ export class LensPrint {
   private drawSheen(th: number) {
     const { ctx, w, h, p, sheenData, seam } = this;
     if (!sheenData || !seam) return;
-    ctx.drawImage(seam, 0, 0, w, 1, 0, 0, w, h);
+    // Seams show while the card is turned; flat, the lens sheet reads only as its glints and the edge band.
+    const seamAlpha = Math.min(1, Math.abs(th) / (4 * (Math.PI / 180)));
+    if (seamAlpha > 0.02) {
+      ctx.globalAlpha = seamAlpha;
+      ctx.drawImage(seam, 0, 0, w, 1, 0, 0, w, h);
+      ctx.globalAlpha = 1;
+    }
     const sin = Math.sin(th);
     const cos = Math.cos(th);
     const W = this.cssW;
@@ -201,8 +215,8 @@ export class LensPrint {
     // World to card space (inverse of the card's rotation about y).
     const lx = Lx * cos - Lz * sin;
     const lz = Lx * sin + Lz * cos;
-    const ex = -EYE * sin;
-    const ez = EYE * cos;
+    const ex = this.eyeX * cos - EYE * sin;
+    const ez = this.eyeX * sin + EYE * cos;
     const data = sheenData.data;
     const lenses = Math.ceil(w / p);
     for (let r = 0; r < SHEEN_ROWS; r++) {

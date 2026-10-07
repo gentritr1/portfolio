@@ -55,22 +55,38 @@ export function Shot({ shot, wide, narrow, work, className = "", eager, ground, 
   );
 }
 
+interface PhoneProps {
+  shot: PhoneShot;
+  /** Window height from 960 px up, and below. */
+  height: number;
+  narrowHeight: number;
+  /** Display pixels skipped at the top of the app screen, to start on a whole UI row. */
+  skip?: number;
+  className?: string;
+}
+
 /** A phone app screen cut out of its public store listing, drawn at phone width (390 px). */
-export function Phone({ shot, height }: { shot: PhoneShot; height: number }) {
+export function Phone({ shot, height, narrowHeight, skip = 0, className = "" }: PhoneProps) {
   const fit = phoneFit(shot);
+  const room = fit.screenHeight - skip;
   return (
-    <figure className="p12p-phone">
+    <figure className={`p12p-phone ${className}`}>
       <div
         className="p12p-phone-win"
         data-work={shot.app}
-        style={{ "--phone-h": `${Math.min(height, fit.screenHeight)}px` } as CSSProperties}
+        style={
+          {
+            "--phone-h": `${Math.min(height, room)}px`,
+            "--phone-nh": `${Math.min(narrowHeight, room)}px`,
+          } as CSSProperties
+        }
       >
         <img
           src={shot.src}
           alt={shot.alt}
           width={780}
           height={1689}
-          style={{ width: fit.width, height: fit.height, left: fit.left, top: fit.top }}
+          style={{ width: fit.width, height: fit.height, left: fit.left, top: fit.top - skip }}
           loading="lazy"
           decoding="async"
           draggable={false}
@@ -91,35 +107,57 @@ export function Phone({ shot, height }: { shot: PhoneShot; height: number }) {
 }
 
 /**
- * How much of the real screen the window shows, in the app's own pixels: "824 of 1440 pixels wide".
- * Measured before the first paint and again on resize, so the caption never says something the window does not show.
+ * How much of the real screen a window shows, in the app's own pixels: the part of the window that
+ * is inside both the image and the viewport. Measured before the first paint and on every resize.
  */
-function useVisibleWidth(selector: string | undefined, total: number) {
+function useVisibleWidth(selector: string, total: number) {
   const [width, setWidth] = useState<number | null>(null);
   useLayoutEffect(() => {
-    const win = selector ? document.querySelector<HTMLElement>(selector) : null;
+    const win = document.querySelector<HTMLElement>(selector);
     const img = win?.querySelector("img");
     if (!win || !img) return;
     const read = () => {
-      const shown = Math.min(win.clientWidth, total + img.offsetLeft, innerWidth - win.getBoundingClientRect().left);
-      setWidth(Math.max(0, Math.round(shown)));
+      const w = win.getBoundingClientRect();
+      const i = img.getBoundingClientRect();
+      const shown = Math.min(w.right, i.right, innerWidth) - Math.max(w.left, i.left, 0);
+      setWidth(Math.max(0, Math.min(total, Math.round(shown))));
     };
     read();
     const ro = new ResizeObserver(read);
     ro.observe(win);
-    return () => ro.disconnect();
+    addEventListener("resize", read);
+    return () => {
+      ro.disconnect();
+      removeEventListener("resize", read);
+    };
   }, [selector, total]);
   return width;
 }
 
-export function Caption({ title, real, measure, total }: { title: string; real?: boolean; measure?: string; total?: number }) {
-  const width = useVisibleWidth(measure, total ?? 0);
+/**
+ * The page's one visual rule, readable in a still: a dimension line over every screen, as on a
+ * drawing at 1:1. It spans exactly the window and says how much of the real screen is in it.
+ */
+export function Dim({ of, total, className = "" }: { of: string; total: number; className?: string }) {
+  const width = useVisibleWidth(of, total);
+  const text =
+    width === null
+      ? "Actual size"
+      : width >= total
+        ? `Actual size: all ${total} pixels across`
+        : `Actual size: ${width} of ${total} pixels across`;
+  return (
+    <p className={`p12p-dim ${className}`} data-measured>
+      <span className="p12p-dim-rule" aria-hidden="true" />
+      <span className="p12p-dim-label">{text}</span>
+    </p>
+  );
+}
+
+export function Caption({ title, real }: { title: string; real?: boolean }) {
   return (
     <p className="p12p-caption">
-      <span className="p12p-caption-title">{title}</span>{" "}
-      <span className="p12p-scale">
-        Shown at actual size{width !== null && total ? `: ${width} of ${total} pixels wide` : ""}.
-      </span>
+      <span className="p12p-caption-title">{title}</span>
       {real && <span className="p12p-real"> Real product screens, invented data.</span>}
     </p>
   );

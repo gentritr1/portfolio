@@ -12,8 +12,9 @@ import { flushSync } from "react-dom";
  */
 
 export const SHOT_NAME = "p12p-shot";
-const EASE = "cubic-bezier(0.16, 1, 0.3, 1)";
-const MS = 420;
+// In-out, not expo-out: the window visibly travels and opens instead of arriving in the first 100 ms.
+const EASE = "cubic-bezier(0.77, 0, 0.175, 1)";
+const MS = 520;
 
 type ViewTransitionDocument = Document & {
   startViewTransition?: (update: () => void | Promise<void>) => { finished: Promise<void> };
@@ -56,9 +57,13 @@ export function openWindow(
 
   const source = document.querySelector<HTMLElement>(from);
   const a = measure(source);
+  const unname = (el: Element | null | undefined) => {
+    const named = el?.closest(".p12p-hero, .p12p-case-fig");
+    named?.querySelectorAll<HTMLElement>(".p12p-win, .p12p-dim-rule").forEach((n) => n.style.setProperty("view-transition-name", "none"));
+  };
   if (!source || !a || !onScreen(a.win)) {
     // The screen is out of view: the page only cross-fades.
-    source?.style.setProperty("view-transition-name", "none");
+    unname(source);
     doc.startViewTransition(() => flushSync(() => navigate(to)));
     return;
   }
@@ -71,13 +76,18 @@ export function openWindow(
     if (img) await img.decode().catch(() => undefined);
     const b = measure(next ?? null);
     if (!b) return;
+    if (!onScreen(b.win)) {
+      // Coming back to a row further down the page: the screen it came from is not in view.
+      unname(next);
+      return;
+    }
     // App pixel at the window's corner, before and after.
     const ax = a.win.left - a.img.left;
     const ay = a.win.top - a.img.top;
     const bx = b.win.left - b.img.left;
     const by = b.win.top - b.img.top;
     style.textContent = `
-::view-transition-group(${SHOT_NAME}) { animation-duration: ${MS}ms; animation-timing-function: ${EASE}; }
+::view-transition-group(${SHOT_NAME}), ::view-transition-group(p12p-dim) { animation-duration: ${MS}ms; animation-timing-function: ${EASE}; }
 ::view-transition-image-pair(${SHOT_NAME}) { overflow: hidden; }
 ::view-transition-old(${SHOT_NAME}) {
   animation: p12p-hold ${MS}ms ${EASE} both;
@@ -89,7 +99,7 @@ export function openWindow(
   inline-size: ${b.win.width}px;
   block-size: ${b.win.height}px;
 }
-::view-transition-old(root), ::view-transition-new(root) { animation-duration: 180ms; }
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: 200ms; }
 @keyframes p12p-open {
   from { transform: translate(${(bx - ax).toFixed(2)}px, ${(by - ay).toFixed(2)}px); }
   to { transform: none; }

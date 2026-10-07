@@ -254,10 +254,50 @@ a.p12p-win:focus-visible {
   }
 }
 
-/* The one moment: the home window and the case window are one object (see openWindow.ts). */
+/* The one moment: the home window and the case window are one object, and so are their
+   dimension lines (see openWindow.ts). */
 .p12p-hero-win,
 .p12p-case-win {
   view-transition-name: p12p-shot;
+}
+.p12p-hero-dim .p12p-dim-rule,
+.p12p-case-dim .p12p-dim-rule {
+  view-transition-name: p12p-dim;
+}
+
+/* ---------- The dimension line: the rule, readable in a still ---------- */
+
+.p12p-dim {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 26px;
+  margin-bottom: 6px;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  line-height: 1;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.p12p-dim-rule {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  /* One line across, a tick at each end: a drawing's dimension at 1:1. */
+  background:
+    linear-gradient(var(--ink-2), var(--ink-2)) left center / 1px 13px no-repeat,
+    linear-gradient(var(--ink-2), var(--ink-2)) right center / 1px 13px no-repeat,
+    linear-gradient(var(--ink-2), var(--ink-2)) center / 100% 1px no-repeat;
+}
+.p12p-dim-label {
+  position: relative;
+  padding: 0 10px;
+  background: var(--paper);
+  white-space: nowrap;
+}
+.p12p-row-dark .p12p-dim-label {
+  background: var(--paper);
 }
 
 /* ---------- Masthead ---------- */
@@ -357,9 +397,12 @@ a.p12p-win:focus-visible {
   border-radius: 50%;
   background: var(--now);
 }
+.p12p-hero-dim {
+  margin: 22px calc(var(--g) * -1) 6px;
+}
 .p12p-hero-win {
-  margin: 20px calc(var(--g) * -1) 0;
-  height: 320px;
+  margin: 0 calc(var(--g) * -1);
+  height: 300px;
 }
 .p12p-hero-win::after {
   border-left: 0;
@@ -377,7 +420,7 @@ a.p12p-win:focus-visible {
   color: var(--ink);
 }
 .p12p-hero > .p12p-action {
-  margin-top: 6px;
+  margin-top: 8px;
   align-self: flex-start;
 }
 
@@ -390,7 +433,7 @@ a.p12p-win:focus-visible {
     grid-template-columns: var(--col) minmax(0, 1fr);
     grid-template-rows: auto auto auto auto auto 1fr auto;
     grid-template-areas:
-      "mast win"
+      "mast dim"
       "claim win"
       "role win"
       "proof win"
@@ -399,7 +442,13 @@ a.p12p-win:focus-visible {
       "cap win";
     column-gap: var(--gap);
     min-height: clamp(640px, 100svh, 900px);
-    padding: 0 0 0 var(--g);
+    padding: 0 0 28px var(--g);
+  }
+  .p12p-hero-dim {
+    grid-area: dim;
+    align-self: end;
+    width: min(100%, 782px);
+    margin: 0 0 8px;
   }
   .p12p-mast {
     grid-area: mast;
@@ -426,18 +475,17 @@ a.p12p-win:focus-visible {
   }
   .p12p-hero > .p12p-caption {
     grid-area: cap;
-    margin: 24px 0 26px;
+    margin: 24px 0 0;
   }
   .p12p-hero-win {
     grid-area: win;
+    width: min(100%, 782px);
     margin: 0;
     height: auto;
     min-height: 100%;
   }
   .p12p-hero-win::after {
-    border-left: 1px solid var(--rule);
-    border-top: 0;
-    border-right: 0;
+    border: 1px solid var(--rule);
   }
 }
 
@@ -533,6 +581,14 @@ a.p12p-win:focus-visible {
   border-left: 0;
   border-right: 0;
 }
+.p12p-row-fig > .p12p-dim {
+  margin: 0 calc(var(--g) * -1) 6px;
+}
+.p12p-case-shot > .p12p-dim,
+.p12p-case-shot .p12p-row-win {
+  margin-left: 0;
+  margin-right: 0;
+}
 .p12p-row-fig > .p12p-caption,
 .p12p-case-figfoot {
   margin-top: 10px;
@@ -568,16 +624,24 @@ a.p12p-win:focus-visible {
     margin-top: 6px;
   }
   .p12p-row-win {
+    width: min(100%, 782px);
     margin: 0;
     height: 520px;
   }
   .p12p-row-win::after {
-    border-left: 1px solid var(--rule);
+    border: 1px solid var(--rule);
+  }
+  .p12p-row-fig > .p12p-dim {
+    width: min(100%, 782px);
+    margin: 0 0 8px;
   }
   .p12p-ds-win {
     margin: 0;
     width: min(100%, 780px);
     height: 424px;
+  }
+  .p12p-row-fig-whole > .p12p-dim {
+    width: min(100%, 780px);
   }
   .p12p-ds-win::after {
     border-left: 1px solid var(--rule);
@@ -588,24 +652,33 @@ a.p12p-win:focus-visible {
   }
 }
 
-/* The phone row breaks the right-hand column once: three phones at phone width. */
+/* Phones at phone width: one tall screen and two short ones, in the same right-hand column. */
 .p12p-phones {
-  display: flex;
-  flex-direction: column;
-  gap: 32px;
-  margin: 28px calc(var(--g) * -1) 0;
+  margin-top: 28px;
+  container-type: inline-size;
+}
+.p12p-phones > .p12p-dim {
+  width: 390px;
+  max-width: 100vw;
+  margin: 0 calc(var(--g) * -1) 6px;
+}
+.p12p-phones-grid {
+  display: grid;
+  grid-template-columns: 390px;
+  gap: 28px 24px;
+  margin: 0 calc(var(--g) * -1);
 }
 .p12p-phone {
-  flex: none;
   width: 390px;
+  max-width: 100vw;
 }
 .p12p-phone-win {
   position: relative;
   overflow: hidden;
   width: 390px;
-  height: var(--phone-h);
+  max-width: 100vw;
+  height: var(--phone-nh);
   background: var(--white);
-  border-radius: 0;
   contain: paint;
 }
 .p12p-phone-win > img {
@@ -648,37 +721,35 @@ a.p12p-win:focus-visible {
   background-position: 0 calc(100% - 11px), 0 calc(100% - 11px);
 }
 .p12p-phones-caption {
-  margin-top: 16px;
-}
-@media (max-width: 959px) {
-  .p12p-phone-win {
-    height: min(var(--phone-h), 480px);
-  }
+  margin-top: 14px;
 }
 @media (min-width: 960px) {
-  .p12p-row-phones {
-    display: block;
-  }
-  .p12p-row-phones .p12p-row-text {
-    max-width: var(--col);
-  }
   .p12p-phones {
-    flex-direction: row;
-    gap: 24px;
-    margin: 40px 0 0;
-    padding-right: var(--g);
-    overflow-x: auto;
-    scroll-snap-type: x proximity;
-    scrollbar-width: thin;
+    margin-top: 6px;
   }
-  .p12p-phone {
-    scroll-snap-align: start;
+  .p12p-phones > .p12p-dim {
+    margin: 0 0 8px;
+  }
+  .p12p-phones-grid {
+    margin: 0;
+  }
+  .p12p-phone-win {
+    height: var(--phone-h);
   }
   .p12p-phone-win::after {
     border: 1px solid var(--rule);
   }
   .p12p-phone figcaption {
-    padding: 12px 0 0;
+    padding: 10px 0 0;
+  }
+}
+@container (min-width: 804px) {
+  .p12p-phones-grid {
+    grid-template-columns: 390px 390px;
+    align-items: start;
+  }
+  .p12p-phone-tall {
+    grid-row: span 2;
   }
 }
 
@@ -937,11 +1008,26 @@ a.p12p-win:focus-visible {
   font-size: 12px;
   color: var(--ink-2);
 }
+.p12p-case-top {
+  display: flex;
+  flex-direction: column;
+}
+.p12p-case-top > .p12p-facts {
+  order: 3;
+  padding: 0 var(--g);
+  max-width: calc(820px + 2 * var(--g));
+}
+.p12p-case-top > .p12p-case-fig {
+  order: 2;
+}
 .p12p-case-fig {
-  margin-top: 28px;
+  margin-top: 24px;
+}
+.p12p-case-dim {
+  margin-bottom: 6px;
 }
 .p12p-case-win {
-  height: 600px;
+  height: 560px;
 }
 .p12p-case-win::after {
   border-left: 0;
@@ -1050,30 +1136,24 @@ a.p12p-win:focus-visible {
 }
 .p12p-flow-steps {
   display: flex;
-  flex-direction: column;
-  gap: 22px;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 0;
+  font-family: var(--display);
+  font-stretch: 80%;
+  font-weight: 700;
+  font-size: 26px;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
 }
 .p12p-flow-steps li {
-  position: relative;
-  align-self: flex-start;
-  padding: 10px 14px;
-  background: var(--white);
-  border: 1px solid var(--rule-strong);
-  border-radius: 6px;
-  font-weight: 600;
-  font-size: 15px;
+  white-space: nowrap;
 }
 .p12p-flow-steps li + li::before {
-  content: "";
-  position: absolute;
-  left: 22px;
-  top: -23px;
-  width: 1px;
-  height: 22px;
-  background: var(--ink-2);
-}
-.p12p-flow-loop {
-  border-color: var(--accent) !important;
+  content: "→";
+  margin: 0 12px;
+  color: var(--ink-2);
+  font-weight: 400;
 }
 .p12p-flow-back {
   display: flex;
@@ -1216,8 +1296,17 @@ a.p12p-win:focus-visible {
   .p12p-facts {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
+  .p12p-case-top > .p12p-case-fig {
+    order: 3;
+  }
+  .p12p-case-top > .p12p-facts {
+    order: 2;
+  }
   .p12p-case-fig {
     margin-top: 40px;
+  }
+  .p12p-case-dim {
+    margin-bottom: 8px;
   }
   .p12p-case-win {
     height: 900px;
@@ -1256,19 +1345,10 @@ a.p12p-win:focus-visible {
     margin-top: 80px;
   }
   .p12p-flow-steps {
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 28px;
-    align-items: center;
-  }
-  .p12p-flow-steps li + li::before {
-    left: -27px;
-    top: 50%;
-    width: 26px;
-    height: 1px;
+    font-size: 30px;
   }
   .p12p-numbers {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0 28px;
     margin-top: 96px;
   }
@@ -1345,6 +1425,15 @@ a.p12p-win:focus-visible {
 .p12p-dialog-scroll img {
   display: block;
   max-width: none;
+  height: auto;
+}
+.p12p-dialog-fit img {
+  width: 100%;
+}
+.p12p-dialog-actions {
+  display: flex;
+  gap: 8px;
+  flex: none;
 }
 
 /* ---------- Reduced motion: every state stays, travel stops ---------- */

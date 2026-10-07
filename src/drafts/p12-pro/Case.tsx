@@ -1,37 +1,51 @@
-import { useEffect, useRef, type MouseEvent } from "react";
+import { useEffect, useRef, useState, type MouseEvent } from "react";
 import { useNavigate } from "react-router";
 import { links as shared } from "../../content/links";
 import { HOME } from "./Home";
 import { openWindow, takeFocus } from "./openWindow";
-import { Arrow, Caption, Shot } from "./parts";
-import { calendar, claims, glucose, type WebShot } from "./shots";
+import { Arrow, Caption, Dim, Shot } from "./parts";
+import { claims, glucose, type WebShot } from "./shots";
 
-/** The whole screen at actual size, in a native dialog. Escape closes it and focus goes back to the button. */
+/**
+ * The whole screen in a native dialog. Wide screens show it at actual size; on a phone it starts
+ * fitted to the width (whole, but small) and one button switches to actual size (pan to read).
+ * Escape closes it and focus goes back to the button that opened it.
+ */
 function WholeScreen({ shot, name }: { shot: WebShot; name: string }) {
   const dialog = useRef<HTMLDialogElement>(null);
+  const [fit, setFit] = useState(false);
+  const open = () => {
+    setFit(matchMedia("(max-width: 959px)").matches);
+    dialog.current?.showModal();
+  };
   return (
     <>
-      <button type="button" className="p12p-whole" onClick={() => dialog.current?.showModal()}>
+      <button type="button" className="p12p-whole" onClick={open}>
         See the whole screen
       </button>
       <dialog
         ref={dialog}
         className="p12p-dialog"
-        aria-label={`${name}, the whole screen at actual size`}
+        aria-label={`${name}, the whole screen`}
         onClick={(e) => {
           if (e.target === e.currentTarget) e.currentTarget.close();
         }}
       >
         <div className="p12p-dialog-bar">
           <p>
-            {name}. Shown at actual size. Real product screens, invented data.
+            {name}. {fit ? "Fitted to your screen." : "Actual size."} Real product screens, invented data.
           </p>
-          <button type="button" className="p12p-close" onClick={() => dialog.current?.close()}>
-            Close
-          </button>
+          <div className="p12p-dialog-actions">
+            <button type="button" className="p12p-close" aria-pressed={!fit} onClick={() => setFit((f) => !f)}>
+              {fit ? "Actual size" : "Fit"}
+            </button>
+            <button type="button" className="p12p-close" onClick={() => dialog.current?.close()}>
+              Close
+            </button>
+          </div>
         </div>
-        <div className="p12p-dialog-scroll">
-          <img src={shot.src} alt={shot.alt} width={shot.w} height={shot.h} style={{ width: shot.w, height: shot.h }} loading="lazy" />
+        <div className={`p12p-dialog-scroll${fit ? " p12p-dialog-fit" : ""}`}>
+          <img src={shot.src} alt={shot.alt} width={shot.w} height={shot.h} loading="lazy" />
         </div>
       </dialog>
     </>
@@ -59,16 +73,18 @@ export default function Case() {
         </nav>
       </header>
 
-      <div className="p12p-case-head">
-        <p className="p12p-kicker">Care platform, Vianova, 2023–26</p>
-        <h1 id="p12p-case-h" className="p12p-case-title" ref={heading} tabIndex={-1}>
-          Rebuilding a live care platform, one tested screen at a time.
-        </h1>
-        <p className="p12p-lede">
-          Care teams use this web app to look after patients at home. They follow readings from home devices, care plans,
-          lab results, billing claims, calls and chat. The app is moving from Vue to React one screen at a time, and care
-          teams keep using it the whole time.
-        </p>
+      <div className="p12p-case-top">
+        <div className="p12p-case-head">
+          <p className="p12p-kicker">Care platform, Vianova. Vue app 2023–26, React rebuild 2026.</p>
+          <h1 id="p12p-case-h" className="p12p-case-title" ref={heading} tabIndex={-1}>
+            Rebuilding a live care platform, one tested screen at a time.
+          </h1>
+          <p className="p12p-lede">
+            Care teams use this web app to look after patients at home: readings from home devices, care plans, lab
+            results, billing claims, calls and chat. The app is being rebuilt in React, one tested screen at a time. No
+            React screen is live yet; care teams keep working in the Vue app.
+          </p>
+        </div>
         <dl className="p12p-facts">
           <div>
             <dt>Role</dt>
@@ -76,7 +92,7 @@ export default function Case() {
           </div>
           <div>
             <dt>Years</dt>
-            <dd>2023–26</dd>
+            <dd>Vue app 2023–26, React rebuild 2026</dd>
           </div>
           <div>
             <dt>Platforms</dt>
@@ -84,27 +100,28 @@ export default function Case() {
           </div>
           <div>
             <dt>Live</dt>
-            <dd>Private, behind sign-in</dd>
+            <dd>The Vue app, behind sign-in. The React app is not live yet.</dd>
           </div>
         </dl>
-      </div>
 
-      <figure className="p12p-case-fig">
-        <Shot
-          shot={calendar}
-          wide={{ x: 0, y: 0 }}
-          narrow={{ x: 620, y: 205 }}
-          work="Care platform"
-          className="p12p-case-win"
-          id="p12p-shot-case"
-          eager
-          story
-        />
-        <div className="p12p-case-figfoot">
-          <Caption title="Care team calendar, one week." real measure="#p12p-shot-case" total={1440} />
-          <WholeScreen shot={calendar} name="Care team calendar" />
-        </div>
-      </figure>
+        <figure className="p12p-case-fig">
+          <Dim of="#p12p-shot-case" total={1440} className="p12p-case-dim" />
+          <Shot
+            shot={claims}
+            wide={{ x: 0, y: 0 }}
+            narrow={{ x: 256, y: 60 }}
+            work="Care platform"
+            className="p12p-case-win"
+            id="p12p-shot-case"
+            eager
+            story
+          />
+          <div className="p12p-case-figfoot">
+            <Caption title="Claims for one month, care platform." real />
+            <WholeScreen shot={claims} name="Claims" />
+          </div>
+        </figure>
+      </div>
 
       <div className="p12p-read">
         <section aria-labelledby="p12p-c1">
@@ -116,8 +133,8 @@ export default function Case() {
           </p>
           <p>
             <strong>Scope.</strong> From 2023, Gentrit and the team built its screens in Vue: patient profile, care plans,
-            labs and vitals, claims, calls and chat. Since 2026, Gentrit also works on the server. For the move to React,
-            Gentrit wrote most of the rules and the checks. Teammates wrote the rest.
+            labs and vitals, claims, calls and chat. Since 2026, Gentrit also works on the server and on the rebuild in
+            React, below.
           </p>
           <p>
             Many client organizations share one system. So each screen shows each organization only its own data, and each
@@ -126,20 +143,20 @@ export default function Case() {
         </section>
 
         <section aria-labelledby="p12p-c2">
-          <h2 id="p12p-c2">What was built</h2>
+          <h2 id="p12p-c2">What is being built</h2>
           <ol className="p12p-decisions">
             <li>
               <p className="p12p-limit">The app could not stop.</p>
               <p>
-                So it moves one screen at a time. The old screen runs until the new one is ready, and care teams keep
-                working.
+                So the rebuild goes one screen at a time. Care teams keep working in the Vue app until a new screen is
+                ready.
               </p>
             </li>
             <li>
               <p className="p12p-limit">A new screen must do what the old one did.</p>
               <p>
                 So each screen gets its test first, written on the old app. The same test then runs on both apps. A screen
-                moves only when it passes on both.
+                can move only when it passes on both.
               </p>
             </li>
             <li>
@@ -151,18 +168,16 @@ export default function Case() {
             </li>
           </ol>
           <p>
-            Gentrit wrote most of the rules and the checks. AI agents build inside them. A person approves each change. A
-            check is trusted only after it is shown to fail.
+            Gentrit wrote most of the rules and the checks. AI agents build inside them. A person approves each change.
+            Teammates wrote the rest of the rules. A check is trusted only after it is shown to fail.
           </p>
         </section>
       </div>
 
       <figure className="p12p-flow" aria-labelledby="p12p-flow-cap">
         <ol className="p12p-flow-steps">
-          {steps.map((s, i) => (
-            <li key={s} className={i === 2 || i === 3 ? "p12p-flow-loop" : undefined}>
-              {s}
-            </li>
+          {steps.map((s) => (
+            <li key={s}>{s}</li>
           ))}
         </ol>
         <p className="p12p-flow-back">
@@ -174,21 +189,14 @@ export default function Case() {
         <figcaption id="p12p-flow-cap">How one screen moves from the old app to the new one.</figcaption>
       </figure>
 
-      <figure className="p12p-row-fig p12p-case-shot">
-        <Shot shot={claims} wide={{ x: 236, y: 56 }} narrow={{ x: 250, y: 576 }} work="Care platform" className="p12p-row-win" id="p12p-shot-claims" />
-        <div className="p12p-case-figfoot">
-          <Caption title="Claims for one month." real measure="#p12p-shot-claims" total={1440} />
-          <WholeScreen shot={claims} name="Claims" />
-        </div>
-      </figure>
-
       <div className="p12p-read">
         <section aria-labelledby="p12p-c3">
-          <h2 id="p12p-c3">The result</h2>
+          <h2 id="p12p-c3">The result so far</h2>
           <p>
-            Care teams keep using the app while each screen moves over. In September 2026, the same test passed on both
-            apps for the patient compliance list. On the server, one billing report used to time out. Now it needs 2
-            database requests, not 16, and it finishes. New screens use Design System v2, a shared set of building blocks.
+            On the server, one billing report used to time out. Now it needs 2 database requests, not 16, and it
+            finishes. The React app is still being built. In September 2026, the same test passed on both apps for the
+            patient compliance list; that screen is not live yet. The new screens are built on Design System v2, a team
+            effort.
           </p>
         </section>
       </div>
@@ -196,22 +204,27 @@ export default function Case() {
       <dl className="p12p-numbers" data-numbers>
         <div>
           <dt>16 → 2</dt>
-          <dd>Database requests for one billing report</dd>
+          <dd>Database requests for one billing report, on the server</dd>
         </div>
         <div>
-          <dt>4</dt>
-          <dd>Languages: English, German, Spanish and Turkish</dd>
-        </div>
-        <div>
-          <dt>36</dt>
-          <dd>Building blocks in Design System v2, under the new screens</dd>
+          <dt>Sept 2026</dt>
+          <dd>The same test passed on both apps for the patient compliance list. Not live yet.</dd>
         </div>
       </dl>
 
       <figure className="p12p-row-fig p12p-case-shot">
-        <Shot shot={glucose} wide={{ x: 247, y: 140 }} narrow={{ x: 560, y: 250 }} work="Care platform" className="p12p-row-win" id="p12p-shot-glucose" />
+        <Dim of="#p12p-shot-glucose" total={1440} />
+        <Shot
+          shot={glucose}
+          wide={{ x: 258, y: 128 }}
+          narrow={{ x: 560, y: 340 }}
+          narrowHeight={300}
+          work="Care platform"
+          className="p12p-row-win"
+          id="p12p-shot-glucose"
+        />
         <div className="p12p-case-figfoot">
-          <Caption title="Glucose for one patient, one day." real measure="#p12p-shot-glucose" total={1440} />
+          <Caption title="Glucose for one patient, one day." real />
           <WholeScreen shot={glucose} name="Glucose overview" />
         </div>
       </figure>
@@ -220,8 +233,8 @@ export default function Case() {
         <section aria-labelledby="p12p-c4">
           <h2 id="p12p-c4">In short</h2>
           <ul className="p12p-short">
-            <li>A live care app, moving from Vue to React one screen at a time.</li>
-            <li>Each screen passes the same test on both apps before it moves.</li>
+            <li>A live care app, being rebuilt in React one tested screen at a time. None is live yet.</li>
+            <li>Each new screen must pass the same test on both apps.</li>
             <li>One billing report: 2 database requests, not 16.</li>
           </ul>
         </section>
@@ -252,15 +265,14 @@ export default function Case() {
             <li>People merge every pull request.</li>
           </ul>
           <p>
-            The trade-off: moving route by route keeps care teams working, but the old app and the new app both run until
-            the move is done.
+            The trade-off: nothing reaches care teams until a route passes on both apps, so no React screen is live yet.
           </p>
         </section>
       </div>
 
       <footer className="p12p-case-next">
         <a href="/work/bayyinah-tv" className="p12p-next">
-          <span>Next case</span>
+          <span>Next case, on the main site</span>
           Bayyinah TV <Arrow />
         </a>
         <p className="p12p-links">

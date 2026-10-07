@@ -22,6 +22,8 @@ export interface Shot {
   caption: string
   /** Owner rule: real product screens on invented data carry this exact line. */
   invented?: boolean
+  /** Shown in the wide lanes only; the phone stream keeps the words. */
+  wideOnly?: boolean
 }
 
 export interface EntryLink {
@@ -70,13 +72,14 @@ export const lanes: { key: Lane; label: string; since: string }[] = [
 export const site = {
   name: 'Gentrit Rashiti',
   claim: 'Gentrit Rashiti builds the phone and web apps that care teams, readers and shoppers use.',
-  lead: 'Phone apps since 2021. Web apps since 2023. The servers behind them since 2026. Based in Kosovo, working remotely.',
-  proof: [
-    { label: 'bayyinahtv.com', href: 'https://bayyinahtv.com/' },
-    { label: 'App Store', href: 'https://apps.apple.com/us/app/bayyinah-tv/id1530635769' },
-    { label: 'Google Play', href: 'https://play.google.com/store/apps/details?id=com.zombiesoup.bayyinah' },
-    { label: 'github.com/gentritr1', href: 'https://github.com/gentritr1' },
-  ],
+  /** The second line, with one link a stranger can open. Swapped for a lane sentence when a lane is chosen. */
+  lead: { before: '5+ years. Part of two platform rewrites: a care platform and ', link: { label: 'bayyinahtv.com', href: 'https://bayyinahtv.com/' }, after: '. Based in Kosovo, working remotely.' },
+  /** What the record says when one lane is chosen. Facts from CONTENT.md; also readable in the entries. */
+  laneLines: {
+    phone: 'Phone apps since 2021. Three are live in both stores today: Bayyinah TV, Viva Fresh and Dukagjini Bookstore. Read to Feed shipped about 14 releases.',
+    web: 'Web apps since 2023. A care platform for remote patient monitoring, now moving to React one screen at a time, and Bayyinah TV, rebuilt from scratch.',
+    server: 'The servers since 2026. Behind the care platform, one billing report now makes 2 database requests, not 16. Behind Offday, about 200 tests.',
+  } as Record<Lane, string>,
   nav: [
     { label: 'Work', href: '#work' },
     { label: 'Index', href: '#index' },
@@ -99,15 +102,6 @@ const offdayCalendar: Shot = {
   crop: { x: 530, y: 775, w: 1700, h: 1025 },
   phoneCrop: { x: 530, y: 775, w: 735, h: 1025 },
   caption: 'Team calendar for October. Own product.',
-}
-
-const offdayPhone: Shot = {
-  src: '/personal/shots/offday-light-calendar-phone.webp',
-  width: 780,
-  height: 1688,
-  alt: 'Offday on a phone: the Request time off button, out today, pending requests and the team count, then the October calendar with leave bars.',
-  crop: { x: 0, y: 0, w: 780, h: 1560 },
-  caption: 'Team calendar, on a phone.',
 }
 
 const careWeek: Shot = {
@@ -168,6 +162,7 @@ const incentivSignIn: Shot = {
   crop: { x: 341, y: 480, w: 1312, h: 853 },
   phoneCrop: { x: 341, y: 480, w: 729, h: 853 },
   caption: 'Portal sign-in, public screen.',
+  wideOnly: true,
 }
 
 const vivaFresh: Shot = {
@@ -196,52 +191,12 @@ export const rows: Row[] = [
     cells: {
       web: [
         {
-          id: 'offday',
-          name: 'Offday',
-          kind: 'Time off for teams',
-          text: [
-            'Employees ask for leave. Managers approve it. The team calendar shows who is away, and a drag picks the dates.',
-            'Shifts warn when nobody covers them. Find the best dates picks the longest breaks around public holidays.',
-          ],
-          meta: ['Own product', 'Web and server', '2026'],
-          shot: offdayCalendar,
-          years: [2026, 2026],
-        },
-      ],
-      phone: [
-        {
-          id: 'offday-phone',
-          name: 'Offday on a phone',
-          meta: ['Same web app', '2026'],
-          shot: offdayPhone,
-          years: [2026, 2026],
-        },
-      ],
-      server: [
-        {
-          id: 'offday-server',
-          name: 'The server behind Offday',
-          text: [
-            'Sign-in by email, holidays for about 200 countries, Excel export, a calendar feed and an AI assistant. About 200 tests.',
-          ],
-          meta: ['Own product', '2026'],
-          years: [2026, 2026],
-          bar: true,
-        },
-      ],
-    },
-  },
-  {
-    year: 2026,
-    cells: {
-      web: [
-        {
           id: 'care',
           name: 'Care-management platform',
-          kind: 'Remote patient monitoring, rebuilt one screen at a time',
+          kind: 'Remote patient monitoring, being rebuilt one screen at a time',
           text: [
-            'Care teams follow vitals from connected devices, care plans, lab results, claims, calls and chat. Many organizations share one system, and each sees only its own data.',
-            'The app moves from Vue to React one screen at a time. A screen moves only after the same test passes on the old and the new app.',
+            'Care teams follow vitals from connected devices, care plans, lab results, claims, calls and chat. Each organization sees only its own data.',
+            'The app is moving from Vue to React one screen at a time, and no React screen is live yet. A screen moves only after the same test passes on the old and the new app.',
           ],
           ai: true,
           meta: ['Vianova', 'Web and mobile, since 2026 also the server', '2023–26'],
@@ -250,14 +205,22 @@ export const rows: Row[] = [
           years: [2023, 2026],
         },
       ],
+      phone: [
+        {
+          id: 'bayyinah-app',
+          name: 'Bayyinah TV app',
+          text: ['One web app, in both stores: it runs inside the iPhone and Android apps.'],
+          meta: ['Frontend, core team', '2023–26'],
+          links: store('bayyinah-tv').filter((l) => l.label !== 'Website'),
+          shot: bayyinahApp,
+          years: [2023, 2026],
+        },
+      ],
       server: [
         {
           id: 'care-api',
           name: 'The server behind the care platform',
-          text: [
-            'Enrollment drafts, a lab catalog and security fixes that keep each organization’s data apart.',
-            'One billing report now makes 2 database requests, not 16, and no longer times out.',
-          ],
+          text: ['Enrollment drafts, a lab catalog, security fixes. One billing report: 2 database requests, not 16.'],
           meta: ['Vianova', 'Server', '2026'],
           years: [2026, 2026],
           bar: true,
@@ -294,8 +257,7 @@ export const rows: Row[] = [
           name: 'Bayyinah TV',
           kind: 'Video learning for an online community',
           text: [
-            'Courses, playlists, progress, a scripture reader, live streams with chat, and video on demand. Rebuilt from an empty template.',
-            'Members pay on the web and in both apps. English and Arabic, with the layout mirrored right to left.',
+            'Courses, playlists, progress, a scripture reader, live streams with chat, and video on demand. Rebuilt from an empty template. Members pay on the web and in both apps. English and Arabic, right to left.',
           ],
           meta: ['Frontend, core team', '2023–26'],
           links: [
@@ -306,15 +268,32 @@ export const rows: Row[] = [
           years: [2023, 2026],
         },
       ],
-      phone: [
+    },
+  },
+  {
+    year: 2026,
+    cells: {
+      web: [
         {
-          id: 'bayyinah-app',
-          name: 'Bayyinah TV app',
-          text: ['One web app. It runs on the web and inside the iPhone and Android apps.'],
-          meta: ['2023–26'],
-          links: store('bayyinah-tv').filter((l) => l.label !== 'Website'),
-          shot: bayyinahApp,
-          years: [2023, 2026],
+          id: 'offday',
+          name: 'Offday',
+          kind: 'Time off for teams, an own product',
+          text: [
+            'Employees ask for leave, managers approve it, and the team calendar shows who is away. Shifts warn when nobody covers them. Find the best dates picks the longest breaks.',
+          ],
+          meta: ['Own product', 'Web and server', '2026'],
+          shot: offdayCalendar,
+          years: [2026, 2026],
+        },
+      ],
+      server: [
+        {
+          id: 'offday-server',
+          name: 'The server behind Offday',
+          text: ['Sign-in details sent by email, holidays for about 200 countries, Excel export, a calendar feed and an AI assistant. About 200 tests.'],
+          meta: ['Own product', '2026'],
+          years: [2026, 2026],
+          bar: true,
         },
       ],
     },
@@ -328,8 +307,7 @@ export const rows: Row[] = [
           name: 'Read to Feed',
           kind: 'Reading app for children',
           text: [
-            'Children read books, scan their own books by barcode, take quizzes as chats and earn badges and streaks. Parents verify accounts by email.',
-            'About 14 releases to both stores over four years, through three major upgrades of the app’s base. Three languages.',
+            'Children read books, scan their own books by barcode, take quizzes as chats and earn badges. About 14 releases to both stores over four years. Three languages.',
           ],
           meta: ['Mobile, iOS and Android', '2022–25'],
           links: [...store('read-to-feed'), { label: 'Read the case', href: '/work/read-to-feed' }],
@@ -349,7 +327,7 @@ export const rows: Row[] = [
         {
           id: 'portal',
           name: 'Member portal',
-          text: ['The base of a member portal: protected pages, sign-in through an outside provider, the app shell and layout.'],
+          text: ['The base of a member portal: protected pages, sign-in through an outside provider, the app shell.'],
           meta: ['Frontend', '2025'],
           years: [2025, 2025],
         },
@@ -374,8 +352,7 @@ export const rows: Row[] = [
           name: 'Incentiv portal',
           kind: 'Sign-in and dashboard of a smart wallet',
           text: [
-            'People sign in with a passkey (no password) or an outside wallet, then see balances, assets and transactions. English and French.',
-            'Gentrit built the portal frontend: the sign-in, a first-run tour, the dashboard cards, a list of assets and a balance pop-up with a QR code. Teammates built the wallet itself and its link to the blockchain.',
+            'People sign in with a passkey (no password) or an outside wallet. Gentrit built the portal frontend: the sign-in, a first-run tour, the dashboard cards, an asset list and a balance pop-up with a QR code. Teammates built the wallet itself. English and French.',
           ],
           meta: ['Incentiv', 'Frontend, UI layer', '2024'],
           links: [
@@ -397,8 +374,7 @@ export const rows: Row[] = [
           name: 'Viva Fresh',
           kind: 'Grocery shopping and loyalty',
           text: [
-            'Shoppers fill a cart, choose a delivery slot and find their address on a map. Loyalty points and a wishlist. Albanian interface.',
-            'Live in both stores. One app ships to iPhone and Android.',
+            'Shoppers fill a cart, choose a delivery slot and find their address on a map. Albanian interface. Live in both stores; one app ships to iPhone and Android.',
           ],
           meta: ['Mobile', '2023'],
           links: [...store('viva-fresh'), { label: 'Read the case', href: '/work/viva-fresh' }],
@@ -410,9 +386,7 @@ export const rows: Row[] = [
         {
           id: 'care-vue',
           name: 'The care platform’s first era',
-          text: [
-            'Built on Vue from 2023: patient profile, care plans, labs and vitals, claims, calls. Four languages: English, German, Spanish and Turkish. The 2026 rewrite above moves it to React.',
-          ],
+          text: ['Built on Vue from 2023: patient profile, care plans, labs and vitals, claims, calls. Four languages. The 2026 rewrite above moves it to React.'],
           meta: ['Vianova', 'Frontend', '2023–26'],
           years: [2023, 2026],
         },
@@ -428,8 +402,7 @@ export const rows: Row[] = [
           name: 'Dukagjini Bookstore',
           kind: 'Shopping app for a book publisher',
           text: [
-            'Readers search the catalogue, browse sales, keep favourite lists and check out with promo codes.',
-            'Live in both stores. A push notification opens the right screen.',
+            'Readers search the catalogue, keep favourite lists and check out with promo codes. Live in both stores. A push notification opens the right screen.',
           ],
           meta: ['Mobile', '2021–22'],
           links: [...store('dukagjini-bookstore'), { label: 'Read the case', href: '/work/dukagjini-bookstore' }],
@@ -439,7 +412,7 @@ export const rows: Row[] = [
         {
           id: 'chatbot',
           name: 'Chatbot library',
-          text: ['A reusable package that plays scripted chats: text, media, choices, ratings and timers. A message queue keeps the order; guards stop stalls and repeats.'],
+          text: ['A reusable package that plays scripted chats: text, media, choices, ratings and timers.'],
           meta: ['Mobile', '2022–25'],
           years: [2022, 2025],
         },
@@ -453,9 +426,7 @@ export const rows: Row[] = [
         {
           id: 'sadaqah',
           name: 'Sadaqah app for Islamic Relief USA',
-          text: [
-            'Donations and subscriptions, badges, guided tasks and video, built with a small team. Work on the team covered the payment and subscription screens, the badges, in-app web views and the Android builds. No longer in the stores.',
-          ],
+          text: ['Built the payment and subscription screens, the badges, in-app web views and the Android builds, in a small team. No longer in the stores.'],
           meta: ['Mobile, team member', '2021–22'],
           years: [2021, 2022],
         },
@@ -504,11 +475,11 @@ export const index: IndexGroup[] = [
       { years: '2025', name: 'Chatbot library, web port', lane: 'Web', role: 'Frontend', line: 'TypeScript web version of the chatbot library, with an example app' },
       { years: '2025', name: 'Member portal', lane: 'Web', role: 'Frontend', line: 'Member portal base: protected pages, outside sign-in, app shell and layout', entry: 'portal' },
       { years: '2023', name: 'Viva Fresh', lane: 'Phone', role: 'Mobile', line: 'Grocery orders with delivery slots, loyalty, wishlist and address search on a map', entry: 'viva', links: [{ label: 'Case', href: '/work/viva-fresh' }] },
-      { years: '2022–23', name: 'Coaching app', lane: 'Phone', role: 'Mobile', line: 'Organization sign-in, a daily calendar strip, reactions, and dev, staging and release builds' },
+      { years: '2022–23', name: 'Coaching app', lane: 'Phone', role: 'Mobile', line: 'Organization sign-in, a daily calendar strip and reactions, with separate test and release builds' },
       { years: '2022', name: 'EPUB reader prototype', lane: 'Phone', role: 'Mobile', line: 'Downloads, renders and resizes an EPUB; the start of the reading app’s reader' },
       { years: '2021–22', name: 'Dukagjini Bookstore', lane: 'Phone', role: 'Mobile', line: 'Book shopping; a push notification opens the right screen; checkout with promo codes', entry: 'dukagjini', links: [{ label: 'Case', href: '/work/dukagjini-bookstore' }] },
-      { years: '2021–22', name: 'Sadaqah app for Islamic Relief USA', lane: 'Phone', role: 'Mobile, team member', line: 'Donations and subscriptions with Stripe, badges, guided tasks and video', entry: 'sadaqah' },
-      { years: '2026', name: 'Fuel-station loyalty app', lane: 'Phone', role: 'Mobile', line: 'Loyalty app upkeep: arm64 simulator support, legacy architecture, shadow fixes' },
+      { years: '2021–22', name: 'Sadaqah app for Islamic Relief USA', lane: 'Phone', role: 'Mobile, team member', line: 'Donations and subscriptions, badges, guided tasks and video; built in a small team', entry: 'sadaqah' },
+      { years: '2026', name: 'Fuel-station loyalty app', lane: 'Phone', role: 'Mobile', line: 'Kept a loyalty app building on new Macs and fixed its shadows' },
     ],
   },
   {
@@ -532,7 +503,7 @@ export const index: IndexGroup[] = [
       { years: '2026', name: 'Snaxx Tech studio website', lane: 'Web', role: 'Owner', line: '3D hero, a cinemagraph loop and a strict security policy; images 972 KB to 337 KB', links: [{ label: 'snaxxtech.com', href: 'https://www.snaxxtech.com/' }] },
       { years: '2026', name: 'FJALË', lane: 'Web', role: 'Owner', line: 'Daily Albanian word game, 21k-word dictionary, archive, offline play', links: [{ label: 'Play', href: 'https://xn--fjal-opa.com/' }] },
       { years: '2026', name: 'Za!', lane: 'Web, server', role: 'Owner', line: 'Multiplayer pizza card game for 2 to 8 players; the server decides every move', links: [{ label: 'Play', href: 'https://za-game.onrender.com/' }] },
-      { years: '2026', name: 'Morse Trainer', lane: 'Web', role: 'Owner', line: 'Morse-code learning game with spaced repetition and Farnsworth timing', links: [{ label: 'Play', href: 'https://morse-code-amber.vercel.app/' }] },
+      { years: '2026', name: 'Morse Trainer', lane: 'Web', role: 'Owner', line: 'Morse-code learning game that brings back the letters you miss', links: [{ label: 'Play', href: 'https://morse-code-amber.vercel.app/' }] },
       { years: '2026', name: 'Geo Guesser World 3D', lane: 'Phone', role: 'Mobile, co-built', line: 'Street-view guessing game, published on Google Play', links: [{ label: 'Google Play', href: 'https://play.google.com/store/apps/details?id=com.snaxxtech.geoguesser' }] },
       { years: '2026', name: 'Futurisma', lane: 'Web', role: 'Owner', line: 'Hover racer with seven circuits and weather, tide and day-night systems' },
       { years: '2026', name: 'Secret Dictator', lane: 'Web', role: 'Owner', line: 'Single-player social-deduction game against AI opponents in a 3D town' },
@@ -543,6 +514,6 @@ export const index: IndexGroup[] = [
 
 export const about = [
   'Gentrit Rashiti is a frontend and mobile developer who now works across the whole stack. Based in Kosovo, working remotely. Bachelor’s degree, UBT.',
-  'Frontend: React, Next.js, Vue, Nuxt, TypeScript. Mobile: React Native, iOS and Android. Backend: Laravel and PHP, Python and FastAPI, MySQL, Redis. Quality: Playwright, Vitest, Pest. Services: Stripe, Firebase, Twilio, Pusher, and live video on AWS.',
-  'Interfaces shipped in English, German, Spanish, Turkish, French, Albanian and Arabic, right to left. Spare time goes into games that are live on the web: FJALË, a daily Albanian word game, Za!, a card game for 2 to 8 players, and Morse Trainer.',
+  'Frontend: React, Next.js, Vue, Nuxt, TypeScript. Mobile: React Native, iOS and Android. Backend: Laravel and PHP, Python and FastAPI, MySQL, Redis. Quality: Playwright, Vitest, Pest.',
+  'Interfaces shipped in English, German, Spanish, Turkish, French, Albanian and Arabic, right to left. Spare time goes into games that are live on the web: FJALË, Za! and Morse Trainer.',
 ]
