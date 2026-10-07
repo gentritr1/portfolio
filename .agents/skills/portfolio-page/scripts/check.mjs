@@ -17,6 +17,13 @@
 //   - M08 skips a canvas/svg overlay on a visible picture; M06 re-measures once and skips phones with touch-action on the scroller.
 //   - T18/T18c/H01 judge the face that rendered (C19 when the display face had not loaded); H12/T34/T35 read the ground behind the hero.
 //   - C17 is info on a dev server (Vite); C05b warns only when a phone target is under 44px in both directions.
+// Changelog (2026-10-07, round 3, from design/portfolio-skill/loop-12/REVIEW.md):
+//   - C06 measures against what is painted under the text (elementsFromPoint with pointer-events forced on, own
+//     subtree skipped): sibling/positioned bands, transformed layers and placeable pseudo backgrounds count;
+//     covered text is skipped and painted aria-hidden copies are measured (p12-bold's white year on its red band).
+//   - C03 fails at 6+ sizes (the rubric's five), not counting [data-work] or screen-reader-only text.
+//   - Dialog test: D01 (page scrolls behind an open dialog) and D02 (Escape / focus return).
+//   - --round / --round-dir: the round table across drafts (R01), written to round.md.
 //
 // Opens a page in Chromium at two sizes and reports:
 //   1. template tells (AI "slop"): pill eyebrow over the hero title, gradient text,
@@ -32,6 +39,8 @@
 //                  [--fonts-ok "Alias=Real Face"] [--scheme dark] [--allow "T06=reason;…"]
 //                  [--throttle 4] [--frames 120,320,700] [--frames-after "<css>"]
 //                  [--interact "click:<css>"] [--interact-frames 60,150,300,600] [--json]
+//   node check.mjs --round <url1>,<url2>,… [--owner "Name"] [--out dir]   # round table (R01)
+//   node check.mjs --round-dir <dir>   # the same from <dir>/*/report.json of earlier runs
 //   node check.mjs --list      # every finding id, its severity rule and meaning (Markdown)
 //
 // --frames: screenshots <w>-t<ms>.png at those ms after the start. The start is the moment the
@@ -56,7 +65,7 @@
 // CHROMIUM_PATH if they are not found.
 
 import { createRequire } from "node:module";
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -135,12 +144,12 @@ const CHECKS = [
   ["C01b", "✗", "The first-screen work has no name: no alt, aria-label or `data-work` value."],
   ["C02", "✗ > 120, △ > 90 (read: △ > 170)", "Words in the first screen outside the nav and `[data-work]`."],
   ["C02b", "△", "Hero heading over 20 words."],
-  ["C03", "△", "More than 6 type sizes in the first screen."],
+  ["C03", "✗ at 6+", "Six or more type sizes in the first screen (rounded px; the rubric's limit is five). Text inside `[data-work]` (a screenshot's or live demo's own UI) and screen-reader-only or clipped-away text (clipped box ≤ 2px) do not count."],
   ["C04", "✗", "The page scrolls sideways."],
   ["C05", "✗ when crowded, △ when spaced", "Target under 24px. Fails only when its 24px circle touches another target (WCAG 2.5.8 spacing exception); inline links in sentences are exempt."],
   ["C05b", "△ when < 44px in both width and height", "Phone target under 44px in both directions (border box with padding; an absolutely positioned ::before/::after hit area counts). A short spaced link such as \"CV\" that is 44px tall passes (WCAG 2.5.8 spacing)."],
-  ["C06", "✗", "Text below 4.5:1 (3:1 for large text) on a solid ground."],
-  ["C06b", "✗ body text < 3:1, △ < 4.5:1 (large < 3:1)", "Text over an image or gradient: contrast against the average colour sampled behind the text box (approximate)."],
+  ["C06", "✗", "Text below 4.5:1 (3:1 for large text) on a solid ground. The ground is what is painted under the text: `document.elementsFromPoint` at the centre of its widest line (pointer-events forced on for the call, the text's own subtree skipped), composited down from the text's own background, so a sibling or absolutely positioned band, a transformed layer and a ::before/::after background whose box can be placed all count. Text under an opaque layer that is not fixed or sticky is covered and skipped; a painted aria-hidden copy of page text (a selected-row band that repeats the list) is measured. Text the point test cannot reach (no window scroll to it) uses the ancestor chain."],
+  ["C06b", "✗ body text < 3:1, △ < 4.5:1 (large < 3:1)", "Text over an image, gradient, canvas, svg or a pseudo-element background whose box cannot be placed: contrast against the average colour sampled behind the text box in a screenshot with the glyphs hidden (approximate; first three screens, 40 texts)."],
   ["C07", "△", "Text under 11px, or 11–12px text that is not a short caps label (tracked ≥ 0.04em) or mono label of ≤ 3 words."],
   ["C07b", "△", "Paragraphs wider than ~85 characters."],
   ["C08", "✗", "Images without alt."],
@@ -168,6 +177,8 @@ const CHECKS = [
   ["C17", "△ > 1,500ms; with --throttle: △ > 1,000ms, ✗ > 2,500ms; info on a dev server", "Largest contentful paint. On a dev server (Vite: a `/@vite/client` script) it mostly measures the host's lazy loading, so it is info: measure on a production build (vite build + vite preview)."],
   ["C18", "✗ when the biggest text is the owner's name, else △", "The claim (the h1) is not the largest text in the first screen: another text is more than 1.15× its size, or the name itself is the h1 and the largest text."],
   ["C19", "△", "Display face not rendered at capture (fallback shown): the first family of the display text is a web font (`@font-face` with a `url()` source) that had not loaded (no face loaded or `document.fonts.check()` false for its style, weight, size and text), or that loaded but a DOM probe renders exactly as wide as without it (`font-display: optional` that missed its window). T18, T18c and H01 then judge the fallback that rendered. A family with no `@font-face`, or one whose sources are all `local()`, is taken as declared (the visitor's installed fonts are unknown)."],
+  ["D01", "△", "Dialog test: the page scrolls behind an open dialog (a 600px wheel over its backdrop moves scrollY or the opener's scroll container), or closing it leaves the page more than 40px from where it was."],
+  ["D02", "✗", "Dialog test: Escape does not close the dialog, or focus does not return to the opener (a non-focusable opener is named)."],
   ["M01", "✗ > 3, △ 2–3", "Endless animations."],
   ["M02", "✗ > 1,100ms (△ under `data-motion=\"story\"`), △ > 900ms", "Long animations and transitions, sampled and from transition/animation events (colour-only transitions ignored)."],
   ["M03", "△", "Animations on layout properties."],
@@ -185,6 +196,7 @@ const CHECKS = [
   ["M09c", "✗", "requestAnimationFrame loop (> 5 callbacks/s after 2s idle) under reduced motion, unless a visible `[data-motion=\"story\"]` control exists."],
   ["M10", "✗ > 50ms, △ > 33ms (--throttle ≥ 4: ✗ > 33, △ > 20)", "Scroll frame time p95 (headless, indicative; snapped to vsync steps). Fails only when a blank page measured in the same pass holds 60fps; on a busy machine it warns."],
   ["M11", "△", "More than 2 elements animate in the first screen at load."],
+  ["R01", "△ (round only)", "`--round` / `--round-dir`: two drafts share the claim shape (h1 word Jaccard ≥ 0.5 with stop words and the owner's name removed, the same first three words, or the same skeleton such as \"<Name> builds the <x> apps that <y> use\"), the nav string (the owner's name link left out), the display family of the largest text (an `@font-face` alias is named by its file, so \"PB Display\" loading BigShouldersDisplay-Latin.woff2 is Big Shoulders), the ground painted behind the hero (OKLCH ΔL < 0.03 and Δhue < 20°; hue ignored under C 0.008), the accent hue (± 15°; the most-used colour with OKLCH C ≥ 0.06 outside `[data-work]`, counting backgrounds, text, borders, underlines and ::before/::after marks), or the section order (top-level blocks below the hero, labelled by aria-label or first heading, mapped to work / index / about / contact / writing; a block with media is work, an About block or footer holding the email is also contact). Navs that share all but one item are listed as info."],
 ];
 const BY_HAND = [
   ["Hover gating", "Hover effects only under `(hover: hover) and (pointer: fine)`; nothing hover-only on touch."],
@@ -210,7 +222,11 @@ function listMarkdown() {
     "",
     "Severity: ✗ hard fail (one fails the draft), △ warning, info (printed, never counted). A soft T-tell adds its weight to `T00`; three points fail the page, two warn. Allow a deliberate exception with `<meta name=\"portfolio-check\" content=\"allow T06b: reason\">` or `--allow \"T06b=reason\"`; allowed findings print as ○ and do not count.",
     "",
-    "Flags: `--owner \"Name\"` (or `<meta name=\"author\">`) for C18, T27, T10e; `--facts CONTENT.md` for T45; `--mode read` for case and about pages; `--fonts-ok \"Alias=Real\"`; `--scheme dark`; `--throttle 4` for C17 and M10. Markers: `data-work=\"<product>\"`, `data-numbers`, `data-measured`, `data-motion=\"story\"`.",
+    "Flags: `--owner \"Name\"` (or `<meta name=\"author\">`) for C18, T27, T10e; `--facts CONTENT.md` for T45; `--mode read` for case and about pages; `--fonts-ok \"Alias=Real\"`; `--scheme dark`; `--throttle 4` for C17 and M10. Markers: `data-work=\"<product>\"`, `data-numbers`, `data-measured`, `data-motion=\"story\"`, `data-enlarge`.",
+    "",
+    "Dialog test (D01, D02): when the page has an opener (`[data-enlarge]`, a button with `aria-haspopup=dialog` or `aria-controls`/`commandfor` pointing at a dialog, or a button whose aria-label starts with \"Enlarge\" or \"Open\"), a fresh load clicks the first visible one (up to three are tried until one opens a `dialog`, `[role=dialog]` or `[aria-modal=true]`), wheels 600px over the backdrop, checks that the page did not scroll, presses Escape and checks that the dialog closed and focus is back on the opener. Runs at each viewport; the report names the opener and the dialog.",
+    "",
+    "Round: `node scripts/check.mjs --round <url1>,<url2>,… [--owner \"Name\"] [--out dir]` loads each draft at 1440×900; `--round-dir <dir>` reads `<dir>/*/report.json` from earlier single-page runs instead. Writes `round.md` (one row per draft: h1 skeleton, first three words and verb, nav, display family, ground and accent in OKLCH, section order, matches) and `round.json`, and lists R01 for every pair that shares something. This is the round-table check from `reference/directions.md`.",
     "",
     "Frames: `--frames 120,320,700` saves `<w>-t<ms>.png` at those ms after the start: the first visible `--frames-after \"<css>\"` (default `h1, [data-work]`, waited for up to 10 s; else navigation). Visible means a box and not `visibility: hidden`; opacity is ignored, so an entrance fade is captured. The report names the start used.",
     "",
@@ -231,21 +247,28 @@ if (argv.includes("--list")) {
   console.log(listMarkdown());
   process.exit(0);
 }
-if (!argv.length || argv.includes("--help") || argv[0].startsWith("--")) {
+const roundMode = argv.includes("--round") || argv.includes("--round-dir");
+if (!argv.length || argv.includes("--help") || (argv[0].startsWith("--") && !roundMode)) {
   console.log(
-    'node check.mjs <url> [--out dir] [--name slug] [--viewports 1440x900,390x844] [--mode read] [--owner "Name"] [--facts CONTENT.md] [--fonts-ok "Alias=Real"] [--scheme dark] [--allow "T06=reason;…"] [--throttle 4] [--frames 120,320,700] [--frames-after "<css>"] [--interact "click|hover|drag-right|drag-left|key-ArrowRight|key-Enter:<css>"] [--interact-frames 60,150,300,600] [--json]\nnode check.mjs --list',
+    'node check.mjs <url> [--out dir] [--name slug] [--viewports 1440x900,390x844] [--mode read] [--owner "Name"] [--facts CONTENT.md] [--fonts-ok "Alias=Real"] [--scheme dark] [--allow "T06=reason;…"] [--throttle 4] [--frames 120,320,700] [--frames-after "<css>"] [--interact "click|hover|drag-right|drag-left|key-ArrowRight|key-Enter:<css>"] [--interact-frames 60,150,300,600] [--json]\nnode check.mjs --round <url1>,<url2>,… | --round-dir <dir> [--owner "Name"] [--out dir]\nnode check.mjs --list',
   );
   process.exit(argv.includes("--help") ? 0 : 2);
 }
-const url = argv[0];
+const url = roundMode ? null : argv[0];
 const flag = (name, fallback) => {
   const i = argv.indexOf(`--${name}`);
   return i > -1 && argv[i + 1] && !argv[i + 1].startsWith("--") ? argv[i + 1] : fallback;
 };
+// --round <url,url,…> or --round-dir <dir>: compare a round of drafts (R01); writes round.md and round.json.
+const roundUrls = (flag("round", "") || "").split(",").map((s) => s.trim()).filter(Boolean);
+const roundDir = flag("round-dir", "");
+if (roundMode && !roundUrls.length && !roundDir) {
+  console.error('--round "<url1>,<url2>,…" or --round-dir <dir with <draft>/report.json files>');
+  process.exit(2);
+}
 const name =
   flag("name") ||
-  url.replace(/^https?:\/\/[^/]+/, "").replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "") ||
-  "home";
+  (roundMode ? "round" : url.replace(/^https?:\/\/[^/]+/, "").replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "") || "home");
 const outDir = resolve(flag("out", join("portfolio-check", name)));
 const viewports = flag("viewports", "1440x900,390x844")
   .split(",")
@@ -1843,9 +1866,21 @@ const DETECT = ({ phone, mode, owner, fontsOk, phrases, factsText }) => {
     const hw = words(heroText).length;
     if (hw > 20) add("C02b", "warn", `Hero heading is ${hw} words`, "Keep the main line to 20 words or fewer (15 is the target).", [label(hero)]);
   }
-  const sizes = new Set(firstText.map((el) => Math.round(px(style(el).fontSize))).filter((v) => v > 0));
-  if (sizes.size > 6)
-    add("C03", "warn", `${sizes.size} type sizes in the first screen`, "More than five or six sizes in one view reads as unplanned. Merge near sizes.", [...sizes].sort((a, b) => a - b).map(String));
+  // C03: distinct sizes (rounded px) in the first screen. Text inside [data-work] (a screenshot's or a
+  // live demo's own UI) and screen-reader-only or clipped-away text (clipped box ≤ 2px) do not count.
+  const sizeEls = firstText.filter((el) => {
+    if (el.closest("[data-work]")) return false;
+    const r = clipRect(el);
+    return r.width > 2 && r.height > 2 && inFirstClipped(el);
+  });
+  const sizeUse = new Map();
+  for (const el of sizeEls) {
+    const v = Math.round(px(style(el).fontSize));
+    if (v > 0) sizeUse.set(v, [...(sizeUse.get(v) || []), el]);
+  }
+  const sizes = new Set([...sizeUse.keys()]);
+  if (sizes.size >= 6)
+    add("C03", "fail", `${sizes.size} type sizes in the first screen`, "The rubric's limit is five sizes in one view (text inside [data-work] and screen-reader-only text not counted). Merge near sizes: adjacent roles differ by at least 1.25×.", [...sizeUse.entries()].sort((a, b) => a[0] - b[0]).map(([v, els]) => `${v}px: ${label(els[0]).slice(0, 60)}${els.length > 1 ? ` +${els.length - 1}` : ""}`));
 
   // C04 horizontal overflow.
   const overflow = document.documentElement.scrollWidth - innerWidth;
@@ -1932,33 +1967,249 @@ const DETECT = ({ phone, mode, owner, fontsOk, phrases, factsText }) => {
     }
     return box;
   };
-  for (const el of textEls) {
-    if (el.closest("[aria-hidden=true]")) continue;
+  // The ground is what is painted under the text, not only what its ancestors paint. For each text the
+  // checker takes the centre of its widest line and asks document.elementsFromPoint() what lies there
+  // (pointer-events forced on for the call, so a pointer-events:none band counts), skips the text's own
+  // subtree, and composites downward from the text's own background: a sibling or absolutely positioned
+  // band, a transformed layer, a ::before/::after background it can place. Text under an opaque layer
+  // that is not fixed or sticky is covered (the visitor sees what is on top) and is skipped; a painted
+  // aria-hidden copy of page text (a selected-row band that repeats the list in white) is measured.
+  // An image, gradient, canvas, svg or a pseudo-element it cannot place sends the text to the sampled
+  // pass (C06b). Text it cannot reach (no window scroll to it, a point off screen) uses the ancestor chain.
+  const accessibleText = new Set(textEls.map((el) => norm(ownText(el))).filter(Boolean));
+  const ariaCopies = all.filter((el) => {
+    if (!el.closest("[aria-hidden='true']") || el.closest("[inert],dialog:not([open])")) return false;
+    const t = ownText(el);
+    if (!t || !accessibleText.has(norm(t)) || !rendered(el) || opacityChain(el) < 0.5) return false;
+    return true;
+  });
+  const fixedish = (el) => [el, ...ancestors(el)].some((n) => ["fixed", "sticky"].includes(style(n).position));
+  const scroller = document.scrollingElement || document.documentElement;
+  const sy0 = scrollY, sx0 = scrollX;
+  const vwIn = document.documentElement.clientWidth || vw, vhIn = document.documentElement.clientHeight || vh;
+  const maxY = Math.max(0, scroller.scrollHeight - vhIn);
+  const pre = [];
+  for (const el of [...textEls, ...ariaCopies]) {
     const dr = docRect(el);
     if (dr.bottom <= 0 || dr.right <= 0 || dr.x >= document.documentElement.scrollWidth) continue;
+    const cr = clipRect(el);
+    if (cr.width <= 2 || cr.height <= 2) continue; // clipped away or screen-reader-only: not painted
+    pre.push({ el, box: textBox(el), cr, fixed: fixedish(el), copy: ariaCopies.includes(el) });
+  }
+  const pseudoCache = new Map();
+  const pstyle = (n, pe) => {
+    const k = pe === "::before" ? 0 : 1;
+    if (!pseudoCache.has(n)) pseudoCache.set(n, [null, null]);
+    const slot = pseudoCache.get(n);
+    if (!slot[k]) slot[k] = getComputedStyle(n, pe);
+    return slot[k];
+  };
+  const zeroScale = (t) => {
+    const m = /^matrix\(([^)]+)\)/.exec(t || "");
+    if (!m) return false;
+    const [a, b, c, d] = m[1].split(",").map(parseFloat);
+    return Math.abs(a * d - b * c) < 1e-3;
+  };
+  // A ::before/::after with a background, as a layer at (x, y): null when it is not there or too small to
+  // be a ground (a rule, a dot, an underline); { unknown } when its box cannot be placed.
+  const pseudoLayer = (n, pe, x, y, tb) => {
+    const ps = pstyle(n, pe);
+    if (!ps || ps.content === "none" || ps.content === "normal" || ps.display === "none" || ps.visibility === "hidden") return null;
+    const c = rgba(ps.backgroundColor);
+    const img = !!ps.backgroundImage && ps.backgroundImage !== "none";
+    const op = parseFloat(ps.opacity);
+    if (op <= 0.02 || (c[3] <= 0.02 && !img) || zeroScale(ps.transform)) return null;
+    const sized = /px$/.test(ps.width) && /px$/.test(ps.height);
+    const w = px(ps.width) + px(ps.paddingLeft) + px(ps.paddingRight) + px(ps.borderLeftWidth) + px(ps.borderRightWidth);
+    const h = px(ps.height) + px(ps.paddingTop) + px(ps.paddingBottom) + px(ps.borderTopWidth) + px(ps.borderBottomWidth);
+    if (sized && tb && (w < tb.w * 0.5 || h < tb.h * 0.5)) return null;
+    let hit = null;
+    const ns = style(n);
+    if (sized && ps.position === "absolute" && ns.position !== "static" && /px$/.test(ps.left) && /px$/.test(ps.top) && (ps.transform === "none" || !ps.transform) && ns.transform === "none") {
+      const r = n.getBoundingClientRect();
+      const l = r.left + n.clientLeft + px(ps.left), t = r.top + n.clientTop + px(ps.top);
+      hit = x >= l && x <= l + w && y >= t && y <= t + h;
+    }
+    if (hit === false) return null;
+    return { c: [c[0], c[1], c[2], c[3] * op], img, unknown: hit === null };
+  };
+  const relOpacity = (n, el) => {
+    let o = 1;
+    for (let a = n; a && a.nodeType === 1 && !a.contains(el); a = a.parentElement) o *= parseFloat(style(a).opacity);
+    return o;
+  };
+  const tagOfN = (n) => n.nodeName.toLowerCase() + (n.id ? "#" + n.id : "") + (typeof n.className === "string" && n.className.trim() ? "." + n.className.trim().split(/\s+/)[0] : "");
+  const canvasColour = () => {
+    const h = rgba(style(document.documentElement).backgroundColor);
+    if (h[3] > 0) return over(h, [255, 255, 255, 1]);
+    const b = rgba(style(document.body).backgroundColor);
+    return b[3] > 0 ? over(b, [255, 255, 255, 1]) : [255, 255, 255, 1];
+  };
+  const IMGLIKE = /^(IMG|PICTURE|VIDEO|CANVAS|IFRAME|EMBED|OBJECT)$/;
+  // What is painted under `el` at viewport point (x, y).
+  const paintedUnder = (el, x, y, tb) => {
+    let stack;
+    try {
+      stack = document.elementsFromPoint(x, y);
+    } catch {
+      return null;
+    }
+    if (!stack.length) return null;
+    const idx = stack.indexOf(el);
+    if (idx < 0) return null;
+    const inSub = (n) => n === el || el.contains(n);
+    for (const n of stack.slice(0, idx)) {
+      if (inSub(n) || (n.closest && n.closest("svg"))) continue;
+      const s = style(n);
+      const a = rgba(s.backgroundColor)[3] * relOpacity(n, el);
+      if (a >= 0.99 || (/^(IMG|VIDEO)$/.test(n.nodeName) && opacityChain(n) >= 0.99))
+        return { how: fixedish(n) ? "transient" : "covered", by: n };
+    }
+    const layers = [];
+    let from = null;
+    const finish = () => {
+      let base = canvasColour();
+      for (let i = layers.length - 1; i >= 0; i--) base = over(layers[i], base);
+      return { how: "painted", bg: base, from };
+    };
+    for (const n of [el, ...stack.slice(idx + 1)]) {
+      if (n !== el && inSub(n)) continue;
+      const svg = n.closest && n.closest("svg");
+      if (svg || IMGLIKE.test(n.nodeName)) return { how: "image", by: svg || n };
+      const o = n === el ? 1 : relOpacity(n, el);
+      for (const pe of ["::after", "::before"]) {
+        const pl = pseudoLayer(n, pe, x, y, tb);
+        if (!pl) continue;
+        if (pl.img || pl.unknown) return { how: "image", by: n, pseudo: pe };
+        const c = [pl.c[0], pl.c[1], pl.c[2], pl.c[3] * o];
+        layers.push(c);
+        if (c[3] >= 0.99) {
+          from = { el: n, pseudo: pe };
+          return finish();
+        }
+      }
+      const s = style(n);
+      if (s.backgroundImage && s.backgroundImage !== "none") return { how: "image", by: n };
+      const c0 = rgba(s.backgroundColor);
+      const c = [c0[0], c0[1], c0[2], c0[3] * o];
+      if (c[3] > 0.01) layers.push(c);
+      if (c[3] >= 0.99) {
+        from = { el: n };
+        return finish();
+      }
+    }
+    return finish();
+  };
+  // The widest line of the element's own text: a point on its text, inside its box.
+  const probePoint = (el) => {
+    let best = null;
+    for (const n of el.childNodes) {
+      if (n.nodeType !== 3 || !n.textContent.trim()) continue;
+      const rg = document.createRange();
+      rg.selectNodeContents(n);
+      for (const r of rg.getClientRects()) if (r.width >= 1 && r.height >= 1 && (!best || r.width * r.height > best.width * best.height)) best = r;
+    }
+    return best ? [best.left + best.width / 2, best.top + best.height / 2] : null;
+  };
+  const paintedRes = new Map();
+  const groups = new Map();
+  for (const it of pre) {
+    let target = sy0;
+    if (!it.fixed && it.box) {
+      const cy = (it.box.t + it.box.b) / 2 + sy0;
+      target = Math.min(maxY, Math.max(0, Math.round((cy - vhIn / 2) / (vhIn / 2)) * (vhIn / 2)));
+    }
+    if (!groups.has(target)) groups.set(target, []);
+    groups.get(target).push(it);
+  }
+  const hitAll = document.createElement("style");
+  hitAll.textContent = "*,*::before,*::after{pointer-events:auto!important}";
+  let painted = 0, covered = 0, viaChain = 0, probes = 0;
+  const why = {};
+  const miss = (k) => (why[k] = (why[k] || 0) + 1);
+  try {
+    (document.head || document.documentElement).appendChild(hitAll);
+    const order = [...groups.keys()].sort((a, b) => (a === sy0 ? -1 : b === sy0 ? 1 : a - b));
+    for (const y of order) {
+      if (Math.abs(scrollY - y) > 0.5) scrollTo({ top: y, left: sx0, behavior: "instant" });
+      const dy = scrollY - sy0;
+      for (const it of groups.get(y)) {
+        if (++probes > 3000) break;
+        const p = probePoint(it.el);
+        if (!p) {
+          miss("no text line");
+          continue;
+        }
+        const [x, yy] = p;
+        if (x < 0 || yy < 0 || x >= vwIn || yy >= vhIn) {
+          miss(it.fixed ? "fixed or sticky, off screen" : "not reachable by window scroll");
+          continue;
+        }
+        // The point must be inside the part of the box its overflow ancestors let through.
+        const cr = it.fixed ? it.cr : { left: it.cr.left, right: it.cr.right, top: it.cr.top - dy, bottom: it.cr.bottom - dy };
+        if (x < cr.left - 1 || x > cr.right + 1 || yy < cr.top - 1 || yy > cr.bottom + 1) {
+          miss("point clipped");
+          continue;
+        }
+        const res = paintedUnder(it.el, x, yy, it.box ? { w: it.box.r - it.box.l, h: it.box.b - it.box.t } : null);
+        if (res) paintedRes.set(it.el, res);
+        else miss("not hit at its point");
+        if (res && res.how === "transient") miss("under a fixed or sticky layer");
+      }
+    }
+  } catch {}
+  finally {
+    hitAll.remove();
+    if (Math.abs(scrollY - sy0) > 0.5 || Math.abs(scrollX - sx0) > 0.5) scrollTo({ top: sy0, left: sx0, behavior: "instant" });
+  }
+  const differs = [];
+  const copiesSeen = [];
+  const rgbS = (c) => `rgb(${c.slice(0, 3).map(Math.round).join(" ")})`;
+  for (const it of pre) {
+    const el = it.el;
     const s = style(el);
     const fg = rgba(s.color);
+    if (fg[3] <= 0) continue;
     const size = px(s.fontSize);
     const large = size >= 24 || (size >= 18.66 && +s.fontWeight >= 700);
-    const bg = effectiveBg(el);
+    const res = paintedRes.get(el);
+    if (it.copy && copiesSeen.length < 6) copiesSeen.push(`${label(el).slice(0, 40)}: ${res ? res.how : "not reached"}${res && res.bg ? ` ${rgbS(res.bg)}` : ""}`);
+    if (res && res.how === "covered") {
+      covered++;
+      continue;
+    }
+    let bg = null, fromTxt = "";
+    if (res && res.how === "painted") {
+      painted++;
+      bg = res.bg;
+      const chain = effectiveBg(el);
+      const fromEl = res.from && res.from.el;
+      const sibling = fromEl && !fromEl.contains(el);
+      if (res.from && (res.from.pseudo || sibling)) fromTxt = ` on ${rgbS(bg)} (${tagOfN(fromEl)}${res.from.pseudo || ""}${sibling ? ", a layer that is not an ancestor" : ""})`;
+      else if (it.copy) fromTxt = ` on ${rgbS(bg)} (${fromEl ? tagOfN(fromEl) : "page"})`;
+      if (chain && Math.max(...[0, 1, 2].map((i) => Math.abs(chain[i] - bg[i]))) > 24 && differs.length < 8)
+        differs.push(`${label(el).slice(0, 50)}: ancestors ${rgbS(chain)}, painted ${rgbS(bg)}${fromEl ? ` (${tagOfN(fromEl)}${res.from.pseudo || ""})` : ""}`);
+    } else if (!res || res.how !== "image") {
+      viaChain++;
+      bg = effectiveBg(el);
+    }
+    const fgA = [fg[0], fg[1], fg[2], fg[3] * opacityChain(el)];
     if (!bg) {
-      if (sampleTargets.length < 40 && ownText(el).length >= 2 && rgba(s.color)[3] > 0) {
-        const b = textBox(el);
-        if (b) {
-          el.setAttribute("data-pc-sample", String(sampleTargets.length));
-          const fixed = [el, ...ancestors(el)].some((n) => ["fixed", "sticky"].includes(style(n).position));
-          sampleTargets.push({ i: sampleTargets.length, x: b.l + scrollX, y: b.t + scrollY, w: b.r - b.l, h: b.b - b.t, fixed, fg: [fg[0], fg[1], fg[2], fg[3] * opacityChain(el)], large, label: label(el) });
-        }
+      if (sampleTargets.length < 40 && ownText(el).length >= 2 && it.box) {
+        const b = it.box;
+        el.setAttribute("data-pc-sample", String(sampleTargets.length));
+        sampleTargets.push({ i: sampleTargets.length, x: b.l + sx0, y: b.t + sy0, w: b.r - b.l, h: b.b - b.t, fixed: it.fixed, fg: fgA, large, label: label(el) + (it.copy ? " (aria-hidden copy)" : "") });
       }
       continue;
     }
-    const shownFg = over([fg[0], fg[1], fg[2], fg[3] * opacityChain(el)], bg);
+    const shownFg = over(fgA, bg);
     const need2 = large ? 3 : 4.5;
     const r = ratio(shownFg, bg);
-    if (r < need2 - 0.05) lowContrast.push(`${label(el)} ${r.toFixed(2)}:1`);
+    if (r < need2 - 0.05) lowContrast.push(`${label(el)}${it.copy ? " (aria-hidden copy, painted)" : ""} ${r.toFixed(2)}:1${fromTxt}${large ? " (large)" : ""}`);
   }
   if (lowContrast.length)
-    add("C06", "fail", `${lowContrast.length} text element(s) below contrast`, "Body text needs 4.5:1, large text 3:1.", lowContrast.slice(0, 6));
+    add("C06", "fail", `${lowContrast.length} text element(s) below contrast`, "Body text needs 4.5:1, large text 3:1. Measured against what is painted under the text (elementsFromPoint), so a sibling band, a positioned layer or a pseudo-element background counts.", lowContrast.slice(0, 6));
+  const contrastGround = { painted, ancestorChain: viaChain, covered, sampled: sampleTargets.length, ariaCopies: ariaCopies.length, copies: copiesSeen, chainWhy: why, differs };
 
   // C07 small text (labels exempt at 11–12px) and long lines.
   const monoRe = /mono|courier|menlo|consolas|monaco|jetbrains|fira code|sf mono|ui-monospace|monospace/i;
@@ -2162,6 +2413,130 @@ const DETECT = ({ phone, mode, owner, fontsOk, phrases, factsText }) => {
   const fontSrcs = fontFaces.map((r) => r.style.getPropertyValue("src"));
   signals.H15_selfHostedFonts = fontSrcs.length > 0 && fontSrcs.every((src) => !/https?:\/\/(?!127\.0\.0\.1|localhost)/.test(src) || src.includes(location.host));
 
+  // ---- round facts (--round, --round-dir): what a round of drafts must not share ----------------
+  const round = (() => {
+    const hexOf = (c) => "#" + c.slice(0, 3).map((v) => Math.round(v).toString(16).padStart(2, "0")).join("");
+    const lch = (c) => oklch(c).map((v, i) => +v.toFixed(i === 2 ? 1 : 3));
+    // The nav: the first visible nav in the first screen with 2+ items (else the header's links). The
+    // owner's name link is left out, so a home link does not make two menus differ.
+    const navs = [...document.querySelectorAll("nav,[role=navigation]")].filter(visible).filter(inFirst);
+    const itemsOf = (n) => [...n.querySelectorAll("a,button")].filter(visible).map((a) => (a.innerText || a.getAttribute("aria-label") || "").trim().replace(/\s+/g, " ")).filter((t) => t && t.length <= 40 && !nameish(t));
+    let navItems = [];
+    for (const n of navs) {
+      const it = itemsOf(n);
+      if (it.length >= 2) {
+        navItems = it;
+        break;
+      }
+    }
+    if (!navItems.length) {
+      const hd = [...document.querySelectorAll("header,[role=banner]")].filter(visible).find(inFirst);
+      if (hd) navItems = itemsOf(hd);
+    }
+    // The ground behind the hero: what is painted under the claim, else the ancestor ground (T35).
+    let heroGround = null, heroGroundFrom = ground.from;
+    if (hero) {
+      const it = pre.find((p) => (p.el === hero || hero.contains(p.el)) && paintedRes.get(p.el) && paintedRes.get(p.el).how === "painted");
+      if (it) {
+        heroGround = paintedRes.get(it.el).bg;
+        const f = paintedRes.get(it.el).from;
+        heroGroundFrom = `painted under the h1${f && f.el ? `: ${tagOfN(f.el)}${f.pseudo || ""}` : ""}`;
+      }
+    }
+    const gBg = heroGround || groundBg;
+    // The accent: the most-used chromatic colour (OKLCH C ≥ 0.06) outside [data-work] and media, weighed by
+    // painted area for backgrounds and ::before/::after marks, by glyph area for text and by length for
+    // borders and underlines. A colour that is the ground itself is left out; hues within ±12° pool.
+    const gL = oklch(gBg);
+    const uses = new Map();
+    const addUse = (c, w) => {
+      if (!c || c[3] < 0.5 || !(w > 0)) return;
+      const [L, C, H] = oklch(c);
+      if (C < 0.06) return;
+      if (Math.abs(L - gL[0]) < 0.03 && Math.abs(C - gL[1]) < 0.03) return;
+      const k = hexOf(c);
+      const u = uses.get(k) || { c, L, C, H, w: 0 };
+      u.w += w;
+      uses.set(k, u);
+    };
+    for (const el of renderedEls) {
+      if (el.closest("[data-work],picture,video,canvas,iframe") || el.matches("img")) continue;
+      const s = style(el);
+      const r = el.getBoundingClientRect();
+      const area = Math.min(r.width, vw) * Math.min(r.height, vh * 3);
+      addUse(rgba(s.backgroundColor), area * rgba(s.backgroundColor)[3]);
+      const t = ownText(el);
+      if (t) addUse(rgba(s.color), t.replace(/\s+/g, "").length * px(s.fontSize) ** 2 * 0.5);
+      for (const [side, len] of [["Top", r.width], ["Bottom", r.width], ["Left", r.height], ["Right", r.height]]) {
+        const bw = px(s[`border${side}Width`]);
+        if (bw > 0 && s[`border${side}Style`] !== "none") addUse(rgba(s[`border${side}Color`]), bw * len);
+      }
+      if (t && /underline/.test(s.textDecorationLine || "")) addUse(rgba(s.textDecorationColor), t.length * px(s.fontSize));
+      // A ::before/::after mark (an underline under the selected tab, a "now" line) at rest.
+      for (const pe of ["::before", "::after"]) {
+        const ps = getComputedStyle(el, pe);
+        if (!ps || ps.content === "none" || ps.content === "normal" || ps.display === "none" || ps.visibility === "hidden" || zeroScale(ps.transform) || parseFloat(ps.opacity) < 0.05) continue;
+        const c = rgba(ps.backgroundColor);
+        const w = px(ps.width), h = px(ps.height);
+        if (c[3] >= 0.5 && w > 0 && h > 0) addUse(c, Math.min(w, vw) * Math.min(h, vh * 3) * c[3]);
+      }
+    }
+    const list = [...uses.values()];
+    const dh = (a, b) => Math.min(Math.abs(a - b), 360 - Math.abs(a - b));
+    let accent = null, best = 0;
+    for (const u of list) {
+      const pooled = list.filter((v) => dh(v.H, u.H) <= 12).reduce((m, v) => m + v.w, 0);
+      if (pooled > best || (pooled === best && accent && u.w > accent.w)) {
+        best = pooled;
+        accent = u;
+      }
+    }
+    // Section order: top-level blocks below the hero (section, [role=region], main > article, footer) in
+    // document order, each labelled by aria-label, aria-labelledby or its first heading; a block with media
+    // is a work block and an unlabelled footer with a mailto link is contact. With fewer than three
+    // labelled blocks, the h2 texts are used.
+    const skip = "nav,header,dialog,[role=dialog],[data-work],[aria-hidden='true']";
+    const secSel = "section,[role=region],main > article,footer,[role=contentinfo]";
+    const secs = [...document.querySelectorAll(secSel)].filter((b) => visible(b) && !b.closest(skip) && !(b.parentElement && b.parentElement.closest(secSel)) && !(hero && b.contains(hero)));
+    const secItem = (b) => {
+      const lb = b.getAttribute("aria-labelledby");
+      const byId = lb ? lb.split(/\s+/).map((id) => document.getElementById(id)?.innerText || "").join(" ").trim() : "";
+      const h = [...b.querySelectorAll("h2,h3,h1")].find((x) => visible(x) && !x.closest("[data-work]"));
+      const lab = (b.getAttribute("aria-label") || byId || (h ? h.innerText : "") || "").trim().replace(/\s+/g, " ").slice(0, 48);
+      const mail = !!b.querySelector("a[href^='mailto:' i]");
+      return { label: lab || (b.matches("footer,[role=contentinfo]") && mail ? "(footer with email)" : ""), media: !!b.querySelector("img,picture,video,canvas,iframe,[data-work]"), mail };
+    };
+    const items = secs.map(secItem).filter((x) => x.label);
+    const h2s = [...document.querySelectorAll("h2")].filter((h) => visible(h) && !h.closest("[data-work],dialog,[role=dialog]")).map((h) => ({ label: (h.innerText || "").trim().replace(/\s+/g, " ").slice(0, 48), media: false, mail: false })).filter((x) => x.label);
+    const secPick = items.length >= 3 ? { from: "sections", items } : { from: "h2", items: h2s };
+    const sections = { from: secPick.from, list: secPick.items.map((x) => x.label), hints: secPick.items.map((x) => (x.media ? "media" : "") + (x.mail ? (x.media ? ",mail" : "mail") : "")) };
+    // The display face: the rendered family, and the file its @font-face loads (an alias such as
+    // "PB Display" is named by its file, BigShouldersDisplay-Latin.woff2 → Big Shoulders Display).
+    const largestFamR = largestFace ? realFam(largestFace.rendered) : "";
+    const fileFace = (() => {
+      if (!largestFamR) return "";
+      for (const src of cssSrcs.get(largestFace.rendered.toLowerCase()) || []) {
+        const u = /url\(\s*["']?([^"')]+)["']?\s*\)/i.exec(src);
+        if (!u) continue;
+        let b = decodeURIComponent(u[1].split(/[?#]/)[0].split("/").pop()).replace(/\.[a-z0-9]+$/i, "");
+        b = b.replace(/[-_.](latin|latin-ext|subset|regular|variable|vf|var|roman|normal|wght|opsz|[0-9a-f]{6,}|\d{3})\b/gi, "").replace(/\[[^\]]*\]/g, "");
+        b = b.replace(/[-_]+/g, " ").replace(/([a-z])([A-Z])/g, "$1 $2").replace(/\s+/g, " ").trim();
+        if (b) return b;
+      }
+      return "";
+    })();
+    return {
+      h1: heroText.replace(/\s+/g, " ").trim(),
+      owner: ownerName || null,
+      nav: navItems.slice(0, 10),
+      display: largestFamR ? { family: largestFamR, file: fileFace || null, declared: largestFace.declared, size: Math.round(sizeOf(largest)), text: (largest.innerText || "").trim().replace(/\s+/g, " ").slice(0, 60) } : null,
+      ground: { rgb: rgbS(gBg), hex: hexOf(gBg), oklch: lch(gBg), from: heroGroundFrom },
+      accent: accent ? { rgb: rgbS(accent.c), hex: hexOf(accent.c), oklch: [+accent.L.toFixed(3), +accent.C.toFixed(3), +accent.H.toFixed(1)], share: +(best / Math.max(1, list.reduce((m, v) => m + v.w, 0))).toFixed(2) } : null,
+      colours: list.sort((x, y) => y.w - x.w).slice(0, 5).map((u) => `${hexOf(u.c)} h${Math.round(u.H)} ${Math.round((u.w / Math.max(1, list.reduce((m, v) => m + v.w, 0))) * 100)}%`),
+      sections,
+    };
+  })();
+
   const pageAllow = {};
   for (const m of document.querySelectorAll('meta[name="portfolio-check"]')) {
     for (const part of (m.getAttribute("content") || "").split(";")) {
@@ -2175,7 +2550,9 @@ const DETECT = ({ phone, mode, owner, fontsOk, phrases, factsText }) => {
     signals,
     pageAllow,
     sampleTargets,
+    round,
     facts: {
+      contrastGround,
       title: document.title,
       owner: ownerName || null,
       hero: hero ? { text: heroText.replace(/\s+/g, " ").slice(0, 140), font: famLabel(heroFam) + (renderedFace(hero).notLoaded ? ` (not loaded; ${renderedFace(hero).rendered} shown)` : ""), size: sizeOf(hero) } : null,
@@ -2254,6 +2631,147 @@ const FRAMES = (ms) =>
     };
     requestAnimationFrame(tick);
   });
+
+// Dialog openers (D01, D02): `[data-enlarge]`, a button with aria-haspopup=dialog or aria-controls /
+// commandfor / popovertarget pointing at a dialog, or a button whose aria-label starts with "Enlarge" or
+// "Open". Marks each visible one data-pc-opener="<i>" in document order.
+const OPENERS = () => {
+  const isDialog = (n) => !!n && n.matches("dialog,[role=dialog],[role=alertdialog],[aria-modal=true]");
+  const points = (b, attr) => (b.getAttribute(attr) || "").split(/\s+/).filter(Boolean).some((id) => isDialog(document.getElementById(id)));
+  const why = (b) =>
+    b.matches("[data-enlarge]")
+      ? "data-enlarge"
+      : /^dialog$/i.test(b.getAttribute("aria-haspopup") || "")
+        ? "aria-haspopup=dialog"
+        : points(b, "aria-controls")
+          ? "aria-controls → dialog"
+          : points(b, "commandfor") || points(b, "popovertarget")
+            ? "commandfor → dialog"
+            : b.matches("button,[role=button]") && /^\s*(enlarge|open)\b/i.test(b.getAttribute("aria-label") || "")
+              ? "aria-label"
+              : null;
+  const shown = (el) => {
+    const r = el.getBoundingClientRect();
+    const s = getComputedStyle(el);
+    return r.width >= 4 && r.height >= 4 && s.visibility !== "hidden" && s.display !== "none" && !el.closest("[hidden],[inert],[aria-hidden='true'],dialog,[role=dialog]");
+  };
+  const list = [...document.querySelectorAll("button,[role=button],[data-enlarge]")].filter((b) => !b.disabled && why(b) && shown(b));
+  return list.slice(0, 12).map((b, i) => {
+    b.setAttribute("data-pc-opener", String(i));
+    const t = (b.getAttribute("aria-label") || b.innerText || "").trim().replace(/\s+/g, " ").slice(0, 60);
+    return { i, why: why(b), label: b.nodeName.toLowerCase() + (t ? ` "${t}"` : "") };
+  });
+};
+// The dialog state around the opener marked data-pc-opener-active. "before" marks dialogs already shown
+// (a cookie banner) and the opener's scroll containers; later phases report the dialog that appeared,
+// a wheel point on its backdrop (else its centre), the scroll positions and where focus is.
+const DIALOG_STATE = (phase) => {
+  const desc = (el) => (el ? el.nodeName.toLowerCase() + (typeof el.className === "string" && el.className.trim() ? "." + el.className.trim().split(/\s+/)[0] : "") + ((el.getAttribute && el.getAttribute("aria-label")) ? ` "${el.getAttribute("aria-label").slice(0, 50)}"` : "") : "none");
+  const shown = (d) => {
+    const r = d.getBoundingClientRect();
+    const s = getComputedStyle(d);
+    return r.width > 20 && r.height > 20 && s.display !== "none" && s.visibility !== "hidden" && parseFloat(s.opacity) > 0.05 && !d.closest("[hidden],[inert]");
+  };
+  const ds = [...document.querySelectorAll("dialog[open],[role=dialog],[role=alertdialog],[aria-modal=true]")].filter(shown);
+  const op = document.querySelector("[data-pc-opener-active]");
+  if (phase === "before") {
+    ds.forEach((d) => d.setAttribute("data-pc-pre-dialog", ""));
+    for (let n = op && op.parentElement; n && n !== document.body && n !== document.documentElement; n = n.parentElement) {
+      const s = getComputedStyle(n);
+      if (/(auto|scroll)/.test(s.overflowY) && n.scrollHeight > n.clientHeight + 4) n.setAttribute("data-pc-scroller", "");
+    }
+  }
+  const d = ds.filter((x) => !x.hasAttribute("data-pc-pre-dialog"))[0] || null;
+  let point = null, modal = false;
+  if (d) {
+    const r = d.getBoundingClientRect();
+    const W = innerWidth, H = innerHeight;
+    point =
+      r.left > 40 ? [Math.round(r.left / 2), Math.round(H / 2)] :
+      r.top > 40 ? [Math.round(W / 2), Math.round(r.top / 2)] :
+      W - r.right > 40 ? [Math.round((r.right + W) / 2), Math.round(H / 2)] :
+      H - r.bottom > 40 ? [Math.round(W / 2), Math.round((r.bottom + H) / 2)] :
+      [Math.round(W / 2), Math.round(H / 2)];
+    try {
+      modal = d.matches(":modal");
+    } catch {}
+    modal = modal || d.getAttribute("aria-modal") === "true";
+  }
+  const a = document.activeElement;
+  return {
+    dialog: d ? desc(d) : null,
+    modal,
+    point,
+    scroll: [scrollY, ...[...document.querySelectorAll("[data-pc-scroller]")].map((n) => n.scrollTop)],
+    focusOnOpener: !!(op && a && (a === op || op.contains(a))),
+    active: a && a !== document.body ? desc(a) : "body",
+    openerFocusable: !!op && op.tabIndex >= 0,
+    url: location.href,
+  };
+};
+
+// Dialog test: on a fresh load, click the first opener (up to three are tried until one opens a dialog),
+// wheel 600px over the backdrop, then press Escape.
+async function dialogPass(browser, width, height, phone) {
+  const ctx = await browser.newContext({ viewport: { width, height }, deviceScaleFactor: phone ? 2 : 1, isMobile: phone, hasTouch: phone, reducedMotion: "no-preference", colorScheme: scheme });
+  const out = { tried: [], tested: null };
+  try {
+    for (let k = 0; k < 3; k++) {
+      const page = await ctx.newPage();
+      const rec = { k };
+      try {
+        await page.goto(url, { waitUntil: "domcontentloaded", timeout: 45000 });
+        await page.waitForLoadState("networkidle", { timeout: 15000 }).catch(() => {});
+        await page.evaluate(() => document.fonts && document.fonts.ready).catch(() => {});
+        await page.waitForTimeout(800);
+        const list = await page.evaluate(OPENERS);
+        if (k >= list.length) break;
+        Object.assign(rec, { opener: list[k].label, why: list[k].why });
+        await page.evaluate((i) => document.querySelector(`[data-pc-opener="${i}"]`).setAttribute("data-pc-opener-active", ""), k);
+        const loc = page.locator("[data-pc-opener-active]");
+        await loc.scrollIntoViewIfNeeded({ timeout: 3000 }).catch(() => {});
+        await page.waitForTimeout(500);
+        const s0 = await page.evaluate(DIALOG_STATE, "before");
+        await loc.click({ timeout: 4000 }).catch(() => loc.click({ force: true, timeout: 2000 }));
+        await page.waitForTimeout(700);
+        const s1 = await page.evaluate(DIALOG_STATE, "open");
+        if (s1.url !== s0.url) {
+          rec.result = "the click navigated";
+          out.tried.push(rec);
+          continue;
+        }
+        if (!s1.dialog) {
+          rec.result = "no dialog opened";
+          out.tried.push(rec);
+          continue;
+        }
+        Object.assign(rec, { dialog: s1.dialog, modal: s1.modal, wheelAt: s1.point });
+        await page.mouse.move(s1.point[0], s1.point[1]);
+        await page.mouse.wheel(0, 600);
+        await page.waitForTimeout(700);
+        const s2 = await page.evaluate(DIALOG_STATE, "wheel");
+        rec.scrollOpen = s1.scroll[0];
+        rec.scrollAfterWheel = s2.scroll[0];
+        rec.moved = Math.round(Math.max(0, ...s2.scroll.map((v, i) => Math.abs(v - (s1.scroll[i] ?? v)))));
+        await page.keyboard.press("Escape");
+        await page.waitForTimeout(700);
+        const s3 = await page.evaluate(DIALOG_STATE, "closed");
+        Object.assign(rec, { closed: !s3.dialog, focusReturned: s3.focusOnOpener, focus: s3.active, openerFocusable: s3.openerFocusable, scrollBefore: Math.round(s0.scroll[0]), scrollAfterClose: Math.round(s3.scroll[0]), result: "tested" });
+        out.tried.push(rec);
+        out.tested = rec;
+        break;
+      } catch (e) {
+        rec.error = String(e.message || e).split("\n")[0].slice(0, 160);
+        out.tried.push(rec);
+      } finally {
+        await page.close().catch(() => {});
+      }
+    }
+  } finally {
+    await ctx.close().catch(() => {});
+  }
+  return out;
+}
 
 // Contrast helpers in Node, for the sampled pass.
 const lumN = ([r, g, b]) => {
@@ -2546,6 +3064,8 @@ async function run() {
     for (const f of det.findings) push(f);
     vp.facts = det.facts;
     vp.signals = det.signals;
+    if (!phone) vp.round = det.round;
+    const openers = await page.evaluate(OPENERS).catch(() => []);
 
     // C06b: contrast over images and gradients, sampled from the screenshot.
     const sampled = await sampleContrast(page, decoder, det.sampleTargets, height);
@@ -2787,6 +3307,21 @@ async function run() {
     }
     await context.close();
 
+    // Dialog test (D01, D02) on a fresh load, when the page has a dialog opener.
+    if (openers.length) {
+      vp.dialog = await dialogPass(browser, width, height, phone);
+      const d = vp.dialog.tested;
+      const where = d ? [`${d.opener} (${d.why}) → ${d.dialog}${d.modal ? " (modal)" : ""}`] : null;
+      if (d && d.moved > 2)
+        push({ id: "D01", severity: "warn", title: `The page scrolls behind the open dialog (${d.moved}px after a 600px wheel)`, detail: `scrollY ${Math.round(d.scrollOpen)} → ${Math.round(d.scrollAfterWheel)} with the dialog open, so closing it lands the visitor elsewhere. Lock the page while it is open (overflow: hidden on the root, overscroll-behavior: contain on the dialog) and keep the scroll position on close.`, where });
+      else if (d && Math.abs(d.scrollAfterClose - d.scrollBefore) > 40)
+        push({ id: "D01", severity: "warn", title: `Closing the dialog moves the page (${d.scrollBefore} → ${d.scrollAfterClose}px)`, detail: "The scroll lock does not restore the position on close. Return the visitor where they were.", where });
+      if (d && !d.closed)
+        push({ id: "D02", severity: "fail", title: "Escape does not close the dialog", detail: "A dialog closes on Escape and returns focus to the button that opened it (a native <dialog> opened with showModal() does both).", where });
+      else if (d && !d.focusReturned)
+        push({ id: "D02", severity: "fail", title: "Focus does not return to the opener after Escape", detail: `Focus is on ${d.focus} after the dialog closed.${d.openerFocusable ? "" : " The opener is not focusable: make it a <button>."} Return focus to the opener so a keyboard visitor keeps their place.`, where });
+    }
+
     // --interact: the action re-run on a fresh load for each frame time, frozen at that time.
     if (interact) vp.interaction = await interactPass(browser, width, height, phone, tag);
 
@@ -2895,6 +3430,18 @@ function toMarkdown(r) {
     lines.push(`- CLS ${v.metrics.cls} · LCP ${v.metrics.lcp ? v.metrics.lcp.t + "ms " + (v.metrics.lcp.node || "") : "n/a"} · long frames ${v.metrics.longFrames} (max ${v.metrics.longFrameMax}ms)`);
     lines.push(`- Frames (headless, indicative): intro p95 ${v.metrics.introFrames.p95}ms · scroll p95 ${v.metrics.scrollFrames.p95}ms, ${v.metrics.scrollFrames.over25} over 25ms (blank-page control ${v.metrics.scrollFrames.controlP95 ?? "n/a"}ms) · reduced-motion rAF ${v.metrics.reducedMotionRafPerSecond}/s`);
     if (f.sampledContrast && f.sampledContrast.length) lines.push(`- Sampled contrast (text over images/gradients): ${f.sampledContrast.slice(0, 4).join(" · ")}`);
+    if (f.contrastGround) {
+      const g = f.contrastGround;
+      lines.push(`- Contrast grounds (C06): ${g.painted} painted (elementsFromPoint), ${g.ancestorChain} by ancestor chain${g.chainWhy && Object.keys(g.chainWhy).length ? ` (${Object.entries(g.chainWhy).map(([k, n]) => `${k} ${n}`).join(", ")})` : ""}, ${g.covered} covered and skipped, ${g.sampled} sampled${g.ariaCopies ? `, ${g.ariaCopies} aria-hidden painted copies` : ""}${g.differs.length ? ` · painted ≠ ancestors: ${g.differs.slice(0, 3).join("; ")}` : ""}`);
+    }
+    if (v.dialog) {
+      const d = v.dialog.tested;
+      lines.push(
+        d
+          ? `- Dialog test: ${d.opener} (${d.why}) → ${d.dialog}${d.modal ? " (modal)" : ""}; a 600px wheel at ${d.wheelAt.join(",")} moved the page ${d.moved}px; Escape ${d.closed ? "closed it" : "did not close it"}; focus ${d.focusReturned ? "returned to the opener" : `on ${d.focus}`}`
+          : `- Dialog test: no dialog opened (${v.dialog.tried.map((t) => `${t.opener || "?"}: ${t.result || t.error || "not found"}`).join("; ") || "opener gone on reload"})`,
+      );
+    }
     if (v.signals) {
       const sg = Object.entries(v.signals);
       lines.push(`- Human-made signals ${sg.filter(([, x]) => x).length}/${sg.length}: ${sg.map(([k, x]) => `${x ? "✓" : "·"} ${k.replace(/^H\d+_/, "")}`).join("  ")}`);
@@ -2915,6 +3462,207 @@ function toMarkdown(r) {
   return lines.join("\n");
 }
 
+// ---------------------------------------------------------------------------
+// --round / --round-dir: the round table (reference/directions.md). One row per draft at 1440×900:
+// the claim's shape, the nav, the display family, the ground, the accent and the section order, with
+// R01 for any pair of drafts that share one.
+const STOP = new Set("a an the and or but of for from to in on at by with that who which whose what when where while as is are was were be been being it its this these those there their them they he she his her him i me my we our you your so than then also just only very into onto over under across about after before since until via per each every all any both more most other some such no not nor can will would should could do does did done has have had use uses used".split(" "));
+const ROUND_VERBS = new Set("builds build built makes make made designs design designed ships ship shipped writes write wrote develops develop developed creates create created crafts craft crafted engineers codes turns turn helps help brings puts rebuilds rebuild rebuilt runs leads lead works maintains keeps is has".split(" "));
+const ROUND_KEEP = new Set([..."the a an that who which for from with in on at by to of since into across so than where when while".split(" "), ...ROUND_VERBS, ..."apps app websites website sites site software products product tools interfaces platforms platform systems games screens use uses need needs".split(" ")]);
+const roundTokens = (s) => ((s || "").normalize("NFKD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[’']s\b/g, "").match(/[\p{L}\p{N}]+/gu) || []);
+const roundStem = (w) => (w.length > 3 && /s$/.test(w) && !/ss$/.test(w) ? w.slice(0, -1) : w);
+function roundShape(h1, ownerName) {
+  const toks = roundTokens(h1);
+  const own = roundTokens(ownerName);
+  const content = new Set(toks.filter((t) => !STOP.has(t) && !own.includes(t)).map(roundStem));
+  let i = 0;
+  while (i < toks.length && own.includes(toks[i])) i++;
+  const verb = i > 0 && i < toks.length ? toks[i] : toks.find((t) => ROUND_VERBS.has(t)) || "";
+  const out = [];
+  const ph = ["<x>", "<y>", "<z>", "<w>", "<v>", "<u>"];
+  let n = 0;
+  for (const t of toks) {
+    if (own.includes(t)) {
+      if (out.at(-1) !== "<Name>") out.push("<Name>");
+    } else if (ROUND_KEEP.has(t) || t === verb) out.push(t);
+    else if (!ph.includes(out.at(-1))) out.push(ph[Math.min(n++, ph.length - 1)]);
+  }
+  return { content, first3: toks.slice(0, 3).join(" "), verb, skeleton: out.join(" ") };
+}
+const famKey = (f) => (f || "").toLowerCase().replace(/["']/g, "").replace(/\b(variable|vf|web|display|text|pro|std)\b/g, "").replace(/[\d\s]+/g, " ").trim();
+const sectionKind = (t, hint) => {
+  const s = (t || "").toLowerCase();
+  if (/\b(contact|email|e-mail|write to|get in touch|reach|say hello|mail)\b|footer with email/.test(s)) return "contact";
+  if (/\b(about|bio|profile|who)\b/.test(s)) return "about";
+  if (/\b(index|all work|all projects|everything|archive|more work|other work|the rest|list)\b|^more\b/.test(s)) return "index";
+  if (/\b(writing|notes|blog|articles|posts|essays)\b/.test(s)) return "writing";
+  if (/\b(work|projects?|apps?|products?|case|selected|shipped|built|clients?)\b/.test(s) || /media/.test(hint || "")) return "work";
+  return s.split(/\s+/).slice(0, 3).join(" ");
+};
+const hueDiff = (a, b) => Math.min(Math.abs(a - b), 360 - Math.abs(a - b));
+
+function compareRound(drafts) {
+  const rows = drafts.map((d) => {
+    if (!d.round) return { ...d };
+    const r = d.round;
+    const shape = roundShape(r.h1, r.owner || owner);
+    const kinds = [];
+    // An About block that holds the email is also the contact block.
+    (r.sections?.list || []).forEach((t, i) => {
+      const hint = (r.sections.hints && r.sections.hints[i]) || "";
+      const k = sectionKind(t, hint);
+      for (const x of k === "about" && /mail/.test(hint) ? ["about", "contact"] : [k]) if (kinds.at(-1) !== x) kinds.push(x);
+    });
+    return { ...d, shape, nav: (r.nav || []).map((x) => x.toLowerCase()).join(" · "), fam: famKey(r.display?.file || r.display?.family), kinds };
+  });
+  const ok = rows.filter((x) => x.round);
+  const pairs = [];
+  for (let i = 0; i < ok.length; i++)
+    for (let j = i + 1; j < ok.length; j++) {
+      const a = ok[i], b = ok[j];
+      const why = [];
+      const inter = [...a.shape.content].filter((t) => b.shape.content.has(t)).length;
+      const uni = new Set([...a.shape.content, ...b.shape.content]).size;
+      const jac = uni ? inter / uni : 0;
+      const claim = [];
+      if (jac >= 0.5) claim.push(`Jaccard ${jac.toFixed(2)}`);
+      if (a.shape.first3 && a.shape.first3 === b.shape.first3) claim.push(`first three words "${a.shape.first3}"`);
+      if (a.shape.skeleton && a.shape.skeleton === b.shape.skeleton) claim.push("same skeleton");
+      if (claim.length) why.push({ dim: "claim", text: `claim shape (${claim.join(", ")}${a.shape.verb && a.shape.verb === b.shape.verb ? `, verb "${a.shape.verb}"` : ""})` });
+      if (a.nav && a.nav === b.nav) why.push({ dim: "nav", text: `nav "${a.nav}"` });
+      const na = new Set(a.nav ? a.nav.split(" · ") : []), nb = new Set(b.nav ? b.nav.split(" · ") : []);
+      const navShared = [...na].filter((x) => nb.has(x)).length;
+      const nearNav = a.nav !== b.nav && navShared >= 3 && navShared / new Set([...na, ...nb]).size >= 0.6 ? `${navShared} of ${Math.max(na.size, nb.size)} items` : null;
+      if (a.fam && a.fam === b.fam) why.push({ dim: "family", text: `display family ${a.round.display.file || a.round.display.family}${a.round.display.family !== b.round.display.family ? ` (as ${a.round.display.family} and ${b.round.display.family})` : ""}` });
+      const ga = a.round.ground?.oklch, gb = b.round.ground?.oklch;
+      if (ga && gb) {
+        const dL = Math.abs(ga[0] - gb[0]);
+        const dh = ga[1] < 0.008 || gb[1] < 0.008 ? 0 : hueDiff(ga[2], gb[2]);
+        if (dL < 0.03 && dh < 20) why.push({ dim: "ground", text: `ground (ΔL ${dL.toFixed(3)}, Δhue ${Math.round(dh)}°)` });
+      }
+      const aa = a.round.accent?.oklch, ab = b.round.accent?.oklch;
+      if (aa && ab && hueDiff(aa[2], ab[2]) <= 15) why.push({ dim: "accent", text: `accent hue (${Math.round(aa[2])}° / ${Math.round(ab[2])}°)` });
+      if (a.kinds.length >= 2 && a.kinds.join(">") === b.kinds.join(">")) why.push({ dim: "sections", text: `section order ${a.kinds.join(" → ")}` });
+      pairs.push({ a: a.name, b: b.name, jac: +jac.toFixed(2), why, nearNav });
+    }
+  return { rows, pairs };
+}
+
+function roundMarkdown(res, source) {
+  const esc = (t) => String(t ?? "").replace(/\|/g, "/").replace(/\n/g, " ");
+  const { rows, pairs } = res;
+  const ok = rows.filter((r) => r.round);
+  const L = ["# Round table", "", `Run: ${new Date().toISOString()} · ${source} · ${ok.length} draft(s) at 1440×900${owner ? ` · owner "${owner}"` : ""}`, ""];
+  L.push("| Draft | H1 shape | First 3 words · verb | Nav | Display family | Ground (OKLCH L C h) | Accent (OKLCH) | Sections | Matches |", "|---|---|---|---|---|---|---|---|---|");
+  for (const r of rows) {
+    if (!r.round) {
+      L.push(`| ${esc(r.name)} | ${esc(r.error || "no data")} | | | | | | | |`);
+      continue;
+    }
+    const g = r.round.ground, ac = r.round.accent;
+    const m = pairs
+      .filter((p) => (p.a === r.name || p.b === r.name) && p.why.length)
+      .map((p) => `${p.a === r.name ? p.b : p.a}: ${p.why.map((w) => w.dim).join(", ")}`);
+    L.push(
+      `| ${esc(r.name)} | ${esc(r.shape.skeleton)} | ${esc(r.shape.first3)} · ${esc(r.shape.verb)} | ${esc(r.nav || "—")} | ${esc(r.round.display ? `${r.round.display.family}${r.round.display.file && famKey(r.round.display.file) !== famKey(r.round.display.family) ? ` (${r.round.display.file})` : ""} ${r.round.display.size}px` : "—")} | ${g ? `${g.hex} ${g.oklch[0].toFixed(2)} ${g.oklch[1].toFixed(3)} ${Math.round(g.oklch[2])}°` : "—"} | ${ac ? `${ac.hex} ${ac.oklch[0].toFixed(2)} ${ac.oklch[1].toFixed(2)} ${Math.round(ac.oklch[2])}°` : "—"} | ${esc(r.kinds.join(" → ") || "—")} | ${esc(m.join("; ") || "none")} |`,
+    );
+  }
+  const hits = pairs.filter((p) => p.why.length);
+  L.push("", `## R01 (△ warnings): ${hits.length} of ${pairs.length} pair(s) share something`, "");
+  if (!hits.length) L.push("No two drafts share a claim shape, nav, display family, ground, accent or section order.");
+  for (const p of hits) L.push(`- △ R01 ${p.a} ~ ${p.b}: ${p.why.map((w) => w.text).join("; ")}`);
+  const near = pairs.filter((p) => p.nearNav);
+  if (near.length) L.push("", `Near-identical navs (info, not R01): ${near.map((p) => `${p.a} ~ ${p.b} (${p.nearNav} shared)`).join("; ")}.`);
+  if (ok.length > 2) {
+    const dims = ["claim", "nav", "family", "ground", "accent", "sections"];
+    const all = dims.filter((d) => pairs.length && pairs.every((p) => p.why.some((w) => w.dim === d)));
+    const counts = dims.map((d) => `${d} ${pairs.filter((p) => p.why.some((w) => w.dim === d)).length}/${pairs.length}`);
+    L.push("", `Pairs sharing each dimension: ${counts.join(" · ")}${all.length ? `. Shared by every pair: ${all.join(", ")}.` : "."}`);
+  }
+  L.push("", "## Per draft", "");
+  for (const r of ok) {
+    L.push(`- **${r.name}** (${r.url}): h1 "${r.round.h1}" · nav ${r.round.nav.length ? r.round.nav.join(" · ") : "none found"} · display ${r.round.display ? `${r.round.display.family}${r.round.display.file ? ` (file ${r.round.display.file})` : ""} ${r.round.display.size}px on "${r.round.display.text}"` : "n/a"} · ground ${r.round.ground.rgb} (${r.round.ground.from}) · accent ${r.round.accent ? `${r.round.accent.rgb}, ${Math.round(r.round.accent.share * 100)}% of chromatic use${r.round.colours && r.round.colours.length > 1 ? ` (colours: ${r.round.colours.join(", ")})` : ""}` : "none (no colour with OKLCH C ≥ 0.06)"} · sections (${r.round.sections.from}) ${r.round.sections.list.map((x, i) => `${x}${r.round.sections.hints && r.round.sections.hints[i] ? ` [${r.round.sections.hints[i]}]` : ""}`).join(" → ") || "none"}`);
+  }
+  L.push(
+    "",
+    "Rules: R01 warns when two drafts share the claim shape (word Jaccard ≥ 0.5 on the h1 with stop words and the owner's name removed, the same first three words, or the same skeleton), the nav string (the owner's name link left out), the display family of the largest text, the ground behind the hero (OKLCH ΔL < 0.03 and Δhue < 20°; hue ignored under C 0.008), the accent hue (± 15°; the most-used colour with C ≥ 0.06 outside `[data-work]`), or the section order (section labels or h2s mapped to work / index / about / contact / writing). Fill the round table in `reference/directions.md` before building so no two cells in a column match.",
+    "",
+  );
+  return L.join("\n");
+}
+
+async function runRound() {
+  const drafts = [];
+  const slug = (u) => {
+    const path = u.replace(/^https?:\/\/[^/]+/, "").replace(/[?#].*$/, "");
+    const segs = path.split("/").filter(Boolean);
+    if (segs[0] === "drafts" && segs.length > 1) segs.shift();
+    return segs.join("-").replace(/[^a-z0-9-]+/gi, "-") || "home";
+  };
+  let source;
+  if (roundUrls.length) {
+    source = "loaded from URLs";
+    const browser = await chromium.launch({ executablePath, args: ["--disable-dev-shm-usage", "--enable-gpu-rasterization"] });
+    try {
+      for (const u of roundUrls) {
+        let nm = slug(u);
+        while (drafts.some((d) => d.name === nm)) nm += "-2";
+        const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1, reducedMotion: "no-preference", colorScheme: scheme });
+        const page = await ctx.newPage();
+        try {
+          await page.addInitScript(INIT);
+          await page.goto(u, { waitUntil: "domcontentloaded", timeout: 45000 });
+          await page.waitForLoadState("networkidle", { timeout: 15000 }).catch(() => {});
+          await page.evaluate(() => document.fonts && document.fonts.ready).catch(() => {});
+          await page.waitForTimeout(1500);
+          const det = await page.evaluate(DETECT, { phone: false, mode, owner, fontsOk, phrases, factsText });
+          await page.screenshot({ path: join(outDir, `${nm}.png`) });
+          drafts.push({ name: nm, url: u, round: det.round });
+        } catch (e) {
+          drafts.push({ name: nm, url: u, error: String(e.message || e).split("\n")[0].slice(0, 160) });
+        }
+        await ctx.close().catch(() => {});
+      }
+    } finally {
+      await browser.close();
+    }
+  } else {
+    const dir = resolve(roundDir);
+    source = `report.json files in ${dir}`;
+    const files = [join(dir, "report.json"), ...(existsSync(dir) ? readdirSync(dir, { withFileTypes: true }).filter((d) => d.isDirectory()).map((d) => join(dir, d.name, "report.json")) : [])].filter((f) => existsSync(f));
+    if (!files.length) {
+      console.error(`--round-dir: no report.json in ${dir} or its subfolders`);
+      process.exit(2);
+    }
+    for (const f of files) {
+      try {
+        const r = JSON.parse(readFileSync(f, "utf8"));
+        const vp = (r.viewports || []).find((v) => v.size === "1440x900") || (r.viewports || []).find((v) => !v.phone);
+        let nm = r.url ? slug(r.url) : r.name;
+        while (drafts.some((d) => d.name === nm)) nm += "-2";
+        drafts.push({ name: nm, url: r.url, round: vp && vp.round ? vp.round : null, error: vp && vp.round ? null : `no round facts in ${f} (re-run it with this checker)` });
+      } catch (e) {
+        drafts.push({ name: f, url: "", error: `unreadable: ${String(e.message || e).slice(0, 80)}` });
+      }
+    }
+  }
+  const res = compareRound(drafts);
+  const md = roundMarkdown(res, source);
+  writeFileSync(join(outDir, "round.md"), md);
+  writeFileSync(join(outDir, "round.json"), JSON.stringify({ at: new Date().toISOString(), source, drafts: res.rows.map((r) => ({ name: r.name, url: r.url, error: r.error || null, round: r.round || null, shape: r.shape ? { ...r.shape, content: [...r.shape.content] } : null, kinds: r.kinds || null })), pairs: res.pairs }, null, 2));
+  if (asJson) console.log(JSON.stringify(res.pairs, null, 2));
+  else console.log(md);
+  return res;
+}
+
+if (roundMode)
+  runRound()
+    .then(() => process.exit(0))
+    .catch((e) => {
+      console.error(e);
+      process.exit(2);
+    });
+else
 run()
   .then((r) => {
     writeFileSync(join(outDir, "report.json"), JSON.stringify(r, null, 2));
