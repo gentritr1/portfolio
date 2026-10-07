@@ -68,6 +68,8 @@ Reviews: `loop-12/REVIEW.md` (first), `loop-12/DEVIL.md` (devil's advocate), `lo
 
 ## Next
 
-- Done: LENTICULAR's page-wide lens (one angle from a Web / Phone switch or any print turns every section) reached a 9 on hook; its release bug was fixed and re-tested (gesture test 20/20), and it gained a dark theme (owner decision). Before it could replace the home (REVIEW-3): a real-phone test, the home's proof (Design System v2 and Incentiv as more than index rows), and a phone face for the care platform.
+- Done: LENTICULAR's page-wide lens (one angle from a Web / Phone switch or any print turns every section) reached a 9 on hook; its release bug was fixed and re-tested (gesture test 20/20), and it gained a dark theme (owner decision).
+- Done (2026-10-07): LENTICULAR carries the home's proof. Design System v2 and Incentiv are full sections whose prints turn with the lens. Design System v2 reads as the team's work: what it does and how every change gets in (guides, Storybook, automatic checks, a person on the team approves), with no line about one person's part (owner decision, now in `CONTENT.md` §6b, the live case and skill v1.3.1). Checker 0 fails, 0 warnings in light and dark.
+- Before LENTICULAR could replace the home (REVIEW-3): a real-phone test, and a phone face for the care platform (no capture exists).
 - Run the next round with the v1.3 process: a round table, a card review before building, then builds.
 - Done (2026-10-07): `PRODUCT.md` now allows real care-platform and Design System v2 screens on invented data, captioned "Real product screens, invented data.", matching the owner's permission of 2026-10-06.

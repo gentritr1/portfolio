@@ -314,8 +314,8 @@ export default function Home() {
             <p className="p12p-problem">The new care dashboard needed one shared set of building blocks.</p>
             <p className="p12p-result">The team released it 20 times in about six weeks.</p>
             <p className="p12p-scope">
-              A team effort on a foundation Gentrit laid: the research and the rules the building blocks are built on.
-              The team built the rest on top of it.
+              Agents build to written guides drawn from research into five leading design systems. Automatic checks
+              decide, and a person on the team approves each change.
             </p>
             <a className="p12p-action" href="/work/design-system-react">
               Case, on the main site <Arrow />

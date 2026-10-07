@@ -47,7 +47,7 @@
   "polish": [
     "Facts: the care rebuild is no longer written as live. Home row: 'Being rebuilt in React, one tested screen at a time.' plus 'Each screen must pass the same test on the old and the new app. None is live yet; care teams use the Vue app.' Case lede, Live cell, result ('The result so far'), In short and the engineers' trade-off now say no React screen is live; 'both run until the move is done' is gone.",
     "Facts: the Now row reads 'Care platform rebuild at Vianova, since 2026' (React rebuild 2026, Vue app 2023–26 per CONTENT §7b); the care row and case kicker give both years.",
-    "Facts: Design System v2 row kept in the owner's wording (team effort on a foundation Gentrit laid).",
+    "Facts: Design System v2 row in the owner's wording: the team's work, no individual credit (owner, 2026-10-07).",
     "Facts: the AI line is verbatim in About (context moved to its own sentence) and said once on the case; the duplicate scope sentence in 'The product' is gone.",
     "Facts (owner rule 3): Dukagjini's home screen with its 'over half a million titles' banner replaced by its Foreign Books list, cropped below the search field; no product marketing number is on the page.",
     "Facts: the hero screen is now the claims screen (claims are in CONTENT's built list) instead of the calendar; the case hero and the transition use the same screen; the calendar and overview screens are no longer shown.",

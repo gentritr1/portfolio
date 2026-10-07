@@ -68,7 +68,9 @@ Order: facts, gate, clarity, phone, craft. The full list is in `meta.json` under
 3. **Hero, Bayyinah TV:** bayyinahtv.com ⇄ the App Store page (four store frames); labels bayyinahtv.com / App Store.
 4. **Rebuilt section, bayyinah.org:** desktop ⇄ phone; labels Desktop / Phone.
 5. **Care platform:** the care team's overview ⇄ one patient's glucose screen; labels Care team / One patient. The platform has no phone face, and the caption says so: "Web only, so its second face is one patient."
+5b. **Design System v2** (proof pass): the date picker's From and To story in Storybook ⇄ the same date picker set to a range; labels From and to / Date range; caption "Web only, so its second face is the same date picker set to a range. Real product screens, invented data."
 6. **Phone apps, Read to Feed and Viva Fresh:** the store page ⇄ the app screen; labels Store page / App.
+6b. **Incentiv portal** (proof pass): the public sign-in page ⇄ the same page up close, on the sign-in choices; labels Sign-in page / Up close; caption "Web only, and the dashboard stays behind sign-in, so its second face is the same public page, up close."
 7. **Offday:** the website ⇄ the same web app on a phone; labels Website / Phone.
 8. **More work index:** every row carries a plain platform tag (Web, Phone, or Web, phone); the tags that match the current face are marked, so the index re-reads as "what runs on the web" or "what runs on a phone". It is a tag in the role cell, not a column or a lane.
 9. **About:** the underline in its lede moves from "web" to "phone".
@@ -169,3 +171,27 @@ It lists 15 projects, not all of them. ("Selected work" is on the checker's micr
 - Dark (`--scheme dark`), click: PASS, 0, 0 (CLS 0.008 / 0.004; C06 sampled 120 / 118 text grounds, none under 4.5:1).
 - Dark, drag: PASS, 0, 0 (CLS 0.008 / 0).
 - Drag at 4× after the pass: 1440 two prints p95 16.8 ms, 390 two prints p95 16.8 ms, no long frames.
+
+## Proof pass: Design System v2 and Incentiv as sections (owner request)
+
+Both were index rows only; REVIEW-3 named that as one of three things before the draft could replace the live home. Each is now a row with a print that reads the page lens, placed by ground: care (band) → **Design System v2** (page ground, text first) → phone apps (band) → **Incentiv** (page ground, print first) → Offday (band). The "More work" rows for both now point up to their sections (↑).
+
+**Design System v2, Vianova** (facts: CONTENT §6b and the owner decision of 2026-10-07; PRODUCT.md: real product screens, invented data)
+- Problem: "Colours, sizes and type, set once for the code and for Figma." Result (largest text): "The team released it 20 times in about six weeks."
+- Scope (owner, 2026-10-07: the team's work, no individual credit): "A team effort. Every change goes the same way:" then four steps: research into five leading design systems became written guides for AI agents; agents build to the guides, and every building block can be seen and tried in Storybook; automatic checks decide, and a failed check sends the change back to the agents; a person on the team reviews each change and approves it.
+- Facts: "36 building blocks"; "96.6% less JavaScript for an app that uses only the button"; "Built to the WCAG 2.1 AA accessibility level, with automatic checks on the rendered screen" (never "compliant").
+- Proof: "No guide can overrule a failed check."
+- Role · years: "Design system · 2026"; link to the case page.
+- Print: `storybook-from-to.webp` (Storybook: the list of building blocks and the date picker's From and To story, crop 1840×1150 of 2880×1800) ⇄ `date-range-picker.webp` (the same date picker set to a range, 1560×975). On a phone: the From picker and the June calendar of the range, 0.8 ratio. Caption ends "Real product screens, invented data."
+
+**Incentiv portal** (facts: CONTENT §5 result line and "what was built")
+- Problem: "People and businesses manage a crypto wallet and reward programs." Result: "Sign in with a passkey or a wallet, no password."
+- Body: "Gentrit built the portal frontend in 2024, in English and French: the sign-in, a first-run tour, the dashboard cards, a list of assets and a balance pop-up with a QR code. The dashboard pages stay private, behind sign-in."
+- Scope: "Teammates built the wallet itself and its link to the blockchain." Role · year: "Frontend · 2024". Links: "Portal sign-in" (portal.incentiv.io, the public page shown) and the case page.
+- Print: one public capture, `web-03.webp` (2880×1800): the whole sign-in page ⇄ the same page up close on the sign-in choices (Passkey, MetaMask, WalletConnect). No dashboard capture exists and none is implied; the page's own illustration of the app stays at the size the page gives it.
+
+Not used, and why: 805 design tokens (allowed in CONTENT but not on this pass's list); the design system's adoption by the new dashboard (it would tie it to the care rebuild and to screens that are not live); its diagram (that is the live home's layout); every internal count; repository links and contributor names; Incentiv's website and docs links and the website's screens (not this work); the stack (Next.js, RTK Query, next-intl: technical words stay off the home rows).
+
+Mechanics: tile crops now reach CSS as custom properties (`--ix`, `--iy`, `--iw`, `--tx`…), so a layout switch rewrites variables, not margins (the checker had read 36 margin rewrites on resize as a script animation, M03b). Placeholders regenerated for the two new prints (8 prints, 7.4 kB in all).
+
+Checker (production, 4×, `--owner "Gentrit Rashiti" --facts CONTENT.md --interact "click:.lx-lensctl label:last-of-type" --interact-frames 60,150,300,600`): light PASS, 0 fails, 0 warnings (1440: work 37%, CLS 0.008, LCP 0.81 s; 390: CLS 0.004, LCP 0.79 s); dark PASS, 0, 0 (CLS 0.008 / 0; C06 sampled 144 / 142 text grounds, none under 4.5:1). Gesture test 20/20. Drag with the design-system print in view at 4×: p95 16.8 ms, no long frame. Page height 7164 px at 1440, 10804 px at 390.

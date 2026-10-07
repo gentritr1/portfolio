@@ -380,11 +380,14 @@ html[data-theme-switching] .lx *::after { transition: none !important; }
 .lx-layer[data-layer="1"] { z-index: 1; }
 /* Without the lens canvas, the chosen face simply lies on top. */
 .lx-print:not([data-flat]) .lx-card[data-face="1"] .lx-layer[data-layer="1"] { z-index: 3; }
-.lx-tile { position: absolute; overflow: hidden; }
+.lx-tile { position: absolute; overflow: hidden; left: var(--tx); top: var(--ty); width: var(--tw); height: var(--th); }
 .lx .lx-tile img {
   position: absolute;
   left: 0;
   top: 0;
+  width: var(--iw);
+  margin-left: var(--ix);
+  margin-top: var(--iy);
   max-width: none;
   height: auto;
   display: block;
@@ -465,8 +468,8 @@ html[data-theme-switching] .lx *::after { transition: none !important; }
 
 /* ---------- Rows: a print and its facts ---------- */
 
-.lx-care,
-.lx-own {
+/* Sections alternate grounds: a band of the second ground, then the page ground. */
+.lx-band {
   box-shadow: 0 0 0 100vmax var(--ground-2);
   clip-path: inset(0 -100vmax);
   background: var(--ground-2);
@@ -485,11 +488,22 @@ html[data-theme-switching] .lx *::after { transition: none !important; }
   margin-right: 0.35em;
   white-space: nowrap;
 }
-.lx-ai { color: var(--ink-2); }
+.lx-ai,
+.lx-scope { color: var(--ink-2); }
+.lx-facts { list-style: none; padding: 0; }
+.lx-facts li + li { margin-top: 4px; }
+/* Figures in the text face: the mono's full-width full stop would read 96.6 as 96 . 6. */
+.lx-facts .lx-num { font-family: var(--text); font-weight: 700; font-size: 1em; }
+/* The team's workflow: one ordered list, so the order of the gates reads without a diagram. */
+.lx-steps { list-style: decimal; padding-left: 1.4em; }
+.lx-row-text .lx-scope + .lx-steps { margin-top: 8px; }
+.lx-steps li + li { margin-top: 4px; }
+.lx-steps li::marker { color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.lx-row-text .lx-live { display: flex; flex-wrap: wrap; align-items: center; column-gap: 24px; }
 @media (min-width: 900px) {
   .lx-row { padding-top: 96px; padding-bottom: 96px; gap: 48px; align-items: center; }
-  .lx-care { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); }
-  .lx-own { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); }
+  .lx-print-first { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); }
+  .lx-text-first { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); }
 }
 
 /* ---------- Phone apps ---------- */

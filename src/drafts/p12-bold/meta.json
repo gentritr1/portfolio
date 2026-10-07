@@ -43,7 +43,7 @@
   "polish": {
     "facts": [
       "Care row heading is the owner's H1, 'Rebuilding a live care platform, one tested screen at a time.', and the text says 'No React screen is live yet.' (the line 'Care teams keep using the app while each screen moves over' is gone).",
-      "Design System v2 keeps the owner's wording ('A team effort on Gentrit's foundation').",
+      "Design System v2 keeps the owner's wording ('A team effort', no individual credit).",
       "Hero line adds 'full stack since 2026' (CONTENT.md role line); words cut elsewhere so the first screen is 88 words."
     ],
     "gate": [

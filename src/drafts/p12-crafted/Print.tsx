@@ -314,10 +314,12 @@ function useNarrow() {
 function tileStyle(t: TileSpec) {
   const [sx, sy, sw, sh] = t.s;
   const [dx, dy, dw, dh] = t.d ?? [0, 0, 1, 1];
+  // The crop is handed to CSS as custom properties (draft.css .lx-tile): a layout switch then rewrites
+  // variables, not layout properties, and nothing reads as a script animating margins.
   return {
-    box: { left: `${dx * 100}%`, top: `${dy * 100}%`, width: `${dw * 100}%`, height: `${dh * 100}%` },
+    box: { "--tx": `${dx * 100}%`, "--ty": `${dy * 100}%`, "--tw": `${dw * 100}%`, "--th": `${dh * 100}%` } as CSSProperties,
     // Percent margins refer to the box's width, so one ratio places the crop exactly.
-    img: { width: `${(t.nat[0] / sw) * 100}%`, marginLeft: `${(-sx / sw) * 100}%`, marginTop: `${(-sy / sw) * 100}%` },
+    img: { "--iw": `${(t.nat[0] / sw) * 100}%`, "--ix": `${(-sx / sw) * 100}%`, "--iy": `${(-sy / sw) * 100}%` } as CSSProperties,
     aspect: sw / sh,
   };
 }

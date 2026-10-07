@@ -2,7 +2,7 @@
 name: portfolio-page
 description: Use when designing, writing, building, critiquing or checking a personal portfolio site or one of its pages (home, work index, case study, about, 404) for a developer, design engineer or designer. Covers the first screen, hero copy, project rows, case-study writing, screenshots, type, colour, layout, signature motion and smoothness, removing AI-template tells, a scripted checker, and a calibrated review rubric for iterating many drafts. Not for product landing pages or app UI.
 metadata:
-  version: 1.3.0
+  version: 1.3.1
 ---
 
 # portfolio-page
@@ -60,7 +60,7 @@ Gates. A draft that breaks one is not finished, whatever it scores.
 3. **Proof is a noun.** Credibility on the first screen is a place, a year range, a count, a store, a named product, and at least one is a link a stranger can open (a store listing, a live site, a repo). Zero self-ratings.
 4. **No template tells.** Zero hard fails from `scripts/check.mjs` (pill above the hero title, gradient text, faint rounded card borders, glass, purple gradients, blobs, "+" stat rows, icon tiles, logo marquee, pulsing dot, template phrases, scope dodges). Ids and severities: `reference/checks.md`; fixes: `reference/anti-slop.md`.
 5. **Facts only.** Every number, name and screen traces to a source file or a public URL (`--facts` checks numbers). Recreations and invented data are labelled in the caption.
-6. **Scope stated.** Each project says what the person built and what others built. Never "worked on", "helped with", "involved in".
+6. **Scope stated.** Each project says what the person built and what others built, or, when the owner presents it as the team's work, says "a team effort" and shows how the team works (`reference/writing.md`). Never "worked on", "helped with", "involved in".
 7. **One voice** across the site: first person, or no person (sentences start with the name or the verb). Never a mix; no he/his/him about the owner unless the owner asks for it.
 8. **One hook per page**, and it carries a fact that is also on the page as text. Delete it: every fact must still be readable. If the site stops working, it was the navigation (fine); if nothing is lost, it was a costume.
 9. **Motion is caused.** Every animation answers a visitor action, shows where something came from or went, or paces one story beat. UI ≤ 300 ms; one authored story moment ≤ 800 ms (1,100 hard ceiling); a state the visitor drives (drag, scrub, dial) has no duration cap but must follow the pointer and be interruptible. Keyboard and repeated actions do not animate. No entrance animation on sections; one authored figure may build once, in view, in ≤ 800 ms, and is complete without JavaScript and under reduced motion.

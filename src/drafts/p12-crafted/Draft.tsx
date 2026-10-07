@@ -86,6 +86,69 @@ const CARE: PrintSpec = {
   },
 };
 
+/*
+ * Design System v2 has no phone face. Its second face is the same building block in another state: the date
+ * picker's From and To story in Storybook, then the date picker set to a range. Real product screens, invented data.
+ */
+const dsOneDate = (s: TileSpec["s"]): TileSpec => ({
+  src: "/showcase/design-system/storybook-from-to.webp",
+  nat: WEB,
+  s,
+  alt: "Design System v2 in Storybook: the list of building blocks, and the date picker's From and To story with June 2026 open. Invented data.",
+});
+const dsRange = (s: TileSpec["s"]): TileSpec => ({
+  src: "/showcase/design-system/date-range-picker.webp",
+  nat: [1560, 976],
+  s,
+  alt: "The same date picker set to a range, 22 June to 9 July 2026, with quick choices such as This week and Last month, and Cancel and Apply. Invented data.",
+});
+const DESIGN_SYSTEM: PrintSpec = {
+  id: "design-system",
+  work: "Design System v2",
+  wide: {
+    aspect: 1.6,
+    faces: [
+      { ground: "#ffffff", tiles: [dsOneDate([0, 0, 1840, 1150])] },
+      { ground: "#ffffff", tiles: [dsRange([0, 0, 1560, 975])] },
+    ],
+  },
+  narrow: {
+    aspect: 0.8,
+    faces: [
+      { ground: "#ffffff", tiles: [dsOneDate([610, 100, 590, 737])] },
+      { ground: "#ffffff", tiles: [dsRange([340, 100, 600, 750])] },
+    ],
+  },
+};
+
+/*
+ * Incentiv: one public capture (the portal's sign-in page); the dashboard pages stay behind sign-in. The second
+ * face is the same page up close, on the sign-in choices that were built.
+ */
+const incentivSignIn = (s: TileSpec["s"], alt: string): TileSpec => ({ src: "/showcase/incentiv/web-03.webp", nat: WEB, s, alt });
+const INCENTIV_PAGE =
+  "The Incentiv portal's public sign-in page: Welcome to Incentiv, sign in with a passkey, MetaMask or WalletConnect, beside the page's own picture of the app.";
+const INCENTIV_CLOSE =
+  "The same sign-in page up close: Passkey, MetaMask and WalletConnect, and links to reconnect or recover a wallet.";
+const INCENTIV: PrintSpec = {
+  id: "incentiv",
+  work: "Incentiv portal",
+  wide: {
+    aspect: 1.6,
+    faces: [
+      { ground: "#141414", tiles: [incentivSignIn([256, 300, 2368, 1480], INCENTIV_PAGE)] },
+      { ground: "#141414", tiles: [incentivSignIn([312, 530, 1168, 730], INCENTIV_CLOSE)] },
+    ],
+  },
+  narrow: {
+    aspect: 1.2,
+    faces: [
+      { ground: "#141414", tiles: [incentivSignIn([336, 374, 1264, 1053], INCENTIV_PAGE)] },
+      { ground: "#141414", tiles: [incentivSignIn([380, 560, 1020, 850], INCENTIV_CLOSE)] },
+    ],
+  },
+};
+
 const listing = (src: string, alt: string, s: TileSpec["s"]): TileSpec => ({ src, alt, nat: LISTING, s });
 const phonePrint = (id: string, work: string, a: TileSpec, b: TileSpec, ground: [string, string]): PrintSpec => {
   const layout = { aspect: a.s[2] / a.s[3], faces: [{ ground: ground[0], tiles: [a] }, { ground: ground[1], tiles: [b] }] as PrintSpec["wide"]["faces"] };
@@ -201,7 +264,7 @@ const INDEX: Group[] = [
     years: "2021–now",
     rows: [
       { name: "Care-management platform", plat: "both", years: "2023–26", role: "Web, mobile, server", line: "Care teams follow patients at home. Being rebuilt one screen at a time.", href: "/work/care-platform" },
-      { name: "Design System v2", plat: "web", years: "2026", role: "Design system", line: "A team effort: 36 building blocks, 20 releases in about six weeks. Gentrit laid the foundation.", href: "/work/design-system-react" },
+      { name: "Design System v2", plat: "web", years: "2026", role: "Design system", line: "A team effort: 36 building blocks, 20 releases in about six weeks.", href: "#design-system" },
     ],
   },
   {
@@ -218,7 +281,7 @@ const INDEX: Group[] = [
   {
     title: "Incentiv",
     years: "2024",
-    rows: [{ name: "Incentiv portal", plat: "web", years: "2024", role: "Frontend", line: "Sign-in, first-run tour and dashboard cards. Teammates built the wallet itself.", href: "/work/incentiv" }],
+    rows: [{ name: "Incentiv portal", plat: "web", years: "2024", role: "Frontend", line: "Sign-in, first-run tour and dashboard cards. Teammates built the wallet itself.", href: "#incentiv" }],
   },
   {
     title: "AvahiTech",
@@ -502,7 +565,7 @@ export default function Draft() {
           </div>
         </section>
 
-        <section id="work" className="lx-row lx-care" aria-labelledby="lx-care-h">
+        <section id="work" className="lx-row lx-care lx-band lx-print-first" aria-labelledby="lx-care-h">
           <div className="lx-row-print">
             <Print
               spec={CARE}
@@ -538,7 +601,51 @@ export default function Draft() {
           </div>
         </section>
 
-        <section className="lx-phones" aria-labelledby="lx-phones-h">
+        <section id="design-system" className="lx-row lx-ds lx-text-first" aria-labelledby="lx-ds-h">
+          <div className="lx-row-text">
+            <h2 id="lx-ds-h" className="lx-name">Design System v2, Vianova</h2>
+            <p className="lx-kind">Shared buttons, menus and forms, with colours, sizes and type set once for the code and for Figma.</p>
+            <p className="lx-result">The team released it 20 times in about six weeks.</p>
+            <ul className="lx-facts">
+              <li>
+                <span className="lx-num">36</span> building blocks
+              </li>
+              <li>
+                <span className="lx-num">96.6%</span> less JavaScript for an app that uses only the button
+              </li>
+              <li>Built to the WCAG 2.1 AA accessibility level, with automatic checks on the rendered screen</li>
+            </ul>
+            <p className="lx-scope">A team effort. Every change goes the same way:</p>
+            <ol className="lx-steps">
+              <li>Research into five leading design systems became written guides for AI agents.</li>
+              <li>Agents build to the guides. Every building block can be seen and tried in Storybook.</li>
+              <li>Automatic checks decide. A failed check sends the change back to the agents.</li>
+              <li>A person on the team reviews each change and approves it.</li>
+            </ol>
+            <p className="lx-proof">No guide can overrule a failed check.</p>
+            <p className="lx-meta">Design system · 2026</p>
+            <p>
+              <Link className="lx-go" to="/work/design-system-react">
+                Read the design system case
+              </Link>
+            </p>
+          </div>
+          <div className="lx-row-print">
+            <Print
+              spec={DESIGN_SYSTEM}
+              tilt={lens}
+              name="Design System v2, the date picker: one date and a date range"
+              caption={
+                <>
+                  <FaceSwitch tilt={lens} name="Design System v2" labels={["From and to", "Date range"]} />
+                  <span className="lx-prov">Web only, so its second face is the same date picker set to a range. {REAL_SCREENS}</span>
+                </>
+              }
+            />
+          </div>
+        </section>
+
+        <section className="lx-phones lx-band" aria-labelledby="lx-phones-h">
           <h2 id="lx-phones-h" className="lx-section-h">Phone apps, iPhone and Android</h2>
           <div className="lx-phone-grid">
             <article className="lx-phone">
@@ -572,7 +679,41 @@ export default function Draft() {
           </div>
         </section>
 
-        <section className="lx-row lx-own" aria-labelledby="lx-own-h">
+        <section id="incentiv" className="lx-row lx-incentiv lx-print-first" aria-labelledby="lx-incentiv-h">
+          <div className="lx-row-print">
+            <Print
+              spec={INCENTIV}
+              tilt={lens}
+              name="Incentiv portal, the public sign-in page and a closer look"
+              caption={
+                <>
+                  <FaceSwitch tilt={lens} name="Incentiv portal" labels={["Sign-in page", "Up close"]} />
+                  <span className="lx-prov">Web only, and the dashboard stays behind sign-in, so its second face is the same public page, up close.</span>
+                </>
+              }
+            />
+          </div>
+          <div className="lx-row-text">
+            <h2 id="lx-incentiv-h" className="lx-name">Incentiv portal</h2>
+            <p className="lx-kind">People and businesses manage a crypto wallet and reward programs.</p>
+            <p className="lx-result">Sign in with a passkey or a wallet, no password.</p>
+            <p>
+              Gentrit built the portal frontend in 2024, in English and French: the sign-in, a first-run tour, the
+              dashboard cards, a list of assets and a balance pop-up with a QR code. The dashboard pages stay private,
+              behind sign-in.
+            </p>
+            <p className="lx-scope">Teammates built the wallet itself and its link to the blockchain.</p>
+            <p className="lx-meta">Frontend · 2024</p>
+            <p className="lx-live">
+              <Out href="https://portal.incentiv.io/">Portal sign-in</Out>
+              <Link className="lx-go" to="/work/incentiv">
+                Read the Incentiv case
+              </Link>
+            </p>
+          </div>
+        </section>
+
+        <section className="lx-row lx-own lx-band lx-text-first" aria-labelledby="lx-own-h">
           <div className="lx-row-text">
             <h2 id="lx-own-h" className="lx-name">Offday, Gentrit's own product</h2>
             <p className="lx-kind">Time off for teams. People ask for days off, managers approve them, and one calendar shows who is away.</p>
@@ -600,6 +741,11 @@ export default function Draft() {
                       {row.href ? (
                         row.external ? (
                           <Out href={row.href}>{row.name}</Out>
+                        ) : row.href.startsWith("#") ? (
+                          <a href={row.href}>
+                            {row.name}
+                            <span className="lx-arrow" aria-hidden="true">↑</span>
+                          </a>
                         ) : (
                           <Link to={row.href}>
                             {row.name}

@@ -238,7 +238,7 @@ export const rows: Row[] = [
           kind: '36 building blocks for the new care dashboard, a team effort',
           text: [
             '805 colour, size and type rules, kept in one source, feed CSS, TypeScript and Figma. 20 releases in about six weeks. Built to WCAG 2.1 AA floors, with rendered evidence.',
-            'A team effort on a foundation Gentrit laid: research into five leading design systems, turned into the written rules the team and its AI agents build on. Automatic checks decide. A person approves each change.',
+            'Research into five leading design systems became written guides for AI agents. The agents build to the guides, automatic checks decide, and a person on the team approves each change.',
           ],
           meta: ['Vianova', 'Design system', '2026'],
           links: [{ label: 'Read the case', href: '/work/design-system-react' }],
@@ -459,7 +459,7 @@ export const index: IndexGroup[] = [
     rows: [
       { years: '2026', name: 'Care-management platform, React rewrite', lane: 'Web', role: 'Frontend', line: 'Screen-by-screen move from Vue to React, with the same tests on both apps', entry: 'care', links: [{ label: 'Case', href: '/work/care-platform' }] },
       { years: '2026', name: 'Care-management server', lane: 'Server', role: 'Full stack', line: 'Enrollment drafts, a lab catalog, data kept apart for each organization, fast reports', entry: 'care-api' },
-      { years: '2026', name: 'Design System v2', lane: 'Web', role: 'Design system', line: 'Team effort on Gentrit\'s foundation: 36 building blocks, 20 releases in about six weeks', entry: 'ds', links: [{ label: 'Case', href: '/work/design-system-react' }] },
+      { years: '2026', name: 'Design System v2', lane: 'Web', role: 'Design system', line: 'A team effort: 36 building blocks, 20 releases in about six weeks', entry: 'ds', links: [{ label: 'Case', href: '/work/design-system-react' }] },
       { years: '2026', name: 'Design system, Vue', lane: 'Web', role: 'Design system', line: 'Colour, size and type rules from Figma, visual tests and a health dashboard' },
       { years: '2026', name: 'Design dashboard, prototype', lane: 'Web', role: 'Frontend', line: 'Call-activity screen on the design system with demo data, as a design reference' },
       { years: '2023–26', name: 'Care-management platform, Vue app', lane: 'Web', role: 'Frontend', line: 'Remote patient care: profiles, care plans, claims, vitals and labs, calls, 4 languages', entry: 'care-vue' },

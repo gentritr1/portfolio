@@ -558,7 +558,7 @@ export const caseCopy: Record<string, CaseCopy> = {
       },
       {
         heading: "How it is built",
-        text: "Research into five leading design systems came first. Gentrit turned it into written guides for AI agents. The guides advise, but automatic checks decide. A person approves each change.",
+        text: "Research into five leading design systems became written guides for AI agents. The agents build to the guides, automatic checks decide, and a person on the team approves each change.",
         proof: "No guide can overrule a failed check.",
         plate: 3,
         target: { kind: "figure" },
