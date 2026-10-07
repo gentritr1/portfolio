@@ -1,6 +1,7 @@
-import { Fragment, useEffect, useId, useRef, useState, useSyncExternalStore, type PointerEvent, type ReactNode } from "react";
+import { Fragment, useEffect, useId, useRef, useState, useSyncExternalStore, type CSSProperties, type PointerEvent, type ReactNode } from "react";
 import { animate, frame, motion, useMotionValue, useMotionValueEvent, useTransform, type MotionValue } from "motion/react";
 import { EYE, FACE_B_DEG, FLIP_DEG, LensPrint, type FacePaint } from "./lens";
+import { PLACEHOLDERS } from "./placeholders";
 
 /* ---------- Data ---------- */
 
@@ -480,9 +481,16 @@ export function Print({
     return v;
   });
 
+  // Until the pictures are decoded and the lens is up, the card shows a tiny copy of its current face.
+  const ph = PLACEHOLDERS[spec.id]?.[narrow ? "narrow" : "wide"];
+  const stage = {
+    aspectRatio: String(layout.aspect),
+    ...(ph ? { "--ph0": `url(${ph[0]})`, "--ph1": `url(${ph[1]})` } : {}),
+  } as CSSProperties;
+
   return (
-    <figure className="lx-print" data-work={spec.work} data-ready={ready || undefined} data-flat={flat || undefined}>
-      <div className="lx-stage" style={{ aspectRatio: String(layout.aspect) }}>
+    <figure className="lx-print" data-print={spec.id} data-work={spec.work} data-ready={ready || undefined} data-flat={flat || undefined}>
+      <div className="lx-stage" style={stage}>
         {/* The shadow stays still: at 9° it would move 1%, and repainting a blurred shadow every frame is not worth it. */}
         <div className="lx-shadow" aria-hidden="true" />
         <motion.div

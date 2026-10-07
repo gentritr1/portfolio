@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { Fragment, useEffect, useId, useRef, useState } from "react";
 import { Link } from "react-router";
 import { useReducedMotion } from "motion/react";
 import { links } from "../../content/links";
@@ -248,29 +248,103 @@ function Out({ href, children }: { href: string; children: string }) {
   );
 }
 
+/* ---------- Theme: light and dark, as the site chooses them ---------- */
+
+type Theme = "light" | "dark";
+/** The page ground in each theme: the browser's own surfaces and the theme-color take it while the draft is open. */
+const GROUND: Record<Theme, string> = { light: "#f7efea", dark: "#120d0a" };
+
+/** html[data-theme] when the site has set it (the visitor chose), else the system setting. */
+function readTheme(): Theme {
+  const set = document.documentElement.dataset.theme;
+  if (set === "light" || set === "dark") return set;
+  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+}
+
+function useTheme(): [Theme, (t: Theme) => void] {
+  const [theme, setTheme] = useState<Theme>(() => (typeof document === "undefined" ? "light" : readTheme()));
+  useEffect(() => {
+    const sync = () => setTheme(readTheme());
+    const mo = new MutationObserver(sync);
+    mo.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+    const mq = window.matchMedia("(prefers-color-scheme: dark)");
+    mq.addEventListener("change", sync);
+    sync();
+    return () => {
+      mo.disconnect();
+      mq.removeEventListener("change", sync);
+    };
+  }, []);
+  // The visitor's choice is the site's choice too (same attribute, same storage key). Nothing eases across a
+  // theme change: transitions are off for one frame, and the lens is not touched.
+  const choose = (t: Theme) => {
+    const root = document.documentElement;
+    root.setAttribute("data-theme-switching", "");
+    root.dataset.theme = t;
+    try {
+      localStorage.setItem("theme", t);
+    } catch {
+      // Storage can be blocked; the choice then lasts for this page view.
+    }
+    requestAnimationFrame(() => requestAnimationFrame(() => root.removeAttribute("data-theme-switching")));
+  };
+  return [theme, choose];
+}
+
 /**
- * While the draft is open, the browser's own surfaces take the page's ground, and in-page jumps are instant:
- * the shell's smooth scroll would glide 5000px past every print (and leaves full-page captures mid-scroll).
+ * While the draft is open, the browser's own surfaces (html, body, the theme-color) take the page's ground for
+ * the current theme, and in-page jumps are instant: the shell's smooth scroll would glide 5000px past every print
+ * (and leaves full-page captures mid-scroll). Everything is restored on leaving.
  */
-function useGround() {
+function useSurfaces(theme: Theme) {
   useEffect(() => {
     const { documentElement: root, body } = document;
+    const metas = [...document.querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]')];
     const before = {
       root: root.style.backgroundColor,
       body: body.style.backgroundColor,
       scheme: root.style.colorScheme,
       scroll: root.style.scrollBehavior,
+      metas: metas.map((m) => m.content),
     };
-    root.style.backgroundColor = body.style.backgroundColor = "#f7efea";
-    root.style.colorScheme = "light";
     root.style.scrollBehavior = "auto";
     return () => {
       root.style.backgroundColor = before.root;
       body.style.backgroundColor = before.body;
       root.style.colorScheme = before.scheme;
       root.style.scrollBehavior = before.scroll;
+      metas.forEach((m, i) => (m.content = before.metas[i]));
     };
   }, []);
+  useEffect(() => {
+    const { documentElement: root, body } = document;
+    root.style.backgroundColor = body.style.backgroundColor = GROUND[theme];
+    root.style.colorScheme = theme;
+    document.querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]').forEach((m) => (m.content = GROUND[theme]));
+  }, [theme]);
+}
+
+/** Light ⇄ Dark: the same two-face switch as under each print, for the page's colours. */
+function ThemeSwitch({ theme, choose, where }: { theme: Theme; choose: (t: Theme) => void; where: "mast" | "foot" }) {
+  const id = useId();
+  return (
+    <fieldset className={`lx-switch lx-theme lx-theme-${where}`}>
+      <legend className="lx-sr">Colour theme</legend>
+      {(["light", "dark"] as const).map((t, i) => (
+        <Fragment key={t}>
+          {i === 1 && (
+            <span className="lx-switch-sep" aria-hidden="true">
+              ⇄
+            </span>
+          )}
+          <label className="lx-face" data-on={theme === t || undefined}>
+            <input type="radio" name={id} checked={theme === t} onChange={() => choose(t)} />
+            <span>{t === "light" ? "Light" : "Dark"}</span>
+          </label>
+        </Fragment>
+      ))}
+    </fieldset>
+  );
 }
 
 /** The live line: the current face as a fact. */
@@ -283,10 +357,36 @@ function Showing({ lens }: { lens: Tilt }) {
   );
 }
 
+/** The lens bar: in the flow under the claim, then stuck to the top; the rule under it shows only when stuck. */
+function LensBar({ lens }: { lens: Tilt }) {
+  const bar = useRef<HTMLDivElement>(null);
+  const mark = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = bar.current;
+    const m = mark.current;
+    if (!el || !m) return;
+    const io = new IntersectionObserver(([e]) => el.toggleAttribute("data-stuck", !e.isIntersecting && e.boundingClientRect.top < 0));
+    io.observe(m);
+    return () => io.disconnect();
+  }, []);
+  return (
+    <>
+      <div ref={mark} className="lx-lensmark" aria-hidden="true" />
+      <div ref={bar} className="lx-lensbar">
+        <div className="lx-lensbar-inner">
+          <LensSwitch tilt={lens} />
+          <Showing lens={lens} />
+        </div>
+      </div>
+    </>
+  );
+}
+
 /* ---------- The page ---------- */
 
 export default function Draft() {
-  useGround();
+  const [theme, chooseTheme] = useTheme();
+  useSurfaces(theme);
   const reduced = useReducedMotion() ?? false;
   // The page lens: one angle for the whole page. Every print, label, word mark and index tag reads it.
   const lens = useTilt(reduced);
@@ -296,7 +396,7 @@ export default function Draft() {
   useEffect(() => {
     const all = [...(root.current?.querySelectorAll<HTMLElement>("[data-w], [data-plat]") ?? [])];
     // The claim's two words change with the flip; the index tags and About, far down the page, when idle.
-    const near = all.filter((el) => el.closest(".lx-hero"));
+    const near = all.filter((el) => el.closest(".lx-intro"));
     const far = all.filter((el) => !near.includes(el));
     const mark = (els: HTMLElement[]) => {
       const want = lens.getFace() === 0 ? "web" : "phone";
@@ -314,32 +414,24 @@ export default function Draft() {
     <div className="lx" ref={root}>
       <title>Gentrit Rashiti: web and phone apps</title>
       <meta name="description" content="Gentrit Rashiti builds web and phone apps for learners, care teams and shoppers. Based in Kosovo, working remotely." />
-      <meta name="theme-color" content="#f7efea" />
       <meta
         name="portfolio-check"
         content="allow C17: the hero is one 211 kB WebP, loaded eagerly at high priority, and this page's own code is under 11 kB gzip. On a production build at 4x CPU the largest paint measured 0.72 to 1.14 s across runs on a machine shared with other checkers; the rest of that time is the shared draft router's two lazy levels. A srcset with the 1080 copy was tried and dropped: it trips C08c at 1x"
       />
       <link rel="preload" href="/fonts/creative/BricolageGrotesque-Latin.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
 
-      <header className="lx-mast">
-        <p className="lx-who">Gentrit Rashiti</p>
-        <nav aria-label="Main">
-          <a href="#work">Work</a>
-          <a href="#about">About</a>
-          <a href={links.cv}>CV</a>
-          <a href={`mailto:${links.email}`}>Email</a>
-        </nav>
-      </header>
-
-      <div className="lx-lensbar">
-        <div className="lx-lensbar-inner">
-          <LensSwitch tilt={lens} />
-          <Showing lens={lens} />
+      <header className="lx-top">
+        <div className="lx-mast">
+          <p className="lx-who">Gentrit Rashiti</p>
+          <nav aria-label="Main">
+            <a href="#work">Work</a>
+            <a href="#about">About</a>
+            <a href={links.cv}>CV</a>
+            <a href={`mailto:${links.email}`}>Email</a>
+          </nav>
+          <ThemeSwitch theme={theme} choose={chooseTheme} where="mast" />
         </div>
-      </div>
-
-      <main>
-        <section className="lx-hero" aria-labelledby="lx-claim">
+        <div className="lx-intro">
           <h1 id="lx-claim" className="lx-claim">
             Gentrit Rashiti builds <span className="lx-w" data-w="web" data-on="">web</span> and{" "}
             <span className="lx-w" data-w="phone">phone</span> apps for learners, care teams and shoppers.
@@ -347,6 +439,14 @@ export default function Draft() {
           <p className="lx-role">
             Frontend and mobile developer since 2021, now full stack. <span>Based in Kosovo, working remotely.</span>
           </p>
+        </div>
+      </header>
+
+      {/* Read in order: the claim, then the switch, then the work. The bar sticks to the top once it is reached. */}
+      <LensBar lens={lens} />
+
+      <main>
+        <section className="lx-hero" aria-labelledby="lx-hero-h">
           <div className="lx-hero-grid">
             <Print
               spec={BAYYINAH}
@@ -357,7 +457,7 @@ export default function Draft() {
               caption={<span className="lx-prov">Two real screens in one print: the website and the App Store page.</span>}
             />
             <div className="lx-hero-side">
-              <h2 className="lx-name">Bayyinah TV</h2>
+              <h2 id="lx-hero-h" className="lx-name">Bayyinah TV</h2>
               <p className="lx-kind">Video courses and live streams.</p>
               <FaceSwitch tilt={lens} name="Bayyinah TV" labels={["bayyinahtv.com", "App Store"]} />
               <p className="lx-fact">The same web app runs on the website and inside the iPhone and Android apps.</p>
@@ -486,7 +586,7 @@ export default function Draft() {
         </section>
 
         <section id="index" className="lx-index" aria-labelledby="lx-index-h">
-          <h2 id="lx-index-h" className="lx-section-h">All work</h2>
+          <h2 id="lx-index-h" className="lx-section-h">More work</h2>
           {INDEX.map((group) => (
             <section key={group.title} className="lx-group" aria-label={group.title}>
               <h3 className="lx-group-h">
@@ -552,6 +652,7 @@ export default function Draft() {
             picture turns together. Each card is drawn as seen from a little to its left, so its right edge already
             shows a few strips of the second screen. Care-platform screens are real product screens with invented data.
           </p>
+          <ThemeSwitch theme={theme} choose={chooseTheme} where="foot" />
           <p className="lx-sign">Gentrit Rashiti, 2026</p>
         </div>
       </footer>

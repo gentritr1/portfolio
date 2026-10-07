@@ -45,6 +45,14 @@
   --dark-ink: #f2e9e4;
   --dark-ink-2: #bdada8;
   --dark-accent: #ee8a6c;
+  --accent-text: #b41d02;
+  --sel: #f1c4b4;
+  --sel-about: #6b2a1c;
+  --track: #e5d6ce;
+  --track-shade: rgb(31 21 24 / 0.18);
+  --thumb-shade: rgb(31 21 24 / 0.35);
+  --print-shadow: 0 2px 4px rgb(31 21 24 / 0.1), 0 22px 40px -20px rgb(31 21 24 / 0.5);
+  color-scheme: light;
   --gut: 16px;
   --max: 1344px;
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
@@ -73,7 +81,60 @@
   .lx { --gut: 48px; }
 }
 
-.lx ::selection { background: #f1c4b4; color: var(--ink); }
+/* Dark, composed rather than inverted (oklch): the ground is a warm near-black on the bone's own hue
+   (16.5% L, 0.010 C, 54°); surfaces step up 3% L (the care band, then About); ink at 93.5% L; secondary ink
+   from the ground's hue at 73% L; the Bayyinah red lifted 9.5% L with a little less chroma (#cc4e38, 4.3:1 on
+   the ground for the underline, thumb and focus ring), and a lighter red for red text on hover (#e57157, 6.3:1).
+   The screenshots keep their own colours; the print shadow becomes a 1px lightness step and a soft dark drop.
+   The site's choice (html[data-theme]) wins; without one, the system setting decides. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .lx {
+    --ground: #120d0a;
+    --ground-2: #191310;
+    --ink: #efe8e3;
+    --ink-2: #b4a49b;
+    --rule: #342c27;
+    --accent: #cc4e38;
+    --dark: #211a16;
+    --dark-ink: #efe8e3;
+    --dark-ink-2: #b4a49b;
+    --dark-accent: #eb8f72;
+    --accent-text: #e57157;
+    --sel: #64271f;
+    --sel-about: #64271f;
+    --track: #312a25;
+    --track-shade: rgb(0 0 0 / 0.45);
+    --thumb-shade: rgb(0 0 0 / 0.5);
+    --print-shadow: 0 0 0 1px #2a221d, 0 22px 40px -22px rgb(0 0 0 / 0.7);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] .lx {
+    --ground: #120d0a;
+  --ground-2: #191310;
+  --ink: #efe8e3;
+  --ink-2: #b4a49b;
+  --rule: #342c27;
+  --accent: #cc4e38;
+  --dark: #211a16;
+  --dark-ink: #efe8e3;
+  --dark-ink-2: #b4a49b;
+  --dark-accent: #eb8f72;
+  --accent-text: #e57157;
+  --sel: #64271f;
+  --sel-about: #64271f;
+  --track: #312a25;
+  --track-shade: rgb(0 0 0 / 0.45);
+  --thumb-shade: rgb(0 0 0 / 0.5);
+  --print-shadow: 0 0 0 1px #2a221d, 0 22px 40px -22px rgb(0 0 0 / 0.7);
+  color-scheme: dark;
+}
+/* A theme change never eases: transitions are off for the frame it lands in. */
+html[data-theme-switching] .lx *,
+html[data-theme-switching] .lx *::before,
+html[data-theme-switching] .lx *::after { transition: none !important; }
+
+.lx ::selection { background: var(--sel); color: var(--ink); }
 .lx :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 2px; }
 :where(.lx) :where(p) { margin: 0; text-wrap: pretty; }
 :where(.lx) :where(h1, h2, h3) { margin: 0; font-stretch: normal; text-wrap: balance; }
@@ -98,7 +159,7 @@
 @media (hover: hover) and (pointer: fine) {
   .lx .lx-mast a:hover,
   .lx .lx-out:hover,
-  .lx .lx-list a:hover { background-image: linear-gradient(currentColor, currentColor); color: var(--accent); }
+  .lx .lx-list a:hover { background-image: linear-gradient(currentColor, currentColor); color: var(--accent-text); }
 }
 .lx .lx-mast a:focus-visible,
 .lx .lx-out:focus-visible,
@@ -159,6 +220,7 @@
 
 /* ---------- Hero ---------- */
 
+.lx-intro,
 .lx-hero,
 .lx-built,
 .lx-row,
@@ -183,8 +245,10 @@
   font-size: 0.9375rem;
   line-height: 1.45;
   max-width: 52ch;
-  margin-bottom: 22px;
+  margin-bottom: 4px;
 }
+/* The switch sits between the claim and the work; the work starts right under it. */
+.lx-hero { padding-top: 14px; }
 .lx-hero-grid { display: block; }
 /* On a phone the face labels already say it; the note waits for the footer. */
 @media (max-width: 719px) {
@@ -193,7 +257,8 @@
 .lx-hero-side { margin-top: 18px; }
 @media (min-width: 900px) {
   .lx-claim { margin: 32px 0 12px; }
-  .lx-role { margin-bottom: 32px; font-size: 1.0625rem; }
+  .lx-role { margin-bottom: 8px; font-size: 1.0625rem; }
+  .lx-hero { padding-top: 20px; }
   .lx-hero-grid {
     display: grid;
     grid-template-columns: minmax(0, 9fr) minmax(0, 3fr);
@@ -295,7 +360,7 @@
   position: absolute;
   inset: 0;
   border-radius: 12px;
-  box-shadow: 0 2px 4px rgb(31 21 24 / 0.1), 0 22px 40px -20px rgb(31 21 24 / 0.5);
+  box-shadow: var(--print-shadow);
 }
 .lx-card {
   position: absolute;
@@ -306,9 +371,10 @@
   touch-action: pan-y;
   user-select: none;
   -webkit-user-select: none;
-  /* Until the picture arrives the card is a light sheet, not a dark slab. */
-  background: var(--ground-2);
+  /* Until the pictures are decoded, a tiny copy of the face the page shows (never a blank card). */
+  background: var(--ph0, none) center / 100% 100% no-repeat, var(--ground-2);
 }
+.lx-card[data-face="1"] { background-image: var(--ph1, none); }
 .lx-card:active { cursor: grabbing; }
 .lx-layer { position: absolute; inset: 0; overflow: hidden; z-index: 2; }
 .lx-layer[data-layer="1"] { z-index: 1; }
@@ -379,7 +445,7 @@
 }
 .lx-go::after { content: "→"; font-family: var(--mono); font-size: 0.85em; margin-left: 0.4em; transition: transform 150ms var(--ease-out); }
 @media (hover: hover) and (pointer: fine) {
-  .lx-go:hover { color: var(--accent); }
+  .lx-go:hover { color: var(--accent-text); }
   .lx-go:hover::after { transform: translateX(3px); }
 }
 .lx-built-print { margin-top: 28px; }
@@ -450,7 +516,7 @@
   .lx-phone-grid { grid-template-columns: 1fr 1fr; gap: 48px; margin-top: 40px; }
 }
 
-/* ---------- All work ---------- */
+/* ---------- More work (the index) ---------- */
 
 .lx-index { padding-top: 64px; padding-bottom: 80px; }
 .lx-group { margin-top: 28px; }
@@ -531,7 +597,22 @@
 .lx-note { color: var(--dark-ink-2); font-size: 0.875rem; max-width: 60ch; }
 .lx-sign { font-family: var(--mono); font-size: 0.8125rem; color: var(--dark-ink-2); }
 .lx-about :focus-visible { outline-color: var(--dark-accent); }
-.lx-about ::selection { background: #6b2a1c; color: var(--dark-ink); }
+/* The theme switch: in the masthead from 720px, at the foot of About on a phone (the masthead row is full). */
+.lx-theme { margin: 0; }
+.lx-mast .lx-theme { margin-right: -10px; }
+.lx-mast .lx-face { font-weight: 400; }
+.lx-theme-mast { display: none; }
+@media (min-width: 720px) {
+  .lx-theme-mast { display: inline-flex; }
+  .lx-theme-foot { display: none; }
+  .lx-mast nav { margin-left: auto; }
+}
+.lx-about .lx-theme { margin-left: -10px; }
+.lx-about .lx-face { color: var(--dark-ink-2); }
+.lx-about .lx-face[data-on] { color: var(--dark-ink); }
+.lx-about .lx-face::after { background: var(--dark-accent); }
+.lx-about .lx-switch-sep { color: var(--dark-ink-2); }
+.lx-about ::selection { background: var(--sel-about); color: var(--dark-ink); }
 @media (hover: hover) and (pointer: fine) {
   .lx .lx-about a:hover { color: var(--dark-accent); }
 }
@@ -559,8 +640,10 @@
   top: 0;
   z-index: 20;
   background: var(--ground);
-  box-shadow: 0 1px 0 var(--rule);
 }
+/* A rule under the bar only once it is stuck over the page. */
+.lx-lensbar[data-stuck] { box-shadow: 0 1px 0 var(--rule); }
+.lx-lensmark { height: 0; }
 .lx-lensbar-inner {
   display: flex;
   align-items: center;
@@ -640,8 +723,8 @@
   top: 9px;
   height: 26px;
   border-radius: 13px;
-  background: #e5d6ce;
-  box-shadow: inset 0 1px 2px rgb(31 21 24 / 0.18);
+  background: var(--track);
+  box-shadow: inset 0 1px 2px var(--track-shade);
 }
 .lx-thumb {
   position: absolute;
@@ -653,7 +736,7 @@
   background: var(--accent);
   /* Its own layer: the thumb follows the page angle every frame without repainting the bar. */
   will-change: transform;
-  box-shadow: 0 1px 2px rgb(31 21 24 / 0.35);
+  box-shadow: 0 1px 2px var(--thumb-shade);
 }
 
 /* The claim's and About's own words mark the face: "web" or "phone". */
@@ -684,7 +767,7 @@
 
 @media (hover: hover) and (pointer: fine) {
   .lx-lensopt:hover { color: var(--ink); }
-  /* "All work" rows: a 34px pointer target, like the page's other controls. */
+  /* "More work" rows: a 34px pointer target, like the page's other controls. */
   .lx-list-name a { min-height: 34px; }
   .lx-list li { padding-top: 4px; padding-bottom: 4px; }
 }

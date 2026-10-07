@@ -10,7 +10,7 @@ Strongest project for this draft: Bayyinah TV, because it is public and checkabl
 Voice: no person. Owner rules (2026-10-02 to 2026-10-06): no "I", no he/his; no "led", no commit counts; plain English; facts only from CONTENT.md and src/content; no internal counts; public products named and linked; Vianova only on its own rows; no employer/client relation; care and design-system screens captioned "Real product screens, invented data."; the AI line verbatim; "16 → 2" is a proof line, not a headline.
 Proof inventory used: Bayyinah TV (web-01 + store-01/02/05, 2023–26, Frontend core team, three public links); care platform (overview + glucose, invented data, 2023–26, 16 → 2, 4 languages); Read to Feed (reading-1 + reading-3, about 14 releases, archived listings); Viva Fresh (grocery-1 + grocery-3, live in both stores); Offday (light + dark calendar, about 200 tests); index lines from projects.ts.
 Cannot show: care platform and design system behind login → real product screens on invented data, captioned. Sadaqah app → text only.
-Constraints: React 19, motion, 2D canvas (no new dependency, no WebGL needed), local fonts only, one light theme, 375–1440.
+Constraints: React 19, motion, 2D canvas (no new dependency, no WebGL needed), local fonts only, light and dark themes (owner decision, fix pass 3), 375–1440.
 Memory sentence (target): "The site that is one lenticular sheet: flip Web to Phone (or drag any screenshot) and every product on the page turns from its website to its phone app."
 
 ## Direction card
@@ -20,7 +20,7 @@ Memory sentence (target): "The site that is one lenticular sheet: flip Web to Ph
 - **Lead project and why:** Bayyinah TV. Public, live in three places, and its key fact (same web app on the site and in both store apps) is a two-face fact.
 - **Composition (first-screen.md):** 3, the claim drawn as a picture. The sentence "web and phone apps" sits over one object that holds the web page and the app listing in the same surface. Claim full width on top, the print large below it on the left (8 of 12 columns), the project's facts and the face control in a narrow column on the right. No screen-right/text-left split.
 - **First screen:** 1440: masthead (name, place, 4 nav nouns); claim at 64–68px in three lines; print 860×540 holding bayyinahtv.com (A) and the App Store frames (B); right column: Bayyinah TV, one line, the two face labels (bayyinahtv.com / App Store), the fact sentence, role and years, three public links. 390: masthead; claim at 34px in four lines; print 358×300 cropped so both faces show the same headline "Quran Studies Made Simple" at readable size; labels; fact; links.
-- **Hook and the fact it carries:** the visitor drives one value, the page lens angle, from the Web/Phone switch under the masthead or by dragging any print. Every print sweeps from its web face to its phone face together, the claim's marked word moves from "web" to "phone", and the index re-reads by platform. Fact: Gentrit builds the same products for the web and for phones (Bayyinah TV: the same web app runs on the website and inside the iPhone and Android apps).
+- **Hook and the fact it carries:** the visitor drives one value, the page lens angle, from the Web/Phone switch under the claim or by dragging any print. Every print sweeps from its web face to its phone face together, the claim's marked word moves from "web" to "phone", and the index re-reads by platform. Fact: Gentrit builds the same products for the web and for phones (Bayyinah TV: the same web app runs on the website and inside the iPhone and Android apps).
 - **Delete test:** remove the lens and each print shows its first screen; the second screen's fact is still in the face labels, the captions and the sentence beside each print. Nothing about the person is lost; only the second picture.
 - **Type:** display Bricolage Grotesque (opsz auto, 640 weight, 66px at 1440, 34px at 390, tracking −0.032em): a grotesque drawn for print, with ink traps, for a page made of printed cards; its optical-size axis carries the 68px claim and the 22px row results in one family. Text Public Sans 400/600. Outlier: Gentrit Technical Mono (Plex Mono 400) for years, the 16 → 2 line and the lens note.
 - **Colour:** ground bone #f7efea (warm, tinted toward Bayyinah's red-brown), ink #1f1518 (sampled from bayyinahtv.com's own ground), accent #b41d02 (sampled from the site's "Start Learning" red), job: which face is showing (the active label), focus ring and link underline, ≤ 5% of any viewport. The prints carry all other colour. The last section uses the ink as its ground.
@@ -63,14 +63,14 @@ Order: facts, gate, clarity, phone, craft. The full list is in `meta.json` under
 
 ### Every section it changes
 
-1. **Lens bar** (under the masthead): the switch thumb follows the angle; the live line reads "Showing each product on the web." or "Showing each product on a phone, where it has one." (`aria-live="polite"`).
+1. **Lens bar** (under the claim, then stuck to the top): the switch thumb follows the angle; the live line reads "Showing each product on the web." or "Showing each product on a phone, where it has one." (`aria-live="polite"`).
 2. **Claim:** the red underline moves from "web" to "phone" in "builds web and phone apps".
 3. **Hero, Bayyinah TV:** bayyinahtv.com ⇄ the App Store page (four store frames); labels bayyinahtv.com / App Store.
 4. **Rebuilt section, bayyinah.org:** desktop ⇄ phone; labels Desktop / Phone.
 5. **Care platform:** the care team's overview ⇄ one patient's glucose screen; labels Care team / One patient. The platform has no phone face, and the caption says so: "Web only, so its second face is one patient."
 6. **Phone apps, Read to Feed and Viva Fresh:** the store page ⇄ the app screen; labels Store page / App.
 7. **Offday:** the website ⇄ the same web app on a phone; labels Website / Phone.
-8. **All work index:** every row carries a plain platform tag (Web, Phone, or Web, phone); the tags that match the current face are marked, so the index re-reads as "what runs on the web" or "what runs on a phone". It is a tag in the role cell, not a column or a lane.
+8. **More work index:** every row carries a plain platform tag (Web, Phone, or Web, phone); the tags that match the current face are marked, so the index re-reads as "what runs on the web" or "what runs on a phone". It is a tag in the role cell, not a column or a lane.
 9. **About:** the underline in its lede moves from "web" to "phone".
 
 Every print is the same sheet: at any instant all prints sit at the same angle and sweep from the same side. A still taken mid-turn shows several prints half-way through (`pagescrub` captures of the phones row and of bayyinah.org + care at 390).
@@ -78,10 +78,10 @@ Every print is the same sheet: at any instant all prints sit at the same angle a
 ### The control and why
 
 - **One switch: Web [thumb] Phone**, a native radio group with a draggable track between the two labels. Tap either label or the track to flip (spring); drag the thumb and the whole page follows the finger (22 px of travel = 9°, rubber band past both ends, release hands the velocity to the spring); arrow keys and Enter step instantly; one Tab stop with a visible ring. The labels are plain words, so it teaches itself: a switch between "Web" and "Phone" next to a claim that says "web and phone apps". No instruction line.
-- **Where: a sticky lens bar under the masthead, at every width.** The masthead scrolls away; the 48 px bar stays at the top on a solid ground with one hairline (no blur, no shadow, no call to action). Top, not bottom: the bottom of a phone screen belongs to the browser's toolbar and the thumb's scroll, and a bottom bar would sit over the links under each print. The bar is in the flow on the first screen (nothing under it at load), and while scrolling it covers only the top 48 px; the shell's `scroll-padding-top` keeps anchor targets clear of it. On a phone the bar holds the switch alone; the live line is still read to screen readers and the face shows in the switch, the claim and every label.
-- **Prints drive it too.** Dragging any print turns the whole page (capture after 5 px, 120 px = 9°); a tap on a print toggles. The sweep always starts at the edge that turns away.
+- **Where: under the claim, then sticky, at every width** (fix pass 3; first it sat above the claim, and the reviewer docked straight-to-the-point for it). The eye reads claim → switch → work; once the visitor scrolls past it, the 48 px bar stays at the top on a solid ground, with a hairline only while it is stuck (no blur, no shadow, no call to action). Top, not bottom: the bottom of a phone screen belongs to the browser's toolbar and the thumb's scroll, and a bottom bar would sit over the links under each print. The bar is in the flow on the first screen (nothing under it at load), and while scrolling it covers only the top 48 px; the shell's `scroll-padding-top` keeps anchor targets clear of it. On a phone the bar holds the switch alone; the live line is still read to screen readers and the face shows in the switch, the claim and every label.
+- **Prints drive it too.** Dragging any print sideways turns the whole page (120 px = 9°). The sweep always starts at the edge that turns away. A tap on a print does nothing (fix pass 3, below): the switch and the labels are the click targets.
 - **Peek dropped.** A page-wide peek would move every print at load (M11 counted 5 elements). The switch is visible from the first frame, so the peek is not needed to teach.
-- **Reduced motion:** no peek and no spring: a tap, a label or a key jumps the page to the other face; a drag still follows the hand (it is the visitor's own motion) and jumps to the nearest face on release.
+- **Reduced motion:** no peek and no spring: a tap on the switch, a label or a key jumps the page to the other face; a drag still follows the hand (it is the visitor's own motion) and jumps to the nearest face on release.
 - **In-page jumps are instant.** The shell's smooth scroll is switched off while the draft is open: it glided 5000 px past every print, and full-page captures were taken mid-glide with the lens bar halfway down the hero.
 
 ### Performance (after the bounded performance pass)
@@ -118,11 +118,54 @@ Static fallback: each print's first face is a real `<img>` under the canvas; the
 ### Reviewer fixes
 
 - The hero card is `role="group"` with the name "Bayyinah TV, website and App Store faces" (every print has its own name).
-- All work row links are 34 px targets on desktop (pointer: fine), with 4 px row padding; touch keeps 44 px targets.
+- More work row links are 34 px targets on desktop (pointer: fine), with 4 px row padding; touch keeps 44 px targets.
 
 ### Checker (production preview, 4× CPU)
 
 - `node .agents/skills/portfolio-page/scripts/check.mjs http://127.0.0.1:5313/drafts/p12-crafted --name p12-crafted --out <scratch>/perf-click --owner "Gentrit Rashiti" --facts CONTENT.md --throttle 4 --interact "click:.lx-lensctl label:last-of-type" --interact-frames 60,150,300,600` → PASS, 0 hard fails, 0 warnings. 1440: work 38%, 71 words, 5 sizes, CLS 0.008, LCP 0.82 s. 390: work 28%, 65 words, CLS 0, LCP 0.78 s. Frames +60 and +150 ms catch the hero mid-sweep; +300 ms shows the claim's mark on "phone". (After the performance pass; before it: the same verdict, LCP 0.81 / 0.97 s.)
 - Same with `--out <scratch>/perf-drag --interact "drag-right:.lx-hero .lx-card"` → PASS, 0 hard fails, 0 warnings (CLS 0.008 / 0.004, LCP 0.76 / 0.76 s). Frames +60 and +150 ms show the hand-driven sweep; +300 and +600 ms the page on its phone face.
 - C17 allowed (LCP on a shared machine ranged 0.72–1.14 s across runs; the page's own code is under 11 kB gzip).
-- Full-page captures (`*-full.png`) show the lens bar in its place under the masthead at both widths since in-page jumps are instant; before that fix, 5 of 6 full captures caught the shell's smooth scroll mid-glide.
+- Full-page captures (`*-full.png`) show the lens bar in its place at both widths since in-page jumps are instant; before that fix, 5 of 6 full captures caught the shell's smooth scroll mid-glide.
+
+## Fix pass 3 (after REVIEW-3: 42/50, hook 9, craft gate failed on one bug)
+
+### 1. The release rule (the gate)
+
+The bug: in the Phone state a plain click on a print, a 2 px jiggle, a vertical mouse drag and every touch scroll that started on a print threw the page back to Web. A tap on a print toggled the page, and on `pointercancel` (the browser taking a vertical pan) the handler read the cancel event's `clientX` (0) as the hand's last position, saw a long fast drag to the left, and snapped to Web.
+
+The fix, one gesture hook (`useLensGesture` in `Print.tsx`) for the prints and the switch track, following `snippets/mechanism.md`:
+- A press is undecided until it has moved 6 px (3 px on the 22 px switch track). It becomes a lens drag only if it is mostly sideways (|dx| > 1.5·|dy|); if it moved vertically first it is a page scroll and is ignored to its end. The pointer is captured only once it is a drag; `touch-action: pan-y` stays, so the browser keeps every vertical pan.
+- Release: the nearest face from the current angle plus the projected velocity (angle + v·0.2). The velocity is measured up to the release itself, so a hand that stopped and let go hands over nothing.
+- `pointercancel`: back to the face the drag started from; a cancel before a drag changes nothing.
+- Tap: a print does nothing on a tap (decision: a tap on a picture is a click or the end of a scroll on a phone, never "turn the whole page"); the switch track still flips on a tap (it is a switch), and each label picks its own face (clicking "Web" twice stays on Web).
+
+Gesture test (`scratchpad/loop12/gestures/log.txt`, production build): 20 of 20 pass. In the Phone state at 1440 (mouse): click on the hero print, 2 px jiggle, 160 px vertical drag with a 3 px wobble, and a wheel scroll over the print (the page scrolls 400 px) all stay on Phone; a 60 px flick left goes to Web; drags held still before release land on the nearest face (50 px from Phone → Phone; 80 px → Web; 50 px from Web → Web; 90 px → Phone); a `pointercancel` mid-drag returns to Phone. At 390 (CDP touch): vertical and diagonal touch scrolls starting on the hero and bayyinah.org prints and on the switch track scroll the page and stay on Phone; a tap on a print stays; a 90 px horizontal flick goes to Web. `Input.synthesizeScrollGesture` does not scroll this headless page at all (not even over plain text), so for that case only the state is checked (it stays on Phone).
+
+### 2. Load and entry frames
+
+- Only the hero's pictures are eager (as before); the others are lazy and decoded before the lens draws.
+- No blank card: every card carries a tiny copy of both faces (24 px wide WebP, about 250 bytes each, rendered from the print's own pictures by a script, `placeholders.ts`) as its background, the current face's copy showing until its pictures are decoded and the lens is up. A jump to a print far down shows a soft version of the right face, never the empty ground.
+- The checker's load long frames (about 1 s) remain its own in-page analysis; the page's own load frames at 4× are the shell's React mount and router (90–170 ms), unchanged.
+
+### 3. First screen: claim → switch → work
+
+The switch moved below the claim and the role line, directly above the hero print; it becomes sticky when reached. The claim is now the first line under the masthead at both widths; the first screen still holds all four answers and the three public links (390: links at y ≈ 820).
+
+### 4. "All work" → "More work"
+
+It lists 15 projects, not all of them. ("Selected work" is on the checker's microcopy list.)
+
+### 5. Dark theme (owner decision)
+
+- Chooses like the site: `html[data-theme]` when set (the site's toggle, stored under `theme`), else `prefers-color-scheme`. Tokens only: the light set on `.lx`, the dark set under `@media (prefers-color-scheme: dark) :root:not([data-theme="light"]) .lx` and `:root[data-theme="dark"] .lx`, each with `color-scheme`.
+- Palette, composed in oklch: ground #120d0a (16.5% L, 0.010 C, the bone's own 54° hue); care band #191310 and About #211a16 (+3% L each); ink #efe8e3 (93.5% L); secondary ink #b4a49b (73% L, ground hue); the Bayyinah red lifted 9.5% L with less chroma, #cc4e38, for the underline, thumb, face marks and focus ring (4.3:1 on the ground), and #e57157 for red text on hover (6.3:1); About's links and focus #eb8f72 (7.1:1). Text pairs: ink 15.9:1, secondary ink 8.0:1 on the ground, 7.1:1 on About. Print shadows become a 1 px lightness step and a soft dark drop; the screenshots keep their own colours, and the pre-printed sheen sits on the screenshots, not on the page ground, so it reads the same in both themes (no haze).
+- Control: Light ⇄ Dark, the same two-face switch as under each print, in the masthead from 720 px and at the foot of About on a phone (the masthead row is full at 390). It sets the site's attribute and storage key, turns transitions off for the frame it lands in (`html[data-theme-switching]`), and never touches the lens.
+- While the draft is open, html, body and every `theme-color` meta take the current ground (#f7efea light, #120d0a dark); all are restored on leaving.
+
+### Checker (production preview, 4× CPU, `--owner "Gentrit Rashiti" --facts CONTENT.md`)
+
+- Light, `--interact "click:.lx-lensctl label:last-of-type" --interact-frames 60,150,300,600`: PASS, 0 fails, 0 warnings (1440: work 37%, CLS 0.008, LCP 0.77 s; 390: work 28%, CLS 0, LCP 0.83 s).
+- Light, `--interact "drag-right:.lx-hero .lx-card" --interact-frames 60,150,300,600`: PASS, 0, 0 (CLS 0.008 / 0).
+- Dark (`--scheme dark`), click: PASS, 0, 0 (CLS 0.008 / 0.004; C06 sampled 120 / 118 text grounds, none under 4.5:1).
+- Dark, drag: PASS, 0, 0 (CLS 0.008 / 0).
+- Drag at 4× after the pass: 1440 two prints p95 16.8 ms, 390 two prints p95 16.8 ms, no long frames.
