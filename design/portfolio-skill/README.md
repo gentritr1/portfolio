@@ -70,4 +70,4 @@ Reviews: `loop-12/REVIEW.md` (first), `loop-12/DEVIL.md` (devil's advocate), `lo
 
 - Take LENTICULAR toward a 9: one lens angle for the whole page, driven by the pointer or one control, so every print turns together.
 - Run the next round with the v1.3 process: a round table, a card review before building, then builds.
-- `PRODUCT.md` still says internal care-platform screens stay recreations; the owner's later permission for real screens on invented data (LOOP-BRIEF, 2026-10-06) should be written into `PRODUCT.md` so the two files agree.
+- Done (2026-10-07): `PRODUCT.md` now allows real care-platform and Design System v2 screens on invented data, captioned "Real product screens, invented data.", matching the owner's permission of 2026-10-06.

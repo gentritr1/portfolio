@@ -14,17 +14,17 @@ Gentrit has shipped products across **healthcare**, **video streaming**, **e-rea
 
 The owner-approved visual direction is the hybrid recommended in `design/art-directions/ASTRA-ART-DIRECTIONS.md`: Index × Preview for home, a colour-sorted wall for all work, studio product shots and exploded technical diagrams for case pages, and a pan/zoom canvas with a desktop easter egg. One local sans family, one mono family, a dark/light neutral shell and restrained cobalt controls unify these surfaces. Product imagery supplies the stronger colour. DESIGN.md records the implemented visual system; `.impeccable/surfaces/src-app-tsx.md` records the page sequence.
 
-## Hard constraint: public products, public pages only
+## Hard constraint: public products, public pages, and labelled real screens
 
-Owner rule (2026-10-02):
+Owner rule (2026-10-02, updated 2026-10-06 for the care platform and the design system):
 
 - Public products may be named and linked, for example to their website, their store listings, or an archived store listing.
-- Screenshots come only from public pages and public store listings. Never capture a running app, a build, or any screen behind a login.
+- Screenshots come from public pages and public store listings. The one exception is below: the care-management platform and Design System v2 (Vianova). Never capture any other running app, build or screen behind a login.
 - Do not state a relation between the employer and a client. Do not say that a product was a client of the employer. The employer Vianova is named only on its own platform rows.
 - Employer names (Vianova, Incentiv, AvahiTech) belong only to their own work records. Agency work for clients keeps separate attribution, with no employer name. The index and wall may order projects by the approved visual structure without implying a relationship between an employer and a public product.
 - Products that are not public keep generic names ("chatbot runtime library", "member portal").
 - No client, tenant, patient or colleague names; no internal URLs, ticket IDs or API hosts.
-- Internal screens of the care-management platform remain live recreations: small interactive React components with invented data and no brand, built from scratch for this site. They evoke the feature; they do not copy the product.
+- Care-management platform and Design System v2 (owner permission, 2026-10-06): show real product screens, captured on invented data only, and caption each one "Real product screens, invented data." (files in `public/showcase/care-dashboard/` and `public/showcase/design-system/`). No hand-made recreations, no blur. Phone-width shots of the dashboard only for overview screens. Copy about this internal work stays high level: no internal counts, client or tenant names, patient data, internal URLs or ticket IDs.
 
 Personal projects (Snaxx Tech studio site, Offday, open-source forks) are Gentrit's own and may use real assets (see `public/personal/`).
 
