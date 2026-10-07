@@ -9,6 +9,14 @@
 //   - Fewer false positives: T12c, T13 (data-numbers), T21, T23, T31, C05 (WCAG 2.5.8 spacing), C07 (11 px), M06, M08 (per section), T06b var().
 //   - Motion: transition/animation events and rAF callbacks are logged; M02 fails above 1,100 ms unless data-motion="story"; M09c, M10, M11, C17.
 //   - T16/T17/T33 see pseudo-element loops; C06b samples contrast over images and gradients; T26b nav CTA; --scheme dark; --list.
+// Changelog (2026-10-07, round 2, from the loop-12 builders' reports):
+//   - --frames counts from the first visible `h1, [data-work]` (or --frames-after <css>), not from navigation; the report says which start.
+//   - --interact "<action>:<css>" + --interact-frames: each frame re-runs the action on a fresh load and freezes the page at that time.
+//   - Media rects are clipped by their overflow ancestors (C01, first-screen membership, C16c); C08b/C08c still use the rendered width.
+//   - T45 skips [data-measured]; list F (T10/T10b) only reads nav, header, footer, buttons, links and headings, never captions or [data-work].
+//   - M08 skips a canvas/svg overlay on a visible picture; M06 re-measures once and skips phones with touch-action on the scroller.
+//   - T18/T18c/H01 judge the face that rendered (C19 when the display face had not loaded); H12/T34/T35 read the ground behind the hero.
+//   - C17 is info on a dev server (Vite); C05b warns only when a phone target is under 44px in both directions.
 //
 // Opens a page in Chromium at two sizes and reports:
 //   1. template tells (AI "slop"): pill eyebrow over the hero title, gradient text,
@@ -22,8 +30,26 @@
 //   node check.mjs <url> [--out dir] [--name slug] [--viewports 1440x900,390x844]
 //                  [--mode read] [--owner "Name"] [--facts CONTENT.md[,more.md]]
 //                  [--fonts-ok "Alias=Real Face"] [--scheme dark] [--allow "T06=reason;…"]
-//                  [--throttle 4] [--frames 120,320,700] [--json]
+//                  [--throttle 4] [--frames 120,320,700] [--frames-after "<css>"]
+//                  [--interact "click:<css>"] [--interact-frames 60,150,300,600] [--json]
 //   node check.mjs --list      # every finding id, its severity rule and meaning (Markdown)
+//
+// --frames: screenshots <w>-t<ms>.png at those ms after the start. The start is the moment the
+//   --frames-after selector is first visible (has a box and is not visibility:hidden; opacity is
+//   ignored so an entrance fade is captured). Default selector: `h1, [data-work]`, waited for up to
+//   10 s; without it the frames count from navigation, as before. The report names the start used.
+// --interact: actions click, hover, drag-right, drag-left, key-ArrowRight, key-Enter on the first
+//   visible match of the selector, after load (the element is scrolled to the middle and left to
+//   settle for 1.2 s; the pointer rests on it first for click and drag, so hover motion is not
+//   captured as part of the click). For each --interact-frames time the page is loaded fresh and the
+//   action re-run, so every frame starts from the same state. The action starts at the first
+//   pointerdown (click, drag), pointerover (hover) or keydown (keys) on the element. At the frame time
+//   the page freezes: every document.getAnimations() entry (CSS animations, transitions, WAAPI) is
+//   paused and set to exactly <ms> after the action started (animation.currentTime), held rAF
+//   callbacks stop script-driven motion (springs, canvas) at the last frame before <ms> (± 1 frame),
+//   videos pause and further input is blocked; then page.screenshot captures <w>-i<ms>.png. The
+//   report lists the frozen time, paused animations and held rAF callbacks per frame. Drags move 40%
+//   of the element's width (at most 200 px) in 10 steps over about 160 ms, then release.
 //
 // Exit code 1 when a hard fail is found, so loops can stop on it.
 // Needs Playwright (playwright or playwright-core). Set PLAYWRIGHT_MODULE or
@@ -58,7 +84,7 @@ const CHECKS = [
   ["T08", "✗", "Blurred colour blobs."],
   ["T09", "✗ in headings/buttons or 3+, else △", "Emoji in headings, links, list items or the first screen."],
   ["T10", "✗", "Banned phrase (lists A, B and template phrases in `data/phrases.json`) in the first screen."],
-  ["T10b", "✗ at 3+ banned, else △", "Banned phrases or microcopy templates (list F: Let's talk, Hire me, Selected work, Home, Services …) on the page."],
+  ["T10b", "✗ at 3+ banned, else △", "Banned phrases or microcopy templates (list F: Let's talk, Hire me, Selected work, Home, Services …) on the page. List F is read only in nav, header, footer, buttons, links and headings, never in figcaptions, table captions or `[data-work]` (an app screen's own \"Home\" tab is not nav microcopy)."],
   ["T10c", "✗", "Scope dodge in project text (list D: worked on, helped with, was involved in, contributed to, responsible for …). Project text: the whole page in `--mode read`; work/project sections otherwise."],
   ["T10d", "△", "Result dodge with no number in the same sentence (list E: improved, enhanced, optimised, significantly, modern/clean/intuitive …)."],
   ["T10e", "△", "Mixed voice: \"I\" together with he/his/him or \"<owner> is\"; or he/his/him used for the owner (needs the owner name)."],
@@ -73,9 +99,9 @@ const CHECKS = [
   ["T15", "△", "Bento grid of rounded cards."],
   ["T16", "✗ green, else △", "Pulsing status dot, pseudo-element loops included."],
   ["T17", "✗ logos, △ words", "Endless marquee."],
-  ["T18", "✗", "Largest text in a default face (Inter, Geist, system, Roboto, Poppins, Montserrat, DM Sans …), also behind an `@font-face` alias whose `src` is a default face. `--fonts-ok \"Alias=Real\"` vouches for an alias."],
+  ["T18", "✗", "Largest text in a default face (Inter, Geist, system, Roboto, Poppins, Montserrat, DM Sans …), also behind an `@font-face` alias whose `src` is a default face. `--fonts-ok \"Alias=Real\"` vouches for an alias. Judges the face that rendered: when the declared `@font-face` display face had not loaded (C19), the fallback that was shown."],
   ["T18b", "△", "More than three type families (families under 1% of the characters are ignored)."],
-  ["T18c", "△", "Reflex display face (Fraunces, Space Grotesk, Instrument Serif, Playfair, Syne …). Keep it with `allow T18c: <reason>`."],
+  ["T18c", "△", "Reflex display face (Fraunces, Space Grotesk, Instrument Serif, Playfair, Syne …), as rendered. Keep it with `allow T18c: <reason>`."],
   ["T19", "△", "Three or more stock Tailwind greys/indigos."],
   ["T20", "△", "One radius ≥ 14px on 60%+ of boxes."],
   ["T21", "△", "Numbered section labels (\"01 / About\", ≤ 24 chars, a separator after the number) in 3+ places outside one list."],
@@ -93,8 +119,8 @@ const CHECKS = [
   ["T31", "△ at 2+", "\"Not X. Y.\" cadence: both fragments ≤ 4 words, no verb in the second."],
   ["T32", "✗", "Effect-library components and spinning conic borders."],
   ["T33", "△", "Scroll cue: a \"scroll\" label or a looping arrow near the bottom of the first screen."],
-  ["T34", "✗", "Dark ground with neon glow."],
-  ["T35", "△", "Pure black on white, or the reverse."],
+  ["T34", "✗", "Dark ground with neon glow (the ground behind the hero, as for T35)."],
+  ["T35", "△", "Pure black on white, or the reverse: the effective background behind the hero (or the first full-width section; `body` as a fallback) and that ground's ink. Drafts inside a shared app shell style their own root."],
   ["T36", "✗ at 3+, else △", "Card inside a card (screen frames excluded)."],
   ["T37", "△", "Italic accent word in a second family inside a heading."],
   ["T38", "✗", "Tech-stack logo grid."],
@@ -104,15 +130,15 @@ const CHECKS = [
   ["T42", "✗ at 5+, △ at 4", "Sections in a row with the same rhythm and centred headings."],
   ["T43", "✗", "Heading text that changes by itself (typewriter, rotating words)."],
   ["T44", "✗ at 5+, △ at 3+", "\"X, Y and Z\" triplets in the copy."],
-  ["T45", "△", "Numbers (2+ digits, or with + or %) in headings, rows or the first screen that are not in the `--facts` files. Years inside a fact's year range pass."],
-  ["C01", "✗", "Work fills less than 25% of the first screen at 1440 / 20% at 390 (15% / 12% in `--mode read`). Counts img, picture, iframe, [role=img], background images and `[data-work]`; canvas and video only inside `[data-work]`. Areas are unioned, so the share never passes 100%."],
+  ["T45", "△", "Numbers (2+ digits, or with + or %) in headings, rows or the first screen that are not in the `--facts` files. Years inside a fact's year range pass. Text inside `[data-measured]` (a computed readout such as \"Shown at actual size: 825 of 1440 pixels\") is skipped."],
+  ["C01", "✗", "Work fills less than 25% of the first screen at 1440 / 20% at 390 (15% / 12% in `--mode read`). Counts img, picture, iframe, [role=img], background images and `[data-work]`; canvas and video only inside `[data-work]`. Each rect is first clipped by its overflow ancestors (hidden, clip, auto, scroll), so a crop window counts only what it shows. Areas are unioned, so the share never passes 100%."],
   ["C01b", "✗", "The first-screen work has no name: no alt, aria-label or `data-work` value."],
   ["C02", "✗ > 120, △ > 90 (read: △ > 170)", "Words in the first screen outside the nav and `[data-work]`."],
   ["C02b", "△", "Hero heading over 20 words."],
   ["C03", "△", "More than 6 type sizes in the first screen."],
   ["C04", "✗", "The page scrolls sideways."],
   ["C05", "✗ when crowded, △ when spaced", "Target under 24px. Fails only when its 24px circle touches another target (WCAG 2.5.8 spacing exception); inline links in sentences are exempt."],
-  ["C05b", "△", "Phone target under 44px."],
+  ["C05b", "△ when < 44px in both width and height", "Phone target under 44px in both directions (border box with padding; an absolutely positioned ::before/::after hit area counts). A short spaced link such as \"CV\" that is 44px tall passes (WCAG 2.5.8 spacing)."],
   ["C06", "✗", "Text below 4.5:1 (3:1 for large text) on a solid ground."],
   ["C06b", "✗ body text < 3:1, △ < 4.5:1 (large < 3:1)", "Text over an image or gradient: contrast against the average colour sampled behind the text box (approximate)."],
   ["C07", "△", "Text under 11px, or 11–12px text that is not a short caps label (tracked ≥ 0.04em) or mono label of ≤ 3 words."],
@@ -137,10 +163,11 @@ const CHECKS = [
   ["C15", "△", "Text cut off by its box."],
   ["C16", "✗", "Zoom disabled."],
   ["C16b", "△", "No lang on <html>."],
-  ["C16c", "△", "Lazy-loaded first-screen image."],
+  ["C16c", "△", "Lazy-loaded first-screen image (over 200px wide; judged on the overflow-clipped rect, so an image in a crop window below the fold is not first-screen)."],
   ["C16d", "△", "`transition: all` in the stylesheets."],
-  ["C17", "△ > 1,500ms; with --throttle: △ > 1,000ms, ✗ > 2,500ms", "Largest contentful paint."],
+  ["C17", "△ > 1,500ms; with --throttle: △ > 1,000ms, ✗ > 2,500ms; info on a dev server", "Largest contentful paint. On a dev server (Vite: a `/@vite/client` script) it mostly measures the host's lazy loading, so it is info: measure on a production build (vite build + vite preview)."],
   ["C18", "✗ when the biggest text is the owner's name, else △", "The claim (the h1) is not the largest text in the first screen: another text is more than 1.15× its size, or the name itself is the h1 and the largest text."],
+  ["C19", "△", "Display face not rendered at capture (fallback shown): the first family of the display text is a web font (`@font-face` with a `url()` source) that had not loaded (no face loaded or `document.fonts.check()` false for its style, weight, size and text), or that loaded but a DOM probe renders exactly as wide as without it (`font-display: optional` that missed its window). T18, T18c and H01 then judge the fallback that rendered. A family with no `@font-face`, or one whose sources are all `local()`, is taken as declared (the visitor's installed fonts are unknown)."],
   ["M01", "✗ > 3, △ 2–3", "Endless animations."],
   ["M02", "✗ > 1,100ms (△ under `data-motion=\"story\"`), △ > 900ms", "Long animations and transitions, sampled and from transition/animation events (colour-only transitions ignored)."],
   ["M03", "△", "Animations on layout properties."],
@@ -149,9 +176,9 @@ const CHECKS = [
   ["M04b", "△", "ease-in on an animation."],
   ["M04c", "△", "Entrance from scale(0)."],
   ["M05", "△", "Smooth-scroll library."],
-  ["M06", "△", "The wheel moves the page less than expected (skipped on pages shorter than 3 screens)."],
+  ["M06", "△", "The wheel moves the page less than expected, on two passes (it re-measures once from the top before reporting). Skipped on pages shorter than 3 screens, and on phones when the main scroller (html, body or main) sets `touch-action`."],
   ["M07", "✗", "Content still invisible in view after scrolling."],
-  ["M08", "✗ at 6+, △ at 4+", "Sections that start invisible below the fold (counted per top-level section)."],
+  ["M08", "✗ at 6+, △ at 4+", "Sections that start invisible below the fold (counted per top-level section). A canvas or svg laid over a visible img/picture/canvas/video in the same parent (covering ≥ 50% of its box, such as a lens or effect layer waiting for its paint) is not content that starts invisible."],
   ["M08b", "△", "One figure or list hides more than 12 children until scrolled."],
   ["M09", "✗", "Moving loops still run under reduced motion."],
   ["M09b", "△", "Movement runs under reduced motion."],
@@ -172,7 +199,7 @@ const BY_HAND = [
   ["Costumes and props", "Retro OS, fake terminal, device fans, invented testimonials and logos (`anti-slop.md`)."],
   ["Readability", "Sentence length and grade level (`writing.md`)."],
 ];
-const SIGNALS = "H01 display face, H02 type decision (stretch, variation, numerals, balance), H03 asymmetry, H04 work large (≥ 25% / 20%), H09 themed surfaces, H11 name small, H12 tinted ground, H15 self-hosted fonts.";
+const SIGNALS = "H01 display face (as rendered), H02 type decision (stretch, variation, numerals, balance), H03 asymmetry, H04 work large (≥ 25% / 20%), H09 themed surfaces, H11 name small, H12 tinted ground (behind the hero, else the first full-width section, else body), H15 self-hosted fonts.";
 
 function listMarkdown() {
   const sevHasWarn = (s) => s.includes("△");
@@ -183,7 +210,11 @@ function listMarkdown() {
     "",
     "Severity: ✗ hard fail (one fails the draft), △ warning, info (printed, never counted). A soft T-tell adds its weight to `T00`; three points fail the page, two warn. Allow a deliberate exception with `<meta name=\"portfolio-check\" content=\"allow T06b: reason\">` or `--allow \"T06b=reason\"`; allowed findings print as ○ and do not count.",
     "",
-    "Flags: `--owner \"Name\"` (or `<meta name=\"author\">`) for C18, T27, T10e; `--facts CONTENT.md` for T45; `--mode read` for case and about pages; `--fonts-ok \"Alias=Real\"`; `--scheme dark`; `--throttle 4` for C17 and M10. Markers: `data-work=\"<product>\"`, `data-numbers`, `data-motion=\"story\"`.",
+    "Flags: `--owner \"Name\"` (or `<meta name=\"author\">`) for C18, T27, T10e; `--facts CONTENT.md` for T45; `--mode read` for case and about pages; `--fonts-ok \"Alias=Real\"`; `--scheme dark`; `--throttle 4` for C17 and M10. Markers: `data-work=\"<product>\"`, `data-numbers`, `data-measured`, `data-motion=\"story\"`.",
+    "",
+    "Frames: `--frames 120,320,700` saves `<w>-t<ms>.png` at those ms after the start: the first visible `--frames-after \"<css>\"` (default `h1, [data-work]`, waited for up to 10 s; else navigation). Visible means a box and not `visibility: hidden`; opacity is ignored, so an entrance fade is captured. The report names the start used.",
+    "",
+    "Interactions: `--interact \"<action>:<css>\"` (click, hover, drag-right, drag-left, key-ArrowRight, key-Enter) with `--interact-frames 60,150,300,600` saves `<w>-i<ms>.png` and adds them to `sheet.png` as a second row. Each frame loads the page fresh, waits for it to settle, re-runs the action, and freezes the page <ms> after the action starts (first pointerdown, pointerover or keydown on the element): `document.getAnimations()` are paused and set to exactly <ms> via `currentTime`, page rAF callbacks are held (script springs and canvas stop within one frame of <ms>), videos pause and input is blocked; then `page.screenshot`. Drags move 40% of the element's width (≤ 200px) in 10 steps (~160 ms) and release.",
     "",
     "| Id | Severity | T00 weight | Meaning |",
     "|---|---|---|---|",
@@ -202,7 +233,7 @@ if (argv.includes("--list")) {
 }
 if (!argv.length || argv.includes("--help") || argv[0].startsWith("--")) {
   console.log(
-    'node check.mjs <url> [--out dir] [--name slug] [--viewports 1440x900,390x844] [--mode read] [--owner "Name"] [--facts CONTENT.md] [--fonts-ok "Alias=Real"] [--scheme dark] [--allow "T06=reason;…"] [--throttle 4] [--frames 120,320,700] [--json]\nnode check.mjs --list',
+    'node check.mjs <url> [--out dir] [--name slug] [--viewports 1440x900,390x844] [--mode read] [--owner "Name"] [--facts CONTENT.md] [--fonts-ok "Alias=Real"] [--scheme dark] [--allow "T06=reason;…"] [--throttle 4] [--frames 120,320,700] [--frames-after "<css>"] [--interact "click|hover|drag-right|drag-left|key-ArrowRight|key-Enter:<css>"] [--interact-frames 60,150,300,600] [--json]\nnode check.mjs --list',
   );
   process.exit(argv.includes("--help") ? 0 : 2);
 }
@@ -220,10 +251,34 @@ const viewports = flag("viewports", "1440x900,390x844")
   .split(",")
   .map((v) => v.split("x").map(Number));
 const throttle = Number(flag("throttle", "0"));
-const frames = flag("frames", "")
+const framesAfter = (flag("frames-after", "") || "").trim();
+const frames = flag("frames", framesAfter ? "120,320,700" : "")
   .split(",")
   .filter(Boolean)
-  .map(Number);
+  .map(Number)
+  .filter((n) => Number.isFinite(n) && n >= 0);
+// --interact "<action>:<css selector>" with --interact-frames <ms,…>.
+const ACTIONS = ["click", "hover", "drag-right", "drag-left", "key-ArrowRight", "key-Enter"];
+const interact = (() => {
+  const spec = (flag("interact", "") || "").trim();
+  if (!spec) return null;
+  const i = spec.indexOf(":");
+  const action = i > 0 ? spec.slice(0, i).trim() : "";
+  const selector = i > 0 ? spec.slice(i + 1).trim() : "";
+  if (!ACTIONS.includes(action) || !selector) {
+    console.error(`--interact "${spec}": expected "<action>:<css selector>" with action one of ${ACTIONS.join(", ")}`);
+    process.exit(2);
+  }
+  const at = flag("interact-frames", "60,150,300,600")
+    .split(",")
+    .map((x) => Number(x.trim()))
+    .filter((n) => Number.isFinite(n) && n >= 0);
+  if (!at.length) {
+    console.error("--interact-frames: expected a list of ms, e.g. 60,150,300,600");
+    process.exit(2);
+  }
+  return { action, selector, at: [...new Set(at)].sort((a, b) => a - b) };
+})();
 const asJson = argv.includes("--json");
 const mode = flag("mode", "experience"); // "read" for case studies and about pages
 const owner = (flag("owner", "") || "").trim();
@@ -341,15 +396,24 @@ const INIT = () => {
     }).observe({ type: "largest-contentful-paint", buffered: true });
   } catch {}
   // requestAnimationFrame callbacks, to find canvas/JS loops that ignore reduced motion.
+  // The native rAF stays available to the checker (w.__pcRaf). While --interact has frozen the page
+  // (w.__pcHold), page callbacks are held and dropped, so script-driven motion stops on its last frame.
   try {
     const raf = w.requestAnimationFrame;
-    if (raf)
+    if (raf) {
+      w.__pcRaf = (cb) => raf.call(w, cb);
+      w.__pcHeld = 0;
       w.requestAnimationFrame = function (cb) {
         return raf.call(w, function (t) {
+          if (w.__pcHold) {
+            w.__pcHeld++;
+            return;
+          }
           w.__pc.raf++;
           return cb(t);
         });
       };
+    }
   } catch {}
   // CSS transitions and animations as they start (scroll reveals included).
   const lab = (el) =>
@@ -439,6 +503,103 @@ const INIT = () => {
   };
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start);
   else start();
+};
+
+// --frames start: the first moment an element matching `sel` has a box and is not visibility:hidden
+// (opacity is ignored, so an entrance fade still counts as shown). Times are ms after navigation.
+const WATCH_START = ({ sel, limit }) => {
+  const w = window;
+  w.__pcStart = null;
+  const raf = w.__pcRaf || ((cb) => setTimeout(() => cb(performance.now()), 16));
+  const lab = (el) =>
+    el.nodeName.toLowerCase() + (typeof el.className === "string" && el.className.trim() ? "." + el.className.trim().split(/\s+/)[0] : "") + ((el.textContent || "").trim() ? ` "${(el.textContent || "").trim().replace(/\s+/g, " ").slice(0, 40)}"` : "");
+  const tick = () => {
+    if (w.__pcStart) return;
+    let list = [];
+    try {
+      list = document.querySelectorAll(sel);
+    } catch (e) {
+      w.__pcStart = { error: String(e.message || e) };
+      return;
+    }
+    for (const el of list) {
+      const r = el.getBoundingClientRect();
+      if (r.width < 2 || r.height < 2) continue;
+      const s = getComputedStyle(el);
+      if (s.visibility === "hidden" || s.display === "none" || el.closest("[hidden]")) continue;
+      w.__pcStart = { t: performance.now(), label: lab(el) };
+      return;
+    }
+    if (performance.now() < limit) raf(tick);
+    else w.__pcStart = { timeout: true };
+  };
+  raf(tick);
+};
+
+// --interact: arm a freeze `ms` after the action starts on the element marked data-pc-interact.
+const ARM = ({ ms, events, strict }) => {
+  const w = window;
+  const target = document.querySelector("[data-pc-interact]");
+  const raf = w.__pcRaf || ((cb) => setTimeout(() => cb(performance.now()), 16));
+  w.__pcFrozen = null;
+  w.__pcHold = false;
+  w.__pcHeld = 0;
+  let t0 = null;
+  const pauseAll = (exact) => {
+    let paused = 0;
+    const names = [];
+    for (const a of document.getAnimations()) {
+      try {
+        if (a.playState !== "running" && !(a.playState === "paused" && exact)) continue;
+        const start = a.startTime;
+        const rate = a.playbackRate || 1;
+        if (a.playState === "running") a.pause();
+        // Set the animation to exactly `ms` after the action started (document timeline only).
+        if (exact && start != null && a.timeline === document.timeline) a.currentTime = Math.max(0, (t0 + ms - start) * rate);
+        paused++;
+        const t = a.effect && a.effect.target;
+        if (names.length < 6 && t) names.push((t.nodeName || "").toLowerCase() + (typeof t.className === "string" && t.className.trim() ? "." + t.className.trim().split(/\s+/)[0] : "") + " " + (a.animationName || a.transitionProperty || a.id || a.constructor.name));
+      } catch {}
+    }
+    return { paused, names };
+  };
+  const freeze = (frameT) => {
+    w.__pcHold = true;
+    const p = pauseAll(true);
+    for (const v of document.querySelectorAll("video")) {
+      try {
+        v.pause();
+      } catch {}
+    }
+    // Anything that starts after the freeze (a late state change) is paused where it starts.
+    for (const type of ["transitionrun", "transitionstart", "animationstart"]) w.addEventListener(type, () => pauseAll(false), true);
+    for (const type of ["pointerdown", "pointermove", "pointerup", "pointerover", "pointerout", "mousedown", "mousemove", "mouseup", "mouseover", "mouseout", "click", "keydown", "keyup", "wheel", "touchstart", "touchmove", "touchend"])
+      w.addEventListener(
+        type,
+        (e) => {
+          e.stopImmediatePropagation();
+        },
+        true,
+      );
+    // at: when the page froze (ms after the action started); frame: the timestamp of that frame.
+    w.__pcFrozen = { at: Math.round(performance.now() - t0), frame: Math.round(frameT - t0), paused: p.paused, names: p.names };
+  };
+  const loop = (frameT) => {
+    if (w.__pcFrozen) return;
+    if (frameT >= t0 + ms - 8 || performance.now() >= t0 + ms) freeze(Math.max(frameT, t0));
+    else raf(loop);
+  };
+  const begin = (e) => {
+    if (t0 !== null) return;
+    // Hover counts only once the pointer is over the element; clicks, drags and keys start on their first event.
+    if (strict && e && target && !(e.target === target || (e.target && e.target.nodeType === 1 && target.contains(e.target)))) return;
+    t0 = performance.now();
+    w.__pcT0 = { t: t0, by: e ? e.type : "fallback" };
+    if (ms <= 0) freeze(t0);
+    else raf(loop);
+  };
+  w.__pcBegin = () => begin(null);
+  for (const type of events) w.addEventListener(type, begin, { capture: true, passive: true });
 };
 
 // ---------------------------------------------------------------------------
@@ -543,6 +704,49 @@ const DETECT = ({ phone, mode, owner, fontsOk, phrases, factsText }) => {
   const inFirst = (el) => {
     const r = docRect(el);
     return r.y < vh && r.bottom > 0 && r.x < vw && r.right > 0;
+  };
+  // The part of an element its overflow ancestors let through (hidden, clip, auto, scroll), per axis.
+  // An ancestor clips only when it is on the containing-block chain (absolute and fixed boxes skip
+  // static ancestors). Returns a viewport rect like getBoundingClientRect (width 0 when clipped away).
+  const clipCache = new Map();
+  const clipRect = (el) => {
+    if (clipCache.has(el)) return clipCache.get(el);
+    const r = el.getBoundingClientRect();
+    let x0 = r.left, y0 = r.top, x1 = r.right, y1 = r.bottom;
+    let pos = style(el).position;
+    for (let n = el.parentElement; n && n !== document.documentElement; n = n.parentElement) {
+      const s = style(n);
+      const isCb =
+        pos === "fixed"
+          ? s.transform !== "none" || s.filter !== "none" || s.perspective !== "none" || /paint|layout|strict|content/.test(s.contain || "")
+          : pos === "absolute"
+            ? s.position !== "static" || s.transform !== "none" || s.filter !== "none" || /paint|layout|strict|content/.test(s.contain || "")
+            : true;
+      if (!isCb) continue;
+      pos = s.position;
+      if (s.display === "contents" || s.display === "inline") continue;
+      // body's overflow moves to the viewport when html's is visible; then body does not clip.
+      if (n === document.body && style(document.documentElement).overflowX === "visible" && style(document.documentElement).overflowY === "visible") continue;
+      const ox = s.overflowX !== "visible", oy = s.overflowY !== "visible";
+      if (!ox && !oy) continue;
+      const q = n.getBoundingClientRect();
+      const l = q.left + n.clientLeft, t = q.top + n.clientTop;
+      if (ox) {
+        x0 = Math.max(x0, l);
+        x1 = Math.min(x1, l + n.clientWidth);
+      }
+      if (oy) {
+        y0 = Math.max(y0, t);
+        y1 = Math.min(y1, t + n.clientHeight);
+      }
+    }
+    const out = { left: x0, top: y0, right: Math.max(x0, x1), bottom: Math.max(y0, y1), width: Math.max(0, x1 - x0), height: Math.max(0, y1 - y0) };
+    clipCache.set(el, out);
+    return out;
+  };
+  const inFirstClipped = (el) => {
+    const r = clipRect(el);
+    return r.width > 0 && r.height > 0 && r.top + scrollY < vh && r.bottom + scrollY > 0 && r.left + scrollX < vw && r.right + scrollX > 0;
   };
   const label = (el) => {
     if (!el) return "";
@@ -716,6 +920,92 @@ const DETECT = ({ phone, mode, owner, fontsOk, phrases, factsText }) => {
     return defaults.test(r) && !/mono|slab|(?<!sans-)serif/i.test(r);
   };
   const reflex = /(space grotesk|plus jakarta|manrope|outfit|syne|playfair|merriweather|lora|instrument serif|instrument sans|fraunces|newsreader|cormorant|dm serif|recoleta|ibm plex sans|geist mono|space mono)/i;
+  // The face that actually rendered. The first family of the stack is taken as rendered unless it is an
+  // @font-face face that had not loaded at capture: no face of it loaded, document.fonts.check() false
+  // for the element's style, weight, size and text, or a DOM probe with the face renders exactly as wide
+  // as the same probe without it (font-display: optional that missed its window). Then the fallback is
+  // the next family that renders: a loaded @font-face face, an installed local face, or a generic.
+  // A family with no @font-face is taken as declared: the visitor's installed fonts are unknown.
+  const genericFam = /^(serif|sans-serif|monospace|cursive|fantasy|system-ui|ui-serif|ui-sans-serif|ui-monospace|ui-rounded|math|emoji|fangsong|-apple-system|blinkmacsystemfont)$/i;
+  const faceList = document.fonts ? [...document.fonts] : [];
+  const unq = (f) => f.trim().replace(/^["']|["']$/g, "").trim();
+  const facesOf = (f) => faceList.filter((ff) => unq(ff.family).toLowerCase() === f.toLowerCase());
+  // An @font-face whose sources are all local() is an alias to an installed face: like a plain local
+  // family, whether it loads depends on the machine, so it is taken as declared (the alias map judges it).
+  const cssSrcs = new Map();
+  for (const r of fontFaces) {
+    const fam = unq(r.style.getPropertyValue("font-family") || "").toLowerCase();
+    if (fam) cssSrcs.set(fam, [...(cssSrcs.get(fam) || []), r.style.getPropertyValue("src") || ""]);
+  }
+  const localOnly = (f) => (cssSrcs.get(f.toLowerCase()) || []).length > 0 && cssSrcs.get(f.toLowerCase()).every((src) => !/url\(/i.test(src));
+  const probeCtx = document.createElement("canvas").getContext("2d");
+  const probeText = "mmmmmmmmmmlli1WQ@#&gyÅ";
+  const installed = (f) =>
+    ["monospace", "serif", "sans-serif"].some((g) => {
+      probeCtx.font = `72px ${g}`;
+      const a = probeCtx.measureText(probeText).width;
+      probeCtx.font = `72px "${f}", ${g}`;
+      return probeCtx.measureText(probeText).width !== a;
+    });
+  const famCss = (list) => list.map((f) => (genericFam.test(f) ? f : `"${f.replace(/"/g, '\\"')}"`)).join(", ");
+  const domWidth = (s, fams, text) => {
+    const sp = document.createElement("span");
+    sp.textContent = text;
+    sp.style.cssText = `position:absolute;left:-99999px;top:0;visibility:hidden;white-space:pre;font-size:40px;font-family:${fams};font-weight:${s.fontWeight};font-style:${s.fontStyle};font-stretch:${s.fontStretch};font-variation-settings:${s.fontVariationSettings};letter-spacing:0`;
+    document.body.appendChild(sp);
+    const w = sp.getBoundingClientRect().width;
+    sp.remove();
+    return w;
+  };
+  const renderedCache = new Map();
+  const renderedFace = (el) => {
+    if (!el) return null;
+    if (renderedCache.has(el)) return renderedCache.get(el);
+    const s = style(el);
+    const stack = s.fontFamily.split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/).map(unq).filter(Boolean);
+    const declared = stack[0] || "";
+    const sample = (el.innerText || el.textContent || "").trim().replace(/\s+/g, " ").slice(0, 60) || "Ag";
+    const fontStr = (f) => `${/italic|oblique/.test(s.fontStyle) ? "italic " : ""}${s.fontWeight} ${px(s.fontSize) || 16}px "${f.replace(/"/g, '\\"')}"`;
+    const webLoaded = (f, faces) => {
+      if (!faces.some((ff) => ff.status === "loaded")) return false;
+      try {
+        return document.fonts.check(fontStr(f), sample);
+      } catch {
+        return true;
+      }
+    };
+    const faces0 = genericFam.test(declared) || localOnly(declared) ? [] : facesOf(declared);
+    const out = { declared, rendered: declared, web: faces0.length > 0, localAlias: localOnly(declared), status: faces0.length ? [...new Set(faces0.map((ff) => ff.status))].join("/") : null, notLoaded: false, why: "" };
+    if (faces0.length) {
+      let ok = webLoaded(declared, faces0);
+      if (!ok) out.why = `FontFace ${out.status}, document.fonts.check() false`;
+      if (ok && stack.length > 1) {
+        const t = probeText + sample;
+        const rest = famCss(stack.slice(1));
+        if (Math.abs(domWidth(s, famCss(stack), t) - domWidth(s, rest, t)) < 0.01) {
+          ok = false;
+          out.why = "loaded, but the text renders exactly as wide as the fallback (font-display: optional missed its window?)";
+        }
+      }
+      if (!ok) {
+        out.notLoaded = true;
+        out.rendered = "serif"; // the browser default when nothing in the stack renders
+        for (const f of stack.slice(1)) {
+          if (genericFam.test(f)) {
+            out.rendered = f;
+            break;
+          }
+          const faces = facesOf(f);
+          if (faces.length ? webLoaded(f, faces) : installed(f)) {
+            out.rendered = f;
+            break;
+          }
+        }
+      }
+    }
+    renderedCache.set(el, out);
+    return out;
+  };
 
   // ======================================================================
   // TEMPLATE TELLS
@@ -887,14 +1177,53 @@ const DETECT = ({ phone, mode, owner, fontsOk, phrases, factsText }) => {
   const labelEls = visibleEls.filter((el) => el.matches("a,button,h1,h2,h3,h4,h5,h6,summary,li,dt,th,figcaption,small") || (el.closest("footer,nav,[role=contentinfo]") && ownText(el).length > 0));
   const allLabels = labelsOf(labelEls);
   const firstLabels = labelsOf(labelEls.filter(inFirst));
+  // List F (microcopy templates) is read only in the page's own chrome and controls: nav, header,
+  // footer, buttons, links and headings. Never in figcaptions, table captions or [data-work]: an app
+  // screen's "Home" tab in a caption is the work, not nav microcopy.
+  const fScope = "nav,header,footer,[role=navigation],[role=banner],[role=contentinfo],a[href],button,[role=button],[role=link],h1,h2,h3,h4,h5,h6";
+  const fOut = "figcaption,caption,[data-work]";
+  const fText = (el) => {
+    // The element's visible text without the parts inside figcaptions, captions and [data-work].
+    const parts = [];
+    const tw = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+    for (let n = tw.nextNode(); n; n = tw.nextNode()) {
+      const p = n.parentElement;
+      if (!p || !n.textContent.trim() || p.closest(fOut) || !visible(p)) continue;
+      parts.push(n.textContent.trim(), /^inline/.test(style(p).display) ? " " : "\n");
+    }
+    return parts.join("").replace(/[ \t]+/g, " ").trim();
+  };
+  const fCands = visibleEls.filter((el) => el.matches(fScope) && !el.closest(fOut));
+  const fEls = fCands.filter((el) => !fCands.some((o) => o !== el && o.contains(el)));
+  const fLabelsOf = (els) => {
+    const out = [];
+    for (const el of els) {
+      const t = fText(el);
+      if (!t) continue;
+      for (const frag of t.split(/\s*[·•|]\s*|(?<=[.!?])\s+|\n+/)) {
+        const f = frag.trim().replace(/[.!?:;,]+$/, "").trim();
+        if (f && f.length <= 40) out.push(f);
+      }
+    }
+    return out;
+  };
+  const fLabelEls = visibleEls.filter((el) => el.closest(fScope) && !el.closest(fOut) && (el.matches(fScope) || ownText(el).length > 0));
+  const F = {
+    text: fEls.map(fText).join("\n").replace(/\s+/g, " "),
+    first: fEls.filter(inFirst).map(fText).join("\n").replace(/\s+/g, " "),
+    labels: fLabelsOf(fLabelEls),
+    firstLabels: fLabelsOf(fLabelEls.filter(inFirst)),
+  };
   const hitIn = (e, text, labels) => (e.on === "label" ? labels.some((l) => e.rx.test(l)) : e.rx.test(text));
+  const hitFirst = (e) => (e.list === "F" ? hitIn(e, F.first, F.firstLabels) : hitIn(e, firstScreenText, firstLabels));
+  const hitPage = (e) => (e.list === "F" ? hitIn(e, F.text, F.labels) : hitIn(e, bodyText, allLabels));
 
   // T10 / T10b template phrases (lists A, B, F, T).
   const tplPhrases = P.filter((p) => ["A", "B", "F", "T"].includes(p.list));
-  const firstFail = tplPhrases.filter((e) => e.sev === "fail" && hitIn(e, firstScreenText, firstLabels));
+  const firstFail = tplPhrases.filter((e) => e.sev === "fail" && hitFirst(e));
   if (firstFail.length)
     add("T10", "fail", "Template phrases in the first screen", "Replace with a plain, specific sentence: what was built, for whom, with one fact.", [...new Set(firstFail.map((e) => e.label))]);
-  const rest = tplPhrases.filter((e) => !firstFail.includes(e) && hitIn(e, bodyText, allLabels));
+  const rest = tplPhrases.filter((e) => !firstFail.includes(e) && hitPage(e));
   if (rest.length) {
     const banned = rest.filter((e) => e.sev === "fail");
     add("T10b", banned.length >= 3 ? "fail" : "warn", `Template phrases or microcopy in the page (${rest.length})`, "Rewrite each as a concrete fact. Microcopy: name the destination (\"Work\", \"Email hi@…\", \"CV\").", [...new Set(rest.map((e) => `${e.label}${e.sev === "fail" ? "" : " (flag)"}`))]);
@@ -1133,11 +1462,16 @@ const DETECT = ({ phone, mode, owner, fontsOk, phrases, factsText }) => {
   const heroFam = hero ? famOf(hero) : "";
   const bigFam = biggest ? famOf(biggest) : "";
   const displayEl = hero && (!biggest || sizeOf(biggest) <= sizeOf(hero) * 1.15) ? hero : biggest;
-  const displayFam = displayEl === hero ? heroFam : bigFam;
+  // T18/T18c judge the face that rendered at capture (C19 when the declared display face had not loaded).
+  const displayFace = renderedFace(displayEl);
+  const displayFam = displayFace ? displayFace.rendered : "";
+  const fbNote = displayFace && displayFace.notLoaded ? `, the fallback shown for ${displayFace.declared}` : "";
+  if (displayFace && displayFace.notLoaded)
+    add("C19", "warn", "Display face not rendered at capture (fallback shown)", `The display text declares "${displayFace.declared}" (@font-face: ${displayFace.why}), so ${displayFace.rendered} was on screen when the page was captured. Visitors on a cold or slow load see the same. Preload the display face, check its URL and unicode-range, or gate the first render on document.fonts.load with a short cap. T18/T18c/H01 judged the fallback.`, [`${label(displayEl)}: ${displayFace.declared} → ${displayFace.rendered}`]);
   if (displayFam && isDefault(displayFam))
-    add("T18", "fail", `The largest text is set in a default face (${famLabel(displayFam)})`, "Inter/Geist/system/Roboto/Poppins as the display voice reads as an unchosen default, also behind a renamed @font-face. Choose a display face for this person; the default may stay for small UI text. If the alias is honest, pass --fonts-ok \"Alias=Real\".", [label(displayEl)]);
+    add("T18", "fail", `The largest text is set in a default face (${famLabel(displayFam)}${fbNote})`, "Inter/Geist/system/Roboto/Poppins as the display voice reads as an unchosen default, also behind a renamed @font-face. Choose a display face for this person; the default may stay for small UI text. If the alias is honest, pass --fonts-ok \"Alias=Real\".", [label(displayEl)]);
   else if (displayFam && reflex.test(realFam(displayFam)))
-    add("T18c", "warn", `Reflex display face (${famLabel(displayFam)})`, "A face generated sites reach for often. Keep it only with a written reason tied to the person or the work (allow T18c: <reason>).", [label(displayEl)]);
+    add("T18c", "warn", `Reflex display face (${famLabel(displayFam)}${fbNote})`, "A face generated sites reach for often. Keep it only with a written reason tied to the person or the work (allow T18c: <reason>).", [label(displayEl)]);
   if (famsMain.length > 3)
     add("T18b", "warn", `${famsMain.length} type families in use`, "More than three families rarely holds together. One family plus one mono or serif is enough.", famsMain.slice(0, 6).map(([f, n]) => `${f} (${n} chars)`));
 
@@ -1300,13 +1634,32 @@ const DETECT = ({ phone, mode, owner, fontsOk, phrases, factsText }) => {
   if (cue.length) add("T33", "warn", "Scroll cue", "A 'scroll' label or bouncing chevron tells the visitor nothing. Let the first screen end on content cut by the fold.", cue.slice(0, 2).map((el) => (el.nodeName.toLowerCase() === "svg" ? "svg" : label(el))));
 
   // T34 dark ground + one neon accent + glow; T35 pure black/white.
+  // The ground: the effective solid background behind the hero (or the first full-width section),
+  // because drafts inside a shared app shell style their own root, not body. Falls back to body.
   const bodyBg = rgba(style(document.body).backgroundColor)[3] > 0.5 ? rgba(style(document.body).backgroundColor) : rgba(style(document.documentElement).backgroundColor);
-  const groundL = oklch(bodyBg)[0];
+  const ground = (() => {
+    const anchor =
+      hero ||
+      visibleEls.find((el) => el.matches("section,header,main > *,[role=region],[role=banner]") && el.getBoundingClientRect().width >= vw * 0.95 && el.getBoundingClientRect().height >= 120);
+    if (anchor) {
+      const bg = effectiveBg(anchor);
+      if (bg) {
+        const chain = [anchor, ...ancestors(anchor), document.body, document.documentElement];
+        const owner = chain.find((n) => rgba(style(n).backgroundColor)[3] >= 0.5) || document.body;
+        const inkEl = owner === document.documentElement ? document.body : owner;
+        const tagOf = (n) => n.nodeName.toLowerCase() + (n.id ? "#" + n.id : "") + (typeof n.className === "string" && n.className.trim() ? "." + n.className.trim().split(/\s+/)[0] : "");
+        return { bg, ink: rgba(style(inkEl).color), from: `${hero ? "behind the hero" : "first full-width section"}: ${tagOf(owner)}` };
+      }
+    }
+    return { bg: bodyBg, ink: rgba(style(document.body).color), from: anchor ? "body (an image or gradient is behind the hero)" : "body" };
+  })();
+  const groundBg = ground.bg;
+  const groundL = oklch(groundBg)[0];
   if (groundL < 0.2 && glow.length) add("T34", "fail", "Dark ground with neon glow", "Near-black, one neon accent and coloured glow is the 2024 'AI dark' recipe. Keep the dark ground if it has a reason; drop the glow and desaturate the accent.", glow.slice(0, 2).map(label));
-  const bodyInk = rgba(style(document.body).color);
   const pure = (c, v) => c[0] === v && c[1] === v && c[2] === v;
-  if ((pure(bodyBg, 0) && pure(bodyInk, 255)) || (pure(bodyBg, 255) && pure(bodyInk, 0)))
-    add("T35", "warn", "Pure black and white", "#000 on #fff (or the reverse) looks synthetic. Tint paper and ink toward one hue (chroma 0.005–0.02).", null);
+  if ((pure(groundBg, 0) && pure(ground.ink, 255)) || (pure(groundBg, 255) && pure(ground.ink, 0)))
+    // `where` stays null: T00 counts a weak tell with a one-item list as a single instance.
+    add("T35", "warn", "Pure black and white", `#000 on #fff (or the reverse) looks synthetic. Tint paper and ink toward one hue (chroma 0.005–0.02). Ground read ${ground.from}.`, null);
 
   // T36 card inside a card.
   const boxedBig = visibleEls.filter((el) => {
@@ -1403,14 +1756,14 @@ const DETECT = ({ phone, mode, owner, fontsOk, phrases, factsText }) => {
   };
   const vpArea = vw * vh;
   const firstArea = (el) => {
-    const r = el.getBoundingClientRect();
+    const r = clipRect(el);
     const w = Math.max(0, Math.min(r.right, vw) - Math.max(r.left, 0));
     const h = Math.max(0, Math.min(r.bottom, vh) - Math.max(r.top, 0));
     return w * h;
   };
   const workMarked = [...document.querySelectorAll("[data-work]")].filter(shown);
   const workOuter = workMarked.filter((w) => !workMarked.some((o) => o !== w && o.contains(w)));
-  const mediaEls = visibleEls.filter((el) => !el.closest("[data-work]") && (el.matches("img,picture,iframe,[role=img]") || (style(el).backgroundImage.includes("url(") && el.getBoundingClientRect().width > 120)));
+  const mediaEls = visibleEls.filter((el) => !el.closest("[data-work]") && (el.matches("img,picture,iframe,[role=img]") || (style(el).backgroundImage.includes("url(") && clipRect(el).width > 120)));
   const counted = [...mediaEls, ...workOuter].filter((el, i, arr) => arr.indexOf(el) === i);
   const countedOuter = counted.filter((el) => !counted.some((o) => o !== el && o.contains(el)));
   const firstMedia = countedOuter
@@ -1423,7 +1776,8 @@ const DETECT = ({ phone, mode, owner, fontsOk, phrases, factsText }) => {
     const grid = new Uint8Array(cols * rows);
     let n = 0;
     for (const el of els) {
-      const r = el.getBoundingClientRect();
+      const r = clipRect(el);
+      if (!r.width || !r.height) continue;
       const x0 = Math.max(0, Math.floor(r.left / cell)), x1 = Math.min(cols, Math.ceil(r.right / cell));
       const y0 = Math.max(0, Math.floor(r.top / cell)), y1 = Math.min(rows, Math.ceil(r.bottom / cell));
       for (let y = y0; y < y1; y++)
@@ -1533,8 +1887,35 @@ const DETECT = ({ phone, mode, owner, fontsOk, phrases, factsText }) => {
   }
   if (crowded.length) add("C05", "fail", `${crowded.length} target(s) under 24px and crowded`, "WCAG 2.2 asks for 24×24, or 24px of space around a smaller target. Pad the hit area or space the targets.", crowded.slice(0, 5).map(label));
   else if (spaced.length) add("C05", "warn", `${spaced.length} target(s) under 24px (spaced)`, "They pass WCAG 2.5.8's spacing exception, but a 24px hit area is kinder. Pad them.", spaced.slice(0, 5).map(label));
-  const small = phone ? targets.filter((el, i) => !under.includes(i) && (tRects[i].width < 44 || tRects[i].height < 44)) : [];
-  if (small.length) add("C05b", "warn", `${small.length} phone target(s) under 44px`, "Aim for 44×44 on touch. Extend the hit area with padding or a pseudo-element.", small.slice(0, 5).map(label));
+  // C05b: the hit area is the border box (padding included), extended by an absolutely positioned
+  // ::before/::after when the target is its containing block. A target 44px in one direction passes:
+  // a short spaced link ("CV") 44px tall is allowed under WCAG 2.5.8 spacing.
+  const hitArea = (el, r) => {
+    let x0 = r.left, y0 = r.top, x1 = r.right, y1 = r.bottom;
+    if (style(el).position !== "static")
+      for (const pe of ["::before", "::after"]) {
+        const ps = getComputedStyle(el, pe);
+        if (!ps || ps.content === "none" || ps.content === "normal" || ps.display === "none" || !["absolute", "fixed"].includes(ps.position)) continue;
+        const w = px(ps.width) + px(ps.paddingLeft) + px(ps.paddingRight) + px(ps.borderLeftWidth) + px(ps.borderRightWidth);
+        const h = px(ps.height) + px(ps.paddingTop) + px(ps.paddingBottom) + px(ps.borderTopWidth) + px(ps.borderBottomWidth);
+        if (!w || !h || ps.position === "fixed") continue;
+        const left = r.left + el.clientLeft + (ps.left.endsWith("px") ? px(ps.left) : 0);
+        const top = r.top + el.clientTop + (ps.top.endsWith("px") ? px(ps.top) : 0);
+        x0 = Math.min(x0, left);
+        y0 = Math.min(y0, top);
+        x1 = Math.max(x1, left + w);
+        y1 = Math.max(y1, top + h);
+      }
+    return { width: x1 - x0, height: y1 - y0 };
+  };
+  const small = phone
+    ? targets.filter((el, i) => {
+        if (under.includes(i) || (tRects[i].width >= 44 && tRects[i].height >= 44)) return false;
+        const a = hitArea(el, tRects[i]);
+        return a.width < 44 && a.height < 44;
+      })
+    : [];
+  if (small.length) add("C05b", "warn", `${small.length} phone target(s) under 44px in both directions`, "Aim for 44×44 on touch. A short link such as \"CV\" passes once it is 44px in one direction: give it min-width: 44px (with text-align: center) or min-height: 44px, pad it, or extend the hit area with an absolutely positioned ::after.", small.slice(0, 5).map((el) => `${label(el)} ${Math.round(el.getBoundingClientRect().width)}×${Math.round(el.getBoundingClientRect().height)}`));
 
   // C06 contrast on solid grounds; text over images and gradients is sampled later (C06b).
   const lowContrast = [];
@@ -1649,7 +2030,7 @@ const DETECT = ({ phone, mode, owner, fontsOk, phrases, factsText }) => {
   const vpMeta = document.querySelector('meta[name="viewport"]')?.getAttribute("content") || "";
   if (/user-scalable\s*=\s*(no|0)|maximum-scale\s*=\s*1(\.0)?\b/.test(vpMeta)) add("C16", "fail", "Zoom is disabled", "Remove user-scalable=no and maximum-scale.", [vpMeta]);
   if (!document.documentElement.lang) add("C16b", "warn", "No lang on <html>", "", null);
-  const lazyFirst = [...document.images].filter((i) => i.loading === "lazy" && visible(i) && inFirst(i) && i.getBoundingClientRect().width > 200);
+  const lazyFirst = [...document.images].filter((i) => i.loading === "lazy" && visible(i) && inFirstClipped(i) && clipRect(i).width > 200);
   if (lazyFirst.length) add("C16c", "warn", `${lazyFirst.length} first-screen image(s) set to lazy`, "Lazy loading the largest first-screen image delays LCP. Load it eagerly with fetchpriority=high.", lazyFirst.slice(0, 3).map((i) => i.currentSrc.split("/").pop()));
   const allRules = sheetRules.map((r) => r.style && r.style.transitionProperty).filter(Boolean);
   if (allRules.some((t) => /(^|,\s*)all(\s|,|$)/.test(t))) add("C16d", "warn", "transition: all", "Name the properties you animate (transform, opacity). 'all' animates layout by accident.", null);
@@ -1686,7 +2067,8 @@ const DETECT = ({ phone, mode, owner, fontsOk, phrases, factsText }) => {
       if (n.short) known.add(n.short);
     }
     for (const m of factsText.toLowerCase().matchAll(/\b(one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety|hundred|dozen)\b/g)) known.add(String(numWords[m[1]]));
-    const where = textEls.filter((el) => !el.closest("[data-work],code,pre,kbd,samp,script") && (el.closest("h1,h2,h3,h4,h5,h6,li,dt,dd,td,th,figcaption,[data-numbers]") || inFirst(el) || statRows.some((r) => r.parent.contains(el))));
+    // [data-measured] marks numbers the page computes (a live "825 of 1440 pixels" readout), not claims.
+    const where = textEls.filter((el) => !el.closest("[data-work],[data-measured],code,pre,kbd,samp,script") && (el.closest("h1,h2,h3,h4,h5,h6,li,dt,dd,td,th,figcaption,[data-numbers]") || inFirst(el) || statRows.some((r) => r.parent.contains(el))));
     const seen = new Set();
     for (const el of where) {
       const own = ownText(el);
@@ -1710,6 +2092,33 @@ const DETECT = ({ phone, mode, owner, fontsOk, phrases, factsText }) => {
   }
 
   // ---- hidden-until-scrolled content ------------------------------------
+  // A canvas or svg laid over a visible picture (a lens, a shader or an effect layer waiting for its
+  // first paint) is not content that starts invisible: the picture under it is the content.
+  const overlaysPicture = (el) => {
+    if (!el.matches("canvas,svg") || !el.parentElement) return false;
+    const r = el.getBoundingClientRect();
+    if (r.width < 1 || r.height < 1) return false;
+    const prev = el.previousElementSibling;
+    const cands = new Set([prev, ...(prev ? prev.querySelectorAll("img,picture,canvas,video") : []), ...el.parentElement.querySelectorAll("img,picture,canvas,video")]);
+    const shownMedia = [...cands].filter((m) => m && m !== el && !el.contains(m) && m.matches("img,picture,canvas,video") && style(m).display !== "none" && style(m).visibility !== "hidden" && opacityChain(m) > 0.05);
+    if (!shownMedia.length) return false;
+    // Coverage of the overlay's box by the visible media (their clipped rects, unioned on a 4px grid).
+    const c = 4, cw = Math.max(1, Math.ceil(r.width / c)), ch = Math.max(1, Math.ceil(r.height / c));
+    const grid = new Uint8Array(cw * ch);
+    let n = 0;
+    for (const m of shownMedia) {
+      const q = clipRect(m);
+      const x0 = Math.max(0, Math.floor((q.left - r.left) / c)), x1 = Math.min(cw, Math.ceil((q.right - r.left) / c));
+      const y0 = Math.max(0, Math.floor((q.top - r.top) / c)), y1 = Math.min(ch, Math.ceil((q.bottom - r.top) / c));
+      for (let y = y0; y < y1; y++)
+        for (let x = x0; x < x1; x++)
+          if (!grid[y * cw + x]) {
+            grid[y * cw + x] = 1;
+            n++;
+          }
+    }
+    return n >= cw * ch * 0.5;
+  };
   const hiddenBelow = visibleEls.length
     ? all.filter((el) => {
         const r = docRect(el);
@@ -1717,7 +2126,8 @@ const DETECT = ({ phone, mode, owner, fontsOk, phrases, factsText }) => {
         const s = style(el);
         if (s.display === "none") return false;
         if (el.closest('[data-motion="story"]')) return false;
-        return parseFloat(s.opacity) < 0.05 && (ownText(el).length > 0 || el.matches("img,video,canvas,figure,section,article,li"));
+        if (!(parseFloat(s.opacity) < 0.05 && (ownText(el).length > 0 || el.matches("img,video,canvas,figure,section,article,li")))) return false;
+        return !overlaysPicture(el);
       })
     : [];
   const hiddenOuter = hiddenBelow.filter((el) => !hiddenBelow.some((o) => o !== el && o.contains(el)));
@@ -1733,7 +2143,8 @@ const DETECT = ({ phone, mode, owner, fontsOk, phrases, factsText }) => {
   // ---- human-made signals (positive) ------------------------------------
   const signals = {};
   const largest = biggest || firstText.slice().sort((a, b) => sizeOf(b) - sizeOf(a))[0];
-  const largestFam = largest ? famOf(largest) : "";
+  const largestFace = renderedFace(largest);
+  const largestFam = largestFace ? largestFace.rendered : "";
   signals.H01_displayFace = !!largest && sizeOf(largest) >= (phone ? 32 : 48) && !isDefault(largestFam);
   signals.H02_typeDecision = visibleEls.some((el) => {
     const st = style(el);
@@ -1746,8 +2157,8 @@ const DETECT = ({ phone, mode, owner, fontsOk, phrases, factsText }) => {
   signals.H04_workLarge = mediaShare >= (phone ? 0.2 : 0.25);
   signals.H09_themedSurfaces = /::selection/.test(sheetsText) && (/accent-color|scrollbar-color|caret-color/.test(sheetsText) || /:focus-visible/.test(sheetsText));
   signals.H11_nameSmall = !(nameEl && nameEl.getBoundingClientRect().height > vh * 0.12);
-  const [, gC] = oklch(bodyBg);
-  signals.H12_tintedGround = gC >= 0.004 && !pure(bodyBg, 0) && !pure(bodyBg, 255);
+  const [, gC] = oklch(groundBg);
+  signals.H12_tintedGround = gC >= 0.004 && !pure(groundBg, 0) && !pure(groundBg, 255);
   const fontSrcs = fontFaces.map((r) => r.style.getPropertyValue("src"));
   signals.H15_selfHostedFonts = fontSrcs.length > 0 && fontSrcs.every((src) => !/https?:\/\/(?!127\.0\.0\.1|localhost)/.test(src) || src.includes(location.host));
 
@@ -1767,8 +2178,12 @@ const DETECT = ({ phone, mode, owner, fontsOk, phrases, factsText }) => {
     facts: {
       title: document.title,
       owner: ownerName || null,
-      hero: hero ? { text: heroText.replace(/\s+/g, " ").slice(0, 140), font: famLabel(heroFam), size: sizeOf(hero) } : null,
-      largest: biggest ? { text: biggestText.replace(/\s+/g, " ").slice(0, 80), font: famLabel(bigFam), size: sizeOf(biggest) } : null,
+      hero: hero ? { text: heroText.replace(/\s+/g, " ").slice(0, 140), font: famLabel(heroFam) + (renderedFace(hero).notLoaded ? ` (not loaded; ${renderedFace(hero).rendered} shown)` : ""), size: sizeOf(hero) } : null,
+      largest: biggest ? { text: biggestText.replace(/\s+/g, " ").slice(0, 80), font: famLabel(bigFam) + (renderedFace(biggest).notLoaded ? ` (not loaded; ${renderedFace(biggest).rendered} shown)` : ""), size: sizeOf(biggest) } : null,
+      // A dev server measures its own lazy loading (C17): Vite injects /@vite/client.
+      devServer: document.querySelector('script[src*="/@vite/client"]') ? "Vite, /@vite/client" : document.querySelector('script[src*="webpack-dev-server"],script[src*="/_next/static/development/"]') ? "webpack or Next dev client" : null,
+      ground: { rgb: `rgb(${groundBg.slice(0, 3).map(Math.round).join(" ")})`, from: ground.from },
+      displayFace: displayFace ? { declared: displayFace.declared, rendered: displayFace.rendered, web: displayFace.web, localAlias: displayFace.localAlias, status: displayFace.status, notLoaded: displayFace.notLoaded } : null,
       families: famsMain.slice(0, 6).map(([f]) => f),
       fontAliases: aliasMap,
       firstScreenWords: firstWords,
@@ -1930,6 +2345,140 @@ async function sampleContrast(page, decoder, targets, vh) {
   return out;
 }
 
+// --frames: wait (up to 10 s) for the start selector to be visible, then capture <w>-t<ms>.png at those
+// ms after it. While waiting, navigation-timed frames are taken as before; they are kept only when the
+// selector never shows.
+async function captureFrames(page, tag, t0, sel) {
+  const info = { selector: sel, explicit: !!framesAfter, start: "navigation", at: null, element: null, frames, captured: [] };
+  const navShots = new Map();
+  let st = null;
+  for (;;) {
+    st = await page.evaluate(() => window.__pcStart).catch(() => null);
+    if (st || Date.now() - t0 > 10500) break;
+    const due = frames.find((ms) => !navShots.has(ms) && ms <= Date.now() - t0);
+    if (due !== undefined) {
+      const at = Date.now() - t0;
+      navShots.set(due, { buf: await page.screenshot(), at });
+      continue;
+    }
+    await page.waitForTimeout(20);
+  }
+  if (st && st.t != null) {
+    const pageNow = await page.evaluate(() => performance.now());
+    const base = Date.now() - (pageNow - st.t);
+    Object.assign(info, { start: "selector", at: Math.round(st.t), element: st.label });
+    for (const ms of frames) {
+      const wait = ms - (Date.now() - base);
+      if (wait > 0) await page.waitForTimeout(wait);
+      info.captured.push(Math.round(Date.now() - base));
+      await page.screenshot({ path: join(outDir, `${tag}-t${ms}.png`) });
+    }
+  } else {
+    info.reason = st && st.error ? `bad selector (${st.error})` : `no visible \`${sel}\` within 10 s`;
+    for (const ms of frames) {
+      if (navShots.has(ms)) {
+        writeFileSync(join(outDir, `${tag}-t${ms}.png`), navShots.get(ms).buf);
+        info.captured.push(navShots.get(ms).at);
+        continue;
+      }
+      const wait = ms - (Date.now() - t0);
+      if (wait > 0) await page.waitForTimeout(wait);
+      info.captured.push(Date.now() - t0);
+      await page.screenshot({ path: join(outDir, `${tag}-t${ms}.png`) });
+    }
+  }
+  return info;
+}
+
+// --interact: for each frame time, load the page fresh, let it settle, re-run the action and freeze the
+// page <ms> after the action starts (see ARM), then screenshot <w>-i<ms>.png.
+async function interactPass(browser, width, height, phone, tag) {
+  const { action, selector, at } = interact;
+  const startOn = action === "hover" ? ["pointerover", "mouseover"] : action.startsWith("key-") ? ["keydown"] : ["pointerdown", "mousedown"];
+  const out = { action, selector, frames: [] };
+  const ctx = await browser.newContext({ viewport: { width, height }, deviceScaleFactor: phone ? 2 : 1, isMobile: phone, hasTouch: phone, reducedMotion: "no-preference", colorScheme: scheme });
+  try {
+    for (const ms of at) {
+      const page = await ctx.newPage();
+      const rec = { ms, file: `${tag}-i${ms}.png`, frozenAt: null, paused: 0, held: 0, start: null };
+      let act = Promise.resolve();
+      try {
+        await page.addInitScript(INIT);
+        await page.goto(url, { waitUntil: "domcontentloaded", timeout: 45000 });
+        await page.waitForLoadState("networkidle", { timeout: 15000 }).catch(() => {});
+        await page.evaluate(() => document.fonts && document.fonts.ready).catch(() => {});
+        const loc = page.locator(selector).filter({ visible: true }).first();
+        await loc.waitFor({ state: "visible", timeout: 10000 });
+        rec.element = await loc.evaluate((el) => {
+          el.setAttribute("data-pc-interact", "");
+          const r = el.getBoundingClientRect();
+          if (r.top < 0 || r.bottom > innerHeight || r.left < 0 || r.right > innerWidth) el.scrollIntoView({ block: "center", inline: "center", behavior: "instant" });
+          return el.nodeName.toLowerCase() + (typeof el.className === "string" && el.className.trim() ? "." + el.className.trim().split(/\s+/)[0] : "");
+        });
+        // Let scroll reveals and the load sequence finish, then rest the pointer (or focus) first.
+        await page.waitForTimeout(1200);
+        const box = await loc.boundingBox();
+        if (!box) throw new Error(`${selector} has no box`);
+        const cx = box.x + box.width / 2;
+        const cy = box.y + box.height / 2;
+        if (action === "hover") await page.mouse.move(2, 2);
+        else if (action.startsWith("key-")) await loc.focus();
+        else await page.mouse.move(cx, cy);
+        await page.waitForTimeout(400);
+        await page.evaluate(ARM, { ms, events: startOn, strict: action === "hover" });
+        let done = false;
+        act = (async () => {
+          if (action === "click") await loc.click({ timeout: 4000 }).catch(() => loc.click({ force: true, timeout: 2000 }));
+          else if (action === "hover") await loc.hover({ timeout: 4000 }).catch(() => loc.hover({ force: true, timeout: 2000 }));
+          else if (action.startsWith("key-")) await page.keyboard.press(action.slice(4));
+          else {
+            const dx = (action === "drag-right" ? 1 : -1) * Math.min(box.width * 0.4, 200);
+            await page.mouse.down();
+            for (let i = 1; i <= 10; i++) {
+              await page.mouse.move(cx + (dx * i) / 10, cy);
+              await page.waitForTimeout(16);
+            }
+            await page.mouse.up();
+          }
+        })()
+          .catch((e) => {
+            rec.error = String(e.message || e).split("\n")[0].slice(0, 160);
+          })
+          .finally(() => {
+            done = true;
+          });
+        // Wait for the in-page freeze. When no start event reached the page, the clock starts when the action returns.
+        const deadline = Date.now() + ms + 8000;
+        let frozen = null;
+        let kicked = false;
+        while (Date.now() < deadline) {
+          frozen = await page.evaluate(() => window.__pcFrozen).catch(() => null);
+          if (frozen) break;
+          if (done && !kicked) {
+            kicked = true;
+            await page.evaluate(() => !window.__pcT0 && window.__pcBegin && window.__pcBegin()).catch(() => {});
+          }
+          await page.waitForTimeout(8);
+        }
+        const t0 = await page.evaluate(() => window.__pcT0).catch(() => null);
+        rec.start = t0 ? t0.by : null;
+        if (frozen) Object.assign(rec, { frozenAt: frozen.at, paused: frozen.paused, names: frozen.names });
+        else rec.note = "not frozen in time; screenshot by timing only";
+        await page.screenshot({ path: join(outDir, rec.file) });
+        rec.held = await page.evaluate(() => window.__pcHeld || 0).catch(() => 0);
+      } catch (e) {
+        rec.error = rec.error || String(e.message || e).split("\n")[0].slice(0, 160);
+      }
+      await Promise.race([act, new Promise((r) => setTimeout(r, 3000))]);
+      await page.close().catch(() => {});
+      out.frames.push(rec);
+    }
+  } finally {
+    await ctx.close().catch(() => {});
+  }
+  return out;
+}
+
 // ---------------------------------------------------------------------------
 async function run() {
   const browser = await chromium.launch({ executablePath, args: ["--disable-dev-shm-usage", "--enable-gpu-rasterization"] });
@@ -1965,13 +2514,11 @@ async function run() {
       const cdp = await context.newCDPSession(page);
       await cdp.send("Emulation.setCPUThrottlingRate", { rate: throttle });
     }
+    const startSel = framesAfter || "h1, [data-work]";
+    if (frames.length) await page.addInitScript(WATCH_START, { sel: startSel, limit: 10000 });
     const t0 = Date.now();
     await page.goto(url, { waitUntil: "domcontentloaded", timeout: 45000 });
-    for (const ms of frames) {
-      const wait = ms - (Date.now() - t0);
-      if (wait > 0) await page.waitForTimeout(wait);
-      await page.screenshot({ path: join(outDir, `${tag}-t${ms}.png`) });
-    }
+    if (frames.length) vp.framesStart = await captureFrames(page, tag, t0, startSel);
     const motionEarly = await page.evaluate(MOTION).catch(() => []);
     const introFrames = await page.evaluate(FRAMES, 1500);
     await page.waitForLoadState("networkidle", { timeout: 15000 }).catch(() => {});
@@ -2072,8 +2619,32 @@ async function run() {
     const after = await page.evaluate(() => scrollY);
     const expected = Math.round(height * 0.45) * 12;
     const maxScroll = await page.evaluate(() => document.documentElement.scrollHeight - innerHeight);
-    if (maxScroll >= height * 3 && after - before < Math.min(expected, maxScroll) * 0.6)
-      push({ id: "M06", severity: "warn", title: `Wheel moved the page ${after - before}px of ${Math.min(expected, maxScroll)}px`, detail: "The page resists or slows native scrolling (pinning or a scroll hijack).", where: null });
+    // M06: skipped on short pages, and on phones when the main scroller sets touch-action (the wheel is
+    // not how a phone scrolls, and emulated wheel events meet the page's touch handling). A first pass
+    // that resists is measured again from the top; only two resisting passes report.
+    const touchAction = phone
+      ? await page.evaluate(() => {
+          for (const el of [document.scrollingElement, document.documentElement, document.body, document.querySelector("main")]) {
+            if (!el) continue;
+            const t = getComputedStyle(el).touchAction;
+            if (t && t !== "auto") return `${el === document.documentElement ? "html" : el.nodeName.toLowerCase()} { touch-action: ${t} }`;
+          }
+          return null;
+        })
+      : null;
+    const want = Math.min(expected, maxScroll);
+    const resists = (moved) => moved < want * 0.6;
+    const m06 = { first: after - before, want, skipped: maxScroll < height * 3 ? "page shorter than 3 screens" : touchAction ? `phone, ${touchAction}` : null };
+    if (!m06.skipped && resists(m06.first)) {
+      await page.evaluate(() => scrollTo({ top: 0, behavior: "instant" }));
+      await page.waitForTimeout(400);
+      const b2 = await page.evaluate(() => scrollY);
+      await wheelPass();
+      const a2 = await page.evaluate(() => scrollY);
+      m06.second = a2 - b2;
+      if (resists(m06.second))
+        push({ id: "M06", severity: "warn", title: `Wheel moved the page ${m06.second}px of ${want}px (first pass ${m06.first}px)`, detail: "The page resists or slows native scrolling on two passes (pinning or a scroll hijack).", where: null });
+    }
     // rAF deltas come in vsync steps (16.7, 33.3, 50.0 …); snap near-steps so 50.1 reads as 3 frames, not "over 50".
     const vsync = 1000 / 60;
     const snap = (v) => (Math.abs(v - Math.round(v / vsync) * vsync) < 1.5 ? Math.round(v / vsync) * vsync : v);
@@ -2191,18 +2762,33 @@ async function run() {
       longFrameMax: pc.loaf.reduce((m, f) => Math.max(m, f.d), 0),
       introFrames,
       scrollFrames,
+      wheel: m06,
       errors: errors.slice(0, 5),
     };
     if (pc.cls > 0.1) push({ id: "C12", severity: "fail", title: `Layout shift ${pc.cls.toFixed(3)}`, detail: "Reserve space for images, fonts and late content.", where: pc.shifts.map((s) => `${s.value} at ${s.t}ms ${s.nodes.join(" ")}`) });
     else if (pc.cls > 0.02) push({ id: "C12", severity: "warn", title: `Layout shift ${pc.cls.toFixed(3)}`, detail: "Small shifts; aim for 0.", where: pc.shifts.map((s) => `${s.value} at ${s.t}ms ${s.nodes.join(" ")}`) });
     if (errors.length) push({ id: "C13", severity: "warn", title: `${errors.length} console error(s)`, detail: "", where: errors.slice(0, 3) });
+    // C17 on a dev server mostly measures the host's lazy loading: info only.
+    const dev = det.facts.devServer;
+    if (dev && !report.devServer) report.devServer = dev;
     if (pc.lcp) {
       const t = pc.lcp.t;
       const sev = throttle > 1 ? (t > 2500 ? "fail" : t > 1000 ? "warn" : null) : t > 1500 ? "warn" : null;
       if (sev)
-        push({ id: "C17", severity: sev, title: `Largest paint at ${t}ms${throttle > 1 ? ` (${throttle}× CPU)` : ""}`, detail: "The first readable frame should land within about a second on a mid phone. Preload the display face, load the first screen's image eagerly, and defer the hook.", where: [`${pc.lcp.node || "?"}`] });
+        push({
+          id: "C17",
+          severity: dev ? "info" : sev,
+          title: `Largest paint at ${t}ms${throttle > 1 ? ` (${throttle}× CPU)` : ""}${dev ? " on a dev server" : ""}`,
+          detail: dev
+            ? `This URL is served by a dev server (${dev}), where the largest paint mostly measures the host's lazy loading and unbundled modules: measure on a production build (vite build + vite preview).`
+            : "The first readable frame should land within about a second on a mid phone. Preload the display face, load the first screen's image eagerly, and defer the hook.",
+          where: [`${pc.lcp.node || "?"}`],
+        });
     }
     await context.close();
+
+    // --interact: the action re-run on a fresh load for each frame time, frozen at that time.
+    if (interact) vp.interaction = await interactPass(browser, width, height, phone, tag);
 
     // Reduced motion pass.
     const rctx = await browser.newContext({ viewport: { width, height }, deviceScaleFactor: 1, isMobile: phone, hasTouch: phone, reducedMotion: "reduce", colorScheme: scheme });
@@ -2237,15 +2823,33 @@ async function run() {
 
     report.viewports.push(vp);
   }
-  // Contact sheet: every first screen side by side, for a quick look and for reviewers.
+  // Contact sheet: every first screen side by side, for a quick look and for reviewers; with --interact,
+  // a second row per viewport holds the interaction frames.
   try {
     const sheet = await browser.newPage({ viewport: { width: 1600, height: 900 } });
+    const esc = (t) => String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
     const img = (file) => `data:image/png;base64,${readFileSync(join(outDir, file)).toString("base64")}`;
     const cells = viewports
       .map(([w]) => `<figure><img src="${img(`${w}.png`)}"><figcaption>${w} · first screen</figcaption></figure>`)
       .concat(viewports.map(([w]) => `<figure><img src="${img(`${w}-reduced.png`)}"><figcaption>${w} · reduced motion</figcaption></figure>`))
       .join("");
-    await sheet.setContent(`<style>body{margin:0;padding:24px;background:#e9e7e1;font:13px/1.3 ui-monospace,monospace;color:#222;display:flex;flex-wrap:wrap;gap:20px;align-items:flex-start}figure{margin:0}img{display:block;height:520px;width:auto;outline:1px solid #0002}figcaption{margin-top:6px}h1{width:100%;margin:0;font:600 18px/1.2 system-ui}</style><h1>${name} — ${url}${scheme === "dark" ? " (dark)" : ""}</h1>${cells}`);
+    let rows = "";
+    let sheetW = 1600;
+    const H = 320;
+    for (const v of report.viewports) {
+      const it = v.interaction;
+      if (!it) continue;
+      const [w, h] = v.size.split("x").map(Number);
+      const shots = it.frames.filter((f) => existsSync(join(outDir, f.file)));
+      sheetW = Math.max(sheetW, 48 + shots.length * (Math.round((H * w) / h) + 20));
+      rows += `<section class="row"><h2>${w} · ${esc(it.action)} <code>${esc(it.selector)}</code> · frames after the action starts</h2><div>${shots
+        .map((f) => `<figure><img class="i" src="${img(f.file)}"><figcaption>+${f.ms} ms${f.frozenAt != null ? ` · frozen at ${f.frozenAt} ms · ${f.paused} anim paused · ${f.held} rAF held` : f.error ? ` · ${esc(f.error)}` : " · by timing"}</figcaption></figure>`)
+        .join("")}</div></section>`;
+    }
+    await sheet.setViewportSize({ width: sheetW, height: 900 });
+    await sheet.setContent(
+      `<style>body{margin:0;padding:24px;background:#e9e7e1;font:13px/1.3 ui-monospace,monospace;color:#222}.first{display:flex;flex-wrap:wrap;gap:20px;align-items:flex-start}figure{margin:0}img{display:block;height:520px;width:auto;outline:1px solid #0002}img.i{height:${H}px}figcaption{margin-top:6px}h1{width:100%;margin:0 0 20px;font:600 18px/1.2 system-ui}.row{margin-top:28px}.row h2{margin:0 0 10px;font:600 15px/1.2 system-ui}.row>div{display:flex;gap:20px;align-items:flex-start}.row figure{width:min-content}.row figcaption{min-width:150px}</style><h1>${esc(name)} — ${esc(url)}${scheme === "dark" ? " (dark)" : ""}</h1><div class="first">${cells}</div>${rows}`,
+    );
     await sheet.waitForLoadState("load");
     await sheet.screenshot({ path: join(outDir, "sheet.png"), fullPage: true });
     await sheet.close();
@@ -2255,7 +2859,13 @@ async function run() {
 }
 
 function toMarkdown(r) {
-  const lines = [`# Portfolio check: ${r.name}`, "", `URL: ${r.url}  `, `Run: ${r.at} · mode ${r.mode} · scheme ${r.scheme}${r.owner ? ` · owner "${r.owner}"` : ""}${r.facts.length ? ` · facts ${r.facts.join(", ")}` : ""}`, ""];
+  const lines = [`# Portfolio check: ${r.name}`, "", `URL: ${r.url}  `, `Run: ${r.at} · mode ${r.mode} · scheme ${r.scheme}${r.owner ? ` · owner "${r.owner}"` : ""}${r.facts.length ? ` · facts ${r.facts.join(", ")}` : ""}  `];
+  lines.push(
+    r.devServer
+      ? `Server: looks like a dev server (${r.devServer}). C17 (largest paint) is info only here; measure on a production build (vite build + vite preview).`
+      : "Server: no dev-server client found (no /@vite/client); C17 counts.",
+    "",
+  );
   const allF = r.viewports.flatMap((v) => v.findings.map((f) => ({ ...f, vp: v.size })));
   const fails = allF.filter((f) => f.severity === "fail");
   const warns = allF.filter((f) => f.severity === "warn");
@@ -2268,6 +2878,20 @@ function toMarkdown(r) {
     lines.push(`- Work in first screen: ${Math.floor((f.mediaShareFirstScreen || 0) * 100)}% (with canvas/video outside data-work: ${Math.floor((f.mediaShareWithCanvas || 0) * 100)}%) · words: ${f.firstScreenWords} · sizes: ${(f.firstScreenSizes || []).join(", ")}`);
     if (f.workItems && f.workItems.length) lines.push(`- Work counted: ${f.workItems.join(" · ")}`);
     lines.push(`- Families: ${(f.families || []).join(", ")}${f.fontAliases && Object.keys(f.fontAliases).length ? ` · aliases ${Object.entries(f.fontAliases).map(([a, b]) => `${a}→${b}`).join(", ")}` : ""} · page height ${f.pageHeight}px`);
+    if (f.displayFace || f.ground)
+      lines.push(`- Display face: ${f.displayFace ? `${f.displayFace.declared}${f.displayFace.web ? ` (@font-face, ${f.displayFace.status})` : f.displayFace.localAlias ? " (local() alias; taken as declared)" : " (no @font-face; taken as declared)"}${f.displayFace.notLoaded ? ` · not rendered at capture, ${f.displayFace.rendered} shown` : " · rendered"}` : "n/a"} · ground (T35, H12): ${f.ground ? `${f.ground.rgb}, read ${f.ground.from}` : "n/a"}`);
+    if (v.framesStart) {
+      const fs = v.framesStart;
+      lines.push(
+        fs.start === "selector"
+          ? `- Frames (--frames ${fs.frames.join("/")}): counted from the first visible \`${fs.selector}\`${fs.explicit ? "" : " (default)"}, ${fs.element}, at ${fs.at}ms after navigation; captured at ${fs.captured.join("/")}ms`
+          : `- Frames (--frames ${fs.frames.join("/")}): counted from navigation (${fs.reason}); captured at ${fs.captured.join("/")}ms`,
+      );
+    }
+    if (v.interaction) {
+      const it = v.interaction;
+      lines.push(`- Interaction: ${it.action} \`${it.selector}\` · ${it.frames.map((x) => `+${x.ms}ms ${x.frozenAt != null ? `frozen at ${x.frozenAt}ms (${x.paused} anim paused${x.names && x.names.length ? `: ${x.names.slice(0, 2).join(", ")}` : ""}; ${x.held} rAF held${x.start ? `; start ${x.start}` : ""})` : x.error ? `error: ${x.error}` : x.note || "by timing"}`).join(" · ")}`);
+    }
     lines.push(`- CLS ${v.metrics.cls} · LCP ${v.metrics.lcp ? v.metrics.lcp.t + "ms " + (v.metrics.lcp.node || "") : "n/a"} · long frames ${v.metrics.longFrames} (max ${v.metrics.longFrameMax}ms)`);
     lines.push(`- Frames (headless, indicative): intro p95 ${v.metrics.introFrames.p95}ms · scroll p95 ${v.metrics.scrollFrames.p95}ms, ${v.metrics.scrollFrames.over25} over 25ms (blank-page control ${v.metrics.scrollFrames.controlP95 ?? "n/a"}ms) · reduced-motion rAF ${v.metrics.reducedMotionRafPerSecond}/s`);
     if (f.sampledContrast && f.sampledContrast.length) lines.push(`- Sampled contrast (text over images/gradients): ${f.sampledContrast.slice(0, 4).join(" · ")}`);
@@ -2287,7 +2911,7 @@ function toMarkdown(r) {
       lines.push("");
     }
   }
-  lines.push("Screenshots: `<width>.png` (first screen), `<width>-full.png`, `<width>-reduced.png`, and `<width>-t<ms>.png` when --frames is set. Ids: `reference/checks.md` (`node scripts/check.mjs --list`).", "");
+  lines.push("Screenshots: `<width>.png` (first screen), `<width>-full.png`, `<width>-reduced.png`, `<width>-t<ms>.png` with --frames, `<width>-i<ms>.png` with --interact, and `sheet.png` (first screens; interaction frames as a second row). Ids: `reference/checks.md` (`node scripts/check.mjs --list`).", "");
   return lines.join("\n");
 }
 
