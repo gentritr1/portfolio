@@ -7,6 +7,16 @@
   font-style: normal;
   font-display: swap;
 }
+/* A local face scaled to the claim (measured on the claim string: 2424 / 2571 px at 66px), so the claim keeps
+   its line breaks if Bricolage arrives after the first paint. */
+@font-face {
+  font-family: "Bricolage Fallback";
+  src: local("Arial"), local("Liberation Sans"), local("Helvetica Neue"), local("Helvetica");
+  size-adjust: 94.3%;
+  ascent-override: 98.6%;
+  descent-override: 28.6%;
+  line-gap-override: 0%;
+}
 @font-face {
   font-family: "Public Sans";
   src: url("/fonts/creative/PublicSans-Latin.woff2") format("woff2");
@@ -38,7 +48,7 @@
   --gut: 16px;
   --max: 1344px;
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
-  --display: "Bricolage Grotesque", "Public Sans", ui-sans-serif, sans-serif;
+  --display: "Bricolage Grotesque", "Bricolage Fallback", "Public Sans", ui-sans-serif, sans-serif;
   --text: "Public Sans", ui-sans-serif, sans-serif;
   --mono: "Gentrit Technical Mono", ui-monospace, "SF Mono", Menlo, monospace;
 
@@ -322,7 +332,9 @@
   visibility: hidden;
   pointer-events: none;
 }
-.lx-print[data-ready] .lx-lens { visibility: visible; }
+.lx-print[data-ready] .lx-lens { visibility: visible; animation: lx-in 180ms var(--ease-out); }
+/* The plain picture under the lens has no sheen or edge band; the lens arrives over it as a short fade. */
+@keyframes lx-in { from { opacity: 0; } }
 .lx-cap {
   display: flex;
   flex-wrap: wrap;
@@ -364,15 +376,19 @@
   .lx-go:hover { color: var(--accent); }
   .lx-go:hover::after { transform: translateX(3px); }
 }
+.lx-built-print { margin-top: 28px; }
 @media (min-width: 900px) {
   .lx-built {
     display: grid;
     grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
-    gap: 40px;
+    grid-template-rows: auto 1fr;
+    column-gap: 48px;
     padding-top: 128px;
     padding-bottom: 96px;
   }
-  .lx-built-text { margin-top: 6px; }
+  .lx-built > .lx-result { grid-column: 1; grid-row: 1; }
+  .lx-built-text { grid-column: 1; grid-row: 2; margin-top: 20px; }
+  .lx-built-print { grid-column: 2; grid-row: 1 / span 2; margin-top: 6px; }
 }
 
 /* ---------- Rows: a print and its facts ---------- */
@@ -528,4 +544,141 @@
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* ---------- The page lens: the bar, the switch, and everything that answers it ---------- */
+
+.lx-lensbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: var(--ground);
+  box-shadow: 0 1px 0 var(--rule);
+}
+.lx-lensbar-inner {
+  display: flex;
+  align-items: center;
+  gap: 6px 16px;
+  max-width: calc(var(--max) + 2 * var(--gut));
+  margin: 0 auto;
+  padding: 0 var(--gut);
+  min-height: 48px;
+}
+.lx-showing { color: var(--ink-2); font-size: 0.9375rem; line-height: 1.35; }
+/* On a phone the bar holds the switch alone, one 48px row. The face still shows in the switch, the claim's
+   marked word and every print's labels; screen readers hear the live line. */
+@media (max-width: 479px) {
+  .lx-showing {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+}
+.lx-lensctl {
+  display: inline-flex;
+  align-items: center;
+  margin: 0 0 0 -8px;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+  flex: none;
+}
+.lx-lensopt {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 8px;
+  color: var(--ink-2);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: color 150ms ease;
+}
+.lx-lensopt[data-on] { color: var(--ink); }
+.lx-lensopt input {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  appearance: none;
+  -webkit-appearance: none;
+  background: none;
+  border: 0;
+  border-radius: 4px;
+  cursor: pointer;
+}
+/* The track: 44px tall to touch, a 48 × 26 slot drawn inside it, and a thumb that follows the page angle. */
+.lx-track {
+  position: relative;
+  display: inline-block;
+  width: 52px;
+  height: 44px;
+  flex: none;
+  cursor: grab;
+  touch-action: pan-y;
+  -webkit-tap-highlight-color: transparent;
+}
+.lx-track:active { cursor: grabbing; }
+.lx-track::before {
+  content: "";
+  position: absolute;
+  left: 2px;
+  right: 2px;
+  top: 9px;
+  height: 26px;
+  border-radius: 13px;
+  background: #e5d6ce;
+  box-shadow: inset 0 1px 2px rgb(31 21 24 / 0.18);
+}
+.lx-thumb {
+  position: absolute;
+  left: 5px;
+  top: 12px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 1px 2px rgb(31 21 24 / 0.35);
+}
+
+/* The claim's and About's own words mark the face: "web" or "phone". */
+.lx-w {
+  text-decoration-line: underline;
+  text-decoration-thickness: 0.07em;
+  text-underline-offset: 0.12em;
+  text-decoration-color: transparent;
+  transition: text-decoration-color 150ms ease;
+}
+.lx[data-face="0"] .lx-w[data-w="web"],
+.lx[data-face="1"] .lx-w[data-w="phone"] { text-decoration-color: var(--accent); }
+.lx[data-face="0"] .lx-about .lx-w[data-w="web"],
+.lx[data-face="1"] .lx-about .lx-w[data-w="phone"] { text-decoration-color: var(--dark-accent); }
+
+/* The index marks the rows that run on the current face. No filter, no reordering: every row stays. */
+.lx-plat {
+  margin-left: 6px;
+  padding-bottom: 1px;
+  color: var(--ink-2);
+  background-image: linear-gradient(var(--accent), var(--accent));
+  background-size: 0% 2px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  transition: background-size 150ms var(--ease-out), color 150ms ease;
+}
+.lx[data-face="0"] .lx-plat:is([data-plat="web"], [data-plat="both"]),
+.lx[data-face="1"] .lx-plat:is([data-plat="phone"], [data-plat="both"]) {
+  color: var(--ink);
+  background-size: 100% 2px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .lx-lensopt:hover { color: var(--ink); }
+  /* "All work" rows: a 34px pointer target, like the page's other controls. */
+  .lx-list-name a { min-height: 34px; }
+  .lx-list li { padding-top: 4px; padding-bottom: 4px; }
 }

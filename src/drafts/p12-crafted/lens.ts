@@ -11,21 +11,23 @@
 
 /** Lens width in CSS pixels. */
 export const PITCH = 4;
-/** Eye distance from the card, CSS pixels (about 2 m at 96 dpi). The CSS perspective uses it too. */
+/** Eye distance for the card's turn in CSS (the perspective) and for the lamp's glints, CSS pixels. */
 export const EYE = 8000;
 /** |tan α| below QA shows only A; above QB only B (the lens's focal spot is narrower than a strip). */
 const QA = 0.07;
 const QB = 0.1;
-/**
- * The eye sits a little to the left of each card, so at rest the card's right edge is seen just inside
- * the switch: a still shows a thin band of the second screen's strips there, at most 120px or 12% of
- * the card wide, so the work itself stays clear.
- */
-const cueFor = (cssW: number) => QA + Math.min(120, 0.12 * cssW) / EYE;
-/** The resting tilt that shows B everywhere on the card (a hero card 980px wide needs about 8°). */
+/** The resting tilt that shows B everywhere on the card. */
 export const FACE_B_DEG = 9;
-/** Past this tilt the label follows the second face. */
+/** Past this tilt the labels follow the second face. */
 export const FLIP_DEG = FACE_B_DEG / 2;
+/**
+ * The angle each lens sees: the page angle plus the lens's place across the card. Every card is seen from a
+ * distance in proportion to its width, so every card, large or small, sweeps over the same part of the page
+ * angle, from the edge that turns away. At rest the right edge sits just inside the switch (a thin band of
+ * the second screen's strips: the material reads in a still); at the second face the left edge is past it.
+ */
+const SPREAD = QA + 0.35 * (QB - QA);
+const REACH = QB + 0.005;
 
 /** Lens surface: steepest slope at its edge, degrees. */
 const LENS_EDGE = 10 * (Math.PI / 180);
@@ -35,7 +37,7 @@ const SHINE = 120;
 const GLINT = 0.15;
 const SEAM = 0.06;
 /** Rows of the sheen grid; it is stretched to the card height. */
-const SHEEN_ROWS = 28;
+const SHEEN_ROWS = 14;
 
 export interface Tile {
   src: string;
@@ -55,6 +57,8 @@ function strip(q: number): number {
   const t = Math.min(1, Math.max(0, (Math.abs(q) - QA) / (QB - QA)));
   return -0.25 + 0.5 * t * t * (3 - 2 * t);
 }
+
+const nextFrame = () => new Promise<void>((done) => requestAnimationFrame(() => done()));
 
 /** Decode and resize off the main thread: the file is already in the HTTP cache. */
 async function crop(t: Tile, w: number, h: number): Promise<ImageBitmap> {
@@ -86,7 +90,6 @@ export class LensPrint {
   private ctx: CanvasRenderingContext2D;
   private a: HTMLCanvasElement | null = null;
   private b: HTMLCanvasElement | null = null;
-  private seam: HTMLCanvasElement | null = null;
   private sheen = document.createElement("canvas");
   private sheenCtx = this.sheen.getContext("2d")!;
   private sheenData: ImageData | null = null;
@@ -96,10 +99,14 @@ export class LensPrint {
   private w = 0;
   private h = 0;
   private p = PITCH;
-  /** The eye's sideways offset from the card's centre, CSS px (negative: to the left). */
+  /** The eye's sideways offset from the card's centre for the glints, CSS px (negative: to the left). */
   private eyeX = 0;
   /** sin and cos of the lens surface angle at each device column inside a lens. */
   private lensTrig: (readonly [number, number])[] = [];
+  /** Per device column, how dark the lens seam is (only drawn while the card is turned). */
+  private seamCol = new Float32Array(0);
+  /** One row: per device column, how much of B its lens shows. */
+  private maskData: ImageData | null = null;
 
   private canvas: HTMLCanvasElement;
 
@@ -117,15 +124,23 @@ export class LensPrint {
     const dpr = Math.min(2, window.devicePixelRatio || 1);
     const w = Math.max(1, Math.round(cssW * dpr));
     const h = Math.max(1, Math.round(cssH * dpr));
-    const [a, b] = await Promise.all([paint(faces[0], w, h), paint(faces[1], w, h)]);
+    // One face per frame, so painting a print never holds the page for long.
+    const a = await paint(faces[0], w, h);
+    await nextFrame();
+    const b = await paint(faces[1], w, h);
+    await nextFrame();
     this.release();
-    Object.assign(this, { dpr, cssW, cssH, w, h, a, b, p: PITCH * dpr, eyeX: cssW / 2 - cueFor(cssW) * EYE });
+    Object.assign(this, { dpr, cssW, cssH, w, h, a, b, p: PITCH * dpr, eyeX: -0.2 * cssW });
     this.canvas.width = w;
     this.canvas.height = h;
+    this.maskData = new ImageData(w, 1);
     this.sheen.width = w;
     this.sheen.height = SHEEN_ROWS;
     this.sheenData = this.sheenCtx.createImageData(w, SHEEN_ROWS);
-    this.seam = this.paintSeams();
+    this.seamCol = Float32Array.from({ length: w }, (_, x) => {
+      const k = Math.abs(2 * (((x + 0.5) % (PITCH * dpr)) / (PITCH * dpr) - 0.5));
+      return SEAM * k * k * k;
+    });
     this.lensTrig = Array.from({ length: Math.ceil(this.p) }, (_, x1) => {
       const phi = 2 * ((x1 + 0.5) / this.p - 0.5) * LENS_EDGE;
       return [Math.sin(phi), Math.cos(phi)] as const;
@@ -133,77 +148,71 @@ export class LensPrint {
   }
 
   release() {
-    for (const c of [this.a, this.b, this.seam]) if (c) c.width = c.height = 0;
-    this.a = this.b = this.seam = null;
+    for (const c of [this.a, this.b]) if (c) c.width = c.height = 0;
+    this.a = this.b = null;
   }
 
-  /** The lens seams: each lens is a little darker where its surface turns steep. */
-  private paintSeams() {
-    const c = document.createElement("canvas");
-    c.width = this.w;
-    c.height = 1;
-    const ctx = c.getContext("2d")!;
-    const img = ctx.createImageData(this.w, 1);
-    for (let x = 0; x < this.w; x++) {
-      const u = ((x + 0.5) % this.p) / this.p - 0.5;
-      const k = Math.abs(2 * u);
-      img.data[x * 4 + 3] = Math.round(255 * SEAM * k * k * k);
-    }
-    ctx.putImageData(img, 0, 0);
-    return c;
-  }
-
-  /** Draw the card as seen at a tilt of `deg` degrees about its vertical axis. */
+  /**
+   * Draw the card as seen at a tilt of `deg` degrees about its vertical axis.
+   * Each lens shows the end of A's strip, then the start of B's: one mask row says, per device column,
+   * which screen that column's lens shows, and B is drawn through a clip of those columns. Two blits a
+   * frame, whatever the number of lenses.
+   */
   render(deg: number) {
-    const { ctx, a, b, w, h, p } = this;
-    if (!a || !b) return;
+    const { ctx, a, b, w, h, p, maskData } = this;
+    if (!a || !b || !maskData) return;
     const th = (deg * Math.PI) / 180;
-    const sin = Math.sin(th);
-    const cos = Math.cos(th);
-    const lenses = Math.ceil(w / p);
-    let runFrom = 0;
-    let runFace: HTMLCanvasElement | null = null;
-    const flush = (to: number) => {
-      if (runFace && to > runFrom) ctx.drawImage(runFace, runFrom, 0, to - runFrom, h, runFrom, 0, to - runFrom, h);
-    };
-    for (let i = 0; i < lenses; i++) {
-      const x0 = i * p;
+    const turn = deg / FACE_B_DEG;
+    const m = maskData.data;
+    let anyA = false;
+    let anyB = false;
+    for (let x0 = 0; x0 < w; x0 += p) {
       const width = Math.min(p, w - x0);
-      // The lens centre, in CSS px from the card's centre; tan of the angle from the lens to the eye.
-      const xc = (x0 + width / 2) / this.dpr - this.cssW / 2;
-      const q = (xc + EYE * sin - this.eyeX * cos) / (EYE * cos + this.eyeX * sin);
-      const o = strip(q);
-      const pure = o <= -0.2499 ? a : o >= 0.2499 ? b : null;
-      if (pure) {
-        if (pure !== runFace) {
-          flush(x0);
-          runFrom = x0;
-          runFace = pure;
-        }
-        continue;
+      const u = ((x0 + width / 2) / w) * 2 - 1;
+      const o = strip(REACH * turn + SPREAD * ((u + 1) / 2));
+      // Columns past the cut show B; the column the cut falls in is shared (antialiased).
+      const cut = x0 + (0.5 - 2 * o) * width;
+      for (let x = Math.floor(x0); x < Math.min(w, Math.ceil(x0 + width)); x++) {
+        const cover = Math.min(1, Math.max(0, x + 1 - cut));
+        m[x * 4 + 3] = Math.round(255 * cover);
+        if (cover > 0) anyB = true;
+        if (cover < 1) anyA = true;
       }
-      flush(x0);
-      runFace = null;
-      // A split lens: the end of A's strip, then the start of B's strip.
-      const cut = (0.5 - 2 * o) * width;
-      if (cut > 0.01) ctx.drawImage(a, x0 + (2 * o + 0.5) * width, 0, cut, h, x0, 0, cut, h);
-      if (width - cut > 0.01) ctx.drawImage(b, x0, 0, width - cut, h, x0 + cut, 0, width - cut, h);
     }
-    flush(w);
+    if (!anyB) ctx.drawImage(a, 0, 0);
+    else if (!anyA) ctx.drawImage(b, 0, 0);
+    else {
+      // A, then B through a clip of the columns its lenses show: two blits.
+      ctx.drawImage(a, 0, 0);
+      ctx.save();
+      ctx.beginPath();
+      for (let x = 0; x < w; ) {
+        const c = m[x * 4 + 3];
+        if (c === 0) {
+          x++;
+          continue;
+        }
+        // A run of B columns; a cut inside the first column starts it part-way (antialiased by the clip).
+        const from = x + 1 - c / 255;
+        x++;
+        while (x < w && m[x * 4 + 3] === 255) x++;
+        ctx.rect(from, 0, x - from, h);
+      }
+      ctx.clip();
+      ctx.drawImage(b, 0, 0);
+      ctx.restore();
+    }
     this.drawSheen(th);
   }
 
   /** Lamp reflection in each lens: a band of thin glints that slides as the card turns. */
   private drawSheen(th: number) {
-    const { ctx, w, h, p, sheenData, seam } = this;
-    if (!sheenData || !seam) return;
+    const { ctx, w, h, p, sheenData } = this;
+    if (!sheenData) return;
     // Seams show while the card is turned; flat, the lens sheet reads only as its glints and the edge band.
+    // Glints (white) and seams (dark) share one overlay, so the lens costs one more blit, not two.
     const seamAlpha = Math.min(1, Math.abs(th) / (4 * (Math.PI / 180)));
-    if (seamAlpha > 0.02) {
-      ctx.globalAlpha = seamAlpha;
-      ctx.drawImage(seam, 0, 0, w, 1, 0, 0, w, h);
-      ctx.globalAlpha = 1;
-    }
+    const seamCol = this.seamCol;
     const sin = Math.sin(th);
     const cos = Math.cos(th);
     const W = this.cssW;
@@ -240,8 +249,15 @@ export class LensPrint {
           const [sn, cs] = trig[x1] ?? trig[trig.length - 1];
           const d = sn * hx + cs * hz;
           const k = (r * w + x0 + x1) * 4;
-          data[k] = data[k + 1] = data[k + 2] = 255;
-          data[k + 3] = d > 0.96 ? Math.round(255 * GLINT * Math.pow(d, SHINE)) : 0;
+          const glint = d > 0.96 ? GLINT * Math.pow(d, SHINE) : 0;
+          const shade = seamAlpha * seamCol[x0 + x1];
+          if (glint >= shade) {
+            data[k] = data[k + 1] = data[k + 2] = 255;
+            data[k + 3] = Math.round(255 * glint);
+          } else {
+            data[k] = data[k + 1] = data[k + 2] = 0;
+            data[k + 3] = Math.round(255 * shade);
+          }
         }
       }
     }
