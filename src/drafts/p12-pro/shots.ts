@@ -82,7 +82,7 @@ export const phones: PhoneShot[] = [
     src: "/mobile/grocery-1.webp",
     alt: "Viva Fresh home on iPhone, in Albanian: product categories, filters and the latest products with prices and an add-to-cart button.",
     app: "Viva Fresh",
-    screen: "Home, in Albanian",
+    screen: "Categories and new products, in Albanian",
     box: { x: 88, y: 371, w: 604, h: 1227 },
     links: [
       { label: "App Store", href: "https://apps.apple.com/us/app/viva-fresh/id1580739480" },
@@ -93,7 +93,7 @@ export const phones: PhoneShot[] = [
     src: "/mobile/bookstore-1.webp",
     alt: "Dukagjini Bookstore home: book search, a banner, top categories and books on sale.",
     app: "Dukagjini Bookstore",
-    screen: "Home",
+    screen: "Search and top categories",
     box: { x: 108, y: 712, w: 564, h: 977 },
     links: [
       { label: "App Store", href: "https://apps.apple.com/us/app/dukagjini-bookstore/id1587352342" },

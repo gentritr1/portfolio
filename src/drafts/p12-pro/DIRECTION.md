@@ -37,6 +37,16 @@ Memory sentence (target): "The one where the care app is shown at its real size,
 - **Mechanisms earned:** M1 (actual size everywhere, phone screens at phone width), M3 (the transition is real 1:1 pixels, no scale), M9, M11, M13, M14.
 - **Risk:** it can read as a clean, ordinary portfolio with big screenshots. The bleed, the phone screens at phone size and the caption "Shown at actual size" must make the rule visible; the transition must be exact or it is just a zoom.
 
-## Four answers (written from my own captures, see the end of the build)
+## Four answers (read off my own captures, 1440.png and 390.png)
 
-Filled in after the checker run, below.
+- **Desktop (1440 × 900):** who: Gentrit Rashiti, the first words of the 64 px claim. What: web and phone apps; the role line adds "frontend and mobile developer, now full stack", remote from Kosovo. For whom: care teams, learners and shoppers. Proof: the real care team calendar at actual size fills the right 57 % (caption: real product screens, invented data, 825 of 1440 pixels wide); the proof table names the care platform rebuild at Vianova, 2023–26, and links bayyinahtv.com and Viva Fresh in the App Store and on Google Play.
+- **Phone (390 × 844):** who, what, for whom: the same claim in four lines at 36 px, role line under it. Proof: the three-row proof table with the live and store links, then the calendar at actual size from about y 480 (Tuesday to Thursday, 9 AM to noon, the red now line), caption at the fold. The action sits just under the fold; the screen itself is a link to the case.
+- **Memory sentence (as a stranger):** "The one where the care app's real screens are shown at actual size, cut off by the page, and opening the case widens the window to the whole app without zooming."
+
+## Build notes
+
+- Crops are app pixels, not percentages (`shots.ts`); each window places a 1:1 image with `left/top` and clips it. Captions measure the window and print how many of the app's pixels it shows.
+- The tile-to-case transition (`openWindow.ts`): the hero window and the case window share one `view-transition-name`; the snapshots are drawn at their own size (`inline-size/block-size` in px) inside a clipping image pair, and both slide by the difference of their crop offsets, so each app pixel stays on the same app pixel while the window grows. End state checked pixel-identical to a direct load at 1440. Keyboard activation, reduced motion and a source that is off screen do not animate the window; focus moves to the new view's h1.
+- Fonts: the first frame waits up to 700 ms for the two local faces so the condensed claim never reflows (CLS 0).
+- Checker: home PASS, 0 fails, 0 warnings, allowed C08c and T45 (see meta.json). Case (`--mode read`) PASS, 0 fails, 0 warnings.
+- Polish passes: 1) reset specificity (`:where`), headings out of the host's Archivo, 44 px targets, crops that cut no text, 320 px masthead and claim; 2) measured captions, "Services" and "runtime" removed, focus handoff, proof-link hit areas.

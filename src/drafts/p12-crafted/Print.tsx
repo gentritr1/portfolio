@@ -42,9 +42,9 @@ const STORY = { type: "spring", visualDuration: 0.5, bounce: 0.12 } as const;
 /** spring.snap, for a drag release with the hand's velocity. */
 const SNAP = { type: "spring", stiffness: 600, damping: 40 } as const;
 
-export function useTilt(reduced: boolean): Tilt {
-  const theta = useMotionValue(0);
-  const [face, setFace] = useState<0 | 1>(0);
+export function useTilt(reduced: boolean, start: 0 | 1 = 0): Tilt {
+  const theta = useMotionValue(start ? FACE_B_DEG : 0);
+  const [face, setFace] = useState<0 | 1>(start);
   useMotionValueEvent(theta, "change", (v) => setFace(Math.abs(v) > FLIP_DEG ? 1 : 0));
   const show = (to: 0 | 1, how: "spring" | "instant") => {
     const now = theta.get();
@@ -136,12 +136,15 @@ export function Print({
   tilt,
   priority = false,
   story = false,
+  intro = false,
   caption,
 }: {
   spec: PrintSpec;
   tilt: Tilt;
   priority?: boolean;
   story?: boolean;
+  /** Arrive turned to the second face, then settle flat once, when the lens is ready soon enough. */
+  intro?: boolean;
   caption?: ReactNode;
 }) {
   const narrow = useNarrow();
@@ -151,6 +154,19 @@ export function Print({
   const lens = useRef<LensPrint | null>(null);
   const imgs = useRef<(HTMLImageElement | null)[][]>([[], []]);
   const [ready, setReady] = useState(false);
+  const born = useRef(performance.now());
+
+  // The one authored moment at load: the print is set down. It arrives turned (the App Store face)
+  // and settles flat (the website), once. Skipped if the lens is late, if the visitor already
+  // touched it, or with reduced motion.
+  useEffect(() => {
+    if (!intro || !ready || tilt.reduced) return;
+    if (performance.now() - born.current > 2000) return;
+    const id = window.setTimeout(() => {
+      if (!tilt.theta.isAnimating() && tilt.theta.get() === FACE_B_DEG) tilt.show(0, "spring");
+    }, 120);
+    return () => window.clearTimeout(id);
+  }, [intro, ready, tilt]);
   const drag = useRef<{ id: number; x: number; from: number; moved: boolean } | null>(null);
 
   // Paint the faces when the print comes near the viewport, and again when its size changes.
@@ -289,8 +305,8 @@ export function Print({
                       width={t.nat[0]}
                       height={t.nat[1]}
                       style={st.img}
-                      loading={priority && f === 0 ? "eager" : "lazy"}
-                      fetchPriority={priority && f === 0 ? "high" : undefined}
+                      loading={priority ? "eager" : "lazy"}
+                      fetchPriority={priority && f === tilt.face ? "high" : undefined}
                       decoding="async"
                       draggable={false}
                     />

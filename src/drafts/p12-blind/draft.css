@@ -207,7 +207,7 @@
   text-wrap: balance;
 }
 .tl-lead {
-  margin-top: 22px;
+  margin-top: 26px;
   font-size: 20px;
   line-height: 1.45;
   max-width: 58ch;
@@ -239,7 +239,7 @@
 
 .tl-record {
   position: relative;
-  --tl-lanes: [phone-bars] 18px [phone] minmax(0, 254fr) [g1] 36px [web-bars] 18px [web] minmax(0, 742fr) [g2] 36px [server-bars] 18px [server] minmax(0, 222fr);
+  --tl-lanes: [phone] minmax(0, 254fr) [phone-bars] 18px [g1] 36px [web] minmax(0, 742fr) [web-bars] 18px [g2] 36px [server] minmax(0, 222fr) [server-bars] 18px;
 }
 .tl-laneheads {
   display: grid;
@@ -274,13 +274,13 @@
   color: var(--tl-ink-2);
 }
 .tl-lanehead[data-lane='phone'] {
-  grid-column: phone-bars / g1;
+  grid-column: phone / g1;
 }
 .tl-lanehead[data-lane='web'] {
-  grid-column: web-bars / g2;
+  grid-column: web / g2;
 }
 .tl-lanehead[data-lane='server'] {
-  grid-column: server-bars / -1;
+  grid-column: server / -1;
 }
 
 .tl-grid {
@@ -341,10 +341,10 @@
   width: 4px;
   border-radius: 2px;
   background: var(--tl-bar);
-  justify-self: start;
+  justify-self: end;
   margin-top: 18px;
   margin-bottom: 8px;
-  margin-left: calc(var(--k, 0) * 7px);
+  margin-right: calc(var(--k, 0) * 7px);
   transform-origin: top;
 }
 .tl-bar[data-lane='phone'] {
@@ -612,10 +612,16 @@
 
 /* ---------- The index ---------- */
 
-.tl-index {
+.tl section + section,
+.tl .tl-record + section,
+.tl section#index,
+.tl section#about {
   margin-top: 72px;
   border-top: 1px solid var(--tl-ink);
   padding-top: 20px;
+}
+.tl-index {
+  margin-top: 4px;
 }
 .tl-h2 {
   font-family: var(--tl-display);
@@ -643,7 +649,7 @@
 }
 .tl-row {
   display: grid;
-  grid-template-columns: 84px minmax(0, 2fr) 96px minmax(0, 1.2fr) minmax(0, 3fr) auto;
+  grid-template-columns: 84px minmax(0, 2fr) 96px minmax(0, 1.2fr) minmax(0, 3fr) 112px;
   gap: 6px 20px;
   align-items: baseline;
   padding: 9px 0;
@@ -673,6 +679,7 @@
 .tl-row .tl-links {
   display: flex;
   gap: 14px;
+  justify-content: flex-end;
   font-family: var(--tl-mono);
   font-size: 12.5px;
   white-space: nowrap;
@@ -686,9 +693,7 @@
 /* ---------- About and contact ---------- */
 
 .tl-about {
-  margin-top: 72px;
-  border-top: 1px solid var(--tl-ink);
-  padding-top: 20px;
+  margin-top: 20px;
   display: grid;
   grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
   gap: 24px 48px;
@@ -737,9 +742,9 @@
     grid-column: auto;
     flex-direction: column;
     align-items: flex-start;
-    gap: 4px;
-    font-size: 18px;
-    padding: 10px 0 8px;
+    gap: 3px;
+    font-size: 17px;
+    padding: 8px 0 6px;
   }
   .tl-lanehead[data-lane='phone'],
   .tl-lanehead[data-lane='web'],
@@ -747,7 +752,7 @@
     grid-column: auto;
   }
   .tl-lanehead small {
-    font-size: 12px;
+    font-size: 11.5px;
   }
   .tl-grid {
     display: block;
@@ -767,13 +772,32 @@
     padding-top: 8px;
   }
   .tl-hero {
-    padding-block: 8px 18px;
+    padding-block: 4px 12px;
   }
   .tl-lead {
-    margin-top: 14px;
+    margin-top: 12px;
+    font-size: 17px;
+  }
+  .tl-proof {
+    margin-top: 4px;
+  }
+  .tl-lanetag {
+    margin-bottom: -8px;
   }
   .tl-mast {
     min-height: 48px;
+    font-size: 15px;
+  }
+  .tl-mast .tl-name {
+    white-space: nowrap;
+    margin-left: 0;
+    padding-inline: 0;
+  }
+  .tl-mast nav ul {
+    gap: 0;
+  }
+  .tl-mast nav a {
+    padding-inline: 5px;
   }
   .tl-cell {
     padding: 14px 0 24px;
@@ -839,6 +863,9 @@
   .tl-row .tl-line,
   .tl-row .tl-links {
     grid-column: 2;
+  }
+  .tl-row .tl-links {
+    justify-content: flex-start;
   }
   .tl-row .tl-lane::after {
     content: ' · ' attr(data-role);

@@ -38,7 +38,7 @@ const otherWork: IndexRow[] = [
     line: "Donations and subscriptions. Built the payment screens and the badges.",
   },
   {
-    name: "Chatbot runtime library",
+    name: "Chatbot library",
     years: "2022–25",
     role: "Mobile",
     line: "Plays scripted chat conversations inside phone apps, with natural typing delays.",

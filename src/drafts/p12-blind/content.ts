@@ -222,8 +222,7 @@ export const rows: Row[] = [
           id: 'offday-server',
           name: 'The server behind Offday',
           text: [
-            'Sign-in details by email, public holidays for about 200 countries, Excel export, a calendar feed and a streaming AI assistant.',
-            'About 200 tests, including security and tenant isolation.',
+            'Sign-in by email, holidays for about 200 countries, Excel export, a calendar feed and an AI assistant. About 200 tests.',
           ],
           meta: ['Own product', '2026'],
           years: [2026, 2026],
@@ -254,7 +253,7 @@ export const rows: Row[] = [
       server: [
         {
           id: 'care-api',
-          name: 'The API behind the care platform',
+          name: 'The server behind the care platform',
           text: [
             'Enrollment drafts, a lab catalog and security fixes that keep each organization’s data apart.',
             'One billing report now makes 2 database requests, not 16, and no longer times out.',
@@ -273,9 +272,9 @@ export const rows: Row[] = [
         {
           id: 'ds',
           name: 'Design System v2',
-          kind: '36 components for the new care dashboard',
+          kind: '36 building blocks for the new care dashboard',
           text: [
-            '805 colour, size and type rules in three tiers feed CSS, TypeScript and Figma from one source. 20 releases in about six weeks. Built to WCAG 2.1 AA floors, with rendered evidence.',
+            '805 colour, size and type rules, kept in one source, feed CSS, TypeScript and Figma. 20 releases in about six weeks. Built to WCAG 2.1 AA floors, with rendered evidence.',
             'Research into five leading design systems came first. Gentrit turned it into written guides for AI agents. The guides advise, but automatic checks decide. A person approves each change.',
           ],
           meta: ['Vianova', 'Design system', '2026'],
@@ -399,7 +398,7 @@ export const rows: Row[] = [
           kind: 'Grocery shopping and loyalty',
           text: [
             'Shoppers fill a cart, choose a delivery slot and find their address on a map. Loyalty points and a wishlist. Albanian interface.',
-            'Live in both stores. One codebase ships to iPhone and Android.',
+            'Live in both stores. One app ships to iPhone and Android.',
           ],
           meta: ['Mobile', '2023'],
           links: [...store('viva-fresh'), { label: 'Read the case', href: '/work/viva-fresh' }],
@@ -488,9 +487,9 @@ export const index: IndexGroup[] = [
     title: 'Vianova, 2021 to now',
     rows: [
       { years: '2026', name: 'Care-management platform, React rewrite', lane: 'Web', role: 'Frontend', line: 'Screen-by-screen move from Vue to React, with the same tests on both apps', entry: 'care', links: [{ label: 'Case', href: '/work/care-platform' }] },
-      { years: '2026', name: 'Care-management API', lane: 'Server', role: 'Full stack', line: 'Enrollment drafts, a lab catalog, multi-tenant security and fast reports', entry: 'care-api' },
-      { years: '2026', name: 'Design System v2', lane: 'Web', role: 'Design system', line: '36 components, 805 design tokens and 20 releases in about six weeks', entry: 'ds', links: [{ label: 'Case', href: '/work/design-system-react' }] },
-      { years: '2026', name: 'Design system, Vue', lane: 'Web', role: 'Design system', line: 'Design tokens from Figma, codemods, visual regression tests and a health dashboard' },
+      { years: '2026', name: 'Care-management server', lane: 'Server', role: 'Full stack', line: 'Enrollment drafts, a lab catalog, data kept apart for each organization, fast reports', entry: 'care-api' },
+      { years: '2026', name: 'Design System v2', lane: 'Web', role: 'Design system', line: '36 building blocks, 805 colour, size and type rules, 20 releases in about six weeks', entry: 'ds', links: [{ label: 'Case', href: '/work/design-system-react' }] },
+      { years: '2026', name: 'Design system, Vue', lane: 'Web', role: 'Design system', line: 'Colour, size and type rules from Figma, visual tests and a health dashboard' },
       { years: '2026', name: 'Design dashboard, prototype', lane: 'Web', role: 'Frontend', line: 'Call-activity screen on the design system with demo data, as a design reference' },
       { years: '2023–26', name: 'Care-management platform, Vue app', lane: 'Web', role: 'Frontend', line: 'Remote patient care: profiles, care plans, claims, vitals and labs, calls, 4 languages', entry: 'care-vue' },
     ],
@@ -503,7 +502,7 @@ export const index: IndexGroup[] = [
       { years: '2022–25', name: 'Read to Feed', lane: 'Phone', role: 'Mobile', line: 'PDF and EPUB reader, barcode scanning, badges and streaks, about 14 releases', entry: 'rtf', links: [{ label: 'Case', href: '/work/read-to-feed' }] },
       { years: '2022–25', name: 'Chatbot runtime library', lane: 'Phone', role: 'Mobile', line: 'Plays scripted chat conversations: message queue, typing delays, media, duplicate guards', entry: 'chatbot' },
       { years: '2025', name: 'Chatbot runtime, web port', lane: 'Web', role: 'Frontend', line: 'TypeScript web version of the chatbot runtime, with an example app' },
-      { years: '2025', name: 'Member portal', lane: 'Web', role: 'Frontend', line: 'Member portal foundation: protected routes, external sign-in, app shell and layout', entry: 'portal' },
+      { years: '2025', name: 'Member portal', lane: 'Web', role: 'Frontend', line: 'Member portal base: protected pages, outside sign-in, app shell and layout', entry: 'portal' },
       { years: '2023', name: 'Viva Fresh', lane: 'Phone', role: 'Mobile', line: 'Grocery orders with delivery slots, loyalty, wishlist and address search on a map', entry: 'viva', links: [{ label: 'Case', href: '/work/viva-fresh' }] },
       { years: '2022–23', name: 'Coaching app', lane: 'Phone', role: 'Mobile', line: 'Organization sign-in, a daily calendar strip, reactions, and dev, staging and release builds' },
       { years: '2022', name: 'EPUB reader prototype', lane: 'Phone', role: 'Mobile', line: 'Downloads, renders and resizes an EPUB; the start of the reading app’s reader' },
@@ -530,7 +529,7 @@ export const index: IndexGroup[] = [
       { years: '2026', name: 'Offday', lane: 'Web, phone, server', role: 'Owner', line: 'Time off for teams: approvals, shared calendar, shift cover, best-dates planner, AI assistant', entry: 'offday' },
       { years: '2026', name: 'OFFBEAT, speaker brand concept', lane: 'Web', role: 'Owner', line: 'Fictional speaker: 3D model, exploded view, a working drum-machine studio', links: [{ label: 'GitHub', href: 'https://github.com/gentritr1/offbeat' }] },
       { years: '2026', name: 'FORM, sculpture exhibition concept', lane: 'Web', role: 'Owner', line: 'Three mathematical forms in WebGL, live materials, word-cast sculptures', links: [{ label: 'GitHub', href: 'https://github.com/gentritr1/form' }] },
-      { years: '2026', name: 'Snaxx Tech studio website', lane: 'Web', role: 'Owner', line: '3D hero, cinemagraph loop and strict CSP; images 972 KB to 337 KB', links: [{ label: 'snaxxtech.com', href: 'https://www.snaxxtech.com/' }] },
+      { years: '2026', name: 'Snaxx Tech studio website', lane: 'Web', role: 'Owner', line: '3D hero, a cinemagraph loop and a strict security policy; images 972 KB to 337 KB', links: [{ label: 'snaxxtech.com', href: 'https://www.snaxxtech.com/' }] },
       { years: '2026', name: 'FJALË', lane: 'Web', role: 'Owner', line: 'Daily Albanian word game, 21k-word dictionary, archive, offline play', links: [{ label: 'Play', href: 'https://xn--fjal-opa.com/' }] },
       { years: '2026', name: 'Za!', lane: 'Web, server', role: 'Owner', line: 'Multiplayer pizza card game for 2 to 8 players; the server decides every move', links: [{ label: 'Play', href: 'https://za-game.onrender.com/' }] },
       { years: '2026', name: 'Morse Trainer', lane: 'Web', role: 'Owner', line: 'Morse-code learning game with spaced repetition and Farnsworth timing', links: [{ label: 'Play', href: 'https://morse-code-amber.vercel.app/' }] },

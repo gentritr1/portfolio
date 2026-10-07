@@ -76,7 +76,7 @@ const CARE: PrintSpec = {
     aspect: 876 / 530,
     faces: [
       { ground: "#f5f7fb", tiles: [careOverview([524, 430, 876, 530])] },
-      { ground: "#f5f7fb", tiles: [careGlucose([524, 170, 876, 530])] },
+      { ground: "#f5f7fb", tiles: [careGlucose([524, 150, 876, 530])] },
     ],
   },
 };
@@ -116,15 +116,15 @@ const OFFDAY: PrintSpec = {
   wide: {
     aspect: 1.6,
     faces: [
-      { ground: "#ffffff", tiles: [offday("light", [510, 230, 1920, 1200])] },
-      { ground: "#161012", tiles: [offday("dark", [510, 230, 1920, 1200])] },
+      { ground: "#ffffff", tiles: [offday("light", [510, 190, 1920, 1200])] },
+      { ground: "#161012", tiles: [offday("dark", [510, 190, 1920, 1200])] },
     ],
   },
   narrow: {
     aspect: 880 / 640,
     faces: [
-      { ground: "#ffffff", tiles: [offday("light", [490, 250, 880, 640])] },
-      { ground: "#161012", tiles: [offday("dark", [490, 250, 880, 640])] },
+      { ground: "#ffffff", tiles: [offday("light", [490, 205, 880, 640])] },
+      { ground: "#161012", tiles: [offday("dark", [490, 205, 880, 640])] },
     ],
   },
 };
@@ -184,12 +184,15 @@ function useGround() {
   }, []);
 }
 
+const prefersReduced = () => typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
 /* ---------- The page ---------- */
 
 export default function Draft() {
   useGround();
   const reduced = useReducedMotion() ?? false;
-  const hero = useTilt(reduced);
+  // The hero print arrives on its App Store face and settles to the website; with reduced motion it starts flat.
+  const hero = useTilt(reduced, reduced || prefersReduced() ? 0 : 1);
   const care = useTilt(reduced);
   const rtf = useTilt(reduced);
   const viva = useTilt(reduced);
@@ -224,7 +227,7 @@ export default function Draft() {
             Gentrit Rashiti builds the web and phone apps that learners, care teams and shoppers use.
           </h1>
           <div className="lx-hero-grid">
-            <Print spec={BAYYINAH} tilt={hero} priority story caption={<span className="lx-prov">One print, two real screens.</span>} />
+            <Print spec={BAYYINAH} tilt={hero} priority story intro caption={<span className="lx-prov">One print, two real screens.</span>} />
             <div className="lx-hero-side">
               <h2 className="lx-name">Bayyinah TV</h2>
               <p className="lx-kind">Video courses and live streams for an online community.</p>
@@ -317,7 +320,7 @@ export default function Draft() {
                 <h3 className="lx-name">Viva Fresh</h3>
                 <p className="lx-kind">A grocery app in Albanian, with delivery slots, a loyalty programme and a wishlist.</p>
                 <p className="lx-result">Live in the App Store and on Google Play.</p>
-                <p>One codebase ships both apps. A search on a map finds the delivery address.</p>
+                <p>The same code builds the iPhone app and the Android app. A search on a map finds the delivery address.</p>
                 <p className="lx-meta">Mobile · 2023</p>
                 <p className="lx-live">
                   <Out href="https://apps.apple.com/us/app/viva-fresh/id1580739480">App Store</Out>
