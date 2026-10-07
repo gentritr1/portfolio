@@ -123,7 +123,7 @@ const sheets: Sheet[] = [
     years: "2026",
     decision: "Build Design System v2 from one token source",
     result: "36 components in 20 releases.",
-    plate: { shot: dsShots.buttonAlert, wide: dsShots.buttonAlert.crop, narrow: dsShots.buttonAlert.crop },
+    plate: { shot: dsShots.dateRange, wide: dsShots.dateRange.crop, narrow: dsShots.dateRangeJune.crop },
     caption: "Real product screens, invented data",
     hue: 230,
     slug: "design-system-react",

@@ -524,10 +524,11 @@ const client: ClientRow[] = [
     href: "/work/design-system-react",
     shots: [
       {
-        src: dsShots.buttonAlert.src,
-        width: 1440,
-        height: 1192,
-        alt: dsShots.buttonAlert.alt,
+        src: dsShots.dateRange.src,
+        width: dsShots.dateRange.width,
+        height: dsShots.dateRange.height,
+        crop: dsShots.dateRange.crop,
+        alt: dsShots.dateRange.alt,
       },
     ],
   },

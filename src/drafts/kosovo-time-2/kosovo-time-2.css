@@ -310,9 +310,9 @@ html.k2-page[data-k2-dark="true"] {
   background: var(--k2-lit);
 }
 
-/* --h divides the free width by the sum of the two crops' width-to-height ratios (1040 / 560 + 580 / 1030). */
+/* --h divides the free width by the sum of the two crops' width-to-height ratios (1040 / 528 + 580 / 1030). */
 .k2-leads {
-  --h: min(540px, 100cqh - 98px, (100cqw - 2 * var(--k2-gutter) - 64px) / 2.42);
+  --h: min(540px, 100cqh - 98px, (100cqw - 2 * var(--k2-gutter) - 64px) / 2.53);
   display: flex;
   justify-content: center;
   align-items: flex-end;
@@ -431,19 +431,16 @@ a:active > .k2-press {
 .k2-card-title {
   display: block;
   margin-top: 6px;
-  font-family: var(--k2-serif);
-  font-size: 21px;
-  font-weight: 500;
-  font-variation-settings: "opsz" 36;
-  line-height: 1.2;
-  letter-spacing: -0.005em;
-  text-wrap: balance;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.45;
+  text-wrap: pretty;
 }
 
 /* The loop: steps in fixed rows, so the way back can span rows without a measure. */
 .k2-loop {
-  --row: 42px;
-  --gap: 10px;
+  --row: 40px;
+  --gap: 8px;
   --line: rgb(23 23 26 / 0.55);
   position: relative;
   display: grid;
@@ -809,7 +806,6 @@ a:active > .k2-press {
   display: inline-flex;
   align-items: center;
   min-height: 44px;
-  margin-top: 2px;
   font-size: 15px;
   font-weight: 600;
   text-decoration: underline;
@@ -829,6 +825,7 @@ a:active > .k2-press {
   display: flex;
   flex-wrap: wrap;
   gap: 0 18px;
+  margin-top: 2px;
 }
 
 .k2-links a {
@@ -874,7 +871,58 @@ a:active > .k2-press {
 }
 
 .k2-pair-slots[data-card] > .k2-plate {
-  max-width: 820px;
+  max-width: 760px;
+}
+
+/* A client row with its work card: the words in two columns, then the screen and the card on one ground. */
+@media (min-width: 1024px) {
+  .k2-row[data-card] .k2-row-text {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    column-gap: 48px;
+    max-width: none;
+  }
+
+  .k2-row[data-card] .k2-row-meta > :first-child {
+    margin-top: 0;
+  }
+
+  .k2-row[data-card] .k2-row-stage {
+    padding-top: 20px;
+    padding-bottom: 48px;
+  }
+
+  .k2-row[data-card] .k2-card {
+    width: 340px;
+  }
+}
+
+/* The phone apps: three screens on one ground, each with its words under it. */
+.k2-trio {
+  padding: 40px var(--k2-gutter) 0;
+}
+
+.k2-trio-ground {
+  padding: 24px 0 44px;
+}
+
+.k2-trio-slots,
+.k2-trio-text {
+  display: grid;
+  grid-template-columns: repeat(var(--n), minmax(0, 1fr));
+  column-gap: 48px;
+}
+
+.k2-trio-slots {
+  align-items: end;
+}
+
+.k2-trio-slot > .k2-plate[data-shape="phone"] {
+  width: min(232px, 100%);
+}
+
+.k2-trio-text .k2-row-text {
+  padding-top: 0;
 }
 
 .k2-pair {
@@ -895,36 +943,55 @@ a:active > .k2-press {
   max-width: 34em;
 }
 
-.k2-games-title {
+.k2-games {
   margin-top: 24px;
   padding: 0 var(--k2-gutter);
+}
+
+.k2-games h3 {
   font-size: 15px;
   font-weight: 600;
   color: var(--k2-soft);
 }
 
-.k2-games {
+.k2-games ul {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px 48px;
-  margin-top: 10px;
-  padding: 0 var(--k2-gutter);
+  gap: 0 32px;
+  margin-top: 2px;
 }
 
-.k2-games h4 {
+.k2-games li {
+  display: flex;
+  align-items: center;
+  gap: 0 10px;
+  min-height: 44px;
+  font-size: 15px;
+  line-height: 1.4;
+}
+
+.k2-games a {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  min-width: 44px;
+  gap: 4px;
+  min-height: 44px;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+}
+
+.k2-games a:hover {
+  text-decoration-thickness: 2px;
+}
+
+.k2-games strong {
   font-family: var(--k2-serif);
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 500;
   font-variation-settings: "opsz" 36;
-  line-height: 1.1;
   letter-spacing: -0.01em;
-}
-
-.k2-games p {
-  margin-top: 6px;
-  max-width: 30em;
-  font-size: 15px;
-  line-height: 1.45;
 }
 
 /* ---------- Footer ---------- */
@@ -980,7 +1047,7 @@ a:active > .k2-press {
   }
 
   .k2-leads {
-    --h: min(460px, (100cqw - 2 * var(--k2-gutter) - 40px) / 2.42);
+    --h: min(460px, (100cqw - 2 * var(--k2-gutter) - 40px) / 2.53);
     gap: 40px;
   }
 
@@ -1017,7 +1084,7 @@ a:active > .k2-press {
     gap: 32px;
   }
 
-  .k2-games {
+  .k2-games ul {
     grid-template-columns: minmax(0, 1fr);
   }
 }
@@ -1085,7 +1152,7 @@ a:active > .k2-press {
   }
 
   .k2-stage {
-    padding: 16px 16px 40px;
+    padding: 16px 16px 32px;
   }
 
   .k2-stage-phone {
@@ -1105,8 +1172,12 @@ a:active > .k2-press {
   }
 
   .k2-lead[data-kind="phone"] {
-    width: min(200px, 54vw);
+    width: min(150px, 40vw);
     margin: 0 auto;
+  }
+
+  .k2-lead[data-kind="phone"] .k2-bar > span:nth-child(2) {
+    display: none;
   }
 
   .k2-lead[data-kind="phone"] .k2-lead-shot {
@@ -1115,11 +1186,15 @@ a:active > .k2-press {
 
   .k2-bar {
     padding: 0 10px;
-    font-size: 13px;
+    font-size: 14px;
   }
 
   .k2-band {
-    height: 88px;
+    height: 72px;
+  }
+
+  .k2-section {
+    padding-bottom: 8px;
   }
 
   .k2-band h2 {
@@ -1127,11 +1202,11 @@ a:active > .k2-press {
   }
 
   .k2-row {
-    padding-top: 28px;
+    padding-top: 20px;
   }
 
   .k2-row-stage {
-    padding: 16px 8px 36px;
+    padding: 16px 8px 32px;
   }
 
   .k2-row[data-shape="phone"] {
@@ -1162,13 +1237,13 @@ a:active > .k2-press {
   }
 
   .k2-card-title {
-    font-size: 19px;
+    font-size: 15px;
   }
 
   .k2-loop {
-    --row: 38px;
-    --gap: 8px;
-    margin-top: 12px;
+    --row: 36px;
+    --gap: 6px;
+    margin-top: 10px;
   }
 
   .k2-row-text h3,
@@ -1186,8 +1261,50 @@ a:active > .k2-press {
     font-size: 14px;
   }
 
+  .k2-foot {
+    margin-top: 32px;
+    padding: 24px var(--k2-gutter) 32px;
+  }
+
+  .k2-foot-contact {
+    gap: 0 20px;
+  }
+
   .k2-foot-contact a {
     font-size: 16px;
+  }
+
+  .k2-row[data-small] .k2-plate {
+    width: min(260px, 100%);
+  }
+
+  .k2-games strong {
+    font-size: 18px;
+  }
+
+  .k2-games li {
+    gap: 0 8px;
+    font-size: 14px;
+  }
+}
+
+/* A hand-off with no same picture on the case's first view: the old page fades out over the new one.
+   The doubled attribute outranks the case page's own rule for the root snapshots. */
+:root[data-k2-fade][data-k2-fade]::view-transition-old(*) {
+  animation: k2-fade-out 180ms cubic-bezier(0.2, 0, 0, 1) both;
+}
+
+:root[data-k2-fade][data-k2-fade]::view-transition-new(*) {
+  animation: none;
+}
+
+:root[data-k2-fade][data-k2-fade]::view-transition-group(*) {
+  animation-duration: 180ms;
+}
+
+@keyframes k2-fade-out {
+  to {
+    opacity: 0;
   }
 }
 

@@ -138,11 +138,11 @@ export const plates: Plate[] = [
     source: REAL_SCREENS,
     stage: {
       kind: "screen",
-      shot: dsShots.buttonAlert,
-      crop: dsShots.buttonAlert.crop,
+      shot: dsShots.dateRange,
+      crop: dsShots.dateRange.crop,
       parts: [
-        { id: "components", box: { x: 16, y: 24, w: 652, h: 92 } },
-        { id: "a11y", box: { x: 16, y: 144, w: 688, h: 440 } },
+        { id: "components", box: { x: 18, y: 88, w: 156, h: 362 } },
+        { id: "a11y", box: { x: 178, y: 88, w: 590, h: 298 } },
       ],
     },
     notes: [

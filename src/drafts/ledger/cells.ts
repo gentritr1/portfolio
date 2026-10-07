@@ -1,11 +1,9 @@
-import { encodeQr } from "./qr";
 
 /** Every miniature draws in a 160 × 48 space; the scheduler scales it to the device pixels of its box. */
 export const W = 160;
 export const H = 48;
 const INK = "#15130f";
 const PAPER = "#fff4ea";
-const qr = encodeQr("gentrit.portfolio");
 
 type C = CanvasRenderingContext2D;
 interface Frame {
@@ -533,33 +531,17 @@ const fuel: Draw = ({ c, col, t }) => {
   }
 };
 
-const wallet: Draw = ({ c, col, t }) => {
-  const p = t % 4;
-  const qrSide = p >= 1.8 && p < 3.8;
-  let scale = 1;
-  if (p >= 1.6 && p < 2) scale = Math.abs(Math.cos(((p - 1.6) / 0.4) * Math.PI));
-  if (p >= 3.6) scale = Math.abs(Math.cos(((p - 3.6) / 0.4) * Math.PI));
-  c.save();
-  c.translate(80, 24);
-  c.scale(Math.max(0.04, scale), 1);
-  c.translate(-80, -24);
+/** The portal's public sign-in: three ways in, one picked at a time. */
+const signIn: Draw = ({ c, col, t }) => {
+  const picked = Math.floor(t / 1.2) % 3;
   c.lineWidth = 1;
-  if (!qrSide) {
-    faded(c, 0.12, () => round(c, 30, 3, 100, 42, 4, col));
-    round(c, 30.5, 3.5, 99, 41, 4, undefined, col);
-    label(c, "12,480", 38, 25, col, 14);
-    faded(c, 0.8, () => label(c, "INC", 104, 25, PAPER));
-    faded(c, 0.4, () => {
-      round(c, 38, 32, 34, 8, 4, col);
-      round(c, 76, 32, 30, 8, 4, col);
-    });
-  } else {
-    rect(c, 59, 3, 42, 42, PAPER);
-    for (let y = 0; y < 21; y++)
-      for (let x = 0; x < 21; x++)
-        if (qr[y][x]) rect(c, 63 + x * 1.62, 7 + y * 1.62, 1.62, 1.62, INK);
-  }
-  c.restore();
+  faded(c, 0.85, () => label(c, "Sign in", 30, 14, col, 12));
+  ["Passkey", "MetaMask", "Wallet"].forEach((name, i) => {
+    const x = 30 + i * 34;
+    if (i === picked) round(c, x, 22, 30, 16, 5, col);
+    else round(c, x + 0.5, 22.5, 29, 15, 4.5, undefined, col);
+    faded(c, i === picked ? 1 : 0.7, () => label(c, name.slice(0, 4), x + 15, 33, i === picked ? INK : col, 8, "center"));
+  });
 };
 
 const portal: Draw = ({ c, col, t }) => {
@@ -994,7 +976,7 @@ const draws: Record<string, Draw> = {
   "donation-app": sadaqah,
   "coaching-app": coaching,
   "fuel-loyalty-app": fuel,
-  incentiv: wallet,
+  incentiv: signIn,
   "member-portal": portal,
   "ai-dashboard": documentChat,
   offbeat,

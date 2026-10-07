@@ -44,8 +44,8 @@ function rounded(points: number[][], r: number) {
 }
 
 /**
- * The flow plate plays one change: a light passes through the steps, a dot runs the way back, and the light passes
- * the steps again from there. Geometry is read once, before the first frame. Nothing is filled, so the end is the static plate.
+ * The flow plate plays one change: a light passes through the steps once, then a dot runs the way back.
+ * Geometry is read once, before the first frame. Nothing is filled, so the end is the static plate.
  */
 function playFlow(figure: HTMLElement): Animation[] {
   const body = figure.querySelector<HTMLElement>(".cs-flow-body");
@@ -72,18 +72,13 @@ function playFlow(figure: HTMLElement): Animation[] {
     if (i) run += lengths[i - 1];
     return { transform: `translate(${(px - 5).toFixed(2)}px, ${(py - 5).toFixed(2)}px)`, offset: run / total };
   });
-  const light = (k: number, at: number, hold = 0) =>
+  const light = (k: number, at: number) =>
     lit[k].animate(
-      [
-        { opacity: 0, easing: OUT },
-        { opacity: 1, offset: (0.25 * LIT_MS) / (LIT_MS + hold) },
-        { opacity: 1, offset: (0.5 * LIT_MS + hold) / (LIT_MS + hold), easing: "ease" },
-        { opacity: 0 },
-      ],
-      { duration: LIT_MS + hold, delay: at },
+      [{ opacity: 0, easing: OUT }, { opacity: 1, offset: 0.25 }, { opacity: 1, offset: 0.5, easing: "ease" }, { opacity: 0 }],
+      { duration: LIT_MS, delay: at },
     );
-  const list = lit.map((_, k) => light(k, k * FLOW_STEP_MS, k === from ? FLOW_STEP_MS : 0));
-  const leave = (from + 1) * FLOW_STEP_MS;
+  const list = lit.map((_, k) => light(k, k * FLOW_STEP_MS));
+  const leave = lit.length * FLOW_STEP_MS - FLOW_STEP_MS / 2;
   list.push(dot.animate(frames, { duration: DOT_MS, delay: leave, easing: IN_OUT }));
   list.push(
     dot.animate([{ opacity: 0 }, { opacity: 1, offset: 0.12 }, { opacity: 1, offset: 0.84 }, { opacity: 0 }], {
@@ -91,7 +86,6 @@ function playFlow(figure: HTMLElement): Animation[] {
       delay: leave,
     }),
   );
-  for (let k = to; k <= from; k++) list.push(light(k, leave + DOT_MS + (k - to) * FLOW_STEP_MS));
   return list;
 }
 
@@ -162,7 +156,7 @@ export function useDraw(root: RefObject<HTMLElement | null>) {
 
 /** The home page restores its scroll after its faces settle; its plate is placed only then. */
 async function homePlate(slug: string) {
-  for (let i = 0; i < 40 && !document.querySelector('.kt[data-fonts]:not([data-fonts="wait"])'); i++) await wait(16);
+  for (let i = 0; i < 40 && !document.querySelector('.kt[data-fonts]:not([data-fonts="wait"]), .k2[data-fonts]:not([data-fonts="wait"])'); i++) await wait(16);
   return document.querySelector(`[data-plate="${slug}"]`);
 }
 

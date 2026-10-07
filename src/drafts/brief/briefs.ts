@@ -56,7 +56,7 @@ export const briefs: Brief[] = [
       "A React dashboard [needs|gets 36] components and [|805] tokens from one source, [without loading the whole library|and a Button-only consumer loads 96.6% less JavaScript].",
     decision:
       "One token source in three tiers, core, semantic and component, generates CSS variables, TypeScript and a Figma bundle. Each component builds on its own and ships with axe tests and in-browser contrast checks. Twenty releases in about six weeks.",
-    media: { kind: "shot", shot: dsShots.buttonAlert, label: REAL_SCREENS },
+    media: { kind: "shot", shot: dsShots.dateRange, label: REAL_SCREENS },
   },
   {
     project: need("read-to-feed"),

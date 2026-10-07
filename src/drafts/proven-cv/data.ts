@@ -112,11 +112,7 @@ export const experience: Entry[] = [
           label: "Open the case",
           plate: {
             kind: "screen",
-            shot: {
-              ...dsShots.top,
-              alt: "Design System v2 in its Storybook: buttons in four styles, buttons with icons, and alerts for a note, information and success. Invented data.",
-              crop: { x: 8, y: -40, w: 704, h: 440 },
-            },
+            shot: dsShots.dateRange,
           },
         },
       },

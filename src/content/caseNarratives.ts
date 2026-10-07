@@ -14,10 +14,10 @@ export const caseNarratives: Partial<Record<string, CaseNarrative>> = {
     built:
       'Two eras of one product. From 2023 the team built its features on Vue (Nuxt 2): patient profile, care plans, labs and vitals, claims, calls and chat. In 2026 the frontend moves to React one route at a time, in strict TypeScript with TanStack Query and Router, Zustand and Zod. Each route gets a parity test that runs the same scenario against both apps. AI agents with written rules help build and review each step, and independent reviewers check the evidence.',
     result:
-      'Most screens are already rebuilt in React, and a route moves over only after its parity tests show the same behaviour in both apps. New screens use Design System v2, a library of 36 accessible components built to WCAG 2.1 AA floors. On the API side, one billing report went from 16 queries to 2 and no longer times out.',
+      'The web app is being rebuilt in React, and a route moves over only after its parity tests show the same behaviour in both apps. New screens use Design System v2, a library of 36 accessible components built to WCAG 2.1 AA floors. On the API side, one billing report went from 16 queries to 2 and no longer times out.',
   },
     facts: [
-    { label: 'Role', value: 'Frontend and mobile, full stack since 2026' },
+    { label: 'Role', value: 'Web and mobile; since 2026 also the server' },
     { label: 'Years', value: '2023–26' },
     { label: 'Platforms', value: 'Web and mobile apps, Laravel API' },
     { label: 'Languages', value: 'English, German, Spanish, Turkish' },

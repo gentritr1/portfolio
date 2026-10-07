@@ -47,7 +47,7 @@ const entries: Record<string, Entry> = {
     accent: '#a3b0ff',
     problem: 'A new React dashboard needed one accessible base, from tokens to controls.',
     result: '36 components, 20 releases in about six weeks. A Button-only consumer loads 96.6% less JavaScript.',
-    media: { kind: 'screen', shot: { ...dsShots.top, crop: { x: 8, y: 12, w: 704, h: 396 } }, note: REAL_SCREENS },
+    media: { kind: 'screen', shot: dsShots.dateRange, note: REAL_SCREENS },
   },
   'design-system-vue': {
     name: 'Design system, Vue',

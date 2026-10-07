@@ -114,7 +114,7 @@ const sheets: Sheet[] = [
     role: "Design system",
     years: "2026",
     title: "One token source: 36 components in 20 releases.",
-    plate: { shot: dsShots.buttonAlert, wide: dsShots.buttonAlert.crop, narrow: dsShots.buttonAlert.crop },
+    plate: { shot: dsShots.dateRange, wide: dsShots.dateRange.crop, narrow: dsShots.dateRangeJune.crop },
     caption: "real product screens, invented data",
     slug: "design-system-react",
     notes: [

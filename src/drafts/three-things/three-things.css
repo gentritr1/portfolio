@@ -5,7 +5,7 @@
 @font-face { font-family: "TT Text Fallback"; src: local("Arial"), local("ArialMT"); size-adjust: 104%; ascent-override: 92%; descent-override: 23%; line-gap-override: 0%; }
 
 .tt {
-  --ink: #0e0e0e;
+  --ink: #141311;
   --bone: #f2ede4;
   --muted: #a7a29a;
   --hot: #ff5a36;
@@ -32,7 +32,7 @@
 .tt ul { list-style: none; }
 .tt a { color: inherit; text-decoration: underline; text-decoration-color: var(--edge); text-underline-offset: 0.2em; text-decoration-thickness: 1px; }
 .tt :focus { outline: none; }
-.tt :focus-visible { outline: 2px solid var(--hot); outline-offset: 3px; border-radius: 2px; }
+.tt :focus-visible { outline: 2px solid var(--bone); outline-offset: 3px; border-radius: 2px; }
 @media (hover: hover) and (pointer: fine) {
   .tt a:hover { text-decoration-color: currentColor; }
 }
@@ -52,11 +52,11 @@
 
 .tt-intro { padding-top: clamp(24px, 6vw, 72px); padding-bottom: clamp(32px, 4vw, 48px); }
 .tt h1 {
-  font: 700 clamp(36px, 5.4vw, 72px) / 1.02 var(--display);
-  font-stretch: 112%;
-  letter-spacing: -0.025em;
+  font: 700 clamp(32px, 4.2vw, 56px) / 1.05 var(--display);
+  font-stretch: 100%;
+  letter-spacing: -0.02em;
   text-wrap: balance;
-  max-width: 15ch;
+  max-width: 18ch;
 }
 .tt-lede {
   margin-top: clamp(20px, 2.4vw, 32px) !important;
@@ -66,8 +66,9 @@
   max-width: 34ch;
   text-wrap: pretty;
 }
-.tt-lede a { text-decoration-color: var(--hot); text-decoration-thickness: 2px; white-space: nowrap; }
 .tt-facts { margin-top: 16px !important; font-size: 14px; color: var(--muted); }
+.tt-toys { margin-top: 6px !important; font-size: 14px; color: var(--muted); max-width: 60ch; }
+.tt-toys a { white-space: nowrap; }
 
 /* ---------- Hero still ---------- */
 
@@ -89,11 +90,10 @@
 
 .tt-section { padding-top: clamp(72px, 9vw, 128px); }
 .tt h2 {
-  font: 800 28px/1.05 var(--display);
-  font-stretch: 80%;
-  text-transform: uppercase;
-  letter-spacing: 0.01em;
-  padding-bottom: 32px;
+  font: 700 26px/1.1 var(--display);
+  font-stretch: 100%;
+  letter-spacing: -0.01em;
+  padding-bottom: 28px;
 }
 
 .tt-tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 56px 32px; }
@@ -219,7 +219,7 @@
 .tt-swatches [data-id="chrome"] { --dot: #9eb3c7; }
 .tt-swatches [data-id="porcelain"] { --dot: #a3c9b4; }
 .tt-swatches input:checked + span { border-color: var(--metal); box-shadow: inset 0 0 0 1px var(--metal); }
-.tt-swatches input:focus-visible + span { outline: 2px solid var(--hot); outline-offset: 3px; }
+.tt-swatches input:focus-visible + span { outline: 2px solid var(--bone); outline-offset: 3px; }
 
 /* Morse Trainer: the key. */
 .tt-morse { display: grid; gap: 20px; max-width: 560px; }
@@ -395,11 +395,11 @@
 }
 .tt-flow-track li[data-state="done"]::before { background: var(--muted); border-color: var(--muted); }
 .tt-flow-track li[data-state="now"]::before { border-color: var(--bone); }
-.tt-flow-track li[data-state="fail"]::before { border-color: var(--hot); }
+.tt-flow-track li[data-state="fail"]::before { border-color: var(--bone); border-style: dashed; }
 .tt-flow-name { display: block; font: 600 15px/1.3 var(--display); font-stretch: 100%; color: var(--muted); }
 .tt-flow-note { display: block; margin-top: 4px; font-size: 14px; line-height: 1.35; color: var(--muted); }
 .tt-flow-track li:is([data-state="now"], [data-state="fail"]) .tt-flow-name { color: var(--bone); }
-.tt-flow-track li[data-state="fail"] .tt-flow-note { color: var(--hot); }
+.tt-flow-track li[data-state="fail"] .tt-flow-note { color: var(--bone); }
 
 .tt-flow-back {
   position: absolute;
@@ -413,7 +413,7 @@
 .tt-flow-back path { fill: none; stroke-width: 1.4; }
 .tt-flow-arc-base { stroke: var(--edge); stroke-dasharray: 0.03 0.03; }
 .tt-flow-arc {
-  stroke: var(--hot);
+  stroke: var(--bone);
   stroke-dasharray: 1;
   stroke-dashoffset: 1;
   transition: stroke-dashoffset 500ms var(--out);
@@ -439,7 +439,7 @@
   pointer-events: none;
   z-index: 2;
   transform: translateX(calc(var(--at) * 100% / var(--n)));
-  transition: transform 450ms var(--move);
+  transition: transform 340ms var(--move);
 }
 .tt-flow-rail i {
   position: absolute;
@@ -451,19 +451,16 @@
   background: var(--bone);
   box-shadow: 0 0 0 4px var(--panel);
 }
-.tt-flow-rail i[data-fail] { background: var(--hot); }
+.tt-flow-rail i[data-fail] { background: var(--panel); box-shadow: 0 0 0 4px var(--panel), inset 0 0 0 2px var(--bone); }
 .tt-flow[data-instant] :is(.tt-flow-rail, .tt-flow-arc) { transition: none; }
 
-.tt-flow-foot { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
-.tt-flow-say { flex: 1 1 260px; min-height: 3em; }
-.tt-flow-num { color: var(--muted); font-size: 14px; margin-right: 4px; }
-.tt-flow-buttons { display: flex; gap: 8px; }
-.tt-flow .tt-links { margin-top: -8px; }
+.tt-flow-foot { display: flex; align-items: center; gap: 8px 24px; flex-wrap: wrap; }
+.tt-flow .tt-links { gap: 0 20px; }
 
 /* 16 requests become 2: fourteen fade, the two that stay close up. */
 .tt-req { --p: 18px; }
 .tt-req-figure { display: grid; grid-template-columns: auto; gap: 12px; }
-.tt-req-number { display: grid; font: 700 96px/0.9 var(--display); font-stretch: 120%; letter-spacing: -0.02em; }
+.tt-req-number { display: grid; font: 700 56px/0.95 var(--display); font-stretch: 100%; letter-spacing: -0.02em; }
 .tt-req-number b { grid-area: 1 / 1; font-weight: inherit; transition: opacity 300ms var(--out); }
 .tt-req-after { opacity: 0; }
 .tt-req[data-after] .tt-req-before { opacity: 0; }
@@ -484,11 +481,9 @@
 }
 .tt-req[data-after] .tt-req-marks i:not([data-kept]) { opacity: 0; transform: scaleY(0.3); }
 .tt-req .tt-req-marks i[data-kept] { transition: transform 500ms var(--move); }
-.tt-req[data-after] .tt-req-marks i[data-kept] { transform: translateX(calc(var(--to) * var(--p))); transition-delay: 400ms; background: var(--hot); }
+.tt-req[data-after] .tt-req-marks i[data-kept] { transform: translateX(calc(var(--to) * var(--p))); transition-delay: 400ms; }
 .tt-req-unit { font-size: 14px; color: var(--muted); }
 .tt-req[data-instant] :is(.tt-req-marks i, .tt-req-number b) { transition: none !important; }
-.tt-req-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
-.tt-req button[aria-pressed="true"] { background: var(--bone); border-color: var(--bone); color: var(--ink); }
 .tt-req .tt-meta { margin-top: auto; }
 
 @media (max-width: 900px) {
@@ -499,7 +494,7 @@
   .tt .tt-flow,
   .tt .tt-req { padding: 20px; }
   .tt-req { --p: 17px; }
-  .tt-req-number { font-size: 72px; }
+  .tt-req-number { font-size: 48px; }
   /* The walk turns: five rows down, the way back on the right. */
   .tt-flow-track { --row: 72px; padding-top: 0; padding-left: 36px; padding-right: 52px; }
   .tt-flow-track ol { grid-template-columns: minmax(0, 1fr); grid-auto-rows: var(--row); }
@@ -514,7 +509,11 @@
     top: 46px;
     bottom: auto;
     left: auto;
-    right: 48px;
+    right: 46px;
+    width: 7.5em;
+    white-space: normal;
+    text-align: right;
+    line-height: 1.3;
     transform: translateY(-50%);
   }
   .tt-flow-rail {
@@ -528,6 +527,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .tt-flow-foot button { display: none; }
   .tt-flow-rail,
   .tt-flow-arc,
   .tt-req-marks i,

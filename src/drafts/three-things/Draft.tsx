@@ -14,7 +14,7 @@ import { careShots, REAL_SCREENS } from "../../content/careShots";
 import { links } from "../../content/links";
 import { offday, offdayNarrow, tiles } from "./data";
 import { FlowStepper, Requests } from "./explain";
-import { Drums, TEMPO, preset, tracks } from "./drums";
+import { Drums, preset, tracks } from "./drums";
 import { KOCH_ORDER, MAX_MARKS, MORSE, Tone, letterFor, spoken, symbolFor } from "./morse";
 import { createKnot, flatKnot, materials, type Knot } from "./trefoil";
 import "./three-things.css";
@@ -77,17 +77,45 @@ function DrumRow() {
     setPlaying(false);
   }, []);
 
+  /** The AudioContext is made before the press, so Play only resumes it. It stays silent until Play. */
+  const warm = useCallback(() => {
+    if (drums.current) return true;
+    try {
+      drums.current = new Drums();
+      return true;
+    } catch {
+      setProblem("This browser cannot play sound here. The steps still switch on and off.");
+      return false;
+    }
+  }, []);
+
+  useEffect(() => {
+    const el = band.current;
+    if (!el || !("IntersectionObserver" in window)) return;
+    let idle = 0;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        io.disconnect();
+        const run = () => void warm();
+        idle = window.requestIdleCallback ? window.requestIdleCallback(run, { timeout: 2000 }) : setTimeout(run, 200);
+      },
+      { rootMargin: "300px 0px" },
+    );
+    io.observe(el);
+    return () => {
+      io.disconnect();
+      if (window.cancelIdleCallback) window.cancelIdleCallback(idle);
+      else clearTimeout(idle);
+    };
+  }, [warm]);
+
   async function play() {
     if (playing) {
       stop();
       return;
     }
-    try {
-      if (!drums.current) drums.current = new Drums();
-    } catch {
-      setProblem("This browser cannot play sound here. The steps still switch on and off.");
-      return;
-    }
+    if (!warm() || !drums.current) return;
     const machine = drums.current;
     machine.pattern = pattern;
     machine.onStep = (step) => {
@@ -152,16 +180,13 @@ function DrumRow() {
         <p className="tt-count" aria-hidden="true">1 of 3</p>
         <h3 id="offbeat-name" className="tt-object-name">OFFBEAT</h3>
         <p>A concept site for a made-up portable speaker. Its drum machine is real. This is its drum row.</p>
-        <p className="tt-how">Tap a step to switch it on. Press Play to hear it. Sound starts only when you press Play.</p>
-        <p className="tt-meta">
-          Eight steps, four sounds, {TEMPO} beats a minute, as in OFFBEAT. Arrow keys move between steps. Escape stops it.
-        </p>
+        <p className="tt-how">Tap steps, then press Play. Sound starts only when you press Play.</p>
         <p className="tt-meta">
           Own project · 2026 · <a href="https://github.com/gentritr1/offbeat">Code on GitHub</a>
         </p>
       </div>
       <div className="tt-drums">
-        <div className="tt-grid" ref={grid} role="group" aria-label="Drum steps">
+        <div className="tt-grid" ref={grid} role="group" aria-label="Drum steps" aria-description="Arrow keys move between steps. Escape stops the sound.">
           {Array.from({ length: STEPS }, (_, s) => (
             <span
               key={`n${s}`}
@@ -205,7 +230,7 @@ function DrumRow() {
           )}
         </div>
         <div className="tt-drum-foot">
-          <button type="button" className="tt-play" aria-pressed={playing} onClick={() => void play()}>
+          <button type="button" className="tt-play" aria-pressed={playing} onFocus={() => void warm()} onPointerEnter={() => void warm()} onClick={() => void play()}>
             <svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16">
               {playing ? <path d="M4 3h3v10H4zM9 3h3v10H9z" fill="currentColor" /> : <path d="M4 2.5v11l9.5-5.5z" fill="currentColor" />}
             </svg>
@@ -253,7 +278,7 @@ function Trefoil() {
       <div className="tt-object-text">
         <p className="tt-count" aria-hidden="true">2 of 3</p>
         <h3 id="form-name" className="tt-object-name">FORM</h3>
-        <p>A concept site for a made-up sculpture show. Its sculptures render live, with no 3D library. This is its trefoil knot.</p>
+        <p>A concept site for a made-up sculpture show. Its sculptures are drawn live in the browser, with no 3D library. This is its trefoil knot.</p>
         <p className="tt-how">Drag the knot to turn it. Arrow keys turn it too. Pick a metal, and the knot and the name change colour.</p>
         <fieldset className="tt-swatches">
           <legend className="tt-meta">Material</legend>
@@ -381,9 +406,7 @@ function MorseKey() {
         <p className="tt-count" aria-hidden="true">3 of 3</p>
         <h3 id="morse-name" className="tt-object-name">Morse Trainer</h3>
         <p>A game that teaches Morse code. Letters a player misses come back sooner. This is its Send mode.</p>
-        <p className="tt-how">
-          Tap the key for a dot. Hold it for a dash. Space works too. A press longer than 133 ms is a dash, as in the game’s Gentle speed.
-        </p>
+        <p className="tt-how">A short tap is a dot. A longer press is a dash.</p>
         <p className="tt-meta">
           Own project · 2026 · <a href="https://morse-code-amber.vercel.app/">Play it on the web</a>
         </p>
@@ -463,7 +486,7 @@ export default function Draft() {
     const root = document.documentElement;
     const before = { scroll: root.style.scrollBehavior, bg: root.style.background };
     root.style.scrollBehavior = "auto";
-    root.style.background = "#0e0e0e";
+    root.style.background = "#141311";
     return () => {
       root.style.scrollBehavior = before.scroll;
       root.style.background = before.bg;
@@ -473,7 +496,7 @@ export default function Draft() {
   return (
     <div className="tt" data-ready={ready || undefined}>
       <title>Gentrit Rashiti — web and mobile apps</title>
-      <meta name="theme-color" content="#0e0e0e" />
+      <meta name="theme-color" content="#141311" />
       <header className="tt-top">
         <nav aria-label="Contact">
           <a href={`mailto:${links.email}`}>Email</a>
@@ -484,11 +507,12 @@ export default function Draft() {
       <main>
         <div className="tt-intro">
           <h1>Gentrit Rashiti builds web and mobile apps.</h1>
-          <p className="tt-lede">
-            Three things on this page run: <a href="#offbeat">a drum machine</a>, <a href="#form">a sculpture</a> and{" "}
-            <a href="#morse">a Morse key</a>. Try them.
-          </p>
+          <p className="tt-lede">Rebuilds a live care platform, one tested screen at a time.</p>
           <p className="tt-facts">5+ years · part of two platform rewrites · Kosovo, works remotely</p>
+          <p className="tt-toys">
+            Further down, three own projects run on the page: <a href="#offbeat">a drum machine</a>, <a href="#form">a sculpture</a> and{" "}
+            <a href="#morse">a Morse key</a>.
+          </p>
         </div>
 
         <figure className="tt-hero">
@@ -505,7 +529,7 @@ export default function Draft() {
               <p className="tt-name">
                 <Link to="/work/care-platform">Care-management platform</Link>
               </p>
-              <p>Rebuilt screen by screen while care teams use it. Old bugs are written down, not copied.</p>
+              <p>Being rebuilt screen by screen. Care teams keep using the old app until then. Old bugs are written down, not copied.</p>
             </div>
             <p className="tt-meta">Care team calendar, one week · Frontend and mobile · 2023–26 · {REAL_SCREENS}</p>
           </figcaption>

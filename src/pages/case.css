@@ -281,7 +281,31 @@
 .cs-parts {
   max-width: 1440px;
   margin: 0 auto;
-  padding: 16px var(--cs-gutter) 48px;
+  padding: 0 var(--cs-gutter) 48px;
+}
+
+/* The second surface: the shade colour at 30 % over the ground, the full width of the page, behind each section head. */
+.cs-band {
+  --cs-band: color-mix(in oklab, var(--cs-shade) 30%, var(--cs-lit));
+  display: flex;
+  align-items: center;
+  min-height: 120px;
+  background: var(--cs-band);
+  box-shadow: 0 0 0 100vmax var(--cs-band);
+  clip-path: inset(0 -100vmax);
+}
+
+.cs .cs-band h2 {
+  font-family: var(--cs-serif);
+  font-size: 40px;
+  font-weight: 500;
+  font-variation-settings: "opsz" 96;
+  line-height: 1.05;
+  letter-spacing: -0.016em;
+}
+
+.cs-section + .cs-section {
+  margin-top: 32px;
 }
 
 .cs-part {
@@ -624,80 +648,6 @@
   transition-delay: calc(var(--i, 0) * 80ms + 120ms);
 }
 
-/* ---------- Live recreations ---------- */
-
-.cs-stage-box {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 880 / 676;
-  overflow: hidden;
-  background: var(--cs-shade);
-}
-
-/* The wallet plate shows only its card and the sign-in chip: the stage band from 128 to 548 px. */
-.cs-stage-box-wallet {
-  aspect-ratio: 880 / 420;
-}
-
-.cs-stage-box-wallet .cs-stage {
-  top: calc(var(--k, 1) * -128px);
-}
-
-.cs-stage {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 880px;
-  height: 676px;
-  container-type: inline-size;
-  transform: scale(var(--k, 1));
-  transform-origin: 0 0;
-}
-
-.cs-wait {
-  position: absolute;
-  inset: 0;
-  background: inherit;
-}
-
-.cs-live {
-  position: absolute;
-  inset: 0;
-  container-type: inline-size;
-  background: var(--world-bg);
-  color: var(--ink);
-  font-family: var(--font-sans);
-  font-size: 1rem;
-  line-height: 1.6;
-  font-weight: 400;
-  letter-spacing: normal;
-  -webkit-font-smoothing: auto;
-}
-
-/* The wallet is drawn at 768 px, its widest layout, where the card keeps a fixed 3:2 ratio, and scaled up to fill the stage. */
-.cs-stage .cs-live-wallet {
-  right: auto;
-  bottom: auto;
-  width: 768px;
-  height: 590px;
-  transform: scale(1.1458);
-  transform-origin: 0 0;
-}
-
-.cs-live-body {
-  display: contents;
-}
-
-.cs-live :where(.font-mono, .label, .label-lg) {
-  font-family: inherit;
-  font-stretch: normal;
-}
-
-.cs-inline-live {
-  position: relative;
-  aspect-ratio: var(--cs-aspect-base);
-}
-
 /* ---------- A result as a figure ---------- */
 
 .cs-number {
@@ -810,20 +760,20 @@
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--cs-ink) 22%, transparent);
 }
 
+/* The part that is left never draws under 24 px, so it stays visible on a phone. */
 .cs-share-now {
   display: block;
   height: 100%;
   background: var(--cs-accent);
-  transform-origin: 0 50%;
-  transform: scaleX(var(--part));
+  clip-path: inset(0 calc(100% - max(24px, var(--part) * 100%)) 0 0);
 }
 
 .cs-share[data-draw="before"] .cs-share-now {
-  transform: scaleX(1);
+  clip-path: inset(0 0 0 0);
 }
 
 .cs-share[data-draw="run"] .cs-share-now {
-  transition: transform 640ms cubic-bezier(0.77, 0, 0.175, 1) 240ms;
+  transition: clip-path 640ms cubic-bezier(0.77, 0, 0.175, 1) 240ms;
 }
 
 .cs-number figcaption {
@@ -975,16 +925,16 @@
   transform: rotate(45deg);
 }
 
+/* One line, centred under the way back; it may run wider than the way back. */
 .cs-flow-back-label {
   position: absolute;
   bottom: 0;
-  left: 0;
-  right: 0;
+  left: 50%;
   font-size: 14px;
   font-weight: 600;
   line-height: 1.35;
-  text-align: center;
-  text-wrap: balance;
+  white-space: nowrap;
+  transform: translateX(-50%);
 }
 
 /* The light and the dot are hidden in the static plate; caseMotion.ts plays them once. */
@@ -1076,8 +1026,8 @@
     bottom: auto;
     left: 36px;
     right: 0;
+    white-space: normal;
     transform: translateY(-50%);
-    text-align: left;
   }
 }
 
@@ -1404,17 +1354,18 @@
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .cs-part:first-child .cs-part-text {
-    margin-top: 8px;
-  }
 
   .cs-part:not(:first-child) .cs-part-plate {
     order: 2;
     margin-top: 8px;
   }
 
-  .cs-part-text > .cs-facts {
-    margin-bottom: 28px;
+  .cs-part > .cs-facts {
+    margin: 8px 0 28px;
+  }
+
+  .cs-part > .cs-band {
+    margin-bottom: 20px;
   }
 
   .cs-ground {
@@ -1432,12 +1383,6 @@
   .cs-number-figure[data-marks] {
     --mark-w: 2px;
     --mark-h: 12px;
-  }
-}
-
-@media (min-width: 640px) and (max-width: 1023px) {
-  .cs-inline-live {
-    aspect-ratio: var(--cs-aspect-sm);
   }
 }
 
@@ -1487,6 +1432,14 @@
 
   .cs-part-text h2 {
     font-size: 26px;
+  }
+
+  .cs-band {
+    min-height: 88px;
+  }
+
+  .cs .cs-band h2 {
+    font-size: 32px;
   }
 
   .cs-text {
@@ -1579,11 +1532,3 @@
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .cs-live *,
-  .cs-live *::before,
-  .cs-live *::after {
-    animation-duration: 0s !important;
-    transition-duration: 0s !important;
-  }
-}

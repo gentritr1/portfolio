@@ -9,12 +9,16 @@ Sun, light and floor code are copies of `src/drafts/kosovo-time/` (`sun.ts`, `li
 Words (22): "Gentrit Rashiti builds web and mobile apps, from Kosovo." / "5+ years. Part of two platform rewrites. Working remotely." / "17:45 in Kosovo".
 
 - Sky: the sentence, the sub-line, and one line across the page: today's sun path at 1 px, a 24 px disc on it, and the time beside the disc. The disc is the only control for the hour (drag, tap on the line, arrow keys, Home, End). No pills, no Play, no hint, no sun sentence, no path labels, no "Back to now".
-- Ground: the care team calendar (web, real screen, invented data) and the Viva Fresh cart (phone). Each plate has its own title bar and is a link to its case.
+- Ground: the care team calendar (web, real screen, invented data; the crop ends above the 12 PM line, so no row is cut) and the Viva Fresh cart (phone). Each plate has its own title bar and is a link to its case.
 - Desktop 1440 × 900: the ground starts at y = 312; both plates end at y = 832. Phone 390 × 844: the calendar plate (Monday to Wednesday) ends at y = 651. The cart plate comes next.
 
 ## Type
 
-Two faces, four sizes on the first screen: Fraunces 64 px (opsz 144) for the sentence; Public Sans 20 px (time), 17 px (sub-line), 14 px (title bars). Rows: name Fraunces 28 px, body 17 px, role 15 px. Section names Fraunces 40 px. No 13 px text.
+Two faces, four sizes on the first screen: Fraunces 64 px (opsz 144) for the sentence; Public Sans 20 px (time), 17 px (sub-line), 14 px (title bars). Rows: name Fraunces 28 px, body 17 px, role 15 px. Section names Fraunces 40 px. No 13 px text (the phone title bars are 14 px).
+
+## Home
+
+When the page is mounted at `/`, the title is "Gentrit Rashiti — web, mobile & full stack". A return from a case restores the scroll of that history entry and keeps the chosen hour (`kt-at` in sessionStorage); `?at=` wins; a fresh visit opens at the real hour; `/#work` opens at the work.
 
 ## Colour
 
@@ -25,15 +29,18 @@ The light keys are unchanged from KOSOVO TIME (`light.ts`, contrast ≥ 4.5:1 on
 
 ## Rows
 
-Client work: Care-management platform (claims screen + work card + 16 → 2 marks), Bayyinah TV (library), Design System v2 (Storybook buttons and alerts + work card), Viva Fresh, Read to Feed (reader page), Dukagjini Bookstore (foreign books list), Incentiv (sign-in card, small plate). Own projects: Offday, OFFBEAT and FORM (studio screens, one ground), three games as one-line rows.
+Client work: Care-management platform (claims screen + work card + 16 → 2 marks as a small proof in the row), Bayyinah TV (library), Design System v2 (date range picker + work card), Viva Fresh, Read to Feed (reader page), Dukagjini Bookstore (foreign books list), Incentiv (sign-in card, small plate). Own projects: Offday, OFFBEAT and FORM (studio screens, one ground), then three games, one line each.
 
-- Desktop: plate left, text right; phone screens in a 5 : 7 grid; card rows put the words first, then the screen and the card on one ground. At ≤ 1023 px the plate is above the text; phone screens stand in a 220 px (128 px on a phone) column beside the text.
+- Desktop: plate left, text right. Card rows: the words in two columns, then the screen (at most 760 px) and the 340 px card beside it on one ground. The three phone apps stand side by side on one ground, each with its words under it. At ≤ 1023 px the plate is above the text; phone screens stand in a 220 px (128 px on a phone) column beside the text.
+- Phone: the work card is the second plate of the care row. The Design System card shows its sentence and "Read how" only, because the care card above it already drew the loop. OFFBEAT and FORM stand in the 128 px column with a tall crop.
+- The case link and the outside links share one line of links.
 - Each plate is a link. It is out of the tab order, because "Read the case" in the same row goes to the same page. The lead plates and the work cards are in the tab order.
+- Page length: 5,783 px at 1440 × 900, 6,194 px at 390 × 844.
 
 ## Explaining figures
 
-1. Work card (care and Design System rows): the loop from `CONTENT.md` (Old app / Research, Test first / Guides, Agents build, Checks, Person approves) and the way back ("Fails? It goes back."), as a white card that stands on the ground like a screen and casts its shadow. It links to the case that draws the full diagram.
-2. Marks (care row): 16 marks, of which 14 fall to stubs, beside "16 → 2 database requests for one billing report, before and now".
+1. Work card (care and Design System rows): the AI line from `CONTENT.md` as the card text, the loop (Old app / Research, Test first / Guides, Agents build, Checks, Person approves) and the way back from "Checks" to "Agents build" ("A check fails? Back to the agents."), as a white card that stands on the ground like a screen and casts its shadow. It links to the case that draws the full diagram.
+2. Marks (care row): 16 marks, of which 14 fall to stubs, beside "16 → 2 database requests for one billing report, before and after". It is a small proof inside the row, never a headline.
 
 ## Motion
 
@@ -48,7 +55,7 @@ All motion is transform or opacity. Keyboard moves are instant.
 | Marks | 60 % in view, once | 14 marks fall to 30 % height, 360 ms, 28 ms apart from the right, from 150 ms; done by 0.87 s | complete, still |
 | Press | any plate, card or lead | scale 0.98, 120 ms, `cubic-bezier(0.2, 0, 0, 1)` | none |
 | Hover (fine pointers only) | plate, card, lead | ring 18 % → 55 % ink, 150 ms; row name underline | same |
-| Hand-off | plain click on a plate, a card or "Read the case" | `src/lib/plateWalk.ts` `walk()`: the pressed plate becomes the case's first screen (View Transition); the case code starts to load when a pointer or the focus reaches the link | plain navigation |
+| Hand-off | plain click on a plate, a card or "Read the case" | View Transition. When a case screen on view after the route change shows the same picture file, the pressed plate walks into it (420 ms). Otherwise the old page fades out in 180 ms; a picture never turns into another one. The case code starts to load when a pointer or the focus reaches the link | plain navigation |
 
 ## Frame budget
 
@@ -56,5 +63,5 @@ All motion is transform or opacity. Keyboard moves are instant.
 - The figure parts get their layers (`will-change`) while they wait, so the first frame of a play builds none.
 - The sun line changes words outside React, once a minute at most; a drag renders no component and reads no layout.
 - The clock emits once per frame (no second emit inside `set`); the chosen hour is written to storage 160 ms after the drag rests.
-- The floor shader compiles with `KHR_parallel_shader_compile` after the stand-up; the draw reuses its arrays.
+- The floor shader compiles with `KHR_parallel_shader_compile` after the stand-up; the draw reuses its arrays. A floor releases its GL context when the page is idle, never inside the route change.
 - The hour still travels to the case pages in sessionStorage `kt-at`.

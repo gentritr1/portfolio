@@ -70,7 +70,7 @@ export function reelFrames(project: Project): ReelFrame[] {
     );
   if (project.slug === "care-api") return realScreens(careShots.claims);
   if (project.slug === "design-system-react")
-    return realScreens(dsShots.buttonAlert);
+    return realScreens(dsShots.dateRange);
   if (project.channel === "healthcare") return [];
   if (project.slug === "ai-dashboard")
     return [

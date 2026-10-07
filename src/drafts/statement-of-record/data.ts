@@ -97,7 +97,7 @@ export const entries: Entry[] = [
     years: "2026",
     head: "Design System v2: 36 components and 805 tokens, 20 releases in about six weeks.",
     mark: "Design System v2",
-    plate: { kind: "real", shot: dsShots.top, caption: REAL_SCREENS },
+    plate: { kind: "real", shot: dsShots.dateRange, caption: REAL_SCREENS },
     link: { kind: "case", slug: "design-system-react" },
     result: "36 components, 805 tokens",
   },

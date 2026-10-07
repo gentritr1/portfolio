@@ -12,7 +12,7 @@ export interface PublicLink {
 }
 
 /** Live recreations with invented data. Each key maps to one lazy component in `src/lib/recreations.tsx`. */
-export type RecreationKey = 'live-room' | 'reader' | 'wallet' | 'doc-chat'
+export type RecreationKey = 'live-room' | 'reader' | 'doc-chat'
 
 /** What the case-page monitor shows: a live recreation, or the first gallery. */
 export type MonitorKind = Exclude<RecreationKey, 'doc-chat'> | 'gallery'
@@ -113,11 +113,11 @@ const designSystemGallery: Gallery = {
   links: [],
   items: [
     {
-      src: '/showcase/design-system/button-alert.webp',
-      alt: 'Design System v2 in its Storybook: buttons in four styles, buttons with icons, and alerts for a note, information, success, a warning and an error. Invented data.',
-      caption: 'Button and Alert, from the Storybook',
-      width: 720,
-      height: 596,
+      src: '/showcase/design-system/date-range-picker.webp',
+      alt: 'Design System v2 date range picker in its Storybook, open: presets from Today to All time, June and July 2026 side by side, a range from June 22 to July 9, the start and end dates as text, and Cancel and Apply buttons. Invented data.',
+      caption: 'Date range picker, from the Storybook',
+      width: 780,
+      height: 488,
     },
   ],
 }
@@ -273,9 +273,9 @@ export const projects: Project[] = [
     channel: 'healthcare',
     group: 'Vianova',
     years: '2023–26',
-    role: 'Frontend and mobile, full stack since 2026',
+    role: 'Web and mobile; since 2026 also the server',
     stack: ['React 19', 'TypeScript', 'TanStack', 'Zod', 'Nuxt 2', 'Laravel 13', 'Playwright'],
-    line: 'Remote patient care: a Vue app since 2023, now rebuilt in React with parity tests',
+    line: 'Remote patient care: a Vue app since 2023, now being rebuilt in React with parity tests',
     summary:
       'A care-management platform for remote patient monitoring. Care teams follow vitals from connected devices, care plans, lab results, billing claims, calls and chat, and many client organizations share one multi-tenant system. Its features were built on Vue (Nuxt 2) from 2023. In 2026 the frontend moves to React route by route, with parity tests that compare each screen with the old app, decision records and automated quality gates, on Design System v2. AI agents work inside fixed rules and automatic checks, old bugs are written down rather than copied, and a person approves each change. The Laravel API gained enrollment drafts, a lab catalog and multi-tenant security fixes.',
     links: [],
@@ -298,7 +298,7 @@ export const projects: Project[] = [
     channel: 'healthcare',
     group: 'Vianova',
     years: '2026',
-    role: 'Full stack',
+    role: 'Server',
     stack: ['Laravel 13', 'PHP 8.3', 'MySQL', 'Redis', 'Pest'],
     line: 'Laravel API for enrollment drafts, a lab catalog, multi-tenant security and fast reports',
     summary:
@@ -574,10 +574,13 @@ export const projects: Project[] = [
     summary:
       "Incentiv's portal is a smart-wallet dashboard where people and businesses manage an on-chain wallet and incentive programs. The frontend is built on Next.js 14 with the App Router and RTK Query: passkey and wallet sign-in UI, animated onboarding, dashboard cards, an asset list, a balance popup with a QR address, route middleware, and English and French translations. Teammates built the wallet and blockchain layer.",
     links: incentivLinks,
-    media: { thumb: 'wallet-card', galleries: [incentivGallery] },
+    media: {
+      shot: { src: '/showcase/incentiv/thumb.webp', alt: 'Incentiv portal sign-in, public screen: Welcome to Incentiv, then Passkey, MetaMask and WalletConnect' },
+      galleries: [incentivGallery],
+    },
     featured: {
       order: 5,
-      monitor: 'wallet',
+      monitor: 'gallery',
     },
   },
   {

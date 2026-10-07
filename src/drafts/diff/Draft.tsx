@@ -161,7 +161,7 @@ function Count({
 /** Real product screens of the private work, captured on invented data. */
 const realScreens: Record<string, ScreenShot> = {
   "care-platform": careShots.claimsRows,
-  "design-system-react": dsShots.buttonAlert,
+  "design-system-react": dsShots.dateRange,
 };
 
 function Detail({

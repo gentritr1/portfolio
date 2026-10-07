@@ -1,28 +1,14 @@
-import {
-  Suspense,
-  useEffect,
-  useId,
-  useLayoutEffect,
-  useRef,
-  useState,
-  useSyncExternalStore,
-  type ComponentType,
-  type CSSProperties,
-  type ReactNode,
-} from "react";
+import { useEffect, useId, useRef, useSyncExternalStore, type CSSProperties, type ReactNode } from "react";
 import { Link, useParams } from "react-router";
 import { ArrowRightIcon, ArrowUpRightIcon, UserIcon } from "@phosphor-icons/react";
 import { findProject, type Project } from "../content/projects";
-import { recreations } from "../lib/recreations";
-import { caseCopy, nextSlug, type CaseCopy, type LiveKey, type Part, type Plate, type Px, type Shot } from "./caseCopy";
+import { caseCopy, nextSlug, type CaseCopy, type Part, type Plate, type Px, type Shot } from "./caseCopy";
 import { luminance, shadowOf, usePageLight, type PageLight } from "./caseLight";
 import { useDraw, useWalks } from "./caseMotion";
-import { CaseEnd, CaseTop, LitLine } from "./caseShell";
+import { CaseEnd, CaseTop } from "./caseShell";
 import NotFoundPage from "./NotFoundPage";
 import "./case.css";
 
-/** A live plate draws on this stage and scales to its box. */
-const STAGE_W = 880;
 /** A screen never stands taller than this, so a phone crop leaves room for its text. */
 const SCREEN_MAX_H = 640;
 
@@ -36,20 +22,6 @@ function useMedia(query: string, fallback: boolean) {
     () => window.matchMedia(query).matches,
     () => fallback,
   );
-}
-
-/** True once the element comes within one screen of the viewport. */
-function useNear<T extends Element>(start: boolean) {
-  const ref = useRef<T>(null);
-  const [near, setNear] = useState(start);
-  useEffect(() => {
-    const element = ref.current;
-    if (near || !element) return;
-    const watch = new IntersectionObserver(([entry]) => entry.isIntersecting && setNear(true), { rootMargin: "100% 0px" });
-    watch.observe(element);
-    return () => watch.disconnect();
-  }, [near]);
-  return [ref, near] as const;
 }
 
 /* ---------- Ground: a screen stands on the page and casts the sun's shadow ---------- */
@@ -144,51 +116,6 @@ function Ground({ page, screen: screenColour, small, children }: GroundProps) {
 
 /* ---------- Plates ---------- */
 
-/** Renders inside Suspense, so the face check runs only after the recreation's code has arrived. */
-function LiveBody({ Live }: { Live: ComponentType<object> }) {
-  // A recreation draws hidden until its own faces load, so a late face never moves the plate.
-  const [faces, setFaces] = useState(false);
-  useEffect(() => {
-    let live = true;
-    const settle = () => {
-      if (!document.fonts) return setFaces(true);
-      void document.fonts.ready.then(() => {
-        if (!live) return;
-        if (document.fonts.status === "loaded") setFaces(true);
-        else settle();
-      });
-    };
-    // Two frames let the hidden layout request its faces before the check.
-    let frame = requestAnimationFrame(() => {
-      frame = requestAnimationFrame(settle);
-    });
-    const limit = window.setTimeout(() => live && setFaces(true), 3000);
-    return () => {
-      live = false;
-      cancelAnimationFrame(frame);
-      window.clearTimeout(limit);
-    };
-  }, []);
-
-  return (
-    <div className="cs-live-body" style={faces ? undefined : { visibility: "hidden" }}>
-      <Live />
-    </div>
-  );
-}
-
-function LivePlate({ which }: { which: LiveKey }) {
-  const entry = recreations[which];
-  const Live = entry.Component;
-  return (
-    <div className={`cs-live cs-live-${which}`} data-world={entry.world} inert aria-hidden="true">
-      <Suspense fallback={<div className="cs-wait" />}>
-        <LiveBody Live={Live} />
-      </Suspense>
-    </div>
-  );
-}
-
 interface ShotProps {
   shot: Shot;
   crop: Px;
@@ -240,26 +167,6 @@ function Screen({ caption, width, plate, children }: { caption: string; width: s
       <figcaption>{caption}</figcaption>
       <div className="cs-screen-body">{children}</div>
     </figure>
-  );
-}
-
-function LiveStage({ which }: { which: LiveKey }) {
-  const stage = useRef<HTMLDivElement>(null);
-  useLayoutEffect(() => {
-    const element = stage.current;
-    if (!element) return;
-    const fit = () => element.style.setProperty("--k", String(element.clientWidth / STAGE_W));
-    fit();
-    const observer = new ResizeObserver(fit);
-    observer.observe(element);
-    return () => observer.disconnect();
-  }, []);
-  return (
-    <div className={`cs-stage-box cs-stage-box-${which}`} ref={stage}>
-      <div className="cs-stage">
-        <LivePlate which={which} />
-      </div>
-    </div>
   );
 }
 
@@ -326,8 +233,8 @@ function NumberFigure({ plate }: { plate: Extract<Plate, { kind: "number" }> }) 
   );
 }
 
-/** Longer than the flow's play in caseMotion.ts: one pass, the way back, the second pass. */
-const FLOW_MS = 2900;
+/** Longer than the flow's play in caseMotion.ts: one pass, then the way back. */
+const FLOW_MS = 1800;
 
 /** A work loop: the steps in order, and the way back when a step fails. */
 function FlowFigure({ plate, caption }: { plate: Extract<Plate, { kind: "flow" }>; caption: string }) {
@@ -377,44 +284,20 @@ interface PlateProps {
 
 /** The plate a part shows: the whole crop on a wide screen, the proving part on a phone. */
 function PartPlate({ part, plate, caption, narrow, first, page }: PlateProps) {
-  const [ref, near] = useNear<HTMLDivElement>(first);
   if (plate.kind === "number") return <NumberFigure plate={plate} />;
   if (plate.kind === "flow") return <FlowFigure plate={plate} caption={caption} />;
-  let screen: ReactNode;
-  if (plate.kind === "live") {
-    const { aspect } = recreations[plate.key];
-    screen = narrow ? (
-      <Screen caption={caption} width="100%">
-        <div className="cs-inline-live" style={{ "--cs-aspect-base": aspect.base, "--cs-aspect-sm": aspect.sm } as CSSProperties}>
-          {near && <LivePlate which={plate.key} />}
-        </div>
-      </Screen>
-    ) : (
-      <Screen caption={caption} width={`min(100%, ${STAGE_W}px)`}>
-        {near ? <LiveStage which={plate.key} /> : <div className={`cs-stage-box cs-stage-box-${plate.key}`} />}
-      </Screen>
-    );
-  } else {
-    const own = narrow && typeof part.narrow === "object";
-    const crop = own && typeof part.narrow === "object" ? part.narrow : plate.crop;
-    const box = part.target.kind === "shot" ? part.target.box : null;
-    const ring = box && inside(box, crop) ? box : null;
-    screen = (
+  const own = narrow && typeof part.narrow === "object";
+  const crop = own && typeof part.narrow === "object" ? part.narrow : plate.crop;
+  const box = part.target.kind === "shot" ? part.target.box : null;
+  const ring = box && inside(box, crop) ? box : null;
+  return (
+    <Ground page={page} screen={plate.ground}>
       <Screen caption={caption} width={fitWidth(crop)}>
         <ShotView shot={plate} crop={crop} alt={(own && part.narrowAlt) || plate.alt} eager={first} ring={ring} />
       </Screen>
-    );
-  }
-  return (
-    <div ref={ref}>
-      <Ground page={page} screen={plate.kind === "live" ? LIVE_SCREEN : plate.ground}>
-        {screen}
-      </Ground>
-    </div>
+    </Ground>
   );
 }
-
-const LIVE_SCREEN = "#f4f4f4";
 
 /** The next case's first screen, small, on its own floor. */
 function NextPlate({ slug, copy, page }: { slug: string; copy: CaseCopy; page: PageLight }) {
@@ -490,8 +373,8 @@ function Facts({ project, copy }: { project: Project; copy: CaseCopy }) {
 }
 
 /** Phone: each part shows its own crop; the first part's plate is the hero under the title. */
-function showsPlate(part: Part, plate: Plate, first: boolean) {
-  return part.narrow !== undefined && part.narrow !== "stores" && (first || plate.kind !== "live");
+function showsPlate(part: Part) {
+  return part.narrow !== undefined && part.narrow !== "stores";
 }
 
 interface Group {
@@ -517,7 +400,7 @@ const TWIN_SIDES = ["Old app", "New app"];
 const TWIN_MS = 1300;
 
 /** One test on two small screens: the old app ticks each line first, then the new app ticks the same lines. */
-function TwinCheck({ lines }: { lines: string[] }) {
+function TwinCheck({ lines, note }: { lines: string[]; note: string }) {
   return (
     <figure className="cs-twin" data-draw-ms={TWIN_MS}>
       <div className="cs-twin-pair">
@@ -537,7 +420,7 @@ function TwinCheck({ lines }: { lines: string[] }) {
           </div>
         ))}
       </div>
-      <figcaption className="cs-twin-same">The same test passed on both apps.</figcaption>
+      <figcaption className="cs-twin-same">{note}</figcaption>
     </figure>
   );
 }
@@ -547,18 +430,27 @@ interface PartTextProps {
   index: number;
   plate: Plate;
   project: Project;
-  children?: ReactNode;
+  /** The heading stands in the section's band, not in the text. */
+  banded?: boolean;
 }
 
-function PartText({ part, index, plate, project, children }: PartTextProps) {
+/** The section head on the second surface. */
+function Band({ part, index }: { part: Part; index: number }) {
+  return (
+    <div className="cs-band">
+      <h2 id={`cs-part-${index}`}>{part.heading}</h2>
+    </div>
+  );
+}
+
+function PartText({ part, index, plate, project, banded }: PartTextProps) {
   const stores = (plate.kind === "web" || plate.kind === "phone") && plate.stores !== undefined && project.links.length > 0;
   return (
     <>
-      {children}
-      <h2 id={`cs-part-${index}`}>{part.heading}</h2>
+      {!banded && <h2 id={`cs-part-${index}`}>{part.heading}</h2>}
       <p className="cs-text">{keepWords(part.text)}</p>
       <p className="cs-proof">{keepWords(part.proof)}</p>
-      {part.twin && <TwinCheck lines={part.twin} />}
+      {part.twin && <TwinCheck lines={part.twin} note={part.twinNote ?? "The same test passed on both apps."} />}
       {stores && (
         <p className="cs-links">
           <OutLinks links={project.links} />
@@ -577,7 +469,7 @@ function Case({ project, copy }: { project: Project; copy: CaseCopy }) {
   );
   const next = findProject(nextSlug(project.slug)) ?? project;
   const nextCopy = caseCopy[next.slug];
-  const seen = new Set<number>();
+  const numbers = copy.numbers === undefined ? undefined : plates[copy.numbers];
   const root = useRef<HTMLDivElement>(null);
   useDraw(root);
   useWalks(project.slug);
@@ -596,10 +488,11 @@ function Case({ project, copy }: { project: Project; copy: CaseCopy }) {
               <h1>{keepWords(copy.title)}</h1>
               <p className="cs-sentence">{keepWords(copy.sentence)}</p>
             </div>
-            <div className="cs-side">
-              {!narrow && <Facts project={project} copy={copy} />}
-              <LitLine page={page} />
-            </div>
+            {!narrow && (
+              <div className="cs-side">
+                <Facts project={project} copy={copy} />
+              </div>
+            )}
           </header>
         </div>
 
@@ -607,8 +500,7 @@ function Case({ project, copy }: { project: Project; copy: CaseCopy }) {
           {narrow
             ? parts.map((part, index) => {
                 const plate = plates[part.plate];
-                const shown = showsPlate(part, plate, !seen.has(part.plate));
-                seen.add(part.plate);
+                const shown = showsPlate(part);
                 return (
                   <section
                     key={part.heading}
@@ -628,32 +520,35 @@ function Case({ project, copy }: { project: Project; copy: CaseCopy }) {
                         />
                       </div>
                     )}
+                    {index === 0 && <Facts project={project} copy={copy} />}
+                    <Band part={part} index={index} />
                     <div className="cs-part-text">
-                      <PartText part={part} index={index} plate={plate} project={project}>
-                        {index === 0 && <Facts project={project} copy={copy} />}
-                      </PartText>
+                      <PartText part={part} index={index} plate={plate} project={project} banded />
                     </div>
                   </section>
                 );
               })
             : groupsOf(parts).map(({ plate: at, parts: group }) => (
-                <div key={at} className="cs-group" data-plate={plates[at].kind}>
-                  <div className="cs-part-plate">
-                    <PartPlate
-                      part={group[0].part}
-                      plate={plates[at]}
-                      caption={captions[at]}
-                      narrow={false}
-                      first={group[0].index === 0}
-                      page={page}
-                    />
-                  </div>
-                  <div className="cs-group-text">
-                    {group.map(({ part, index }) => (
-                      <section key={part.heading} className="cs-part-text" aria-labelledby={`cs-part-${index}`}>
-                        <PartText part={part} index={index} plate={plates[part.plate]} project={project} />
-                      </section>
-                    ))}
+                <div key={at} className="cs-section">
+                  <Band part={group[0].part} index={group[0].index} />
+                  <div className="cs-group" data-plate={plates[at].kind}>
+                    <div className="cs-part-plate">
+                      <PartPlate
+                        part={group[0].part}
+                        plate={plates[at]}
+                        caption={captions[at]}
+                        narrow={false}
+                        first={group[0].index === 0}
+                        page={page}
+                      />
+                    </div>
+                    <div className="cs-group-text">
+                      {group.map(({ part, index }, k) => (
+                        <section key={part.heading} className="cs-part-text" aria-labelledby={`cs-part-${index}`}>
+                          <PartText part={part} index={index} plate={plates[part.plate]} project={project} banded={k === 0} />
+                        </section>
+                      ))}
+                    </div>
                   </div>
                 </div>
               ))}
@@ -677,7 +572,10 @@ function Case({ project, copy }: { project: Project; copy: CaseCopy }) {
       <div className="cs-after">
         {copy.figures && (
           <section className="cs-figures" aria-labelledby="cs-figures-title">
-            <h2 id="cs-figures-title">The numbers</h2>
+            <div className="cs-band">
+              <h2 id="cs-figures-title">The numbers</h2>
+            </div>
+            {numbers?.kind === "number" && <NumberFigure plate={numbers} />}
             <ul>
               {copy.figures.map((figure, index) => (
                 <li key={figure.label} style={{ "--i": index } as CSSProperties}>
@@ -699,7 +597,9 @@ function Case({ project, copy }: { project: Project; copy: CaseCopy }) {
         )}
 
         <section className="cs-engineers" aria-labelledby="cs-engineers-title">
-          <h2 id="cs-engineers-title">For engineers</h2>
+          <div className="cs-band">
+            <h2 id="cs-engineers-title">For engineers</h2>
+          </div>
           <p>
             <strong>Built with:</strong> {copy.builtWith}
           </p>

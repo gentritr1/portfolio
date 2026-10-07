@@ -13,7 +13,7 @@ import incentivPortalPreview from './studio-previews/incentiv-portal.webp?inline
 import bookstoreHomePreview from './studio-previews/bookstore-home.webp?inline'
 import bookstoreBooksPreview from './studio-previews/bookstore-books.webp?inline'
 import bookstoreFavouritesPreview from './studio-previews/bookstore-favourites.webp?inline'
-import designSystemPreview from './studio-previews/design-system-storybook.webp?inline'
+import designSystemPreview from './studio-previews/design-system-date-range.webp?inline'
 
 export interface StudioShot {
   src: string
@@ -71,7 +71,7 @@ export const studioShots: Record<string, StudioComposition> = {
   'design-system-react': {
     title: 'Design System v2', colour: '#2454e8', device: 'display', platform: 'React component library',
     shots: [
-      { src: '/showcase/design-system/button-alert.webp', preview: designSystemPreview, crop: [0, 0, 1, 0.755], alt: 'Design System v2 in its Storybook: buttons in four styles, buttons with icons, and alerts for a note, information and success. Invented data.' },
+      { src: '/showcase/design-system/date-range.webp', preview: designSystemPreview, crop: [0.003, 0.04, 0.542, 0.48], alt: 'Design System v2 date range picker in its Storybook, open: presets, June and July 2026 side by side, and a range from June 22 to July 9. Invented data.' },
     ],
   },
   incentiv: {

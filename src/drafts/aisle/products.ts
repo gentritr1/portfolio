@@ -71,7 +71,7 @@ const windowCrop: Record<string, [number, number]> = {
 /** Real screens of the private work, captured on invented data: one crop for the box window, one for the label. */
 const realScreens: Record<string, { window: ScreenShot; label: ScreenShot }> = {
   'care-platform': { window: careShots.patients, label: careShots.patients },
-  'design-system-react': { window: { ...dsShots.buttonAlert, crop: { x: 0, y: 0, w: 720, h: 400 } }, label: dsShots.buttonAlert },
+  'design-system-react': { window: dsShots.dateRange, label: dsShots.dateRangeJune },
 }
 
 export const aisleProducts = projects.map((project, index) => {

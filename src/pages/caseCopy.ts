@@ -20,15 +20,12 @@ export interface Shot {
   ground: string;
 }
 
-export type LiveKey = "wallet";
-
 /**
  * A shot plate may carry the product's public links beside the shot. The value is the panel title.
  * A plate that no part names stands after the parts, with no ring; `narrow` is its phone crop.
  */
 export type Plate =
   | ({ kind: "web" | "phone"; stores?: string; narrow?: Px; narrowAlt?: string } & Shot)
-  | { kind: "live"; key: LiveKey }
   | {
       kind: "number";
       from?: string;
@@ -64,7 +61,7 @@ export interface Back {
 }
 
 /** The proving part of the plate. A box in a shot gets a ring. */
-export type Target = { kind: "shot"; box: Px } | { kind: "selector"; css: string; round?: boolean } | { kind: "figure" };
+export type Target = { kind: "shot"; box: Px } | { kind: "figure" };
 
 export interface Part {
   heading: "The product" | "What was built" | "How it is built" | "The result";
@@ -78,11 +75,13 @@ export interface Part {
    * The crop the phone layout shows under this part. "stores": only the plate's link panel.
    * Omitted: the part shows no plate on a phone. The first part's plate is the phone hero, under the title.
    */
-  narrow?: Px | "live" | "number" | "flow" | "stores";
+  narrow?: Px | "number" | "flow" | "stores";
   /** What the phone crop shows, when it is a different part of the shot. */
   narrowAlt?: string;
   /** Lines of one test that passed on the old app and on the new app, shown under the result line. */
   twin?: string[];
+  /** The caption under `twin`: the screen and the date of the run. */
+  twinNote?: string;
 }
 
 export interface Figure {
@@ -102,25 +101,17 @@ export interface CaseCopy {
   plates: Plate[];
   captions: string[];
   parts: [Part, Part, Part, ...Part[]];
+  /** Index of a number plate that stands at the head of "The numbers". */
+  numbers?: number;
   figures?: Figure[];
   builtWith: string;
   /** Detail for engineers, one fact for each item. */
   engineering?: string[];
 }
 
-const RECREATION = "Recreation · invented data.";
 const BOTH_STORES = "Live in both app stores";
 
 /* Wide crops stay at 1:1 or close, so the screen's own text stays readable. */
-
-const bayyinahPricing: Shot = {
-  src: "/showcase/bayyinah/web-06.webp",
-  alt: "Bayyinah TV pricing: the Premium plan with its monthly price, a monthly or annual switch, a tick for each feature, and its Start 7-Day Free Trial button",
-  width: 1440,
-  height: 900,
-  crop: { x: 508, y: 104, w: 904, h: 624 },
-  ground: "#1f1518",
-};
 
 const bayyinahLibrary: Shot = {
   src: "/showcase/bayyinah/web-02.webp",
@@ -131,16 +122,12 @@ const bayyinahLibrary: Shot = {
   ground: "#251e21",
 };
 
-const bayyinahPlans: Px = { x: 24, y: 104, w: 400, h: 496 };
-const bayyinahPlansAlt =
-  "Bayyinah TV pricing page: Choose Your Plan, and a promise to watch anytime, anywhere, on mobile, tablet or desktop";
-
 const bayyinahSeries: Shot = {
   src: "/showcase/bayyinah/web-05.webp",
-  alt: "Bayyinah TV series page: Moses 2, Adventures of Young Moses (Part 2), its summary and three episode cards",
+  alt: "Bayyinah TV series page: the list of series at the side, and three episode cards of Moses 2, each with its title, length and date",
   width: 1440,
   height: 900,
-  crop: { x: 344, y: 168, w: 1000, h: 670 },
+  crop: { x: 84, y: 500, w: 1260, h: 344 },
   ground: "#251e21",
 };
 
@@ -149,7 +136,7 @@ const incentivSignIn: Shot = {
   alt: "Incentiv portal sign-in: Welcome to Incentiv, then Passkey, MetaMask and WalletConnect options",
   width: 1440,
   height: 900,
-  crop: { x: 176, y: 262, w: 560, h: 400 },
+  crop: { x: 168, y: 186, w: 1104, h: 528 },
   ground: "#262624",
 };
 
@@ -168,7 +155,7 @@ const phone = (src: string, alt: string, crop: Px): { kind: "phone" } & Shot => 
 /** In the order of the home page rows, so "Next project" walks the same list. */
 export const caseCopy: Record<string, CaseCopy> = {
   "care-platform": {
-    title: "One billing report used to give up. Now it finishes.",
+    title: "Rebuilding a live care platform, one tested screen at a time.",
     sentence:
       "Care teams in many client organizations use this platform to follow patients at home. Each organization sees only its own patients.",
     platforms: "Web and mobile, and the server behind them",
@@ -177,12 +164,7 @@ export const caseCopy: Record<string, CaseCopy> = {
       { kind: "number", from: "16", to: "2", unit: "Database requests", note: "One billing report, before and after", marks: true },
       { kind: "web", ...careShots.glucose },
       { kind: "web", ...careShots.claims },
-      {
-        kind: "web",
-        ...careShots.week,
-        narrow: careShots.weekTwoDays.crop,
-        narrowAlt: careShots.weekTwoDays.alt,
-      },
+      { kind: "web", ...careShots.week },
       {
         kind: "flow",
         steps: [
@@ -192,7 +174,7 @@ export const caseCopy: Record<string, CaseCopy> = {
           { name: "Checks", note: "Automatic, must pass" },
           { name: "Person approves", note: "Then it is added", person: true },
         ],
-        back: { from: 4, to: 2, label: "Fails? It goes back." },
+        back: { from: 3, to: 2, label: "A check fails? Back to the agents." },
       },
     ],
     captions: [
@@ -205,12 +187,14 @@ export const caseCopy: Record<string, CaseCopy> = {
     parts: [
       {
         heading: "The result",
-        text: "On the server side, the report now finishes instead of giving up. In the web app, most screens are already rebuilt in React. The new app is not live yet.",
+        text: "The web app is being rebuilt one screen at a time. Care teams keep using the old app until the new one is ready. The new app is not live yet.",
         proof: "A screen moves over only after it passes the same tests in both apps.",
-        plate: 0,
+        plate: 3,
         target: { kind: "figure" },
-        narrow: "number",
+        narrow: careShots.weekTwoDays.crop,
+        narrowAlt: careShots.weekTwoDays.alt,
         twin: ["A patient's name opens that patient", "The search stays when the tab changes", "A search with no match says so"],
+        twinNote: "The same test passed on both apps. Patient compliance list, September 2026.",
       },
       {
         heading: "The product",
@@ -223,7 +207,7 @@ export const caseCopy: Record<string, CaseCopy> = {
       },
       {
         heading: "What was built",
-        text: "Built the frontend of the patient profile, care plans, labs and vitals, claims, calls and chat, with the team, from 2023. Since 2026, rebuilds the web app in React, one screen at a time. On the server: drafts for half-done patient sign-ups, a list of lab tests and the billing report fix.",
+        text: "Built the frontend of the patient profile, care plans, labs and vitals, claims, calls and chat, with the team, from 2023. Since 2026, rebuilds the web app one screen at a time. On the server: a patient sign-up can be saved half done, a list of lab tests was added, and the billing report was fixed.",
         proof: "Claims that need another look are flagged.",
         plate: 2,
         target: { kind: "shot", box: { x: 676, y: 500, w: 308, h: 40 } },
@@ -232,15 +216,15 @@ export const caseCopy: Record<string, CaseCopy> = {
       },
       {
         heading: "How it is built",
-        text: "AI agents work inside fixed rules and automatic checks. Old bugs are written down, not copied. A person approves each change before it is added.",
+        text: "Gentrit wrote most of the rules and the checks. AI agents build inside them. A person approves each change. Old bugs are written down, not copied.",
         proof: "A check is trusted only after it is shown to fail.",
         plate: 4,
         target: { kind: "figure" },
         narrow: "flow",
       },
     ],
+    numbers: 0,
     figures: [
-      { value: "16", to: "2", label: "Database requests for one billing report" },
       { value: "4", label: "Languages: English, German, Spanish, Turkish" },
       { value: "36", label: "Shared building blocks underneath" },
     ],
@@ -263,14 +247,9 @@ export const caseCopy: Record<string, CaseCopy> = {
     platforms: "Web, and inside the iPhone and Android apps",
     plates: [
       { kind: "web", ...bayyinahLibrary },
-      { kind: "web", ...bayyinahPricing },
       { kind: "web", ...bayyinahSeries, stores: "Live on the web and in both app stores" },
     ],
-    captions: [
-      "Bayyinah TV library, public page.",
-      "Bayyinah TV pricing, public page.",
-      "Bayyinah TV series page, public page, and the product's public links.",
-    ],
+    captions: ["Bayyinah TV library, public page.", "Bayyinah TV series page, public page, and the product's public links."],
     parts: [
       {
         heading: "The product",
@@ -282,19 +261,19 @@ export const caseCopy: Record<string, CaseCopy> = {
       },
       {
         heading: "What was built",
-        text: "The second version is a new app, built from nothing: 34 pages. It added live classes with a live chat that moderators control, and a video player with a quality menu. Members pay by subscription, gift or promo code.",
-        proof: "Members subscribe here, on the web or in the apps.",
+        text: "The second version is a new app, built from nothing: 34 pages. Each series page lists its episodes, with the length and the date of each one. The new app also added live classes, with a live chat that moderators control.",
+        proof: "Each series page lists its episodes.",
         plate: 1,
-        target: { kind: "shot", box: { x: 1068, y: 651, w: 228, h: 40 } },
-        narrow: bayyinahPlans,
-        narrowAlt: bayyinahPlansAlt,
+        target: { kind: "shot", box: { x: 356, y: 560, w: 314, h: 262 } },
+        narrow: { x: 348, y: 552, w: 660, h: 280 },
+        narrowAlt: "Two episode cards of Moses 2 on the Bayyinah TV series page, each with its title, length and date",
       },
       {
         heading: "The result",
-        text: "Bayyinah TV is live at bayyinahtv.com. Members choose a monthly or a yearly plan, on the web or in the apps.",
+        text: "Bayyinah TV is live at bayyinahtv.com. Members pay by subscription, gift or promo code, on the web or in the apps.",
         proof: "Live on the web, in the App Store and on Google Play.",
-        plate: 2,
-        target: { kind: "selector", css: ".cs-stores ul" },
+        plate: 1,
+        target: { kind: "figure" },
         narrow: "stores",
       },
     ],
@@ -313,14 +292,9 @@ export const caseCopy: Record<string, CaseCopy> = {
     platforms: "iPhone, Android",
     plates: [
       phone(
-        "/mobile/reading-3.webp",
-        "Read to Feed's book reader from its store listing: Chapter 1 of a story, under a Keep Reading! message that says each book read helps someone in need, and a Continue Reading button",
-        { x: 90, y: 470, w: 598, h: 1219 },
-      ),
-      phone(
         "/mobile/reading-1.webp",
-        "Read to Feed's My Books screen from its store listing: two books with their reading progress",
-        { x: 91, y: 646, w: 598, h: 648 },
+        "Read to Feed's My Books screen from its store listing: The Tale of Peter Rabbit read to 36%, Anne of Green Gables read to 90%, and the next books in each series",
+        { x: 91, y: 500, w: 598, h: 1189 },
       ),
       phone(
         "/mobile/reading-2.webp",
@@ -328,21 +302,21 @@ export const caseCopy: Record<string, CaseCopy> = {
         { x: 91, y: 600, w: 598, h: 740 },
       ),
     ],
-    captions: ["The book reader, from the store listing.", "My Books, from the store listing.", "Achievements, from the store listing."],
+    captions: ["My Books, from the store listing.", "Achievements, from the store listing."],
     parts: [
       {
         heading: "The product",
         text: "Children read books inside the app, scan their own books by the barcode, take quizzes that run like a chat, and earn badges and streaks. Parents confirm each account by email.",
-        proof: "Children read the books inside the app.",
+        proof: "Each book keeps the page the child reached.",
         plate: 0,
-        target: { kind: "shot", box: { x: 112, y: 596, w: 556, h: 448 } },
-        narrow: { x: 90, y: 470, w: 598, h: 1219 },
+        target: { kind: "shot", box: { x: 118, y: 710, w: 544, h: 214 } },
+        narrow: { x: 91, y: 500, w: 598, h: 1189 },
       },
       {
         heading: "What was built",
         text: "Books open inside the app, in two e-book formats. The camera reads a book's barcode. Badges, streaks, quizzes and short tips reward reading. A notification opens the right book, and the app works in three languages.",
         proof: "Reading earns badges and streaks.",
-        plate: 2,
+        plate: 1,
         target: { kind: "shot", box: { x: 108, y: 734, w: 568, h: 264 } },
         narrow: { x: 91, y: 600, w: 598, h: 740 },
       },
@@ -350,7 +324,7 @@ export const caseCopy: Record<string, CaseCopy> = {
         heading: "The result",
         text: "The app was kept current through three major upgrades. The store listings are now removed, so the links open archived copies of both pages.",
         proof: "About 14 updates, shipped to both app stores.",
-        plate: 2,
+        plate: 1,
         target: { kind: "figure" },
       },
     ],
@@ -364,7 +338,7 @@ export const caseCopy: Record<string, CaseCopy> = {
   },
 
   "viva-fresh": {
-    title: "Shopping in Albanian, live in both app stores.",
+    title: "Grocery orders with a delivery time, on iPhone and Android.",
     sentence: "Viva Fresh is a grocery shopping and loyalty app for iPhone and Android, built once for both.",
     platforms: "iPhone, Android",
     plates: [
@@ -377,71 +351,61 @@ export const caseCopy: Record<string, CaseCopy> = {
         stores: BOTH_STORES,
       },
       phone(
-        "/mobile/grocery-1.webp",
-        "Viva Fresh home from the App Store listing: product categories and the latest products, in Albanian",
-        { x: 100, y: 476, w: 580, h: 766 },
-      ),
-      phone(
         "/mobile/grocery-2.webp",
         "Viva Fresh Fresh category from the App Store listing: a grid of products with prices and cart buttons",
         { x: 100, y: 560, w: 580, h: 774 },
       ),
     ],
-    captions: ["The cart, from the App Store listing.", "Home, from the App Store listing.", "A product category, from the App Store listing."],
+    captions: ["The cart, from the App Store listing.", "A product category, from the App Store listing."],
     parts: [
-      {
-        heading: "The result",
-        text: "Shoppers check out with a delivery time. The cart shows the quantities, the discount and the total.",
-        proof: "Live in the App Store and on Google Play.",
-        plate: 0,
-        target: { kind: "selector", css: ".cs-stores ul" },
-        narrow: { x: 100, y: 656, w: 580, h: 818 },
-      },
       {
         heading: "The product",
         text: "Shoppers browse product categories, fill a cart, choose a delivery time and check out. A loyalty programme and a wishlist keep the products they want for later.",
-        proof: "Shoppers start from the product categories, in Albanian.",
-        plate: 1,
-        target: { kind: "shot", box: { x: 128, y: 500, w: 522, h: 148 } },
-        narrow: { x: 100, y: 476, w: 580, h: 766 },
+        proof: "The cart shows the quantities, the discount and the total.",
+        plate: 0,
+        target: { kind: "figure" },
+        narrow: { x: 100, y: 656, w: 580, h: 818 },
       },
       {
         heading: "What was built",
-        text: "One grocery app, built once for iPhone and Android. Category pages show product grids, with the price and the cart buttons on each item. A search on a map finds the delivery address.",
+        text: "One app, built once for iPhone and Android: the category pages, the cart and the checkout, and an address search on a map.",
         proof: "Category pages show product grids.",
-        plate: 2,
+        plate: 1,
         target: { kind: "shot", box: { x: 106, y: 930, w: 276, h: 392 } },
         narrow: { x: 100, y: 560, w: 580, h: 774 },
+      },
+      {
+        heading: "The result",
+        text: "The app is in both app stores today, in Albanian.",
+        proof: "Live in the App Store and on Google Play.",
+        plate: 0,
+        target: { kind: "figure" },
+        narrow: "stores",
       },
     ],
     builtWith: "React Native, Redux Toolkit, Maps, Firebase.",
   },
 
   "dukagjini-bookstore": {
-    title: "Search, sales and checkout, live in both app stores.",
+    title: "Readers find a book, keep a list and check out with a promo code.",
     sentence: "Dukagjini Bookstore is a publisher's bookshop app for readers on iPhone and Android.",
     platforms: "iPhone, Android",
     plates: [
-      phone(
-        "/mobile/bookstore-2.webp",
-        "Dukagjini Bookstore foreign books from the App Store listing: ratings, prices and favourites",
-        { x: 117, y: 740, w: 546, h: 730 },
-      ),
+      {
+        ...phone(
+          "/mobile/bookstore-2.webp",
+          "Dukagjini Bookstore foreign books from the App Store listing: ratings, prices and favourites",
+          { x: 117, y: 740, w: 546, h: 730 },
+        ),
+        stores: BOTH_STORES,
+      },
       phone(
         "/mobile/bookstore-1.webp",
         "Dukagjini Bookstore home from the App Store listing: the store header and book search",
         { x: 117, y: 740, w: 546, h: 522 },
       ),
-      {
-        ...phone(
-          "/mobile/bookstore-3.webp",
-          "Dukagjini Bookstore panel from the App Store listing: favourite lists and book categories",
-          { x: 117, y: 1092, w: 546, h: 597 },
-        ),
-        stores: BOTH_STORES,
-      },
     ],
-    captions: ["Foreign books, from the App Store listing.", "Home, from the App Store listing.", "Favourites, from the App Store listing."],
+    captions: ["Foreign books, from the App Store listing.", "Home, from the App Store listing."],
     parts: [
       {
         heading: "The product",
@@ -453,7 +417,7 @@ export const caseCopy: Record<string, CaseCopy> = {
       },
       {
         heading: "What was built",
-        text: "Built once for iPhone and Android. A notification opens the right book. The book page header moves as the page scrolls, and pop-up panels close with a swipe.",
+        text: "One app, built once for iPhone and Android. A notification opens the right book. The book page header moves as the page scrolls, and pop-up panels close with a swipe.",
         proof: "Readers search the whole catalogue.",
         plate: 1,
         target: { kind: "shot", box: { x: 155, y: 1145, w: 470, h: 60 } },
@@ -461,11 +425,11 @@ export const caseCopy: Record<string, CaseCopy> = {
       },
       {
         heading: "The result",
-        text: "Readers open their favourite lists and the book categories from one panel.",
+        text: "The app is in both app stores today.",
         proof: "Live in the App Store and on Google Play.",
-        plate: 2,
-        target: { kind: "selector", css: ".cs-stores ul" },
-        narrow: { x: 117, y: 1092, w: 546, h: 597 },
+        plate: 0,
+        target: { kind: "figure" },
+        narrow: "stores",
       },
     ],
     builtWith: "React Native, Redux, Firebase Messaging.",
@@ -484,7 +448,7 @@ export const caseCopy: Record<string, CaseCopy> = {
         to: "96.6%",
         unit: "Less JavaScript",
         note: "For a page that uses only a button",
-        share: { before: "Before: one bundle for the whole library", now: "Now: only the button", part: 0.034 },
+        share: { before: "Before: one bundle for the whole library", now: "Now: only the button, 3.4% of the old size", part: 0.034 },
       },
       { kind: "web", ...careShots.overview },
       {
@@ -496,7 +460,7 @@ export const caseCopy: Record<string, CaseCopy> = {
           { name: "Checks", note: "Automatic, must pass" },
           { name: "Person approves", note: "Then it is added", person: true },
         ],
-        back: { from: 4, to: 2, label: "Fails? It goes back." },
+        back: { from: 3, to: 2, label: "A check fails? Back to the agents." },
       },
     ],
     captions: [
@@ -508,7 +472,7 @@ export const caseCopy: Record<string, CaseCopy> = {
     parts: [
       {
         heading: "The product",
-        text: "Colours, sizes and type are set once, for code and for Figma. 805 shared style values, in three levels, feed ready-made building blocks, from buttons and alerts to date pickers and pop-up messages.",
+        text: "Colours, sizes and type are set once, for code and for Figma. 805 shared style values sit in three levels. They set the look of every building block, from buttons and alerts to date pickers and pop-up messages.",
         proof: "From buttons to date range pickers, ready for every screen.",
         plate: 0,
         target: { kind: "shot", box: { x: 184, y: 96, w: 578, h: 280 } },
@@ -518,14 +482,14 @@ export const caseCopy: Record<string, CaseCopy> = {
       {
         heading: "What was built",
         text: "Each building block loads on its own. A page loads only the blocks it uses.",
-        proof: "96.6% less JavaScript for a page that uses only a button.",
+        proof: "The rest of the library stays out of the page.",
         plate: 1,
         target: { kind: "figure" },
         narrow: "number",
       },
       {
         heading: "How it is built",
-        text: "Research into five leading design systems came first. It became written guides for AI agents. The guides advise, but automatic checks decide.",
+        text: "Research into five leading design systems came first. Gentrit turned it into written guides for AI agents. The guides advise, but automatic checks decide. A person approves each change.",
         proof: "No guide can overrule a failed check.",
         plate: 3,
         target: { kind: "figure" },
@@ -533,7 +497,7 @@ export const caseCopy: Record<string, CaseCopy> = {
       },
       {
         heading: "The result",
-        text: "Each building block is built to the WCAG 2.1 AA accessibility level, with automatic checks on screen. The care dashboard that uses it is not live yet.",
+        text: "Each building block meets the WCAG 2.1 AA accessibility floor. An automatic check proves it on a rendered screen. The care dashboard that uses it is not live yet.",
         proof: "The new care dashboard uses it on its screens.",
         plate: 2,
         target: { kind: "figure" },
@@ -545,7 +509,6 @@ export const caseCopy: Record<string, CaseCopy> = {
       { value: "36", label: "Building blocks" },
       { value: "805", label: "Shared style values, in three levels" },
       { value: "20", label: "Releases in about six weeks" },
-      { value: "96.6%", label: "Less JavaScript for a page that uses only a button" },
     ],
     builtWith:
       "React 19, TypeScript, CSS Modules, Storybook 10, DTCG tokens, Style Dictionary, Playwright, axe, Changesets. 805 tokens in three tiers: core, semantic, component.",
@@ -560,18 +523,15 @@ export const caseCopy: Record<string, CaseCopy> = {
   incentiv: {
     title: "Sign in with a passkey (no\u00a0password) or an existing wallet.",
     sentence:
-      "Incentiv's portal is a dashboard where people and businesses manage an on-chain smart wallet and incentive programs.",
+      "Incentiv's portal is a dashboard. People and businesses see their wallet balance and their rewards there.",
     role: "Frontend",
     platforms: "Web",
-    plates: [
-      { kind: "web", ...incentivSignIn },
-      { kind: "live", key: "wallet" },
-    ],
-    captions: ["Incentiv portal sign-in, public screen.", `Balance card. ${RECREATION}`],
+    plates: [{ kind: "web", ...incentivSignIn }],
+    captions: ["Incentiv portal sign-in, public screen."],
     parts: [
       {
         heading: "The product",
-        text: "People and businesses sign in, then see balances, assets, fees saved and transactions in dashboard cards. The website, the docs and the portal's sign-in screen are public.",
+        text: "People and businesses sign in, then see balances, assets, fees saved and transactions in dashboard cards. In the portal, only the sign-in screen is public.",
         proof: "Three ways in: a passkey, MetaMask or WalletConnect.",
         plate: 0,
         target: { kind: "shot", box: { x: 201, y: 495, w: 149, h: 50 } },
@@ -579,17 +539,16 @@ export const caseCopy: Record<string, CaseCopy> = {
       },
       {
         heading: "What was built",
-        text: "Built the sign-in and dashboard screens. Teammates built the wallet itself and its link to the blockchain. The screens cover sign-in, a first-run tour, dashboard cards, a list of assets and a balance pop-up with a QR code to receive.",
-        proof: "Balance, fees saved, transactions and assets in one card.",
-        plate: 1,
-        target: { kind: "selector", css: '[class*="rounded-[22px]"]' },
-        narrow: "live",
+        text: "Gentrit built the portal frontend: the sign-in, a first-run tour, the dashboard cards, a list of assets and a balance pop-up with a QR code. Teammates built the wallet itself and its link to the blockchain.",
+        proof: "Built the screens; teammates built the wallet.",
+        plate: 0,
+        target: { kind: "figure" },
       },
       {
         heading: "The result",
-        text: "The website is live at incentiv.io and the docs at docs.incentiv.io. Private pages of the portal stay behind sign-in.",
-        proof: "Live at portal.incentiv.io, in English and French.",
-        plate: 1,
+        text: "The portal frontend was built in 2024, in English and French. The dashboard pages stay private, behind sign-in.",
+        proof: "The sign-in screen is public at portal.incentiv.io.",
+        plate: 0,
         target: { kind: "figure" },
       },
     ],

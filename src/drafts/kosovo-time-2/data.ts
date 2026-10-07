@@ -1,4 +1,4 @@
-import { dsShots } from "../../content/careShots";
+const DATE_RANGE = "/showcase/design-system/date-range.webp";
 
 export interface Shot {
   src: string;
@@ -76,12 +76,14 @@ export const REAL_SCREENS = "Real product screens, invented data.";
 export const leadWeb = {
   shot: desktop(
     "/showcase/care-dashboard/appointments-week.webp",
-    "Care team calendar for one week: calls, video calls and office visits for each patient, and a red line at the current time. Invented data.",
-    { x: 256, y: 84, w: 1040, h: 560 },
-    { x: 472, y: 212, w: 478, h: 440 },
+    "Care team calendar for one week, from 8 AM to noon: calls, video calls and office visits for each patient. Invented data.",
+    { x: 256, y: 84, w: 1040, h: 528 },
+    { x: 472, y: 212, w: 478, h: 403 },
   ),
   name: "Care platform",
   note: "Web app · real screen, invented data",
+  /** The note on a phone, where the bar is narrow. */
+  short: "Real screen, invented data",
   slug: "care-platform",
 };
 
@@ -113,9 +115,9 @@ export const client: Row[] = [
       { x: 246, y: 160, w: 1194, h: 714 },
       { x: 256, y: 270, w: 560, h: 300 },
     ),
-    count: { from: 16, to: 2, label: "database requests for one billing report, before and now" },
+    count: { from: 16, to: 2, label: "database requests for one billing report, before and after" },
     card: {
-      title: "AI agents build the new screens. Fixed rules, checks and a person decide what is added.",
+      title: "Gentrit wrote most of the rules and the checks. AI agents build inside them. A person approves each change.",
       steps: [
         { name: "Old app", note: "Shows how it works" },
         { name: "Test first", note: "Written on the old app" },
@@ -123,7 +125,7 @@ export const client: Row[] = [
         { name: "Checks", note: "Automatic, must pass" },
         { name: "Person approves", note: "Then it is added", person: true },
       ],
-      back: { from: 4, to: 2, label: "Fails? It goes back." },
+      back: { from: 3, to: 2, label: "A check fails? Back to the agents." },
       slug: "care-platform",
       label: "How the care platform is rebuilt",
     },
@@ -145,7 +147,7 @@ export const client: Row[] = [
       "/showcase/bayyinah/web-02.webp",
       "Bayyinah TV library: search, filters and a row of courses, one marked LIVE",
       { x: 84, y: 236, w: 922, h: 664 },
-      { x: 95, y: 505, w: 620, h: 390 },
+      { x: 95, y: 505, w: 620, h: 340 },
     ),
   },
   {
@@ -158,16 +160,15 @@ export const client: Row[] = [
     years: "2026",
     note: REAL_SCREENS,
     links: [],
-    plate: {
-      src: dsShots.buttonAlert.src,
-      width: dsShots.buttonAlert.width,
-      height: dsShots.buttonAlert.height,
-      alt: dsShots.buttonAlert.alt,
-      crop: dsShots.buttonAlert.crop,
-      narrowCrop: dsShots.top.crop,
-    },
+    plate: desktop(
+      DATE_RANGE,
+      "Design System v2 date range picker, open: the presets, June and July 2026, and the range June 22 to July 9. Invented data.",
+      { x: 4, y: 36, w: 780, h: 432 },
+      { x: 8, y: 36, w: 476, h: 364 },
+    ),
     card: {
-      title: "Research came first. It became written guides for AI agents.",
+      title:
+        "Research into five leading design systems came first. Gentrit turned it into written guides for AI agents. The guides advise, but automatic checks decide. A person approves each change.",
       steps: [
         { name: "Research", note: "Five leading design systems" },
         { name: "Guides", note: "Written for the agents" },
@@ -175,7 +176,7 @@ export const client: Row[] = [
         { name: "Checks", note: "Checks decide" },
         { name: "Person approves", note: "Then it is added", person: true },
       ],
-      back: { from: 4, to: 2, label: "Fails? It goes back." },
+      back: { from: 3, to: 2, label: "A check fails? Back to the agents." },
       slug: "design-system-react",
       label: "How Design System v2 is built",
     },
@@ -206,13 +207,14 @@ export const client: Row[] = [
     result: "The app remembers the page in every book.",
     role: "Mobile, iOS and Android",
     years: "2022–25",
+    note: "The store pages are archived.",
     links: [
       {
-        label: "App Store (archived)",
+        label: "App Store",
         href: "https://web.archive.org/web/20251124202817/https://apps.apple.com/us/app/read-to-feed/id1623561765",
       },
       {
-        label: "Google Play (archived)",
+        label: "Google Play",
         href: "https://web.archive.org/web/20260316164104/https://play.google.com/store/apps/details?id=com.heifer.rtf",
       },
     ],
@@ -282,6 +284,7 @@ export const concepts: Concept[] = [
       "/personal/shots/offbeat-studio-desktop.webp",
       "OFFBEAT studio: the speaker in 3D beside an eight-step grid for kick, snare, hi-hat and bass, while the beat plays",
       { x: 65, y: 30, w: 1310, h: 730 },
+      { x: 67, y: 30, w: 520, h: 728 },
     ),
   },
   {
@@ -294,6 +297,7 @@ export const concepts: Concept[] = [
       "/personal/shots/form-studio-desktop.webp",
       "FORM collection: a copper trefoil knot and a chrome ring, each with its formula",
       { x: 52, y: 196, w: 1340, h: 700 },
+      { x: 160, y: 208, w: 500, h: 690 },
     ),
   },
 ];
@@ -311,7 +315,7 @@ export const offday: Row = {
     "/personal/shots/offday-light-shifts-desktop.webp",
     "Offday Shifts week grid with morning and evening shifts, two of them flagged Needs cover because the person is on leave",
     { x: 0, y: 0, w: 1440, h: 900 },
-    { x: 268, y: 240, w: 450, h: 310 },
+    { x: 268, y: 240, w: 450, h: 262 },
   ),
 };
 
@@ -327,19 +331,19 @@ export const games: Note[] = [
   {
     id: "fjale",
     name: "FJALË",
-    line: "A daily Albanian word game, checked against 21,000 words. It also works offline.",
+    line: "A daily Albanian word game.",
     link: { label: "Website", href: "https://xn--fjal-opa.com/" },
   },
   {
     id: "za",
     name: "Za!",
-    line: "A pizza card game for 2 to 8 players. Computer players can join.",
+    line: "A pizza card game for 2 to 8 players.",
     link: { label: "Website", href: "https://za-game.onrender.com/" },
   },
   {
     id: "morse",
     name: "Morse Trainer",
-    line: "A game that teaches Morse code. Letters a player misses come back sooner.",
+    line: "A game that teaches Morse.",
     link: { label: "Website", href: "https://morse-code-amber.vercel.app/" },
   },
 ];
@@ -351,15 +355,15 @@ export const CARD_COLOURS = "f7f6f2".repeat(16);
  * They light the floor at night, so the page never fetches a screenshot only to sample it. */
 export const screenColours: Record<string, string> = {
   "/showcase/care-dashboard/appointments-week.webp":
-    "f6f6f6f9f9f9f3f4f5e2ebeffcfbfcfafafbfcfcfcfdfdfdfcfcfdf9f8fdf2f2f8f6f5fafbfcfcf7f6f9f2f8f4f9f8fb",
+    "f5f5f5f9f9f9f2f4f5e1eaeefcfcfcfcfcfcfbfbfbfcfcfcfbfbfcf8f6fbf4f2f9f5f4fafdfdfdfaf9fcf0f7f3f9f8fb",
   "/mobile/grocery-3.webp":
     "ebe9e8e9e5e5eaeaeae9e9e9cab6a9e2dddde1e1e1e9e9e9e3d2c5e3dfdee5e6e6ebececefacaaf3acacd29f92cea294",
   "/showcase/care-dashboard/claims.webp":
     "faf7eefaf8eefbf9f1fdfbf3f9f9fafbfaf9f9f9f9fcfcfcf3f3f4f7f8f7f6f6f7f8f9faf6f6f7f4f8f5f6f4f4e6eef1",
   "/showcase/bayyinah/web-02.webp":
     "261f22272023322a2d2c2427282124231b1e231b1e231b1e6d5752324048302e3282645a46393c1d1a1c2b272a4b3d3e",
-  "/showcase/design-system/button-alert.webp":
-    "aaccd9c3dbe4c4dbe4d8e7ede3eaede1e8ebe9eff2f0f4f7eaf1e5ebf3e7eff7ecf5fbf2f7e8e4f8eae5f9ebe6faefea",
+  "/showcase/design-system/date-range.webp":
+    "f7f7f8fafafafdfdfdfafafaf3f3f3f8f8f8f1f4f5e7eff2f4f4f4e2ebeff2f4f5f5f5f5f9f9f9f7f7f8f7f8f8e1eaee",
   "/mobile/grocery-2.webp":
     "557d5171986e87ab82709a70e2e1e1f0ebeceeefeeeae5e6f4f3f3f3f2f2e3ebf0e8edf0f0eaeaf0f0efece7e7f1f1f0",
   "/mobile/reading-3.webp":

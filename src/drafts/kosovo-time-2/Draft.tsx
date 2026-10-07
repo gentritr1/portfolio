@@ -14,10 +14,10 @@ import {
   type PointerEvent,
   type ReactNode,
 } from "react";
-import { preload } from "react-dom";
+import { flushSync, preload } from "react-dom";
 import { Link as RouterLink, useLocation, useNavigate, useNavigationType } from "react-router";
 import { links } from "../../content/links";
-import { canWalk, caseScreen, inView, wait, walk } from "../../lib/plateWalk";
+import { canWalk, inView, wait } from "../../lib/plateWalk";
 import { preloadCase } from "../../lib/routes";
 import { Clock, cubic, openingHour, type Frame } from "./clock";
 import {
@@ -77,7 +77,14 @@ function useMedia(query: string) {
 type Vec = [number, number, number];
 const toGamma = (c: number) => (c <= 0.0031308 ? 12.92 * c : 1.055 * c ** (1 / 2.4) - 0.055);
 const hex = (rgb: number[]) =>
-  "#" + rgb.map((c) => Math.round(Math.min(1, Math.max(0, toGamma(c))) * 255).toString(16).padStart(2, "0")).join("");
+  "#" +
+  rgb
+    .map((c) =>
+      Math.round(Math.min(1, Math.max(0, toGamma(c))) * 255)
+        .toString(16)
+        .padStart(2, "0"),
+    )
+    .join("");
 
 /** The ground colour in front of a glowing screen, never more than the glow limit above the ground. */
 function glowColour(frame: Frame, screen: Vec) {
@@ -185,7 +192,10 @@ function Ground({ name, className, screens, gl = false, fade = 56, sides = 0, ar
     () =>
       screens.map((s) => {
         const cells = s ? cellsFrom(s) : null;
-        return { quarters: cells ? quarters(cells) : new Array<number>(12).fill(0.8), lower: cells ? lowerAverage(cells) : ([0.8, 0.8, 0.8] as Vec) };
+        return {
+          quarters: cells ? quarters(cells) : new Array<number>(12).fill(0.8),
+          lower: cells ? lowerAverage(cells) : ([0.8, 0.8, 0.8] as Vec),
+        };
       }),
     // The key holds every screen.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -531,12 +541,7 @@ function Ground({ name, className, screens, gl = false, fade = 56, sides = 0, ar
                 <g key={i}>
                   <ellipse data-glow={i} fill={`url(#${id}-glow-${i})`} style={{ opacity: 0 }} />
                   <ellipse data-ao={i} className="k2-ao" filter={`url(#${id}-ao)`} />
-                  <polygon
-                    data-shadow={i}
-                    className="k2-shadow"
-                    filter={`url(#${id}-soft)`}
-                    clipPath={sides ? `url(#${id}-front)` : undefined}
-                  />
+                  <polygon data-shadow={i} className="k2-shadow" filter={`url(#${id}-soft)`} clipPath={sides ? `url(#${id}-front)` : undefined} />
                 </g>
               ))}
             </g>
@@ -596,7 +601,10 @@ function SunLine() {
       const el = track.current;
       const label = dot.current?.querySelector<HTMLElement>(".k2-sun-time");
       if (!el || !label) return;
-      geometry.current = { width: el.clientWidth, label: label.offsetWidth + 20 };
+      geometry.current = {
+        width: el.clientWidth,
+        label: label.offsetWidth + 20,
+      };
       placeLabel();
     };
     measure();
@@ -670,7 +678,12 @@ function SunLine() {
     left.current = track.current!.getBoundingClientRect().left;
     event.currentTarget.setPointerCapture(event.pointerId);
     event.currentTarget.focus({ preventScroll: true });
-    drag.current = { id: event.pointerId, x: event.clientX, t: performance.now(), v: 0 };
+    drag.current = {
+      id: event.pointerId,
+      x: event.clientX,
+      t: performance.now(),
+      v: 0,
+    };
     event.currentTarget.dataset.drag = "";
     clock.set(toMs(event.clientX));
   };
@@ -717,7 +730,9 @@ function SunLine() {
     const fresh = performance.now() - d.t < 50;
     if (fresh && d.v !== 0) {
       const coast = Math.max(-3600000, Math.min(3600000, d.v * 0.06));
-      clock.set(clock.target + coast, { velocity: Math.sign(d.v) * Math.min(Math.abs(d.v), 3600000 * 8) });
+      clock.set(clock.target + coast, {
+        velocity: Math.sign(d.v) * Math.min(Math.abs(d.v), 3600000 * 8),
+      });
     }
   };
   const onKey = (event: KeyboardEvent<HTMLDivElement>) => {
@@ -738,7 +753,6 @@ function SunLine() {
     event.preventDefault();
     clock.set(moves[event.key], { instant: true });
   };
-
 
   return (
     <div
@@ -808,16 +822,77 @@ const shapeOf = (shot: Shot) => {
   return c.h > c.w ? "phone" : "wide";
 };
 
-/** A plain click walks the pressed plate into the case page's first screen. Any other click opens the link as usual. */
+const pictureOf = (element: Element | null) => {
+  const src = element?.querySelector("img")?.getAttribute("src");
+  return src ? new URL(src, location.href).pathname : null;
+};
+
+/** The case page's screen that shows the pressed picture, if one is on view after the route change.
+ * It waits a short time for that picture only, so a fade never waits for a picture it does not show. */
+async function sameScreen(picture: string | null) {
+  if (!picture) return null;
+  for (const screen of document.querySelectorAll<HTMLElement>(".cs [data-cs-screen]")) {
+    if (pictureOf(screen) !== picture || !inView(screen)) continue;
+    const image = screen.querySelector("img");
+    if (image && !image.complete) {
+      image.loading = "eager";
+      await Promise.race([image.decode().catch(() => undefined), wait(250)]);
+    }
+    return screen;
+  }
+  return null;
+}
+
+/** The slug's plate that was pressed last, so a return from the case walks back into that plate. */
+const pressed = new Map<string, "lead" | "row">();
+
+let moving = false;
+/**
+ * A plain click opens the case with a view transition. When the case's first view shows the same picture,
+ * the pressed plate walks into it. Otherwise the page fades, so a picture never turns into another one.
+ */
 function handoff(event: MouseEvent<HTMLAnchorElement>, slug: string, from: Element | null, go: () => void) {
   if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || !canWalk()) return;
   if (!inView(from)) return;
   event.preventDefault();
+  pressed.set(slug, from.classList.contains("k2-lead") ? "lead" : "row");
   const late = wait(1000).then(() => Promise.reject(new Error("late")));
   void Promise.race([preloadCase(slug), late]).then(
-    () => walk(slug, from, go, caseScreen),
+    () => move(slug, from, go),
     () => go(),
   );
+}
+
+function move(slug: string, from: HTMLElement, go: () => void) {
+  if (moving) return;
+  moving = true;
+  const name = `plate-${slug}`;
+  const html = document.documentElement;
+  const picture = pictureOf(from);
+  let to: HTMLElement | null = null;
+  if (picture) {
+    from.style.viewTransitionName = name;
+    html.dataset.walk = "";
+  } else html.dataset.k2Fade = "";
+  const transition = document.startViewTransition(async () => {
+    from.style.viewTransitionName = "";
+    flushSync(go);
+    to = await sameScreen(picture);
+    if (to) to.style.viewTransitionName = name;
+    else if (picture) {
+      delete html.dataset.walk;
+      html.dataset.k2Fade = "";
+    }
+  });
+  transition.ready.catch(() => undefined);
+  void transition.finished
+    .catch(() => undefined)
+    .then(() => {
+      moving = false;
+      delete html.dataset.walk;
+      delete html.dataset.k2Fade;
+      if (to) to.style.viewTransitionName = "";
+    });
 }
 
 /** The case page's code starts to load when a pointer or the focus reaches its link, so the walk can start at the click. */
@@ -848,8 +923,9 @@ function Plate({ shot, slug, href }: { shot: Shot; slug?: string; href?: string 
   const crop = cropOf(shot, narrow && shape === "wide");
   const open = useOpen(slug);
   const style = crop ? { aspectRatio: `${crop.w} / ${crop.h}` } : undefined;
+  const first = colourOf(shot.src);
   const inner = (
-    <span className="k2-press">
+    <span className="k2-press" style={first ? { background: `#${first.slice(0, 6)}` } : undefined}>
       <ShotImage shot={shot} crop={crop} />
     </span>
   );
@@ -859,6 +935,7 @@ function Plate({ shot, slug, href }: { shot: Shot; slug?: string; href?: string 
         className="k2-plate"
         data-k2-panel
         data-shape={shape}
+        data-plate={pressed.get(slug) === "lead" ? undefined : slug}
         style={style}
         to={`/work/${slug}`}
         {...warmProps(slug)}
@@ -922,7 +999,8 @@ function usePlayOnce<T extends HTMLElement>() {
 }
 
 /** The work loop on a white card that stands on the ground like a screen. It opens the case that draws the loop. */
-function WorkCard({ card }: { card: Card }) {
+/** `brief`: the title and the link only, for a second card on a phone, where the first card already drew a loop. */
+function WorkCard({ card, brief = false }: { card: Card; brief?: boolean }) {
   const open = useOpen(card.slug);
   const play = usePlayOnce<HTMLOListElement>();
   const { back } = card;
@@ -930,31 +1008,41 @@ function WorkCard({ card }: { card: Card }) {
     <RouterLink className="k2-card" data-k2-panel to={`/work/${card.slug}`} {...warmProps(card.slug)} onClick={(event) => open(event, event.currentTarget)}>
       <span className="k2-press">
         <span className="k2-card-kicker">How it is built</span>
-        <strong className="k2-card-title">{card.title}</strong>
-        <ol
-          ref={play}
-          className="k2-loop"
-          style={{ "--n": card.steps.length, "--from": back.from, "--to": back.to } as CSSProperties}
-        >
-          {card.steps.map((step, i) => (
-            <li
-              key={step.name}
-              data-person={step.person || undefined}
-              data-last={i === card.steps.length - 1 || undefined}
-              style={{ "--i": i } as CSSProperties}
+        <span className="k2-card-title">{card.title}</span>
+        {!brief && (
+          <>
+            <ol
+              ref={play}
+              className="k2-loop"
+              style={
+                {
+                  "--n": card.steps.length,
+                  "--from": back.from,
+                  "--to": back.to,
+                } as CSSProperties
+              }
             >
-              <span className="k2-loop-name">{step.name}</span>
-              <span className="k2-loop-note">{step.note}</span>
-            </li>
-          ))}
-          <li className="k2-loop-back" aria-hidden="true" />
-        </ol>
-        <span className="k2-loop-label">
-          <span className="k2-sr">
-            From step {back.from + 1} back to step {back.to + 1}:{" "}
-          </span>
-          {back.label}
-        </span>
+              {card.steps.map((step, i) => (
+                <li
+                  key={step.name}
+                  data-person={step.person || undefined}
+                  data-last={i === card.steps.length - 1 || undefined}
+                  style={{ "--i": i } as CSSProperties}
+                >
+                  <span className="k2-loop-name">{step.name}</span>
+                  <span className="k2-loop-note">{step.note}</span>
+                </li>
+              ))}
+              <li className="k2-loop-back" aria-hidden="true" />
+            </ol>
+            <span className="k2-loop-label">
+              <span className="k2-sr">
+                From step {back.from + 1} back to step {back.to + 1}:{" "}
+              </span>
+              {back.label}
+            </span>
+          </>
+        )}
         <span className="k2-card-go">
           Read how<span className="k2-sr">: {card.label}</span>
           {"\u00a0→"}
@@ -994,10 +1082,10 @@ function CaseLink({ row }: { row: Row }) {
       className="k2-case"
       to={`/work/${row.slug}`}
       {...warmProps(row.slug)}
-      onClick={(event) => open(event, event.currentTarget.closest(".k2-row")?.querySelector(".k2-plate") ?? null)}
+      onClick={(event) => open(event, event.currentTarget.closest(".k2-row, .k2-trio")?.querySelector(`.k2-plate[href="/work/${row.slug}"]`) ?? null)}
     >
       Read the case<span className="k2-sr">: {row.name}</span>
-      {" →"}
+      {" →"}
     </RouterLink>
   );
 }
@@ -1005,7 +1093,7 @@ function CaseLink({ row }: { row: Row }) {
 function Links({ items }: { items: Link[] }) {
   if (!items.length) return null;
   return (
-    <ul className="k2-links">
+    <>
       {items.map((l) => (
         <li key={l.href}>
           <a href={l.href} target="_blank" rel="noreferrer">
@@ -1019,6 +1107,21 @@ function Links({ items }: { items: Link[] }) {
           </a>
         </li>
       ))}
+    </>
+  );
+}
+
+/** The case link and the outside links share one line, so a row ends in one or two lines of links. */
+function GoLinks({ row, items }: { row?: Row; items: Link[] }) {
+  if (!row?.slug && !items.length) return null;
+  return (
+    <ul className="k2-links">
+      {row?.slug && (
+        <li>
+          <CaseLink row={row} />
+        </li>
+      )}
+      <Links items={items} />
     </ul>
   );
 }
@@ -1026,21 +1129,24 @@ function Links({ items }: { items: Link[] }) {
 function RowText({ row }: { row: Row }) {
   return (
     <div className="k2-row-text">
-      <h3>{row.name}</h3>
-      <p className="k2-row-line">{row.line}</p>
-      <p className="k2-row-result">{row.result}</p>
-      {row.count && <Marks count={row.count} />}
-      <p className="k2-row-role">
-        {row.role} · {row.years}
-        {row.note && (
-          <>
-            <br />
-            <span className="k2-row-note">{row.note}</span>
-          </>
-        )}
-      </p>
-      <CaseLink row={row} />
-      <Links items={row.links} />
+      <div className="k2-row-head">
+        <h3>{row.name}</h3>
+        <p className="k2-row-line">{row.line}</p>
+        <p className="k2-row-result">{row.result}</p>
+      </div>
+      <div className="k2-row-meta">
+        {row.count && <Marks count={row.count} />}
+        <p className="k2-row-role">
+          {row.role} · {row.years}
+          {row.note && (
+            <>
+              <br />
+              <span className="k2-row-note">{row.note}</span>
+            </>
+          )}
+        </p>
+        <GoLinks row={row} items={row.links} />
+      </div>
     </div>
   );
 }
@@ -1057,7 +1163,7 @@ function CardRow({ row, card }: { row: Row; card: Card }) {
             <Plate shot={row.plate} slug={row.slug} />
           </Ground>
           <Ground name={`${row.id}-card`} className="k2-row-stage k2-card-stage" screens={[CARD_COLOURS]} sides={32} arrive="enter">
-            <WorkCard card={card} />
+            <WorkCard card={card} brief={row !== firstCardRow} />
           </Ground>
         </>
       ) : (
@@ -1084,6 +1190,28 @@ function WorkRow({ row }: { row: Row }) {
   );
 }
 
+/** Phone apps side by side on one ground, each with its words under it. Wide screens only. */
+function PhoneTrio({ rows }: { rows: Row[] }) {
+  return (
+    <li className="k2-trio" style={{ "--n": rows.length } as CSSProperties}>
+      <Ground name="phones" className="k2-trio-ground" screens={rows.map((r) => colourOf(r.plate.src))} sides={48} arrive="enter">
+        <div className="k2-trio-slots">
+          {rows.map((r) => (
+            <div key={r.id} className="k2-trio-slot">
+              <Plate shot={r.plate} slug={r.slug} />
+            </div>
+          ))}
+        </div>
+      </Ground>
+      <div className="k2-trio-text">
+        {rows.map((r) => (
+          <RowText key={r.id} row={r} />
+        ))}
+      </div>
+    </li>
+  );
+}
+
 function ConceptText({ concept: c }: { concept: Concept }) {
   return (
     <div className="k2-concept-text">
@@ -1092,22 +1220,30 @@ function ConceptText({ concept: c }: { concept: Concept }) {
       </h3>
       <p className="k2-row-line">{c.line}</p>
       <p className="k2-row-result">{c.result}</p>
-      <Links items={c.links} />
+      <GoLinks items={c.links} />
     </div>
   );
 }
 
 /** The first screen's plates carry their own title bar, so their labels never stand on the floor. */
-function LeadPlate({ shot, name, note, slug, kind }: { shot: Shot; name: string; note: string; slug: string; kind: string }) {
+function LeadPlate({ shot, name, note, short, slug, kind }: { shot: Shot; name: string; note: string; short?: string; slug: string; kind: string }) {
   const narrow = use(NarrowContext);
   const crop = cropOf(shot, narrow);
   const open = useOpen(slug);
   return (
-    <RouterLink className="k2-lead" data-k2-panel data-kind={kind} to={`/work/${slug}`} {...warmProps(slug)} onClick={(event) => open(event, event.currentTarget)}>
+    <RouterLink
+      className="k2-lead"
+      data-k2-panel
+      data-kind={kind}
+      data-plate={pressed.get(slug) === "lead" ? slug : undefined}
+      to={`/work/${slug}`}
+      {...warmProps(slug)}
+      onClick={(event) => open(event, event.currentTarget)}
+    >
       <span className="k2-press">
         <span className="k2-bar">
           <strong>{name}</strong>
-          <span>{note}</span>
+          <span>{narrow && short ? short : note}</span>
           <span className="k2-bar-go" aria-hidden="true">
             →
           </span>
@@ -1129,7 +1265,9 @@ const RETURN_Y = "k2-y";
 /** The parts that take the light on every frame while they are on or near the screen. */
 /** The page-wide light waits this long after the last moving frame. The stand-up starts later (LEAD_BEAT_MS). */
 const REST_MS = 60;
-const LIT_PARTS = ".k2-top, .k2-first, .k2-band, .k2-rows > li, .k2-games-title, .k2-games, .k2-foot";
+const LIT_PARTS = ".k2-top, .k2-first, .k2-band, .k2-rows > li, .k2-games, .k2-foot";
+const phoneRows = client.filter((row) => shapeOf(row.plate) === "phone");
+const firstCardRow = client.find((row) => row.card);
 /** A load or a reload of the page itself takes too long for the intro on this device: the page opens at the hour. */
 const SLOW_LOAD_MS = 2000;
 
@@ -1147,8 +1285,16 @@ function returning() {
 export default function Draft() {
   const location = useLocation();
   const navigation = useNavigationType();
-  preload(FRAUNCES, { as: "font", type: "font/woff2", crossOrigin: "anonymous" });
-  preload(PUBLIC_SANS, { as: "font", type: "font/woff2", crossOrigin: "anonymous" });
+  preload(FRAUNCES, {
+    as: "font",
+    type: "font/woff2",
+    crossOrigin: "anonymous",
+  });
+  preload(PUBLIC_SANS, {
+    as: "font",
+    type: "font/woff2",
+    crossOrigin: "anonymous",
+  });
   const reduced = useMedia("(prefers-reduced-motion: reduce)");
   const narrow = useMedia("(max-width: 639px)");
   const stacked = useMedia("(max-width: 1023px)");
@@ -1340,7 +1486,7 @@ export default function Draft() {
     <ClockContext value={clock}>
       <NarrowContext value={narrow}>
         <div className="k2" ref={rootRef} data-fonts={fonts} data-reduced={reduced || undefined}>
-          <title>Gentrit Rashiti — web and mobile apps, from Kosovo</title>
+          <title>{location.pathname === "/" ? "Gentrit Rashiti — web, mobile & full stack" : "Gentrit Rashiti — web and mobile apps, from Kosovo"}</title>
           <header className="k2-top">
             <a className="k2-name" href="#top">
               Gentrit Rashiti
@@ -1378,14 +1524,7 @@ export default function Draft() {
                   </Ground>
                 </>
               ) : (
-                <Ground
-                  name="lead"
-                  className="k2-stage"
-                  screens={[colourOf(leadWeb.shot.src), colourOf(leadPhone.shot.src)]}
-                  gl
-                  fade={64}
-                  arrive={leadArrive}
-                >
+                <Ground name="lead" className="k2-stage" screens={[colourOf(leadWeb.shot.src), colourOf(leadPhone.shot.src)]} gl fade={64} arrive={leadArrive}>
                   <div className="k2-leads">
                     <LeadPlate {...leadWeb} kind="web" />
                     <LeadPlate {...leadPhone} kind="phone" />
@@ -1399,9 +1538,11 @@ export default function Draft() {
                 <h2 id="k2-client">Client work</h2>
               </div>
               <ol className="k2-rows">
-                {client.map((row) => (
-                  <WorkRow key={row.id} row={row} />
-                ))}
+                {client.map((row) => {
+                  if (stacked || shapeOf(row.plate) !== "phone") return <WorkRow key={row.id} row={row} />;
+                  if (row !== phoneRows[0]) return null;
+                  return <PhoneTrio key="phones" rows={phoneRows} />;
+                })}
               </ol>
             </section>
 
@@ -1413,7 +1554,7 @@ export default function Draft() {
                 <WorkRow row={offday} />
                 {stacked ? (
                   concepts.map((c) => (
-                    <li key={c.id} className="k2-row" data-shape="wide">
+                    <li key={c.id} className="k2-row" data-shape={narrow && c.plate.narrowCrop ? "phone" : "wide"}>
                       <Ground name={c.id} className="k2-row-stage" screens={[colourOf(c.plate.src)]} sides={40} arrive="enter">
                         <Plate shot={c.plate} href={c.links[0]?.href} />
                       </Ground>
@@ -1437,16 +1578,25 @@ export default function Draft() {
                   </li>
                 )}
               </ol>
-              <h3 className="k2-games-title">Three small games, live on the web</h3>
-              <ul className="k2-games">
-                {games.map((g) => (
-                  <li key={g.id}>
-                    <h4>{g.name}</h4>
-                    <p>{g.line}</p>
-                    <Links items={[g.link]} />
-                  </li>
-                ))}
-              </ul>
+              <div className="k2-games">
+                <h3>Three small games, live on the web</h3>
+                <ul>
+                  {games.map((g) => (
+                    <li key={g.id}>
+                      <a href={g.link.href} target="_blank" rel="noreferrer">
+                        <strong>{g.name}</strong>
+                        <span className="k2-out" aria-hidden="true">
+                          <svg viewBox="0 0 12 12" width="12" height="12">
+                            <path d="M3 9 9 3M4 3h5v5" fill="none" stroke="currentColor" strokeWidth="1.4" />
+                          </svg>
+                        </span>
+                        <span className="k2-sr"> (opens in a new tab)</span>
+                      </a>{" "}
+                      <span>{g.line}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </section>
           </main>
 
@@ -1461,7 +1611,7 @@ export default function Draft() {
               </a>
               <a href={links.cv}>CV (PDF)</a>
             </div>
-            <p className="k2-foot-line">The page is lit by the sun over Kosovo, at your clock. Every shadow is computed.</p>
+            <p className="k2-foot-line">Lit by the sun over Kosovo, at your clock.</p>
           </footer>
         </div>
       </NarrowContext>

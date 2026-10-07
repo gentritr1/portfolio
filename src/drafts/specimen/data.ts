@@ -178,7 +178,7 @@ export const examples: Example[] = [
     problem: 'A React rewrite needed one shared, accessible base of controls.',
     built: 'One token source in three tiers, generated to CSS, TypeScript and Figma; 36 components on top.',
     result: '20 releases in about six weeks. A Button-only consumer ships 96.6% less JavaScript.',
-    canvas: { kind: 'screen', shot: dsShots.buttonAlert, brief: dsShots.top },
+    canvas: { kind: 'screen', shot: dsShots.dateRange, brief: dsShots.dateRangeJune },
     more: {
       text: 'Each component is built to WCAG 2.1 AA floors with automated, rendered evidence: axe tests and in-browser contrast checks, with negative controls that prove the checks can fail. The new React dashboard uses the system through one adapter layer; it is not in production yet.',
       links: [],

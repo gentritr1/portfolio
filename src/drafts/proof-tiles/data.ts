@@ -139,21 +139,13 @@ export const work: Tile[] = [
     media: {
       kind: "shot",
       shot: {
-        src: dsShots.buttonAlert.src,
-        alt: dsShots.buttonAlert.alt,
-        width: 1440,
-        height: 1192,
+        src: dsShots.dateRange.src,
+        alt: dsShots.dateRange.alt,
+        width: 2880,
+        height: 1800,
         density: 2,
-        crops: [
-          {
-            x: 16,
-            y: 0,
-            w: 1376,
-            h: 860,
-            clip: { x: 16, y: 0, w: 1376, h: 796 },
-          },
-        ],
-        mark: { x: 32, y: 48, w: 1304, h: 184 },
+        crops: [{ x: 8, y: 72, w: 1560, h: 975 }],
+        mark: { x: 388, y: 594, w: 528, h: 144 },
       },
     },
     hue: 225,

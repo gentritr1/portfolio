@@ -124,34 +124,6 @@
   text-wrap: pretty;
 }
 
-.os-result {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 4px 14px;
-  margin-top: 10px;
-  color: var(--os-muted);
-}
-
-.os-marks {
-  display: inline-flex;
-  gap: 5px;
-  height: 14px;
-}
-
-.os-mark {
-  width: 2px;
-  height: 14px;
-  border-radius: 1px;
-  background: var(--os-ink);
-}
-
-.os-mark[data-gone] {
-  opacity: 0.22;
-  transform: scaleY(0.43);
-  transform-origin: 50% 100%;
-}
-
 /* ---------- Work ---------- */
 
 .os-work {
@@ -225,9 +197,13 @@
   margin-top: 26px;
 }
 
+.os-contact a {
+  justify-content: center;
+  min-width: 44px;
+}
+
 .os-contact a,
-.os-more a,
-.os-open {
+.os-more a {
   display: inline-flex;
   align-items: center;
   min-height: 44px;
@@ -239,8 +215,7 @@
 
 @media (hover: hover) and (pointer: fine) {
   .os-contact a:hover,
-  .os-more a:hover,
-  .os-open:hover {
+  .os-more a:hover {
     text-decoration-color: currentColor;
   }
 }
@@ -344,10 +319,6 @@
   justify-content: space-between;
   align-items: center;
   gap: 12px;
-}
-
-.os-open {
-  gap: 6px;
 }
 
 .os-private {
@@ -497,6 +468,24 @@
   }
 }
 
+/* A small laptop: a wider list and a smaller type step, so each line stays on one line and the page fits. */
+@media (min-width: 900px) and (max-width: 1199px) {
+  .os {
+    grid-template-columns: minmax(0, 1fr) minmax(360px, 0.78fr);
+    column-gap: 36px;
+    padding-inline: 32px;
+    font-size: 16px;
+  }
+
+  .os .os-row {
+    grid-template-columns: 10.5em minmax(0, 1fr);
+  }
+
+  .os-way {
+    font-size: 20px;
+  }
+}
+
 /* ---------- Phone and narrow tablet: the list is the page, the screen stays in a panel at the bottom ---------- */
 
 @media (max-width: 899px) {
@@ -544,64 +533,72 @@
     line-height: 1.4;
   }
 
+  /* The panel: the screen on the left, its caption and link on the right. It stays under 28 % of the height. */
   .os-shot {
     position: fixed;
     left: 0;
     right: 0;
     bottom: 0;
     z-index: 10;
-    padding: 12px 16px calc(4px + env(safe-area-inset-bottom));
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr) auto;
+    column-gap: 14px;
+    padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
     background: var(--os-paper);
     box-shadow: 0 -1px 0 var(--os-line);
   }
 
+  /* Rows fade under the panel's top edge, so no line ends in a hard cut. */
+  .os-shot::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 100%;
+    height: 28px;
+    background: linear-gradient(to bottom, transparent, var(--os-paper));
+    pointer-events: none;
+  }
+
   .os-stage {
+    grid-row: 1 / span 2;
     width: auto;
-    max-width: 100%;
-    height: min(calc((100vw - 32px) * 0.75), 26svh);
+    height: min(calc((100vw - 32px) * 0.4), 20svh, 240px);
     aspect-ratio: 4 / 3;
   }
 
   .os-caption {
-    margin-top: 8px;
+    grid-column: 2;
+    margin-top: 0;
+    font-size: 14px;
+    line-height: 1.35;
+  }
+
+  /* At most two lines, so the panel keeps one height while the rows change the screen. */
+  .os-caption .os-cap-meta {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
   }
 
   .os-actions {
-    margin-top: -2px;
+    grid-column: 2;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 0 12px;
   }
 
   .os-actions .os-switch {
     margin-top: 0;
+    margin-left: -7px;
   }
 
   .os-way {
     font-size: 21px;
   }
 
-}
-
-@media (min-width: 600px) and (max-width: 899px) {
-  .os-shot {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
-    grid-template-rows: 1fr auto auto;
-    column-gap: 20px;
-  }
-
-  .os-stage {
-    grid-row: 1 / span 3;
-  }
-
-  .os-caption {
-    grid-row: 2;
-    grid-column: 2;
-  }
-
-  .os-actions {
-    grid-row: 3;
-    grid-column: 2;
-    justify-content: flex-start;
-  }
 }
 
 /* A phone on its side: too short for a panel, so the screen stands under the name. */
@@ -616,6 +613,14 @@
     margin-bottom: 28px;
     padding: 0;
     box-shadow: none;
+  }
+
+  .os-shot::before {
+    content: none;
+  }
+
+  .os-stage {
+    height: min(56svh, (100vw - 32px) * 0.45);
   }
 
   .os-work {

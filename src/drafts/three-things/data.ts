@@ -39,12 +39,12 @@ export const tiles: Tile[] = [
     line: "A video-learning platform, rebuilt from an empty page. Members subscribe on the web, iPhone or Android.",
     meta: "Web · Frontend, core team · 2023–26",
     shot: web(
-      "/showcase/bayyinah/web-05.webp",
-      "Bayyinah TV series page: Moses 2, Adventures of Young Moses (Part 2), its summary and three episode cards",
-      { x: 350, y: 150, w: 980, h: 735 },
+      "/showcase/bayyinah/web-02.webp",
+      "Bayyinah TV library: search, filters and a row of courses, one marked LIVE",
+      { x: 84, y: 236, w: 880, h: 660 },
       "#251e21",
     ),
-    narrow: { x: 350, y: 180, w: 440, h: 330 },
+    narrow: { x: 95, y: 505, w: 520, h: 390 },
   },
   {
     slug: "design-system-react",
@@ -52,15 +52,12 @@ export const tiles: Tile[] = [
     line: "36 building blocks for a care platform, released 20 times in about six weeks.",
     meta: "Design system · 2026",
     note: "Real product screens, invented data.",
-    shot: {
-      src: "/showcase/design-system/button-alert.webp",
-      alt: "Design System v2 in its Storybook: buttons in four styles, buttons with icons, and alerts for a note, information and success. Invented data.",
-      width: 720,
-      height: 596,
-      crop: { x: 0, y: 0, w: 720, h: 540 },
-      ground: "#ffffff",
-    },
-    narrow: { x: 0, y: 0, w: 420, h: 315 },
+    shot: web(
+      "/showcase/design-system/date-range.webp",
+      "Design System v2 date range picker, open: the presets and June 2026, with the range that starts on June 22. Invented data.",
+      { x: 8, y: 40, w: 476, h: 357 },
+      "#ffffff",
+    ),
   },
   {
     slug: "viva-fresh",
@@ -101,7 +98,7 @@ export const tiles: Tile[] = [
   {
     slug: "incentiv",
     name: "Incentiv",
-    line: "Sign-in and dashboard screens for a crypto wallet. Sign in with a passkey or a wallet, no password.",
+    line: "Gentrit built the sign-in and dashboard screens of a crypto wallet portal. People sign in with a passkey or a wallet, no password.",
     meta: "Frontend · 2024",
     note: "Teammates built the wallet.",
     shot: web(

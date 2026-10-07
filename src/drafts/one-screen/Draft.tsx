@@ -147,10 +147,14 @@ export default function Draft() {
   const fonts = useFonts();
   const reduced = useMedia("(prefers-reduced-motion: reduce)");
   const narrow = useMedia("(max-width: 899px)");
+  /* A phone on its side: the screen stands under the name, so the rows do not change it while the page scrolls. */
+  const short = useMedia("(max-height: 559px)");
+  const fine = useMedia("(hover: hover) and (pointer: fine)");
   const navigate = useNavigate();
   const rootRef = useRef<HTMLDivElement>(null);
   const workRef = useRef<HTMLDivElement>(null);
   const ruleRef = useRef<HTMLSpanElement>(null);
+  const headRef = useRef<HTMLElement>(null);
   const panelRef = useRef<HTMLElement>(null);
   const nameRefs = useRef(new Map<string, HTMLElement>());
   const rowRefs = useRef(new Map<string, HTMLElement>());
@@ -289,6 +293,36 @@ export default function Draft() {
     };
   }, [narrow]);
 
+  /* On a phone the row at the reading line above the panel lights the screen, so one tap on a row opens it. */
+  const currentId = useRef(current.id);
+  currentId.current = current.id;
+  useEffect(() => {
+    if (!narrow || short || !("IntersectionObserver" in window)) return;
+    const watch = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting || window.scrollY < 8) continue;
+          const id = (entry.target as HTMLElement).dataset.line;
+          if (id && id !== currentId.current) select({ id, shot: 0 }, false);
+        }
+      },
+      { rootMargin: "-38% 0px -60% 0px" },
+    );
+    for (const row of rowRefs.current.values()) watch.observe(row);
+    const head = headRef.current;
+    const top = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.intersectionRatio > 0.99 && currentId.current !== client[0].id) select({ id: client[0].id, shot: 0 }, false);
+      },
+      { threshold: 1 },
+    );
+    if (head) top.observe(head);
+    return () => {
+      watch.disconnect();
+      top.disconnect();
+    };
+  }, [narrow, short, select]);
+
   const leave = useCallback(
     (href: string) => {
       const root = rootRef.current;
@@ -304,18 +338,13 @@ export default function Draft() {
 
   const onRowClick = (event: MouseEvent<HTMLElement>, line: Line) => {
     if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
-    if (narrow && current.id !== line.id) {
-      event.preventDefault();
-      select({ id: line.id, shot: 0 }, false);
-      return;
-    }
     if (!line.href || line.external) return;
     event.preventDefault();
     leave(line.href);
   };
 
   const onRowPointerEnter = (event: PointerEvent<HTMLElement>, line: Line) => {
-    if (event.pointerType !== "mouse" || narrow) return;
+    if (event.pointerType !== "mouse" || narrow || !fine) return;
     window.clearTimeout(hoverTimer.current);
     hoverTimer.current = window.setTimeout(() => {
       if (current.id !== line.id) select({ id: line.id, shot: 0 }, false);
@@ -324,7 +353,7 @@ export default function Draft() {
   const onRowPointerLeave = () => window.clearTimeout(hoverTimer.current);
 
   const onRowFocus = (event: FocusEvent<HTMLElement>, line: Line) => {
-    if (current.id === line.id) return;
+    if (current.id === line.id || !fine) return;
     const keyboard = event.currentTarget.matches(":focus-visible");
     if (!keyboard) return;
     select({ id: line.id, shot: 0 }, true);
@@ -378,6 +407,7 @@ export default function Draft() {
     );
     const common = {
       className: "os-row",
+      "data-line": line.id,
       "aria-current": isCurrent ? ("true" as const) : undefined,
       ref: (el: HTMLElement | null) => {
         if (el) rowRefs.current.set(line.id, el);
@@ -411,10 +441,9 @@ export default function Draft() {
     <div ref={rootRef} className="os" data-fonts={fonts} style={{ "--os-panel": "0px" } as CSSProperties}>
       <title>Gentrit Rashiti</title>
       <div className="os-main">
-        <header className="os-head">
+        <header className="os-head" ref={headRef}>
           <h1 className="os-me">Gentrit Rashiti</h1>
           <p className="os-sub">Builds web and mobile apps. Part of two platform rewrites. 5+ years, working remotely from Kosovo.</p>
-          <Requests still={reduced || !ready} />
         </header>
 
         <div className="os-work" ref={workRef}>
@@ -461,7 +490,8 @@ export default function Draft() {
           <figcaption className="os-caption">
             {narrow ? (
               <span className="os-cap-text">
-                <span className="os-cap-title">{currentLine.note ?? currentScreen.narrowTitle ?? currentScreen.title}</span>
+                <span className="os-cap-title">{currentLine.name}</span>
+                <span className="os-cap-meta">{currentLine.note ?? currentScreen.narrowTitle ?? currentScreen.title}</span>
               </span>
             ) : (
               <span className="os-cap-text">
@@ -474,26 +504,9 @@ export default function Draft() {
             )}
             {!narrow && switcher}
           </figcaption>
-          {narrow && (currentLine.href || switcher) && (
+          {narrow && (switcher || !currentLine.href) && (
             <div className="os-actions">
-              {currentLine.href ? (
-                <a
-                  className="os-open"
-                  href={currentLine.href}
-                  aria-label={currentLine.external ? `${currentLine.name} code on GitHub, opens in a new tab` : `Read the case: ${currentLine.name}`}
-                  {...(currentLine.external ? { target: "_blank", rel: "noreferrer" } : {})}
-                  onClick={(e) => {
-                    if (currentLine.external || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
-                    e.preventDefault();
-                    leave(currentLine.href!);
-                  }}
-                >
-                  {currentLine.external ? "Code on GitHub" : "Read the case"}
-                  <Arrow />
-                </a>
-              ) : (
-                <span className="os-private">Private code</span>
-              )}
+              {!currentLine.href && <span className="os-private">Private code</span>}
               {switcher}
             </div>
           )}
@@ -503,7 +516,7 @@ export default function Draft() {
           <h2 className="os-group" id="os-how">
             How Gentrit works
           </h2>
-          <p className="os-way">Gentrit writes the rules first. AI agents build inside them.</p>
+          <p className="os-way">Gentrit wrote most of the rules and the checks. AI agents build inside them. A person approves each change.</p>
           <Flow still={reduced || !ready} />
           <p className="os-more">
             <span>See it in</span>
@@ -606,42 +619,6 @@ function useOnce(ref: RefObject<Element | null>, play: () => void, skip: boolean
     return () => io.disconnect();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [skip]);
-}
-
-/** One report, 16 requests to the database, then 2: fourteen of the sixteen marks fall away, right to left. */
-function Requests({ still }: { still: boolean }) {
-  const ref = useRef<HTMLSpanElement>(null);
-  const played = useRef(false);
-  useOnce(
-    ref,
-    () => {
-      if (played.current) return;
-      played.current = true;
-      const marks = ref.current?.querySelectorAll<HTMLElement>(".os-mark");
-      if (!marks) return;
-      marks.forEach((mark, i) => {
-        if (i < 2) return;
-        mark.animate(
-          [
-            { transform: "scaleY(1)", opacity: 1 },
-            { transform: "scaleY(0.43)", opacity: 0.22 },
-          ],
-          { duration: 380, delay: 120 + (15 - i) * 18, easing: EASE, fill: "backwards" },
-        );
-      });
-    },
-    still,
-  );
-  return (
-    <p className="os-result">
-      <span>One report made 16 database requests. Now it makes 2.</span>
-      <span className="os-marks" ref={ref} aria-hidden="true">
-        {Array.from({ length: 16 }, (_, i) => (
-          <span key={i} className="os-mark" data-gone={i >= 2 ? "" : undefined} />
-        ))}
-      </span>
-    </p>
-  );
 }
 
 const STEPS = ["Rules", "AI agents build", "Checks", "A person approves"];
@@ -756,17 +733,9 @@ function Flow({ still }: { still: boolean }) {
         </svg>
       )}
       <p className="os-back-label" style={loop?.side ? { left: loop.side.left, top: loop.side.top } : undefined}>
-        A check fails? The work goes back to the agents.
+        A check fails? Back to the agents.
       </p>
     </div>
-  );
-}
-
-function Arrow() {
-  return (
-    <svg className="os-arrow-r" width="14" height="14" viewBox="0 0 14 14" aria-hidden="true">
-      <path d="M2 7h10M8 3l4 4-4 4" fill="none" stroke="currentColor" strokeWidth="1.5" />
-    </svg>
   );
 }
 

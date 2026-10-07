@@ -825,7 +825,7 @@ export default function Draft() {
         </p>
         <p>
           Gentrit Rashiti. Bachelor's degree, UBT. The care dashboard and the design-system screens are real
-          product screens with invented data. The reader and wallet screens are recreations with invented data. The other
+          product screens with invented data. The reader screen is a recreation with invented data. The other
           screens come from public pages and store listings. The page takes its colour from the
           screen in the frame. A result with no screen stays grey.
         </p>

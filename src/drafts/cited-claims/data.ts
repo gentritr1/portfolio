@@ -43,7 +43,7 @@ const entries: Record<string, Entry> = {
     scope: 'System',
     problem: 'A new React dashboard needed one accessible base, from tokens to controls.',
     result: '36 components, 20 releases in about six weeks. A Button-only consumer loads 96.6% less JavaScript.',
-    media: { kind: 'screen', shot: { ...dsShots.alerts, crop: { x: 0, y: 136, w: 720, h: 450 } }, note: REAL_SCREENS },
+    media: { kind: 'screen', shot: dsShots.dateRange, note: REAL_SCREENS },
   },
   'design-system-vue': {
     name: 'Design system, Vue',

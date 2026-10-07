@@ -11,7 +11,6 @@ export type ThumbKind =
   | 'donation-ring'
   | 'calendar-strip'
   | 'portal-shell'
-  | 'wallet-card'
   | 'doc-chat'
   | 'track'
   | 'town'
@@ -29,9 +28,6 @@ const lineAcc = 'fill-none stroke-(--thumb-accent) stroke-2 [stroke-linecap:roun
 const icon = 'text-(--thumb-accent)'
 
 const range = (n: number) => Array.from({ length: n }, (_, i) => i)
-const qr = [1, 0, 1, 0, 1, 1, 1, 1, 0]
-  .flatMap((on, i) => (on ? [`M${62 + (i % 3) * 6} ${18 + Math.floor(i / 3) * 6}h5v5h-5z`] : []))
-  .join('')
 
 const drawings: Record<ThumbKind, ReactNode> = {
   'api-terminal': (
@@ -107,17 +103,6 @@ const drawings: Record<ThumbKind, ReactNode> = {
       <rect x="60" y="20" width="30" height="36" rx="3" className={outline} />
       <rect x="29" y="25" width="16" height="3.5" rx="1.75" className={acc} />
       <rect x="64" y="25" width="16" height="3.5" rx="1.75" className={bar} />
-    </>
-  ),
-  'wallet-card': (
-    <>
-      <rect x="8" y="10" width="80" height="44" rx="6" className={panel} />
-      <rect x="15" y="17" width="16" height="3" rx="1.5" className={bar} />
-      <rect x="15" y="24" width="32" height="6" rx="2" className={onPanel} />
-      <path d={qr} className={onPanel} />
-      {range(3).map((i) => (
-        <rect key={i} x={15 + i * 14} y="42" width="11" height="6" rx="3" className={acc} />
-      ))}
     </>
   ),
   'doc-chat': (

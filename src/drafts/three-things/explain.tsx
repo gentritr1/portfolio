@@ -1,10 +1,7 @@
-import { useEffect, useRef, useState, type CSSProperties, type MouseEvent } from "react";
+import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
 import { Link } from "react-router";
 
 const isReduced = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-/** A press that came from the keyboard (detail 0) changes state with no motion. */
-const fromKeyboard = (e: MouseEvent) => e.detail === 0;
 
 /* ---------- How a change gets into the new app ---------- */
 
@@ -16,34 +13,81 @@ const NODES = [
   { name: "Person approves", note: "Then it is added", person: true },
 ];
 
-/** The walk a change takes: the first check fails and sends it back once. */
-const WALK: { at: number; say: string; fail?: boolean; back?: boolean }[] = [
-  { at: 0, say: "The old app shows how the screen works today." },
-  { at: 1, say: "A test is written on the old app, before any new code." },
-  { at: 2, say: "AI agents write the new screen inside fixed rules." },
-  { at: 3, say: "An automatic check fails.", fail: true },
-  { at: 2, say: "The change goes back. The agents fix it.", back: true },
-  { at: 3, say: "Every check passes." },
-  { at: 4, say: "A person approves the change. Only then is it added." },
+/** The walk a change takes: the first check fails and sends it back once. Gaps in ms before each hop. */
+const WALK: { at: number; fail?: boolean; back?: boolean; wait: number }[] = [
+  { at: 0, wait: 0 },
+  { at: 1, wait: 380 },
+  { at: 2, wait: 380 },
+  { at: 3, fail: true, wait: 380 },
+  { at: 2, back: true, wait: 520 },
+  { at: 3, wait: 560 },
+  { at: 4, wait: 380 },
 ];
+const LAST = WALK.length - 1;
 
+/** Plays the walk once when the figure comes into view, and on "Play again". The default state is the end of the walk. */
 export function FlowStepper() {
-  const [step, setStep] = useState(0);
+  const [step, setStep] = useState(LAST);
   const [instant, setInstant] = useState(false);
+  const box = useRef<HTMLElement>(null);
+  const timers = useRef<number[]>([]);
   const now = WALK[step];
-  const last = step === WALK.length - 1;
   const returned = step >= 4;
 
-  const go = (e: MouseEvent, next: number) => {
-    setInstant(fromKeyboard(e) || isReduced());
-    setStep(next);
+  const play = useCallback(() => {
+    timers.current.forEach((t) => window.clearTimeout(t));
+    timers.current = [];
+    setInstant(true);
+    setStep(0);
+    let at = 0;
+    for (let i = 1; i <= LAST; i++) {
+      at += WALK[i].wait;
+      timers.current.push(
+        window.setTimeout(() => {
+          setInstant(false);
+          setStep(i);
+        }, at),
+      );
+    }
+  }, []);
+
+  useEffect(() => {
+    const el = box.current;
+    if (!el || isReduced() || !("IntersectionObserver" in window)) return;
+    // A figure already on view at load stays complete; one below it waits at the start of the walk.
+    if (el.getBoundingClientRect().top < window.innerHeight) return;
+    setInstant(true);
+    setStep(0);
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && entry.intersectionRatio >= 0.6) {
+          io.disconnect();
+          play();
+        } else if (!entry.isIntersecting && entry.boundingClientRect.top < 0) {
+          io.disconnect();
+          setInstant(true);
+          setStep(LAST);
+        }
+      },
+      { threshold: [0, 0.6] },
+    );
+    io.observe(el);
+    const list = timers.current;
+    return () => {
+      io.disconnect();
+      list.forEach((t) => window.clearTimeout(t));
+    };
+  }, [play]);
+
+  const again = () => {
+    if (!isReduced()) play();
   };
 
   return (
-    <figure className="tt-flow" data-instant={instant || undefined} aria-labelledby="tt-flow-title">
+    <figure className="tt-flow" ref={box} data-instant={instant || undefined} aria-labelledby="tt-flow-title">
       <figcaption>
         <h2 id="tt-flow-title" className="tt-explain-title">How a change gets into the new app</h2>
-        <p>AI agents write the code inside rules Gentrit sets. A person approves each change.</p>
+        <p>Gentrit wrote most of the rules and the checks. AI agents build inside them. A person approves each change.</p>
       </figcaption>
       <div className="tt-flow-track" style={{ "--n": NODES.length } as CSSProperties}>
         <ol>
@@ -52,48 +96,36 @@ export function FlowStepper() {
               key={n.name}
               data-person={n.person || undefined}
               data-state={i === now.at ? (now.fail ? "fail" : "now") : i < now.at ? "done" : undefined}
-              aria-current={i === now.at ? "step" : undefined}
             >
               <span className="tt-flow-name">{n.name}</span>
-              <span className="tt-flow-note">{i === 3 && (step === 3 || step === 4) ? "One check failed" : n.note}</span>
+              <span className="tt-flow-note">{n.note}</span>
             </li>
           ))}
         </ol>
-        <div className="tt-flow-back" data-drawn={returned || undefined} aria-hidden="true">
-          <svg viewBox="0 0 100 40" preserveAspectRatio="none">
+        <div className="tt-flow-back" data-drawn={returned || undefined}>
+          <svg viewBox="0 0 100 40" preserveAspectRatio="none" aria-hidden="true">
             <path className="tt-flow-arc-base" d="M100 40 V8 Q100 2 94 2 H6 Q0 2 0 8 V40" pathLength={1} />
             <path className="tt-flow-arc" d="M100 40 V8 Q100 2 94 2 H6 Q0 2 0 8 V40" pathLength={1} />
           </svg>
-          <svg className="tt-flow-v" viewBox="0 0 40 100" preserveAspectRatio="none">
+          <svg className="tt-flow-v" viewBox="0 0 40 100" preserveAspectRatio="none" aria-hidden="true">
             <path className="tt-flow-arc-base" d="M0 100 H28 Q36 100 36 92 V8 Q36 0 28 0 H0" pathLength={1} />
             <path className="tt-flow-arc" d="M0 100 H28 Q36 100 36 92 V8 Q36 0 28 0 H0" pathLength={1} />
           </svg>
-          <span>Fails? It goes back.</span>
+          <span>A check fails? Back to the agents.</span>
         </div>
         <div className="tt-flow-rail" aria-hidden="true" style={{ "--at": now.at } as CSSProperties}>
           <i data-fail={now.fail || undefined} />
         </div>
       </div>
       <div className="tt-flow-foot">
-        <p className="tt-flow-say" role="status">
-          <span className="tt-flow-num">
-            {step + 1} of {WALK.length}
-          </span>{" "}
-          {now.say}
+        <button type="button" onClick={again}>
+          Play again
+        </button>
+        <p className="tt-links">
+          <Link to="/work/care-platform">How the care platform is built</Link>
+          <Link to="/work/design-system-react">How the design system is built</Link>
         </p>
-        <div className="tt-flow-buttons">
-          <button type="button" onClick={(e) => go(e, step - 1)} disabled={step === 0}>
-            Back
-          </button>
-          <button type="button" className="tt-primary" onClick={(e) => go(e, last ? 0 : step + 1)}>
-            {last ? "Start again" : "Next step"}
-          </button>
-        </div>
       </div>
-      <p className="tt-links">
-        <Link to="/work/care-platform">How the care platform is built</Link>
-        <Link to="/work/design-system-react">How the design system is built</Link>
-      </p>
     </figure>
   );
 }
@@ -136,17 +168,11 @@ export function Requests() {
     };
   }, []);
 
-  const show = (e: MouseEvent, value: boolean) => {
-    played.current = true;
-    setInstant(fromKeyboard(e) || isReduced());
-    setAfter(value);
-  };
-
   return (
     <figure className="tt-req" ref={box} data-after={after || undefined} data-instant={instant || undefined} aria-labelledby="tt-req-title">
       <figcaption>
         <h2 id="tt-req-title" className="tt-explain-title">One billing report</h2>
-        <p>It asked the database 16 times and used to give up. Now it asks 2 times and finishes.</p>
+        <p>It asked the database 16 times and often timed out. Now it asks 2 times and finishes.</p>
       </figcaption>
       <div className="tt-req-figure" aria-hidden="true">
         <span className="tt-req-number">
@@ -167,15 +193,7 @@ export function Requests() {
         </span>
         <span className="tt-req-unit">database requests</span>
       </div>
-      <div className="tt-req-buttons" role="group" aria-label="Show the report">
-        <button type="button" aria-pressed={!after} onClick={(e) => show(e, false)}>
-          Before: 16
-        </button>
-        <button type="button" aria-pressed={after} onClick={(e) => show(e, true)}>
-          After: 2
-        </button>
-      </div>
-      <p className="tt-meta">Care-management platform, server side · Laravel · 2026</p>
+      <p className="tt-meta">Care-management platform, the server · 2026</p>
     </figure>
   );
 }

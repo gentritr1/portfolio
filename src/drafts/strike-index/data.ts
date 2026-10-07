@@ -61,7 +61,7 @@ export const rows: Row[] = [
     scope: "System",
     text: "36 components and 805 tokens, 20 releases in about six weeks",
     note: "One token source in three tiers feeds CSS, TypeScript and Figma. A Button-only consumer loads 96.6% less JavaScript.",
-    proof: { kind: "screen", shot: dsShots.buttonAlert, note: realScreen },
+    proof: { kind: "screen", shot: dsShots.dateRange, note: realScreen },
   },
   {
     project: need("bayyinah-tv"),

@@ -141,12 +141,8 @@ export const decisions: Decision[] = [
     years: "2026",
     plate: {
       kind: "screen",
-      shot: {
-        ...dsShots.buttonAlert,
-        alt: "Design System v2 in its Storybook: buttons in four styles, buttons with icons, and alerts for a note, information, success and a warning. Invented data.",
-        crop: { x: 0, y: 0, w: 720, h: 486 },
-      },
-      narrow: dsShots.top,
+      shot: dsShots.dateRange,
+      narrow: dsShots.dateRangeJune,
       center: true,
     },
     line: "One source builds the CSS, the TypeScript and a Figma bundle: 805 tokens in three tiers.",

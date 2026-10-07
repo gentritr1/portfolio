@@ -28,7 +28,6 @@ const OVERVIEW = "/showcase/care-dashboard/overview.webp";
 const CLAIMS = "/showcase/care-dashboard/claims.webp";
 const GLUCOSE = "/showcase/care-dashboard/rpm-overview-cgm.webp";
 const WEEK = "/showcase/care-dashboard/appointments-week.webp";
-const BUTTON_ALERT = "/showcase/design-system/button-alert.webp";
 const DATE_RANGE = "/showcase/design-system/date-range.webp";
 const STATUS_BADGES = "/showcase/design-system/status-badges.webp";
 
@@ -39,15 +38,6 @@ const care = (src: string, alt: string, crop: Px): ScreenShot => ({
   height: 900,
   crop,
   ground: "#f5f7fb",
-});
-
-const storybook = (alt: string, crop: Px): ScreenShot => ({
-  src: BUTTON_ALERT,
-  alt,
-  width: 720,
-  height: 596,
-  crop,
-  ground: "#ffffff",
 });
 
 const workshop = (src: string, alt: string, crop: Px): ScreenShot => ({
@@ -148,21 +138,16 @@ export const dsShots = {
     "Design System v2 status badges in its Storybook: one colour family for each meaning, from Active and Approved to Pending approval, Rejected, Scheduled, Draft, Transferred and Prior episode.",
     { x: 8, y: 8, w: 444, h: 300 },
   ),
-  buttonAlert: storybook(
-    "Design System v2 in its Storybook: buttons in four styles, buttons with icons, and alerts for a note, information, success, a warning and an error. Invented data.",
-    { x: 0, y: 0, w: 720, h: 596 },
+  /** June and July with the range, for a wide strip. */
+  months: workshop(
+    DATE_RANGE,
+    "Design System v2 date range picker: June and July 2026 side by side, with a range from June 22 to July 9. Invented data.",
+    { x: 176, y: 86, w: 594, h: 302 },
   ),
-  buttons: storybook(
-    "Design System v2 buttons in its Storybook: solid, outline and text buttons, and buttons with icons. Invented data.",
-    { x: 8, y: 12, w: 670, h: 116 },
-  ),
-  alerts: storybook(
-    "Design System v2 alerts in its Storybook: a note, information, success, a warning and an error. Invented data.",
-    { x: 8, y: 138, w: 704, h: 450 },
-  ),
-  /** Buttons and the first two alerts. */
-  top: storybook(
-    "Design System v2 in its Storybook: buttons in four styles, buttons with icons, a note and an information alert. Invented data.",
-    { x: 8, y: 12, w: 704, h: 295 },
+  /** The start and end dates as text, and the Cancel and Apply buttons, for a thin strip. */
+  rangeActions: workshop(
+    DATE_RANGE,
+    "Design System v2 date range picker: the start and end dates as text, and the Cancel and Apply buttons. Invented data.",
+    { x: 180, y: 390, w: 590, h: 60 },
   ),
 } satisfies Record<string, ScreenShot>;

@@ -4,7 +4,7 @@ import { careShots, dsShots, type ScreenShot } from "../../content/careShots";
 /** Real product screens on invented data, cropped to the 10 : 3 cell. */
 const screens: Record<string, ScreenShot> = {
   "care-platform": careShots.claimsRows,
-  "design-system-react": { ...dsShots.top, crop: { x: 8, y: 12, w: 704, h: 211 } },
+  "design-system-react": dsShots.months,
 };
 
 const material: Record<string, [string, string]> = {

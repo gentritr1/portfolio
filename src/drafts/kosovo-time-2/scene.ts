@@ -298,11 +298,17 @@ export async function createGround(canvas: HTMLCanvasElement, lost: () => void):
     },
     dispose() {
       canvas.removeEventListener("webglcontextlost", onLost);
-      g.deleteBuffer(buffer);
-      g.deleteProgram(program);
-      g.deleteShader(vs);
-      g.deleteShader(fs);
-      g.getExtension("WEBGL_lose_context")?.loseContext();
+      // Releasing a context can block the main thread for a long frame, so it waits until the page is idle.
+      // A route change disposes the floor inside the page transition, where a block freezes the old picture.
+      const release = () => {
+        g.deleteBuffer(buffer);
+        g.deleteProgram(program);
+        g.deleteShader(vs);
+        g.deleteShader(fs);
+        g.getExtension("WEBGL_lose_context")?.loseContext();
+      };
+      if ("requestIdleCallback" in window) window.requestIdleCallback(release, { timeout: 2000 });
+      else setTimeout(release, 1000);
     },
   };
 }

@@ -102,7 +102,7 @@ export const releases: Release[] = [
         kind: "Added",
         text: "Design System v2: 36 components and 805 design tokens in three tiers, from one source to CSS, TypeScript and Figma. 20 releases in about six weeks.",
         meta: "2026 · React, TypeScript, Storybook",
-        plate: { kind: "shot", title: "Buttons and alerts in Storybook", shot: dsShots.top, thumb: dsShots.buttonAlert },
+        plate: { kind: "shot", title: "Date range picker in Storybook", shot: dsShots.dateRange, thumb: dsShots.dateRangeJune },
         caseSlug: "design-system-react",
       },
       {

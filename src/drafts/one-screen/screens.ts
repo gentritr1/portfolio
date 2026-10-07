@@ -48,7 +48,6 @@ export interface Line {
 
 const WEB = { width: 2880, height: 1800 };
 const PHONE = { width: 780, height: 1689 };
-const STORYBOOK = { width: 1440, height: 1192 };
 
 const web = (src: string, crop: Box): Pane => ({ src, ...WEB, crop });
 const phone = (src: string, crop: Box): Pane => ({ src, ...PHONE, crop });
@@ -56,14 +55,14 @@ const phone = (src: string, crop: Box): Pane => ({ src, ...PHONE, crop });
 const WEEK = "/showcase/care-dashboard/appointments-week.webp";
 const CLAIMS = "/showcase/care-dashboard/claims.webp";
 const OVERVIEW = "/showcase/care-dashboard/overview.webp";
-const DS = "/showcase/design-system/button-alert.webp";
+const DS = "/showcase/design-system/date-range.webp";
 const INVENTED = "Real product screens, invented data.";
 
 export const client: Line[] = [
   {
     id: "care",
     name: "Care platform",
-    line: "Rebuilt screen by screen while care teams use it",
+    line: "Being rebuilt, one tested screen at a time",
     meta: "Care platform · 2023–26",
     note: INVENTED,
     href: "/work/care-platform",
@@ -74,9 +73,9 @@ export const client: Line[] = [
         alt: "Care team calendar for one week, Sunday to Thursday, 8 AM to 2 PM: calls, video calls and office visits with times, and a red line at the current time. Invented data.",
         ground: "#f5f7fb",
         panes: [web(WEEK, { x: 492, y: 420, w: 1728, h: 1152 })],
-        narrow: web(WEEK, { x: 943, y: 444, w: 958, h: 718 }),
+        narrow: web(WEEK, { x: 1262, y: 744, w: 640, h: 480 }),
         narrowAlt:
-          "Care team calendar, Monday to Wednesday from 8 AM: wound checks, lung function tests, a medication review and other calls and visits. Invented data.",
+          "Care team calendar, Tuesday and Wednesday from 9 AM to noon: a lung function test, a wound care visit, an endocrine consult, a medication review and a monthly call. Invented data.",
       },
       {
         tab: "Claims",
@@ -92,7 +91,7 @@ export const client: Line[] = [
   {
     id: "bayyinah",
     name: "Bayyinah TV",
-    line: "Video lessons, live classes and memberships",
+    line: "Video lessons, live classes, memberships",
     meta: "Bayyinah TV · 2023–26 · Web, iPhone and Android",
     href: "/work/bayyinah-tv",
     screens: [
@@ -117,19 +116,19 @@ export const client: Line[] = [
   {
     id: "design-system",
     name: "Design System v2",
-    line: "36 building blocks, 20 releases in about six weeks",
+    line: "36 building blocks, 20 releases",
     meta: "Design System v2 · 2026",
     note: INVENTED,
     href: "/work/design-system-react",
     screens: [
       {
-        tab: "Blocks",
-        title: "Buttons and alerts, as the system shows them to the team.",
-        alt: "Design System v2 in its Storybook: buttons in four styles, buttons with icons, and alerts for a note, information, success and a warning. Invented data.",
+        tab: "Picker",
+        title: "A date range picker, as the system shows it to the team.",
+        alt: "Design System v2 date range picker, open: presets from Today to All time, June and July 2026 side by side, the range June 22 to July 9, and Cancel and Apply buttons. Invented data.",
         ground: "#ffffff",
-        panes: [{ src: DS, ...STORYBOOK, crop: { x: 18, y: 30, w: 1404, h: 936 } }],
-        narrow: { src: DS, ...STORYBOOK, crop: { x: 24, y: 276, w: 840, h: 630 } },
-        narrowAlt: "Design System v2 alerts: a note, information, success and a warning. Invented data.",
+        panes: [web(DS, { x: 0, y: 72, w: 1584, h: 1056 })],
+        narrow: web(DS, { x: 16, y: 72, w: 952, h: 714 }),
+        narrowAlt: "Design System v2 date range picker: the presets and June 2026, with the range that starts on June 22. Invented data.",
       },
       {
         tab: "In use",
@@ -145,7 +144,7 @@ export const client: Line[] = [
   {
     id: "viva-fresh",
     name: "Viva Fresh",
-    line: "One grocery app, live in both app stores",
+    line: "A grocery app, live in both app stores",
     meta: "Viva Fresh · 2023 · App Store and Google Play",
     href: "/work/viva-fresh",
     screens: [
@@ -167,7 +166,7 @@ export const client: Line[] = [
   {
     id: "read-to-feed",
     name: "Read to Feed",
-    line: "Children read books; the app keeps their page",
+    line: "Children read; the app keeps their page",
     meta: "Read to Feed · 2022–25 · iPhone and Android",
     href: "/work/read-to-feed",
     screens: [
@@ -189,7 +188,7 @@ export const client: Line[] = [
   {
     id: "dukagjini",
     name: "Dukagjini Bookstore",
-    line: "A book shop; each alert opens the right book",
+    line: "A book shop; a notification opens the right book",
     meta: "Dukagjini Bookstore · 2021–22 · iPhone and Android",
     href: "/work/dukagjini-bookstore",
     screens: [

@@ -29,12 +29,12 @@ Project facts below come from git history; contact and education details were co
 ## 2. World: HEALTHCARE — Vianova, 2021 – present
 
 **Eyebrow:** Healthcare · Care management · Web + backend
-**Title:** A care-management platform, rebuilt one screen at a time
-**Role:** Frontend and mobile, full stack since 2026
+**Title:** A care-management platform, being rebuilt one screen at a time
+**Role:** Web and mobile; since 2026 also the server
 
 **Story (2 paragraphs):**
 1. A care-management platform for remote patient monitoring. Care teams use it to follow vitals from connected devices, care plans, lab results, billing claims, calls and chat. Many client organizations share one multi-tenant system, so each screen keeps each organization's data separate and respects each user's role.
-2. The frontend moved from Vue (Nuxt 2) to React route by route, with parity tests that run each scenario against both apps, decision records and automated quality gates, on Design System v2. The Laravel backend gained enrollment drafts, a lab catalog and multi-tenant security fixes; one billing report went from 16 queries to 2.
+2. The frontend is moving from Vue (Nuxt 2) to React route by route, with parity tests that run each scenario against both apps, decision records and automated quality gates, on Design System v2. The Laravel backend gained enrollment drafts, a lab catalog and multi-tenant security fixes; one billing report went from 16 queries to 2.
 
 **Facts list:**
 - Vue → React rewrite, route by route, parity-tested
@@ -47,9 +47,13 @@ Project facts below come from git history; contact and education details were co
 - 4 languages: EN, DE, ES, TR
 
 **How it is built (case part, owner request 2026-10-06; checked on the React repo `origin/main` 9dcd8002, 2026-10-05):**
-- Case text: "AI agents work inside fixed rules and automatic checks. Old bugs are written down, not copied. A person approves each change before it is added." Proof: "A check is trusted only after it is shown to fail."
-- Diagram: Old app → Test first → Agents build → Checks → Person approves; a failed change goes back to Agents build.
-- Home result line: "Rebuilt screen by screen. Old bugs written down, not copied."
+- Case H1 (owner 2026-10-06): "Rebuilding a live care platform, one tested screen at a time." The 16 → 2 figure is one proof in "The numbers", not the H1 or the first screen.
+- AI line (use this exact line on every page; checked on git 2026-10-06, see below): "Gentrit wrote most of the rules and the checks. AI agents build inside them. A person approves each change."
+- Case text: "Gentrit wrote most of the rules and the checks. AI agents build inside them. A person approves each change. Old bugs are written down, not copied." Proof: "A check is trusted only after it is shown to fail."
+- Diagram: Old app → Test first → Agents build → Checks → Person approves; the way back runs from Checks to Agents build, label "A check fails? Back to the agents."
+- Home result line: "Being rebuilt screen by screen. Old bugs written down, not copied."
+- Authorship proof for the AI line (React repo `origin/main`, 2026-10-06, `git blame --line-porcelain`): Gentrit wrote 285 of 331 lines of `CLAUDE.md`, 901 of 1,254 lines of `docs/RULESET.md`, 700 of 752 lines in `tools/gates/`, and 2,696 of 3,190 lines in `.claude/skills/`. Other people wrote the rest, and the first harness commit is by a teammate, so the line says "most". Gentrit merged 400 of 523 merges since 2026-08-01, not all, so the line says "A person approves", not "Gentrit approves". AI co-author trailers are on about 1,970 commits since 2026-08-01.
+- Same-test caption: "The same test passed on both apps. Patient compliance list, September 2026." Source: `migration/reviews/compliance-tracker/build.md` "Local dual-origin run — 2026-09-08"; the route is still `building`.
 - Sources: each route's test is written on the pinned old app before React code, then runs unchanged on both apps (`CLAUDE.md` "Evidence is an artifact", `docs/CUTOVER.md`). Each departure from the old app is recorded with evidence and an approval column; the product owner confirms a defect before it is fixed (`docs/CUTOVER.md` §4, `migration/inventories/*.md`). Two CI jobs run every gate, and each gate has a negative control that proves it can fail (`tools/gates/run.mjs`, `tools:test`). People merge every pull request (`git log --merges`). State rules: server state in TanStack Query, client state in Zustand, filters in the URL, Zod schemas from captured responses, no feature imports a sibling feature (`CLAUDE.md` "Code invariants", `boundaries:check`).
 - Counts, for reference only. Do not display them (owner rule 2026-10-05, no internal counts): 12 repo skills, one for each stage (`.claude/skills/`); 56 decision records (`docs/adr/`); 2 CI jobs with 21 gate leaves (`tools/gates/run.mjs` PROFILES); 57 parity specs (`tests/parity/*.spec.ts`); 62 slice inventories with about 870 deviation-register rows (`migration/inventories/`). These counts grow each week.
 
@@ -141,7 +145,9 @@ Owner confirmed (2026-10-02): built bayyinah.org, Next.js, 2024–25; repo acces
 
 **Showcase:** one `Showcase` block "Incentiv" after the facts and stack, files in `public/showcase/incentiv/`: home and vision of https://incentiv.io/ and the public sign-in screen of https://portal.incentiv.io/; links Website, Portal, Docs (https://docs.incentiv.io/). Same rule as §3: public pages only, brand visible, no wallet connected.
 
-**Live recreation:** "Wallet card". A dark glass card with a balance ("12,480.00 INC" fictional token, "≈ $3,210"), a chip row (Gas saved · 42 tx), a "Receive" action that flips the card to a QR code (generate an SVG QR of the text `gentrit.portfolio`), and a "Sign in with passkey" button that plays a 3-step micro-sequence (fingerprint icon pulse → check → "Welcome, Gentrit"). No real chain calls.
+**No recreation (owner 2026-10-06):** the hand-made wallet card is removed everywhere. Show only the real public sign-in screen of https://portal.incentiv.io/.
+
+**Result line (claims only the portal frontend):** "The portal frontend was built in 2024, in English and French. The dashboard pages stay private, behind sign-in." Do not claim the website (incentiv.io) or the docs; they are not this work. What was built: "Gentrit built the portal frontend: the sign-in, a first-run tour, the dashboard cards, a list of assets and a balance pop-up with a QR code. Teammates built the wallet itself and its link to the blockchain."
 
 ---
 
@@ -173,8 +179,9 @@ Owner confirmed (2026-10-02): built bayyinah.org, Next.js, 2024–25; repo acces
 **Allowed facts (owner, high level only):** 36 components; 805 design tokens in three tiers (core, semantic, component) from one source to CSS, TypeScript and a Figma bundle; 20 releases in about six weeks; 96.6% less JavaScript for a Button-only consumer; built to WCAG 2.1 AA floors with automated, rendered evidence. Research and agent work stays qualitative: a research corpus, a large multi-agent audit of the old frontend, a best-practices guide, decision records, an append-only lessons log, agent skills, fresh independent reviewers, executable gates and the founding rule ("every claim derives from one artifact, through a check that runs"). Adoption: the new React dashboard uses the system across its screens through one adapter layer; a gate keeps raw colours and native controls out; the dashboard is not in production yet.
 
 **How it is built (case part, owner request 2026-10-06; checked on the design-system repo `origin/main` f7e78ed, 2026-09-27):**
-- Case text: "Research into five leading design systems came first. It became written guides for AI agents. The guides advise, but automatic checks decide." Proof: "No guide can overrule a failed check."
-- Diagram: Research → Guides → Agents build → Checks → Person approves; a failed change goes back to Agents build.
+- Case text: "Research into five leading design systems came first. Gentrit turned it into written guides for AI agents. The guides advise, but automatic checks decide. A person approves each change." Proof: "No guide can overrule a failed check."
+- Authorship proof (design-system repo `origin/main`, 2026-10-06): Gentrit committed the research corpus (`docs/research/`, 1040477) and wrote every line of `tools/skills/contract.json` (363 lines) and `docs/SKILLS-MAP.md` (124 lines). A teammate wrote most components and decision records and merged most pull requests (109 of 154), so do not say Gentrit built the system or set up its checks.
+- Diagram: Research → Guides → Agents build → Checks → Person approves; the way back runs from Checks to Agents build.
 - Sources: the benchmark covers Material, Carbon, Polaris, Atlassian and Primer (`docs/research/README.md` §1). The order of authority: best practices and accepted decision records are the spec, research is the evidence, skills only advise, executable gates decide, and skill judgment cannot override a failed gate (`docs/SKILLS-MAP.md` "Precedence" and "The operating loop"; `tools/skills/contract.json` policy `canon_precedence`). People merge every pull request (`git log --merges`).
 - Counts, for reference only. Do not display them (owner rule above): 7 research studies plus an index (`docs/research/`); 49 skills in one contract with 8 roles (`tools/skills/contract.json`); 44 decision records (`docs/adr/`).
 

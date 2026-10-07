@@ -1007,7 +1007,7 @@ export default function Draft() {
 
   return (
     <div className="pj">
-      <title>{home ? "Gentrit Rashiti — web, mobile & full stack" : "Projector — Gentrit Rashiti"}</title>
+      <title>{home ? "Gentrit Rashiti — web, mobile and the server" : "Projector — Gentrit Rashiti"}</title>
       <main>
         <Log
           id="lead"

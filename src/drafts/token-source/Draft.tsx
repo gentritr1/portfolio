@@ -25,7 +25,7 @@ const RING_MS = 120;
 /* Room under the pinned plate for its label; token-source.css uses the same 30 px. */
 const LABEL_SPACE = 30;
 const RECREATION = "Recreation · invented data";
-const SHOT = dsShots.top;
+const SHOT = dsShots.dateRange;
 const PAGE_TOKENS = tokenStyle("light");
 const SURFACE = `card.surface → ${coreName(semantic[component["card.surface"]].light)}`;
 
@@ -43,26 +43,26 @@ const notes: Note[] = [
     id: "tiers",
     figure: "805 tokens",
     text: "Three tiers in one source: core values, semantic roles and component parts.",
-    part: { x: 16, y: 144, w: 688, h: 155 },
+    part: { x: 194, y: 244, w: 264, h: 142 },
     path: "One source → CSS · TypeScript · Figma bundle",
   },
   {
     id: "roles",
     figure: "36 components",
     text: "No component holds a raw colour. Each one reads a role, and the role reads a core value.",
-    part: { x: 16, y: 24, w: 652, h: 92 },
+    part: { x: 18, y: 88, w: 156, h: 362 },
   },
   {
     id: "focus",
     figure: "WCAG 2.1 AA",
     text: "Each component is built to these floors, with axe tests and in-browser contrast checks.",
-    part: { x: 16, y: 232, w: 688, h: 67 },
+    part: { x: 194, y: 400, w: 558, h: 40 },
   },
   {
     id: "releases",
     figure: "20 releases",
     text: "In about six weeks. A consumer that imports only the Button loads 96.6% less JavaScript.",
-    part: { x: 16, y: 24, w: 127, h: 34 },
+    part: { x: 16, y: 42, w: 280, h: 38 },
   },
 ];
 

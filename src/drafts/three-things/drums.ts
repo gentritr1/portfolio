@@ -1,7 +1,7 @@
 /*
  * The OFFBEAT drum machine, reimplemented from the owner's OFFBEAT repository
  * (lib/offbeat/audio.ts): the same four voices, preset, swing and look-ahead scheduler.
- * The AudioContext is created inside the Play press, never before.
+ * The AudioContext is made before the Play press and stays suspended; only the press resumes it.
  */
 
 export const tracks = ["Kick", "Snare", "Hi-hat", "Bass"] as const;
@@ -85,9 +85,6 @@ export class Drums {
   onStep: (step: number) => void = () => {};
 
   constructor() {
-    // iOS Safari mutes Web Audio under the silent switch unless the session is "playback".
-    const session = (navigator as Navigator & { audioSession?: { type: string } }).audioSession;
-    if (session) session.type = "playback";
     this.ctx = new AudioContext();
     this.out = this.ctx.createGain();
     this.out.gain.value = 0.38;
@@ -99,6 +96,9 @@ export class Drums {
 
   async start() {
     if (this.timer) return;
+    // iOS Safari mutes Web Audio under the silent switch unless the session is "playback".
+    const session = (navigator as Navigator & { audioSession?: { type: string } }).audioSession;
+    if (session) session.type = "playback";
     await this.ctx.resume();
     this.step = 0;
     this.next = this.ctx.currentTime + 0.06;

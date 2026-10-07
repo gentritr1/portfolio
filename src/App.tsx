@@ -7,7 +7,7 @@ import { fontsReady, preloadCaseFonts } from "./pages/caseFonts";
 import { groundNow } from "./pages/caseLight";
 const NotFoundPage = lazy(() => import("./pages/NotFoundPage").then((m) => fontsReady().then(() => m)));
 const DraftApp = lazy(() => import("./drafts/DraftApp"));
-const KosovoHome = lazy(() => import("./drafts/kosovo-time/Draft"));
+const KosovoHome = lazy(() => import("./drafts/kosovo-time-2/Draft"));
 
 const CaseStudyPage = caseStudyPage.Component;
 

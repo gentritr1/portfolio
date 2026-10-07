@@ -6,9 +6,8 @@ Rule: the whole portfolio fits on one screen at 1440 x 900. Every project line l
 
 - Gentrit Rashiti
 - Builds web and mobile apps. Part of two platform rewrites. 5+ years, working remotely from Kosovo.
-- One report made 16 database requests. Now it makes 2.
 - Client work: Care platform, Bayyinah TV, Design System v2, Viva Fresh, Read to Feed, Dukagjini Bookstore, Incentiv. Own projects: Offday, OFFBEAT, FORM. Each line: name, then 4 to 9 plain words.
-- How Gentrit works: "Gentrit writes the rules first. AI agents build inside them." Diagram: Rules, AI agents build, Checks, A person approves. "A check fails? The work goes back to the agents." Links: Care platform, Design System v2.
+- How Gentrit works: "Gentrit wrote most of the rules and the checks. AI agents build inside them. A person approves each change." Diagram: Rules, AI agents build, Checks, A person approves; the way back runs from "Checks" to "AI agents build": "A check fails? Back to the agents." Links: Care platform, Design System v2.
 - Email, GitHub, LinkedIn, CV.
 
 Facts come from CONTENT.md and projects.ts. No first person, no "he", no internal counts.
@@ -27,18 +26,19 @@ Fonts load from Google Fonts with preconnect and preload of the two Latin files.
 
 ## Layout
 
-- 900 px and wider: two columns, 600 px list and the screen column. The screen column is sticky. Rows are a grid: name (11.5em), then the line.
-- Under 900 px: one column. The list is the page. The current screen stays in a panel at the bottom (4:3, at most 26 % of the height) with one caption line, "Read the case" and the screen switch. The page ends with space for the panel, so the panel never covers content for good.
-- Under 900 px and under 560 px high (a phone on its side): the panel stands under the name, not fixed.
+- 1200 px and wider: two columns, 600 px list and the screen column. The screen column is sticky. Rows are a grid: name (11.5em), then the line. The page fits 1440 × 900 and 1280 × 800.
+- 900 to 1199 px: a wider list, 16 px type and a 10.5em name column, so each line stays on one line. The page fits 1024 × 768.
+- Under 900 px: one column. The list is the page. The current screen stays in a panel at the bottom: the screen (4:3, at most 20 % of the height) on the left, the name, a two-line caption and the switch on the right; the panel stays under 25 % of the height and keeps one height. Rows fade under its top edge. The row at the reading line (38 % from the top) lights the screen while the page scrolls; at the top the first row is lit. One tap on a row opens it.
+- Under 900 px and under 560 px high (a phone on its side, or 1440 × 900 at 200 % zoom): the screen stands under the name, not fixed, and the rows do not change it. Each row opens with one click.
+- Hover and keyboard focus change the screen only where a fine pointer exists.
 
 ## Motion
 
 | What | Trigger | Timing | Properties |
 | --- | --- | --- | --- |
-| Rule under the current name | pointer rests 80 ms on a line, tap, focus | 180 ms cubic-bezier(0.2, 0, 0, 1) | transform (translate + scaleX) |
+| Rule under the current name | pointer rests 80 ms on a line, keyboard focus, or (phone) the row at the reading line | 180 ms cubic-bezier(0.2, 0, 0, 1) | transform (translate + scaleX) |
 | Screen change | same, after the image decodes | 200 ms, same curve | opacity, new layer over old |
 | First screen | first load, after decode | 300 ms | opacity |
-| 16 to 2 marks | enters view, once | 380 ms each, 18 ms stagger, 120 ms delay | transform scaleY + opacity |
 | Work diagram | enters view, once | steps 220 ms, arrows 130 ms, loop 280 ms; about 0.9 s total | opacity, transform, stroke-dashoffset |
 | To a case page | press | 160 ms | opacity of the page |
 
@@ -46,4 +46,4 @@ Keyboard moves (Tab, arrow keys, the switch by keyboard) have no motion. Reduced
 
 ## Screens
 
-Lead: care calendar week (appointments-week.webp). Every screen is a real capture at its own crop, no device frame. Vianova screens say "Real product screens, invented data." The Design System line shows the Storybook capture and the care dashboard that uses it; no recreation is used.
+Lead: care calendar week (appointments-week.webp). Every screen is a real capture at its own crop, no device frame. Vianova screens say "Real product screens, invented data." The Design System line shows the date range picker from its Storybook and the care dashboard that uses it; no recreation is used.

@@ -97,7 +97,7 @@ export const records: DecisionRecord[] = [
     consequence:
       "36 components and 805 design tokens, in 20 releases over about six weeks. A Button-only consumer loads 96.6% less JavaScript. The dashboard uses the system through one adapter layer.",
     status: "Accepted",
-    evidence: { kind: "shot", shot: dsShots.buttonAlert, caption: `Buttons and alerts in Storybook. ${REAL_SCREENS}` },
+    evidence: { kind: "shot", shot: dsShots.dateRange, caption: `Date range picker in Storybook. ${REAL_SCREENS}` },
     caseSlug: "design-system-react",
   },
   {
