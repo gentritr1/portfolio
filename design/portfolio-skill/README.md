@@ -52,7 +52,7 @@ Scores out of 50 from fresh reviewers who first scored three anchors with known 
 
 | Draft | Band, builder brief | First review | After one polish pass | Ship line (42, original and hook ≥ 8) |
 |---|---|---:|---:|---|
-| LENTICULAR (`/drafts/p12-crafted`) | Crafted: one material idea | 40 | **42** | Yes |
+| LENTICULAR (`/drafts/p12-crafted`) | Crafted: one material idea; then one page-wide lens (owner request) | 40 | **42**, then 42 with hook 9 (REVIEW-3, a reviewer one point strict on both anchors) | Yes |
 | ACTUAL SIZE (`/drafts/p12-pro`, `/case`) | Professional, with a case page | 40 (case 39) | 41 (case 41) | One point short |
 | IN YOUR STORE (`/drafts/p12-bold`) | Bold: a mechanism the visitor drives | 39, gate fail | 41 | One point short |
 | THREE LANES (`/drafts/p12-blind`) | Free choice, no steer (the blind test) | 39, gate fail | 41 | One point short |
@@ -68,6 +68,6 @@ Reviews: `loop-12/REVIEW.md` (first), `loop-12/DEVIL.md` (devil's advocate), `lo
 
 ## Next
 
-- Take LENTICULAR toward a 9: one lens angle for the whole page, driven by the pointer or one control, so every print turns together.
+- Done: LENTICULAR's page-wide lens (one angle from a Web / Phone switch or any print turns every section) reached a 9 on hook; its release bug was fixed and re-tested (gesture test 20/20), and it gained a dark theme (owner decision). Before it could replace the home (REVIEW-3): a real-phone test, the home's proof (Design System v2 and Incentiv as more than index rows), and a phone face for the care platform.
 - Run the next round with the v1.3 process: a round table, a card review before building, then builds.
 - Done (2026-10-07): `PRODUCT.md` now allows real care-platform and Design System v2 screens on invented data, captioned "Real product screens, invented data.", matching the owner's permission of 2026-10-06.
