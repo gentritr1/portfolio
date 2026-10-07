@@ -50,3 +50,11 @@ Memory sentence (target): "The one where the care app is shown at its real size,
 - Fonts: the first frame waits up to 700 ms for the two local faces so the condensed claim never reflows (CLS 0).
 - Checker: home PASS, 0 fails, 0 warnings, allowed C08c and T45 (see meta.json). Case (`--mode read`) PASS, 0 fails, 0 warnings.
 - Polish passes: 1) reset specificity (`:where`), headings out of the host's Archivo, 44 px targets, crops that cut no text, 320 px masthead and claim; 2) measured captions, "Services" and "runtime" removed, focus handoff, proof-link hit areas.
+
+## Polish pass (after the fresh review and the devil's advocate, 2026-10-07)
+
+- Facts first: the care rebuild is written as in progress everywhere ("Being rebuilt in React, one tested screen at a time. None is live yet; care teams use the Vue app."); the Now row is "since 2026"; the AI line is verbatim and said once per page; the Design System row keeps the owner's team-effort wording; no product marketing number appears in a screenshot (Dukagjini now shows its Foreign Books list).
+- The hero screen is now the claims screen (claims are in the built list), and the case hero and the transition use it too.
+- The rule reads at rest: every screen sits under a dimension line measured live ("Actual size: 782 of 1440 pixels across"); windows end at the gutter with a hairline frame instead of bleeding.
+- Four answers now: desktop, the claim, the role line with "since 2021", the claims screen at actual size under its dimension line, and the proof table; phone, the claim, the role line, the dimension line and the claims screen from y ≈ 340 with the owner's caption under it, then the proof table.
+- Transition: 520 ms in-out; the dimension line is a second shared element that grows with the window to "all 1440 pixels across". Coming back restores the row the visitor left.

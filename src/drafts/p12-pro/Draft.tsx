@@ -57,7 +57,7 @@ export default function Draft() {
       <meta name="theme-color" content={PAPER} />
       <meta
         name="portfolio-check"
-        content="allow C08c: phone app screens are drawn at real phone width (390 px), so a store listing file holds about 1.55x, not 2x; allow T45: the only numbers outside the facts are live measurements in the captions (how many of the app's 1440 pixels the window shows), computed on the page"
+        content="allow C08c: phone app screens are drawn at real phone width (390 px), so a store listing file holds about 1.55x, not 2x"
       />
       <main>
         <Routes>
