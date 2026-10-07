@@ -144,7 +144,7 @@ const INDEX: Line[] = [
   { name: "Bayyinah TV", years: "2023–26", role: "Frontend", line: "Video courses and live streams, on the web and in both app stores.", href: "/work/bayyinah-tv" },
   { name: "bayyinah.org", years: "2024–25", role: "Frontend", line: "A one-page website for the institute, built in Next.js.", href: "https://bayyinah.org/", external: true },
   { name: "Care-management platform, Vianova", years: "2023–26", role: "Web, mobile, server", line: "Care teams follow patients at home. Being rebuilt one screen at a time.", href: "/work/care-platform" },
-  { name: "Design System v2, Vianova", years: "2026", role: "Design system", line: "36 building blocks, 20 releases in about six weeks. Wrote its research and agent guides.", href: "/work/design-system-react" },
+  { name: "Design System v2, Vianova", years: "2026", role: "Design system", line: "A team effort: 36 building blocks, 20 releases in about six weeks. Gentrit laid the foundation.", href: "/work/design-system-react" },
   { name: "Read to Feed", years: "2022–25", role: "Mobile", line: "A children's reading app. About 14 releases to both stores.", href: "/work/read-to-feed" },
   { name: "Viva Fresh", years: "2023", role: "Mobile", line: "Grocery orders with delivery slots and loyalty, in Albanian.", href: "/work/viva-fresh" },
   { name: "Dukagjini Bookstore", years: "2021–22", role: "Mobile", line: "A publisher's book shop for iPhone and Android, with promo codes at checkout.", href: "/work/dukagjini-bookstore" },

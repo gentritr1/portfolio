@@ -288,12 +288,12 @@ export default function Home() {
         <article className="p12p-row" aria-labelledby="p12p-r4">
           <div className="p12p-row-text">
             <h3 id="p12p-r4">Design System v2</h3>
-            <p className="p12p-meta">Vianova, 2026. Research and guides.</p>
+            <p className="p12p-meta">Vianova, 2026. Team effort.</p>
             <p className="p12p-problem">The new care dashboard needed one shared set of building blocks.</p>
-            <p className="p12p-result">20 releases in about six weeks.</p>
+            <p className="p12p-result">The team released it 20 times in about six weeks.</p>
             <p className="p12p-scope">
-              Gentrit did the research into five leading design systems and wrote the guides that came from it. A teammate
-              wrote most of the building blocks.
+              A team effort on a foundation Gentrit laid: the research and the rules the building blocks are built on.
+              The team built the rest on top of it.
             </p>
             <a className="p12p-action" href="/work/design-system-react">
               Read the case <Arrow />

@@ -270,7 +270,7 @@ const Work = memo(function Work() {
   const geo = findProject("geo-guesser");
   const forks = findProject("open-source-forks");
   const more: { name: string; years: string; line: string; link?: { label: string; href: string } }[] = [
-    { name: "Design System v2", years: "2026", line: "36 building blocks for screens, shipped in 20 releases over about six weeks." },
+    { name: "Design System v2", years: "2026", line: "A team effort on Gentrit's foundation: 36 building blocks, 20 releases in about six weeks." },
     { name: "Incentiv portal", years: "2024", line: "Built the portal frontend: sign-in, tour, dashboard cards and a balance pop-up.", link: incentiv?.links.find((l) => l.label === "Portal") },
     { name: "FJALË", years: "2026", line: "Daily Albanian word game with a 21k-word dictionary. Live.", link: fjale?.links[0] },
     { name: "Za!", years: "2026", line: "Multiplayer pizza card game for two to eight players. Live.", link: za?.links[0] },

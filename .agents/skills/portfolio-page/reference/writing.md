@@ -110,7 +110,7 @@ Rules:
 - The title is the result, not the activity. "Field nurses chart visits with no signal, and nothing is lost." Not "Redesigning the charting experience". For work in progress the title says what is being done and how: "Rebuilding a live booking app, one tested screen at a time." If the owner keeps a number out of titles, the title states what users kept or gained; the number goes in the numbers row.
 - Seniority shows through the size of the change, the time, and the kind of decision — not through rank words. One sentence of the form "The brief asked for X; the team shipped Y because Z" shows judgment.
 - Each decision is ≤ 40 words: what limited the choice, what was chosen, what it caused.
-- Team systems: when a teammate built most of a system, the title and the result name the person's part ("Wrote the research and the guides the agents follow"), and the system's numbers are the team's ("The team released it 20 times in six weeks"). Never "built the design system".
+- Team systems: present a system the team built as a team effort, and name the person's part in plain words ("A team effort on a foundation Ana laid: the research and the rules the team built on"). The system's numbers belong to the team ("The team released it 20 times in six weeks"). Follow the owner's wording for credit when the facts give one.
 - At least one date and one real screen per case.
 - If the work is internal: say so in the caption ("Real product screens, invented data") and keep claims high level.
 

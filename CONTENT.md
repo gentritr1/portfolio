@@ -176,6 +176,8 @@ Owner confirmed (2026-10-02): built bayyinah.org, Next.js, 2024–25; repo acces
 
 **Kind:** Token-driven React design system · **Role:** Design system · **Case:** `/work/design-system-react`, featured order 7.
 
+**Owner decision (2026-10-07): present it as a team effort.** Gentrit laid the foundation (the research and the rules the system and its agents are built on); the team built the rest on top of it. Write "a team effort on a foundation Gentrit laid" and give the numbers to the team ("the team released it 20 times in about six weeks"). This is how the page should read; it is not a credit problem for reviewers to flag.
+
 **Allowed facts (owner, high level only):** 36 components; 805 design tokens in three tiers (core, semantic, component) from one source to CSS, TypeScript and a Figma bundle; 20 releases in about six weeks; 96.6% less JavaScript for a Button-only consumer; built to WCAG 2.1 AA floors with automated, rendered evidence. Research and agent work stays qualitative: a research corpus, a large multi-agent audit of the old frontend, a best-practices guide, decision records, an append-only lessons log, agent skills, fresh independent reviewers, executable gates and the founding rule ("every claim derives from one artifact, through a check that runs"). Adoption: the new React dashboard uses the system across its screens through one adapter layer; a gate keeps raw colours and native controls out; the dashboard is not in production yet.
 
 **How it is built (case part, owner request 2026-10-06; checked on the design-system repo `origin/main` f7e78ed, 2026-09-27):**
