@@ -209,8 +209,10 @@ const DETECT = ({ phone }) => {
   const visible = (el) => {
     const r = el.getBoundingClientRect();
     if (r.width < 1 || r.height < 1) return false;
+    if (r.width <= 2 && r.height <= 2) return false; // screen-reader-only text
     const s = style(el);
     if (s.visibility === "hidden" || s.display === "none") return false;
+    if (/rect\(0(px)?,?\s*0(px)?,?\s*0(px)?,?\s*0(px)?\)/.test(s.clip) || /inset\(50%\)/.test(s.clipPath)) return false;
     if (el.closest("[aria-hidden='true'],[inert],dialog:not([open])")) return false;
     return opacityChain(el) > 0.05;
   };
@@ -663,6 +665,38 @@ const DETECT = ({ phone }) => {
   const pillNav = navs.filter((n) => radius(n) >= n.getBoundingClientRect().height / 2 - 2 || [...n.querySelectorAll("a")].some((a) => radius(a) >= a.getBoundingClientRect().height / 2 - 1 && hasBox(a)));
   if (pillNav.length) add("T26", "warn", "Floating blurred pill navigation", "The floating glass pill nav is the 2024 default. A plain text row is enough.", pillNav.slice(0, 1).map(label));
 
+  // T28 coloured side stripe on rounded boxes; T29 hairline border under a wide soft shadow.
+  const stripes = visibleEls.filter((el) => {
+    const s = style(el);
+    const r = el.getBoundingClientRect();
+    if (r.width * r.height < 3000) return false;
+    const l = px(s.borderLeftWidth), rr = px(s.borderRightWidth), t = px(s.borderTopWidth), b = px(s.borderBottomWidth);
+    const side = (l >= 2 && rr < 1 && t < 1.5 && b < 1.5) || (rr >= 2 && l < 1 && t < 1.5 && b < 1.5);
+    if (!side) return false;
+    const c = rgba(l >= 2 ? s.borderLeftColor : s.borderRightColor);
+    return hsl(c)[1] > 0.3 && (radius(el) >= 4 || rgba(s.backgroundColor)[3] > 0.04);
+  });
+  if (stripes.length)
+    add("T28", stripes.length >= 3 ? "fail" : "warn", `Coloured side stripe on ${stripes.length} box(es)`, "A thick coloured left border on cards and callouts is a template accent. Use a heading, a ground step or nothing.", stripes.slice(0, 4).map(label));
+  const ghost = visibleEls.filter((el) => {
+    const s = style(el);
+    if (!s.boxShadow || s.boxShadow === "none") return false;
+    const bw = px(s.borderTopWidth);
+    if (bw < 0.5 || bw > 1.5) return false;
+    const blurs = [...s.boxShadow.matchAll(/(-?[\d.]+)px\s+(-?[\d.]+)px\s+([\d.]+)px/g)].map((m) => +m[3]);
+    return blurs.some((v) => v >= 16) && el.getBoundingClientRect().width * el.getBoundingClientRect().height > 4000;
+  });
+  if (ghost.length >= 2)
+    add("T29", "warn", `Hairline border plus wide soft shadow on ${ghost.length} boxes`, "The 'ghost card' (1px border and a big blurred shadow) is a generated-UI default. Pick one, or neither.", ghost.slice(0, 3).map(label));
+
+  // T30 middot chains; T31 aphoristic "Not X. Y." cadence; T32 en/em dash separators in short labels.
+  const chains = textEls.filter((el) => (ownText(el).match(/·/g) || []).length >= 3);
+  if (chains.length)
+    add("T30", "warn", `Middot chains in ${chains.length} line(s)`, "Long 'A · B · C · D' strings read as generated metadata. Keep one separator per line, or set the facts as a small table.", chains.slice(0, 3).map(label));
+  const cadence = bodyText.match(/\b(Not|No) (a |an |just |the )?[A-Za-z][\w’' -]{1,28}\. (A|An|The|Just|Only)? ?[A-Z]?[\w’' -]{1,28}\./g) || [];
+  if (cadence.length >= 2)
+    add("T31", "warn", `Aphoristic cadence (${cadence.length})`, "'Not a feature. A platform.' rebuttals are a generated-copy rhythm. Say the fact once.", cadence.slice(0, 3));
+
   // T27 giant name as the hero with no work beside it (checked with C01 below).
   const heroText = hero ? (hero.innerText || "").trim() : "";
   const nameOnly = hero && heroText.split(/\s+/).length <= 3 && /^[A-ZÀ-Ž][\p{L}'’.-]+(\s+[A-ZÀ-Ž][\p{L}'’.-]+){0,2}\.?$/u.test(heroText);
@@ -782,6 +816,41 @@ const DETECT = ({ phone }) => {
       break;
     }
 
+  // C14 typography mechanics: tight leading, justified text, wide tracking on body, long caps, extreme tracking.
+  const paras = textEls.filter((el) => ownText(el).length > 120);
+  const tight = paras.filter((el) => {
+    const s = style(el);
+    const lh = s.lineHeight === "normal" ? 1.2 : px(s.lineHeight) / px(s.fontSize);
+    return lh < 1.3;
+  });
+  if (tight.length) add("C14", "warn", `${tight.length} paragraph(s) with line-height under 1.3`, "Body text wants 1.45–1.7.", tight.slice(0, 3).map(label));
+  const justified = paras.filter((el) => style(el).textAlign === "justify");
+  if (justified.length) add("C14b", "warn", "Justified body text", "Justified text makes rivers on the web. Set it ragged.", justified.slice(0, 2).map(label));
+  const wide = paras.filter((el) => px(style(el).letterSpacing) / px(style(el).fontSize) > 0.05);
+  if (wide.length) add("C14c", "warn", "Wide tracking on body text", "Keep body tracking near 0.", wide.slice(0, 2).map(label));
+  const caps = textEls.filter((el) => style(el).textTransform === "uppercase" && ownText(el).length > 80);
+  if (caps.length) add("C14d", "warn", "Long all-caps text", "All caps over ~80 characters is hard to read.", caps.slice(0, 2).map(label));
+  const crushed = textEls.filter((el) => px(style(el).letterSpacing) / px(style(el).fontSize) < -0.055);
+  if (crushed.length) add("C14e", "warn", "Tracking tighter than -0.05em", "Letters start to touch. Display type sits around -0.02 to -0.04em.", crushed.slice(0, 2).map(label));
+
+  // C15 clipped text.
+  const clipped = textEls.filter((el) => {
+    const s = style(el);
+    if (!/(hidden|clip)/.test(s.overflowX + s.overflowY)) return false;
+    if (s.textOverflow === "ellipsis") return false;
+    return el.scrollWidth > el.clientWidth + 2 || el.scrollHeight > el.clientHeight + 4;
+  });
+  if (clipped.length) add("C15", "warn", `${clipped.length} text box(es) cut off`, "Text runs past its box and is hidden.", clipped.slice(0, 4).map(label));
+
+  // C16 document basics.
+  const vpMeta = document.querySelector('meta[name="viewport"]')?.getAttribute("content") || "";
+  if (/user-scalable\s*=\s*(no|0)|maximum-scale\s*=\s*1(\.0)?\b/.test(vpMeta)) add("C16", "fail", "Zoom is disabled", "Remove user-scalable=no and maximum-scale.", [vpMeta]);
+  if (!document.documentElement.lang) add("C16b", "warn", "No lang on <html>", "", null);
+  const lazyFirst = [...document.images].filter((i) => i.loading === "lazy" && visible(i) && inFirst(i) && i.getBoundingClientRect().width > 200);
+  if (lazyFirst.length) add("C16c", "warn", `${lazyFirst.length} first-screen image(s) set to lazy`, "Lazy loading the largest first-screen image delays LCP. Load it eagerly with fetchpriority=high.", lazyFirst.slice(0, 3).map((i) => i.currentSrc.split("/").pop()));
+  const allRules = sheetRules.map((r) => r.style && r.style.transitionProperty).filter(Boolean);
+  if (allRules.some((t) => /(^|,\s*)all(\s|,|$)/.test(t))) add("C16d", "warn", "transition: all", "Name the properties you animate (transform, opacity). 'all' animates layout by accident.", null);
+
   // C10 a page title and a description for sharing.
   if (!document.title || document.title.length < 3) add("C10", "warn", "No page title", "", null);
   if (!document.querySelector('meta[name="description"]')) add("C10b", "warn", "No meta description", "", null);
@@ -840,6 +909,7 @@ const MOTION = () => {
       props: [...props],
       layoutProps: [...props].filter((p) => layout.test(p)),
       scrollLinked,
+      fromScaleZero: kf.length > 0 && /scale\(0(\)|,\s*0\))/.test(String(kf[0].transform || "") + String(kf[0].scale === "0" ? "scale(0)" : "")),
       state: a.playState,
     });
   }
@@ -986,6 +1056,9 @@ async function run() {
     const slow = timed.filter((a) => a.iterations !== Infinity && a.duration > 900);
     const layoutAnims = uniq.filter((a) => a.layoutProps.length);
     const linear = timed.filter((a) => a.iterations !== Infinity && /^linear$/.test(a.easing) && a.props.some((p) => /transform|translate|opacity|scale/.test(p)) && a.duration > 120);
+    const fromZero = uniq.filter((a) => a.fromScaleZero);
+    if (fromZero.length)
+      vp.findings.push({ id: "M04c", severity: "warn", title: `${fromZero.length} entrance(s) from scale(0)`, detail: "Nothing in the world appears from nothing. Start at scale(0.95–0.97) with opacity.", where: fromZero.slice(0, 3).map((a) => `${a.target} ${a.name}`) });
     const easeIn = timed.filter((a) => /ease-in($|[^-])|cubic-bezier\(0\.[4-9]\d*,\s*0(\.0)?,\s*1,\s*1\)/.test(a.easing) && a.iterations !== Infinity);
     if (loops.length > 1)
       vp.findings.push({ id: "M01", severity: loops.length > 3 ? "fail" : "warn", title: `${loops.length} endless animations`, detail: "Loops that never end pull the eye from the work and drain battery. Keep at most one, and make it carry information.", where: loops.slice(0, 5).map((a) => `${a.target} ${a.name} ${a.duration}ms`) });
