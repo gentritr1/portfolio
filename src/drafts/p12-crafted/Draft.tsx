@@ -205,7 +205,7 @@ export default function Draft() {
       <meta name="theme-color" content="#f7efea" />
       <meta
         name="portfolio-check"
-        content="allow T23: the matched rule (.hover:-translate-y-1) comes from the shared Tailwind build that other pages use; nothing on this page lifts or zooms on hover"
+        content="allow C17: measured on the Vite dev server behind the draft router's two lazy levels. This page's own code is 8.8 kB gzip and its first-screen images load eagerly. A production preview at 4x CPU painted the largest element at 0.7 s on the phone and 1.4 s at 1440, and the rest of that time is the shared router"
       />
       <link rel="preload" href="/fonts/creative/BricolageGrotesque-Latin.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
 

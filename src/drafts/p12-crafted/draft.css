@@ -153,13 +153,17 @@
   font-family: var(--display);
   font-optical-sizing: auto;
   font-weight: 640;
-  font-size: clamp(2.125rem, 1.35rem + 3.4vw, 4.125rem);
+  font-size: clamp(2rem, 1.25rem + 3.5vw, 4.125rem);
   line-height: 1.02;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.032em;
   max-width: 21em;
   margin: 20px 0 24px;
 }
 .lx-hero-grid { display: block; }
+/* On a phone the face labels already say it; the note waits for the footer. */
+@media (max-width: 719px) {
+  .lx-hero .lx-cap { display: none; }
+}
 .lx-hero-side { margin-top: 18px; }
 @media (min-width: 900px) {
   .lx-claim { margin: 36px 0 36px; }

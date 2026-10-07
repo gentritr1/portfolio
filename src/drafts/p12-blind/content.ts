@@ -438,7 +438,7 @@ export const rows: Row[] = [
         },
         {
           id: 'chatbot',
-          name: 'Chatbot runtime library',
+          name: 'Chatbot library',
           text: ['A reusable package that plays scripted chats: text, media, choices, ratings and timers. A message queue keeps the order; guards stop stalls and repeats.'],
           meta: ['Mobile', '2022–25'],
           years: [2022, 2025],
@@ -500,13 +500,13 @@ export const index: IndexGroup[] = [
       { years: '2023–26', name: 'Bayyinah TV', lane: 'Web, phone', role: 'Frontend, core team', line: 'Full rebuild: live streams, video player, subscriptions, gifting, English and Arabic', entry: 'bayyinah', links: [{ label: 'Case', href: '/work/bayyinah-tv' }] },
       { years: '2024–25', name: 'Bayyinah institute website', lane: 'Web', role: 'Frontend', line: 'One-page site: mission, support, research funding, impact and FAQ', entry: 'institute', links: [{ label: 'bayyinah.org', href: 'https://bayyinah.org/' }] },
       { years: '2022–25', name: 'Read to Feed', lane: 'Phone', role: 'Mobile', line: 'PDF and EPUB reader, barcode scanning, badges and streaks, about 14 releases', entry: 'rtf', links: [{ label: 'Case', href: '/work/read-to-feed' }] },
-      { years: '2022–25', name: 'Chatbot runtime library', lane: 'Phone', role: 'Mobile', line: 'Plays scripted chat conversations: message queue, typing delays, media, duplicate guards', entry: 'chatbot' },
-      { years: '2025', name: 'Chatbot runtime, web port', lane: 'Web', role: 'Frontend', line: 'TypeScript web version of the chatbot runtime, with an example app' },
+      { years: '2022–25', name: 'Chatbot library', lane: 'Phone', role: 'Mobile', line: 'Plays scripted chat conversations: message queue, typing delays, media, duplicate guards', entry: 'chatbot' },
+      { years: '2025', name: 'Chatbot library, web port', lane: 'Web', role: 'Frontend', line: 'TypeScript web version of the chatbot library, with an example app' },
       { years: '2025', name: 'Member portal', lane: 'Web', role: 'Frontend', line: 'Member portal base: protected pages, outside sign-in, app shell and layout', entry: 'portal' },
       { years: '2023', name: 'Viva Fresh', lane: 'Phone', role: 'Mobile', line: 'Grocery orders with delivery slots, loyalty, wishlist and address search on a map', entry: 'viva', links: [{ label: 'Case', href: '/work/viva-fresh' }] },
       { years: '2022–23', name: 'Coaching app', lane: 'Phone', role: 'Mobile', line: 'Organization sign-in, a daily calendar strip, reactions, and dev, staging and release builds' },
       { years: '2022', name: 'EPUB reader prototype', lane: 'Phone', role: 'Mobile', line: 'Downloads, renders and resizes an EPUB; the start of the reading app’s reader' },
-      { years: '2021–22', name: 'Dukagjini Bookstore', lane: 'Phone', role: 'Mobile', line: 'Book shopping with push deep links, animated details and checkout; iOS and Android', entry: 'dukagjini', links: [{ label: 'Case', href: '/work/dukagjini-bookstore' }] },
+      { years: '2021–22', name: 'Dukagjini Bookstore', lane: 'Phone', role: 'Mobile', line: 'Book shopping; a push notification opens the right screen; checkout with promo codes', entry: 'dukagjini', links: [{ label: 'Case', href: '/work/dukagjini-bookstore' }] },
       { years: '2021–22', name: 'Sadaqah app for Islamic Relief USA', lane: 'Phone', role: 'Mobile, team member', line: 'Donations and subscriptions with Stripe, badges, guided tasks and video', entry: 'sadaqah' },
       { years: '2026', name: 'Fuel-station loyalty app', lane: 'Phone', role: 'Mobile', line: 'Loyalty app upkeep: arm64 simulator support, legacy architecture, shadow fixes' },
     ],
@@ -543,6 +543,6 @@ export const index: IndexGroup[] = [
 
 export const about = [
   'Gentrit Rashiti is a frontend and mobile developer who now works across the whole stack. Based in Kosovo, working remotely. Bachelor’s degree, UBT.',
-  'Frontend: React, Next.js, Vue, Nuxt, TypeScript. Mobile: React Native, iOS and Android. Backend: Laravel and PHP, Python and FastAPI, MySQL, Redis. Quality: Playwright, Vitest, Pest. Services: Stripe, Firebase, AWS IVS, Twilio, Pusher.',
+  'Frontend: React, Next.js, Vue, Nuxt, TypeScript. Mobile: React Native, iOS and Android. Backend: Laravel and PHP, Python and FastAPI, MySQL, Redis. Quality: Playwright, Vitest, Pest. Services: Stripe, Firebase, Twilio, Pusher, and live video on AWS.',
   'Interfaces shipped in English, German, Spanish, Turkish, French, Albanian and Arabic, right to left. Spare time goes into games that are live on the web: FJALË, a daily Albanian word game, Za!, a card game for 2 to 8 players, and Morse Trainer.',
 ]

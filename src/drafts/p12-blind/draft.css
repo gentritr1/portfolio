@@ -752,7 +752,7 @@
     grid-column: auto;
   }
   .tl-lanehead small {
-    font-size: 11.5px;
+    font-size: 13px;
   }
   .tl-grid {
     display: block;
@@ -893,6 +893,6 @@
     max-width: none;
   }
   .tl-lead {
-    font-size: 18px;
+    font-size: 17px;
   }
 }
