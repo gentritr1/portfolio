@@ -77,8 +77,8 @@ export const leadWeb = {
   shot: desktop(
     "/showcase/care-dashboard/appointments-week.webp",
     "Care team calendar for one week, from 8 AM to noon: calls, video calls and office visits for each patient. Invented data.",
-    { x: 256, y: 84, w: 1040, h: 528 },
-    { x: 472, y: 212, w: 478, h: 403 },
+    { x: 256, y: 84, w: 1184, h: 530 },
+    { x: 472, y: 212, w: 478, h: 402 },
   ),
   name: "Care platform",
   note: "Web app · real screen, invented data",
@@ -104,8 +104,8 @@ export const client: Row[] = [
     slug: "care-platform",
     name: "Care-management platform",
     line: "Care teams follow patients' readings, care plans, lab results and bills.",
-    result: "Rebuilt screen by screen. Old bugs written down, not copied.",
-    role: "Frontend and mobile, full stack since 2026",
+    result: "Being rebuilt screen by screen. Old bugs written down, not copied.",
+    role: "Web and mobile; since 2026 also the server",
     years: "2023–26",
     note: REAL_SCREENS,
     links: [],
@@ -219,9 +219,9 @@ export const client: Row[] = [
       },
     ],
     plate: iphone(
-      "/mobile/reading-3.webp",
-      "Read to Feed reader: chapter 1 of The Tale of Peter Rabbit, with a Keep Reading card over the text",
-      { x: 80, y: 430, w: 620, h: 820 },
+      "/mobile/reading-1.webp",
+      "Read to Feed's My Books screen: The Tale of Peter Rabbit read to 36%, Anne of Green Gables read to 90%, and the next books in each series",
+      { x: 91, y: 500, w: 598, h: 790 },
     ),
   },
   {
@@ -291,7 +291,7 @@ export const concepts: Concept[] = [
     id: "form",
     name: "FORM",
     line: "A concept site for a made-up sculpture show.",
-    result: "Three sculptures render live in copper, chrome and porcelain.",
+    result: "Three sculptures are drawn live in copper, chrome and porcelain.",
     links: [{ label: "GitHub", href: "https://github.com/gentritr1/form" }],
     plate: desktop(
       "/personal/shots/form-studio-desktop.webp",
@@ -366,8 +366,8 @@ export const screenColours: Record<string, string> = {
     "f7f7f8fafafafdfdfdfafafaf3f3f3f8f8f8f1f4f5e7eff2f4f4f4e2ebeff2f4f5f5f5f5f9f9f9f7f7f8f7f8f8e1eaee",
   "/mobile/grocery-2.webp":
     "557d5171986e87ab82709a70e2e1e1f0ebeceeefeeeae5e6f4f3f3f3f2f2e3ebf0e8edf0f0eaeaf0f0efece7e7f1f1f0",
-  "/mobile/reading-3.webp":
-    "667075656f75656f75677177636d73626c72636d73656f756c757a6c757a6c757a6e777cfef9e4f1e1bbf0d9bbfbf7e3",
+  "/mobile/reading-1.webp":
+    "e0ebedd3e2e7cbdee7d8e7ee9bb6af76a2a72e84ac4591b475bbdd5fb1d85db0d973badcabd5e79fcfe59fd0e5aed7e8",
   "/mobile/bookstore-2.webp":
     "f9f9f9edededeeeeeef7ecece6e4deeeede9f3f3f3fdfbfbe1c6b4f0eceafdfcfcfdfdfd79bdc7d3dadaedecebf9f9f9",
   "/showcase/incentiv/web-03.webp":

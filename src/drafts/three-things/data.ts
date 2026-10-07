@@ -77,10 +77,10 @@ export const tiles: Tile[] = [
     line: "A reading app for children, with a built-in book reader. It remembers the page in every book.",
     meta: "Mobile, iOS and Android · 2022–25",
     shot: phone(
-      "/mobile/reading-3.webp",
-      "Read to Feed reader: Chapter 1 of The Tale of Peter Rabbit, open in the app",
-      { x: 80, y: 420, w: 620, h: 465 },
-      "#6b7479",
+      "/mobile/reading-1.webp",
+      "Read to Feed's My Books screen: each book shows how far the child has read",
+      { x: 91, y: 500, w: 598, h: 449 },
+      "#e0ebed",
     ),
   },
   {
