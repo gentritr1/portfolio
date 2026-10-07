@@ -18,6 +18,8 @@ export interface Shot {
   crop: Px;
   /** The page's own colour, behind the shot while it loads. */
   ground: string;
+  /** A cleaner image for the enlarged view, when the source carries tool chrome. */
+  full?: { src: string; width: number; height: number };
 }
 
 /**

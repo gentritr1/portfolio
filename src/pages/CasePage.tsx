@@ -7,6 +7,7 @@ import { luminance, shadowOf, usePageLight, type PageLight } from "./caseLight";
 import { useDraw, useWalks } from "./caseMotion";
 import { CaseEnd, CaseTop } from "./caseShell";
 import NotFoundPage from "./NotFoundPage";
+import { PhonePicture } from "../components/PhonePicture";
 import "./case.css";
 
 /** A screen never stands taller than this, so a phone crop leaves room for its text. */
@@ -127,20 +128,22 @@ interface ShotProps {
 function ShotView({ shot, crop, alt, eager, ring }: ShotProps) {
   return (
     <span className="cs-shot" style={{ aspectRatio: `${crop.w} / ${crop.h}`, background: shot.ground }}>
-      <img
-        src={shot.src}
-        alt={alt}
-        width={shot.width}
-        height={shot.height}
-        loading={eager ? "eager" : "lazy"}
-        fetchPriority={eager ? "high" : "auto"}
-        decoding="async"
-        style={{
-          width: `${(shot.width / crop.w) * 100}%`,
-          left: `${(-crop.x / crop.w) * 100}%`,
-          top: `${(-crop.y / crop.h) * 100}%`,
-        }}
-      />
+      <PhonePicture src={shot.src}>
+        <img
+          src={shot.src}
+          alt={alt}
+          width={shot.width}
+          height={shot.height}
+          loading={eager ? "eager" : "lazy"}
+          fetchPriority={eager ? "high" : "auto"}
+          decoding="async"
+          style={{
+            width: `${(shot.width / crop.w) * 100}%`,
+            left: `${(-crop.x / crop.w) * 100}%`,
+            top: `${(-crop.y / crop.h) * 100}%`,
+          }}
+        />
+      </PhonePicture>
       {ring && (
         <svg
           className="cs-shot-ring"
@@ -172,7 +175,7 @@ function Lightbox({ ref }: { ref: Ref<{ open: Enlarge }> }) {
     open(next, trigger) {
       from.current = trigger;
       const image = new Image();
-      image.src = next.src;
+      image.src = (next.full ?? next).src;
       void image
         .decode()
         .catch(() => undefined)
@@ -186,6 +189,7 @@ function Lightbox({ ref }: { ref: Ref<{ open: Enlarge }> }) {
   }, [shot]);
 
   const close = () => dialog.current?.close();
+  const view = shot && (shot.full ?? shot);
 
   return (
     <dialog
@@ -200,16 +204,16 @@ function Lightbox({ ref }: { ref: Ref<{ open: Enlarge }> }) {
         if (event.target === event.currentTarget) close();
       }}
     >
-      {shot && (
+      {shot && view && (
         <figure
           className="cs-lightbox-figure"
-          style={{ width: `min(100%, ${shot.width}px, calc((100dvh - 184px) * ${shot.width} / ${shot.height}))` }}
+          style={{ width: `min(100%, ${view.width}px, calc((100dvh - 184px) * ${view.width} / ${view.height}))` }}
         >
           <button type="button" className="cs-lightbox-close" onClick={close}>
             <XIcon aria-hidden="true" size={18} weight="bold" />
             Close
           </button>
-          <img src={shot.src} alt="" width={shot.width} height={shot.height} decoding="async" />
+          <img src={view.src} alt="" width={view.width} height={view.height} decoding="async" />
           <figcaption>{shot.alt}</figcaption>
         </figure>
       )}

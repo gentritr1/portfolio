@@ -18,6 +18,8 @@ export interface ScreenShot {
   height: number;
   /** The part that a plate shows. */
   crop: Px;
+  /** A cleaner image for the enlarged view, when the source carries tool chrome. */
+  full?: { src: string; width: number; height: number };
   /** The screen's own colour, behind the shot while it loads. */
   ground: string;
 }
@@ -47,6 +49,7 @@ const workshop = (src: string, alt: string, crop: Px): ScreenShot => ({
   height: 900,
   crop,
   ground: "#ffffff",
+  ...(src === DATE_RANGE && { full: { src: "/showcase/design-system/date-range-picker.webp", width: 780, height: 488 } }),
 });
 
 export const careShots = {

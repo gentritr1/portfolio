@@ -16,6 +16,7 @@ import {
 } from "react";
 import { flushSync, preload } from "react-dom";
 import { Link as RouterLink, useLocation, useNavigate, useNavigationType } from "react-router";
+import { PhonePicture } from "../../components/PhonePicture";
 import { links } from "../../content/links";
 import { canWalk, inView, wait } from "../../lib/plateWalk";
 import { preloadCase } from "../../lib/routes";
@@ -802,16 +803,18 @@ function ShotImage({ shot, crop, eager = false }: { shot: Shot; crop?: Crop; eag
       }
     : undefined;
   return (
-    <img
-      src={shot.src}
-      alt={shot.alt}
-      width={shot.width}
-      height={shot.height}
-      loading={eager ? "eager" : "lazy"}
-      decoding="async"
-      fetchPriority={eager ? "high" : "auto"}
-      style={style}
-    />
+    <PhonePicture src={shot.src}>
+      <img
+        src={shot.src}
+        alt={shot.alt}
+        width={shot.width}
+        height={shot.height}
+        loading={eager ? "eager" : "lazy"}
+        decoding="async"
+        fetchPriority={eager ? "high" : "auto"}
+        style={style}
+      />
+    </PhonePicture>
   );
 }
 

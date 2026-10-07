@@ -128,3 +128,13 @@ Critic 42/50 with three gate fails and devil objections (kosovo-time-critic.md, 
 ## Owner decision (2026-10-06): care platform scope
 
 The care platform is web and mobile (owner). The home row role "Frontend and mobile" stands; the case page platforms read "Web and mobile, and the server behind them".
+
+## Round 11: real screens, motion, concepts and the new home (2026-10-06 to 2026-10-07)
+
+- Real product screens on invented data replace every hand-made care and design-system recreation (owner permission; no blur; dashboard phone shots only for overview screens). Soft 1x captures were recaptured at 2x in the same framing. Design-system specimen files were recreation captures and are deleted; the real Storybook date range picker leads.
+- Motion: home screens stand up by day and switch on at night; a screen walks from its home row into its case and back; proof rings, the 16 → 2 marks, the workflow diagram, the same-test-two-apps figure and the bundle bar each play once and end as a still figure. 60 fps on a mid phone (4x CPU): the home sun restyles only on-screen parts.
+- AI workflow story, true to git and in plain words: "Gentrit wrote most of the rules and the checks. AI agents build inside them. A person approves each change." A failed check goes back to the agents.
+- Concepts: one-screen (35/50), three-things (38), kosovo-time-2 (43). Owner decisions: kosovo-time-2 is the home; the care case leads with the rebuild ("16 → 2" only in The numbers); the Incentiv recreation is removed; Viva Fresh and Dukagjini stay separate cases, tightened.
+- Blind test: FABLE BLIND, built by Fable with no skills or history, scored 33/50. Its three good ideas were taken in: "In short" facts on each case, the proof line on the home work card, and click to enlarge on case screens.
+- Copy rules: ASD-STE100 at ELI5 level; never he/his/him for the owner; no internal counts on pages.
+- Still owed: a real-phone test of the stand-up and the screen walk; an Incentiv dashboard capture needs the owner's sign-in.
