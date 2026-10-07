@@ -123,6 +123,12 @@ export const careShots = {
 } satisfies Record<string, ScreenShot>;
 
 export const dsShots = {
+  /** The real Storybook: the component list, and the From and To pickers with June open. */
+  storybook: workshop(
+    "/showcase/design-system/storybook-from-to.webp",
+    "Design System v2 in its Storybook: the list of components on the left, and two date pickers, From and To, with June 2026 open and June 8 selected.",
+    { x: 0, y: 0, w: 1440, h: 900 },
+  ),
   /** The date range picker, open, with a range across two months. */
   dateRange: workshop(
     DATE_RANGE,

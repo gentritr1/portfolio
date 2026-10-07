@@ -1,17 +1,18 @@
-import { useCallback, useEffect, useId, useImperativeHandle, useLayoutEffect, useRef, useState, useSyncExternalStore, type CSSProperties, type ReactNode, type Ref } from "react";
+import { useCallback, useImperativeHandle, useLayoutEffect, useRef, useState, useSyncExternalStore, type CSSProperties, type Ref } from "react";
 import { Link, useParams } from "react-router";
 import { ArrowRightIcon, ArrowUpRightIcon, UserIcon, XIcon } from "@phosphor-icons/react";
 import { findProject, type Project } from "../content/projects";
 import { caseCopy, nextSlug, type CaseCopy, type Part, type Plate, type Px, type Shot } from "./caseCopy";
-import { luminance, shadowOf, usePageLight, type PageLight } from "./caseLight";
+import { BrowserFrame, spotIn } from "../components/BrowserFrame";
+import { PhoneFrame, phoneSpot } from "../components/PhoneFrame";
+import { ScreenCarousel } from "../components/ScreenCarousel";
+import { Stage } from "../components/Stage";
+import { phoneScreens } from "../content/phoneScreens";
+import { usePageLight } from "./caseLight";
 import { useDraw, useWalks } from "./caseMotion";
 import { CaseEnd, CaseTop } from "./caseShell";
 import NotFoundPage from "./NotFoundPage";
-import { PhonePicture } from "../components/PhonePicture";
 import "./case.css";
-
-/** A screen never stands taller than this, so a phone crop leaves room for its text. */
-const SCREEN_MAX_H = 640;
 
 function useMedia(query: string, fallback: boolean) {
   return useSyncExternalStore(
@@ -25,141 +26,71 @@ function useMedia(query: string, fallback: boolean) {
   );
 }
 
-/* ---------- Ground: a screen stands on the page and casts the sun's shadow ---------- */
+/* ---------- Plates: whole screens in device frames, on the project's own stage ---------- */
 
-const toLinear = (hex: string) =>
-  [1, 3, 5].map((i) => {
-    const c = parseInt(hex.slice(i, i + 2), 16) / 255;
-    return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
-  });
-const toHex = (rgb: number[]) =>
-  "#" +
-  rgb
-    .map((c) => Math.round(Math.min(1, c <= 0.0031308 ? 12.92 * c : 1.055 * c ** (1 / 2.4) - 0.055) * 255).toString(16).padStart(2, "0"))
-    .join("");
-
-/** The floor colour in front of a lit screen in the dark, as on the home page; null while the ground is light. */
-function glowOf(lit: string, screen: string) {
-  const t = Math.min(1, Math.max(0, (luminance(lit) - 0.02) / 0.18));
-  const glow = (1 - t * t * (3 - 2 * t)) * 0.2;
-  if (glow < 0.004) return null;
-  const add = toLinear(screen).map((c) => c * 0.5 * glow);
-  const lum = 0.2126 * add[0] + 0.7152 * add[1] + 0.0722 * add[2];
-  const k = lum > 0.14 ? 0.14 / lum : 1;
-  return toHex(toLinear(lit).map((c, i) => c + add[i] * k));
+interface Spot {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
 }
 
-interface GroundProps {
-  page: PageLight;
-  /** The screen's main colour, which lights the floor in front of it in the dark. */
-  screen: string;
-  small?: boolean;
-  children: ReactNode;
-}
-
-function Ground({ page, screen: screenColour, small, children }: GroundProps) {
-  const id = useId();
-  const box = useRef<HTMLDivElement>(null);
-  const svg = useRef<SVGSVGElement>(null);
-  const shadow = useRef<SVGPolygonElement>(null);
-  const pool = useRef<SVGEllipseElement>(null);
-  const glow = glowOf(page.light.lit, screenColour);
-
-  useEffect(() => {
-    const element = box.current;
-    const root = svg.current;
-    const polygon = shadow.current;
-    if (!element || !root || !polygon) return;
-    const draw = () => {
-      const screen = element.querySelector<HTMLElement>("[data-cs-screen]");
-      if (!screen) return;
-      const rect = element.getBoundingClientRect();
-      const screenRect = screen.getBoundingClientRect();
-      if (rect.width < 2 || rect.height < 2 || screenRect.height < 2) return;
-      root.setAttribute("viewBox", `0 0 ${rect.width.toFixed(1)} ${rect.height.toFixed(1)}`);
-      polygon.setAttribute("points", shadowOf(rect, screenRect, page.sun.ray));
-      polygon.style.opacity = page.light.direct.toFixed(3);
-      const ellipse = pool.current;
-      if (ellipse) {
-        const base = screenRect.bottom - rect.top;
-        ellipse.setAttribute("cx", (screenRect.left - rect.left + screenRect.width / 2).toFixed(1));
-        ellipse.setAttribute("cy", (base + 4).toFixed(1));
-        ellipse.setAttribute("rx", (screenRect.width * 0.68).toFixed(1));
-        ellipse.setAttribute("ry", Math.min(64, rect.bottom - screenRect.bottom + 8).toFixed(1));
-      }
-    };
-    const resize = new ResizeObserver(draw);
-    resize.observe(element);
-    draw();
-    return () => resize.disconnect();
-  }, [page, glow]);
-
+/** The proof ring, 4 px outside the box it marks. */
+function Ring({ spot }: { spot: Spot }) {
   return (
-    <div className={small ? "cs-ground cs-ground-small" : "cs-ground"} ref={box} data-glow={glow ? "" : undefined}>
-      <svg ref={svg} className="cs-floor" aria-hidden="true" preserveAspectRatio="none">
-        {glow && (
-          <>
-            <defs>
-              <radialGradient id={`${id}-glow`}>
-                <stop offset="0" stopColor={glow} />
-                <stop offset="1" stopColor={glow} stopOpacity="0" />
-              </radialGradient>
-            </defs>
-            <ellipse ref={pool} fill={`url(#${id}-glow)`} />
-          </>
-        )}
-        <polygon ref={shadow} />
-      </svg>
-      {children}
-    </div>
+    <svg
+      className="cs-shot-ring"
+      aria-hidden="true"
+      style={{
+        left: `calc(${spot.x}% - 4px)`,
+        top: `calc(${spot.y}% - 4px)`,
+        width: `calc(${spot.w}% + 8px)`,
+        height: `calc(${spot.h}% + 8px)`,
+      }}
+    >
+      <rect className="cs-ring-edge" width="100%" height="100%" rx="7" pathLength={1} />
+      <rect width="100%" height="100%" rx="7" pathLength={1} />
+    </svg>
   );
 }
 
-/* ---------- Plates ---------- */
+type ScreenPlate = Extract<Plate, { kind: "web" | "phone" }>;
 
-interface ShotProps {
-  shot: Shot;
-  crop: Px;
-  alt: string;
-  eager: boolean;
+interface FrameProps {
+  plate: ScreenPlate;
+  shot?: Shot;
   ring: Px | null;
+  eager: boolean;
+  /** The next-project link names the case this screen opens. */
+  slug?: string;
 }
 
-function ShotView({ shot, crop, alt, eager, ring }: ShotProps) {
+/** One screen in its device frame. The frame is the screen a plate walk moves between the pages. */
+function Frame({ plate, shot = plate, ring, eager, slug }: FrameProps) {
+  if (plate.kind === "phone") {
+    const view = phoneScreens[shot.src].box;
+    const shown = ring && ring.x >= view.x && ring.y >= view.y && ring.x + ring.w <= view.x + view.w && ring.y + ring.h <= view.y + view.h;
+    return (
+      <PhoneFrame src={shot.src} alt={shot.alt} eager={eager} data-cs-screen data-plate={slug}>
+        {shown && <Ring spot={phoneSpot(shot.src, ring)} />}
+      </PhoneFrame>
+    );
+  }
   return (
-    <span className="cs-shot" style={{ aspectRatio: `${crop.w} / ${crop.h}`, background: shot.ground }}>
-      <PhonePicture src={shot.src}>
-        <img
-          src={shot.src}
-          alt={alt}
-          width={shot.width}
-          height={shot.height}
-          loading={eager ? "eager" : "lazy"}
-          fetchPriority={eager ? "high" : "auto"}
-          decoding="async"
-          style={{
-            width: `${(shot.width / crop.w) * 100}%`,
-            left: `${(-crop.x / crop.w) * 100}%`,
-            top: `${(-crop.y / crop.h) * 100}%`,
-          }}
-        />
-      </PhonePicture>
-      {ring && (
-        <svg
-          className="cs-shot-ring"
-          aria-hidden="true"
-          style={{
-            left: `calc(${((ring.x - crop.x) / crop.w) * 100}% - 4px)`,
-            top: `calc(${((ring.y - crop.y) / crop.h) * 100}% - 4px)`,
-            width: `calc(${(ring.w / crop.w) * 100}% + 8px)`,
-            height: `calc(${(ring.h / crop.h) * 100}% + 8px)`,
-          }}
-        >
-          <rect className="cs-ring-edge" width="100%" height="100%" rx="7" pathLength={1} />
-          <rect width="100%" height="100%" rx="7" pathLength={1} />
-        </svg>
-      )}
-    </span>
+    <BrowserFrame
+      src={shot.src}
+      alt={shot.alt}
+      width={shot.width}
+      height={shot.height}
+      label={plate.bar.label}
+      site={plate.bar.site}
+      tone={plate.bar.tone}
+      eager={eager}
+      data-cs-screen
+      data-plate={slug}
+    >
+      {ring && <Ring spot={spotIn(ring, shot.width, shot.height)} />}
+    </BrowserFrame>
   );
 }
 
@@ -218,16 +149,6 @@ function Lightbox({ ref }: { ref: Ref<{ open: Enlarge }> }) {
         </figure>
       )}
     </dialog>
-  );
-}
-
-/** A screen with its own title bar, so its label never stands on the ground. */
-function Screen({ caption, width, plate, children }: { caption: string; width: string; plate?: string; children: ReactNode }) {
-  return (
-    <figure className="cs-screen" data-cs-screen data-plate={plate} style={{ width }}>
-      <figcaption>{caption}</figcaption>
-      <div className="cs-screen-body">{children}</div>
-    </figure>
   );
 }
 
@@ -329,58 +250,56 @@ function FlowFigure({ plate, caption }: { plate: Extract<Plate, { kind: "flow" }
   );
 }
 
-const inside = (box: Px, crop: Px) =>
-  box.x >= crop.x && box.y >= crop.y && box.x + box.w <= crop.x + crop.w && box.y + box.h <= crop.y + crop.h;
-
-const fitWidth = (crop: Px) => `min(100%, ${crop.w}px, ${Math.round((SCREEN_MAX_H * crop.w) / crop.h)}px)`;
-
 interface PlateProps {
-  part: Pick<Part, "narrow" | "narrowAlt" | "target">;
+  part: Pick<Part, "target">;
   plate: Plate;
   caption: string;
-  narrow: boolean;
+  stage: string;
   first: boolean;
-  page: PageLight;
   enlarge: Enlarge;
 }
 
-/** The plate a part shows: the whole crop on a wide screen, the proving part on a phone. */
-function PartPlate({ part, plate, caption, narrow, first, page, enlarge }: PlateProps) {
-  if (plate.kind === "number") return <NumberFigure plate={plate} />;
-  if (plate.kind === "flow") return <FlowFigure plate={plate} caption={caption} />;
-  const own = narrow && typeof part.narrow === "object";
-  const crop = own && typeof part.narrow === "object" ? part.narrow : plate.crop;
-  const box = part.target.kind === "shot" ? part.target.box : null;
-  const ring = box && inside(box, crop) ? box : null;
+/** A button that opens the whole capture in the lightbox. */
+function Enlargeable({ plate, shot = plate, ring, eager, enlarge }: FrameProps & { enlarge: Enlarge }) {
   return (
-    <Ground page={page} screen={plate.ground}>
-      <Screen caption={caption} width={fitWidth(crop)}>
-        <button
-          type="button"
-          className="cs-enlarge"
-          aria-label={`Enlarge: ${plate.alt}`}
-          onClick={(event) => enlarge(plate, event.currentTarget)}
-        >
-          <ShotView shot={plate} crop={crop} alt={(own && part.narrowAlt) || plate.alt} eager={first} ring={ring} />
-        </button>
-      </Screen>
-    </Ground>
+    <button type="button" className="cs-enlarge" aria-label={`Enlarge: ${shot.alt}`} onClick={(event) => enlarge(shot, event.currentTarget)}>
+      <Frame plate={plate} shot={shot} ring={ring} eager={eager} />
+    </button>
   );
 }
 
-/** The next case's first screen, small, on its own floor. */
-function NextPlate({ slug, copy, page }: { slug: string; copy: CaseCopy; page: PageLight }) {
-  const at = copy.plates.findIndex((plate) => plate.kind === "web" || plate.kind === "phone");
-  const plate = copy.plates[at];
-  if (!plate || (plate.kind !== "web" && plate.kind !== "phone")) return null;
-  const { crop } = plate;
+/** The plate a part shows: the whole screen in its frame, on the project's stage. */
+function PartPlate({ part, plate, caption, stage, first, enlarge }: PlateProps) {
+  if (plate.kind === "number") return <NumberFigure plate={plate} />;
+  if (plate.kind === "flow") return <FlowFigure plate={plate} caption={caption} />;
+  const ring = part.target.kind === "shot" ? part.target.box : null;
+  const more = plate.kind === "web" ? plate.more : undefined;
+  return (
+    <Stage ground={stage} caption={caption} className="cs-stage" data-kind={plate.kind}>
+      {plate.kind === "web" && more?.length ? (
+        <ScreenCarousel
+          name={caption}
+          slides={[{ ...plate, name: plate.name ?? caption }, ...more].map((shot, i) => ({
+            label: shot.name,
+            render: () => <Enlargeable plate={plate} shot={shot} ring={i === 0 ? ring : null} eager={first && i === 0} enlarge={enlarge} />,
+          }))}
+        />
+      ) : (
+        <Enlargeable plate={plate} ring={ring} eager={first} enlarge={enlarge} />
+      )}
+    </Stage>
+  );
+}
+
+/** The next case's first screen, small, on its own stage. */
+function NextPlate({ slug, copy }: { slug: string; copy: CaseCopy }) {
+  const plate = copy.plates.find((p): p is ScreenPlate => p.kind === "web" || p.kind === "phone");
+  if (!plate) return null;
   return (
     <span className="cs-next-plate" aria-hidden="true">
-      <Ground page={page} screen={plate.ground} small>
-        <Screen caption={copy.captions[at]} width={`min(100%, 320px, ${Math.round((220 * crop.w) / crop.h)}px)`} plate={slug}>
-          <ShotView shot={plate} crop={crop} alt="" eager={false} ring={null} />
-        </Screen>
-      </Ground>
+      <Stage ground={copy.stage} className="cs-stage cs-stage-small" data-kind={plate.kind}>
+        <Frame plate={plate} ring={null} eager={false} slug={slug} />
+      </Stage>
     </span>
   );
 }
@@ -600,9 +519,8 @@ function Case({ project, copy }: { project: Project; copy: CaseCopy }) {
                           part={part}
                           plate={plate}
                           caption={captions[part.plate]}
-                          narrow
+                          stage={copy.stage}
                           first={index === 0}
-                          page={page}
                           enlarge={enlarge}
                         />
                       </div>
@@ -624,9 +542,8 @@ function Case({ project, copy }: { project: Project; copy: CaseCopy }) {
                         part={group[0].part}
                         plate={plates[at]}
                         caption={captions[at]}
-                        narrow={false}
+                        stage={copy.stage}
                         first={group[0].index === 0}
-                        page={page}
                         enlarge={enlarge}
                       />
                     </div>
@@ -644,12 +561,11 @@ function Case({ project, copy }: { project: Project; copy: CaseCopy }) {
             <div key={at} className="cs-part cs-loose" data-plate={plate.kind}>
               <div className="cs-part-plate">
                 <PartPlate
-                  part={{ target: { kind: "figure" }, narrow: plate.narrow, narrowAlt: plate.narrowAlt }}
+                  part={{ target: { kind: "figure" } }}
                   plate={plate}
                   caption={captions[at]}
-                  narrow={narrow}
+                  stage={copy.stage}
                   first={false}
-                  page={page}
                   enlarge={enlarge}
                 />
               </div>
@@ -704,7 +620,7 @@ function Case({ project, copy }: { project: Project; copy: CaseCopy }) {
         <nav className="cs-next" aria-label="Next project">
           <p className="cs-label">Next project</p>
           <Link to={`/work/${next.slug}`} className="cs-next-link" data-plated={nextCopy ? "" : undefined}>
-            {nextCopy && <NextPlate slug={next.slug} copy={nextCopy} page={page} />}
+            {nextCopy && <NextPlate slug={next.slug} copy={nextCopy} />}
             <span className="cs-next-name">{next.name}</span>
             <span className="cs-next-line">{nextCopy?.title ?? next.kind}</span>
             <ArrowRightIcon className="cs-next-arrow" aria-hidden="true" weight="bold" />

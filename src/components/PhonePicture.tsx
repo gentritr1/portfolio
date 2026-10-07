@@ -1,30 +1,35 @@
 import type { ReactElement } from "react";
 
 /**
- * The width of the smaller copy of each 2880 px desktop capture, saved next to it as `<name>-<width>.webp`.
- * Each width keeps 1.5 file pixels or more for each CSS pixel at the largest plate that a 480 px screen shows.
+ * Desktop captures with a 1080 px copy saved next to them as `<name>-1080.webp`.
+ * The frames always show the whole capture, so on a screen up to 640 px wide the copy keeps
+ * 1.5 file pixels or more for each CSS pixel of the screen it fills.
  */
-const PHONE_WIDTHS: Record<string, number> = {
-  "/showcase/care-dashboard/appointments-week.webp": 2160,
-  "/showcase/care-dashboard/claims.webp": 1920,
-  "/showcase/care-dashboard/overview.webp": 1920,
-  "/showcase/care-dashboard/rpm-overview-cgm.webp": 1440,
-  "/showcase/bayyinah/web-02.webp": 2160,
-  "/showcase/bayyinah/web-05.webp": 1920,
-  "/showcase/design-system/date-range.webp": 2160,
-  "/showcase/incentiv/web-03.webp": 1920,
-  "/personal/shots/offday-light-shifts-desktop.webp": 2160,
-  "/personal/shots/offbeat-studio-desktop.webp": 960,
-  "/personal/shots/form-studio-desktop.webp": 960,
-};
+const PHONE_COPIES = new Set([
+  "/showcase/care-dashboard/appointments-week.webp",
+  "/showcase/care-dashboard/claims.webp",
+  "/showcase/care-dashboard/overview.webp",
+  "/showcase/care-dashboard/rpm-overview-cgm.webp",
+  "/showcase/bayyinah/web-01.webp",
+  "/showcase/bayyinah/web-02.webp",
+  "/showcase/bayyinah/web-03.webp",
+  "/showcase/bayyinah/web-04.webp",
+  "/showcase/bayyinah/web-05.webp",
+  "/showcase/bayyinah/web-06.webp",
+  "/showcase/design-system/date-range.webp",
+  "/showcase/design-system/storybook-from-to.webp",
+  "/showcase/incentiv/web-03.webp",
+  "/personal/shots/offday-light-shifts-desktop.webp",
+  "/personal/shots/offbeat-studio-desktop.webp",
+  "/personal/shots/form-studio-desktop.webp",
+]);
 
 /** The image, with the smaller copy of its file for phone screens. The `img` keeps the original `src`, because the plate hand-off matches pictures by it. */
 export function PhonePicture({ src, children }: { src: string; children: ReactElement<"img"> }) {
-  const width = PHONE_WIDTHS[src];
-  if (!width) return children;
+  if (!PHONE_COPIES.has(src)) return children;
   return (
     <picture>
-      <source media="(max-width: 480px)" srcSet={src.replace(/\.webp$/, `-${width}.webp`)} />
+      <source media="(max-width: 640px)" srcSet={src.replace(/\.webp$/, "-1080.webp")} />
       {children}
     </picture>
   );

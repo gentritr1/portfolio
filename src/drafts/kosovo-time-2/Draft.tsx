@@ -16,7 +16,8 @@ import {
 } from "react";
 import { flushSync, preload } from "react-dom";
 import { Link as RouterLink, useLocation, useNavigate, useNavigationType } from "react-router";
-import { PhonePicture } from "../../components/PhonePicture";
+import { BrowserFrame } from "../../components/BrowserFrame";
+import { PhoneFrame } from "../../components/PhoneFrame";
 import { links } from "../../content/links";
 import { canWalk, inView, wait } from "../../lib/plateWalk";
 import { preloadCase } from "../../lib/routes";
@@ -33,7 +34,6 @@ import {
   type Card,
   type Concept,
   type Count,
-  type Crop,
   type Link,
   type Row,
   type Shot,
@@ -791,39 +791,24 @@ function SunLine() {
 
 const NarrowContext = createContext(false);
 
-function ShotImage({ shot, crop, eager = false }: { shot: Shot; crop?: Crop; eager?: boolean }) {
-  const style: CSSProperties | undefined = crop
-    ? {
-        position: "absolute",
-        width: `${(shot.width / crop.w) * 100}%`,
-        height: `${(shot.height / crop.h) * 100}%`,
-        left: `${(-crop.x / crop.w) * 100}%`,
-        top: `${(-crop.y / crop.h) * 100}%`,
-        maxWidth: "none",
-      }
-    : undefined;
+/** The whole screen in its device frame: a browser for a desktop capture, a phone for a store listing. */
+function Screen({ shot, eager = false, label }: { shot: Shot; eager?: boolean; label?: string }) {
+  if (!shot.bar) return <PhoneFrame src={shot.src} alt={shot.alt} eager={eager} />;
   return (
-    <PhonePicture src={shot.src}>
-      <img
-        src={shot.src}
-        alt={shot.alt}
-        width={shot.width}
-        height={shot.height}
-        loading={eager ? "eager" : "lazy"}
-        decoding="async"
-        fetchPriority={eager ? "high" : "auto"}
-        style={style}
-      />
-    </PhonePicture>
+    <BrowserFrame
+      src={shot.src}
+      alt={shot.alt}
+      width={shot.width}
+      height={shot.height}
+      label={label ?? shot.bar.label}
+      site={shot.bar.site}
+      tone={shot.bar.tone}
+      eager={eager}
+    />
   );
 }
 
-const cropOf = (shot: Shot, narrow: boolean) => (narrow && shot.narrowCrop) || shot.crop;
-/** The plate's shape, from the crop it shows on a wide screen. */
-const shapeOf = (shot: Shot) => {
-  const c = shot.crop ?? { w: shot.width, h: shot.height };
-  return c.h > c.w ? "phone" : "wide";
-};
+const shapeOf = (shot: Shot) => (shot.bar ? "wide" : "phone");
 
 const pictureOf = (element: Element | null) => {
   const src = element?.querySelector("img")?.getAttribute("src");
@@ -920,16 +905,11 @@ function useOpen(slug: string | undefined) {
 
 /** The plate is a link. It is out of the tab order, because the row's "Read the case" link goes to the same page. */
 function Plate({ shot, slug, href }: { shot: Shot; slug?: string; href?: string }) {
-  const narrow = use(NarrowContext);
   const shape = shapeOf(shot);
-  // A phone screen keeps its own shape on a phone too: it stands beside the words as a whole screen.
-  const crop = cropOf(shot, narrow && shape === "wide");
   const open = useOpen(slug);
-  const style = crop ? { aspectRatio: `${crop.w} / ${crop.h}` } : undefined;
-  const first = colourOf(shot.src);
   const inner = (
-    <span className="k2-press" style={first ? { background: `#${first.slice(0, 6)}` } : undefined}>
-      <ShotImage shot={shot} crop={crop} />
+    <span className="k2-press">
+      <Screen shot={shot} />
     </span>
   );
   if (slug)
@@ -939,7 +919,6 @@ function Plate({ shot, slug, href }: { shot: Shot; slug?: string; href?: string 
         data-k2-panel
         data-shape={shape}
         data-plate={pressed.get(slug) === "lead" ? undefined : slug}
-        style={style}
         to={`/work/${slug}`}
         {...warmProps(slug)}
         tabIndex={-1}
@@ -950,12 +929,12 @@ function Plate({ shot, slug, href }: { shot: Shot; slug?: string; href?: string 
     );
   if (href)
     return (
-      <a className="k2-plate" data-k2-panel data-shape={shape} style={style} href={href} target="_blank" rel="noreferrer" tabIndex={-1}>
+      <a className="k2-plate" data-k2-panel data-shape={shape} href={href} target="_blank" rel="noreferrer" tabIndex={-1}>
         {inner}
       </a>
     );
   return (
-    <figure className="k2-plate" data-k2-panel data-shape={shape} data-still style={style}>
+    <figure className="k2-plate" data-k2-panel data-shape={shape} data-still>
       {inner}
     </figure>
   );
@@ -1232,9 +1211,8 @@ function ConceptText({ concept: c }: { concept: Concept }) {
 }
 
 /** The first screen's plates carry their own title bar, so their labels never stand on the floor. */
-function LeadPlate({ shot, name, note, short, slug, kind }: { shot: Shot; name: string; note: string; short?: string; slug: string; kind: string }) {
+function LeadPlate({ shot, name, short, slug, kind }: { shot: Shot; name: string; short?: string; slug: string; kind: string }) {
   const narrow = use(NarrowContext);
-  const crop = cropOf(shot, narrow);
   const open = useOpen(slug);
   return (
     <RouterLink
@@ -1247,17 +1225,8 @@ function LeadPlate({ shot, name, note, short, slug, kind }: { shot: Shot; name: 
       onClick={(event) => open(event, event.currentTarget)}
     >
       <span className="k2-press">
-        <span className="k2-bar">
-          <strong>{name}</strong>
-          <span>{narrow && short ? short : note}</span>
-          <span className="k2-bar-go" aria-hidden="true">
-            →
-          </span>
-          <span className="k2-sr">: read the case</span>
-        </span>
-        <span className="k2-lead-shot" style={crop ? { aspectRatio: `${crop.w} / ${crop.h}` } : undefined}>
-          <ShotImage shot={shot} crop={crop} eager />
-        </span>
+        <span className="k2-sr">{name}: read the case. </span>
+        <Screen shot={shot} eager label={narrow && short ? short : undefined} />
       </span>
     </RouterLink>
   );
@@ -1516,27 +1485,19 @@ export default function Draft() {
                 </section>
                 <SunLine />
               </div>
-              {narrow ? (
-                <>
-                  <Ground name="lead-web" className="k2-stage" screens={[colourOf(leadWeb.shot.src)]} gl fade={48} arrive={leadArrive}>
-                    <div className="k2-leads">
-                      <LeadPlate {...leadWeb} kind="web" />
-                    </div>
-                  </Ground>
-                  <Ground name="lead-phone" className="k2-stage k2-stage-phone" screens={[colourOf(leadPhone.shot.src)]} fade={48} arrive="enter">
-                    <div className="k2-leads">
-                      <LeadPlate {...leadPhone} kind="phone" />
-                    </div>
-                  </Ground>
-                </>
-              ) : (
-                <Ground name="lead" className="k2-stage" screens={[colourOf(leadWeb.shot.src), colourOf(leadPhone.shot.src)]} gl fade={64} arrive={leadArrive}>
-                  <div className="k2-leads">
-                    <LeadPlate {...leadWeb} kind="web" />
-                    <LeadPlate {...leadPhone} kind="phone" />
-                  </div>
-                </Ground>
-              )}
+              <Ground
+                name="lead"
+                className="k2-stage"
+                screens={[colourOf(leadWeb.shot.src), colourOf(leadPhone.shot.src)]}
+                gl
+                fade={narrow ? 48 : 64}
+                arrive={leadArrive}
+              >
+                <div className="k2-leads">
+                  <LeadPlate {...leadWeb} kind="web" />
+                  <LeadPlate {...leadPhone} kind="phone" />
+                </div>
+              </Ground>
             </div>
 
             <section className="k2-section" id="work" aria-labelledby="k2-client">
@@ -1560,7 +1521,7 @@ export default function Draft() {
                 <WorkRow row={offday} />
                 {stacked ? (
                   concepts.map((c) => (
-                    <li key={c.id} className="k2-row" data-shape={narrow && c.plate.narrowCrop ? "phone" : "wide"}>
+                    <li key={c.id} className="k2-row" data-shape="wide">
                       <Ground name={c.id} className="k2-row-stage" screens={[colourOf(c.plate.src)]} sides={40} arrive="enter">
                         <Plate shot={c.plate} href={c.links[0]?.href} />
                       </Ground>

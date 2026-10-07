@@ -1,0 +1,418 @@
+/* Device frames, the stage they stand on, and the screen carousel. Shared by the home page and the case pages. */
+
+.fr-browser,
+.fr-phone,
+.fr-stage,
+.fr-carousel {
+  --fr-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --fr-lift:
+    0 1px 1px rgb(14 14 24 / 0.04), 0 3px 6px -1px rgb(14 14 24 / 0.06), 0 12px 24px -8px rgb(14 14 24 / 0.12),
+    0 32px 64px -20px rgb(14 14 24 / 0.2);
+}
+
+.fr-browser *,
+.fr-phone *,
+.fr-stage *,
+.fr-carousel * {
+  box-sizing: border-box;
+}
+
+/* ---------- Browser ---------- */
+
+.fr-browser {
+  --fr-bar-bg: #f3f3f5;
+  --fr-dot: #d9d9de;
+  --fr-pill: #ffffff;
+  --fr-pill-ink: #55555f;
+  --fr-edge: rgb(16 16 26 / 0.12);
+  container-type: inline-size;
+  position: relative;
+  display: block;
+  width: 100%;
+  border-radius: var(--fr-radius, 12px);
+  background: var(--fr-bar-bg);
+  box-shadow:
+    0 0 0 1px var(--fr-edge),
+    var(--fr-lift);
+}
+
+.fr-browser[data-tone="dark"] {
+  --fr-bar-bg: #1c1c20;
+  --fr-dot: #3d3d45;
+  --fr-pill: #2a2a30;
+  --fr-pill-ink: #b3b3bd;
+  --fr-edge: rgb(0 0 0 / 0.55);
+}
+
+.fr-browser-clip {
+  display: block;
+  overflow: hidden;
+  border-radius: inherit;
+}
+
+.fr-bar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: var(--fr-bar, clamp(22px, 3.2cqi, 40px));
+  padding: 0 clamp(9px, 1.5cqi, 18px);
+}
+
+.fr-dots {
+  display: flex;
+  gap: clamp(4px, 0.6cqi, 8px);
+}
+
+.fr-dots i {
+  display: block;
+  width: clamp(6px, 0.8cqi, 11px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--fr-dot);
+}
+
+.fr-url {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45em;
+  max-width: min(64%, 100% - 92px);
+  height: 64%;
+  padding: 0 1.1em;
+  border-radius: 999px;
+  background: var(--fr-pill);
+  color: var(--fr-pill-ink);
+  font-size: clamp(10px, 1.05cqi, 13px);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  transform: translate(-50%, -50%);
+}
+
+.fr-browser[data-tone="light"] .fr-url {
+  box-shadow: 0 0 0 1px rgb(16 16 26 / 0.06);
+}
+
+.fr-url span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fr-url svg {
+  flex: none;
+  width: 0.95em;
+  height: 0.95em;
+  opacity: 0.7;
+}
+
+.fr-screen {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  box-shadow: 0 -1px 0 var(--fr-edge);
+}
+
+.fr-screen picture {
+  display: contents;
+}
+
+.fr-browser .fr-screen img {
+  position: static;
+  display: block;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  object-fit: cover;
+  object-position: top left;
+}
+
+/* ---------- Phone ---------- */
+
+/* Units are a part of the phone's width (cqi). The glass is 93.6 wide; a 393 x 852 screen with a 54 status bar. */
+.fr-phone {
+  container-type: inline-size;
+  position: relative;
+  display: block;
+  width: 100%;
+}
+
+.fr-phone-body {
+  position: relative;
+  display: block;
+  padding: 3.2cqi;
+  border-radius: 16.3cqi;
+  background: linear-gradient(150deg, #4a4b51 0%, #1d1e22 22%, #141518 62%, #2f3035 100%);
+  box-shadow:
+    inset 0 0 0 0.3cqi rgb(255 255 255 / 0.16),
+    0 0 0 1px rgb(0 0 0 / 0.42),
+    var(--fr-lift);
+}
+
+/* The side buttons: the action button and the volume on the left, the power button on the right. */
+.fr-phone-body::before,
+.fr-phone-body::after {
+  content: "";
+  position: absolute;
+  width: 0.9cqi;
+  border-radius: 0.5cqi;
+  background: linear-gradient(90deg, #26272b, #46474d);
+}
+
+.fr-phone-body::before {
+  left: -0.75cqi;
+  top: 19%;
+  height: 4.5%;
+  box-shadow:
+    0 9cqi 0 #2f3035,
+    0 23cqi 0 #2f3035;
+}
+
+.fr-phone-body::after {
+  right: -0.75cqi;
+  top: 27%;
+  height: 11%;
+  background: linear-gradient(270deg, #26272b, #46474d);
+}
+
+.fr-phone-glass {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  border-radius: 13.1cqi;
+  background: var(--fr-fill, #fff);
+  box-shadow: 0 0 0 2cqi #050506;
+  isolation: isolate;
+}
+
+.fr-phone-status {
+  position: relative;
+  display: block;
+  height: 12.86cqi;
+}
+
+.fr-phone-island {
+  position: absolute;
+  left: 50%;
+  top: 2.6cqi;
+  width: 30cqi;
+  height: 8.8cqi;
+  border-radius: 999px;
+  background: #000;
+  transform: translateX(-50%);
+}
+
+.fr-phone-view {
+  position: relative;
+  display: block;
+  aspect-ratio: 1 / 2.0305;
+  overflow: hidden;
+}
+
+.fr-phone .fr-phone-view img {
+  position: absolute;
+  display: block;
+  max-width: none;
+  height: auto;
+  object-fit: fill;
+}
+
+.fr-phone-fill {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: block;
+  background: linear-gradient(to bottom, color-mix(in srgb, var(--fr-fill) 0%, transparent), var(--fr-fill) 9cqi);
+}
+
+/* ---------- Stage: the inset panel in the project's own colour ---------- */
+
+figure.fr-stage {
+  --fr-stage-ink: #26262c;
+  --fr-stage-soft: #4a4a52;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0;
+  padding: clamp(20px, 4cqi, 48px) clamp(16px, 4cqi, 48px) clamp(16px, 2.6cqi, 28px);
+  border-radius: 16px;
+  background: var(--fr-stage);
+  color: var(--fr-stage-ink);
+  container-type: inline-size;
+  box-shadow: inset 0 0 0 1px rgb(14 14 24 / 0.06);
+}
+
+.fr-stage[data-tone="dark"] {
+  --fr-stage-ink: #f2efea;
+  --fr-stage-soft: #c9c5cf;
+  --fr-lift:
+    0 1px 1px rgb(0 0 0 / 0.2), 0 4px 8px -2px rgb(0 0 0 / 0.28), 0 16px 32px -10px rgb(0 0 0 / 0.42),
+    0 40px 72px -24px rgb(0 0 0 / 0.5);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.06);
+}
+
+.fr-stage-caption {
+  align-self: stretch;
+  margin: clamp(16px, 2.6cqi, 24px) 0 0;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.45;
+  color: var(--fr-stage-soft);
+  text-wrap: pretty;
+}
+
+/* ---------- Carousel ---------- */
+
+.fr-carousel {
+  display: block;
+  width: 100%;
+}
+
+.fr-carousel-view {
+  display: grid;
+  touch-action: pan-y;
+}
+
+.fr-slide {
+  grid-area: 1 / 1;
+  min-width: 0;
+  transition:
+    opacity 280ms var(--fr-out),
+    transform 280ms var(--fr-out);
+}
+
+.fr-slide[data-place="before"] {
+  opacity: 0;
+  transform: translateX(-12px);
+  pointer-events: none;
+}
+
+.fr-slide[data-place="after"] {
+  opacity: 0;
+  transform: translateX(12px);
+  pointer-events: none;
+}
+
+.fr-carousel-bar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  column-gap: 16px;
+  margin-top: clamp(16px, 2.6cqi, 24px);
+}
+
+.fr-count {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  min-width: 0;
+  font-size: 14px;
+  line-height: 1.3;
+}
+
+.fr-count-n {
+  flex: none;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.fr-count-n span {
+  font-weight: 400;
+  color: var(--fr-stage-soft);
+}
+
+.fr-count-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fr-dashes {
+  display: flex;
+  gap: 6px;
+}
+
+.fr-dashes i {
+  display: block;
+  width: 14px;
+  height: 2px;
+  border-radius: 1px;
+  background: currentColor;
+  opacity: 0.28;
+  transition:
+    width 280ms var(--fr-out),
+    opacity 280ms var(--fr-out);
+}
+
+.fr-dashes i[data-on] {
+  width: 26px;
+  opacity: 1;
+}
+
+.fr-steps {
+  display: flex;
+  gap: 8px;
+}
+
+.fr-step {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  margin: 0;
+  padding: 0;
+  border: 1px solid color-mix(in srgb, currentColor 32%, transparent);
+  border-radius: 50%;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  transition:
+    transform 140ms var(--fr-out),
+    background-color 160ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.fr-step svg {
+  width: 18px;
+  height: 18px;
+}
+
+.fr-carousel .fr-step:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+  border-radius: 50%;
+}
+
+.fr-step:active {
+  transform: scale(0.96);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .fr-step:hover {
+    background: color-mix(in srgb, currentColor 10%, transparent);
+  }
+}
+
+@media (max-width: 479px) {
+  .fr-dashes {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fr-slide,
+  .fr-dashes i,
+  .fr-step {
+    transition: none;
+  }
+
+  .fr-slide[data-place] {
+    transform: none;
+  }
+}

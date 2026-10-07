@@ -1,20 +1,19 @@
-const DATE_RANGE = "/showcase/design-system/date-range.webp";
+const DATE_RANGE = "/showcase/design-system/storybook-from-to.webp";
 
+/** The address bar of a browser frame: a public address (`site`), or a neutral label for a private app. */
+export interface Bar {
+  label: string;
+  site?: boolean;
+  tone: "light" | "dark";
+}
+
+/** A whole screen: a desktop capture in a browser frame (`bar`), or a store-listing capture in a phone frame. */
 export interface Shot {
   src: string;
   width: number;
   height: number;
   alt: string;
-  /** The part of the source that the plate shows, in the shot's units. */
-  crop?: Crop;
-  /** The part a phone screen shows, so the screen's own text stays readable. */
-  narrowCrop?: Crop;
-}
-export interface Crop {
-  x: number;
-  y: number;
-  w: number;
-  h: number;
+  bar?: Bar;
 }
 export interface Link {
   label: string;
@@ -68,9 +67,11 @@ export interface Row {
   small?: boolean;
 }
 
-/** Desktop captures are 2880 x 1800 files. Crops are in CSS pixels of a 1440 x 900 screen. */
-const desktop = (src: string, alt: string, crop: Crop, narrowCrop?: Crop): Shot => ({ src, width: 1440, height: 900, alt, crop, narrowCrop });
-const iphone = (src: string, alt: string, crop: Crop): Shot => ({ src, width: 780, height: 1689, alt, crop });
+/** Desktop captures are 2880 x 1800 files of a 1440 x 900 screen. */
+const desktop = (src: string, alt: string, bar: Bar): Shot => ({ src, width: 1440, height: 900, alt, bar });
+const iphone = (src: string, alt: string): Shot => ({ src, width: 780, height: 1689, alt });
+
+const CARE_BAR: Bar = { label: "Care platform · invented data", tone: "light" };
 
 export const REAL_SCREENS = "Real product screens, invented data.";
 
@@ -78,14 +79,12 @@ export const REAL_SCREENS = "Real product screens, invented data.";
 export const leadWeb = {
   shot: desktop(
     "/showcase/care-dashboard/appointments-week.webp",
-    "Care team calendar for one week, from 8 AM to noon: calls, video calls and office visits for each patient. Invented data.",
-    { x: 256, y: 84, w: 1184, h: 530 },
-    { x: 472, y: 212, w: 478, h: 402 },
+    "Care team calendar for one week: calls, video calls and office visits for each patient, and a line at the current time. Invented data.",
+    { label: "Care platform · real product screen, invented data", tone: "light" },
   ),
   name: "Care platform",
-  note: "Web app · real screen, invented data",
-  /** The note on a phone, where the bar is narrow. */
-  short: "Real screen, invented data",
+  /** The address bar on a phone, where the bar is narrow. */
+  short: "Real product screen, invented data",
   slug: "care-platform",
 };
 
@@ -93,10 +92,8 @@ export const leadPhone = {
   shot: iphone(
     "/mobile/grocery-3.webp",
     "Viva Fresh cart in Albanian: four products with quantities, the discount, and the total of 25.11 euro",
-    { x: 100, y: 440, w: 580, h: 1030 },
   ),
   name: "Viva Fresh",
-  note: "Phone app",
   slug: "viva-fresh",
 };
 
@@ -114,8 +111,7 @@ export const client: Row[] = [
     plate: desktop(
       "/showcase/care-dashboard/claims.webp",
       "Claims for one month: counts by status, filters, and each claim with its program, CPT codes and status. Invented data.",
-      { x: 246, y: 160, w: 1194, h: 714 },
-      { x: 256, y: 270, w: 560, h: 300 },
+      CARE_BAR,
     ),
     count: { from: 16, to: 2, label: "database requests for one billing report, before and after" },
     card: {
@@ -149,8 +145,7 @@ export const client: Row[] = [
     plate: desktop(
       "/showcase/bayyinah/web-02.webp",
       "Bayyinah TV library: search, filters and a row of courses, one marked LIVE",
-      { x: 84, y: 236, w: 922, h: 664 },
-      { x: 95, y: 505, w: 620, h: 340 },
+      { label: "bayyinahtv.com", site: true, tone: "dark" },
     ),
   },
   {
@@ -165,9 +160,8 @@ export const client: Row[] = [
     links: [],
     plate: desktop(
       DATE_RANGE,
-      "Design System v2 date range picker, open: the presets, June and July 2026, and the range June 22 to July 9. Invented data.",
-      { x: 4, y: 36, w: 780, h: 432 },
-      { x: 8, y: 36, w: 476, h: 364 },
+      "Design System v2 in its Storybook: the list of components, and the From and To date pickers with June 2026 open.",
+      { label: "Storybook · Design System v2", tone: "light" },
     ),
     card: {
       title:
@@ -199,7 +193,6 @@ export const client: Row[] = [
     plate: iphone(
       "/mobile/grocery-2.webp",
       "Viva Fresh Fresh category in Albanian: a grid of products with prices and cart buttons",
-      { x: 92, y: 560, w: 596, h: 728 },
     ),
   },
   {
@@ -224,7 +217,6 @@ export const client: Row[] = [
     plate: iphone(
       "/mobile/reading-1.webp",
       "Read to Feed's My Books screen: The Tale of Peter Rabbit read to 36%, Anne of Green Gables read to 90%, and the next books in each series",
-      { x: 91, y: 500, w: 598, h: 790 },
     ),
   },
   {
@@ -242,7 +234,6 @@ export const client: Row[] = [
     plate: iphone(
       "/mobile/bookstore-2.webp",
       "Dukagjini Bookstore foreign books: ratings, prices and favourites",
-      { x: 117, y: 740, w: 546, h: 700 },
     ),
   },
   {
@@ -262,7 +253,7 @@ export const client: Row[] = [
     plate: desktop(
       "/showcase/incentiv/web-03.webp",
       "Incentiv portal sign-in: Welcome to Incentiv, then Passkey, MetaMask and WalletConnect options",
-      { x: 176, y: 262, w: 560, h: 400 },
+      { label: "portal.incentiv.io", site: true, tone: "dark" },
     ),
   },
 ];
@@ -286,8 +277,7 @@ export const concepts: Concept[] = [
     plate: desktop(
       "/personal/shots/offbeat-studio-desktop.webp",
       "OFFBEAT studio: the speaker in 3D beside an eight-step grid for kick, snare, hi-hat and bass, while the beat plays",
-      { x: 65, y: 30, w: 1310, h: 730 },
-      { x: 67, y: 30, w: 520, h: 728 },
+      { label: "OFFBEAT · concept site", tone: "dark" },
     ),
   },
   {
@@ -299,8 +289,7 @@ export const concepts: Concept[] = [
     plate: desktop(
       "/personal/shots/form-studio-desktop.webp",
       "FORM collection: a copper trefoil knot and a chrome ring, each with its formula",
-      { x: 52, y: 196, w: 1340, h: 700 },
-      { x: 160, y: 208, w: 500, h: 690 },
+      { label: "FORM · concept site", tone: "dark" },
     ),
   },
 ];
@@ -317,8 +306,7 @@ export const offday: Row = {
   plate: desktop(
     "/personal/shots/offday-light-shifts-desktop.webp",
     "Offday Shifts week grid with morning and evening shifts, two of them flagged Needs cover because the person is on leave",
-    { x: 0, y: 0, w: 1440, h: 900 },
-    { x: 268, y: 240, w: 450, h: 262 },
+    { label: "Offday · private app", tone: "light" },
   ),
 };
 
@@ -354,31 +342,31 @@ export const games: Note[] = [
 /** The white work-loop card, as a screen colour for the floor at night. */
 export const CARD_COLOURS = "f7f6f2".repeat(16);
 
-/** Each screen's colours as a 4 x 4 grid of sRGB hex, top row first, sampled from the part the plate shows.
+/** Each screen's colours as a 4 x 4 grid of sRGB hex, top row first, sampled from the whole screen the frame shows.
  * They light the floor at night, so the page never fetches a screenshot only to sample it. */
 export const screenColours: Record<string, string> = {
   "/showcase/care-dashboard/appointments-week.webp":
-    "f5f5f5f9f9f9f2f4f5e1eaeefcfcfcfcfcfcfbfbfbfcfcfcfbfbfcf8f6fbf4f2f9f5f4fafdfdfdfaf9fcf0f7f3f9f8fb",
+    "f7f8f9fafafaf4f7f8f4f6f8fdfdfdfbfafdfbfafdfcfcfdfefefefafbfcf5f8f7fbfbfcfefefef7f8faf5f7f9f9fafb",
   "/mobile/grocery-3.webp":
-    "ebe9e8e9e5e5eaeaeae9e9e9cab6a9e2dddde1e1e1e9e9e9e3d2c5e3dfdee5e6e6ebececefacaaf3acacd29f92cea294",
+    "eeededeae6e6e7e7e7ebececd0c0b4e3dddce2e3e3ebecece9d9d1ece5e5e5e6e6edeeeef2c1c1f2b8b8d7a89dd9b6ac",
   "/showcase/care-dashboard/claims.webp":
-    "faf7eefaf8eefbf9f1fdfbf3f9f9fafbfaf9f9f9f9fcfcfcf3f3f4f7f8f7f6f6f7f8f9faf6f6f7f4f8f5f6f4f4e6eef1",
+    "f6f7f6f9f7f2fcfbf7fcfbf8fbfbfafcfbf8fcfcf9fefdfafbfbfcf6f7f8f9f8f9fafafbfdfdfef5f8f7fbfafaeff4f5",
   "/showcase/bayyinah/web-02.webp":
-    "261f22272023322a2d2c2427282124231b1e231b1e231b1e6d5752324048302e3282645a46393c1d1a1c2b272a4b3d3e",
-  "/showcase/design-system/date-range.webp":
-    "f7f7f8fafafafdfdfdfafafaf3f3f3f8f8f8f1f4f5e7eff2f4f4f4e2ebeff2f4f5f5f5f5f9f9f9f7f7f8f7f8f8e1eaee",
+    "281e202b2125291f22311e1e261f222c25282a2326251e213c33331a272f4d3a364c3d3548393c1f1f215d4d4c413631",
+  "/showcase/design-system/storybook-from-to.webp":
+    "f8f8f8fafbfcfefefefffffff3f5f6f0f3f5fbfcfdfffffffefefefefefeffffffffffffffffffffffffffffffffffff",
   "/mobile/grocery-2.webp":
-    "557d5171986e87ab82709a70e2e1e1f0ebeceeefeeeae5e6f4f3f3f3f2f2e3ebf0e8edf0f0eaeaf0f0efece7e7f1f1f0",
+    "766c6096786aab867b968d7ec9dccdd0e3d4cee3d4cbddcff0ebebf0efefe8e8eaedeff0f5eeedf1ececeae0ddf1c9c6",
   "/mobile/reading-1.webp":
-    "e0ebedd3e2e7cbdee7d8e7ee9bb6af76a2a72e84ac4591b475bbdd5fb1d85db0d973badcabd5e79fcfe59fd0e5aed7e8",
+    "dae6e6b6d3d9a3c7d8bcd7e38ec0d25ca6c64a9fc872b4d3c0cdc7bdc8b9cdd3badbdec8e4c295e6b671fcc472fcd191",
   "/mobile/bookstore-2.webp":
-    "f9f9f9edededeeeeeef7ecece6e4deeeede9f3f3f3fdfbfbe1c6b4f0eceafdfcfcfdfdfd79bdc7d3dadaedecebf9f9f9",
+    "f9f9f9f1f1f1f3f3f3faf2f2ddcab9eeebe6f8f8f8fefcfca5d3d9dbe2e2f1f0effbfbfba7a7a7d9d6d4f6f5f5fdfdfd",
   "/showcase/incentiv/web-03.webp":
-    "50514d4a4b483636322526233939362e2f2c2728252526232929272c2924262826282825292a27342c242c2822252623",
+    "1313131415141414141313132a2a282d2e2b20201e1a1a191e1f1d2b29252321201c1a191313121414141212121c1c1a",
   "/personal/shots/offbeat-studio-desktop.webp":
-    "322823322e201b1b150e0e0c1c1c18252017585a274b4a2221211c1a1a152324141b1b1226271a262717232414191a17",
+    "26201c2e281e1919140e0e0c191916242118575827393a1d25251b1a1b161415101818161313101d1d131c1c110e0e0c",
   "/personal/shots/form-studio-desktop.webp":
-    "372b23392e261d1b1b1b1b1b4333274833252d323730383e372e272f26203034392e363c1f1d1c1c1a18201f1e1c1b1a",
+    "2624231c1a191b19181b19183b2f26423227222325212325392f27403125383c3f31373c211f1d1c1a192121211d1d1e",
   "/personal/shots/offday-light-shifts-desktop.webp":
-    "f1eeeff6f4f4fbf9faf6eef0f5f0f1f1f4f3f0f6f5f5f4f4f5f3f4eff1f3ecf2f6f3f3f2f4f1f2ebf1f0e8f2f3eceeee",
+    "f2f0f1f7f5f5fcfafbf7eff1f6f1f2f3f5f4f2f7f6f6f5f6f6f5f5f0f3f4edf4f7f4f4f4f5f2f3ecf2f2eaf4f4eeeff0",
 };

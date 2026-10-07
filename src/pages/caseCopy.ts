@@ -14,20 +14,30 @@ export interface Shot {
   alt: string;
   width: number;
   height: number;
-  /** The part a wide screen shows. It is never shown above its source pixels. */
-  crop: Px;
-  /** The page's own colour, behind the shot while it loads. */
-  ground: string;
   /** A cleaner image for the enlarged view, when the source carries tool chrome. */
   full?: { src: string; width: number; height: number };
 }
 
+/** The address bar of a web plate: a public address (`site`), or a neutral label for a private app. */
+export interface Bar {
+  label: string;
+  site?: boolean;
+  tone: "light" | "dark";
+}
+
+/** One more screen of a web plate, shown in its carousel after the plate's own screen. */
+export interface More extends Shot {
+  name: string;
+}
+
 /**
- * A shot plate may carry the product's public links beside the shot. The value is the panel title.
- * A plate that no part names stands after the parts, with no ring; `narrow` is its phone crop.
+ * A web plate is a whole desktop capture in a browser frame; a phone plate is the app's whole screen in a phone frame.
+ * `stores`: the product's public links stand beside the plate. A plate that no part names stands after the parts, with no ring.
+ * `name` and `more`: the plate is a carousel of screens; the ring stays on the first one.
  */
 export type Plate =
-  | ({ kind: "web" | "phone"; stores?: string; narrow?: Px; narrowAlt?: string } & Shot)
+  | ({ kind: "web"; bar: Bar; stores?: string; name?: string; more?: More[] } & Shot)
+  | ({ kind: "phone"; stores?: string } & Shot)
   | {
       kind: "number";
       from?: string;
@@ -74,12 +84,10 @@ export interface Part {
   plate: number;
   target: Target;
   /**
-   * The crop the phone layout shows under this part. "stores": only the plate's link panel.
+   * The phone layout: "plate" shows the part's plate under it; "stores" shows only the plate's links.
    * Omitted: the part shows no plate on a phone. The first part's plate is the phone hero, under the title.
    */
-  narrow?: Px | "number" | "flow" | "stores";
-  /** What the phone crop shows, when it is a different part of the shot. */
-  narrowAlt?: string;
+  narrow?: "plate" | "stores";
   /** Lines of one test that passed on the old app and on the new app, shown under the result line. */
   twin?: string[];
   /** The caption under `twin`: the screen and the date of the run. */
@@ -98,6 +106,8 @@ export interface CaseCopy {
   /** Omitted: the role from projects.ts, the same words as the home page row. */
   role?: string;
   platforms: string;
+  /** The project's own colour: the ground of the panel that the screens stand on. */
+  stage: string;
   /** Shown in the facts row when the product has no public page. */
   privateNote?: string;
   plates: Plate[];
@@ -115,45 +125,59 @@ export interface CaseCopy {
 
 const BOTH_STORES = "Live in both app stores";
 
-/* Wide crops stay at 1:1 or close, so the screen's own text stays readable. */
+const desktop = (src: string, alt: string): Shot => ({ src, alt, width: 1440, height: 900 });
 
-const bayyinahLibrary: Shot = {
-  src: "/showcase/bayyinah/web-02.webp",
-  alt: "Bayyinah TV library: filters and a row of courses, one marked LIVE",
-  width: 1440,
-  height: 900,
-  crop: { x: 84, y: 356, w: 922, h: 540 },
-  ground: "#251e21",
-};
+const CARE_BAR: Bar = { label: "Care platform · invented data", tone: "light" };
+const BAYYINAH_BAR: Bar = { label: "bayyinahtv.com", site: true, tone: "dark" };
 
-const bayyinahSeries: Shot = {
-  src: "/showcase/bayyinah/web-05.webp",
-  alt: "Bayyinah TV series page: the list of series at the side, and three episode cards of Moses 2, each with its title, length and date",
-  width: 1440,
-  height: 900,
-  crop: { x: 84, y: 500, w: 1260, h: 344 },
-  ground: "#251e21",
-};
+/** A care dashboard screen. Its full alt and enlarged view come from careShots; the frame shows the whole capture. */
+const shotOf = ({ src, alt, width, height, full }: Shot): Shot => ({ src, alt, width, height, full });
+const care = (shot: Shot) => ({ kind: "web" as const, bar: CARE_BAR, ...shotOf(shot) });
 
-const incentivSignIn: Shot = {
-  src: "/showcase/incentiv/web-03.webp",
-  alt: "Incentiv portal sign-in: Welcome to Incentiv, then Passkey, MetaMask and WalletConnect options",
-  width: 1440,
-  height: 900,
-  crop: { x: 168, y: 186, w: 1104, h: 528 },
-  ground: "#262624",
-};
+const bayyinahLibrary = desktop(
+  "/showcase/bayyinah/web-02.webp",
+  "Bayyinah TV library: filters and a row of courses, one marked LIVE",
+);
 
+const bayyinahSeries = desktop(
+  "/showcase/bayyinah/web-05.webp",
+  "Bayyinah TV series page: the list of series at the side, and three episode cards of Moses 2, each with its title, length and date",
+);
 
-const phone = (src: string, alt: string, crop: Px): { kind: "phone" } & Shot => ({
-  kind: "phone",
-  src,
-  alt,
-  width: 780,
-  height: 1689,
-  crop,
-  ground: "#ffffff",
-});
+const bayyinahMore: More[] = [
+  {
+    name: "Home page",
+    ...desktop(
+      "/showcase/bayyinah/web-01.webp",
+      "Bayyinah TV home page: Quran Studies Made Simple, the free trial and Watch Now buttons, and the app on a laptop, a tablet and a phone",
+    ),
+  },
+  {
+    name: "Arabic",
+    ...desktop(
+      "/showcase/bayyinah/web-03.webp",
+      "Bayyinah TV library, Arabic tab: courses to learn to read the Quran, and the Dream Arabic programme",
+    ),
+  },
+  {
+    name: "Stories",
+    ...desktop("/showcase/bayyinah/web-04.webp", "Bayyinah TV library, Stories tab: a row of story series"),
+  },
+  {
+    name: "Pricing",
+    ...desktop(
+      "/showcase/bayyinah/web-06.webp",
+      "Bayyinah TV pricing page: a monthly or an annual plan, and what the Premium plan includes",
+    ),
+  },
+];
+
+const incentivSignIn = desktop(
+  "/showcase/incentiv/web-03.webp",
+  "Incentiv portal sign-in: Welcome to Incentiv, then Passkey, MetaMask and WalletConnect options",
+);
+
+const phone = (src: string, alt: string): { kind: "phone" } & Shot => ({ kind: "phone", src, alt, width: 780, height: 1689 });
 
 
 /** In the order of the home page rows, so "Next project" walks the same list. */
@@ -163,12 +187,13 @@ export const caseCopy: Record<string, CaseCopy> = {
     sentence:
       "Care teams in many client organizations use this platform to follow patients at home. Each organization sees only its own patients.",
     platforms: "Web and mobile, and the server behind them",
+    stage: "#e2e7f0",
     privateNote: `Private app. ${REAL_SCREENS}`,
     plates: [
       { kind: "number", from: "16", to: "2", unit: "Database requests", note: "One billing report, before and after", marks: true },
-      { kind: "web", ...careShots.glucose },
-      { kind: "web", ...careShots.claims },
-      { kind: "web", ...careShots.week },
+      care(careShots.glucose),
+      care(careShots.claims),
+      care(careShots.week),
       {
         kind: "flow",
         steps: [
@@ -195,8 +220,7 @@ export const caseCopy: Record<string, CaseCopy> = {
         proof: "A screen moves over only after it passes the same tests in both apps.",
         plate: 3,
         target: { kind: "figure" },
-        narrow: careShots.weekTwoDays.crop,
-        narrowAlt: careShots.weekTwoDays.alt,
+        narrow: "plate",
         twin: ["A patient's name opens that patient", "The search stays when the tab changes", "A search with no match says so"],
         twinNote: "The same test passed on both apps. Patient compliance list, September 2026.",
       },
@@ -206,8 +230,7 @@ export const caseCopy: Record<string, CaseCopy> = {
         proof: "Vitals from connected devices, for each patient.",
         plate: 1,
         target: { kind: "shot", box: { x: 716, y: 156, w: 110, h: 68 } },
-        narrow: { x: 700, y: 138, w: 724, h: 532 },
-        narrowAlt: "Device usage, the spread of glucose values, and one afternoon and evening of the glucose curve for one patient. Invented data.",
+        narrow: "plate",
       },
       {
         heading: "What was built",
@@ -215,8 +238,7 @@ export const caseCopy: Record<string, CaseCopy> = {
         proof: "Claims that need another look are flagged.",
         plate: 2,
         target: { kind: "shot", box: { x: 676, y: 500, w: 308, h: 40 } },
-        narrow: careShots.claimsCounts.crop,
-        narrowAlt: careShots.claimsCounts.alt,
+        narrow: "plate",
       },
       {
         heading: "How it is built",
@@ -224,7 +246,7 @@ export const caseCopy: Record<string, CaseCopy> = {
         proof: "A check is trusted only after it is shown to fail.",
         plate: 4,
         target: { kind: "figure" },
-        narrow: "flow",
+        narrow: "plate",
       },
     ],
     numbers: 0,
@@ -259,11 +281,12 @@ export const caseCopy: Record<string, CaseCopy> = {
     sentence:
       "Bayyinah TV is a video-learning platform for an online community: courses, a scripture reader, videos and live classes.",
     platforms: "Web, and inside the iPhone and Android apps",
+    stage: "#47262d",
     plates: [
-      { kind: "web", ...bayyinahLibrary },
-      { kind: "web", ...bayyinahSeries, stores: "Live on the web and in both app stores" },
+      { kind: "web", bar: BAYYINAH_BAR, ...bayyinahLibrary, name: "Library", more: bayyinahMore },
+      { kind: "web", bar: BAYYINAH_BAR, ...bayyinahSeries, stores: "Live on the web and in both app stores" },
     ],
-    captions: ["Bayyinah TV library, public page.", "Bayyinah TV series page, public page, and the product's public links."],
+    captions: ["Bayyinah TV, public pages.", "Bayyinah TV series page, public page, and the product's public links."],
     parts: [
       {
         heading: "The product",
@@ -271,7 +294,7 @@ export const caseCopy: Record<string, CaseCopy> = {
         proof: "Courses, video series and live classes in one library.",
         plate: 0,
         target: { kind: "shot", box: { x: 714, y: 592, w: 54, h: 36 } },
-        narrow: { x: 704, y: 566, w: 300, h: 320 },
+        narrow: "plate",
       },
       {
         heading: "What was built",
@@ -279,8 +302,7 @@ export const caseCopy: Record<string, CaseCopy> = {
         proof: "Each series page lists its episodes.",
         plate: 1,
         target: { kind: "shot", box: { x: 356, y: 560, w: 314, h: 262 } },
-        narrow: { x: 348, y: 552, w: 660, h: 280 },
-        narrowAlt: "Two episode cards of Moses 2 on the Bayyinah TV series page, each with its title, length and date",
+        narrow: "plate",
       },
       {
         heading: "The result",
@@ -313,16 +335,15 @@ export const caseCopy: Record<string, CaseCopy> = {
     title: "The app remembers the page in every book.",
     sentence: "Read to Feed is a reading app for children on iPhone and Android, where books open inside the app.",
     platforms: "iPhone, Android",
+    stage: "#d9eaf6",
     plates: [
       phone(
         "/mobile/reading-1.webp",
         "Read to Feed's My Books screen from its store listing: The Tale of Peter Rabbit read to 36%, Anne of Green Gables read to 90%, and the next books in each series",
-        { x: 91, y: 500, w: 598, h: 1189 },
       ),
       phone(
         "/mobile/reading-2.webp",
         "Read to Feed's achievements from its store listing: eggs collected, eggs provided and quiz badges",
-        { x: 91, y: 600, w: 598, h: 740 },
       ),
     ],
     captions: ["My Books, from the store listing.", "Achievements, from the store listing."],
@@ -333,7 +354,7 @@ export const caseCopy: Record<string, CaseCopy> = {
         proof: "Each book keeps the page the child reached.",
         plate: 0,
         target: { kind: "shot", box: { x: 118, y: 710, w: 544, h: 214 } },
-        narrow: { x: 91, y: 500, w: 598, h: 1189 },
+        narrow: "plate",
       },
       {
         heading: "What was built",
@@ -341,7 +362,7 @@ export const caseCopy: Record<string, CaseCopy> = {
         proof: "Reading earns badges and streaks.",
         plate: 1,
         target: { kind: "shot", box: { x: 108, y: 734, w: 568, h: 264 } },
-        narrow: { x: 91, y: 600, w: 598, h: 740 },
+        narrow: "plate",
       },
       {
         heading: "The result",
@@ -374,19 +395,18 @@ export const caseCopy: Record<string, CaseCopy> = {
     title: "Grocery orders with a delivery time, on iPhone and Android.",
     sentence: "Viva Fresh is a grocery shopping and loyalty app for iPhone and Android, built once for both.",
     platforms: "iPhone, Android",
+    stage: "#f4e1de",
     plates: [
       {
         ...phone(
           "/mobile/grocery-3.webp",
           "Viva Fresh cart from the App Store listing: quantities, the discount and the total",
-          { x: 100, y: 656, w: 580, h: 818 },
         ),
         stores: BOTH_STORES,
       },
       phone(
         "/mobile/grocery-2.webp",
         "Viva Fresh Fresh category from the App Store listing: a grid of products with prices and cart buttons",
-        { x: 100, y: 560, w: 580, h: 774 },
       ),
     ],
     captions: ["The cart, from the App Store listing.", "A product category, from the App Store listing."],
@@ -397,7 +417,7 @@ export const caseCopy: Record<string, CaseCopy> = {
         proof: "The cart shows the quantities, the discount and the total.",
         plate: 0,
         target: { kind: "figure" },
-        narrow: { x: 100, y: 656, w: 580, h: 818 },
+        narrow: "plate",
       },
       {
         heading: "What was built",
@@ -405,7 +425,7 @@ export const caseCopy: Record<string, CaseCopy> = {
         proof: "Category pages show product grids.",
         plate: 1,
         target: { kind: "shot", box: { x: 106, y: 930, w: 276, h: 392 } },
-        narrow: { x: 100, y: 560, w: 580, h: 774 },
+        narrow: "plate",
       },
       {
         heading: "The result",
@@ -431,19 +451,18 @@ export const caseCopy: Record<string, CaseCopy> = {
     title: "Readers find a book, keep a list and check out with a promo code.",
     sentence: "Dukagjini Bookstore is a publisher's bookshop app for readers on iPhone and Android.",
     platforms: "iPhone, Android",
+    stage: "#dcedea",
     plates: [
       {
         ...phone(
           "/mobile/bookstore-2.webp",
           "Dukagjini Bookstore foreign books from the App Store listing: ratings, prices and favourites",
-          { x: 117, y: 740, w: 546, h: 730 },
         ),
         stores: BOTH_STORES,
       },
       phone(
         "/mobile/bookstore-1.webp",
         "Dukagjini Bookstore home from the App Store listing: the store header and book search",
-        { x: 117, y: 740, w: 546, h: 522 },
       ),
     ],
     captions: ["Foreign books, from the App Store listing.", "Home, from the App Store listing."],
@@ -454,7 +473,7 @@ export const caseCopy: Record<string, CaseCopy> = {
         proof: "Book lists show ratings, prices and favourites.",
         plate: 0,
         target: { kind: "shot", box: { x: 128, y: 996, w: 528, h: 226 } },
-        narrow: { x: 117, y: 740, w: 546, h: 730 },
+        narrow: "plate",
       },
       {
         heading: "What was built",
@@ -462,7 +481,7 @@ export const caseCopy: Record<string, CaseCopy> = {
         proof: "Readers search the whole catalogue.",
         plate: 1,
         target: { kind: "shot", box: { x: 155, y: 1145, w: 470, h: 60 } },
-        narrow: { x: 117, y: 740, w: 546, h: 522 },
+        narrow: "plate",
       },
       {
         heading: "The result",
@@ -490,9 +509,10 @@ export const caseCopy: Record<string, CaseCopy> = {
     sentence:
       "Design System v2 is the shared set of buttons, menus and forms that the team built for the new dashboard of a care platform. A colour changes in one place, and the code and the Figma file follow.",
     platforms: "A library of screen parts, for code and for Figma",
+    stage: "#e7e5f3",
     privateNote: `Not public. ${REAL_SCREENS}`,
     plates: [
-      { kind: "web", ...dsShots.dateRange },
+      { kind: "web", bar: { label: "Storybook · Design System v2", tone: "light" }, ...shotOf(dsShots.storybook) },
       {
         kind: "number",
         to: "96.6%",
@@ -500,7 +520,7 @@ export const caseCopy: Record<string, CaseCopy> = {
         note: "For a page that uses only a button",
         share: { before: "Before: one bundle for the whole library", now: "Now: only the button, 3.4% of the old size", part: 0.034 },
       },
-      { kind: "web", ...careShots.overview },
+      care(careShots.overview),
       {
         kind: "flow",
         steps: [
@@ -514,7 +534,7 @@ export const caseCopy: Record<string, CaseCopy> = {
       },
     ],
     captions: [
-      `Date range picker, from the Storybook. ${REAL_SCREENS}`,
+      `Date pickers, from the Storybook. ${REAL_SCREENS}`,
       "Less JavaScript for a page that uses only a button.",
       `The care dashboard that uses it. ${REAL_SCREENS}`,
       "How a change gets into the library.",
@@ -525,9 +545,8 @@ export const caseCopy: Record<string, CaseCopy> = {
         text: "Colours, sizes and type are set once, for code and for Figma. 805 shared style values sit in three levels. They set the look of every building block, from buttons and alerts to date pickers and pop-up messages.",
         proof: "From buttons to date range pickers, ready for every screen.",
         plate: 0,
-        target: { kind: "shot", box: { x: 184, y: 96, w: 578, h: 280 } },
-        narrow: dsShots.dateRangeJune.crop,
-        narrowAlt: dsShots.dateRangeJune.alt,
+        target: { kind: "shot", box: { x: 298, y: 54, w: 564, h: 362 } },
+        narrow: "plate",
       },
       {
         heading: "What was built",
@@ -535,7 +554,7 @@ export const caseCopy: Record<string, CaseCopy> = {
         proof: "The rest of the library stays out of the page.",
         plate: 1,
         target: { kind: "figure" },
-        narrow: "number",
+        narrow: "plate",
       },
       {
         heading: "How it is built",
@@ -543,7 +562,7 @@ export const caseCopy: Record<string, CaseCopy> = {
         proof: "No guide can overrule a failed check.",
         plate: 3,
         target: { kind: "figure" },
-        narrow: "flow",
+        narrow: "plate",
       },
       {
         heading: "The result",
@@ -551,8 +570,7 @@ export const caseCopy: Record<string, CaseCopy> = {
         proof: "The new care dashboard uses it on its screens.",
         plate: 2,
         target: { kind: "figure" },
-        narrow: careShots.patients.crop,
-        narrowAlt: careShots.patients.alt,
+        narrow: "plate",
       },
     ],
     figures: [
@@ -586,7 +604,8 @@ export const caseCopy: Record<string, CaseCopy> = {
       "Incentiv's portal is a dashboard. People and businesses see their wallet balance and their rewards there.",
     role: "Frontend",
     platforms: "Web",
-    plates: [{ kind: "web", ...incentivSignIn }],
+    stage: "#17181c",
+    plates: [{ kind: "web", bar: { label: "portal.incentiv.io", site: true, tone: "dark" }, ...incentivSignIn }],
     captions: ["Incentiv portal sign-in, public screen."],
     parts: [
       {
@@ -595,7 +614,7 @@ export const caseCopy: Record<string, CaseCopy> = {
         proof: "Three ways in: a passkey, MetaMask or WalletConnect.",
         plate: 0,
         target: { kind: "shot", box: { x: 201, y: 495, w: 149, h: 50 } },
-        narrow: { x: 186, y: 480, w: 516, h: 150 },
+        narrow: "plate",
       },
       {
         heading: "What was built",

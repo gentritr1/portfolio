@@ -9,12 +9,12 @@ Sun, light and floor code are copies of `src/drafts/kosovo-time/` (`sun.ts`, `li
 Words (22): "Gentrit Rashiti builds web and mobile apps, from Kosovo." / "5+ years. Part of two platform rewrites. Working remotely." / "17:45 in Kosovo".
 
 - Sky: the sentence, the sub-line, and one line across the page: today's sun path at 1 px, a 24 px disc on it, and the time beside the disc. The disc is the only control for the hour (drag, tap on the line, arrow keys, Home, End). No pills, no Play, no hint, no sun sentence, no path labels, no "Back to now".
-- Ground: the care team calendar (web, real screen, invented data; the crop ends above the 12 PM line, so no row is cut) and the Viva Fresh cart (phone). Each plate has its own title bar and is a link to its case.
-- Desktop 1440 × 900: the ground starts at y = 312; both plates end at y = 832. Phone 390 × 844: the calendar plate (Monday to Wednesday) ends at y = 651. The cart plate comes next.
+- Ground: the care team calendar, the whole screen in a browser frame (its address bar says "Care platform · real product screen, invented data"), and the Viva Fresh cart, the whole app screen in a phone frame. The frames are `BrowserFrame` and `PhoneFrame` from `src/components/`. Each frame is a link to its case. The frames carry no drop shadow: the sun casts their shadow on the floor.
+- Desktop 1440 × 900: the ground starts at y = 312; both frames end at y = 832. Phone 390 × 844: the phone (104 px) stands in front of the right edge of the browser on one ground; both end at y = 509.
 
 ## Type
 
-Two faces, four sizes on the first screen: Fraunces 64 px (opsz 144) for the sentence; Public Sans 20 px (time), 17 px (sub-line), 14 px (title bars). Rows: name Fraunces 28 px, body 17 px, role 15 px. Section names Fraunces 40 px. No 13 px text (the phone title bars are 14 px).
+Two faces, four sizes on the first screen: Fraunces 64 px (opsz 144) for the sentence; Public Sans 20 px (time), 17 px (sub-line). The address bar text in the browser frame is 10 to 13 px, by the frame's width. Rows: name Fraunces 28 px, body 17 px, role 15 px. Section names Fraunces 40 px. No 13 px text (the phone title bars are 14 px).
 
 ## Home
 
@@ -31,11 +31,12 @@ The light keys are unchanged from KOSOVO TIME (`light.ts`, contrast ≥ 4.5:1 on
 
 Client work: Care-management platform (claims screen + work card + 16 → 2 marks as a small proof in the row), Bayyinah TV (library), Design System v2 (date range picker + work card), Viva Fresh, Read to Feed (reader page), Dukagjini Bookstore (foreign books list), Incentiv (sign-in card, small plate). Own projects: Offday, OFFBEAT and FORM (studio screens, one ground), then three games, one line each.
 
-- Desktop: plate left, text right. Card rows: the words in two columns, then the screen (at most 760 px) and the 340 px card beside it on one ground. The three phone apps stand side by side on one ground, each with its words under it. At ≤ 1023 px the plate is above the text; phone screens stand in a 220 px (128 px on a phone) column beside the text.
-- Phone: the work card is the second plate of the care row. The Design System card shows its sentence and "Read how" only, because the care card above it already drew the loop. OFFBEAT and FORM stand in the 128 px column with a tall crop.
+- Desktop: plate left, text right. Card rows: the words in two columns, then the screen (at most 760 px) and the 340 px card beside it on one ground. The three phone apps stand side by side on one ground, each with its words under it. At ≤ 1023 px the plate is above the text; phone frames stand in a 220 px (128 px on a phone) column beside the text.
+- Every plate shows a whole screen: a desktop capture in a browser frame, or a store listing's app screen in a phone frame. No plate shows a crop.
+- Phone: the work card is the second plate of the care row. The Design System card shows its sentence and "Read how" only, because the care card above it already drew the loop. OFFBEAT and FORM show their whole screens at the full width.
 - The case link and the outside links share one line of links.
 - Each plate is a link. It is out of the tab order, because "Read the case" in the same row goes to the same page. The lead plates and the work cards are in the tab order.
-- Page length: 5,783 px at 1440 × 900, 6,194 px at 390 × 844.
+- Page length: 5,982 px at 1440 × 900, 6,198 px at 390 × 844.
 
 ## Explaining figures
 
@@ -54,7 +55,7 @@ All motion is transform or opacity. Keyboard moves are instant.
 | Work card | 60 % of the list in view, once | steps fade up 6 px, 300 ms, 80 ms apart, from 200 ms; lines grow 200 ms; a white cover over the way back shrinks upward in 280 ms at 560 ms, so the line draws from the bottom up; label at 640 ms; done by 0.84 s | complete, still |
 | Marks | 60 % in view, once | 14 marks fall to 30 % height, 360 ms, 28 ms apart from the right, from 150 ms; done by 0.87 s | complete, still |
 | Press | any plate, card or lead | scale 0.98, 120 ms, `cubic-bezier(0.2, 0, 0, 1)` | none |
-| Hover (fine pointers only) | plate, card, lead | ring 18 % → 55 % ink, 150 ms; row name underline | same |
+| Hover (fine pointers only) | plate, card, lead | a 2 px ring at 45 % ink that follows the frame's corners, 150 ms; row name underline | same |
 | Hand-off | plain click on a plate, a card or "Read the case" | View Transition. When a case screen on view after the route change shows the same picture file, the pressed plate walks into it (420 ms). Otherwise the old page fades out in 180 ms; a picture never turns into another one. The case code starts to load when a pointer or the focus reaches the link | plain navigation |
 
 ## Frame budget

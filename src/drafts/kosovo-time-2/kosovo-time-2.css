@@ -97,6 +97,16 @@ html.k2-page[data-k2-dark="true"] {
   border-radius: 2px;
 }
 
+/* The focus ring follows the frame's corners. */
+.k2 .k2-lead:focus-visible {
+  outline-offset: 4px;
+  border-radius: 12px;
+}
+
+.k2 .k2-lead[data-kind="phone"]:focus-visible {
+  border-radius: 16.3% / 7.8%;
+}
+
 .k2-sr {
   position: absolute;
   width: 1px;
@@ -310,9 +320,11 @@ html.k2-page[data-k2-dark="true"] {
   background: var(--k2-lit);
 }
 
-/* --h divides the free width by the sum of the two crops' width-to-height ratios (1040 / 528 + 580 / 1030). */
+/* Both frames stand --h tall. The browser is (--h - --bar) x 1.6 wide, the phone --h / 2.093 wide,
+   so --h is the free width plus 1.6 bars, over 1.6 + 1 / 2.093. */
 .k2-leads {
-  --h: min(540px, 100cqh - 98px, (100cqw - 2 * var(--k2-gutter) - 64px) / 2.53);
+  --bar: 34px;
+  --h: min(540px, 100cqh - 68px, (100cqw - 2 * var(--k2-gutter) - 64px + 1.6 * var(--bar)) / 2.078);
   display: flex;
   justify-content: center;
   align-items: flex-end;
@@ -331,22 +343,27 @@ html.k2-page[data-k2-dark="true"] {
   -webkit-tap-highlight-color: transparent;
 }
 
+/* The frames cast the sun's shadow on the floor, so they carry no drop shadow of their own. */
 .k2-press {
+  --fr-lift: 0 0 0 0 transparent;
   position: relative;
   display: block;
   width: 100%;
   height: 100%;
-  border-radius: 4px;
-  overflow: hidden;
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--k2-ink) 18%, transparent);
+  border-radius: 12px;
   transition:
     transform 0.12s var(--k2-press),
     box-shadow 0.15s var(--k2-out);
 }
 
+.k2-lead[data-kind="phone"] > .k2-press,
+.k2-plate[data-shape="phone"] > .k2-press {
+  border-radius: 16.3% / 7.8%;
+}
+
 @media (hover: hover) and (pointer: fine) {
   a:hover > .k2-press {
-    box-shadow: 0 0 0 1px color-mix(in srgb, var(--k2-ink) 55%, transparent);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--k2-ink) 45%, transparent);
   }
 
   .k2-row-stage:hover + .k2-row-text h3 {
@@ -360,40 +377,13 @@ a:active > .k2-press {
   transform: scale(0.98);
 }
 
-.k2-lead > .k2-press {
-  display: flex;
-  flex-direction: column;
-  background: var(--k2-ink);
+.k2-lead[data-kind="web"] {
+  --fr-bar: var(--bar);
+  width: calc((var(--h) - var(--bar)) * 1.6);
 }
 
-.k2-bar {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  height: 30px;
-  padding: 0 12px;
-  font-size: 14px;
-  line-height: 1;
-  color: var(--k2-lit);
-  white-space: nowrap;
-  overflow: hidden;
-}
-
-.k2-bar strong {
-  font-weight: 700;
-}
-
-.k2-bar-go {
-  margin-left: auto;
-  padding-left: 8px;
-}
-
-.k2-lead-shot {
-  position: relative;
-  display: block;
-  height: var(--h);
-  overflow: hidden;
-  background: var(--k2-shade);
+.k2-lead[data-kind="phone"] {
+  width: calc(var(--h) / 2.093);
 }
 
 .k2 img {
@@ -404,10 +394,6 @@ a:active > .k2-press {
   object-position: top center;
 }
 
-.k2-plate > .k2-press {
-  background: var(--k2-shade);
-}
-
 /* ---------- The work card: plain words on a white card, standing like a screen ---------- */
 
 .k2-card {
@@ -415,6 +401,8 @@ a:active > .k2-press {
 }
 
 .k2-card > .k2-press {
+  overflow: hidden;
+  border-radius: 4px;
   padding: 22px 22px 12px;
   background: #fff;
   color: #17171a;
@@ -712,6 +700,7 @@ a:active > .k2-press {
   position: absolute;
   inset: 0;
   z-index: 2;
+  border-radius: inherit;
   background: var(--k2-shade);
   pointer-events: none;
 }
@@ -947,7 +936,7 @@ a:active > .k2-press {
 }
 
 .k2-trio-slot > .k2-plate[data-shape="phone"] {
-  width: min(232px, 100%);
+  width: min(212px, 100%);
 }
 
 .k2-trio-text .k2-row-text {
@@ -1076,7 +1065,8 @@ a:active > .k2-press {
   }
 
   .k2-leads {
-    --h: min(460px, (100cqw - 2 * var(--k2-gutter) - 40px) / 2.53);
+    --bar: 28px;
+    --h: min(460px, (100cqw - 2 * var(--k2-gutter) - 40px + 1.6 * var(--bar)) / 2.078);
     gap: 40px;
   }
 
@@ -1184,38 +1174,24 @@ a:active > .k2-press {
     padding: 16px 16px 32px;
   }
 
-  .k2-stage-phone {
-    padding-top: 0;
-  }
-
+  /* The phone stands in front of the browser's right edge, so both screens share one ground. */
   .k2-leads {
-    display: block;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 48px 56px;
+    align-items: end;
+    gap: 0;
   }
 
   .k2-lead[data-kind="web"] {
+    --fr-bar: 24px;
+    grid-area: 1 / 1 / 2 / 3;
     width: 100%;
   }
 
-  .k2-lead[data-kind="web"] .k2-lead-shot {
-    height: auto;
-  }
-
   .k2-lead[data-kind="phone"] {
-    width: min(150px, 40vw);
-    margin: 0 auto;
-  }
-
-  .k2-lead[data-kind="phone"] .k2-bar > span:nth-child(2) {
-    display: none;
-  }
-
-  .k2-lead[data-kind="phone"] .k2-lead-shot {
-    height: auto;
-  }
-
-  .k2-bar {
-    padding: 0 10px;
-    font-size: 14px;
+    grid-area: 1 / 2 / 2 / 4;
+    z-index: 2;
+    width: 104px;
   }
 
   .k2-band {
@@ -1235,7 +1211,7 @@ a:active > .k2-press {
   }
 
   .k2-row-stage {
-    padding: 16px 8px 32px;
+    padding: 14px 8px 22px;
   }
 
   .k2-row[data-shape="phone"] {
@@ -1244,7 +1220,7 @@ a:active > .k2-press {
   }
 
   .k2-row[data-shape="phone"] .k2-row-stage {
-    padding: 16px 4px 36px;
+    padding: 14px 4px 26px;
   }
 
   .k2-row[data-shape="phone"] .k2-row-text {
@@ -1304,7 +1280,7 @@ a:active > .k2-press {
   }
 
   .k2-row[data-small] .k2-plate {
-    width: min(260px, 100%);
+    width: min(248px, 100%);
   }
 
   .k2-games strong {

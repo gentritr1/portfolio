@@ -343,6 +343,15 @@
   align-self: start;
 }
 
+/* A phone stands on a narrower stage, so it does not float in an empty panel. */
+.cs-group[data-plate="phone"] {
+  grid-template-columns: minmax(0, 520px) minmax(0, 1fr);
+}
+
+.cs-group[data-plate="phone"] > .cs-group-text {
+  max-width: 520px;
+}
+
 .cs-group-text {
   display: flex;
   flex-direction: column;
@@ -540,121 +549,70 @@
 
 /* ---------- Ground: one screen standing in the sun ---------- */
 
-.cs-ground {
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: flex-end;
-  padding: 24px 24px 56px;
-}
+/* ---------- Plates: whole screens in device frames, on the project's stage (components/frames.css) ---------- */
 
-.cs-floor {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
+.cs-stage {
   width: 100%;
-  height: 100%;
-  overflow: hidden;
-  pointer-events: none;
-  -webkit-mask-image: linear-gradient(to right, transparent, #000 40px, #000 calc(100% - 40px), transparent),
-    linear-gradient(to bottom, #000 calc(100% - 48px), transparent);
-  -webkit-mask-composite: source-in;
-  mask-image: linear-gradient(to right, transparent, #000 40px, #000 calc(100% - 40px), transparent),
-    linear-gradient(to bottom, #000 calc(100% - 48px), transparent);
-  mask-composite: intersect;
 }
 
-.cs-floor polygon {
-  fill: var(--cs-shade);
+.cs-stage[data-kind="phone"] {
+  padding-left: 24px;
+  padding-right: 24px;
 }
 
-.cs-screen {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
-  border-radius: 4px;
-  background: var(--cs-ink);
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--cs-ink) 22%, transparent);
+/* In the dark a pale stage takes only a tint of its colour, so it does not outshine the screens it holds. */
+:root[data-cs-dark="true"] .cs .fr-stage[data-tone="light"] {
+  --fr-stage-ink: #f2efea;
+  --fr-stage-soft: #c9c5cf;
+  background: color-mix(in oklab, var(--fr-stage) 22%, var(--cs-lit));
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.07);
 }
 
-/* The contact shade at the screen's base. It needs no sun, so it stays when the shadow cannot be drawn. */
-.cs-screen::after {
-  content: "";
-  position: absolute;
-  z-index: -1;
-  left: -6px;
-  right: -6px;
-  bottom: -7px;
-  height: 14px;
-  border-radius: 50%;
-  background: var(--cs-shade);
-  filter: blur(5px);
-  opacity: 0.8;
-}
-
-/* In the dark the shade colour is the ground colour, so the contact shade stands on the screen's glow instead. */
-.cs-ground[data-glow] > .cs-screen::after {
-  background: #000;
-  opacity: 0.55;
-}
-
-.cs-ground-small {
-  padding: 12px 16px 32px;
-}
-
-.cs-screen figcaption {
-  display: flex;
-  align-items: center;
-  min-height: 30px;
-  padding: 6px 12px;
-  font-size: 13px;
-  font-weight: 600;
-  line-height: 1.35;
-  color: var(--cs-lit);
-  text-wrap: pretty;
-}
-
-.cs-screen-body {
-  position: relative;
-  overflow: hidden;
-  border-radius: 0 0 4px 4px;
-}
-
-.cs-shot {
-  position: relative;
-  display: block;
-  width: 100%;
-  overflow: hidden;
-}
-
-/* The screen body clips an outline, so the whole screen shows the focus of its button. */
+/* The button is the frame: the whole frame opens the capture, and its focus ring follows the frame's corners. */
 .cs-enlarge {
   display: block;
   width: 100%;
   margin: 0;
   padding: 0;
   border: 0;
-  border-radius: 0;
+  border-radius: 12px;
   background: none;
   color: inherit;
   font: inherit;
+  text-align: left;
   cursor: zoom-in;
   -webkit-tap-highlight-color: transparent;
+  transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.cs-stage[data-kind="phone"] .cs-enlarge,
+.cs-stage[data-kind="phone"] > .fr-phone {
+  width: min(280px, 74%);
+  margin: 0 auto;
+  border-radius: 16.3% / 7.8%;
 }
 
 .cs .cs-enlarge:focus-visible {
-  outline: none;
+  outline: 2px solid var(--fr-stage-ink);
+  outline-offset: 4px;
+  border-radius: 12px;
 }
 
-.cs-screen:has(.cs-enlarge:focus-visible) {
-  outline: 2px solid var(--cs-ink);
-  outline-offset: 3px;
+.cs .cs-stage[data-kind="phone"] .cs-enlarge:focus-visible {
+  border-radius: 16.3% / 7.8%;
+}
+
+.cs-enlarge:active {
+  transform: scale(0.99);
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .cs-screen:has(.cs-enlarge:hover) {
-    box-shadow: 0 0 0 1px color-mix(in srgb, var(--cs-ink) 55%, transparent);
+  .cs-enlarge:hover {
+    transform: translateY(-2px);
+  }
+
+  .cs-enlarge:hover:active {
+    transform: translateY(-2px) scale(0.99);
   }
 }
 
@@ -755,12 +713,6 @@
     opacity: 0;
     transform: scale(0.97);
   }
-}
-
-.cs-shot img {
-  position: absolute;
-  max-width: none;
-  height: auto;
 }
 
 .cs-shot-ring {
@@ -1368,18 +1320,18 @@
   margin-right: 8px;
 }
 
-.cs-next-plate .cs-screen {
-  margin: 0 auto;
+.cs .cs-stage-small {
+  padding: 18px 20px;
+  border-radius: 12px;
 }
 
-.cs-next-plate figcaption {
-  display: block;
-  min-height: 24px;
-  padding: 4px 10px;
-  overflow: hidden;
-  font-size: 11px;
-  white-space: nowrap;
-  text-overflow: ellipsis;
+.cs-stage-small .fr-browser {
+  --fr-bar: 16px;
+  --fr-radius: 7px;
+}
+
+.cs-stage-small[data-kind="phone"] > .fr-phone {
+  width: 104px;
 }
 
 .cs-next-link:focus-visible .cs-next-name {
@@ -1544,10 +1496,6 @@
 
   .cs-part > .cs-band {
     margin-bottom: 20px;
-  }
-
-  .cs-ground {
-    padding: 20px 0 44px;
   }
 
   .cs-number {
