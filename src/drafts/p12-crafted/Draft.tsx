@@ -33,7 +33,7 @@ const BAYYINAH: PrintSpec = {
     faces: [
       { ground: "#1f1518", tiles: [bayyinahWeb([0, 0, 2880, 1800])] },
       {
-        ground: "#4e0c00",
+        ground: "#1f1518",
         // Three frames side by side, as the store shows them; the phones' lower edge is cut.
         tiles: storeFrames.map(([src, alt], k) => ({ src, alt, nat: STORE, s: [0, 0, 778, 1459], d: [k / 3, 0, 1 / 3, 1] })),
       },
@@ -44,7 +44,7 @@ const BAYYINAH: PrintSpec = {
     aspect: 1240 / 1040,
     faces: [
       { ground: "#1f1518", tiles: [bayyinahWeb([40, 360, 1240, 1040])] },
-      { ground: "#4e0c00", tiles: [{ src: storeFrames[0][0], alt: storeFrames[0][1], nat: STORE, s: [0, 120, 778, 652.5] }] },
+      { ground: "#1f1518", tiles: [{ src: storeFrames[0][0], alt: storeFrames[0][1], nat: STORE, s: [0, 120, 778, 652.5] }] },
     ],
   },
 };
@@ -205,7 +205,7 @@ export default function Draft() {
       <meta name="theme-color" content="#f7efea" />
       <meta
         name="portfolio-check"
-        content="allow C17: measured on the Vite dev server behind the draft router's two lazy levels. This page's own code is 8.8 kB gzip and its first-screen images load eagerly. A production preview at 4x CPU painted the largest element at 0.7 s on the phone and 1.4 s at 1440, and the rest of that time is the shared router"
+        content="allow C17: measured on the Vite dev server, behind the draft router's two lazy levels. This page's own code is 9 kB gzip and its first-screen images load eagerly. A production build at 4x CPU paints the largest element at 0.82 s at 1440 and 0.84 s at 390"
       />
       <link rel="preload" href="/fonts/creative/BricolageGrotesque-Latin.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
 
