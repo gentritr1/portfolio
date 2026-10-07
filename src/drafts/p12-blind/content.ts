@@ -107,7 +107,7 @@ const offdayPhone: Shot = {
   height: 1688,
   alt: 'Offday on a phone: the Request time off button, out today, pending requests and the team count, then the October calendar with leave bars.',
   crop: { x: 0, y: 0, w: 780, h: 1560 },
-  caption: 'The same app on a phone.',
+  caption: 'Team calendar, on a phone.',
 }
 
 const careWeek: Shot = {
@@ -212,7 +212,7 @@ export const rows: Row[] = [
         {
           id: 'offday-phone',
           name: 'Offday on a phone',
-          meta: ['Same app', '2026'],
+          meta: ['Same web app', '2026'],
           shot: offdayPhone,
           years: [2026, 2026],
         },

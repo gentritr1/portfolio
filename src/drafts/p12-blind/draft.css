@@ -347,6 +347,9 @@
   margin-right: calc(var(--k, 0) * 7px);
   transform-origin: top;
 }
+.tl-bar.is-hot {
+  background: var(--tl-ink);
+}
 .tl-bar[data-lane='phone'] {
   grid-column: phone-bars;
 }
@@ -358,8 +361,11 @@
 }
 /* The one story moment: the bars draw down once, when the record enters view. */
 .tl-draw .tl-bar {
-  transition: transform 600ms var(--tl-expo);
-  transition-delay: calc(var(--i, 0) * 25ms);
+  transition: transform 600ms var(--tl-expo), background-color 150ms ease;
+  transition-delay: calc(var(--i, 0) * 25ms), 0ms;
+}
+.tl-drawn .tl-bar {
+  transition-delay: 0ms;
 }
 .tl-draw:not(.tl-drawn) .tl-bar {
   transform: scaleY(0);
@@ -455,24 +461,11 @@
 .tl-meta {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px 18px;
+  gap: 4px 20px;
   font-family: var(--tl-mono);
   font-size: 13px;
   color: var(--tl-ink-2);
   font-variant-numeric: tabular-nums;
-}
-.tl-meta li {
-  position: relative;
-}
-.tl-meta li + li::before {
-  content: '';
-  position: absolute;
-  left: -11px;
-  top: 0.6em;
-  width: 3px;
-  height: 3px;
-  border-radius: 50%;
-  background: var(--tl-ink-3);
 }
 .tl-meta a {
   display: inline-flex;

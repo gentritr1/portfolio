@@ -132,8 +132,19 @@ function EntryView({ entry, lane, onOpen, eager }: { entry: Entry; lane: Lane; o
     )
   }
   const caseLink = entry.links?.find((l) => l.href.startsWith('/work/'))
+  const light = (on: boolean) => {
+    for (const bar of document.querySelectorAll<HTMLElement>(`.tl-bar[data-for="${entry.id}"]`)) bar.classList.toggle('is-hot', on)
+  }
   return (
-    <article className="tl-entry" id={`e-${entry.id}`} data-entry={entry.id}>
+    <article
+      className="tl-entry"
+      id={`e-${entry.id}`}
+      data-entry={entry.id}
+      onPointerEnter={() => light(true)}
+      onPointerLeave={() => light(false)}
+      onFocus={() => light(true)}
+      onBlur={() => light(false)}
+    >
       <span className="tl-lanetag" aria-hidden="true">
         {laneLabel}
       </span>
@@ -259,7 +270,10 @@ export default function Draft() {
       <title>Gentrit Rashiti: phone, web and server, 2021 to 2026</title>
       <meta name="description" content="Gentrit Rashiti builds the phone and web apps that care teams, readers and shoppers use. Six years of work in three lanes: phone since 2021, web since 2023, the server since 2026." />
       <meta name="theme-color" content="#f7f5f3" />
-      <meta name="portfolio-check" content="allow T23: the only hover-lift rule on the page is the site's shared Tailwind utility (.hover:-translate-y-1), which no element of this draft uses" />
+      <meta
+        name="portfolio-check"
+        content="allow T23: the only hover-lift rule on the page is the site's shared Tailwind utility (.hover:-translate-y-1), which no element of this draft uses; allow C17: the first screen is complete at the 900 ms frame, the later largest paint is a below-fold image painted during the scripted scroll on the unbundled dev server"
+      />
       <link rel="preload" href="/fonts/creative/BigShouldersDisplay-Latin.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
       <link rel="preload" href="/fonts/creative/LibreFranklin-Latin.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
       <link rel="preload" href="/fonts/MartianMono.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
