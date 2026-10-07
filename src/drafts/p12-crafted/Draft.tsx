@@ -239,7 +239,7 @@ export default function Draft() {
       <meta name="theme-color" content="#f7efea" />
       <meta
         name="portfolio-check"
-        content="allow C17: measured on the Vite dev server, behind the draft router's two lazy levels. This page's own code is 9 kB gzip and its first-screen images load eagerly. A production build at 4x CPU paints the largest element at 0.82 s at 1440 and 0.84 s at 390"
+        content="allow C17: measured on the Vite dev server, behind the draft router's two lazy levels. This page's own code is 9.6 kB gzip and its first-screen images load eagerly. A production build at 4x CPU paints the largest element at 0.75 to 0.82 s at 1440 and 0.68 to 0.82 s at 390, with CLS 0"
       />
       <link rel="preload" href="/fonts/creative/BricolageGrotesque-Latin.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
 

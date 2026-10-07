@@ -43,3 +43,14 @@ Each print is two real screens cut into interlaced strips under a sheet of 4-pix
 - Checker (dev server, `--frames 150,400,900 --throttle 4`): PASS, 0 hard fails, 0 warnings, 1 allowed (C17: dev-server LCP behind the draft router's two lazy levels; a production build at 4× CPU paints the largest element at 0.82 s at 1440 and 0.84 s at 390).
 - Verified by hand: keyboard Enter on a face label jumps to 14° with no travel; reduced motion jumps; a second click at 40% reverses from where the card is, with its velocity; 320 px has no sideways scroll; scrubbed frames at 0–14° for every print (`scrub-*.png`).
 - Draft chunk: 9.0 kB gzip JS + 3.0 kB gzip CSS; no WebGL, no new dependency.
+
+## Polish pass (after the fresh review, 40/50, and the devil's advocate)
+
+Order: facts, gate, clarity, phone, craft. The full list is in `meta.json` under `polish`. In short:
+
+- **Facts.** The hero's bayyinahtv.com face is cropped above the site's own marketing band (owner rule 3), so no product number or testimonial is in the first screen. The Design System v2 line is the owner's. The care row says no new screen is live yet. Bayyinah authorship is "a core frontend team, Gentrit among them". The Offday test line matches CONTENT.
+- **Clarity and phone.** A role and location line sits under the claim at every width. The claim is shorter (four lines on a phone). Index links are underlined at rest, and the index is grouped by employer. The phone prints show the app screens, not the store art.
+- **Caption decision.** No "drag or tap" instruction, per the hook-line rule. The control teaches itself: a labelled radio pair, the grab cursor, the peek after load, and the resting edge band.
+- **Mechanism.** A native radio group (keyboard instant, pointer spring); capture after 5px; flicks hand their velocity to the spring; rubber band at both ends; the print is a named group.
+- **Still capture.** Each card is drawn as seen from a little to its left, so its right edge shows a thin band of the second screen's strips at rest. Seams appear only while it turns. The second face rests at 9° instead of 14°. The hero peeks once (website → App Store → website) instead of starting on the App Store face.
+- **Checker.** Dev with frames, throttle and `--interact`: PASS, 0 warnings, C17 allowed. Production at 4×: PASS, 0 warnings, CLS 0, LCP 0.68–0.82 s.
