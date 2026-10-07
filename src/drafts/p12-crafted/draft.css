@@ -333,6 +333,8 @@
   pointer-events: none;
 }
 .lx-print[data-ready] .lx-lens { visibility: visible; animation: lx-in 180ms var(--ease-out); }
+/* The lamp's glints and the lens seams: 14 rows, stretched over the card by the compositor. */
+.lx-sheen { z-index: 5; }
 /* The plain picture under the lens has no sheen or edge band; the lens arrives over it as a short fade. */
 @keyframes lx-in { from { opacity: 0; } }
 .lx-cap {

@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useId, useRef, useState, useSyncExternalStore, type PointerEvent, type ReactNode } from "react";
-import { animate, motion, useMotionValue, useMotionValueEvent, useTransform, type MotionValue } from "motion/react";
+import { animate, frame, motion, useMotionValue, useMotionValueEvent, useTransform, type MotionValue } from "motion/react";
 import { EYE, FACE_B_DEG, FLIP_DEG, LensPrint, type FacePaint } from "./lens";
 
 /* ---------- Data ---------- */
@@ -303,6 +303,7 @@ export function Print({
   const layout = narrow ? spec.narrow : spec.wide;
   const card = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
+  const sheen = useRef<HTMLCanvasElement>(null);
   const lens = useRef<LensPrint | null>(null);
   const imgs = useRef<(HTMLImageElement | null)[][]>([[], []]);
   const [ready, setReady] = useState(false);
@@ -332,7 +333,8 @@ export function Print({
   useEffect(() => {
     const el = card.current;
     const cv = canvas.current;
-    if (!el || !cv) return;
+    const sh = sheen.current;
+    if (!el || !cv || !sh) return;
     let alive = true;
     let near = false;
     let size = { w: 0, h: 0 };
@@ -361,7 +363,7 @@ export function Print({
             }),
           }),
         ) as [FacePaint, FacePaint];
-        const print = (lens.current ??= new LensPrint(cv));
+        const print = (lens.current ??= new LensPrint(cv, sh));
         try {
           await print.setup(paints, size.w, size.h);
         } catch {
@@ -417,8 +419,15 @@ export function Print({
     return tilt.subscribe(sync);
   }, [tilt]);
 
-  useMotionValueEvent(tilt.theta, "change", (v) => {
-    if (inView.current) lens.current?.render(v);
+  // One draw per frame, in motion's render step, at the angle the frame ends on: a burst of pointer events
+  // or a spring step never draws twice, and the canvas and the card's turn land in the same frame.
+  const draw = useRef(() => {
+    if (!inView.current || !lens.current?.ready) return;
+    lens.current.render(tilt.theta.get());
+    dirty.current = false;
+  });
+  useMotionValueEvent(tilt.theta, "change", () => {
+    if (inView.current) frame.render(draw.current);
     else dirty.current = true;
   });
 
@@ -514,6 +523,7 @@ export function Print({
             </div>
           ))}
           <canvas ref={canvas} className="lx-lens" aria-hidden="true" />
+          <canvas ref={sheen} className="lx-lens lx-sheen" aria-hidden="true" />
         </motion.div>
       </div>
       {caption && <figcaption className="lx-cap">{caption}</figcaption>}
