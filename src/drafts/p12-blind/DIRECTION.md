@@ -51,3 +51,26 @@ Desktop (1440.png): who: Gentrit Rashiti (masthead and the claim) / what: phone 
 Phone (390.png): who: Gentrit Rashiti / what: phone and web apps / for whom: care teams, readers and shoppers / proof: the since-years line, the four links, "Today" and "2026", and Offday's calendar starting high on the screen.
 
 Memory sentence after looking: "the one where the work is three lanes, phone, web, server, down the years, and the server lane is empty until 2026."
+
+## Polish pass (after the fresh review, 39/50, gate fail)
+
+Order followed: facts, gate, clarity, phone, craft; then the one moment the reviewer asked for.
+
+Changed: the owner's Design System v2 lines kept; the care entry says "being rebuilt" and "no React screen is live yet"; "Sign-in details sent by email"; the hero's second line is the owner's "5+ years. Part of two platform rewrites" with one link; the 2026 band leads with the care platform and its server, Offday last; five type sizes; the dialog locks the page; CLS 0.013 after measuring size-adjust on the claim string; links underlined at rest; plain index lines; one paragraph per entry; the index behind a disclosure; the phone page 17,809 → 10,790 px; entry names are h2; the load-time bar animation is gone.
+
+### The mechanism (snippets/mechanism.md)
+
+| Line | Answer |
+|---|---|
+| Fact it reveals | Which products run in which lane and since when. Before any input the lane headers say "Phone since 2021 · Web since 2023 · Server since 2026", and every entry sits in its lane. After a choice the line under the claim becomes the lane's sentence with its count ("The servers since 2026, two entries. Behind the care platform, one billing report now makes 2 database requests, not 16 …"). |
+| Pointer | Click a lane header (a `<label>` for a hidden radio). Clicking the chosen lane again shows all. No drag. |
+| Touch | Tap. The header row is static on phones; the page scrolls normally. |
+| Keyboard | Tab to the group once, arrow keys move the choice; keyboard changes are instant (`data-instant` turns the transitions off for that change). |
+| Interrupt | The dim is a CSS opacity transition (300 ms ease-out); a second choice mid-fade reverses from the current value. |
+| Ends | Four discrete states: Phone, Web, Server, All. All is the resting state. |
+| Reduced motion | Every state change is instant; nothing loops. |
+| Delete test | Remove the radios: the record with all three lanes, the headers' since-years and every entry remain. |
+| Still capture | The full record with All chosen (red underline under All); 1440.png and 390.png in the checker folder. |
+| Proof it is real | The counts in the lane sentence are computed from the record's entries; a reader can count the lane. On phones the other lanes are hidden and the page shortens to that lane (Server: 1,939 px). |
+
+Memory sentence now: "the site where his work sits in three lanes, and when you press SERVER the whole record dims down to two entries that start in 2026."
