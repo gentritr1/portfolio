@@ -13,7 +13,7 @@ The visual system has one job: make the work look like the most considered thing
 - Avoid the 2025 "cyber serif" kit: a serif display (Newsreader/Instrument Serif) + Inter body + Space Grotesk caps labels + near-black + one emerald accent + glass cards.
 - Self-host every font (WOFF2, subset), preload the first-screen face, ≤ 300 kB of fonts on the first route. Use `font-display: swap` with a fallback sized to the claim (`snippets/font-loading.md`); `optional` alone leaves the fallback on screen for a whole cold visit on a lazy route. Check licences: OFL faces are safe; Fontshare and Pangram faces are not self-hostable without reading or buying the licence.
 
-Starting points by personality (all OFL; pick one and push it). A reflex face taken from this table is allowed when the table's reason applies to your page; record it as `allow T18c: <reason>` so the warning does not count against the page:
+Starting points by personality (all OFL; pick one and push it). Take the display face from one row and the text face from another; never take a row whole, and in a round never use the same display face as another draft (see the round table in `directions.md`). A reflex face taken from this table is allowed when the table's reason applies to your page; record it as `allow T18c: <reason>` so the warning does not count against the page:
 
 | Personality | Display | Text | Outlier |
 |---|---|---|---|

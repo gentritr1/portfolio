@@ -27,15 +27,20 @@ Test: give a capture to someone with no context for 5 seconds; they write the fo
 
 Word budget: target 60 words in the first screen; the checker warns above 90 and fails above 120 (nav and captions included). Sizes on the first screen: 3–5 distinct font sizes.
 
-### Formula
+### Claim shapes
 
-```
-[Name] [builds|designs|makes|ships] [thing, 2–5 words] [for people, 1–4 words][, proof clause].
-```
+There is no single formula. Pick a shape for the direction; in a round, no two drafts share a shape (it is a column in the round table, `directions.md`). All examples are fictional or paraphrased public patterns; never reuse them as copy.
 
-"For whom" may move into the proof row when the row names the users or the products ("nurses, clinics and their patients"; "Tidebook · Lumen · Harbor").
+| Shape | Pattern | Example |
+|---|---|---|
+| Verb-first | `[Name] [builds/designs/ships] [thing] [for people][, proof].` | "Ana Silva builds offline-first apps that field nurses use." |
+| Product-first | The products are the claim; the name is the label. | "Tidebook, Lumen and Harbor: three apps in both stores, one clinic platform. By Ana Silva." |
+| Place-and-year first | A dated, located record. | "Since 2019, from Lisbon: apps that work where there is no signal." |
+| Before / after | The change is the claim. | "A paper rota became an app 3,000 nurses open every shift." |
+| A fact as a question | A checkable question the page answers. | "What happens to a nurse's notes when the signal drops? Nothing is lost." |
+| Proof rows | One short line, then rows of nouns (antfu.me pattern). | "Ana Silva, mobile engineer." + Working at / Creator of / Maintaining |
 
-Good (paraphrased real patterns): "Tony Ward builds design systems so teams ship faster." · "Ana Silva builds offline-first apps that field nurses use." + "Since 2019. Three apps in both stores. App Store · Google Play · tidebook.app" (the store names and the site are links) · name + four proof rows (Working at / Creator of / Core team of / Maintaining), as on antfu.me · a dated four-line career, as on taniarascia.com.
+Every shape: ≤ 20 words (15 target), concrete nouns, no adjective about the author, no stack names, and the four answers present somewhere on the first screen. "For whom" may move into the proof row when the row names the users or the products. On phones, if the claim runs to five lines, move the "for whom" list into the proof row.
 
 Template (rewrite): "Hi, I'm X 👋 — a passionate full-stack developer crafting seamless digital experiences." · "Welcome to my corner of the internet!" · "Designer. Developer. Dreamer." · "Turning ideas into reality, one pixel at a time." · a pill reading "Available for work" above a giant name.
 

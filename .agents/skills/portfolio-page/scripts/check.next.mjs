@@ -167,7 +167,7 @@ const CHECKS = [
   ["C16d", "△", "`transition: all` in the stylesheets."],
   ["C17", "△ > 1,500ms; with --throttle: △ > 1,000ms, ✗ > 2,500ms; info on a dev server", "Largest contentful paint. On a dev server (Vite: a `/@vite/client` script) it mostly measures the host's lazy loading, so it is info: measure on a production build (vite build + vite preview)."],
   ["C18", "✗ when the biggest text is the owner's name, else △", "The claim (the h1) is not the largest text in the first screen: another text is more than 1.15× its size, or the name itself is the h1 and the largest text."],
-  ["C19", "△", "Display face not rendered at capture (fallback shown): the first family of the display text is an `@font-face` face that had not loaded (`FontFace.status` not loaded, `document.fonts.check()` false). T18, T18c and H01 then judge the fallback that rendered. A family with no `@font-face` is taken as declared (the visitor's installed fonts are unknown)."],
+  ["C19", "△", "Display face not rendered at capture (fallback shown): the first family of the display text is a web font (`@font-face` with a `url()` source) that had not loaded (no face loaded or `document.fonts.check()` false for its style, weight, size and text), or that loaded but a DOM probe renders exactly as wide as without it (`font-display: optional` that missed its window). T18, T18c and H01 then judge the fallback that rendered. A family with no `@font-face`, or one whose sources are all `local()`, is taken as declared (the visitor's installed fonts are unknown)."],
   ["M01", "✗ > 3, △ 2–3", "Endless animations."],
   ["M02", "✗ > 1,100ms (△ under `data-motion=\"story\"`), △ > 900ms", "Long animations and transitions, sampled and from transition/animation events (colour-only transitions ignored)."],
   ["M03", "△", "Animations on layout properties."],
@@ -725,6 +725,8 @@ const DETECT = ({ phone, mode, owner, fontsOk, phrases, factsText }) => {
       if (!isCb) continue;
       pos = s.position;
       if (s.display === "contents" || s.display === "inline") continue;
+      // body's overflow moves to the viewport when html's is visible; then body does not clip.
+      if (n === document.body && style(document.documentElement).overflowX === "visible" && style(document.documentElement).overflowY === "visible") continue;
       const ox = s.overflowX !== "visible", oy = s.overflowY !== "visible";
       if (!ox && !oy) continue;
       const q = n.getBoundingClientRect();
@@ -928,6 +930,14 @@ const DETECT = ({ phone, mode, owner, fontsOk, phrases, factsText }) => {
   const faceList = document.fonts ? [...document.fonts] : [];
   const unq = (f) => f.trim().replace(/^["']|["']$/g, "").trim();
   const facesOf = (f) => faceList.filter((ff) => unq(ff.family).toLowerCase() === f.toLowerCase());
+  // An @font-face whose sources are all local() is an alias to an installed face: like a plain local
+  // family, whether it loads depends on the machine, so it is taken as declared (the alias map judges it).
+  const cssSrcs = new Map();
+  for (const r of fontFaces) {
+    const fam = unq(r.style.getPropertyValue("font-family") || "").toLowerCase();
+    if (fam) cssSrcs.set(fam, [...(cssSrcs.get(fam) || []), r.style.getPropertyValue("src") || ""]);
+  }
+  const localOnly = (f) => (cssSrcs.get(f.toLowerCase()) || []).length > 0 && cssSrcs.get(f.toLowerCase()).every((src) => !/url\(/i.test(src));
   const probeCtx = document.createElement("canvas").getContext("2d");
   const probeText = "mmmmmmmmmmlli1WQ@#&gyÅ";
   const installed = (f) =>
@@ -964,8 +974,8 @@ const DETECT = ({ phone, mode, owner, fontsOk, phrases, factsText }) => {
         return true;
       }
     };
-    const faces0 = genericFam.test(declared) ? [] : facesOf(declared);
-    const out = { declared, rendered: declared, web: faces0.length > 0, status: faces0.length ? [...new Set(faces0.map((ff) => ff.status))].join("/") : null, notLoaded: false, why: "" };
+    const faces0 = genericFam.test(declared) || localOnly(declared) ? [] : facesOf(declared);
+    const out = { declared, rendered: declared, web: faces0.length > 0, localAlias: localOnly(declared), status: faces0.length ? [...new Set(faces0.map((ff) => ff.status))].join("/") : null, notLoaded: false, why: "" };
     if (faces0.length) {
       let ok = webLoaded(declared, faces0);
       if (!ok) out.why = `FontFace ${out.status}, document.fonts.check() false`;
@@ -2171,9 +2181,9 @@ const DETECT = ({ phone, mode, owner, fontsOk, phrases, factsText }) => {
       hero: hero ? { text: heroText.replace(/\s+/g, " ").slice(0, 140), font: famLabel(heroFam) + (renderedFace(hero).notLoaded ? ` (not loaded; ${renderedFace(hero).rendered} shown)` : ""), size: sizeOf(hero) } : null,
       largest: biggest ? { text: biggestText.replace(/\s+/g, " ").slice(0, 80), font: famLabel(bigFam) + (renderedFace(biggest).notLoaded ? ` (not loaded; ${renderedFace(biggest).rendered} shown)` : ""), size: sizeOf(biggest) } : null,
       // A dev server measures its own lazy loading (C17): Vite injects /@vite/client.
-      devServer: document.querySelector('script[src*="/@vite/client"]') ? "Vite (/@vite/client)" : document.querySelector('script[src*="webpack-dev-server"],script[src*="/_next/static/development/"]') ? "webpack/Next dev" : null,
+      devServer: document.querySelector('script[src*="/@vite/client"]') ? "Vite, /@vite/client" : document.querySelector('script[src*="webpack-dev-server"],script[src*="/_next/static/development/"]') ? "webpack or Next dev client" : null,
       ground: { rgb: `rgb(${groundBg.slice(0, 3).map(Math.round).join(" ")})`, from: ground.from },
-      displayFace: displayFace ? { declared: displayFace.declared, rendered: displayFace.rendered, web: displayFace.web, status: displayFace.status, notLoaded: displayFace.notLoaded } : null,
+      displayFace: displayFace ? { declared: displayFace.declared, rendered: displayFace.rendered, web: displayFace.web, localAlias: displayFace.localAlias, status: displayFace.status, notLoaded: displayFace.notLoaded } : null,
       families: famsMain.slice(0, 6).map(([f]) => f),
       fontAliases: aliasMap,
       firstScreenWords: firstWords,
@@ -2838,7 +2848,7 @@ async function run() {
     }
     await sheet.setViewportSize({ width: sheetW, height: 900 });
     await sheet.setContent(
-      `<style>body{margin:0;padding:24px;background:#e9e7e1;font:13px/1.3 ui-monospace,monospace;color:#222}.first{display:flex;flex-wrap:wrap;gap:20px;align-items:flex-start}figure{margin:0}img{display:block;height:520px;width:auto;outline:1px solid #0002}img.i{height:${H}px}figcaption{margin-top:6px}h1{width:100%;margin:0 0 20px;font:600 18px/1.2 system-ui}.row{margin-top:28px}.row h2{margin:0 0 10px;font:600 15px/1.2 system-ui}.row>div{display:flex;gap:20px;align-items:flex-start}</style><h1>${esc(name)} — ${esc(url)}${scheme === "dark" ? " (dark)" : ""}</h1><div class="first">${cells}</div>${rows}`,
+      `<style>body{margin:0;padding:24px;background:#e9e7e1;font:13px/1.3 ui-monospace,monospace;color:#222}.first{display:flex;flex-wrap:wrap;gap:20px;align-items:flex-start}figure{margin:0}img{display:block;height:520px;width:auto;outline:1px solid #0002}img.i{height:${H}px}figcaption{margin-top:6px}h1{width:100%;margin:0 0 20px;font:600 18px/1.2 system-ui}.row{margin-top:28px}.row h2{margin:0 0 10px;font:600 15px/1.2 system-ui}.row>div{display:flex;gap:20px;align-items:flex-start}.row figure{width:min-content}.row figcaption{min-width:150px}</style><h1>${esc(name)} — ${esc(url)}${scheme === "dark" ? " (dark)" : ""}</h1><div class="first">${cells}</div>${rows}`,
     );
     await sheet.waitForLoadState("load");
     await sheet.screenshot({ path: join(outDir, "sheet.png"), fullPage: true });
@@ -2869,7 +2879,7 @@ function toMarkdown(r) {
     if (f.workItems && f.workItems.length) lines.push(`- Work counted: ${f.workItems.join(" · ")}`);
     lines.push(`- Families: ${(f.families || []).join(", ")}${f.fontAliases && Object.keys(f.fontAliases).length ? ` · aliases ${Object.entries(f.fontAliases).map(([a, b]) => `${a}→${b}`).join(", ")}` : ""} · page height ${f.pageHeight}px`);
     if (f.displayFace || f.ground)
-      lines.push(`- Display face: ${f.displayFace ? `${f.displayFace.declared}${f.displayFace.web ? ` (@font-face, ${f.displayFace.status})` : " (no @font-face; taken as declared)"}${f.displayFace.notLoaded ? ` · not rendered at capture, ${f.displayFace.rendered} shown` : " · rendered"}` : "n/a"} · ground (T35, H12): ${f.ground ? `${f.ground.rgb}, read ${f.ground.from}` : "n/a"}`);
+      lines.push(`- Display face: ${f.displayFace ? `${f.displayFace.declared}${f.displayFace.web ? ` (@font-face, ${f.displayFace.status})` : f.displayFace.localAlias ? " (local() alias; taken as declared)" : " (no @font-face; taken as declared)"}${f.displayFace.notLoaded ? ` · not rendered at capture, ${f.displayFace.rendered} shown` : " · rendered"}` : "n/a"} · ground (T35, H12): ${f.ground ? `${f.ground.rgb}, read ${f.ground.from}` : "n/a"}`);
     if (v.framesStart) {
       const fs = v.framesStart;
       lines.push(

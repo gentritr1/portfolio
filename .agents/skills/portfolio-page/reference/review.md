@@ -43,6 +43,8 @@ Before scoring a round, score 2–3 **anchors** blind on the same scale: an exis
 
 Require a spread: if three drafts land within one point on "original", rank them and write what separates them.
 
+Calibration record: in the first round run with this skill, the fresh reviewer matched three anchors to the point, and builders under-scored themselves by about one point on original. Keep the fresh reviewer; do not assume builders over-score.
+
 ## Method
 
 1. **Judge before the detector.** Look at `1440.png`, `390.png`, the full-page and reduced-motion captures, and drive the page live. Write the four first-screen answers and the memory sentence. Score the five points with one line of evidence each (a frame, a measurement, a quote of the copy). Name three real sites the draft beats on originality and one it loses to.

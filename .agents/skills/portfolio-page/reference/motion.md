@@ -106,6 +106,18 @@ Wrong (hides end states that were set by an animation, and kills feedback):
 
 Right (states still change; travel and loops stop): see `snippets/reduced-motion.css`, and in React read `useReducedMotion()` from `motion/react` and render the end state directly.
 
+## The hook ladder
+
+How reviewers score the hook (and what to aim for):
+
+| Score | What the visitor does | Example shape |
+|---|---|---|
+| 7 | Watches something play once | a settle on load, a write-on, a counter-free reveal |
+| 8 | Triggers a moment that changes what they see of one thing | turning one card, opening one case, choosing one item |
+| 9 | Drives a state continuously, visible across the whole page, and it carries a fact about the person | light from a real sun, a seam between the old and the new app, a filter that re-reads the whole record |
+
+The memory sentence names a verb the visitor does ("drag", "scan", "switch", "turn", "press"). Duration tokens apply to **authored playback**. A state the visitor drives (a drag, a scrub, a dial) has no duration cap; it must follow the pointer, be interruptible and pass the 10% scrub test. The "one story moment" rule limits playback, not driven state.
+
 ## The signature moment
 
 Pick **one** per page. It must carry a fact (the visitor learns something by doing it) and survive the delete test (every fact is still on the page without it). Mark it `data-motion="story"`.

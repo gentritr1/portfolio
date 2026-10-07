@@ -120,9 +120,9 @@ Structures: answer-first (Minto) for the top of every case and every row; proble
 
 | Place | Rule | Example |
 |---|---|---|
-| Nav | 3–5 nouns, no "Home" | Work · About · CV · Email |
+| Nav | 3–5 nouns, no "Home". Options, not one answer: a text row (Work · About · CV · Email); the name as the only link home plus one "CV" and the email; an index number range ("01–12 · About · CV"); the nav inside the rule's own control (a lane, a board, a tab) | Work · About · CV · Email |
 | Primary action | names the destination | See the work · Read the case |
-| Contact | the address itself as text, plus reply time | hi@domain.com · replies within two days |
+| Contact | the address itself as text, plus reply time. Options: the address as the page's last large line; a one-line sign-off in the rule's language (a last board line, a last lane); a small dated colophon with the address | hi@domain.com · replies within two days |
 | About | 80–150 words: current place, years, base, what next, one personal fact | |
 | Footer | name, year, email; a "built with" line only if it proves something | |
 | 404 | one sentence, one link to the work, same voice | "No page here. The work is this way." |

@@ -2,7 +2,7 @@
 name: portfolio-page
 description: Use when designing, writing, building, critiquing or checking a personal portfolio site or one of its pages (home, work index, case study, about, 404) for a developer, design engineer or designer. Covers the first screen, hero copy, project rows, case-study writing, screenshots, type, colour, layout, signature motion and smoothness, removing AI-template tells, a scripted checker, and a calibrated review rubric for iterating many drafts. Not for product landing pages or app UI.
 metadata:
-  version: 1.1.0
+  version: 1.3.0
 ---
 
 # portfolio-page
@@ -47,8 +47,9 @@ A page that is beautiful and fails the 5-second line has failed.
 
 Paths:
 - **One page or the hero only:** `hero` + `write` → build → `check`.
-- **A new site or a round of drafts:** `brief` → `direct` → `hero` + `write` → `work` + `visual` → build → `motion` → `check` → `review` → at most two polish passes.
-- **If the self-score on original or hook is 7 or less, go back to `direct`, not to polish.** Polish moves craft, not those two points.
+- **A new site:** `brief` → `direct` (direction card + card review) → `hero` + `write` → `work` + `visual` → build → `motion` → `check` → `review` → at most two polish passes.
+- **A round of drafts:** the round brief fills the **round table** first (lead, claim shape, composition, control, display-face class, ground, accent source: no repeats), each card passes a **card review** (original and hook ≥ 8 on the card), then the builds run in parallel, then one fresh review, then one polish pass each.
+- Polish moves craft, not originality or hook. A built draft at 7 on either goes back to `direct` as a new draft.
 
 ## Hard rules
 
@@ -62,7 +63,7 @@ Gates. A draft that breaks one is not finished, whatever it scores.
 6. **Scope stated.** Each project says what the person built and what others built. Never "worked on", "helped with", "involved in".
 7. **One voice** across the site: first person, or no person (sentences start with the name or the verb). Never a mix; no he/his/him about the owner unless the owner asks for it.
 8. **One hook per page**, and it carries a fact that is also on the page as text. Delete it: every fact must still be readable. If the site stops working, it was the navigation (fine); if nothing is lost, it was a costume.
-9. **Motion is caused.** Every animation answers a visitor action, shows where something came from or went, or paces one story beat. UI ≤ 300 ms; one story moment ≤ 800 ms (1,100 hard ceiling). Keyboard and repeated actions do not animate. No entrance animation on sections; one authored figure may build once, in view, in ≤ 800 ms, and is complete without JavaScript and under reduced motion.
+9. **Motion is caused.** Every animation answers a visitor action, shows where something came from or went, or paces one story beat. UI ≤ 300 ms; one authored story moment ≤ 800 ms (1,100 hard ceiling); a state the visitor drives (drag, scrub, dial) has no duration cap but must follow the pointer and be interruptible. Keyboard and repeated actions do not animate. No entrance animation on sections; one authored figure may build once, in view, in ≤ 800 ms, and is complete without JavaScript and under reduced motion.
 10. **Reduced motion keeps every state and drops travel.** Loops and canvases stop; nothing is hidden.
 11. **Readable everywhere.** Body ≥ 16px, contrast 4.5:1 (3:1 at ≥ 24px), measure 45–75ch, touch targets ≥ 44px (text links in a sentence or a spaced nav may be smaller, per WCAG 2.5.8), no sideways scroll at 320px, visible focus, CLS < 0.02.
 12. **Sharp work.** Screenshots never shown larger than their pixels; 2× density above 160px wide; text inside a screen ≥ 11px on phones (crop instead of shrinking); width/height and alt text that names the screen.

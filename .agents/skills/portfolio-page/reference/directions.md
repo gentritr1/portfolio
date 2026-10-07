@@ -51,7 +51,11 @@ Do not copy it. Use it as the shape every mechanism should have: a true fact, a 
 
 ## Test the idea before building
 
-Builders over-score their own originality, and a round of drafts costs hours. Before writing code:
+A round of drafts costs hours, and a 7 on original or hook cannot be polished into an 8. Judge the idea before the build:
+
+0. **Card review.** The direction card plus one static 1440 mock (plain HTML, no motion) goes to a fresh reviewer, who scores original and hook on the card alone with the hook ladder in `motion.md`. Build only cards that score ≥ 8 on both; send the rest back with the reviewer's note.
+
+Then, for the builder:
 
 1. Write the memory sentence (below).
 2. Read it against every line in the list of existing directions and against the bar-to-beat sites in `review.md`. If it could describe one of them, change the rule.
@@ -59,7 +63,9 @@ Builders over-score their own originality, and a round of drafts costs hours. Be
 4. Ask: **what is the rule on a 390px screen?** If the rule disappears on a phone, it is a desktop effect, not a rule.
 5. A purely structural rule (an arrangement the visitor does not drive) rarely scores above 7 on the hook. Know that before choosing it, or add one moment the visitor drives.
 
-If the self-score after building is still 7 or less on original or hook, start a **new draft** with a new rule. A re-direct is not a polish pass and does not count against the two-pass limit.
+If a built draft still lands at 7 or less on original or hook, start a **new draft** with a new rule; a re-direct is not a polish pass. (This should be rare once the card review runs.)
+
+**The rule does not stop at the fold.** Below the first screen the section order, the row shape and the index follow the rule (lanes are rows; prints are rows; board lines are rows). If two drafts in a round read Work → More work → About → Contact in the same shape, one of them changes.
 
 ## The memory test
 
@@ -70,6 +76,14 @@ Write the one sentence a visitor would say to a friend a week later. "The site w
 Retro OS / desktop with windows, 3D desk or room, TV and remote, game cartridge, terminal or boot log, magazine spread that is a carousel, device fan, exploded laptop, liquid orb, Figma-canvas clone. Each is fine only if removing it breaks the way to the work *and* it relates to the person's actual work.
 
 ## Divergence rules for a round of drafts
+
+Builders who build in parallel cannot see each other. **The round brief decides the divergence for them** with a round table, filled before anyone builds; no two cells in a column may match:
+
+| Draft | Lead project | Claim shape | Composition | Control pattern | Display-face class | Ground | Accent source |
+|---|---|---|---|---|---|---|---|
+| a | | verb-first / product-first / place-and-year / before-after / question / proof rows | from `first-screen.md` | list→stage / dial / drag / switch / scroll story / none | serif / grotesk / mono / condensed / drawn | paper / dark / colour | which screen, place or material |
+
+In a round, at least one draft sits on a dark or coloured ground and at least one has a two- or three-colour identity: when every product shares a hue, "colour from the work" converges.
 
 When building several directions to compare:
 
