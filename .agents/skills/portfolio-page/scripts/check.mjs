@@ -46,6 +46,15 @@ const frames = flag("frames", "")
   .filter(Boolean)
   .map(Number);
 const asJson = argv.includes("--json");
+const mode = flag("mode", "experience"); // "read" for case studies and about pages
+// Deliberate exceptions, each with a written reason: --allow "T06=sky colour computed from the sun;T18c=Fraunces chosen for …"
+const cliAllow = Object.fromEntries(
+  (flag("allow", "") || "")
+    .split(";")
+    .map((x) => x.split("="))
+    .filter(([k, v]) => k && v)
+    .map(([k, v]) => [k.trim(), v.trim()]),
+);
 
 function loadPlaywright() {
   const require = createRequire(import.meta.url);
@@ -139,7 +148,7 @@ const INIT = () => {
 
 // ---------------------------------------------------------------------------
 // The static detector. Runs in the page; returns findings.
-const DETECT = ({ phone }) => {
+const DETECT = ({ phone, mode }) => {
   const vw = innerWidth;
   const vh = innerHeight;
   const findings = [];
@@ -190,6 +199,22 @@ const DETECT = ({ phone }) => {
     const s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
     let h = max === r ? (g - b) / d + (g < b ? 6 : 0) : max === g ? (b - r) / d + 2 : (r - g) / d + 4;
     return [h * 60, s, l];
+  };
+  const oklch = ([r, g, b]) => {
+    const f = (v) => {
+      v /= 255;
+      return v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
+    };
+    const [R, G, B] = [f(r), f(g), f(b)];
+    const l = Math.cbrt(0.4122214708 * R + 0.5363325363 * G + 0.0514459929 * B);
+    const m = Math.cbrt(0.2119034982 * R + 0.6806995451 * G + 0.1073969566 * B);
+    const q = Math.cbrt(0.0883024619 * R + 0.2817188376 * G + 0.6299787005 * B);
+    const L = 0.2104542553 * l + 0.793617785 * m - 0.0040720468 * q;
+    const A = 1.9779984951 * l - 2.428592205 * m + 0.4505937099 * q;
+    const Bb = 0.0259040371 * l + 0.7827717662 * m - 0.808675766 * q;
+    const C = Math.hypot(A, Bb);
+    const H = (Math.atan2(Bb, A) * 180) / Math.PI;
+    return [L, C, H < 0 ? H + 360 : H];
   };
   const colorTokens = (s) =>
     (s.match(/(rgba?\([^)]*\)|oklch\([^)]*\)|oklab\([^)]*\)|lab\([^)]*\)|lch\([^)]*\)|hsla?\([^)]*\)|color\([^)]*\)|#[0-9a-f]{3,8}\b)/gi) || []).map(rgba);
@@ -379,8 +404,11 @@ const DETECT = ({ phone }) => {
   for (const el of gradients) {
     const stops = colorTokens(style(el).backgroundImage).filter((c) => c[3] > 0.15);
     const hs = stops.map(hsl).filter(([, s, l]) => s > 0.3 && l > 0.15 && l < 0.85);
+    const ok = stops.map(oklch);
     const r = el.getBoundingClientRect();
-    if (hs.filter(([h]) => h >= 235 && h <= 320).length >= 1 && hs.length >= 2) purple.push(el);
+    const band = ok.filter(([, c, h]) => h >= 255 && h <= 315 && c > 0.12).length;
+    const cool = ok.filter(([, c, h]) => h >= 200 && h <= 330 && c > 0.1).length;
+    if (stops.length >= 2 && (band >= 1 || cool >= 2)) purple.push(el);
     else if (hs.length >= 2 && r.width * r.height > vw * vh * 0.08) {
       const hues = hs.map(([h]) => h);
       const spread = Math.max(...hues) - Math.min(...hues);
@@ -418,7 +446,7 @@ const DETECT = ({ phone }) => {
   const emojiRe = /\p{Emoji_Presentation}|\p{Extended_Pictographic}️/u;
   const emojiEls = textEls.filter((el) => emojiRe.test(ownText(el)) && (el.closest("h1,h2,h3,h4,button,a,li,nav,header") || inFirst(el)));
   if (emojiEls.length)
-    add("T09", emojiEls.length >= 3 ? "fail" : "warn", `Emoji in headings, links or the first screen (${emojiEls.length})`, "Emoji as decoration (👋 ✨ 🚀) is a template voice. Use words or a drawn icon from one set.", emojiEls.slice(0, 5).map(label));
+    add("T09", emojiEls.length >= 3 || emojiEls.some((el) => el.closest("h1,h2,h3,button")) ? "fail" : "warn", `Emoji in headings, links or the first screen (${emojiEls.length})`, "Emoji as decoration (👋 ✨ 🚀) is a template voice. Use words or a drawn icon from one set.", emojiEls.slice(0, 5).map(label));
 
   // T10 template copy.
   const bodyText = (document.body.innerText || "").replace(/\s+/g, " ");
@@ -452,6 +480,9 @@ const DETECT = ({ phone }) => {
     [/\bavailable for (work|hire|freelance|new projects)\b/i, "available for work badge"],
     [/\bthat (just )?work(s)? beautifully\b/i, "works beautifully"],
     [/\bnot just\b[^.]{3,60}\bbut\b/i, "not just X but Y"],
+    [/\b(trusted by|as seen in|what (my )?clients say|happy clients)\b/i, "trusted by / what clients say"],
+    [/\bhave a project in mind\b|\bget in touch and let['’]s\b/i, "have a project in mind?"],
+    [/\b(code|design) (meets|and) (design|code)\b|\bdigital craftsman\b|\bbuilding the future\b/i, "design meets code / building the future"],
   ];
   const hitsAll = phrases.filter(([re]) => re.test(bodyText)).map(([, n]) => n);
   const hitsFirst = phrases.filter(([re]) => re.test(firstScreenText)).map(([, n]) => n);
@@ -573,10 +604,13 @@ const DETECT = ({ phone }) => {
     families.set(f, (families.get(f) || 0) + ownText(el).length);
   }
   const fams = [...families.entries()].sort((a, b) => b[1] - a[1]);
-  const defaults = /^(inter|inter variable|geist|geist sans|system-ui|-apple-system|blinkmacsystemfont|segoe ui|roboto|arial|helvetica|helvetica neue|sans-serif|ui-sans-serif|open sans|poppins|montserrat|dm sans|plus jakarta sans|manrope|space grotesk)$/i;
+  const defaults = /^(inter|inter variable|inter display|geist|geist sans|system-ui|-apple-system|blinkmacsystemfont|segoe ui|roboto|arial|helvetica|helvetica neue|sans-serif|ui-sans-serif|open sans|poppins|montserrat|dm sans|work sans|lato|nunito|raleway|source sans pro|source sans 3)$/i;
+  const reflex = /(space grotesk|plus jakarta|manrope|outfit|syne|playfair|merriweather|lora|instrument serif|instrument sans|fraunces|newsreader|cormorant|dm serif|recoleta|ibm plex sans|geist mono|space mono)/i;
   const heroFam = hero ? style(hero).fontFamily.split(",")[0].replace(/["']/g, "").trim() : "";
   if (heroFam && defaults.test(heroFam))
-    add("T18", "warn", `Hero set in a default face (${heroFam})`, "Inter/Geist/system/Poppins/Space Grotesk in the hero reads as an unchosen default. Choose a face for this person; keep the default for UI text if you like.", [label(hero)]);
+    add("T18", "fail", `The largest text is set in a default face (${heroFam})`, "Inter/Geist/system/Roboto/Poppins as the display voice reads as an unchosen default. Choose a display face for this person; the default may stay for small UI text.", [label(hero)]);
+  else if (heroFam && reflex.test(heroFam))
+    add("T18c", "warn", `Reflex display face (${heroFam})`, "A face generated sites reach for often. Keep it only with a written reason tied to the person or the work (record it in the draft notes).", [label(hero)]);
   if (fams.length > 3)
     add("T18b", "warn", `${fams.length} type families in use`, "More than three families rarely holds together. One family plus one mono or serif is enough.", fams.slice(0, 6).map(([f, n]) => `${f} (${n} chars)`));
 
@@ -697,6 +731,114 @@ const DETECT = ({ phone }) => {
   if (cadence.length >= 2)
     add("T31", "warn", `Aphoristic cadence (${cadence.length})`, "'Not a feature. A platform.' rebuttals are a generated-copy rhythm. Say the fact once.", cadence.slice(0, 3));
 
+  // T32 effect-library components and animated conic borders.
+  const libRe = /(border-beam|shine-border|moving-border|glowing-effect|background-beams|meteors|sparkles|aurora|animated-gradient-text|animated-shiny-text|hyper-text|text-generate|flickering-grid|warp-background|neon-gradient|magic-card|orbiting-circles|retro-grid|dot-pattern|grid-pattern|spotlight-card|lamp-effect)/i;
+  const lib = visibleEls.filter((el) => typeof el.className === "string" && libRe.test(el.className));
+  const conic = visibleEls.filter((el) => /conic-gradient/.test(style(el).backgroundImage) && el.getAnimations().length > 0);
+  if (lib.length || conic.length)
+    add("T32", "fail", "Effect-library decoration", "Beams, meteors, sparkles, aurora, spinning conic borders: library costumes seen on every launch page. Replace with one authored moment that reveals information.", [...lib, ...conic].slice(0, 4).map(label));
+
+  // T33 scroll cue (text or a bouncing chevron near the bottom of the first screen).
+  const cue = visibleEls.filter((el) => {
+    const r = el.getBoundingClientRect();
+    if (r.top < vh * 0.7 || r.top > vh) return false;
+    if (/^\s*(scroll|scroll down|scroll to explore|scroll for more)\s*[↓⌄]?\s*$/i.test(el.innerText || "")) return true;
+    return el.nodeName.toLowerCase() === "svg" && r.width <= 48 && el.getAnimations().some((a) => a.effect && a.effect.getTiming().iterations === Infinity);
+  });
+  if (cue.length) add("T33", "warn", "Scroll cue", "A 'scroll' label or bouncing chevron tells the visitor nothing. Let the first screen end on content cut by the fold.", cue.slice(0, 2).map(label));
+
+  // T34 dark ground + one neon accent + glow; T35 pure black/white.
+  const bodyBg = rgba(style(document.body).backgroundColor)[3] > 0.5 ? rgba(style(document.body).backgroundColor) : rgba(style(document.documentElement).backgroundColor);
+  const groundL = oklch(bodyBg)[0];
+  if (groundL < 0.2 && glow.length) add("T34", "fail", "Dark ground with neon glow", "Near-black, one neon accent and coloured glow is the 2024 'AI dark' recipe. Keep the dark ground if it has a reason; drop the glow and desaturate the accent.", glow.slice(0, 2).map(label));
+  const bodyInk = rgba(style(document.body).color);
+  const pure = (c, v) => c[0] === v && c[1] === v && c[2] === v;
+  if ((pure(bodyBg, 0) && pure(bodyInk, 255)) || (pure(bodyBg, 255) && pure(bodyInk, 0)))
+    add("T35", "warn", "Pure black and white", "#000 on #fff (or the reverse) looks synthetic. Tint paper and ink toward one hue (chroma 0.005–0.02).", null);
+
+  // T36 card inside a card.
+  const boxedBig = visibleEls.filter((el) => {
+    const r = el.getBoundingClientRect();
+    if (r.width * r.height < 10000 || el.matches("img,video,canvas,picture,figure img")) return false;
+    const st = style(el);
+    const bw = px(st.borderTopWidth);
+    const shadow = st.boxShadow && st.boxShadow !== "none";
+    const bg = rgba(st.backgroundColor);
+    const parentBg = el.parentElement ? effectiveBg(el.parentElement) : null;
+    const distinct = bg[3] > 0.04 && parentBg && ratio(over(bg, parentBg), parentBg) > 1.04;
+    return radius(el) >= 8 && (bw > 0 || shadow || distinct);
+  });
+  const holdsScreen = (el) => {
+    const r = el.getBoundingClientRect();
+    return [...el.querySelectorAll("img,picture,video,canvas")].some((m) => {
+      const q = m.getBoundingClientRect();
+      return q.width * q.height >= r.width * r.height * 0.6;
+    });
+  };
+  const nested = boxedBig.filter((el) => !holdsScreen(el) && boxedBig.some((o) => o !== el && o.contains(el)));
+  if (nested.length)
+    add("T36", nested.length >= 3 ? "fail" : "warn", `Card inside a card (${nested.length})`, "Boxes in boxes compensate for weak grouping. Keep one containment layer; group with space.", nested.slice(0, 3).map(label));
+
+  // T37 italic accent word in another family inside a heading.
+  const accentWords = [...document.querySelectorAll("h1 em, h1 i, h1 span, h2 em, h2 i, h2 span")].filter((e) => {
+    if (!visible(e)) return false;
+    const h = e.closest("h1,h2");
+    return style(e).fontStyle === "italic" && style(e).fontFamily !== style(h).fontFamily && (e.innerText || "").split(/\s+/).length <= 3;
+  });
+  if (accentWords.length) add("T37", "warn", "Italic accent word in a second family", "One italic serif word inside a sans headline is the 2025 'cyber serif' tic. Use the same family's weight or italic, or none.", accentWords.slice(0, 2).map(label));
+
+  // T38 tech-stack logo grid.
+  const techRe = /^(react|next(\.js)?|vue|nuxt|angular|svelte|typescript|javascript|node(\.js)?|tailwind|css3?|html5?|docker|aws|figma|git(hub)?|python|laravel|php|mongodb|postgres(ql)?|mysql|redis|firebase|graphql|vite|webpack|sass|kubernetes|vercel)$/i;
+  const techGrids = [...new Set(visibleEls.map((el) => el.parentElement))].filter((p) => {
+    if (!p) return false;
+    const icons = [...p.querySelectorAll("img,svg")].filter((i) => {
+      const r = i.getBoundingClientRect();
+      const name = (i.getAttribute("alt") || i.getAttribute("aria-label") || i.getAttribute("title") || i.closest("[title]")?.getAttribute("title") || "").trim();
+      return r.width <= 72 && r.width > 8 && techRe.test(name);
+    });
+    return icons.length >= 6;
+  });
+  if (techGrids.length) add("T38", "fail", "Tech-stack logo grid", "A wall of framework logos says 'I followed tutorials'. Name the stack inside each project's facts.", techGrids.slice(0, 1).map(label));
+
+  // T39 fake browser chrome (red/yellow/green dots).
+  const dotsRows = [...new Set(visibleEls.map((el) => el.parentElement))].filter((p) => {
+    if (!p) return false;
+    const kids = [...p.children].filter((k) => {
+      const r = k.getBoundingClientRect();
+      return r.width >= 6 && r.width <= 16 && Math.abs(r.width - r.height) < 2 && radius(k) >= r.width / 2 - 1;
+    });
+    if (kids.length !== 3) return false;
+    const hues = kids.map((k) => hsl(rgba(style(k).backgroundColor)));
+    return hues.every(([, sat]) => sat > 0.4) && hues.some(([h]) => h < 20 || h > 340) && hues.some(([h]) => h > 35 && h < 65) && hues.some(([h]) => h > 90 && h < 160);
+  });
+  if (dotsRows.length) add("T39", "warn", "Traffic-light window dots", "Red/yellow/green dots are mockup chrome. If a frame is needed, draw it plain; the screen is the content.", dotsRows.slice(0, 2).map(label));
+
+  // T40 big faded number watermark.
+  const watermark = textEls.filter((el) => /^0?\d{1,2}$/.test(ownText(el)) && px(style(el).fontSize) >= 96 && (opacityChain(el) <= 0.25 || rgba(style(el).color)[3] <= 0.2));
+  if (watermark.length) add("T40", "warn", "Faded number watermark", "Giant pale section numbers are decoration.", watermark.slice(0, 2).map(label));
+
+  // T41 empty full-height centred hero.
+  if (hero) {
+    const sec = hero.closest("section,header,main > div,#root > div") || hero.parentElement;
+    const r = sec.getBoundingClientRect();
+    const hasMedia = sec.querySelector("img,video,canvas,picture,svg[width]");
+    if (r.height >= vh * 0.95 && style(hero).textAlign === "center" && !hasMedia && (sec.innerText || "").length < 220)
+      add("T41", "warn", "Full-height hero with one centred sentence", "A screen of emptiness around one line. Let the content set the height and put work in it.", [label(sec)]);
+  }
+
+  // T42 same-rhythm sections.
+  const sections = [...document.querySelectorAll("main > section, body > section, #root section")].filter(visible).filter((sct) => !sct.parentElement.closest("section"));
+  let run = 1, worst = 1;
+  for (let i = 1; i < sections.length; i++) {
+    const a = style(sections[i - 1]), b = style(sections[i]);
+    const same = Math.abs(px(a.paddingTop) - px(b.paddingTop)) <= 8 && Math.abs(px(a.paddingBottom) - px(b.paddingBottom)) <= 8 && Math.abs(sections[i - 1].getBoundingClientRect().width - sections[i].getBoundingClientRect().width) < 4;
+    const h = sections[i].querySelector("h2,h3");
+    const centred = h && style(h).textAlign === "center";
+    run = same && centred ? run + 1 : 1;
+    worst = Math.max(worst, run);
+  }
+  if (worst >= 4) add("T42", worst >= 5 ? "fail" : "warn", `${worst} sections in a row with the same rhythm`, "Same padding, same width, centred headings: the generated-page skeleton. Vary ground, width, rule or padding.", null);
+
   // T27 giant name as the hero with no work beside it (checked with C01 below).
   const heroText = hero ? (hero.innerText || "").trim() : "";
   const nameOnly = hero && heroText.split(/\s+/).length <= 3 && /^[A-ZÀ-Ž][\p{L}'’.-]+(\s+[A-ZÀ-Ž][\p{L}'’.-]+){0,2}\.?$/u.test(heroText);
@@ -706,7 +848,15 @@ const DETECT = ({ phone }) => {
   // ======================================================================
 
   // C01 real work in the first screen.
-  const media = visibleEls.filter((el) => el.matches("img,video,canvas,picture,iframe,[role=img]") || (style(el).backgroundImage.includes("url(") && el.getBoundingClientRect().width > 120));
+  const shown = (el) => {
+    const r = el.getBoundingClientRect();
+    const st = style(el);
+    return r.width > 1 && r.height > 1 && st.visibility !== "hidden" && st.display !== "none" && opacityChain(el) > 0.05;
+  };
+  const media = [
+    ...visibleEls.filter((el) => el.matches("img,picture,iframe,[role=img]") || (style(el).backgroundImage.includes("url(") && el.getBoundingClientRect().width > 120)),
+    ...[...document.querySelectorAll("canvas,video,[data-work]")].filter(shown),
+  ].filter((el, i, arr) => arr.indexOf(el) === i && !arr.some((o) => o !== el && o.matches("[data-work]") && o.contains(el)));
   const vpArea = vw * vh;
   const firstMedia = media
     .map((el) => {
@@ -727,7 +877,7 @@ const DETECT = ({ phone }) => {
 
   // C02 first-screen copy load.
   const firstWords = firstScreenText.split(/\s+/).filter(Boolean).length;
-  const maxWords = phone ? 70 : 110;
+  const maxWords = mode === "read" ? (phone ? 120 : 170) : phone ? 70 : 110;
   if (firstWords > maxWords)
     add("C02", "warn", `${firstWords} words in the first screen`, `Keep the first screen under ~${maxWords} words: who, what, one proof, one action.`, null);
   if (hero) {
@@ -771,6 +921,8 @@ const DETECT = ({ phone }) => {
   const lowContrast = [];
   for (const el of textEls) {
     if (el.closest("[aria-hidden=true]")) continue;
+    const dr = docRect(el);
+    if (dr.bottom <= 0 || dr.right <= 0 || dr.x >= document.documentElement.scrollWidth) continue;
     const s = style(el);
     const fg = rgba(s.color);
     const bg = effectiveBg(el);
@@ -867,8 +1019,44 @@ const DETECT = ({ phone }) => {
     : [];
   const hiddenOuter = hiddenBelow.filter((el) => !hiddenBelow.some((o) => o !== el && o.contains(el)));
 
+  // ---- human-made signals (positive) ------------------------------------
+  const signals = {};
+  const largest = firstText.slice().sort((a, b) => px(style(b).fontSize) - px(style(a).fontSize))[0];
+  const largestFam = largest ? style(largest).fontFamily.split(",")[0].replace(/["']/g, "").trim() : "";
+  signals.H01_displayFace = !!largest && px(style(largest).fontSize) >= (phone ? 32 : 48) && !defaults.test(largestFam);
+  signals.H02_typeDecision = visibleEls.some((el) => {
+    const st = style(el);
+    return (st.fontStretch && st.fontStretch !== "100%" && st.fontStretch !== "normal") || (st.fontVariationSettings && st.fontVariationSettings !== "normal") || /tabular-nums|oldstyle-nums/.test(st.fontVariantNumeric) || /balance|pretty/.test(st.textWrap || st.textWrapStyle || "");
+  });
+  if (largest) {
+    const r = largest.getBoundingClientRect();
+    signals.H03_asymmetry = style(largest).textAlign !== "center" && Math.abs(r.left + r.width / 2 - vw / 2) >= vw * 0.1 * (phone ? 0.3 : 1);
+  }
+  signals.H04_workLarge = mediaShare >= (phone ? 0.2 : 0.25);
+  signals.H09_themedSurfaces = /::selection/.test(sheetsText) && (/accent-color|scrollbar-color|caret-color/.test(sheetsText) || /:focus-visible/.test(sheetsText));
+  signals.H11_nameSmall = !(nameOnly && heroRect && heroRect.h > vh * 0.12);
+  const [, gC] = oklch(bodyBg);
+  signals.H12_tintedGround = gC >= 0.004 && !pure(bodyBg, 0) && !pure(bodyBg, 255);
+  const fontSrcs = sheetRules.length ? [] : [];
+  for (const sh of document.styleSheets) {
+    try {
+      for (const r of sh.cssRules) if (r.constructor.name === "CSSFontFaceRule") fontSrcs.push(r.style.getPropertyValue("src"));
+    } catch {}
+  }
+  signals.H15_selfHostedFonts = fontSrcs.length > 0 && fontSrcs.every((src) => !/https?:\/\/(?!127\.0\.0\.1|localhost)/.test(src) || src.includes(location.host));
+
+  const pageAllow = {};
+  for (const m of document.querySelectorAll('meta[name="portfolio-check"]')) {
+    for (const part of (m.getAttribute("content") || "").split(";")) {
+      const mm = /^\s*allow\s+([A-Z]\d+[a-z]?)\s*:\s*(.+)$/.exec(part);
+      if (mm) pageAllow[mm[1]] = mm[2].trim();
+    }
+  }
+
   return {
     findings,
+    signals,
+    pageAllow,
     facts: {
       title: document.title,
       hero: hero ? { text: heroText.slice(0, 140), font: style(hero).fontFamily.split(",")[0], size: px(style(hero).fontSize) } : null,
@@ -970,11 +1158,23 @@ async function run() {
     await page.waitForLoadState("networkidle", { timeout: 15000 }).catch(() => {});
     await page.evaluate(() => document.fonts && document.fonts.ready);
     const motionAtLoad = await page.evaluate(MOTION);
+    const headingText = () => page.evaluate(() => [...document.querySelectorAll("h1,h2,h3")].slice(0, 12).map((h) => h.textContent.trim()));
+    const textA = await headingText();
     await page.waitForTimeout(1200);
+    const textB = await headingText();
+    const changed = textA.filter((t, i) => textB[i] !== undefined && textB[i] !== t);
+    if (changed.length) vp.findings.push({ id: "T43", severity: "fail", title: "Heading text changes by itself", detail: "A typewriter or rotating-words headline ('I'm a developer | designer | …'). Write one static sentence.", where: changed.slice(0, 2) });
     await page.screenshot({ path: join(outDir, `${tag}.png`) });
-    const det = await page.evaluate(DETECT, { phone });
+    const det = await page.evaluate(DETECT, { phone, mode });
+    const allow = { ...det.pageAllow, ...cliAllow };
+    for (const f of det.findings) if (allow[f.id]) { f.severity = "allowed"; f.detail = `Allowed: ${allow[f.id]}`; }
     vp.findings.push(...det.findings);
     vp.facts = det.facts;
+    vp.signals = det.signals;
+    vp.allow = allow;
+    const softTells = [...new Set(det.findings.filter((f) => f.id.startsWith("T") && f.severity === "warn").map((f) => f.id))];
+    if (softTells.length >= 3)
+      vp.findings.push({ id: "T00", severity: "fail", title: `${softTells.length} template warnings together`, detail: "Three or more soft tells on one page add up to the template look. Clear them until fewer than three remain.", where: softTells });
 
     // Focus: tab a few times and check for a visible indicator.
     const focus = [];
@@ -1150,15 +1350,19 @@ function toMarkdown(r) {
     lines.push(`- Families: ${(f.families || []).join(", ")} · page height ${f.pageHeight}px`);
     lines.push(`- CLS ${v.metrics.cls} · LCP ${v.metrics.lcp ? v.metrics.lcp.t + "ms " + (v.metrics.lcp.node || "") : "n/a"} · long frames ${v.metrics.longFrames} (max ${v.metrics.longFrameMax}ms)`);
     lines.push(`- Frames (headless, indicative): intro p95 ${v.metrics.introFrames.p95}ms · scroll p95 ${v.metrics.scrollFrames.p95}ms, ${v.metrics.scrollFrames.over25} over 25ms`);
+    if (v.signals) {
+      const sg = Object.entries(v.signals);
+      lines.push(`- Human-made signals ${sg.filter(([, x]) => x).length}/${sg.length}: ${sg.map(([k, x]) => `${x ? "✓" : "·"} ${k.replace(/^H\d+_/, "")}`).join("  ")}`);
+    }
     lines.push(`- Motion: ${v.motion.atLoad} at load, ${v.motion.duringScroll} during scroll, ${v.motion.scrollLinked} scroll-linked, ${v.motion.loops} loops · durations ${v.motion.durations.join("/")}ms · easings ${v.motion.easings.join(" ; ")}`);
     lines.push("");
-    const order = { fail: 0, warn: 1, info: 2 };
+    const order = { fail: 0, warn: 1, info: 2, allowed: 3 };
     const sorted = v.findings.slice().sort((a, b) => order[a.severity] - order[b.severity] || a.id.localeCompare(b.id));
     if (!sorted.length) lines.push("No findings.", "");
     else {
       lines.push("| | Id | Finding | Fix | Where |", "|---|---|---|---|---|");
       for (const x of sorted)
-        lines.push(`| ${x.severity === "fail" ? "✗" : "△"} | ${x.id} | ${x.title} | ${x.detail.replace(/\|/g, "/")} | ${(x.where || []).join("<br>").replace(/\|/g, "/").slice(0, 400)} |`);
+        lines.push(`| ${x.severity === "fail" ? "✗" : x.severity === "allowed" ? "○" : "△"} | ${x.id} | ${x.title} | ${x.detail.replace(/\|/g, "/")} | ${(x.where || []).join("<br>").replace(/\|/g, "/").slice(0, 400)} |`);
       lines.push("");
     }
   }

@@ -1,0 +1,89 @@
+# Anti-slop: the template tells to remove
+
+A generated page is recognisable in under a second because it assembles the same parts: a pill badge over a centred headline, a gradient on the words, a grey subline, a filled and a ghost button, glass cards with faint borders, an icon in a tinted square on each card, a stat row, a logo marquee, a fade-up on every section. Each part alone is small. Together they say "nobody chose this". A portfolio's whole argument is that someone did choose.
+
+**Verdict rule:** one hard fail (✗), or three or more different soft tells (△) on one page, fails the draft (the checker reports the latter as `T00`).
+
+**Deliberate exceptions** are allowed only with a written reason, declared on the page or on the command line, so the next reviewer can judge the reason:
+
+```html
+<meta name="portfolio-check" content="allow T06: sky colour computed from the real sun position; allow T18c: Fraunces chosen for its 144 optical size on one sentence">
+```
+```sh
+node scripts/check.mjs <url> --allow "T06=sky colour computed from the sun;T18c=…"
+```
+
+Mark live demos and playable pieces as work with `data-work` so they count toward the first-screen work share.
+
+## Checked automatically (`scripts/check.mjs`)
+
+| Id | Tell | Severity | Instead |
+|---|---|---|---|
+| T01 | Pill or badge above the hero title ("✨ Available for work", "New", "Open to roles") | ✗ | Delete it. Put the claim in the heading; availability goes in the contact line as words. |
+| T02 | Gradient-filled text | ✗ | Solid ink; emphasis by size, weight or the work. |
+| T03 | Faint 1px rounded outlines on 3+ boxes ("AI borders": `border-white/10`, `border-black/5`, shadcn `border-border` on every card) | ✗ (1–2: △) | No box: group with space, a full-width hairline rule from the neutral ramp, or a tonal ground step. |
+| T04 | Frosted-glass panels (backdrop blur outside fixed chrome and dialogs) | ✗ (1: △) | Opaque surfaces. |
+| T05 | Coloured glow shadow | ✗ at 2+ (1: △) | A neutral shadow only on objects that float, or none. |
+| T06 | Purple/indigo/violet gradient (hue 255–315°, chroma > 0.12; or two cool stops) | ✗ | One anchor hue from the material; two solids with a hard edge if two colours are needed. |
+| T06b | Large decorative multi-hue gradient ground | △ | Flat ground, or colour computed from something real (and say so). |
+| T07 | Dot or grid pattern ground | △ | Flat ground, or a real board/map/canvas. |
+| T08 | Blurred colour blobs | ✗ | Nothing, or a real light computed from something. |
+| T09 | Emoji in headings, buttons, list starts or the first screen | ✗ in headings/buttons or 3+; else △ | Words, or one drawn icon set. |
+| T10 / T10b | Template phrases (Hi I'm, crafting digital experiences, passionate, pixel-perfect, seamless, leverage, Let's build something amazing together, trusted by, scroll to explore, design meets code …) | ✗ in the first screen; ✗ at 3+ elsewhere | A plain sentence with a product, a place and a number. |
+| T11 | Em-dash density | △ | Full stops. |
+| T12 | Centred hero + primary/ghost button pair | ✗ | Lead with work; one action; derive the composition from the work. |
+| T12b / c | Centred hero headline; two boxed buttons under the hero | △ | Check that the composition earns it; one plain link may do. |
+| T13 | Stat counter row ("5+ years · 50+ projects") | ✗ with "+", else △ | One real number inside the sentence it proves. |
+| T14 | Icons in tinted rounded squares above feature cards | ✗ | Facts in rows; portfolios have no feature cards. |
+| T15 | Bento grid of rounded cards | △ | A list, an index, or one image; sizes come from content. |
+| T16 | Pulsing status dot (green "available") | ✗ green, else △ | A sentence in the contact row. |
+| T17 | Marquee (logos ✗, words △) | ✗ / △ | Names once, still, linked. |
+| T18 | Largest text in a default face (Inter, Geist, system, Roboto, Poppins, Montserrat, DM Sans …) | ✗ | A chosen display face (`visual.md`). |
+| T18b | More than three families | △ | Display + text + one mono. |
+| T18c | Reflex display face (Fraunces, Space Grotesk, Instrument Serif, Playfair, Syne …) | △ | Keep only with a written reason. |
+| T19 | Stock Tailwind greys/indigos (3+) | △ | Neutrals tinted toward the anchor hue. |
+| T20 | One big radius on 60%+ of boxes | △ | A radius hierarchy by role. |
+| T21 | Numbered mono section labels ("01 / About") | △ | Only where order is information. |
+| T22 | Small uppercase kicker over 3+ section headings | △ | Let the heading stand alone. |
+| T23 | Hover lift or zoom on cards | △ | Hover reveals information (a fact, a preview, the year) or floods the row with the project colour. |
+| T24 | Cursor spotlight | △ | — |
+| T25 | System cursor hidden / replaced | △ | Keep the system cursor; a label may appear over a draggable. |
+| T26 | Floating blurred pill navigation | △ | A text masthead in normal flow. |
+| T27 | Giant name with no work beside it | ✗ (name the biggest thing: △) | The claim is the biggest text; the name is a label. |
+| T28 | Coloured side stripe on boxes | ✗ at 3+, else △ | A heading, a ground step, or nothing. |
+| T29 | Hairline border plus wide soft shadow ("ghost card") | △ | One or the other, or neither. |
+| T30 | Middot chains (3+ in a line) | △ | One separator per line, or a small table. |
+| T31 | Aphoristic cadence ("Not a feature. A platform.") | △ | Say the fact once. |
+| T32 | Effect-library components (beams, meteors, sparkles, aurora, border-beam, magic card) and spinning conic borders | ✗ | One authored moment that reveals information. |
+| T33 | Scroll cue (label or bouncing chevron) | △ | End the first screen on content cut by the fold. |
+| T34 | Dark ground + neon glow | ✗ | Keep the dark ground if it has a reason; drop the glow; desaturate the accent. |
+| T35 | Pure black on white (or reverse) | △ | Tinted paper and ink. |
+| T36 | Card inside a card (screen frames excluded) | ✗ at 3+, else △ | One containment layer. |
+| T37 | Italic accent word in a second family inside a heading | △ | Same family's italic or weight. |
+| T38 | Tech-stack logo grid | ✗ | Stack named inside each project's facts. |
+| T39 | Traffic-light window dots | △ | A plain frame, or none. |
+| T40 | Faded giant number watermark | △ | — |
+| T41 | Full-height hero with one centred sentence | △ | Put work in it; let content set the height. |
+| T42 | 4+ sections in a row with the same rhythm, centred headings | ✗ at 5+, else △ | Vary ground, width, rule or padding. |
+| T43 | Heading text that changes by itself (typewriter, rotating words) | ✗ | One static sentence. |
+
+Craft (C) and motion (M) findings are listed in the report with their fixes; see `motion.md` and `visual.md`.
+
+## Checked by the reviewer (not automatable, or not reliably)
+
+- **Costumes:** retro OS, 3D desk or room, TV and remote, fake terminal or boot log, HUD corners, stickers, "v2.0" stamps, game skin — unless the costume is the only way to the work and relates to the person's work (M2 test).
+- **Device props:** a fan of phones, an exploded laptop, a phone that tilts with the pointer, a hand holding a phone, mockups that are bigger than the screens they hold.
+- **Invented content:** numbers not in the source files, testimonials without a full name and role, logos of companies the person did not work with, "Jane Doe", "Acme", lorem ipsum, picsum, broken image links.
+- **Template sections:** skill bars or percentages, a "Services" grid, "What I do" three-card row, testimonial carousel, vertical timeline with dots, "Let's work together" banner, newsletter signup on a portfolio.
+- **Template motion:** preloader counter, "Hello / Bonjour / Hola" word cycle, fade-up on every block, char-by-char scramble on hover, dot-and-ring cursor, image-follows-cursor with generic thumbnails, magnetic buttons on many elements, page curtain on every route, multi-layer hero parallax, a looping WebGL blob that means nothing.
+- **Copy cadence:** adjectives in threes, "not just X, but Y", rhetorical questions as headings, "Here's what sets me apart", a welcome paragraph about the author, micro-meta sentences under every heading, mixed voices.
+- **The loop skeleton:** giant name top-left, grey one-liner, screenshot right, one gimmick. Twelve drafts on this skeleton are one draft.
+
+## Why each family reads as generated
+
+- **Decoration standing in for hierarchy** (pills, kickers, numbers, borders on everything): the model cannot judge importance, so it labels and boxes everything.
+- **Defaults never changed** (Inter, Tailwind slate/zinc, indigo-500, `rounded-2xl`, `shadow-lg`): the statistically likely output of training data from 2019–2024.
+- **Effects instead of content** (glass, glow, blobs, beams, gradients): the model has no work to show, so it shows texture.
+- **Claims instead of proof** (stat rows, "passionate", testimonials, logos): the model cannot verify, so it asserts.
+
+The cure is the same for all four: real work, specific nouns, one decided rule, and fewer things.
