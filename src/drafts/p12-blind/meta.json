@@ -1,0 +1,23 @@
+{
+  "id": "p12-blind",
+  "title": "THREE LANES",
+  "band": "Loop 12",
+  "description": "The claim in condensed display type, then a six-year record in three lanes, phone, web and server, newest first: real screens sit in the lane they run in, under a red Today line. Offday fills all three lanes in the first row.",
+  "signature": "Big Shoulders Display for the claim, years and lane headers; Libre Franklin text; Martian Mono facts. Warm paper and ink with one red, the calendars' today line. The year bars draw down once when the record enters view (600 ms expo-out, 25 ms stagger).",
+  "caseSlug": "care-platform",
+  "rule": "the page is a six-year record in three lanes, phone, web and server; every product sits in the lane it runs in and the year it shipped, so the lanes fill in from phone to web to server",
+  "designRead": "Reading this as: a phone-and-web developer who moved to full stack, for a hiring manager on a phone, leading with Offday (one product in all three lanes), in a dated record of three lanes.",
+  "hook": "The site where his work is laid out in three lanes, phone, web and server, and the server lane is empty until 2026.",
+  "lead": "Offday, 2026: the only product that runs in all three lanes at once, so the first row is the claim drawn as a picture; it is the owner's own full-stack product, and the other drafts lead with the care platform, Bayyinah TV and the store apps. The care platform rebuild and its API are the second row.",
+  "composition": "3 (the claim drawn as a picture: three lanes are the sentence) crossed with 4 (a dated record, years down the page).",
+  "fourAnswers": {
+    "desktop": "who: Gentrit Rashiti / what: phone and web apps, and since 2026 the servers behind them / for whom: care teams, readers and shoppers / proof: Offday's real team calendar and phone screen in the first row, links to bayyinahtv.com, the App Store, Google Play and GitHub, the years 2021, 2023 and 2026",
+    "phone": "who: Gentrit Rashiti / what: phone and web apps / for whom: care teams, readers and shoppers / proof: the since-years line, the four links, Today and 2026, and Offday's calendar high on the screen"
+  },
+  "mechanisms": ["M1", "M9", "M13", "M14"],
+  "check": { "fails": 0, "warnings": 0, "allowed": [] },
+  "loopScores": { "straightToThePoint": 0, "actionsAndSeniority": 0, "original": 0, "hooks": 0, "typeAndColour": 0 },
+  "holdback": "",
+  "pageLength": { "1440x900": 0, "390x844": 0 },
+  "skillNotes": ""
+}

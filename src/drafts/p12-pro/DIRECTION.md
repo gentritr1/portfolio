@@ -1,0 +1,42 @@
+# ACTUAL SIZE (p12-pro)
+
+## Brief
+
+Design Read: Reading this as: a frontend and mobile developer, now full stack, for a hiring manager with two minutes, leading with the care platform rebuild, in a page where every product screen is shown at its real size.
+
+Primary reader: hiring manager or design lead (2–5 min, often on a phone first). Secondary: recruiter (10–30 s, needs role words, place, CV, a live link).
+After the visit they should: open the care platform case, then the CV or the email.
+Strongest project: the care platform rebuild (Vianova, 2023–26). It is the largest checkable change (a live app moved to React screen by screen while care teams keep using it; one billing report from 16 database requests to 2), it matches the reader, and its real screens exist at 2× (2880 × 1800 files for a 1440 × 900 app).
+Voice: no person (sentences start with the name or the verb). Owner rules (CONTENT.md, PRODUCT.md, BRIEF.md, 2026-10-02 to 2026-10-06): never "I", "he", "his", "led", "top contributor" or commit counts; plain English; facts only from the files; no internal counts; public products named and linked; no relation stated between an employer and a client product, Vianova named only on its own platform rows; care and design-system screens carry "Real product screens, invented data."; the AI line used exactly; "16 → 2" is a proof line, never a headline.
+
+Proof inventory (used on this page):
+
+| Project | What it is | Scope | Years | Live link | Screens | Numbers |
+|---|---|---|---|---|---|---|
+| Care platform | Remote patient care for care teams | Web and mobile; since 2026 also the server; wrote most of the rebuild's rules and checks | 2023–26 | private | care-dashboard/* (real, invented data) | 16 → 2 requests (CONTENT §2), 4 languages |
+| Bayyinah TV | Video-learning platform, web + inside both store apps | Frontend, core team | 2023–26 | bayyinahtv.com, App Store, Google Play | bayyinah/web-03 (public page) | — |
+| Viva Fresh, Dukagjini Bookstore, Read to Feed | Grocery, bookstore and children's reading apps | Mobile | 2021–25 | store listings (Read to Feed archived) | mobile/* (public listings) | about 14 releases (Read to Feed) |
+| Design System v2 | Shared building blocks for the new care dashboard | Research and agent guides; a teammate wrote most components | 2026 | private | design-system/date-range-picker (real, invented data) | 20 releases in about six weeks |
+
+Cannot show: the care platform's old app beside the new one, internal counts → substitute: text only, in the case.
+Constraints: React 19, motion, local fonts, own folder, 375/390 and 1440, keyboard, reduced motion, one light theme.
+Memory sentence (target): "The one where the care app is shown at its real size, cut off by the page, and opening the case opens the window to the whole screen."
+
+## Direction card
+
+- **id / title:** p12-pro / ACTUAL SIZE
+- **Rule:** the page is a window onto the real apps at actual size: every screen is cut to the part that proves its line, never shrunk, and opening a case only opens the window wider.
+- **Lead project and why:** the care platform rebuild; the biggest checkable change for a hiring manager, and its screens are dense enough that real size matters (claims, CPT codes, a week of visits stay readable).
+- **Composition:** first-screen.md #1, sentence + proof row + one screen, decided by the rule: the screen is 1:1, so it cannot fit; it takes the right side and runs off the top and right edges of the viewport. The words get a narrow left column, which is why the display face is condensed.
+- **First screen:** 1440: left column (64–576 px): name and nav, the claim in four lines, the role line, a three-row proof table, one action, and the figure caption at the foot of the column; right (616 px to the edge): the care team calendar at 1:1, from the app's top bar down, cut by the fold. 390: name and nav, the claim in four lines, the role line, then the calendar at 1:1 full bleed (Monday to Wednesday, 8 AM to noon), the caption, the action, the proof table.
+- **Hook and the fact it carries:** "the care app at real size, cut off by the page; opening the case opens the window to the whole screen". Fact: these are the real screens, readable as a care team reads them. On the page as text in every caption: "Shown at actual size."
+- **Delete test:** scale every screen to fit and remove the transition: the claim, the proof table, every result line and every caption still say who, what, for whom and the proof. Nothing is lost but the look, so it is a rule, not navigation.
+- **Type:** display = Hubot Sans (local subset "Gentrit Display") at width 80, weight 740: the screens take the width at real size, so the claim takes the height; the narrowest width sets 13 words in four lines at 64 px inside five columns. Text = Mona Sans ("Gentrit Text", Hubot's sibling) 400/600. Outlier = IBM Plex Mono ("Gentrit Technical Mono") for years, numbers and scale marks, tabular. First-screen sizes: 64 / 19 / 15 / 13.
+- **Colour:** ground #f5f7fb, the care app's own ground, so a 1:1 screen sits in the page with no frame; ink oklch(0.25 0.04 235), the app's dark teal taken toward black; one accent #01698f, the app's own primary button, for links, the action and focus (under 5% of a viewport); one red mark (#c81e25, from the app's current-time line) means "now", once per screen at most.
+- **Motion:** quiet layer only: press 120 ms, underline 150 ms, focus instant, hover inside fine pointers. The one moment: home tile to case hero, a View Transition of 420 ms, expo-out (0.16, 1, 0.3, 1). The window grows from the home crop to the full app width while the pixels inside never scale (each product pixel stays on the same app pixel; only the window and its position move). Keyboard activation and reduced motion navigate with no animation.
+- **Mechanisms earned:** M1 (actual size everywhere, phone screens at phone width), M3 (the transition is real 1:1 pixels, no scale), M9, M11, M13, M14.
+- **Risk:** it can read as a clean, ordinary portfolio with big screenshots. The bleed, the phone screens at phone size and the caption "Shown at actual size" must make the rule visible; the transition must be exact or it is just a zoom.
+
+## Four answers (written from my own captures, see the end of the build)
+
+Filled in after the checker run, below.
