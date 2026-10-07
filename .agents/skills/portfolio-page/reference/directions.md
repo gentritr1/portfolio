@@ -47,6 +47,18 @@ The live home of the repository this skill was built in shows what a finished me
 
 Do not copy it. Use it as the shape every mechanism should have: a true fact, a control that teaches itself, a still that says the same thing, a sentence a visitor would repeat.
 
+## Test the idea before building
+
+Builders over-score their own originality, and a round of drafts costs hours. Before writing code:
+
+1. Write the memory sentence (below).
+2. Read it against every line in the list of existing directions and against the bar-to-beat sites in `review.md`. If it could describe one of them, change the rule.
+3. Name the **control pattern** (a list that drives a stage, a carousel, a scroll story, a dial, a drag) and check it is not the same control as an existing draft with a new skin.
+4. Ask: **what is the rule on a 390px screen?** If the rule disappears on a phone, it is a desktop effect, not a rule.
+5. A purely structural rule (an arrangement the visitor does not drive) rarely scores above 7 on the hook. Know that before choosing it, or add one moment the visitor drives.
+
+If the self-score after building is still 7 or less on original or hook, start a **new draft** with a new rule. A re-direct is not a polish pass and does not count against the two-pass limit.
+
 ## The memory test
 
 Write the one sentence a visitor would say to a friend a week later. "The site where you drag the sun and the screens' shadows move." "The one where the crossword is the menu." If the sentence is a mood ("it felt premium"), the direction is not committed. If the sentence is about an effect with no relation to the person ("the one with the blob"), it is a gimmick.
@@ -63,7 +75,11 @@ When building several directions to compare:
 - **Different lead project** per draft, chosen for that draft's rule.
 - **Different type pairing and ground** per draft, and a different display-face class (serif, grotesk, mono, drawn/bitmap, condensed poster). Not every draft on the same grotesk; not every draft on dark + one accent; not every draft on cream + serif.
 - **Different composition** per draft (from `first-screen.md`'s list). If two drafts both open with sentence + proof row + framed screenshot, one of them changes.
+- **Different control pattern** per draft (see the test above).
 - Mix bands: some **professional** (fastest to read), some **crafted** (one material idea), some **bold** (one mechanism the visitor drives). At least one draft should be safe enough to ship this week.
+- **Professional does not mean generic.** Inside the familiar claim + proof + screen pattern, originality lives in four places: scale (actual-size screens, a type size that fills the frame), crop (cut to the proving part, bleeding off the page), type (one decided face and axis), and one transition (the tile becoming the case). Pick at least two.
+- **Crafted means the material reads in a still.** Reviewers judge captures first; if a screenshot of the resting page shows only an ordinary picture, add a resting cue of the material (the ribs of a print, the grain of a real dither, the edge of a fold).
+- **Bold means the visitor drives it,** with the spec in `snippets/mechanism.md` filled in before building.
 - Keep what earlier rounds proved (plain copy, real screens, facts only); do not re-try what failed (the giant-name skeleton, costumes).
 - Builders write the rule, the hook sentence and the holdback before building, and the checker runs before review.
 

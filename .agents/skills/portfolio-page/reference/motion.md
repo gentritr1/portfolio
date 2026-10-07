@@ -10,7 +10,7 @@ Before any signature moment, build this layer. It is what visitors feel as "smoo
 - Hover: 150 ms, colour or opacity, only inside `@media (hover: hover) and (pointer: fine)`.
 - Focus: instant, always visible, themed.
 - Link underline grows from the left in 150 ms (`background-size` or `scale` on a pseudo-element), never `transition: all`.
-- Opening a case: a View Transition, 300–450 ms expo-out, the tile becoming the hero (`snippets/view-transition.css`).
+- Opening a case: a View Transition, 300–450 ms expo-out, the tile becoming the hero (`snippets/view-transition.css`). Pointer-initiated only: keyboard activation (`event.detail === 0`) and reduced motion navigate instantly, and focus moves to the new h1. Screens must not zoom during the morph (see the no-scale variant in the snippet).
 - Nothing else moves.
 
 ## The gate: frequency and purpose
@@ -110,6 +110,8 @@ Right (states still change; travel and loops stop): see `snippets/reduced-motion
 
 Pick **one** per page. It must carry a fact (the visitor learns something by doing it) and survive the delete test (every fact is still on the page without it). Mark it `data-motion="story"`.
 
+A settle-on-load of the hero (the picture is complete and readable in its first frame, then moves once into place in ≤ 800 ms) counts as the page's one story moment, not as an intro. An intro is anything that delays the first readable frame.
+
 Build order (do not animate first and backfill the fact):
 
 1. Build the end state, static, and make it good enough to ship.
@@ -117,7 +119,7 @@ Build order (do not animate first and backfill the fact):
 3. Add the motion with one token from the tables above.
 4. Make it interruptible (spring or transition, never keyframes for re-triggerable motion) and keyboard-driven.
 5. Add the reduced-motion branch: same end state, no travel.
-6. Measure at 4× CPU (`--throttle 4`): p95 frame ≤ 20 ms, no long frame ≥ 50 ms, CLS 0.
+6. Measure at 4× CPU (`--throttle 4`) on a production build, not the dev server (`npx vite build --outDir /tmp/<id>-dist && npx vite preview --outDir /tmp/<id>-dist --port <n>`): p95 frame ≤ 20 ms, no long frame ≥ 50 ms, CLS 0. A canvas's static fallback must match its resting frame pixel for pixel, so the swap does not pop.
 7. Capture five mid-frames and scrub at 10%: no pop, no text blur during scale, siblings do not move.
 
 | Moment | What it explains | Recipe | Slop risk |
@@ -140,7 +142,7 @@ Treat these as clichés unless they carry a fact: preloader counters, "Hello/Bon
 `check.mjs` covers (see `reference/checks.md`): loops (M01), long animations (M02; > 1,100 ms fails unless `data-motion="story"`), layout properties (M03), linear and ease-in movement (M04), `scale(0)` (M04c), smooth-scroll libraries (M05), scroll resistance (M06), content never revealed (M07), section fade-ups (M08), reduced motion including canvas loops (M09), scroll frame timing (M10), too much moving at load (M11). Headless frame numbers are indicative; trust a real mid phone over them.
 
 By hand:
-- Capture mid-animation frames (`--frames 120,320,700`, or `document.getAnimations().forEach(a => { a.pause(); a.currentTime = t })`). Two identical end states prove nothing.
+- Capture mid-animation frames: `--frames-after <selector>` for load moments, `--interact "click:<selector>" --interact-frames 60,150,300,600` for a moment the visitor triggers, or pause `document.getAnimations()` at a set `currentTime`. Two identical end states prove nothing.
 - Scrub the signature moment at 10% speed (CDP `Animation.setPlaybackRate` 0.1): no pop, no text blur during scale, siblings do not move.
 - Interrupt it: trigger, reverse at 40%, check it reverses from where it is.
 - Throttle CPU 4× (`--throttle 4`): p95 frame ≤ 20 ms during the moment, no long animation frames ≥ 50 ms, CLS 0.

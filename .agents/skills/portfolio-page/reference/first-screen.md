@@ -70,8 +70,8 @@ Rule: a hook may sit in the first screen only if the four answers are readable b
 ## Phone first screen
 
 Design it, do not shrink the desktop. At 390×844:
-- The claim sets in 2–4 lines at 32–40px.
-- Work starts above 500px (y) and is readable: text inside a screenshot ≥ 11px after scaling, or crop to the part that proves the caption.
+- The claim sets in 2–4 lines at 32–40px. If it runs to 5 lines, shorten the claim for the phone (≤ 12 words) or use the face's condensed width; do not go below 30px.
+- Work starts above about 560px (y) and is readable: text inside a screenshot ≥ 11px after scaling, or crop to the part that proves the caption (`snippets/crop.md`). The proof row may sit below the work on phones.
 - One action reachable with a thumb; nav on one line or a single menu button with a 44px target.
 - No horizontal scroll; no hover-only reveal.
 

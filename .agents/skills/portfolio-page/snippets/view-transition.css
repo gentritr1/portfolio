@@ -1,10 +1,13 @@
 /* Tile → case: the chosen screen grows into the case hero; everything else cross-fades.
-   1. Give the tile image and the case hero image the same view-transition-name (unique per project).
-   2. Navigate inside document.startViewTransition(() => navigate(url)) when it exists; otherwise navigate.
-   3. Keep 3–6 named elements at most; snapshots cost paint. */
 
-.tile-shot { view-transition-name: var(--vt-name); }   /* set --vt-name: shot-<slug> inline */
-.case-hero-shot { view-transition-name: var(--vt-name); }
+   1. Give the tile and the case hero the same view-transition-name, set inline per project
+      (style={{ viewTransitionName: `shot-${slug}` }}); a var() in a shared rule is not enough.
+   2. Navigate inside document.startViewTransition(async () => { flushSync(() => navigate(to));
+      await heroImg.decode(); }) when it exists; otherwise navigate.
+   3. Keyboard-initiated navigation (event.detail === 0) and reduced motion navigate with no
+      transition. After the route changes, move focus to the new page's h1.
+   4. If the tile is off screen when the visitor navigates, skip the name (plain cross-fade).
+   5. Keep 3–6 named elements at most; snapshots cost paint. */
 
 ::view-transition-group(*) {
   animation-duration: 380ms;
@@ -15,15 +18,21 @@
   animation-duration: 200ms; /* the page behind cross-fades quickly */
 }
 
+/* Screenshots must not zoom during the morph (text blur). By default the old and new snapshots
+   stretch to the group's size. For a crop window that only gets wider, keep both images at
+   their real pixel size and let the group's box reveal more of them: */
+::view-transition-old(shot-care),
+::view-transition-new(shot-care) {
+  inline-size: auto;
+  block-size: auto;
+  object-fit: none;          /* no scaling of the snapshot */
+  object-position: 0 0;      /* anchor at the crop's top-left; translate if the crops differ */
+  overflow: clip;
+}
+::view-transition-group(shot-care) { overflow: clip; }
+
 @media (prefers-reduced-motion: reduce) {
   ::view-transition-group(*),
   ::view-transition-old(*),
   ::view-transition-new(*) { animation: none; }
 }
-
-/* React (react-router) sketch:
-   function openCase(to: string) {
-     if (!document.startViewTransition) return navigate(to);
-     document.startViewTransition(() => flushSync(() => navigate(to)));
-   }
-*/

@@ -92,7 +92,7 @@ Answer first, then the reasoning. 300–600 words above the engineering section;
 [Project name]                                    small line above the title
 [Title = the result, ≤ 10 words]                  h1
 [Summary ≤ 60 words: what it is, who uses it, what changed]
-Role · Years · Platforms · Live                   facts row
+Role · Years · Platforms · Live                   facts row (a <dl> of four cells, not a middot chain)
 [Hero screen, cropped to the part that proves the title; caption ≤ 8 words]
 
 The product      ≤ 120 words. Who uses it, for what. Scope line inside the first 80 words:

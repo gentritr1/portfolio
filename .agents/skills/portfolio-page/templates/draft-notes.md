@@ -14,4 +14,5 @@
 | `loopScores` | `straightToThePoint`, `actionsAndSeniority`, `original`, `hooks`, `typeAndColour` (1–10 each). |
 | `holdback` | The lowest score and why. |
 | `pageLength` | `{ "1440x900": px, "390x844": px }` |
+| `pageLength` note | In this repository the drafts picker reads `id`, `title`, `band`, `description`, `signature`, `rule`, `holdback`, `mechanisms`; the other keys are kept for reviewers. |
 | `skillNotes` | Where this skill helped, where it was unclear, wrong or missing. Be specific; it improves the skill. |
