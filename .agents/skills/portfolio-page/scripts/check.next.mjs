@@ -581,7 +581,8 @@ const ARM = ({ ms, events, strict }) => {
         },
         true,
       );
-    w.__pcFrozen = { at: Math.round(frameT - t0), now: Math.round(performance.now() - t0), paused: p.paused, names: p.names };
+    // at: when the page froze (ms after the action started); frame: the timestamp of that frame.
+    w.__pcFrozen = { at: Math.round(performance.now() - t0), frame: Math.round(frameT - t0), paused: p.paused, names: p.names };
   };
   const loop = (frameT) => {
     if (w.__pcFrozen) return;
