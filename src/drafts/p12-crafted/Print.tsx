@@ -39,8 +39,6 @@ export interface Tilt {
   subscribe: (fn: () => void) => () => void;
   /** Turn to a face. Pointer: the story spring. Keyboard or reduced motion: no travel. */
   show: (face: 0 | 1, how: "spring" | "instant") => void;
-  /** Turn to the second face and back, once: the page shown to the visitor like a postcard. */
-  peek: () => void;
   /** End a drag: hand the hand's velocity (deg/s) to the snap spring and land on the nearer face. */
   settle: (now: number, velocity: number) => void;
   reduced: boolean;
@@ -82,11 +80,6 @@ export function useTilt(reduced: boolean): Tilt {
         theta.jump(target);
         setFace(to);
       } else animate(theta, target, STORY);
-    },
-    // 760 ms: out on an ease-out, back on the in-out curve; it ends where it started.
-    peek() {
-      if (rm.current) return;
-      animate(theta, [0, FACE_B_DEG, 0], { duration: 0.76, times: [0, 0.45, 1], ease: [[0.23, 1, 0.32, 1], [0.77, 0, 0.175, 1]] });
     },
     settle(now, velocity) {
       const target = now + velocity * 0.2 > FACE_B_DEG / 2 ? FACE_B_DEG : 0;
@@ -142,6 +135,69 @@ export function FaceSwitch({ tilt, labels, name }: { tilt: Tilt; labels: [string
   );
 }
 
+/* ---------- A horizontal drag that never fights the page's scroll ---------- */
+
+type Gesture = { id: number; x0: number; y0: number; mode: "wait" | "drag" | "scroll"; x: number; from: number; trail: [number, number][] };
+
+/**
+ * Drag the page lens sideways, on a page that scrolls vertically (snippets/mechanism.md):
+ * - nothing happens until the pointer has moved `slop` px; then the gesture is a lens drag only if it is
+ *   mostly horizontal (|dx| > 1.5·|dy|), and a page scroll (ignored to its end) if it moved vertically first.
+ *   The pointer is captured only once it is a drag; `touch-action: pan-y` leaves vertical pans to the browser;
+ * - release: the nearest face from the current angle plus the projected velocity (angle + v·0.2);
+ * - pointercancel (the browser took the gesture): back to the face the drag started from;
+ * - a press that never moved is a tap: `onTap`, if the control has one.
+ */
+function useLensGesture(tilt: Tilt, degPerPx: number, slop: number, bound: (v: number) => number, onTap?: () => void) {
+  const g = useRef<Gesture | null>(null);
+  return {
+    onPointerDown(e: PointerEvent<HTMLElement>) {
+      if (e.button !== 0) return;
+      g.current = { id: e.pointerId, x0: e.clientX, y0: e.clientY, mode: "wait", x: e.clientX, from: 0, trail: [] };
+    },
+    onPointerMove(e: PointerEvent<HTMLElement>) {
+      const d = g.current;
+      if (!d || d.id !== e.pointerId || d.mode === "scroll") return;
+      if (d.mode === "wait") {
+        const dx = Math.abs(e.clientX - d.x0);
+        const dy = Math.abs(e.clientY - d.y0);
+        if (dx >= slop && dx > 1.5 * dy) {
+          // A lens drag from here: the card follows the hand from this point, from its current angle.
+          d.mode = "drag";
+          tilt.theta.stop();
+          d.from = tilt.theta.get();
+          d.x = e.clientX;
+          e.currentTarget.setPointerCapture(e.pointerId);
+        } else if (dy >= slop) d.mode = "scroll";
+        return;
+      }
+      d.trail.push([e.timeStamp, e.clientX]);
+      if (d.trail.length > 8) d.trail.shift();
+      tilt.theta.set(bound(d.from + (e.clientX - d.x) * degPerPx));
+    },
+    onPointerUp(e: PointerEvent<HTMLElement>) {
+      const d = g.current;
+      if (!d || d.id !== e.pointerId) return;
+      g.current = null;
+      if (d.mode === "wait") onTap?.();
+      if (d.mode !== "drag") return;
+      // The hand's velocity over its last ~100 ms, up to the release itself (a hand that stopped and let go
+      // hands over nothing), given to the spring.
+      d.trail.push([e.timeStamp, e.clientX]);
+      const end = d.trail[d.trail.length - 1];
+      const start = end && (d.trail.find(([t]) => end[0] - t <= 100) ?? d.trail[0]);
+      const velocity = end && start ? ((end[1] - start[1]) / Math.max(16, end[0] - start[0])) * 1000 * degPerPx : 0;
+      tilt.settle(tilt.theta.get(), velocity);
+    },
+    onPointerCancel(e: PointerEvent<HTMLElement>) {
+      const d = g.current;
+      if (!d || d.id !== e.pointerId) return;
+      g.current = null;
+      if (d.mode === "drag") tilt.settle(d.from, 0);
+    },
+  };
+}
+
 /* ---------- The page lens: one control for every print ---------- */
 
 const TRAVEL = 22;
@@ -155,58 +211,21 @@ export function LensSwitch({ tilt }: { tilt: Tilt }) {
   const id = useId();
   const byPointer = useRef(false);
   const x = useTransform(tilt.theta, (v) => (Math.max(-0.2, Math.min(1.2, v / FACE_B_DEG)) * TRAVEL));
-  const drag = useRef<{ id: number; x: number; from: number; moved: boolean; trail: [number, number][] } | null>(null);
-  const degPerPx = FACE_B_DEG / TRAVEL;
-  const at = (d: NonNullable<typeof drag.current>, px: number) => {
-    const v = d.from + (px - d.x) * degPerPx;
-    if (v > FACE_B_DEG) return FACE_B_DEG + (v - FACE_B_DEG) * 0.2;
-    if (v < 0) return v * 0.2;
-    return v;
-  };
-  const down = (e: PointerEvent<HTMLSpanElement>) => {
-    if (e.button !== 0) return;
-    tilt.theta.stop();
-    e.currentTarget.setPointerCapture(e.pointerId);
-    drag.current = { id: e.pointerId, x: e.clientX, from: tilt.theta.get(), moved: false, trail: [[e.timeStamp, e.clientX]] };
-  };
-  const move = (e: PointerEvent<HTMLSpanElement>) => {
-    const d = drag.current;
-    if (!d || d.id !== e.pointerId) return;
-    d.trail.push([e.timeStamp, e.clientX]);
-    if (d.trail.length > 8) d.trail.shift();
-    if (!d.moved && Math.abs(e.clientX - d.x) < 3) return;
-    d.moved = true;
-    tilt.theta.set(at(d, e.clientX));
-  };
-  const up = (e: PointerEvent<HTMLSpanElement>) => {
-    const d = drag.current;
-    if (!d || d.id !== e.pointerId) return;
-    drag.current = null;
-    if (!d.moved) {
-      tilt.show(tilt.getFace() === 0 ? 1 : 0, "spring");
-      return;
-    }
-    d.trail.push([e.timeStamp, e.clientX]);
-    const end = d.trail[d.trail.length - 1];
-    const start = d.trail.find(([t]) => end[0] - t <= 100) ?? d.trail[0];
-    const velocity = ((end[1] - start[1]) / Math.max(16, end[0] - start[0])) * 1000 * degPerPx;
-    const now = at(d, e.clientX);
-    tilt.settle(now, velocity);
-  };
+  // The thumb travels 22px for the whole turn, so the switch claims a drag after 3px.
+  const gesture = useLensGesture(
+    tilt,
+    FACE_B_DEG / TRAVEL,
+    3,
+    (v) => (v > FACE_B_DEG ? FACE_B_DEG + (v - FACE_B_DEG) * 0.2 : v < 0 ? v * 0.2 : v),
+    () => tilt.show(tilt.getFace() === 0 ? 1 : 0, "spring"),
+  );
   return (
     <fieldset className="lx-lensctl">
       <legend className="lx-sr">Page lens: every picture on the web face or the phone face</legend>
       {(["Web", "Phone"] as const).map((label, i) => (
         <Fragment key={label}>
           {i === 1 && (
-            <span
-              className="lx-track"
-              aria-hidden="true"
-              onPointerDown={down}
-              onPointerMove={move}
-              onPointerUp={up}
-              onPointerCancel={up}
-            >
+            <span className="lx-track" aria-hidden="true" {...gesture}>
               <motion.span className="lx-thumb" style={{ x }} />
             </span>
           )}
@@ -276,8 +295,8 @@ function enqueue(job: () => Promise<void>) {
 
 const DEG_PER_PX = FACE_B_DEG / 120;
 const LIMIT = 16;
-/** A drag starts after this much movement, so a tap is still a tap. */
-const SLOP = 5;
+/** A print claims a drag after 6px of mostly sideways movement; anything else is the page's. */
+const SLOP = 6;
 
 function useNarrow() {
   const query = "(max-width: 719px)";
@@ -307,7 +326,6 @@ export function Print({
   tilt,
   priority = false,
   story = false,
-  intro = false,
   name,
   caption,
 }: {
@@ -315,8 +333,6 @@ export function Print({
   tilt: Tilt;
   priority?: boolean;
   story?: boolean;
-  /** Show the second face once after load, then return: the material read without input. */
-  intro?: boolean;
   /** The print's accessible name, for example "Bayyinah TV, website and App Store faces". */
   name: string;
   caption?: ReactNode;
@@ -337,29 +353,11 @@ export function Print({
     const id = window.setTimeout(() => setFlat(true), 240);
     return () => window.clearTimeout(id);
   }, [ready, flat]);
-  const born = useRef(performance.now());
 
-  const touched = useRef(false);
   const inView = useRef(false);
   const dirty = useRef(true);
   // The card's own turn follows the page angle only while it is in view; off screen nothing is restyled.
   const turn = useMotionValue(tilt.theta.get());
-
-  // The one authored moment at load: the hero print is turned to its App Store face and back, once,
-  // as a hand shows a postcard. It starts and ends on the website. Skipped if the lens is late,
-  // if the visitor already touched it, or with reduced motion.
-  const { reduced, theta } = tilt;
-  const peek = useRef(tilt.peek);
-  peek.current = tilt.peek;
-  useEffect(() => {
-    if (!intro || !ready || reduced) return;
-    if (performance.now() - born.current > 2200) return;
-    const id = window.setTimeout(() => {
-      if (!touched.current && !theta.isAnimating() && theta.get() === 0) peek.current();
-    }, 350);
-    return () => window.clearTimeout(id);
-  }, [intro, ready, reduced, theta]);
-  const drag = useRef<{ id: number; x: number; from: number; moved: boolean; trail: [number, number][] } | null>(null);
 
   // Paint the faces when the print comes near the viewport, and again when its size changes.
   useEffect(() => {
@@ -474,50 +472,13 @@ export function Print({
   });
 
   // Past the ends the card resists, like a print held at one edge (rubber band, never a hard stop).
-  const resist = (v: number) => {
+  // A tap on a print does nothing: the switch and the labels are the controls; a print turns only by hand.
+  const gesture = useLensGesture(tilt, DEG_PER_PX, SLOP, (v) => {
     const lo = -LIMIT / 2;
     if (v > LIMIT) return LIMIT + (v - LIMIT) * 0.25;
     if (v < lo) return lo + (v - lo) * 0.25;
     return v;
-  };
-  const angleAt = (d: NonNullable<typeof drag.current>, x: number) => resist(d.from + (x - d.x) * DEG_PER_PX);
-
-  const onPointerDown = (e: PointerEvent<HTMLDivElement>) => {
-    if (e.button !== 0) return;
-    touched.current = true;
-    tilt.theta.stop();
-    drag.current = { id: e.pointerId, x: e.clientX, from: tilt.theta.get(), moved: false, trail: [[e.timeStamp, e.clientX]] };
-  };
-  const onPointerMove = (e: PointerEvent<HTMLDivElement>) => {
-    const d = drag.current;
-    if (!d || d.id !== e.pointerId) return;
-    d.trail.push([e.timeStamp, e.clientX]);
-    if (d.trail.length > 8) d.trail.shift();
-    if (!d.moved) {
-      if (Math.abs(e.clientX - d.x) < SLOP) return;
-      // Capture only after 5px, so a tap stays a tap and the page still scrolls on a vertical swipe.
-      d.moved = true;
-      e.currentTarget.setPointerCapture(e.pointerId);
-    }
-    tilt.theta.set(angleAt(d, e.clientX));
-  };
-  const release = (e: PointerEvent<HTMLDivElement>, cancelled: boolean) => {
-    const d = drag.current;
-    if (!d || d.id !== e.pointerId) return;
-    drag.current = null;
-    d.trail.push([e.timeStamp, e.clientX]);
-    const moved = d.moved || Math.abs(e.clientX - d.x) >= SLOP;
-    if (!moved) {
-      if (!cancelled) tilt.show(tilt.getFace() === 0 ? 1 : 0, "spring");
-      return;
-    }
-    // The hand's velocity over its last ~100 ms, handed to the spring: a flick turns the card.
-    const end = d.trail[d.trail.length - 1];
-    const start = d.trail.find(([t]) => end[0] - t <= 100) ?? d.trail[0];
-    const dt = Math.max(16, end[0] - start[0]);
-    const velocity = ((end[1] - start[1]) / dt) * 1000 * DEG_PER_PX;
-    tilt.settle(angleAt(d, e.clientX), velocity);
-  };
+  });
 
   return (
     <figure className="lx-print" data-work={spec.work} data-ready={ready || undefined} data-flat={flat || undefined}>
@@ -532,10 +493,7 @@ export function Print({
           data-face="0"
           data-motion={story ? "story" : undefined}
           style={{ rotateY: turn, transformPerspective: EYE }}
-          onPointerDown={onPointerDown}
-          onPointerMove={onPointerMove}
-          onPointerUp={(e) => release(e, false)}
-          onPointerCancel={(e) => release(e, true)}
+          {...gesture}
         >
           {layout.faces.map((face, f) => (
             <div key={f} className="lx-layer" data-layer={f}>
