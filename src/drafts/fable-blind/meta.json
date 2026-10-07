@@ -1,0 +1,8 @@
+{
+  "id": "fable-blind",
+  "title": "FABLE BLIND",
+  "band": "Loop 11",
+  "description": "Two screens on dusk ground, a monitor and a phone, with real public screens inside; one switch puts the whole page into the phone.",
+  "signature": "Pointer parallax on the two devices, slow crossfades of real screens, long dusk shadows, and a phone view that reflows the page with container queries.",
+  "caseSlug": "care-platform"
+}
