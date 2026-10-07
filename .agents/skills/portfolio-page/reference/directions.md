@@ -34,18 +34,20 @@ Start from the person, not from a style:
 4. Combine one fact from (1) with one thing from (3) into a sentence of the form **"the page is a ___ that ___"**: "the page is lit by the real sun over the owner's city at the visitor's time"; "the page is a departure board where each project is a line"; "the page has a seam: old app on the left, rebuilt app on the right, drag it".
 5. Run the delete test and the stranger test (M2, M9). If it fails, try the next combination.
 
-## A worked example, end to end
+## A worked example, end to end (a fictional person)
 
-The live home of the repository this skill was built in shows what a finished mechanism looks like:
+Ana Silva builds offline-first apps that field nurses use where there is no signal.
 
-- **The fact:** the owner works from Kosovo; visitors are in other time zones.
-- **The rule:** the real sun over Kosovo lights the page at the visitor's time; product screens stand on the ground and cast its shadows.
-- **The control:** the sun disc on one line across the page; drag it, tap it, or use the arrow keys to move the hour.
-- **The delete test:** remove the sun and the text "17:04 in Kosovo" still says the fact; the screens and the sentence still answer the four questions.
-- **Reduced motion and budget:** a still at the current hour; the shadow shader is lazy, under 150 kB, with a flat fallback after slow frames.
-- **The memory sentence:** "the site where you drag the sun over Kosovo and the screens' shadows move."
+- **The fact:** the apps keep working with no connection and sync later.
+- **The rule:** the page works like the apps: a signal switch in the corner takes the page offline; the page keeps working, actions queue, and the queue syncs when the signal returns.
+- **The control:** one switch (click, tap, Space); its label says the state: "Online" / "Offline · 3 changes waiting".
+- **The delete test:** remove the switch and the sentence "The apps keep working with no signal and sync later" still says the fact; the screens and the claim still answer the four questions.
+- **Reduced motion and budget:** the state changes instantly; no canvas; a few kilobytes.
+- **The memory sentence:** "the site you can switch offline, and it keeps working like the apps."
 
 Do not copy it. Use it as the shape every mechanism should have: a true fact, a control that teaches itself, a still that says the same thing, a sentence a visitor would repeat.
+
+**Never put the person's own facts or sentences into a skill or a shared brief as examples.** Builders copy examples; one example becomes the same headline on every draft, and a slightly wrong example sentence spreads a factual error to every page.
 
 ## Test the idea before building
 

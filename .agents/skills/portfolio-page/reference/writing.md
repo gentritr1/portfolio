@@ -78,11 +78,11 @@ Never invent a percentage. Never write "improved" without what and by how much.
 
 Result patterns: `[n] [unit], not [n].` ("2 database requests, not 16.") · `Live [where] since [when].` · `[Users] can [verb] [what] [where].` · `[Thing], built once, [used where].`
 
-Work in progress: `[Users] keep [what] while [what changes].` then one witnessed fact. "Care teams keep using the app while each screen moves over. The billing report that timed out now finishes: 2 requests, not 16." Never a participle plus an aphorism ("Being rebuilt. Old bugs written down, not copied.") as the biggest text in a row.
+Work in progress: say what is true today and what is not done yet. `[What is being built] for [users]; [what is done], [what is not].` "The booking screens are being rebuilt for clinic staff, one tested screen at a time. None is live yet; each passes the same test on the old and the new app." Check the state in the facts (building / live) before writing a present-tense sentence about users. Never a participle plus an aphorism ("Being rebuilt. Old bugs written down, not copied.") as the biggest text in a row.
 
 ## The hook line
 
-The one line that names the mechanism (a clock, a dial, a switch label) is the hardest line on the page. ≤ 5 words, a fact the visitor can check, no instruction ("drag", "try", "click"). The control teaches itself through its affordance and focus state. "17:04 in Kosovo" works; "Drag the sun to change the time" does not.
+The one line that names the mechanism (a clock, a dial, a switch label) is the hardest line on the page. ≤ 5 words, a fact the visitor can check, no instruction ("drag", "try", "click"). The control teaches itself through its affordance and focus state. "Offline · 3 changes waiting" works; "Click the switch to go offline" does not.
 
 ## Case study page
 
@@ -107,9 +107,10 @@ Next case · CV
 ```
 
 Rules:
-- The title is the result, not the activity. "Care teams kept their app while it was rebuilt under them, one tested screen at a time." Not "Redesigning the reporting experience". If the owner keeps a number out of titles, the title states what users kept or gained; the number goes in the numbers row.
+- The title is the result, not the activity. "Field nurses chart visits with no signal, and nothing is lost." Not "Redesigning the charting experience". For work in progress the title says what is being done and how: "Rebuilding a live booking app, one tested screen at a time." If the owner keeps a number out of titles, the title states what users kept or gained; the number goes in the numbers row.
 - Seniority shows through the size of the change, the time, and the kind of decision — not through rank words. One sentence of the form "The brief asked for X; the team shipped Y because Z" shows judgment.
 - Each decision is ≤ 40 words: what limited the choice, what was chosen, what it caused.
+- Team systems: when a teammate built most of a system, the title and the result name the person's part ("Wrote the research and the guides the agents follow"), and the system's numbers are the team's ("The team released it 20 times in six weeks"). Never "built the design system".
 - At least one date and one real screen per case.
 - If the work is internal: say so in the caption ("Real product screens, invented data") and keep claims high level.
 

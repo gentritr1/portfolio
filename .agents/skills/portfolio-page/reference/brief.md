@@ -25,9 +25,11 @@ List every piece of evidence with its source. This is the raw material; the desi
 
 Rules:
 - A screen is usable only if its provenance is known: public page, store listing, real product on invented data, or a recreation. Label the last two in captions.
-- A number is usable only with a source line. Prefer numbers a non-engineer can count (pages, languages, stores, releases, years, "16 → 2"). Internal counts (components, tokens, tests) go to the engineering part of a case, or nowhere if the owner says so.
+- A number is usable only with a source line. Prefer numbers a non-engineer can count (pages, languages, stores, releases, years, a before → after such as "12 s → 2 s"). Internal counts (components, tokens, tests) go to the engineering part of a case, or nowhere if the owner says so.
 - Mark the **strongest** project: the largest checkable change, live or verifiable, that matches the primary reader. It leads, not the newest.
 - Mark what cannot be shown (NDA, login-only screens) and decide the honest substitute (description only, recreation, invented data).
+- Mark the **state** of each project: live, shipped then retired, or still being built. In-progress work is never written as live.
+- Copy the **authorship notes** (who built what) next to each project. When a teammate built most of a system, the person's row names only their part.
 
 ## 3. Owner rules
 

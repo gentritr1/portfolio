@@ -37,7 +37,9 @@ Name · one line of what it is (for a stranger) · the person's role · year(s) 
 
 **Grounds.** Put screens on a ground that belongs to them: the page ground, or a tint sampled from the screen itself (`oklch(0.95 0.03 h)` style). Never centre a small screen on a big field of unrelated colour.
 
-**Captions.** ≤ 8 words. What it is, and its provenance when not public: "Cart, Viva Fresh app, public store page." · "Real product screen, invented data."
+**Captions.** ≤ 8 words. What it is, and its provenance when not public: "Cart, Lumen app, public store page." · "Real product screen, invented data."
+
+**Other people's claims.** A product's own marketing inside a screenshot (its user counts, awards, testimonials, "500k learners") must not read as the person's results. Crop it out of first-screen screens, or caption it as the product's page. Store-listing images are marketing art (device frames, slogans): label them "store listing image" and prefer real in-app screens where they exist.
 
 **Enlarge.** Case screens open large on click: native `<dialog>`, Escape closes, focus returns, image at native size.
 

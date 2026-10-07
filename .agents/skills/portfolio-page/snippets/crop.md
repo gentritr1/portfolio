@@ -4,11 +4,11 @@
 
 ```html
 <figure class="crop" style="--w: 2880; --h: 1800; --x: 0.12; --y: 0.18; --scale: 0.5">
-  <div class="crop-window" data-work="Care platform">
-    <img src="/showcase/care-dashboard/appointments-week.webp" width="2880" height="1800"
-         alt="Care team calendar for one week, with visits and calls" fetchpriority="high">
+  <div class="crop-window" data-work="Tidebook">
+    <img src="/shots/tidebook-week.webp" width="2880" height="1800"
+         alt="Clinic booking calendar for one week" fetchpriority="high">
   </div>
-  <figcaption>Care team calendar. Real product screens, invented data.</figcaption>
+  <figcaption>Booking calendar, public demo.</figcaption>
 </figure>
 ```
 

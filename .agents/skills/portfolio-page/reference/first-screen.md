@@ -19,7 +19,7 @@ Test: give a capture to someone with no context for 5 seconds; they write the fo
 |---|---|
 | Name | One size below the claim, or inside the claim sentence ("Ana Silva builds …"). |
 | Identity sentence (the claim) | ≤ 20 words (15 target), one present-tense concrete verb (builds, designs, ships, writes), names the thing and the people, a proof clause, no adjective about the author, no stack names. The largest text on the screen. |
-| Second line (optional) | ≤ 12 words: place and way of working, or the current company. "Based in Kosovo, working remotely." |
+| Second line (optional) | ≤ 12 words: place and way of working, or the current company. "Based in Lisbon, working remotely." |
 | Proof row | 2–5 nouns: a place, a year range, a count, a store, a named product. At least one is a link a stranger can open (store listing, live site, repo). No "5+" counts. |
 | One real piece of work | A product screen cropped to the part that proves the sentence, at 1:1 pixels, a live demo, or the playable hook. ≥ 25% of the desktop first screen, ≥ 20% of the phone first screen. Captioned ≤ 8 words. |
 | One action | A noun or a two-word verb naming the destination: "See the work", "Read the case". A second may be "CV". No "Let's talk", no "Hire me". |
@@ -33,9 +33,9 @@ Word budget: target 60 words in the first screen; the checker warns above 90 and
 [Name] [builds|designs|makes|ships] [thing, 2–5 words] [for people, 1–4 words][, proof clause].
 ```
 
-"For whom" may move into the proof row when the row names the users or the products ("care teams, readers and shoppers"; "Bayyinah TV · Viva Fresh · Read to Feed").
+"For whom" may move into the proof row when the row names the users or the products ("nurses, clinics and their patients"; "Tidebook · Lumen · Harbor").
 
-Good (paraphrased real patterns): "Tony Ward builds design systems so teams ship faster." · "Gentrit Rashiti builds the web and phone apps that care teams, readers and shoppers use." + "Since 2021. Two platform rewrites. App Store · Google Play · bayyinahtv.com" (the store names and the site are links) · name + four proof rows (Working at / Creator of / Core team of / Maintaining), as on antfu.me · a dated four-line career, as on taniarascia.com.
+Good (paraphrased real patterns): "Tony Ward builds design systems so teams ship faster." · "Ana Silva builds offline-first apps that field nurses use." + "Since 2019. Three apps in both stores. App Store · Google Play · tidebook.app" (the store names and the site are links) · name + four proof rows (Working at / Creator of / Core team of / Maintaining), as on antfu.me · a dated four-line career, as on taniarascia.com.
 
 Template (rewrite): "Hi, I'm X 👋 — a passionate full-stack developer crafting seamless digital experiences." · "Welcome to my corner of the internet!" · "Designer. Developer. Dreamer." · "Turning ideas into reality, one pixel at a time." · a pill reading "Available for work" above a giant name.
 
