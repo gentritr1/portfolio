@@ -4,6 +4,7 @@ import { createRoot } from 'react-dom/client'
 import { BrowserRouter, HashRouter } from 'react-router'
 import './styles/globals.css'
 import App from './App.tsx'
+import { preloadFirstView } from './lib/firstView'
 
 const hashRouting = import.meta.env.VITE_ROUTER === 'hash'
 const Router = hashRouting ? HashRouter : BrowserRouter
@@ -21,11 +22,14 @@ if (hashRouting) {
   }, true)
 }
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    {/* Synchronous updates let flushSync commit a route inside a view transition. */}
-    <Router useTransitions={false}>
-      <App />
-    </Router>
-  </StrictMode>,
-)
+const render = () =>
+  createRoot(document.getElementById('root')!).render(
+    <StrictMode>
+      {/* Synchronous updates let flushSync commit a route inside a view transition. */}
+      <Router useTransitions={false}>
+        <App />
+      </Router>
+    </StrictMode>,
+  )
+
+preloadFirstView().then(render, render)

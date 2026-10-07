@@ -257,7 +257,7 @@ const incentivGallery: Gallery = {
 
 const snaxxLink: PublicLink = { label: 'Website', href: 'https://www.snaxxtech.com/' }
 const fjaleLink: PublicLink = { label: 'Website', href: 'https://xn--fjal-opa.com/' }
-const zaLink: PublicLink = { label: 'Website', href: 'https://za-game.onrender.com/' }
+const zaLink: PublicLink = { label: 'Website', href: 'https://za-game.vercel.app/' }
 const morseLink: PublicLink = { label: 'Website', href: 'https://morse-code-amber.vercel.app/' }
 const githubLink: PublicLink = { label: 'GitHub', href: 'https://github.com/gentritr1' }
 const offbeatLink: PublicLink = { label: 'GitHub', href: 'https://github.com/gentritr1/offbeat' }
@@ -684,10 +684,10 @@ export const projects: Project[] = [
     group: 'Personal',
     years: '2026',
     role: 'Owner',
-    stack: ['React 19', 'Vite', 'three.js', 'Tailwind'],
-    line: '3D hero, cinemagraph loop and strict CSP; images 972 KB to 337 KB',
+    stack: ['React 19', 'Vite', 'Tailwind'],
+    line: 'Animated illustration, cinemagraph loop and strict CSP; images 972 KB to 337 KB',
     summary:
-      'Snaxx Tech is the marketing site of an indie app studio, built with React 19, Vite, three.js and Tailwind. It has a three.js hero, a seamless cinemagraph video loop and the Almanac visual theme, and it runs on Vercel under a strict content security policy. Images went from 972 KB to 337 KB, and the deploy went from 28 MB to 9.5 MB.',
+      'Snaxx Tech is the marketing site of an indie app studio, built with React 19, Vite and Tailwind. It has an animated Almanac illustration, a seamless cinemagraph video loop, and it runs on Vercel under a strict content security policy. Images went from 972 KB to 337 KB, and the deploy went from 28 MB to 9.5 MB.',
     links: [snaxxLink],
     media: {
       shot: { src: '/personal/shots/thumbs/snaxx.webp', alt: 'Snaxx Tech studio site hero, The Snaxx Almanac illustrated landscape' },
@@ -711,7 +711,7 @@ export const projects: Project[] = [
     channel: 'personal',
     group: 'Personal',
     years: '2026',
-    role: 'Owner',
+    role: 'Built with one other developer',
     stack: ['Next.js 16', 'SQLite', 'Zod', 'Playwright'],
     line: 'Time off for teams: approvals, shared calendar, shift cover, best-dates planner, AI assistant',
     summary:

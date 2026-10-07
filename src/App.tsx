@@ -5,6 +5,7 @@ import { featuredProjects } from "./content/projects";
 import { caseStudyPage } from "./lib/routes";
 import { fontsReady, preloadCaseFonts } from "./pages/caseFonts";
 import { groundNow } from "./pages/caseLight";
+import { firstView, isLoopPath } from "./lib/firstView";
 const NotFoundPage = lazy(() => import("./pages/NotFoundPage").then((m) => fontsReady().then(() => m)));
 const DraftApp = lazy(() => import("./drafts/DraftApp"));
 const KosovoHome = lazy(() => import("./drafts/kosovo-time-2/Draft"));
@@ -45,6 +46,15 @@ export default function App() {
       </>
     );
   }
+  const Loop = firstView.loop;
+  if (Loop && isLoopPath(pathname))
+    return (
+      <>
+        <meta name="robots" content="noindex,nofollow" />
+        <ScrollToTop />
+        <Loop />
+      </>
+    );
   if (pathname === "/drafts" || pathname.startsWith("/drafts/"))
     return (
       <>

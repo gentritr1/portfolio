@@ -299,7 +299,7 @@ export const offday: Row = {
   name: "Offday",
   line: "Time off for teams: requests, approvals and one shared calendar.",
   result: "About 200 tests, including ones that keep teams' data apart.",
-  role: "Own project",
+  role: "Built with one other developer",
   years: "2026",
   note: "Private code. No public link.",
   links: [],
@@ -329,7 +329,7 @@ export const games: Note[] = [
     id: "za",
     name: "Za!",
     line: "A pizza card game for 2 to 8 players.",
-    link: { label: "Website", href: "https://za-game.onrender.com/" },
+    link: { label: "Website", href: "https://za-game.vercel.app/" },
   },
   {
     id: "morse",

@@ -195,9 +195,10 @@ Owner confirmed (2026-10-02): built bayyinah.org, Next.js, 2024–25; repo acces
 
 ## 7. PERSONAL PROJECTS
 
-- **Snaxx Tech studio site** — marketing site for an indie app studio: a three.js hero, a seamless cinemagraph video loop, Almanac visual theme, strict CSP on Vercel. Images 972 KB → 337 KB, deploy 28 MB → 9.5 MB.
-- **Offday** — multi-tenant time-off app: employee requests, manager approvals, team calendar with drag-select, shifts with cover warnings, "Find the best dates" planner, "Time to rest" nudges, public holidays for about 200 countries, half days and carry-over, Excel export, calendar feed, emailed sign-in details, streaming AI assistant, light and dark themes. Next.js 16, SQLite, Zod, Playwright (about 200 tests, including security and tenant isolation).
+- **Snaxx Tech studio site** — marketing site for an indie app studio: an animated Almanac illustration, a seamless cinemagraph video loop, strict CSP on Vercel. Images 972 KB → 337 KB, deploy 28 MB → 9.5 MB.
+- **Offday** — built with one other developer. A multi-tenant time-off app: employee requests, manager approvals, team calendar with drag-select, shifts with cover warnings, "Find the best dates" planner, "Time to rest" nudges, public holidays for about 200 countries, half days and carry-over, Excel export, calendar feed, emailed sign-in details, streaming AI assistant, light and dark themes. Next.js 16, SQLite, Zod, Playwright (about 200 tests, including security and tenant isolation).
 - **Open source** — maintained forks of `epubjs-react-native` and `react-native-pdf`, used in a production reading app. GitHub: github.com/gentritr1
+- **Za! link** — https://za-game.vercel.app/ (the GitHub homepage; it redirects to the running server).
 - **Real screenshots** — the owner's own sites (Snaxx Tech, Offday, FJALË, Za!, Morse Trainer) show real captures from `public/personal/shots/` (alt text and sizes in `src/content/projects.ts`); Offday is shown mostly in its light theme, and the index rows use 256 × 160 crops from `shots/thumbs/`.
 - **Geo Guesser World 3D** — the index row uses a 256 × 160 crop of a Google Play frame (`public/mobile/thumbs/geoguesser.webp`). The Games mosaic stays 2 × 2: a fifth tile would break the grid.
 
@@ -240,8 +241,8 @@ Render as a compact, scannable index (not cards): grouped by employer, each row 
 ### Personal
 | OFFBEAT, speaker brand concept (added by owner 2026-10-04) | 2026 | Owner | Next.js 16, React 19, TypeScript, Three.js, Web Audio | Fictional portable-speaker concept: 3D model, exploded view, working drum-machine studio; repo github.com/gentritr1/offbeat, not hosted | — |
 | FORM, sculpture exhibition concept (added by owner 2026-10-04) | 2026 | Owner | WebGL, vanilla JS | Fictional sculpture exhibition: three mathematical forms, live materials, word-cast sculptures; repo github.com/gentritr1/form, not hosted | — |
-| Studio website | 2026 | Owner | React 19, Vite, three.js, Tailwind | 3D hero, cinemagraph loop and strict CSP; images 972 KB → 337 KB | #personal |
-| Time-off app | 2026 | Owner | Next.js 16, SQLite, Zod, Playwright | Multi-tenant time off with approvals, team calendar, shift cover, AI assistant, about 200 tests | #personal |
+| Studio website | 2026 | Owner | React 19, Vite, Tailwind | Animated illustration, cinemagraph loop and strict CSP; images 972 KB → 337 KB | #personal |
+| Time-off app | 2026 | Built with one other developer | Next.js 16, SQLite, Zod, Playwright | Multi-tenant time off with approvals, team calendar, shift cover, AI assistant, about 200 tests | #personal |
 | Open-source forks | 2022 | Maintainer | React Native | Forks of epubjs-react-native and react-native-pdf, used in a production reading app | #personal |
 | Geo Guesser World 3D | 2026 | Mobile · co-built | Expo, React Native, MapLibre, Mapillary | Street-view guessing game, published on Google Play | — |
 | FJALË | 2026 | Owner | Vanilla JS, PWA | Daily Albanian word game, 21k-word dictionary, archive, offline play; live on the web | — |
