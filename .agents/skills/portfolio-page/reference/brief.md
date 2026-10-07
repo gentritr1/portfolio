@@ -13,7 +13,7 @@ Name the primary reader and what they must do after the visit.
 | Senior engineer | 5 min, then code | What was hard, which trade-off, what it cost; a live demo or repo | A stack list without decisions; team work claimed as one's own |
 | Founder / client | 60 s | One shipped thing with a user-visible result; can this person ship alone | Process diagrams; nothing live |
 
-Measured facts worth knowing (everything else about "seconds" is folklore): visual appeal is judged in about 50 ms and colours later judgments (Lindgaard 2006); people read about 20% of the words on a page (NN/g); the "6–7 seconds" figure is from resume eye-tracking (Ladders), not portfolios. Reviewers increasingly read on phones; the phone first screen is the first screen.
+Reviewers increasingly read on phones; the phone first screen is the first screen. (Most "seconds on a portfolio" figures are folklore; the measured ones are in the research notes.)
 
 ## 2. Proof inventory
 

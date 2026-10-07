@@ -4,7 +4,7 @@ People read about a fifth of the words on a page. Every line competes for that f
 
 ## Voice
 
-- **One voice per site.** First person ("I built …") or no person ("Built the sign-in screens."). Never a mix on one page. Third person about yourself ("Gentrit is …") reads distant on your own site; use it only if the owner asks. Test: grep `\bI\b`, `\bhe\b`, `\bhis\b`, `<Name> is`.
+- **One voice per site.** First person ("I built …") or no person ("Built the sign-in screens."). Never a mix on one page. A sentence with the owner's name as its subject ("Ana Silva builds …") counts as the no-person voice; pronouns about the owner (he, his, him, she, her) are what breaks it. Test: grep `\bI\b`, `\bhe\b`, `\bhis\b`.
 - The no-person voice reads as a record, not a pitch; it fits engineering work. Its cost is warmth; earn that back with one specific detail or a named quote, not adjectives.
 - Sentence case, active voice, no exclamation marks.
 
@@ -34,7 +34,21 @@ Result dodges (banned in result lines): improved, enhanced, optimised, streamlin
 
 Technical words on the home page: keep them out of titles, problems and results (API, multi-tenant, codebase, route, component, SSR, hydration, pipeline, endpoint, schema, runtime, refactor, migrate, implement). One hiring keyword may sit in a role line. The full stack goes in the case page's engineering section. If a technical word must stay, explain it in four words: "a passkey (no password)".
 
-Em dashes: none in visible copy. Use full stops. Ranges use an en dash only inside numbers (2021–2026).
+Translations for the home page:
+
+| Engineer's word | Say instead |
+|---|---|
+| component | building block |
+| route | page, screen |
+| query | database request |
+| tenant, multi-tenant | client organization; "each organization sees only its own data" |
+| design token | colour, size and type rule |
+| release | store release, update |
+| migrate, refactor | move, rebuild |
+| API, backend | the server behind the app |
+| parity test | the same test, run on the old and the new app |
+
+Em dashes: none in headings, rows, buttons and captions; at most 3 per 1,000 words in case prose. Use full stops. Ranges use an en dash only inside numbers (2021–2026).
 
 Middots: at most one per line. Long "A · B · C · D" chains read as generated metadata.
 
@@ -64,6 +78,12 @@ Never invent a percentage. Never write "improved" without what and by how much.
 
 Result patterns: `[n] [unit], not [n].` ("2 database requests, not 16.") · `Live [where] since [when].` · `[Users] can [verb] [what] [where].` · `[Thing], built once, [used where].`
 
+Work in progress: `[Users] keep [what] while [what changes].` then one witnessed fact. "Care teams keep using the app while each screen moves over. The billing report that timed out now finishes: 2 requests, not 16." Never a participle plus an aphorism ("Being rebuilt. Old bugs written down, not copied.") as the biggest text in a row.
+
+## The hook line
+
+The one line that names the mechanism (a clock, a dial, a switch label) is the hardest line on the page. ≤ 5 words, a fact the visitor can check, no instruction ("drag", "try", "click"). The control teaches itself through its affordance and focus state. "17:04 in Kosovo" works; "Drag the sun to change the time" does not.
+
 ## Case study page
 
 Answer first, then the reasoning. 300–600 words above the engineering section; ≤ 2 minutes to read.
@@ -79,7 +99,7 @@ The product      ≤ 120 words. Who uses it, for what. Scope line inside the fir
                  "Built A and B. Teammates built C."
 What was built   ≤ 120 words. 2–3 decisions: constraint → choice → consequence.
 The result       ≤ 120 words. What shipped, where it is live, one witnessed before/after.
-[2–3 numbers with plain labels, each sourced]
+[2–3 numbers with plain labels, each sourced; mark the row data-numbers]
 In short         3 one-line facts (for the skimmer)
 
 For engineers    stack line, architecture, trade-offs, decision log, repo link. Unlimited.
@@ -87,7 +107,7 @@ Next case · CV
 ```
 
 Rules:
-- The title is the result ("One billing report: 16 requests became 2"), not the activity ("Redesigning the reporting experience").
+- The title is the result, not the activity. "Care teams kept their app while it was rebuilt under them, one tested screen at a time." Not "Redesigning the reporting experience". If the owner keeps a number out of titles, the title states what users kept or gained; the number goes in the numbers row.
 - Seniority shows through the size of the change, the time, and the kind of decision — not through rank words. One sentence of the form "The brief asked for X; the team shipped Y because Z" shows judgment.
 - Each decision is ≤ 40 words: what limited the choice, what was chosen, what it caused.
 - At least one date and one real screen per case.
@@ -116,5 +136,5 @@ Only as verifiable items: logos that link to live work (3–6, below the first s
 
 ## Checks
 
-- `check.mjs`: T10/T10b (template phrases), T11 (em dashes), T30 (middot chains), T31 ("Not X. Y." cadence).
+- `check.mjs`: T10–T10e (template phrases, scope dodges, result dodges, voice mix), T11 (em dashes), T30 (middot chains), T31 (cadence), T44 (triplets), T45 (numbers not in `--facts`).
 - By hand: grep the voice; count words per row and per case section; trace every number to a source line.

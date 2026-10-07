@@ -20,20 +20,22 @@ Test: give a capture to someone with no context for 5 seconds; they write the fo
 | Name | One size below the claim, or inside the claim sentence ("Ana Silva builds …"). |
 | Identity sentence (the claim) | ≤ 20 words (15 target), one present-tense concrete verb (builds, designs, ships, writes), names the thing and the people, a proof clause, no adjective about the author, no stack names. The largest text on the screen. |
 | Second line (optional) | ≤ 12 words: place and way of working, or the current company. "Based in Kosovo, working remotely." |
-| Proof row | 2–5 nouns: a place, a year range, a count, a store, a named product. Linked where a link exists. |
-| One real piece of work | A product screen at native pixels, a live demo, or the playable hook. ≥ 15% of the desktop first screen, ≥ 12% of the phone first screen. Captioned ≤ 8 words. |
+| Proof row | 2–5 nouns: a place, a year range, a count, a store, a named product. At least one is a link a stranger can open (store listing, live site, repo). No "5+" counts. |
+| One real piece of work | A product screen cropped to the part that proves the sentence, at 1:1 pixels, a live demo, or the playable hook. ≥ 25% of the desktop first screen, ≥ 20% of the phone first screen. Captioned ≤ 8 words. |
 | One action | A noun or a two-word verb naming the destination: "See the work", "Read the case". A second may be "CV". No "Let's talk", no "Hire me". |
 | Navigation | 3–5 nouns, one line: Work · About · CV · Email. No "Home". |
 
-Word budget: about 60 words outside the nav. Sizes on the first screen: 3–5 distinct font sizes.
+Word budget: target 60 words in the first screen; the checker warns above 90 and fails above 120 (nav and captions included). Sizes on the first screen: 3–5 distinct font sizes.
 
 ### Formula
 
 ```
-[Name] [builds|designs|makes|ships] [thing, 2–5 words] for [people, 1–4 words][, proof clause].
+[Name] [builds|designs|makes|ships] [thing, 2–5 words] [for people, 1–4 words][, proof clause].
 ```
 
-Good (paraphrased real patterns): "Tony Ward builds design systems so teams ship faster." · "Gentrit Rashiti builds web and mobile apps, from Kosovo." + "5+ years. Part of two platform rewrites." · name + four proof rows (Working at / Creator of / Core team of / Maintaining), as on antfu.me · a dated four-line career, as on taniarascia.com.
+"For whom" may move into the proof row when the row names the users or the products ("care teams, readers and shoppers"; "Bayyinah TV · Viva Fresh · Read to Feed").
+
+Good (paraphrased real patterns): "Tony Ward builds design systems so teams ship faster." · "Gentrit Rashiti builds the web and phone apps that care teams, readers and shoppers use." + "Since 2021. Two platform rewrites. App Store · Google Play · bayyinahtv.com" (the store names and the site are links) · name + four proof rows (Working at / Creator of / Core team of / Maintaining), as on antfu.me · a dated four-line career, as on taniarascia.com.
 
 Template (rewrite): "Hi, I'm X 👋 — a passionate full-stack developer crafting seamless digital experiences." · "Welcome to my corner of the internet!" · "Designer. Developer. Dreamer." · "Turning ideas into reality, one pixel at a time." · a pill reading "Available for work" above a giant name.
 
@@ -41,9 +43,9 @@ Why: each good line has a noun a stranger can verify (a company, a year, a store
 
 ## Compositions that work
 
-Derive the composition from the work, not from a landing-page habit. Patterns that are both eye-catching and credible:
+Pick the composition from the direction card's rule, never from this list's order. In a round, two drafts may not share a composition. Patterns that are both eye-catching and credible:
 
-1. **Sentence + proof row + one screen.** The sentence is plain; the row carries the weight; the screen proves the craft. Most reliable.
+1. **Sentence + proof row + one screen.**
 2. **Work before bio.** The eye lands on a product screen; words sit beside it in a narrow column.
 3. **The claim drawn as a picture.** A split, a pair, a before/after that *is* the sentence (design | code; web | phone; old app | new app).
 4. **A dated record.** Years down the side; the first screen is the top of a record a reader can check against a CV.
@@ -75,5 +77,5 @@ Design it, do not shrink the desktop. At 390×844:
 
 ## Checks
 
-- `check.mjs`: C01 (work share), C02 (word count), C03 (sizes), T01 (pill above the hero title), T10 (template phrases), T12 (centred hero + button pair), T27 (giant name with no work).
+- `check.mjs`: C01/C01b (work share, named work), C02 (word count), C03 (sizes), C18 (claim is the largest text), T01 (pill above the hero title), T10 (template phrases), T12 (centred hero + button pair), T27 (giant name). Pass `--owner "<Name>"`.
 - By eye: read the four answers off `1440.png` and `390.png`. Write them in the draft notes.

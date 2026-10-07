@@ -13,7 +13,7 @@ The visual system has one job: make the work look like the most considered thing
 - Avoid the 2025 "cyber serif" kit: a serif display (Newsreader/Instrument Serif) + Inter body + Space Grotesk caps labels + near-black + one emerald accent + glass cards.
 - Self-host every font (WOFF2, subset, `font-display: swap` with a metric-matched fallback, or `optional` for the display face), preload only the first-screen face, ≤ 300 kB of fonts on the first route. Check licences: OFL faces are safe; Fontshare and Pangram faces are not self-hostable without reading or buying the licence.
 
-Starting points by personality (all OFL; pick one and push it):
+Starting points by personality (all OFL; pick one and push it). A reflex face taken from this table is allowed when the table's reason applies to your page; record it as `allow T18c: <reason>` so the warning does not count against the page:
 
 | Personality | Display | Text | Outlier |
 |---|---|---|---|
@@ -85,7 +85,7 @@ Choose one, write it down, then pick values:
 
 ### Dark mode
 
-Composed, not inverted: ground 12–16% L tinted; surfaces +3% L per level (no shadows for elevation); text 92–96% L; accent −0.02 to −0.04 chroma and +5–10% L; no glow. Switch themes with transitions disabled for one frame. Set `theme-color` per scheme and theme `::selection`, focus ring, `accent-color`, `caret-color`, scrollbars.
+Check it: `check.mjs --scheme dark`. Composed, not inverted: ground 12–16% L tinted; surfaces +3% L per level (no shadows for elevation); text 92–96% L; accent −0.02 to −0.04 chroma and +5–10% L; no glow. Switch themes with transitions disabled for one frame. Set `theme-color` per scheme and theme `::selection`, focus ring, `accent-color`, `caret-color`, scrollbars.
 
 ## Layout
 

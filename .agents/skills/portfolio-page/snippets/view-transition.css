@@ -1,0 +1,29 @@
+/* Tile → case: the chosen screen grows into the case hero; everything else cross-fades.
+   1. Give the tile image and the case hero image the same view-transition-name (unique per project).
+   2. Navigate inside document.startViewTransition(() => navigate(url)) when it exists; otherwise navigate.
+   3. Keep 3–6 named elements at most; snapshots cost paint. */
+
+.tile-shot { view-transition-name: var(--vt-name); }   /* set --vt-name: shot-<slug> inline */
+.case-hero-shot { view-transition-name: var(--vt-name); }
+
+::view-transition-group(*) {
+  animation-duration: 380ms;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 200ms; /* the page behind cross-fades quickly */
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) { animation: none; }
+}
+
+/* React (react-router) sketch:
+   function openCase(to: string) {
+     if (!document.startViewTransition) return navigate(to);
+     document.startViewTransition(() => flushSync(() => navigate(to)));
+   }
+*/

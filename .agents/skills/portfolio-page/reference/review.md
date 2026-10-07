@@ -24,6 +24,19 @@ Score five points, 1–10 each. Then pass or fail the craft gate. A failed gate 
 
 Target to ship: gate pass and **≥ 42/50 with original and hook ≥ 8**. A draft at 7/7 on original and hook is parked, not polished: polish moves craft, not those two points.
 
+## The bar to beat
+
+Builders and reviewers compare against these, not against earlier drafts:
+
+| Site | What it does better than most |
+|---|---|
+| rauno.me (craft) | ~80 tiles in one ratio and one caption shape; the tile is the explanation |
+| emilkowal.ski | Live demos inside the text; motion you try instead of read about |
+| antfu.me | Proof as rows of nouns under one sentence |
+| taniarascia.com | A career as four dated lines with two checkable numbers |
+| designeer.xyz | Calm from density and alignment; themed surfaces; ⌘K that does not animate |
+| bruno-simon.com | A world you drive through: the metaphor is the navigation (and the cost of that for recruiters) |
+
 ## Calibrate first
 
 Before scoring a round, score 2–3 **anchors** blind on the same scale: an existing shipped page and one or two earlier drafts with known scores. If your anchors come out more than 2 points off their recorded totals, recalibrate before scoring the new drafts. Record the anchors in the review.
@@ -32,12 +45,11 @@ Require a spread: if three drafts land within one point on "original", rank them
 
 ## Method
 
-1. Run `check.mjs` on every draft first (reviewer reads the reports, not the code).
-2. Look at `1440.png`, `390.png`, both full-page captures and the reduced-motion captures. Read the four first-screen answers off each and write them down.
-3. Live session: drive the signature moment with pointer and keyboard; capture 3–5 mid-frames; scrub at 10% if possible; interrupt it once.
-4. Score the five points with one line of evidence each (a frame, a measurement, a quote of the copy). Name three real sites the draft beats on originality and one it loses to.
-5. Write the memory sentence. If you cannot, the hook is ≤ 7.
-6. List defects as a numbered fix list, most severe first, each with where and what to change.
+1. **Judge before the detector.** Look at `1440.png`, `390.png`, the full-page and reduced-motion captures, and drive the page live. Write the four first-screen answers and the memory sentence. Score the five points with one line of evidence each (a frame, a measurement, a quote of the copy). Name three real sites the draft beats on originality and one it loses to.
+2. Live session: drive the signature moment with pointer and keyboard; capture 3–5 mid-frames; scrub at 10% if possible; interrupt it once.
+3. Only now read the checker's `report.md`, and use it to set the craft gate (not to move the five scores, unless it proves something you missed).
+4. If you cannot write the memory sentence, the hook is ≤ 7.
+5. List defects as a numbered fix list, most severe first, each with where and what to change.
 
 ## Devil's advocate
 
@@ -59,7 +71,7 @@ per-draft sections.
 ## Polish
 
 - At most **two** polish passes per draft per round. Each pass fixes the reviewer's and the devil's list in order of severity, reruns `check.mjs`, and recaptures.
-- Polish only drafts at or above 8 on original and hook. Others are parked or rethought.
+- Polish only drafts at or above 8 on original and hook. Others go back to `direct` (a new rule), or are parked.
 - Carry proven ideas across drafts (a better caption pattern, a clearer proof row), but never converge all drafts onto one skeleton.
 
 ## Report format (per draft)

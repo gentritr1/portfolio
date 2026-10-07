@@ -20,7 +20,7 @@ Name · one line of what it is (for a stranger) · the person's role · year(s) 
 
 **Pixels.**
 - Never shown larger than the file's pixels. Export at 2× the largest displayed width (a 640px slot needs a 1280px file).
-- Text inside a screenshot must be readable at its displayed size: ≥ 11px on phones. If it is not, crop to the part that proves the caption instead of shrinking the whole screen.
+- Text inside a screenshot must be readable at its displayed size: ≥ 11px on phones. If it is not, crop to the part that proves the caption instead of shrinking the whole screen. The first screen's screen is cropped to the part that proves the sentence, at 1:1 pixels, never the whole app shrunk to fit (a 2880px web capture shown 600px wide makes its text about 4px).
 - AVIF or WebP, quality 80–85, `srcset`/`sizes` for widths, `width`/`height` attributes or `aspect-ratio` always. The first-screen image loads eagerly with `fetchpriority="high"`; the rest lazy.
 
 **Crop.**

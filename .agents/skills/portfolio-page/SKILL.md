@@ -1,93 +1,89 @@
 ---
 name: portfolio-page
-description: Use when designing, writing, building, critiquing or checking a personal portfolio site or any of its pages (home, work index, case study, about, 404) for a developer, design engineer or designer. Covers the first screen (who, what, proof, work), hero copy, project rows and case-study writing, screenshots, type and colour choices, layout, signature motion and smoothness, the AI-template tells to remove (pill above the hero title, gradient text, faint card borders, glass, glow, stat rows, fade-up everything), a scripted checker, and a calibrated review rubric for iterating many drafts. Not for product landing pages or app UI; use impeccable for those.
+description: Use when designing, writing, building, critiquing or checking a personal portfolio site or one of its pages (home, work index, case study, about, 404) for a developer, design engineer or designer. Covers the first screen, hero copy, project rows, case-study writing, screenshots, type, colour, layout, signature motion and smoothness, removing AI-template tells, a scripted checker, and a calibrated review rubric for iterating many drafts. Not for product landing pages or app UI.
 metadata:
-  version: 1.0.0
+  version: 1.1.0
 ---
 
 # portfolio-page
 
-A portfolio is read by a stranger who decides in seconds whether to keep reading, and then judges one project in a few minutes. This skill turns that into rules you can test. It merges four design skills (impeccable, ui-ux-pro-max, taste-skill, Emil Kowalski's design-engineering skills) with research on hiring reviews, award-level portfolios and motion. Where those sources conflict, this skill has already picked a side; follow it.
+A portfolio is read by a stranger who decides in seconds whether to keep reading, then judges one project in a few minutes. This skill turns that into rules you can test. It merges four design skills (impeccable, ui-ux-pro-max, taste-skill, Emil Kowalski's design-engineering skills) with research on hiring reviews, award-level portfolios and motion. Where those sources conflict, this skill has already picked a side.
 
 ## The bar
 
 A visitor, on a phone, with no context:
 
+- **in the first second** sees one object that is the picture: a product screen, a live object, or the claim set as type at ≥ 40% of the viewport. A small screen beside a paragraph is a landing page, not a portfolio;
 - **in 5 seconds** can answer four questions: who is this, what do they build, for whom, where is the proof;
 - **in 60 seconds** has seen real work and one problem the person solved, with their scope stated;
 - **a week later** can describe one specific moment of the site in one sentence.
 
-Everything below serves those three lines. A page that is beautiful and fails the first line has failed.
+A page that is beautiful and fails the 5-second line has failed.
 
 ## Modes
 
 - **Experience** (home, work index): the work leads from the first viewport; the interface recedes. One idea per screen.
-- **Read** (case study, about): a calm column for reading, 60–75 characters wide, with the work at full size beside or between the text.
+- **Read** (case study, about): a calm column, 60–75 characters wide, with the work at full size beside or between the text. The checker's `--mode read` lowers the first-screen work floor (15% / 12%) and raises the word budget; every other rule is the same.
 
 ## Setup (every time)
 
-1. Read the project's own truth first, if it exists: `PRODUCT.md`, `CONTENT.md` (facts, numbers, owner rules), `DESIGN.md`, and any brief or loop file the user names. **Owner rules beat this skill** (voice, banned words, what may be shown). Facts come only from those files; never invent a number, a client, a quote or a screen.
-2. Write the **Design Read** in one line before any design work: `Reading this as: <who> for <which reader>, leading with <which work>, in <which rule/world>.` Example: `Reading this as: a web and mobile developer for hiring managers, leading with a live grocery app, in a world where every screen is a real store listing.`
-3. Load the reference for the task (table below). Load `reference/anti-slop.md` before writing any UI code.
+1. Read the project's own truth first: `PRODUCT.md`, `CONTENT.md` (facts, numbers, owner rules), `DESIGN.md`, and any brief the user names. **Owner rules beat this skill** (voice, banned words, what may be shown). Facts come only from those files; never invent a number, a client, a quote or a screen.
+2. Write the **Design Read** in one line before any design work: `Reading this as: <who> for <which reader>, leading with <which work>, in <which rule/world>.`
+3. Load the reference for the task (table below). Load `reference/anti-slop.md` before writing UI code.
 
 ## Commands
 
 | Command | Use it to | Reference |
 |---|---|---|
 | `brief` | Collect audience, proof inventory, owner rules, constraints | [reference/brief.md](reference/brief.md) |
-| `direct` | Choose a direction: one rule, one hook, type, colour, the motion moment; or generate several distinct directions for a round | [reference/directions.md](reference/directions.md) |
+| `direct` | Choose a direction (one rule, one hook, composition, type, colour, the motion moment), or several distinct directions for a round | [reference/directions.md](reference/directions.md) |
 | `hero` | Design and write the first screen | [reference/first-screen.md](reference/first-screen.md) |
-| `write` | Write identity, rows, case studies, captions, microcopy | [reference/writing.md](reference/writing.md) |
-| `work` | Order projects, pick and crop screens, build the index and case layout | [reference/work-display.md](reference/work-display.md) |
+| `write` | Identity, rows, case studies, captions, microcopy | [reference/writing.md](reference/writing.md) |
+| `work` | Order projects, pick and crop screens, index and case layout | [reference/work-display.md](reference/work-display.md) |
 | `visual` | Type, colour, layout, spacing | [reference/visual.md](reference/visual.md) |
-| `motion` | Pick and build the one signature moment; tune smoothness | [reference/motion.md](reference/motion.md) |
-| `check` | Run the scripted checker and fix every hard fail | [scripts/check.mjs](scripts/check.mjs), [reference/anti-slop.md](reference/anti-slop.md) |
-| `review` | Score a draft (or a round of drafts) with a fresh reviewer | [reference/review.md](reference/review.md) |
-| `polish` | Fix the review's defect list in bounded passes | [reference/review.md](reference/review.md) §Polish |
+| `motion` | The quiet layer, the one signature moment, smoothness | [reference/motion.md](reference/motion.md), [snippets/](snippets/) |
+| `check` | Run the scripted checker; fix every hard fail | [scripts/check.mjs](scripts/check.mjs), [reference/checks.md](reference/checks.md), [reference/anti-slop.md](reference/anti-slop.md) |
+| `review` | Score drafts with a fresh reviewer; polish in bounded passes | [reference/review.md](reference/review.md) |
 
-A plain request ("make me a portfolio", "redo the home page") runs: `brief` → `direct` → `hero` + `write` → `work` + `visual` → build → `motion` → `check` → `review` → `polish` (at most two passes).
+Paths:
+- **One page or the hero only:** `hero` + `write` → build → `check`.
+- **A new site or a round of drafts:** `brief` → `direct` → `hero` + `write` → `work` + `visual` → build → `motion` → `check` → `review` → at most two polish passes.
+- **If the self-score on original or hook is 7 or less, go back to `direct`, not to polish.** Polish moves craft, not those two points.
 
 ## Hard rules
 
-These are gates. A draft that breaks one is not finished, whatever it scores.
+Gates. A draft that breaks one is not finished, whatever it scores.
 
-1. **Work in the first screen.** At 1440×900 and 390×844 a real piece of work (a product screen, a live demo, a playable piece) fills at least 15% (desktop) / 12% (phone) of the first screen. Words alone never prove craft.
-2. **The claim, not the name, is the largest text.** The identity sentence (≤ 20 words, one concrete verb, names the thing built and the people it is for, no adjective about the author) is the biggest type, or the name sits inside it. Never a giant name over a grey subtitle.
-3. **Proof is a noun.** Credibility on the first screen is a place, a year range, a count, a store, a named product. Zero self-ratings (passionate, pixel-perfect, crafting).
-4. **No template tells.** Zero hard fails from `scripts/check.mjs` (pill eyebrow above the hero title, gradient text, faint rounded 1px card borders on 3+ boxes, glass panels, purple/indigo gradients, blurred blobs, stat-counter rows with "+", icon tiles, logo marquee, pulsing status dot, template phrases). The full list with fixes is in `reference/anti-slop.md`.
-5. **Facts only.** Every number, name and screen traces to a source file or a public URL. Recreations and invented data are labelled in the caption.
+1. **Work in the first screen.** A real product screen, live demo or playable piece fills ≥ 25% of the first screen at 1440×900 and ≥ 20% at 390×844 (Read mode: 15% / 12%). A canvas or board counts only if it shows the work (mark it `data-work="<product>"`), not the name, the proof row or decoration.
+2. **The claim, not the name, is the largest text.** The identity sentence (≤ 20 words, one concrete verb, names the thing built, no adjective about the author) is the biggest type, or the name sits inside it. Never a giant name over a grey subtitle.
+3. **Proof is a noun.** Credibility on the first screen is a place, a year range, a count, a store, a named product, and at least one is a link a stranger can open (a store listing, a live site, a repo). Zero self-ratings.
+4. **No template tells.** Zero hard fails from `scripts/check.mjs` (pill above the hero title, gradient text, faint rounded card borders, glass, purple gradients, blobs, "+" stat rows, icon tiles, logo marquee, pulsing dot, template phrases, scope dodges). Ids and severities: `reference/checks.md`; fixes: `reference/anti-slop.md`.
+5. **Facts only.** Every number, name and screen traces to a source file or a public URL (`--facts` checks numbers). Recreations and invented data are labelled in the caption.
 6. **Scope stated.** Each project says what the person built and what others built. Never "worked on", "helped with", "involved in".
-7. **One voice** across the site (first person, or no person). Never a mix; never third person about yourself unless the owner asks for it.
-8. **One hook per page**, and it carries a fact. Delete it: every fact must still be on the page. If the site stops working, it was the navigation (fine); if nothing is lost, it was a costume (remove or make it carry a fact).
-9. **Motion is caused.** Every animation answers a visitor action, shows where something came from or went, or paces one story beat. UI motion ≤ 300 ms, one story moment ≤ 800 ms. Keyboard and repeated actions do not animate. No fade-up on every section; content is visible without the animation.
-10. **Reduced motion keeps every state and drops travel.** Loops stop. Nothing is hidden.
-11. **Readable everywhere.** Body ≥ 16px, contrast 4.5:1 (3:1 for ≥ 24px), measure 45–75ch, targets ≥ 24px (44px on touch), no sideways scroll at 320px, visible focus, CLS < 0.02.
-12. **Sharp work.** Screenshots are never shown larger than their pixels; 2× density for anything wider than 160px; every image has width/height and alt text that names the screen.
-13. **Typeface chosen, not defaulted.** Inter, Geist, system-ui, Roboto, Poppins, Space Grotesk, DM Sans, Plus Jakarta, Fraunces, Playfair and the rest of the reflex list in `reference/visual.md` may be used only with a written reason tied to the person or the work.
-14. **Colour has a source.** The palette comes from the work, the place or the person's material, with one interaction accent. No default Tailwind slate/zinc + indigo.
-15. **Budget.** First readable frame ≤ 1 s on a mid phone; any WebGL or heavy hook is lazy, ≤ 150 kB gzip, pauses offscreen and has a static fallback.
+7. **One voice** across the site: first person, or no person (sentences start with the name or the verb). Never a mix; no he/his/him about the owner unless the owner asks for it.
+8. **One hook per page**, and it carries a fact that is also on the page as text. Delete it: every fact must still be readable. If the site stops working, it was the navigation (fine); if nothing is lost, it was a costume.
+9. **Motion is caused.** Every animation answers a visitor action, shows where something came from or went, or paces one story beat. UI ≤ 300 ms; one story moment ≤ 800 ms (1,100 hard ceiling). Keyboard and repeated actions do not animate. No entrance animation on sections; one authored figure may build once, in view, in ≤ 800 ms, and is complete without JavaScript and under reduced motion.
+10. **Reduced motion keeps every state and drops travel.** Loops and canvases stop; nothing is hidden.
+11. **Readable everywhere.** Body ≥ 16px, contrast 4.5:1 (3:1 at ≥ 24px), measure 45–75ch, touch targets ≥ 44px (text links in a sentence or a spaced nav may be smaller, per WCAG 2.5.8), no sideways scroll at 320px, visible focus, CLS < 0.02.
+12. **Sharp work.** Screenshots never shown larger than their pixels; 2× density above 160px wide; text inside a screen ≥ 11px on phones (crop instead of shrinking); width/height and alt text that names the screen.
+13. **Typeface chosen, not defaulted.** Default faces as the display voice fail (Inter, Geist, system, Roboto, Poppins…). Reflex faces (Fraunces, Space Grotesk, Instrument Serif…) are allowed with the reason recorded as `allow T18c: <reason>`; the starting-points table in `reference/visual.md` gives reasons that count.
+14. **Colour has a source.** The palette comes from the work, the place or the person's material: either one accent with a named job (≤ 5% of any viewport) or a committed two- or three-colour identity with a job per colour, written in the draft notes. No default Tailwind slate/zinc + indigo; no dark ground with a lone neon accent and glow.
+15. **Budget.** First readable frame ≤ 1 s on a mid phone (`--throttle 4`); any WebGL or heavy hook is lazy, ≤ 150 kB gzip, pauses offscreen and has a static fallback.
 
-## How to verify (always, before saying a draft is done)
+## Verify (always, before saying a draft is done)
 
-1. Build and serve the page. Run `node <skill-dir>/scripts/check.mjs <url> --out <dir>` (Playwright + Chromium; it finds `/opt/pw-browsers/chromium` or set `CHROMIUM_PATH`). It writes `report.md`, first-screen captures at 1440 and 390, reduced-motion captures, full-page captures and `sheet.png`. Exit code 1 means a hard fail. Options: `--mode read` for case and about pages (higher word budget), `--frames 120,320,700` for mid-animation captures, `--throttle 4` for a 4× slower CPU, `--allow "T06=reason"` for a deliberate exception (or a `<meta name="portfolio-check" content="allow T06: reason">` on the page). Mark live demos with `data-work` so they count as work.
-2. Fix every `✗`. For each `△`, fix it or write one line on why it stays (in the draft's notes).
-3. **Look at the captures yourself.** The checker cannot judge taste, hierarchy, crop quality or whether the hook works. Read `sheet.png` and both full-page captures. Then answer the bar's three lines in writing.
-4. For the signature moment, capture mid-animation frames (`--frames 120,320,700` or pause `document.getAnimations()`), not just end states.
+1. **Look first.** Open the page at 1440 and 390 and write the four first-screen answers and the memory sentence before reading any report (the detector anchors judgment).
+2. **Run the checker:** `node <skill-dir>/scripts/check.mjs <url> --out <dir> --owner "<Name>" --facts CONTENT.md` (Playwright + Chromium; finds `/opt/pw-browsers/chromium` or set `CHROMIUM_PATH`). It writes `report.md`, first-screen and full-page captures at 1440 and 390, reduced-motion captures and `sheet.png`; exit code 1 means a hard fail. Options: `--mode read` (case/about), `--frames 150,400,900` (mid-animation captures), `--throttle 4` (slow CPU), `--scheme dark`, `--allow "T06=reason;…"` or `<meta name="portfolio-check" content="allow T06: reason">` for deliberate exceptions. Mark live demos with `data-work`, sourced number rows with `data-numbers`, the story animation with `data-motion="story"`.
+3. **Fix every ✗.** For each △, fix it or allow it with a reason.
+4. **Capture the signature moment mid-flight** (`--frames`), scrub it at 10%, interrupt it once.
 5. For a round of drafts, a **fresh reviewer** with no build history scores them (`reference/review.md`). Builders over-score originality by 1.5–2 points.
 
-Stop after two polish passes. More passes polish the costume, not the idea.
+Stop after two polish passes.
 
-## Output contract for a draft
+## Output contract
 
-Every draft (or page) ships with a short record, in its meta or notes:
-
-- `designRead` (the one line), `rule` (the one rule the page obeys), `hook` (the moment, as the one sentence a visitor would say), `lead` (which project leads, and why it is the strongest).
-- Type (faces, sizes on the first screen) and colour (ground, ink, accent, source of colour).
-- `check`: hard fails 0, warnings with reasons.
-- Self-score on the review rubric and the lowest point with the reason (`holdback`).
+Every draft ships with its notes in the shape of [templates/draft-notes.md](templates/draft-notes.md): Design Read, rule, hook, lead, composition, type, colour (with jobs), the motion moment, checker result with allows, self-score and holdback, and what in this skill helped or got in the way.
 
 ## Handoffs
 
-- Product landing pages, dashboards, app UI: impeccable.
-- Deep motion work on a component (drawers, toasts, gestures): Emil Kowalski's `emil-design-eng` / `review-animations` if installed; this skill's `reference/motion.md` holds the numbers either way.
-- Charts and data figures inside a case study: a dataviz skill if available.
+Product landing pages, dashboards and app UI: impeccable. Deep component motion (drawers, toasts, gestures): Emil Kowalski's skills if installed; `reference/motion.md` holds the numbers either way. Charts in a case study: a dataviz skill.

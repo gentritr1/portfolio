@@ -2,6 +2,17 @@
 
 Motion on a portfolio does two jobs: it makes one moment memorable, and it makes every other interaction feel precise. The winners of 2023–2026 (Lusion, Igloo, Bruno Simon, Pacôme Pertant) share one material idea carried through, a transition that preserves the object, and restraint everywhere else. Fade-up sections, preloader counters and cursor blobs never appear among them.
 
+## The quiet layer (most of a premium page)
+
+Before any signature moment, build this layer. It is what visitors feel as "smooth":
+
+- Press: `:active { transform: scale(0.98) }`, 120 ms, ease-out. On touch, the press state replaces hover.
+- Hover: 150 ms, colour or opacity, only inside `@media (hover: hover) and (pointer: fine)`.
+- Focus: instant, always visible, themed.
+- Link underline grows from the left in 150 ms (`background-size` or `scale` on a pseudo-element), never `transition: all`.
+- Opening a case: a View Transition, 300–450 ms expo-out, the tile becoming the hero (`snippets/view-transition.css`).
+- Nothing else moves.
+
 ## The gate: frequency and purpose
 
 Before animating anything, name its purpose (`feedback`, `state`, `continuity`, `reveal`, `story`) and how often a visitor triggers it.
@@ -54,12 +65,7 @@ By distance: ≤ 24px travel 100–160 ms; 24–120px 150–250 ms; 120–600px 
 
 Never ship `motion`'s physics default `{ stiffness: 100, damping: 10 }` (settles ≈ 1.27 s, wobbly). Bounce ≤ 0.2 for UI, ≤ 0.3 once. Apple's model: damping ratio = 1 − bounce.
 
-CSS springs with `linear()` (not interruptible with velocity; for hover and enter states):
-
-```css
---spring-ui: linear(0, 0.005 1.5%, 0.023 3.3%, 0.091 7%, 0.469 21.5%, 0.635 29%, 0.754 36%, 0.8 39.5%, 0.842 43.3%, 0.884 48%, 0.917 53%, 0.944 58.5%, 0.964 64.5%, 0.979 71%, 0.989 78.8%, 0.999); /* 380ms */
---spring-snap: linear(0, 0.005 1.3%, 0.025 2.8%, 0.101 6%, 0.529 18.5%, 0.708 24.8%, 0.776 27.8%, 0.837 31%, 0.886 34.3%, 0.927 37.8%, 0.959 41.5%, 0.982 45.5%, 0.998 50%, 1.008 55.3%, 1.012 65.3%, 1.001); /* 350ms */
-```
+CSS springs with `linear()` (not interruptible with velocity; for hover and enter states) are in `snippets/springs.css`.
 
 ## Physical rules
 
@@ -82,13 +88,37 @@ CSS springs with `linear()` (not interruptible with velocity; for hover and ente
 - Long pages: `content-visibility: auto` with `contain-intrinsic-size` on offscreen sections.
 - Smooth-scroll libraries (Lenis) only when WebGL must follow the scroll; otherwise native scroll.
 
+## Orchestration
+
+- At most two things move at once in the first screen; overlaps ≤ 30% of a duration.
+- The eye follows one path (from the claim to the work), and every sequence ends on a still within 1 s.
+- The one sanctioned list entrance: `translateY(12px)` + opacity, 300 ms ease-out, stagger ≤ 60 ms, once, only for a list that enters as a list, never more than ~400px below the fold, never re-triggered on scroll up. Sections never fade up.
+
 ## Reduced motion
 
-`prefers-reduced-motion: reduce` keeps every state change and removes travel: durations collapse to ~0 or to a 150–200 ms opacity change; parallax, marquees, autoplay loops, cursor followers and scroll scrubbing stop; WebGL shows a designed still frame or is not created. Never "no animation at all" that hides a state change. Sound stays opt-in.
+`prefers-reduced-motion: reduce` keeps every state change and removes travel: durations collapse to ~0 or to a 150–200 ms opacity change; parallax, marquees, autoplay loops, cursor followers and scroll scrubbing stop; WebGL shows a designed still frame or is not created. Sound stays opt-in.
+
+Wrong (hides end states that were set by an animation, and kills feedback):
+
+```css
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+```
+
+Right (states still change; travel and loops stop): see `snippets/reduced-motion.css`, and in React read `useReducedMotion()` from `motion/react` and render the end state directly.
 
 ## The signature moment
 
-Pick **one** per page. It must carry a fact (the visitor learns something by doing it) and survive the delete test (every fact is still on the page without it).
+Pick **one** per page. It must carry a fact (the visitor learns something by doing it) and survive the delete test (every fact is still on the page without it). Mark it `data-motion="story"`.
+
+Build order (do not animate first and backfill the fact):
+
+1. Build the end state, static, and make it good enough to ship.
+2. Add the cause: the control, the scroll position or the route that triggers it.
+3. Add the motion with one token from the tables above.
+4. Make it interruptible (spring or transition, never keyframes for re-triggerable motion) and keyboard-driven.
+5. Add the reduced-motion branch: same end state, no travel.
+6. Measure at 4× CPU (`--throttle 4`): p95 frame ≤ 20 ms, no long frame ≥ 50 ms, CLS 0.
+7. Capture five mid-frames and scrub at 10%: no pop, no text blur during scale, siblings do not move.
 
 | Moment | What it explains | Recipe | Slop risk |
 |---|---|---|---|
@@ -107,7 +137,7 @@ Treat these as clichés unless they carry a fact: preloader counters, "Hello/Bon
 
 ## Verification
 
-`check.mjs` covers: loops (M01), long animations (M02), layout properties (M03, M03b), linear and ease-in movement (M04, M04b), `scale(0)` (M04c), smooth-scroll libraries (M05), scroll resistance (M06), content never revealed (M07), fade-up systems (M08), reduced motion (M09, M09b), frame timing (indicative headless numbers).
+`check.mjs` covers (see `reference/checks.md`): loops (M01), long animations (M02; > 1,100 ms fails unless `data-motion="story"`), layout properties (M03), linear and ease-in movement (M04), `scale(0)` (M04c), smooth-scroll libraries (M05), scroll resistance (M06), content never revealed (M07), section fade-ups (M08), reduced motion including canvas loops (M09), scroll frame timing (M10), too much moving at load (M11). Headless frame numbers are indicative; trust a real mid phone over them.
 
 By hand:
 - Capture mid-animation frames (`--frames 120,320,700`, or `document.getAnimations().forEach(a => { a.pause(); a.currentTime = t })`). Two identical end states prove nothing.
