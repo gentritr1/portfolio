@@ -104,6 +104,8 @@ export interface CaseCopy {
   /** Index of a number plate that stands at the head of "The numbers". */
   numbers?: number;
   figures?: Figure[];
+  /** The "In short" list beside "The result": one fact on each line, for a reader who skims. */
+  short: string[];
   builtWith: string;
   /** Detail for engineers, one fact for each item. */
   engineering?: string[];
@@ -228,6 +230,16 @@ export const caseCopy: Record<string, CaseCopy> = {
       { value: "4", label: "Languages: English, German, Spanish, Turkish" },
       { value: "36", label: "Shared building blocks underneath" },
     ],
+    short: [
+      "Care teams follow patients at home",
+      "Each organization sees only its own patients",
+      "Vitals, care plans, labs, claims, calls and chat",
+      "English, German, Spanish and Turkish",
+      "New screens use 36 shared building blocks",
+      "Each screen must pass the same tests in both apps",
+      "AI agents build; a person approves each change",
+      "One billing report: 16 database requests, now 2",
+    ],
     builtWith:
       "React 19, TypeScript, TanStack Query and Router, Zustand, Zod, Tailwind, Vitest, Playwright. Before the rewrite: Vue and Nuxt 2. Server: Laravel 13, PHP 8.3, MySQL, Redis, Pest. Services: Twilio, Chime, Pusher, ECharts.",
     engineering: [
@@ -282,6 +294,15 @@ export const caseCopy: Record<string, CaseCopy> = {
       { value: "270+", label: "Reusable screen parts" },
       { value: "2", label: "Languages, with Arabic read right to left" },
     ],
+    short: [
+      "Courses, videos and live classes in one library",
+      "A scripture reader inside the site",
+      "The second version was built from nothing",
+      "Live classes with a chat that moderators control",
+      "English, and Arabic read from right to left",
+      "Members pay by subscription, gift or promo code",
+      "The iPhone and Android apps run the same web app",
+    ],
     builtWith:
       "Nuxt 3, Vue 3, TypeScript, Pinia, video.js with HLS, AWS IVS, Pusher, Stripe, Firebase, Tailwind. 34 pages, 270+ components, 25 Pinia stores.",
   },
@@ -333,6 +354,16 @@ export const caseCopy: Record<string, CaseCopy> = {
       { value: "3", label: "Major upgrades, kept current" },
       { value: "3", label: "Languages" },
     ],
+    short: [
+      "Children read books inside the app",
+      "Each book keeps the page the child reached",
+      "The camera reads a book's barcode",
+      "Badges, streaks and quizzes reward reading",
+      "Parents confirm each account by email",
+      "Three languages",
+      "About 14 updates to both app stores",
+      "Kept current through three major upgrades",
+    ],
     builtWith:
       "React Native (0.63 to 0.81), React Navigation, Redux Toolkit, Firebase Messaging, Vision Camera, react-native-pdf, epub.js, Lottie, i18next. Maintained forks of epubjs-react-native and react-native-pdf.",
   },
@@ -383,6 +414,14 @@ export const caseCopy: Record<string, CaseCopy> = {
         narrow: "stores",
       },
     ],
+    short: [
+      "Grocery orders with a delivery time",
+      "Product categories, a cart and a checkout",
+      "Address search on a map",
+      "A loyalty programme and a wishlist",
+      "One app, built once for iPhone and Android",
+      "In Albanian, live in both app stores",
+    ],
     builtWith: "React Native, Redux Toolkit, Maps, Firebase.",
   },
 
@@ -431,6 +470,15 @@ export const caseCopy: Record<string, CaseCopy> = {
         target: { kind: "figure" },
         narrow: "stores",
       },
+    ],
+    short: [
+      "A publisher's bookshop for iPhone and Android",
+      "Search the whole catalogue",
+      "Top categories and books on sale",
+      "Favourite lists, and promo codes at checkout",
+      "A notification opens the right book",
+      "Pop-up panels close with a swipe",
+      "Live in both app stores",
     ],
     builtWith: "React Native, Redux, Firebase Messaging.",
   },
@@ -510,6 +558,16 @@ export const caseCopy: Record<string, CaseCopy> = {
       { value: "805", label: "Shared style values, in three levels" },
       { value: "20", label: "Releases in about six weeks" },
     ],
+    short: [
+      "36 building blocks, from buttons to date pickers",
+      "Colours and type set once, for code and Figma",
+      "805 shared style values, in three levels",
+      "A page loads only the blocks it uses",
+      "Built to the WCAG 2.1 AA accessibility floor",
+      "Checks decide; a person approves each change",
+      "20 releases in about six weeks",
+      "Used by the new care dashboard, not live yet",
+    ],
     builtWith:
       "React 19, TypeScript, CSS Modules, Storybook 10, DTCG tokens, Style Dictionary, Playwright, axe, Changesets. 805 tokens in three tiers: core, semantic, component.",
     engineering: [
@@ -551,6 +609,15 @@ export const caseCopy: Record<string, CaseCopy> = {
         plate: 0,
         target: { kind: "figure" },
       },
+    ],
+    short: [
+      "A wallet dashboard for people and businesses",
+      "Sign in with a passkey, MetaMask or WalletConnect",
+      "A first-run tour and dashboard cards",
+      "Assets, and a balance pop-up with a QR code",
+      "English and French",
+      "Portal screens only; teammates built the wallet",
+      "Built in 2024; the sign-in screen is public",
     ],
     builtWith:
       "Next.js 14 with the App Router, React 18, TypeScript, Redux Toolkit and RTK Query, next-intl, Framer Motion, Tailwind, ApexCharts.",

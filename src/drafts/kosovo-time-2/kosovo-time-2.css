@@ -415,7 +415,7 @@ a:active > .k2-press {
 }
 
 .k2-card > .k2-press {
-  padding: 22px 22px 18px;
+  padding: 22px 22px 12px;
   background: #fff;
   color: #17171a;
   box-shadow: 0 0 0 1px rgb(23 23 26 / 0.14);
@@ -647,11 +647,40 @@ a:active > .k2-press {
   font-variant-numeric: lining-nums tabular-nums;
 }
 
+/* The proof shares its last line with the link, so the card is no taller than its screen. */
+.k2-card-end {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  column-gap: 8px;
+  margin-top: 2px;
+}
+
+.k2-card-end:has(.k2-card-proof) {
+  margin-top: 6px;
+}
+
+/* The link text centres on the proof's last line; its 44 px target reaches into the card's bottom padding. */
+.k2-card-end:has(.k2-card-proof) > .k2-card-go {
+  margin-bottom: -11px;
+}
+
+.k2-card-proof {
+  flex: 1 1 190px;
+  min-width: 0;
+  font-family: var(--k2-serif);
+  font-size: 17px;
+  font-weight: 500;
+  font-variation-settings: "opsz" 24;
+  line-height: 1.3;
+  letter-spacing: -0.005em;
+  text-wrap: balance;
+}
+
 .k2-card-go {
   display: inline-flex;
   align-items: center;
   min-height: 44px;
-  margin-top: 2px;
   font-size: 15px;
   font-weight: 600;
   text-decoration: underline;

@@ -1043,9 +1043,12 @@ function WorkCard({ card, brief = false }: { card: Card; brief?: boolean }) {
             </span>
           </>
         )}
-        <span className="k2-card-go">
-          Read how<span className="k2-sr">: {card.label}</span>
-          {"\u00a0→"}
+        <span className="k2-card-end">
+          {!brief && card.proof && <span className="k2-card-proof">{card.proof}</span>}
+          <span className="k2-card-go">
+            Read how<span className="k2-sr">: {card.label}</span>
+            {"\u00a0→"}
+          </span>
         </span>
       </span>
     </RouterLink>

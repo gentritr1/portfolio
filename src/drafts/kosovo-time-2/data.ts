@@ -34,6 +34,8 @@ export interface Card {
   title: string;
   steps: Step[];
   back: { from: number; to: number; label: string };
+  /** The last line of the card: the rule the loop keeps. */
+  proof?: string;
   slug: string;
   label: string;
 }
@@ -126,6 +128,7 @@ export const client: Row[] = [
         { name: "Person approves", note: "Then it is added", person: true },
       ],
       back: { from: 3, to: 2, label: "A check fails? Back to the agents." },
+      proof: "A check is trusted only after it is shown to fail.",
       slug: "care-platform",
       label: "How the care platform is rebuilt",
     },

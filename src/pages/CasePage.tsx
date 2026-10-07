@@ -1,6 +1,6 @@
-import { useEffect, useId, useRef, useSyncExternalStore, type CSSProperties, type ReactNode } from "react";
+import { useCallback, useEffect, useId, useImperativeHandle, useLayoutEffect, useRef, useState, useSyncExternalStore, type CSSProperties, type ReactNode, type Ref } from "react";
 import { Link, useParams } from "react-router";
-import { ArrowRightIcon, ArrowUpRightIcon, UserIcon } from "@phosphor-icons/react";
+import { ArrowRightIcon, ArrowUpRightIcon, UserIcon, XIcon } from "@phosphor-icons/react";
 import { findProject, type Project } from "../content/projects";
 import { caseCopy, nextSlug, type CaseCopy, type Part, type Plate, type Px, type Shot } from "./caseCopy";
 import { luminance, shadowOf, usePageLight, type PageLight } from "./caseLight";
@@ -126,7 +126,7 @@ interface ShotProps {
 
 function ShotView({ shot, crop, alt, eager, ring }: ShotProps) {
   return (
-    <div className="cs-shot" style={{ aspectRatio: `${crop.w} / ${crop.h}`, background: shot.ground }}>
+    <span className="cs-shot" style={{ aspectRatio: `${crop.w} / ${crop.h}`, background: shot.ground }}>
       <img
         src={shot.src}
         alt={alt}
@@ -156,7 +156,64 @@ function ShotView({ shot, crop, alt, eager, ring }: ShotProps) {
           <rect width="100%" height="100%" rx="7" pathLength={1} />
         </svg>
       )}
-    </div>
+    </span>
+  );
+}
+
+type Enlarge = (shot: Shot, from: HTMLElement) => void;
+
+/** The whole capture in a modal dialog. Only this component renders when it opens or closes. */
+function Lightbox({ ref }: { ref: Ref<{ open: Enlarge }> }) {
+  const dialog = useRef<HTMLDialogElement>(null);
+  const from = useRef<HTMLElement | null>(null);
+  const [shot, setShot] = useState<Shot | null>(null);
+
+  useImperativeHandle(ref, () => ({
+    open(next, trigger) {
+      from.current = trigger;
+      const image = new Image();
+      image.src = next.src;
+      void image
+        .decode()
+        .catch(() => undefined)
+        .then(() => setShot(next));
+    },
+  }), []);
+
+  useLayoutEffect(() => {
+    const element = dialog.current;
+    if (shot && element && !element.open) element.showModal();
+  }, [shot]);
+
+  const close = () => dialog.current?.close();
+
+  return (
+    <dialog
+      ref={dialog}
+      className="cs-lightbox"
+      aria-label={shot?.alt}
+      onClose={() => {
+        setShot(null);
+        from.current?.focus({ preventScroll: true });
+      }}
+      onClick={(event) => {
+        if (event.target === event.currentTarget) close();
+      }}
+    >
+      {shot && (
+        <figure
+          className="cs-lightbox-figure"
+          style={{ width: `min(100%, ${shot.width}px, calc((100dvh - 184px) * ${shot.width} / ${shot.height}))` }}
+        >
+          <button type="button" className="cs-lightbox-close" onClick={close}>
+            <XIcon aria-hidden="true" size={18} weight="bold" />
+            Close
+          </button>
+          <img src={shot.src} alt="" width={shot.width} height={shot.height} decoding="async" />
+          <figcaption>{shot.alt}</figcaption>
+        </figure>
+      )}
+    </dialog>
   );
 }
 
@@ -280,10 +337,11 @@ interface PlateProps {
   narrow: boolean;
   first: boolean;
   page: PageLight;
+  enlarge: Enlarge;
 }
 
 /** The plate a part shows: the whole crop on a wide screen, the proving part on a phone. */
-function PartPlate({ part, plate, caption, narrow, first, page }: PlateProps) {
+function PartPlate({ part, plate, caption, narrow, first, page, enlarge }: PlateProps) {
   if (plate.kind === "number") return <NumberFigure plate={plate} />;
   if (plate.kind === "flow") return <FlowFigure plate={plate} caption={caption} />;
   const own = narrow && typeof part.narrow === "object";
@@ -293,7 +351,14 @@ function PartPlate({ part, plate, caption, narrow, first, page }: PlateProps) {
   return (
     <Ground page={page} screen={plate.ground}>
       <Screen caption={caption} width={fitWidth(crop)}>
-        <ShotView shot={plate} crop={crop} alt={(own && part.narrowAlt) || plate.alt} eager={first} ring={ring} />
+        <button
+          type="button"
+          className="cs-enlarge"
+          aria-label={`Enlarge: ${plate.alt}`}
+          onClick={(event) => enlarge(plate, event.currentTarget)}
+        >
+          <ShotView shot={plate} crop={crop} alt={(own && part.narrowAlt) || plate.alt} eager={first} ring={ring} />
+        </button>
       </Screen>
     </Ground>
   );
@@ -430,8 +495,22 @@ interface PartTextProps {
   index: number;
   plate: Plate;
   project: Project;
+  short: string[];
   /** The heading stands in the section's band, not in the text. */
   banded?: boolean;
+}
+
+function InShort({ facts, index }: { facts: string[]; index: number }) {
+  return (
+    <aside className="cs-short" aria-labelledby={`cs-short-${index}`}>
+      <h3 id={`cs-short-${index}`}>In short</h3>
+      <ul>
+        {facts.map((fact) => (
+          <li key={fact}>{fact}</li>
+        ))}
+      </ul>
+    </aside>
+  );
 }
 
 /** The section head on the second surface. */
@@ -443,7 +522,7 @@ function Band({ part, index }: { part: Part; index: number }) {
   );
 }
 
-function PartText({ part, index, plate, project, banded }: PartTextProps) {
+function PartText({ part, index, plate, project, short, banded }: PartTextProps) {
   const stores = (plate.kind === "web" || plate.kind === "phone") && plate.stores !== undefined && project.links.length > 0;
   return (
     <>
@@ -456,6 +535,7 @@ function PartText({ part, index, plate, project, banded }: PartTextProps) {
           <OutLinks links={project.links} />
         </p>
       )}
+      {part.heading === "The result" && <InShort facts={short} index={index} />}
     </>
   );
 }
@@ -471,6 +551,8 @@ function Case({ project, copy }: { project: Project; copy: CaseCopy }) {
   const nextCopy = caseCopy[next.slug];
   const numbers = copy.numbers === undefined ? undefined : plates[copy.numbers];
   const root = useRef<HTMLDivElement>(null);
+  const lightbox = useRef<{ open: Enlarge }>(null);
+  const enlarge = useCallback<Enlarge>((shot, from) => lightbox.current?.open(shot, from), []);
   useDraw(root);
   useWalks(project.slug);
 
@@ -517,13 +599,14 @@ function Case({ project, copy }: { project: Project; copy: CaseCopy }) {
                           narrow
                           first={index === 0}
                           page={page}
+                          enlarge={enlarge}
                         />
                       </div>
                     )}
                     {index === 0 && <Facts project={project} copy={copy} />}
                     <Band part={part} index={index} />
                     <div className="cs-part-text">
-                      <PartText part={part} index={index} plate={plate} project={project} banded />
+                      <PartText part={part} index={index} plate={plate} project={project} short={copy.short} banded />
                     </div>
                   </section>
                 );
@@ -540,12 +623,13 @@ function Case({ project, copy }: { project: Project; copy: CaseCopy }) {
                         narrow={false}
                         first={group[0].index === 0}
                         page={page}
+                        enlarge={enlarge}
                       />
                     </div>
                     <div className="cs-group-text">
                       {group.map(({ part, index }, k) => (
                         <section key={part.heading} className="cs-part-text" aria-labelledby={`cs-part-${index}`}>
-                          <PartText part={part} index={index} plate={plates[part.plate]} project={project} banded={k === 0} />
+                          <PartText part={part} index={index} plate={plates[part.plate]} project={project} short={copy.short} banded={k === 0} />
                         </section>
                       ))}
                     </div>
@@ -562,6 +646,7 @@ function Case({ project, copy }: { project: Project; copy: CaseCopy }) {
                   narrow={narrow}
                   first={false}
                   page={page}
+                  enlarge={enlarge}
                 />
               </div>
             </div>
@@ -624,6 +709,7 @@ function Case({ project, copy }: { project: Project; copy: CaseCopy }) {
 
         <CaseEnd />
       </div>
+      <Lightbox ref={lightbox} />
     </div>
   );
 }
