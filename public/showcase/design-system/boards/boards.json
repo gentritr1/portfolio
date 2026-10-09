@@ -1,0 +1,110 @@
+{
+  "rendered": "2026-10-09 from design-system-v2 origin/main f7e78ed (package 1.1.6), components imported from source, captured in Playwright Chromium at 1600x1000 CSS px, device scale 2",
+  "boards": [
+    {
+      "file": "board-01.webp",
+      "small": "board-01-1080.webp",
+      "title": "Design System v2",
+      "kicker": "Rendered evidence",
+      "alt": "Title board. On the left: Design System v2, with three numbers: 41 components, 868 design values, 22 releases in 60 days. On the right: a tilted wall of real components, such as buttons, badges, a table, a date picker, steps, a progress ring, inputs and a toast.",
+      "figures": [
+        { "value": "41", "label": "components", "source": "design-system-v2 origin/main f7e78ed: docs/lifecycle.json, 41 keys under states; src/index.js exports 41 components" },
+        { "value": "868", "label": "design values", "source": "tokens/source/core.tokens.json (130) + semantic.tokens.json (205) + component.tokens.json (533), entries with $value" },
+        { "value": "22", "label": "releases in 60 days", "source": "git tags v0.1.0 (2026-07-29) to v1.1.6 (2026-09-27), 22 tags" }
+      ],
+      "claims": [
+        { "text": "a real browser checks contrast and pixels before each release", "source": ".github/workflows/ci.yml:371 release needs [detect, gates, evidence, consumer]; ci.yml:314 evidence step runs the contrast matrix and visual baselines" }
+      ]
+    },
+    {
+      "file": "board-02.webp",
+      "small": "board-02-1080.webp",
+      "title": "We write a value once. The build writes the rest.",
+      "kicker": "One source for every format",
+      "alt": "One design value followed from source to screen. The brand colour #006992 is written once in core.tokens.json, named interactive.bg in semantic.tokens.json, written out by the build to CSS, JavaScript and the Figma bundle, read by the Button stylesheet, and shown on a real button whose computed background is rgb(0, 105, 146).",
+      "figures": [
+        { "value": "868", "label": "design values", "source": "tokens/source/*.tokens.json: 130 + 205 + 533" },
+        { "value": "3", "label": "levels", "source": "tokens/source has three files: core, semantic, component; docs/adr/0001-tokens-as-code.md" },
+        { "value": "7", "label": "generated files", "source": "tools/tokens/config.mjs:84-117 (tokens.css, tokens.scss, utilities.css, tokens.js, tokens.json) + tools/tokens/build.mjs:11 (styles.css) and :22 (tokens/figma/vianova.tokens.json)" },
+        { "value": "6.11:1", "label": "label contrast, measured", "source": "measured in the browser on the board from computed styles (white on #006992); matches semantic.tokens.json:144 description" }
+      ],
+      "code": [
+        "tokens/source/core.tokens.json:90",
+        "tokens/source/semantic.tokens.json:140-143",
+        "src/tokens/generated/tokens.css:377",
+        "src/tokens/generated/tokens.js:913",
+        "tokens/figma/vianova.tokens.json:840-842",
+        "src/components/Button/Button.module.css:148",
+        "'committed and checked for drift': docs/adr/0001-tokens-as-code.md (Decision) and ci.yml:75 token drift"
+      ]
+    },
+    {
+      "file": "board-03.webp",
+      "small": "board-03-1080.webp",
+      "title": "Every variant and tone, measured in a browser.",
+      "kicker": "Measured, not assumed",
+      "alt": "A matrix of real buttons: four variants (solid, outline, ghost, link) by seven tones. Under each button is its measured label contrast, from 4.82 to 19.89 to 1, all above the 4.5 to 1 floor. Below, all 56 labels (rest and disabled) sit on one scale to the right of the floor, and one solid brand button is shown in five states: rest 6.11, hover 9.23, focus ring 6.11, disabled 5.16, loading 6.11.",
+      "figures": [
+        { "value": "56", "label": "labels measured", "source": "measured on this board: 28 variant x tone pairs at rest + the same 28 disabled (variants and tones from src/components/Button/Button.evidence.js)" },
+        { "value": "4.63:1", "label": "lowest ratio", "source": "measured on this board: disabled outline/solid/ghost neutral, 4.630 (rounded down)" },
+        { "value": "4.5:1", "label": "text floor", "source": "docs/accessibility-standard.md:67; test/evidence/lib/floors.mjs:17 (text: 4.5)" }
+      ],
+      "method": "app/measure.js in the renderer: WCAG 2.x relative luminance from getComputedStyle color and the composited background of each real Button; hover and focus forced through CDP CSS.forcePseudoState; values rounded down to two decimals. Raw values: scratchpad r12-boards/out/b3-result.json. Rest values agree with the token descriptions (interactive.bg 6.11:1, solid-bg-hover 9.24:1)."
+    },
+    {
+      "file": "board-04.webp",
+      "small": "board-04-1080.webp",
+      "title": "A whole screen, built only from the parts.",
+      "kicker": "In context",
+      "alt": "A complete care-team screen made only from library parts: a sidebar, a search field, a page head with Export and Add person buttons, filter tabs, a program select, a date range field, a table of six invented people with avatars, program and status badges, progress bars and a row menu that is open, pagination, and a success toast. A list on the left names the 13 components on the screen.",
+      "figures": [
+        { "value": "13", "label": "components on this screen", "source": "counted in the board source (b4-screen.jsx): Sidebar, Input, Avatar, Button, Tabs, Select, Datepicker, Table, Badge, ProgressBar, Menu, Pagination, Toast" }
+      ],
+      "claims": [
+        { "text": "the same parts the care app uses", "source": "vianova-dashboard-react depends on @vianovaai/design-system (package.json / node_modules)" }
+      ],
+      "data": "All names, IDs and numbers are invented."
+    },
+    {
+      "file": "board-05.webp",
+      "small": "board-05-1080.webp",
+      "title": "Fields that show their state.",
+      "kicker": "Forms and pickers",
+      "alt": "Real form parts in their states. On the left, the date range picker is open with two months, a presets list and Apply. On the right: an email field at rest, a name field in focus, a phone field with the error Enter the full number, a disabled ID field, an open program select with a disabled option, and a conditions combobox with two chosen values.",
+      "figures": [],
+      "data": "All values are invented."
+    },
+    {
+      "file": "board-06.webp",
+      "small": "board-06-1080.webp",
+      "title": "A check is trusted only after it is shown to fail.",
+      "kicker": "The check that must fail",
+      "alt": "Three pictures of the same card: expected, changed, and the difference. In the changed picture only the Save plan button is one step darker. In the difference picture that button is red. At Playwright's default tolerance of 0.2, 0 pixels differ; at tolerance 0, 13,442 pixels differ, so the check fails as it must.",
+      "figures": [
+        { "value": "0", "label": "pixels differ at the default 0.2", "source": "measured in this render: YIQ colour test of pixelmatch at threshold 0.2 between the two captures (840x532 device px)" },
+        { "value": "13,442", "label": "pixels differ at threshold 0", "source": "measured in this render, same captures, threshold 0" },
+        { "value": "0", "label": "pixels the check allows", "source": "playwright.config.mjs:59-60 (threshold: 0, maxDiffPixels: 0)" }
+      ],
+      "method": "The change is the one in test/evidence/visual-snapshot.spec.js:349-381 (negative control: a pixel change is caught): the solid brand Button fill set to var(--ds-interactive-bg-hover). The pictures are rendered in the browser from a smaller specimen, not the repository's fixture."
+    },
+    {
+      "file": "board-07.webp",
+      "small": "board-07-1080.webp",
+      "title": "From one JSON edit to a release.",
+      "kicker": "How a change ships",
+      "alt": "A six-step line from edit to release: Edit (tokens/source), Build (npm run build), Static gates, Rendered evidence, Consumer smoke, and Release, each with its real step names. Release runs only after the three check jobs pass. Below, a bar shows 186,949 bytes before and 6,386 bytes after, 96.6 percent less JavaScript for an app that imports only Button.",
+      "figures": [
+        { "value": "96.6%", "label": "less JavaScript for an app that uses one part", "source": "docs/adr/0021-a-consumer-pays-for-what-it-uses.md:17, :47, :104; CHANGELOG.md:6511-6513 (0.6.0)" },
+        { "value": "186,949 B / 6,386 B", "label": "before and after", "source": "ADR-0021:104 (measured at 0.4.0 and 0.6.0)" },
+        { "value": "9", "label": "negative-control steps before a release", "source": ".github/workflows/ci.yml step names :86, :111, :135, :142, :144, :151, :153, :164 (job gates) and :314 (job evidence); the tenth, :217, is in job skills, which does not gate the publish" }
+      ],
+      "steps": [
+        "Build chips: package.json scripts.build (tokens:build, vite build, tools/build/component-css.mjs, tsc declarations)",
+        "Static gates chips: ci.yml:75, :104, :121, :156, :181",
+        "Rendered evidence chips: ci.yml:314",
+        "Consumer smoke chips: ci.yml:349 'pack, install, typecheck, build, assert'",
+        "Release: ci.yml:369-371 (needs detect, gates, evidence, consumer); publishConfig registry npm.pkg.github.com; Changesets (scripts.release)"
+      ]
+    }
+  ]
+}

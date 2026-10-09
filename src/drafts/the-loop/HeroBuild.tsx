@@ -3,6 +3,7 @@ import { BrowserFrame } from "../../components/BrowserFrame";
 import { APPROVED_AT, BUILD_DONE, CHECKS_AT, H, pieces, W, WEEK, WEEK_SMALL, type Piece } from "./data";
 import { Approved, Checked, Replay } from "./icons";
 import { useReducedMotion } from "./hooks";
+import { sheen, SHEEN_AFTER } from "./room";
 
 const pct = (n: number, of: number) => `${((n / of) * 100).toFixed(4)}%`;
 
@@ -43,6 +44,7 @@ export function HeroBuild() {
   const [phase, setPhase] = useState<Phase>(reduce || built ? "done" : "wait");
   const [run, setRun] = useState(0);
   const timer = useRef<number | undefined>(undefined);
+  const light = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
     if (reduce || (built && run === 0)) {
@@ -57,7 +59,10 @@ export function HeroBuild() {
       if (!live) return;
       built = true;
       setPhase("build");
-      timer.current = window.setTimeout(() => setPhase("done"), BUILD_DONE);
+      timer.current = window.setTimeout(() => {
+        setPhase("done");
+        if (light.current) sheen(light.current, SHEEN_AFTER);
+      }, BUILD_DONE);
     };
     image.decode().then(start, start);
     return () => {
@@ -91,6 +96,7 @@ export function HeroBuild() {
             ))}
           </span>
         )}
+        <span className="room-sheen" ref={light} aria-hidden="true" />
       </BrowserFrame>
       <div className="lp-build-foot">
         {reduce ? (

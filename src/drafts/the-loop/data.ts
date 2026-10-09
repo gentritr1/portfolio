@@ -107,6 +107,14 @@ export const BUILD_DONE = 3250;
 /** The same pieces as layers of the exploded view, from back to front. */
 export const layers: Piece[][] = [pieces.slice(4, 12), pieces.slice(1, 4), pieces.slice(0, 1), pieces.slice(12)];
 
+/** The same four layers as single images: each one is its pieces of the capture at half size, cut to the box they fill. `box` is x, y, w, h in capture pixels. */
+export const layerShots = [
+  { src: "/showcase/care-dashboard/appointments-week-layer-0.webp", box: [472, 554, 2408, 1246] },
+  { src: "/showcase/care-dashboard/appointments-week-layer-1.webp", box: [472, 0, 2408, 560] },
+  { src: "/showcase/care-dashboard/appointments-week-layer-2.webp", box: [0, 0, 478, 1800] },
+  { src: "/showcase/care-dashboard/appointments-week-layer-3.webp", box: [941, 677, 1599, 1123] },
+] as const;
+
 /** The old app's captures, on invented data, made apart from this draft. While a file is missing, its place shows an empty slot, never a drawing of the old app. */
 export const OLD_WEEK = {
   src: "/showcase/care/old-new/old-appointments.webp",

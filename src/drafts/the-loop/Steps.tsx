@@ -1,36 +1,21 @@
 import { memo, useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type RefObject } from "react";
 import { flushSync } from "react-dom";
-import { checkRows, layers, OLD_WEEK, steps, testFile, testLines, WEEK } from "./data";
+import { checkRows, H, layers, layerShots, OLD_WEEK, steps, testFile, testLines, W, WEEK } from "./data";
 import { PhonePicture } from "../../components/PhonePicture";
 import { pieceStyle } from "./HeroBuild";
 import { useMedia, useReducedMotion } from "./hooks";
 import { Approved, Checked } from "./icons";
 import { OldScreen } from "./OldScreen";
+import { ARRIVE, CARD_MS, cardFrom, decode, DRIFT, MOVE, moving, OUT, pose, SHEEN_AFTER, sheen, type Pose } from "./room";
 import "./stage.css";
 
-const OUT = "cubic-bezier(0.22, 1, 0.36, 1)";
-const MOVE = "cubic-bezier(0.77, 0, 0.175, 1)";
-const DRIFT = "cubic-bezier(0.45, 0, 0.55, 1)";
 const COUNT = steps.length;
 const pad = (i: number) => String(i + 1).padStart(2, "0");
 
-interface Pose {
-  x?: number;
-  y?: number;
-  z?: number;
-  rx?: number;
-  ry?: number;
-  rz?: number;
-  s?: number;
-}
-
-const pose = ({ x = 0, y = 0, z = 0, rx = 0, ry = 0, rz = 0, s = 1 }: Pose) =>
-  `translate3d(${x}%, ${y}%, ${z}px) rotateX(${rx}deg) rotateY(${ry}deg) rotateZ(${rz}deg) scale(${s})`;
+type Box = { width: number; height: number };
 
 /** The rig rests flat at scale 1 on every step, so the screen's text is never resampled at rest. */
 const REST = "none";
-/** Where the camera is when the scene is first seen. */
-const WIDE = pose({ y: 6, z: -320, rx: 16 });
 /** The part each step looks at, as a point on the rig in % from its centre. The camera comes in toward it. */
 const TARGET: Array<[number, number]> = [
   [26, 12],
@@ -39,9 +24,11 @@ const TARGET: Array<[number, number]> = [
   [18, 16],
 ];
 /** Depth between two layers of the exploded screen, in px. */
-const GAP = 90;
+const GAP = 100;
 /** How long the main move of each step takes, in ms. The rail fills in this time. */
 const LENGTH = [1700, 3300, 4700, 1700];
+/** The camera of a cut is near its rest pose at this share of the cut. */
+const LANDED = 0.68;
 
 /** Times in the checks run of step 03, in ms. */
 const PASS_EACH = 820;
@@ -83,30 +70,20 @@ const from = (at: number, len: number): Keyframe[] => [
 ];
 
 /** The camera cuts from where it is through a turn, then comes in toward the step's target and lands flat at scale 1. While it comes in, the target point stays where it is at rest. */
-function cut(cam: HTMLElement, start: string, turn: Pose, step: number, duration: number, near = 0.88) {
+function cut(cam: HTMLElement, box: Box, start: string, turn: Pose, step: number, duration: number, near = 0.88) {
   const [tx, ty] = TARGET[step];
   return cam.animate(
     [
       { transform: start, easing: MOVE },
-      { transform: pose(turn), offset: 0.38, easing: OUT },
-      { transform: pose({ x: tx * (1 - near), y: ty * (1 - near), s: near }), offset: 0.5, easing: OUT },
+      { transform: pose(turn, box), offset: 0.38, easing: OUT },
+      { transform: pose({ x: tx * (1 - near), y: ty * (1 - near), s: near }, box), offset: 0.5, easing: OUT },
       { transform: REST },
     ],
     { duration },
   );
 }
 
-/** One soft band of light crosses the screen when the camera lands. */
-function sweep(root: HTMLElement, delay: number) {
-  return one(root, ".lc-sweep").animate(
-    [
-      { opacity: 0, transform: "translateX(-100%)" },
-      { opacity: 1, offset: 0.35 },
-      { opacity: 0, transform: "translateX(230%)" },
-    ],
-    { duration: 1300, delay, easing: DRIFT, fill: "backwards" },
-  );
-}
+const shine = (root: HTMLElement, delay: number) => sheen(one(root, ".lc-cam .room-sheen"), delay);
 
 /** The checks run: four pass, "Route rules" fails, the work goes back, the second run passes. Every run ends on the rest state that CSS draws. */
 function checks(root: HTMLElement, flat: boolean): Animation[] {
@@ -167,20 +144,21 @@ function checks(root: HTMLElement, flat: boolean): Animation[] {
   return out;
 }
 
-type Run = (root: HTMLElement, cam: HTMLElement, start: string) => Animation[];
+type Run = (root: HTMLElement, cam: HTMLElement, box: Box, start: string) => Animation[];
+
+const land = (duration: number) => Math.round(duration * LANDED) + SHEEN_AFTER;
 
 /** The pinned scene: the move of each step. */
 const scene: Run[] = [
-  (root, cam, start) => [
-    cut(cam, start, { y: -2, z: -160, rx: 5, ry: -11, s: 0.9 }, 0, LENGTH[0]),
-    sweep(root, 700),
-    one(root, ".ls-test").animate(
-      [
-        { opacity: 0, transform: "translate3d(80px, 12px, 200px) rotateY(-18deg)" },
-        { opacity: 1, transform: "none" },
-      ],
-      { duration: 1100, delay: 320, easing: OUT, fill: "backwards" },
-    ),
+  (root, cam, box, start) => [
+    cut(cam, box, start, { y: -2, z: -160, rx: 5, ry: -11, s: 0.9 }, 0, LENGTH[0]),
+    shine(root, land(LENGTH[0])),
+    one(root, ".ls-test").animate([{ opacity: 0, transform: cardFrom(1) }, { opacity: 1, transform: "none" }], {
+      duration: CARD_MS,
+      delay: 320,
+      easing: OUT,
+      fill: "backwards",
+    }),
     ...rows(root, ".ls-test .ls-row", 640, 80),
     ...all(root, ".ls-test .ls-tick").map((tick, i) =>
       tick.animate([{ opacity: 0, transform: "translateY(-1px) scale(0.7)" }, { opacity: 1, transform: "translateY(-1px)" }], {
@@ -191,7 +169,7 @@ const scene: Run[] = [
       }),
     ),
   ],
-  (root, cam, start) => {
+  (root, cam, box, start) => {
     const len = LENGTH[1];
     const total = len + 120;
     const at = (ms: number) => Math.min(1, ms / total);
@@ -202,52 +180,50 @@ const scene: Run[] = [
       cam.animate(
         [
           { transform: start, offset: 0, easing: MOVE },
-          { transform: pose({ y: 3, rx: 50, rz: -24, s: 0.64 }), offset: open / len, easing: DRIFT },
-          { transform: pose({ y: 2, rx: 43, rz: -13, s: 0.66 }), offset: hold / len, easing: MOVE },
+          { transform: pose({ y: 3, rx: 50, rz: -24, s: 0.7 }, box), offset: open / len, easing: DRIFT },
+          { transform: pose({ y: 2, rx: 43, rz: -13, s: 0.72 }, box), offset: hold / len, easing: MOVE },
           { transform: REST, offset: 1 },
         ],
         { duration: len },
       ),
-      sweep(root, len - 350),
+      shine(root, total + SHEEN_AFTER),
     ];
-    all(root, ".ls-layer").forEach((part, i) => {
+    all(root, ".lc-cam > .ls-layer").forEach((part, i) => {
       const apart = `translate3d(0, 0, ${i * GAP}px)`;
       const arrive = 300 + i * 190;
-      out.push(
-        part.animate(
-          [
-            { opacity: 0, transform: `translate3d(0, 0, ${i * GAP + 160}px)`, offset: 0 },
-            { opacity: 0, transform: `translate3d(0, 0, ${i * GAP + 160}px)`, offset: at(arrive), easing: OUT },
-            { opacity: 1, transform: apart, offset: at(arrive + 560) },
-            { opacity: 1, transform: apart, offset: at(hold), easing: MOVE },
-            { opacity: 1, transform: "translate3d(0, 0, 0)", offset: at(len) },
-            { opacity: 1, transform: "translate3d(0, 0, 0)", offset: 1 },
-          ],
-          { duration: total },
-        ),
+      const run = part.animate(
+        [
+          { opacity: 0, transform: `translate3d(0, 0, ${i * GAP + 160}px)`, offset: 0 },
+          { opacity: 0, transform: `translate3d(0, 0, ${i * GAP + 160}px)`, offset: at(arrive), easing: OUT },
+          { opacity: 1, transform: apart, offset: at(arrive + 560) },
+          { opacity: 1, transform: apart, offset: at(hold), easing: MOVE },
+          { opacity: 1, transform: "translate3d(0, 0, 0)", offset: at(len) },
+          { opacity: 1, transform: "translate3d(0, 0, 0)", offset: 1 },
+        ],
+        { duration: total },
       );
+      out.push(...moving(part, [run]));
     });
     return out;
   },
-  (root, cam, start) => [
-    cut(cam, start, { y: -2, z: -140, rx: 6, ry: 10, s: 0.9 }, 2, 1500),
-    sweep(root, 900),
-    one(root, ".ls-checks").animate(
-      [
-        { opacity: 0, transform: "translate3d(-80px, 12px, 180px) rotateY(16deg)" },
-        { opacity: 1, transform: "none" },
-      ],
-      { duration: 1000, delay: 180, easing: OUT, fill: "backwards" },
-    ),
+  (root, cam, box, start) => [
+    cut(cam, box, start, { y: -2, z: -140, rx: 6, ry: 10, s: 0.9 }, 2, 1500),
+    shine(root, land(1500)),
+    one(root, ".ls-checks").animate([{ opacity: 0, transform: cardFrom(-1) }, { opacity: 1, transform: "none" }], {
+      duration: CARD_MS,
+      delay: 180,
+      easing: OUT,
+      fill: "backwards",
+    }),
     ...checks(root, false),
   ],
-  (root, cam, start) => [
-    cut(cam, start, { y: 2, z: -220, rx: 10, ry: -7, s: 0.88 }, 3, LENGTH[3], 0.94),
-    sweep(root, 1000),
+  (root, cam, box, start) => [
+    cut(cam, box, start, { y: 2, z: -220, rx: 10, ry: -7, s: 0.88 }, 3, LENGTH[3], 0.94),
+    shine(root, land(LENGTH[3])),
     one(root, ".ls-mark").animate(
       [
-        { opacity: 0, transform: "scale(1.25) rotate(-9deg)" },
-        { opacity: 1, transform: "rotate(-2deg)" },
+        { opacity: 0, transform: "translate3d(0, 0, 160px) scale(1.15) rotate(-9deg)" },
+        { opacity: 1, transform: "translate3d(0, 0, 0) scale(1) rotate(-2deg)" },
       ],
       { duration: 360, delay: 1150, easing: OUT, fill: "backwards" },
     ),
@@ -390,8 +366,26 @@ const Layers = memo(function Layers() {
   );
 });
 
+/** The four layers of the exploded screen in the rig: one image each, placed on the box it fills. */
+const LayerShots = memo(function LayerShots() {
+  return (
+    <>
+      {layerShots.map(({ src, box: [x, y, w, h] }) => (
+        <img
+          key={src}
+          className="ls-layer"
+          src={src}
+          alt=""
+          decoding="async"
+          style={{ "--x": x / W, "--y": y / H, "--w": w / W, "--h": h / H } as CSSProperties}
+        />
+      ))}
+    </>
+  );
+});
+
 /** The screen in its browser frame, with the parts that each step shows. In the `rig`, every part is mounted and each one is a direct child of the camera rig, so the 3D scene has two levels only. */
-function Screen({ step, rig, play }: { step: number; rig: boolean; play: boolean }) {
+const Screen = memo(function Screen({ step = 0, rig = false, play }: { step?: number; rig?: boolean; play: boolean }) {
   const has = (i: number) => rig || step === i;
   const parts = (
     <>
@@ -403,8 +397,8 @@ function Screen({ step, rig, play }: { step: number; rig: boolean; play: boolean
             <i />
           </span>
           <span className="ls-url">
-            <span data-on={step === 0 ? "" : undefined}>Care platform, old app</span>
-            <span data-on={step > 0 ? "" : undefined}>Care platform, new app</span>
+            <span className="ls-url-old">Care platform, old app</span>
+            <span className="ls-url-new">Care platform, new app</span>
           </span>
         </div>
         <div className="ls-screen">
@@ -421,19 +415,19 @@ function Screen({ step, rig, play }: { step: number; rig: boolean; play: boolean
           )}
           <span className="ls-clip">
             {play && has(2) && <span className="ls-scan" />}
-            {rig && <span className="lc-sweep" />}
+            {rig && <span className="room-sheen" />}
             {rig && <span className="lc-alarm" />}
           </span>
         </div>
       </div>
-      {rig && <Layers />}
+      {rig && <LayerShots />}
       {has(0) && <TestCard />}
       {has(2) && <ChecksCard />}
       {has(3) && <Mark />}
     </>
   );
   return rig ? parts : <div className="ls-body">{parts}</div>;
-}
+});
 
 /** One settled picture under a step, for a narrow screen or reduced motion. */
 function StackFigure({ step, play }: { step: number; play: boolean }) {
@@ -464,12 +458,18 @@ function StackFigure({ step, play }: { step: number; play: boolean }) {
 
   return (
     <figure className="ls" data-step={step} data-mode="stack" data-wait={play && !seen ? "" : undefined} ref={root} aria-hidden="true">
-      <Screen step={step} rig={false} play={play} />
+      <Screen step={step} play={play} />
     </figure>
   );
 }
 
-/** Scroll position to step. Each step owns one snap point, 100svh apart, and the browser does the snapping. */
+/** The scroll distance from one step to the next: the distance between two snap points. */
+const unitOf = (track: HTMLElement) => {
+  const [, a, b] = track.querySelectorAll<HTMLElement>(".lc-snap");
+  return b.offsetTop - a.offsetTop;
+};
+
+/** Scroll position to step. Each step owns one snap point, half a screen apart, and the browser does the snapping. */
 function useStepScroll(track: RefObject<HTMLDivElement | null>) {
   const [step, setStep] = useState(0);
   const [pinned, setPinned] = useState(false);
@@ -481,11 +481,11 @@ function useStepScroll(track: RefObject<HTMLDivElement | null>) {
     const node = track.current;
     if (!node) return;
     let frame = 0;
+    let unit = unitOf(node);
     const read = () => {
       frame = 0;
       const box = node.getBoundingClientRect();
-      const unit = box.height / COUNT;
-      setPinned(box.top <= 0.5 && box.bottom >= unit - 0.5);
+      setPinned(box.top <= 0.5 && box.bottom >= innerHeight - 0.5);
       if (jump.current !== null) return;
       const next = Math.max(0, Math.min(COUNT - 1, Math.round(-box.top / unit)));
       // A jump of more than one step (a restored scroll place) must not paint the old step first.
@@ -495,6 +495,10 @@ function useStepScroll(track: RefObject<HTMLDivElement | null>) {
     };
     const onScroll = () => {
       if (!frame) frame = requestAnimationFrame(read);
+    };
+    const onResize = () => {
+      unit = unitOf(node);
+      onScroll();
     };
     const onEnd = () => {
       if (jump.current === null) return;
@@ -512,13 +516,13 @@ function useStepScroll(track: RefObject<HTMLDivElement | null>) {
     polling = requestAnimationFrame(pollFrame);
     addEventListener("scroll", onScroll, { passive: true });
     addEventListener("scrollend", onEnd);
-    addEventListener("resize", onScroll);
+    addEventListener("resize", onResize);
     return () => {
       cancelAnimationFrame(frame);
       cancelAnimationFrame(polling);
       removeEventListener("scroll", onScroll);
       removeEventListener("scrollend", onEnd);
-      removeEventListener("resize", onScroll);
+      removeEventListener("resize", onResize);
     };
   }, [track]);
 
@@ -526,9 +530,8 @@ function useStepScroll(track: RefObject<HTMLDivElement | null>) {
   const go = (i: number) => {
     const node = track.current;
     if (!node) return;
-    const box = node.getBoundingClientRect();
-    const unit = box.height / COUNT;
-    const delta = box.top + i * unit;
+    const unit = unitOf(node);
+    const delta = node.getBoundingClientRect().top + i * unit;
     jump.current = i;
     shown.current = i;
     setStep(i);
@@ -552,6 +555,7 @@ function Cinema() {
   const { step, pinned, go } = useStepScroll(track);
   const [seen, setSeen] = useState(false);
   const motion = useRef<Animation[]>([]);
+  const size = useRef<Box>({ width: 0, height: 0 });
   const started = useRef(false);
   const shown = useRef<number | null>(null);
 
@@ -577,7 +581,29 @@ function Cinema() {
       },
       { threshold: 0.35 },
     );
+    const near = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        near.disconnect();
+        decode([WEEK, OLD_WEEK.src, ...layerShots.map((shot) => shot.src)]);
+      },
+      { rootMargin: "600px 0px" },
+    );
     observer.observe(node);
+    near.observe(node);
+    return () => {
+      observer.disconnect();
+      near.disconnect();
+    };
+  }, []);
+
+  useLayoutEffect(() => {
+    const camera = cam.current;
+    if (!camera) return;
+    const observer = new ResizeObserver(([entry]) => {
+      size.current = { width: entry.contentRect.width, height: entry.contentRect.height };
+    });
+    observer.observe(camera);
     return () => observer.disconnect();
   }, []);
 
@@ -586,15 +612,28 @@ function Cinema() {
     const camera = cam.current;
     if (!node || !camera || !seen || shown.current === step) return;
     shown.current = step;
-    motion.current.forEach((a) => a.cancel());
-    motion.current = [];
-    camera.style.transform = REST;
     const first = !started.current;
     started.current = true;
-    if (instant) return;
-    const start = first ? WIDE : getComputedStyle(camera).transform;
-    motion.current = scene[step](node, camera, start);
-    if (first) motion.current.push(one(node, ".lc-cam > .ls-frame").animate([{ opacity: 0 }, { opacity: 1 }], { duration: 700, easing: OUT }));
+    if (instant) {
+      camera.dataset.step = String(step);
+      return;
+    }
+    // The new step's text and rail paint in this frame; the screen and the camera change in the next one, so no frame does both.
+    const frame = requestAnimationFrame(() => {
+      // Only a camera that is still moving is read back, so a step that starts from rest does not force a style pass.
+      const live = motion.current.some((a) => (a.effect as KeyframeEffect | null)?.target === camera && a.playState === "running");
+      const start = first ? pose(ARRIVE, size.current) : live ? getComputedStyle(camera).transform : REST;
+      motion.current.forEach((a) => a.cancel());
+      camera.dataset.step = String(step);
+      const runs = scene[step](node, camera, size.current, start);
+      moving(
+        camera,
+        runs.filter((a) => (a.effect as KeyframeEffect | null)?.target === camera),
+      );
+      if (first) runs.push(one(node, ".lc-cam > .ls-frame").animate([{ opacity: 0 }, { opacity: 1 }], { duration: 700, easing: OUT }));
+      motion.current = runs;
+    });
+    return () => cancelAnimationFrame(frame);
   }, [step, seen, instant]);
 
   useEffect(() => () => motion.current.forEach((a) => a.cancel()), []);
@@ -604,6 +643,8 @@ function Cinema() {
       {steps.map((s, i) => (
         <span key={s.name} className="lc-snap" style={{ "--i": i } as CSSProperties} />
       ))}
+      <span className="lc-free lc-free-before" />
+      <span className="lc-free lc-free-after" />
       <div
         className="lc-pin"
         ref={root}
@@ -612,9 +653,8 @@ function Cinema() {
         data-wait={seen ? undefined : ""}
         data-instant={instant ? "" : undefined}
         data-hold={hold ? "" : undefined}
-        style={{ "--len": `${LENGTH[step]}ms` } as CSSProperties}
       >
-        <div className="lc-light" aria-hidden="true">
+        <div className="room-light lc-light" aria-hidden="true">
           <i />
         </div>
         <div className="lc-bar lc-bar-top" aria-hidden="true">
@@ -643,14 +683,14 @@ function Cinema() {
               </li>
             ))}
           </ol>
-          <div className="lc-view" aria-hidden="true">
-            <div className="ls lc-cam" data-mode="pin" data-step={step} ref={cam}>
-              <Screen step={step} rig play />
+          <div className="room-view lc-view" aria-hidden="true">
+            <div className="ls room-rig room-floor lc-cam" data-mode="pin" ref={cam}>
+              <Screen rig play />
             </div>
           </div>
         </div>
         <nav className="lc-bar lc-bar-bottom" aria-label="Steps">
-          <ol className="lc-rail">
+          <ol className="lc-rail" style={{ "--len": `${LENGTH[step]}ms` } as CSSProperties}>
             {steps.map((s, i) => (
               <li key={s.name}>
                 <button

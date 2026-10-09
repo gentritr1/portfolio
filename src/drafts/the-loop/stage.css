@@ -14,9 +14,15 @@
 
 /* ---------- Steps: the pinned scene ---------- */
 
-/* Each step owns one snap point. The page snaps only while the scene is on the page. The site's 5rem scroll padding would move every snap point up by that much. */
+/*
+ * Each step owns one snap point, half a screen apart. The page must rest on a step while the scene is pinned,
+ * so the root snap is mandatory. Above and below the scene, one tall snap area covers the page; a snap area
+ * taller than the screen lets the page scroll freely inside it, so the rest of the page does not snap.
+ * The gap from a free area to the first or last step is one step long. The site's 5rem scroll padding would
+ * move every snap point up by that much.
+ */
 html:has(.lc-track) {
-  scroll-snap-type: y proximity;
+  scroll-snap-type: y mandatory;
   scroll-padding-top: 0;
 }
 
@@ -25,19 +31,46 @@ html:has(.lc-track) {
 }
 
 .lc-track {
+  --step: 50svh;
   position: relative;
-  height: calc(var(--n) * 100svh);
+  height: calc((var(--n) - 1) * var(--step) + 100svh);
+  overflow: clip;
 }
 
 .lc-snap {
   position: absolute;
   left: 0;
-  top: calc(var(--i) * 100svh);
+  top: calc(var(--i) * var(--step));
   width: 1px;
   height: 1px;
   scroll-snap-align: start;
   scroll-snap-stop: always;
   pointer-events: none;
+}
+
+/* The first step's point is the bottom edge of its screen. A snap point inside the screen wins over a free area, so a point at the top edge would take the page from a whole screen away. */
+.lc-snap:first-child {
+  top: calc(100svh - 1px);
+  scroll-snap-align: end;
+}
+
+/* The track clips these areas, so they do not make the page longer. */
+.lc-free {
+  position: absolute;
+  left: 0;
+  width: 1px;
+  height: 100000px;
+  pointer-events: none;
+}
+
+.lc-free-before {
+  top: calc(100svh - var(--step) - 100000px);
+  scroll-snap-align: end;
+}
+
+.lc-free-after {
+  top: calc(var(--n) * var(--step));
+  scroll-snap-align: start;
 }
 
 .lc-pin {
@@ -48,24 +81,6 @@ html:has(.lc-track) {
   height: 100svh;
   overflow: clip;
   background: radial-gradient(ellipse 80% 75% at 58% 50%, var(--bg) 58%, #040506);
-}
-
-/* A pool of warm light behind the screen. It follows the camera's target. */
-.lc-light {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  transition: transform 1400ms var(--ease-move);
-}
-
-.lc-light i {
-  position: absolute;
-  left: 34%;
-  top: 6%;
-  width: 66%;
-  height: 92%;
-  background: radial-gradient(closest-side, rgb(255 181 71 / 0.11), rgb(255 181 71 / 0.035) 55%, transparent);
 }
 
 .lc-pin[data-step="0"] .lc-light {
@@ -255,11 +270,11 @@ html:has(.lc-track) {
   place-items: center;
   height: 100%;
   min-height: 0;
-  perspective: 1800px;
-  perspective-origin: 50% 40%;
 }
 
-.lc-pin[data-wait] .lc-cam {
+/* The rig gets its step in the frame its first run starts, so it is not drawn before then. */
+.lc-pin[data-wait] .lc-cam,
+.lc-cam:not([data-step]) {
   visibility: hidden;
 }
 
@@ -274,7 +289,6 @@ html:has(.lc-track) {
 
 .lc-cam {
   width: min(100%, (100svh - 64px - 92px - 48px - 30px) * 1.6);
-  transform-style: preserve-3d;
   transform-origin: 50% 50%;
 }
 
@@ -378,12 +392,15 @@ html:has(.lc-track) {
 }
 
 /* The camera rig is the only 3D level. The frame, the layers and the cards are its direct children, and each one is flat. */
-.ls[data-mode="pin"] {
-  transform-style: preserve-3d;
-}
-
 .lc-cam > .ls-layer {
-  top: var(--ls-bar);
+  left: calc(var(--x) * 100%);
+  top: calc(var(--ls-bar) + (100% - var(--ls-bar)) * var(--y));
+  width: calc(var(--w) * 100%);
+  right: auto;
+  bottom: auto;
+  height: calc((100% - var(--ls-bar)) * var(--h));
+  max-width: none;
+  container-type: normal;
 }
 
 .ls-frame {
@@ -391,17 +408,6 @@ html:has(.lc-track) {
   border-radius: var(--ls-radius);
   background: #1c1c20;
   box-shadow: 0 0 0 1px rgb(255 255 255 / 0.08);
-}
-
-/* The stage's shadow is a still gradient floor under it, so no shadow is drawn again on each frame of a move. */
-.ls[data-mode="pin"]::before {
-  content: "";
-  position: absolute;
-  left: 4%;
-  right: 4%;
-  bottom: -30px;
-  height: 64px;
-  background: radial-gradient(closest-side, rgb(0 0 0 / 0.75), transparent);
 }
 
 .ls-bar {
@@ -447,7 +453,8 @@ html:has(.lc-track) {
   transition: opacity 250ms var(--ease-out);
 }
 
-.ls-url > span[data-on] {
+.ls[data-step="0"] .ls-url-old,
+.ls:not([data-step="0"]) .ls-url-new {
   opacity: 1;
 }
 
@@ -516,11 +523,7 @@ html:has(.lc-track) {
   opacity: 0;
 }
 
-.ls[data-step="1"] .ls-layer {
-  will-change: transform;
-}
-
-/* The layers hold about a hundred pieces of the full capture; they are drawn only in the step that uses them. */
+/* The layers are drawn only in the step that uses them. */
 .ls[data-mode="pin"]:not([data-step="1"]) .ls-layer {
   display: none;
 }
@@ -551,16 +554,6 @@ html:has(.lc-track) {
   height: 30%;
   border-bottom: 2px solid var(--accent);
   background: linear-gradient(to bottom, rgb(255 181 71 / 0), rgb(255 181 71 / 0.16));
-  opacity: 0;
-}
-
-.lc-sweep {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  width: 45%;
-  background: linear-gradient(100deg, transparent 15%, rgb(255 255 255 / 0.22) 50%, transparent 85%);
   opacity: 0;
 }
 

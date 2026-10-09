@@ -1,0 +1,73 @@
+/* ---------- The room: one floor, one light ---------- */
+
+.lp {
+  --room-perspective: 1800px;
+  --room-origin: 50% 40%;
+  --room-light: rgb(255 181 71 / 0.11);
+  --room-light-edge: rgb(255 181 71 / 0.035);
+  --room-shadow: rgb(0 0 0 / 0.75);
+  --room-sheen: rgb(255 214 150 / 0.2);
+}
+
+/* The parent of a rig: one camera for each section. */
+.room-view {
+  perspective: var(--room-perspective);
+  perspective-origin: var(--room-origin);
+}
+
+/* The rig is the only 3D parent. Opacity below 1, overflow, clip-path or a filter on it would flatten its children, so it has none. */
+.room-rig {
+  transform-style: preserve-3d;
+}
+
+/* A still shadow on the floor under a slab. It is a gradient, so no shadow is drawn again on each frame of a move. */
+.room-floor::before {
+  content: "";
+  position: absolute;
+  left: 4%;
+  right: 4%;
+  bottom: -30px;
+  height: 64px;
+  background: radial-gradient(closest-side, var(--room-shadow), transparent);
+  pointer-events: none;
+}
+
+/* A pool of warm light behind the slab. It moves with transform only. */
+.room-light {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  transition: transform 1400ms var(--ease-move);
+}
+
+.room-light > i {
+  position: absolute;
+  left: 34%;
+  top: 6%;
+  width: 66%;
+  height: 92%;
+  background: radial-gradient(closest-side, var(--room-light), var(--room-light-edge) 55%, transparent);
+}
+
+/* The band of light that crosses a slab from left to right when it lands. Its parent clips it. */
+.room-sheen {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 45%;
+  background: linear-gradient(100deg, transparent 15%, var(--room-sheen) 50%, transparent 85%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+[data-moving] {
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .room-sheen {
+    display: none;
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "captured": "2026-10-09",
+  "source": "https://za-game.onrender.com (live), one table CRUST-9517, left after capture",
+  "players": "Ari and Noor (desktop, two separate browser contexts), Lena (phone context), Vito (CPU bot)",
+  "shots": [
+    {
+      "file": "za-table-two-seats.webp",
+      "copies": ["za-table-two-seats-1080.webp"],
+      "size": "2880x890 (1080x334)",
+      "shows": "Ari's screen (left) and Noor's screen (right), same table, same moment: same top card (Pepperoni 8) and deck count 70. Each screen shows its own hand face up; every other seat shows only a card count.",
+      "alt": "Two browser windows at the same Za! table. Left: Ari's turn, with nine cards face up. Right: Noor's view, with seven different cards face up. Each window shows the other players only as card counts."
+    },
+    {
+      "file": "za-seat-a.webp",
+      "copies": ["za-seat-a-1080.webp"],
+      "size": "2880x1800 (1080x675)",
+      "shows": "Ari's seat alone, at the same moment as za-seat-b.webp. Ari's turn, 9 cards, 2 playable. Noor 07, Vito 04, Lena 09 as counts.",
+      "alt": "Za! game table seen by Ari: nine cards face up at the bottom, two of them marked as playable, and three opponents shown only by card counts."
+    },
+    {
+      "file": "za-seat-b.webp",
+      "copies": ["za-seat-b-1080.webp"],
+      "size": "2880x1800 (1080x675)",
+      "shows": "Noor's seat alone, same moment as za-seat-a.webp. Noor is next, 7 cards. Ari 09 (NOW), Vito 04, Lena 09 as counts.",
+      "alt": "Za! game table seen by Noor: seven cards face up, Ari marked as playing now, and every other hand shown only as a card count."
+    },
+    {
+      "file": "za-lobby.webp",
+      "copies": ["za-lobby-1080.webp"],
+      "size": "2880x1800 (1080x675)",
+      "shows": "Host lobby for table code CRUST-9517: Ari (host), Noor and Lena ready, Vito as a CPU bot, four open seats, Hire a chef bot and Bake it! buttons.",
+      "alt": "Za! lobby with the table code CRUST-9517, four filled seats (three people and one CPU chef bot) and four open seats."
+    },
+    {
+      "file": "za-phone-table.webp",
+      "copies": [],
+      "size": "1170x2532 (390x844 at DPR 3)",
+      "shows": "Lena's seat on a phone, same moment as the two desktop seats: 9 cards in a swipe row, Noor, Ari and Vito as counts.",
+      "alt": "Za! on a phone: the table with three opponents shown as card counts and the player's own cards in a row that scrolls sideways."
+    }
+  ]
+}
