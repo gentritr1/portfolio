@@ -25,6 +25,14 @@
   background: radial-gradient(closest-side, var(--room-light), var(--room-light-edge) 55%, transparent);
 }
 
+/* While the hero screen flies to chapter 1 (Handoff.tsx), it passes through the dark of the room. */
+.lp-room-light[data-dark] {
+  opacity: 0;
+  transition:
+    transform 1400ms var(--ease-move),
+    opacity 360ms var(--ease-out);
+}
+
 .lp-room-light[data-at="out"] {
   opacity: 0.4;
   transform: translateY(26%);
@@ -46,6 +54,51 @@
   color: var(--ink-3);
   font-size: 1rem;
   text-align: center;
+}
+
+/* ---------- The lamp (LampMark.tsx, lamp.ts) ---------- */
+
+.lp-name {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.lp-lamp {
+  display: block;
+  flex: none;
+}
+
+/* 56 px, with 4 px of it in the bar's padding, so the bar keeps its 72 px. */
+.lp-lamp-top {
+  width: 56px;
+  height: 56px;
+  margin-block: -4px;
+}
+
+.lp-lamp-index {
+  display: none;
+}
+
+@media (min-width: 1280px) {
+  .lp-lamp-index {
+    display: block;
+    width: 56px;
+    height: 56px;
+    margin: 0 4px 12px auto;
+  }
+}
+
+@media (max-width: 767px) {
+  .lp-lamp-top {
+    width: 44px;
+    height: 44px;
+    margin-block: 0;
+  }
+
+  .lp-name {
+    gap: 10px;
+  }
 }
 
 /* ---------- The room index ---------- */
@@ -284,6 +337,96 @@
   max-width: none;
   opacity: 0;
   pointer-events: none;
+}
+
+/* ---------- Hero to chapter 1: one screen (Handoff.tsx) ---------- */
+
+/* The flying copy is under the words: the hero text and chapter 1's text stay on top of it. */
+.lp-hero .lp-display,
+.lp-hero .lp-role,
+.lp-ch-ai .lp-ch-text,
+.lp-ch-ai figcaption {
+  position: relative;
+  z-index: 1;
+}
+
+.ho-view {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  visibility: hidden;
+  perspective: var(--room-perspective);
+  perspective-origin: 50% 45%;
+  pointer-events: none;
+}
+
+.ho-view[data-on] {
+  visibility: visible;
+}
+
+.ho-view[data-flat] {
+  perspective: none;
+}
+
+.ho-rig {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 50% 50%;
+  transform-style: preserve-3d;
+}
+
+/* A strip between the top bars and the grid. Where the two layers part, the reader sees the strip, not a hole into the room.
+   It is small on purpose: every full-size plane in the flying stack costs compositor time on each frame. */
+.ho-base {
+  position: absolute;
+  top: 26%;
+  right: 0;
+  left: 16.4%;
+  height: 10%;
+  background: #eef0f4;
+}
+
+.ho-shot,
+.ho-layer {
+  position: absolute;
+  display: block;
+  max-width: none;
+}
+
+.ho-shot {
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+  background: #101216;
+  box-shadow: 0 0 0 1px rgb(255 255 255 / 0.1);
+}
+
+.ho-layer {
+  left: calc(var(--x) * 100%);
+  top: calc(var(--y) * 100%);
+  width: calc(var(--w) * 100%);
+  height: calc(var(--h) * 100%);
+}
+
+.lp-build[data-handoff] .lp-build-frame .fr-screen img {
+  opacity: 0;
+}
+
+.lp-build-frame[data-moving] {
+  will-change: opacity;
+}
+
+/* While the hand-off owns chapter 1's screen, the screen shows at rest unless the copy is flying. */
+.xp-view[data-owned] .xp-screen,
+.xp-view[data-owned].lp-slab::before {
+  opacity: 1;
+}
+
+.xp-view[data-handoff] .xp-screen,
+.xp-view[data-handoff].lp-slab::before {
+  opacity: 0;
 }
 
 /* ---------- 03 Sixteen queries become two (Queries.tsx) ---------- */
@@ -611,6 +754,182 @@ p.lp-own-link {
   color: var(--accent);
   font-family: var(--mono);
   font-size: 0.875rem;
+}
+
+/* ---------- The room from above (Above.tsx) ---------- */
+
+.lp-above {
+  padding-bottom: 0;
+}
+
+.ab-view {
+  margin-top: 48px;
+  perspective-origin: 50% 0%;
+}
+
+.ab-view[data-arrive="wait"] .ab-floor {
+  opacity: 0;
+}
+
+/* The floor seen from straight above: a quiet grid of floor lines and the lamp's pool in the middle. */
+.ab-floor {
+  display: block;
+  padding: clamp(20px, 3vw, 40px);
+  border-radius: 28px;
+  background:
+    radial-gradient(closest-side, rgb(255 181 71 / 0.07), transparent) 50% 50% / 80% 100% no-repeat,
+    repeating-linear-gradient(90deg, rgb(255 255 255 / 0.035) 0 1px, transparent 1px 64px),
+    repeating-linear-gradient(0deg, rgb(255 255 255 / 0.035) 0 1px, transparent 1px 64px),
+    #0e0f13;
+  box-shadow: 0 0 0 1px var(--line);
+}
+
+.ab-map {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px clamp(20px, 2.4vw, 32px);
+}
+
+/* Each spot is two rows of the map, the screen and its label, so every label sits on the same line. */
+.ab-spot,
+.ab-link {
+  display: grid;
+  grid-row: span 2;
+  grid-template-rows: subgrid;
+}
+
+.ab-spot[data-wide] {
+  grid-column: span 2;
+}
+
+.ab-link {
+  text-decoration: none;
+}
+
+.ab-shot {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  aspect-ratio: 16 / 10;
+  border-radius: 10px;
+  background: var(--card-2);
+  box-shadow: 0 0 0 1px var(--line);
+}
+
+/* The wide Za! table takes the height of the row and adds none of its own. */
+.ab-spot[data-wide] .ab-shot {
+  aspect-ratio: auto;
+  contain: size;
+}
+
+.ab-shot > img {
+  display: block;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  object-fit: cover;
+  object-position: top left;
+}
+
+.ab-phones {
+  position: absolute;
+  inset: 8% 0 -60%;
+  display: flex;
+  justify-content: center;
+  gap: 10%;
+}
+
+.ab-phones .fr-phone {
+  width: 30%;
+}
+
+.ab-label {
+  display: block;
+  min-height: 24px;
+  padding-bottom: clamp(8px, 1.2vw, 20px);
+  color: var(--ink-2);
+  font-size: 0.9375rem;
+  line-height: 1.3;
+  font-weight: 600;
+}
+
+.ab-label .lp-icon {
+  margin-left: 6px;
+  vertical-align: -0.15em;
+}
+
+.ab-tail {
+  white-space: nowrap;
+}
+
+.ab-n {
+  margin-right: 4px;
+  color: var(--accent);
+  font-family: var(--mono);
+  font-size: 0.8125rem;
+  font-weight: 400;
+}
+
+.lp .ab-link:focus-visible {
+  outline-offset: 6px;
+  border-radius: 12px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .ab-shot {
+    transition: translate 220ms var(--ease-out);
+  }
+
+  .ab-label {
+    transition: color 160ms ease;
+  }
+
+  .ab-link:hover .ab-shot {
+    translate: 0 -4px;
+  }
+
+  .ab-link:hover .ab-label {
+    color: var(--ink);
+  }
+}
+
+/* A map link moves focus to its chapter (Above.tsx); the chapter itself shows no ring. */
+.lp [id^="ch-"]:focus {
+  outline: none;
+}
+
+@media (max-width: 1023px) {
+  .ab-map {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .ab-spot[data-wide] .ab-shot {
+    aspect-ratio: 1440 / 445;
+    contain: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .ab-view {
+    margin-top: 32px;
+  }
+
+  .ab-floor {
+    padding: 14px;
+    border-radius: 20px;
+  }
+
+  .ab-map {
+    gap: 10px 14px;
+  }
+
+  .ab-label {
+    font-size: 0.875rem;
+  }
+
+  .ab-n {
+    margin-right: 0;
+  }
 }
 
 /* ---------- 08 Contact: the light goes out ---------- */

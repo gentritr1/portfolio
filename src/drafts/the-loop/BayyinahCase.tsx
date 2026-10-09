@@ -80,7 +80,7 @@ export function BayyinahCase() {
 
       <Chapter
         name="What it does"
-        title="Members study with video lessons and live classes."
+        title="Courses, live classes and a scripture reader."
         figure={
           <figure className="lp-figure">
             <BrowserFrame
@@ -97,8 +97,7 @@ export function BayyinahCase() {
         }
       >
         <p>
-          The platform has courses, video series, live classes and a scripture reader. Members keep their place in each course and pick up where
-          they left off.
+          The platform has courses, video series, live classes and a scripture reader. The app keeps each member's place in each course.
         </p>
       </Chapter>
 
@@ -121,7 +120,7 @@ export function BayyinahCase() {
         }
       >
         <p>
-          Members watch on a computer or on a phone. They pay on the web, or through Apple or Google in the apps. The whole site must also work in
+          Members pay on the web, or through Apple or Google in the apps. The whole site must also work in
           Arabic, which reads from right to left.
         </p>
       </Chapter>
@@ -154,10 +153,10 @@ export function BayyinahCase() {
         }
       >
         <p>
-          The core team rebuilt the web app on Nuxt 3, from an empty template. It added live classes with a live chat that moderators control, a
+          The core team rebuilt the web app on Nuxt 3, from an empty template. The team also added live classes with a live chat that moderators control, a
           video player that locks premium lessons, and gifts and promo codes.
         </p>
-        <p>The iPhone and Android apps run the same web app. One web app serves all three places.</p>
+        <p>The iPhone and Android apps run the same web app.</p>
       </Chapter>
 
       <Chapter
@@ -169,7 +168,7 @@ export function BayyinahCase() {
               <p className="lp-big-num">
                 <span className="lp-big-to">34</span>
               </p>
-              <figcaption>Pages in the new web app, built from an empty template.</figcaption>
+              <figcaption>Pages in the new web app.</figcaption>
             </figure>
             <figure className="lp-counts" data-reveal="">
               <dl>
@@ -194,13 +193,13 @@ export function BayyinahCase() {
           </div>
         }
       >
-        <p>Bayyinah TV is live at bayyinahtv.com, in the App Store and on Google Play. Members pay by subscription, gift or promo code.</p>
+        <p>Members pay by subscription, gift or promo code.</p>
       </Chapter>
 
       <CaseEnd
         stack={stack}
         engineers={engineers}
-        next={<NextCase to="/drafts/the-loop/care-platform" name="Care platform" line="Rebuilding a live care platform, one tested screen at a time." />}
+        next={<NextCase to="/drafts/the-loop/care-platform" name="Care platform" line="Rebuilding a care platform that teams use every day, one tested screen at a time." />}
       />
     </article>
   );

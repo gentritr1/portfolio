@@ -118,6 +118,38 @@
   will-change: transform;
 }
 
+/* The lit edge of a screen (cursor.ts): a 1.5 px ring, bright on the side of the pointer. Gradients only, nothing tilts. */
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) and (min-width: 1024px) and (min-aspect-ratio: 6/5) {
+  .lp-home :is(.fr-browser, .fr-phone-glass, .xp-screen, .bd-stage, .lp-own-shot, .ab-shot)::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    padding: 1.5px;
+    border-radius: inherit;
+    background: radial-gradient(
+      420px circle at var(--lx, -999px) var(--ly, -999px),
+      rgb(255 214 150 / 0.7),
+      rgb(255 214 150 / 0.16) 45%,
+      rgb(255 214 150 / 0) 72%
+    );
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask:
+      linear-gradient(#000 0 0) content-box exclude,
+      linear-gradient(#000 0 0);
+    opacity: 0;
+    transition: opacity 400ms var(--ease-out);
+    pointer-events: none;
+  }
+
+  .lp-home[data-cursor] :is(.fr-browser, .fr-phone-glass, .xp-screen, .bd-stage, .lp-own-shot, .ab-shot)::after {
+    opacity: 1;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .room-sheen {
     display: none;

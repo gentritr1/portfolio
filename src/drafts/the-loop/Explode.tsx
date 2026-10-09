@@ -87,6 +87,8 @@ export function Explode() {
     (mode) => {
       const node = rig.current;
       if (!node) return;
+      // Handoff.tsx owns this screen once it is armed: the hero screen lands here, so there is no second arrival.
+      if (view.current?.dataset.owned !== undefined) return;
       if (mode === "room" && room) explode(node);
       else arrive(node, "flat");
     },

@@ -27,7 +27,7 @@ const catches = [
     line: "A type change broke files that nobody had edited. Local lint read its cache and passed them. CI, with no cache, failed them. Now lint runs with no cache, and a gate test refuses the cache option.",
   },
   {
-    name: "A test that could not fail, made to fail",
+    name: "A test that passed when the code was broken",
     rows: [
       { text: "hand-made break, first test", status: "survived", kind: "warn" },
       { text: "hand-made break, fixed test", status: "caught", kind: "pass" },
@@ -91,7 +91,7 @@ function Day() {
         The loop on a real day
       </h2>
       <p className="lp-lead">
-        One screen of the care platform, the patient compliance list, on 8 September 2026. Each step shows real text from that day.
+        One screen of the care platform, the patient compliance list, on 8 September 2026. The start and each step show real text from that day.
       </p>
       <Ring />
       <ul className="lp-proofs">
@@ -200,7 +200,7 @@ export function Workflow() {
             </ol>
           </div>
         </div>
-        <NextCase to="/drafts/the-loop/care-platform" name="Care platform" line="Rebuilding a live care platform, one tested screen at a time." />
+        <NextCase to="/drafts/the-loop/care-platform" name="Care platform" line="Rebuilding a care platform that teams use every day, one tested screen at a time." />
         <BackLink />
       </section>
     </article>

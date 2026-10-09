@@ -148,7 +148,7 @@ export const steps: Array<{ name: string; caption: string; text: string; note?: 
   {
     name: "Test first",
     caption: "The old app. The test is written here first.",
-    text: "First, a test is written on the old app. It says what the screen must do. The new screen must pass the same test.",
+    text: "First, AI agents write a test on the old app, and a person reviews it. The test says what the screen must do. The new screen must pass the same test.",
   },
   {
     name: "Agents build",
@@ -228,7 +228,7 @@ export const stations: Station[] = [
   {
     name: "Test first",
     time: "12:01",
-    line: "The test is written on the old app, before any new code. The same file then runs on both apps.",
+    line: "AI agents write the test on the old app, before any new code, and a person reviews it. The same file then runs on both apps.",
     artefact: [
       "/**",
       " * One spec, both applications. `E2E_BASE_URL`",
@@ -275,7 +275,7 @@ export const stations: Station[] = [
 export const ringProof = [
   "One screen went from first note to merged in one working day, tested on the old app first.",
   "The same test passed on both apps.",
-  "Old bugs written down, not copied.",
+  "Old bugs are written down, not copied.",
 ];
 
 /** Two store-listing screens measured in content/phoneScreens.ts, shown in PhoneFrame. */
@@ -350,8 +350,8 @@ export const boards: Board[] = [
 /** Server lines. Sources: SPEC.md "Facts and sources". */
 export const serverProof = [
   "Za!: one Node.js server decides every move for 2 to 8 players.",
-  "A billing report went from 16 database queries to 2. No more time-outs.",
-  "Patient times now follow the patient's own clock, also when the clocks change.",
+  "A billing report went from 16 database queries to 2, and it no longer times out.",
+  "Patient times now follow the patient's own clock, even when the clocks change.",
 ];
 
 /** The billing report's four sheets and the calendar months each one read, one patient query for each month. */

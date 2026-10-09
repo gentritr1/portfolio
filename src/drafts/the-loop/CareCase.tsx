@@ -43,7 +43,7 @@ const stack = [
 ];
 
 const engineers = [
-  "One Playwright test file for each screen is written against the old app at a fixed commit. The same file then runs on both apps.",
+  "AI agents write one Playwright test file for each screen against the old app at a fixed commit, and a person reviews it. The same file then runs on both apps.",
   "Each screen keeps a register of every place it differs from the old app, with the evidence for each.",
   "Two CI jobs run every gate. Each gate has a negative control that proves it can fail.",
   "Server state in TanStack Query, client state in Zustand, filters and tabs in the URL. Zod schemas made from captured responses parse every API response.",
@@ -61,7 +61,7 @@ export function CareCase() {
         <CaseTop />
         <div className="lp-wrap lp-case-hero">
           <p className="lp-case-label">Care platform, 2023 to 2026</p>
-          <h1 className="lp-case-title">Rebuilding a live care platform, one tested screen at a time.</h1>
+          <h1 className="lp-case-title">Rebuilding a care platform that teams use every day, one tested screen at a time.</h1>
           <div className="lp-case-side">
             <p className="lp-case-sentence">Care teams use this web app to follow patients at home. Each client organization sees only its own patients.</p>
             <dl className="lp-facts">
@@ -94,7 +94,7 @@ export function CareCase() {
 
       <Chapter
         name="What it does"
-        title="Care teams follow patients at home."
+        title="Vitals, care plans, claims and calls in one app."
         figure={
           <figure className="lp-figure">
             <BrowserFrame
@@ -117,7 +117,7 @@ export function CareCase() {
 
       <Chapter
         name="The problem"
-        title="The old app worked, but its framework was old."
+        title="The old app worked, but it ran on an old framework."
         figure={
           <figure className="lp-figure">
             <BrowserFrame
@@ -133,14 +133,14 @@ export function CareCase() {
         }
       >
         <p>
-          The live app runs on Vue 2 and Nuxt 2. Care teams use it every day, so it cannot stop. The new app must do the same things, and the old
+          The old app runs on Vue 2 and Nuxt 2. Care teams use it every day, so it cannot stop. The new app must do the same things, and the old
           bugs must not move into it.
         </p>
       </Chapter>
 
       <Chapter
         name="What the team built"
-        title="A new app in React, one screen at a time."
+        title="The same four steps for every screen."
         figure={
           <figure className="lp-figure lp-day">
             <ol className="lp-day-line" aria-label="One screen on 8 September 2026" style={{ "--cols": COLS } as CSSProperties}>
@@ -155,10 +155,9 @@ export function CareCase() {
           </figure>
         }
       >
-        <p>For each screen, the team follows the same five steps:</p>
+        <p>Each screen starts on the old app. The team writes down every behaviour of the old screen. Then it follows the same four steps:</p>
         <ol className="lp-five">
-          <li>Write down every behaviour of the old screen.</li>
-          <li>Write the test on the old app, before any new code.</li>
+          <li>AI agents write the test on the old app, before any new code. A person reviews it.</li>
           <li>AI agents build the new screen inside written rules.</li>
           <li>Automatic checks run. A failed check sends the work back.</li>
           <li>A person reviews the change and merges it.</li>
@@ -207,7 +206,7 @@ export function CareCase() {
         }
       >
         <p>
-          On the server, one billing report ran a full patient query for each sheet and each month, and timed out. Now it runs one patient query.
+          On the server, one billing report ran a full patient query for each sheet and each month, and timed out. Now it runs one patient query and one grouped total.
           On the web, the same test passed on both apps. Old bugs are written down, not copied.
         </p>
       </Chapter>

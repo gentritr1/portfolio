@@ -742,8 +742,7 @@ export function Steps() {
           How each new screen gets made
         </h2>
         <p className="lp-lead">
-          The care platform is being rebuilt in React, one screen at a time. AI agents do most of the typing. Tests, checks and a person decide what
-          gets in.
+          The care platform is being rebuilt in React, one screen at a time. Each screen goes through the same four steps.
         </p>
       </div>
       {cinema ? (

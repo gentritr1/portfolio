@@ -4,10 +4,10 @@ import { CaseEnd, CaseTop, Chapter, NextCase } from "./CaseParts";
 import { useReveal } from "./hooks";
 
 const steps = [
-  "Study five leading design systems: Material, Carbon, Polaris, Atlassian and Primer.",
+  "Study five design systems: Material, Carbon, Polaris, Atlassian and Primer.",
   "Turn the findings into written guides for AI agents.",
   "AI agents build each part inside the guides.",
-  "Automatic checks decide. A failed check stops the change.",
+  "Automatic checks run. A failed check stops the change.",
   "A person reviews the change and merges it.",
 ];
 
@@ -29,7 +29,7 @@ const engineers = [
   "Design values are code, in three levels: core, semantic and component. Style Dictionary builds the CSS, the typed modules and the Figma bundle from one source. A CI check fails when a generated file drifts.",
   "Each component has its own entry point. A page bundles only the components it imports.",
   "Order of authority: the best-practices guide and accepted decision records are the spec. Research is the evidence. Agent skills only advise. Executable gates decide.",
-  "Each gate has a negative control. A visual snapshot test changes one pixel on purpose and must fail. A tamper script breaks the token source and the drift check must fail.",
+  "Each gate has a negative control. A visual snapshot test moves one button colour one step on purpose and must fail. A tamper script breaks the token source and the drift check must fail.",
   "The accessibility bar is WCAG 2.1 AA. axe runs on rendered components in the tests.",
   "Changesets writes each release note. 22 tags, from v0.1.0 on 29 July 2026 to v1.1.6 on 27 September 2026.",
 ];
@@ -79,7 +79,6 @@ export function DsCase() {
           A study of the old care app found the same buttons and forms copied many times, and many colours typed by hand. Copies drift apart: two
           buttons that must match look a little different.
         </p>
-        <p>The new care app needed one set of parts, used on every screen.</p>
       </Chapter>
 
       <Chapter name="What the team built" title="Research first, then guides, then checks.">
@@ -89,12 +88,11 @@ export function DsCase() {
             <li key={s}>{s}</li>
           ))}
         </ol>
-        <p>A check is trusted only after it is shown to fail.</p>
       </Chapter>
 
       <Chapter name="What changed" title="A page loads only the parts it uses.">
         <p>
-          Before, a page that used one button loaded the whole library. Now each part loads on its own. A page that uses only a button loads 96.6 %
+          Before, a page that used one button loaded the whole library. Now each part loads on its own. A page that uses only a button loads 96.6%
           less JavaScript.
         </p>
       </Chapter>

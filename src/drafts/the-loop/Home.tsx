@@ -4,13 +4,20 @@ import { BrowserFrame } from "../../components/BrowserFrame";
 import { PhoneFrame } from "../../components/PhoneFrame";
 import { links } from "../../content/links";
 import { Slab } from "./Slab";
+import { Above } from "./Above";
 import { Boards } from "./Boards";
 import { breadth, learned, own, phones, serverProof, type Own } from "./data";
 import { Explode } from "./Explode";
+import { Handoff } from "./Handoff";
 import { HeroBuild } from "./HeroBuild";
+import { Lamp } from "./LampMark";
 import { Settled, useReducedMotion, useReveal } from "./hooks";
+import { useCursorLight } from "./cursor";
 import { Checked, Next, Out } from "./icons";
 import { Queries } from "./Queries";
+import { ROOM_QUERY } from "./room";
+
+const REDUCE = "(prefers-reduced-motion: reduce)";
 
 type Side = "center" | "left" | "right";
 
@@ -45,13 +52,19 @@ function useCurrent(root: RefObject<HTMLElement | null>) {
   return at;
 }
 
-function Top() {
+/** The top lamp turns to the current chapter's title; on the hero it keeps its light from the top left. */
+const toTitle = (at: string) => (at === "hero" ? null : document.querySelector(`[data-chapter="${at}"] h2`));
+/** The index lamp turns to the current chapter's name in the index. */
+const toName = (at: string) => document.querySelector(`.lp-index a[href="#ch-${at}"]`);
+
+function Top({ at }: { at: string }) {
   return (
     <header className="lp-top lp-wrap">
       <p className="lp-name">
+        <Lamp at={at} target={toTitle} className="lp-lamp-top" />
         <strong>Gentrit Rashiti</strong>
       </p>
-      <nav className="lp-nav" aria-label="Contact">
+      <nav className="lp-nav" aria-label="Main">
         <a className="lp-link" href="#ch-ai">
           Work
         </a>
@@ -170,7 +183,7 @@ function Ai() {
         lines={[
           "One screen went from first note to merged in one working day.",
           "The same test passed on the old app and the new app.",
-          "A check is trusted only after it is shown to fail.",
+          "Each check has a test that feeds it bad work and expects it to fail.",
         ]}
       />
       <More to="/drafts/the-loop/workflow">How the workflow works</More>
@@ -181,7 +194,7 @@ function Ai() {
 const dsFigures = [
   { value: "41", label: "components" },
   { value: "868", label: "design values" },
-  { value: "22", label: "releases in about 8.5 weeks" },
+  { value: "22", label: "releases in 60 days" },
 ];
 
 function DesignSystem() {
@@ -235,7 +248,7 @@ function Server() {
       }
     >
       <p className="lp-ch-line">
-        We build servers in Node.js and Laravel. We also hunt for critical bugs and fix them, each with a test that fails without the fix.
+        We build servers in Node.js and Laravel. We also find serious bugs and fix them. Each fix comes with a test that fails without it.
       </p>
       <Proofs lines={serverProof} />
       <ul className="lp-links">
@@ -255,7 +268,7 @@ function Mobile() {
     <Chapter
       id="mobile"
       n={4}
-      kicker="iPhone and Android, 2021 to 2026"
+      kicker="Mobile, 2021 to 2026"
       title="Apps for iPhone and Android"
       figure={
         <div className="lp-phones">
@@ -303,8 +316,8 @@ function Web3() {
       }
     >
       <p className="lp-ch-line">
-        People sign in to an on-chain wallet with a passkey, with no password, and see their balances and rewards. The team built the portal screens;
-        other teammates built the wallet itself.
+        People sign in to an on-chain wallet with a passkey instead of a password. Then they see their balances and rewards. The team built the
+        portal screens. Other people on the project built the wallet itself.
       </p>
       <ul className="lp-links">
         <li>
@@ -366,7 +379,7 @@ function Personal() {
   const [first, ...rest] = own;
   return (
     <Chapter id="own" n={6} kicker="Made outside work" title="Own projects">
-      <p className="lp-ch-line">Products and experiments made outside work. Most of them were built with AI agents.</p>
+      <p className="lp-ch-line">Products and experiments. AI agents helped build most of them.</p>
       <div className="lp-own-grid">
         <OwnTile p={first} big />
         {rest.map((p) => (
@@ -412,7 +425,7 @@ function Range() {
         </table>
       </div>
       <div className="lp-learned" data-reveal="">
-        <h3 className="lp-h3">Learns fast</h3>
+        <h3 className="lp-h3">New skills, by year</h3>
         <ul>
           {learned.map((l) => (
             <li key={l.what}>
@@ -461,6 +474,7 @@ function Index({ at }: { at: string }) {
   const show = at !== "hero";
   return (
     <nav className="lp-index" aria-label="Chapters" data-show={show ? "" : undefined} inert={!show}>
+      <Lamp at={at} target={toName} className="lp-lamp-index" />
       <ol>
         {chapters.map((c) => (
           <li key={c.id}>
@@ -486,8 +500,10 @@ let homeSeen = false;
 export function Home() {
   const root = useRef<HTMLDivElement>(null);
   const [seen] = useState(() => homeSeen);
+  const [handoff] = useState(() => window.matchMedia(ROOM_QUERY).matches && !window.matchMedia(REDUCE).matches);
   const at = useCurrent(root);
   useReveal(root);
+  useCursorLight(root);
   useEffect(
     () => () => {
       homeSeen = true;
@@ -501,9 +517,10 @@ export function Home() {
         <div className="lp-room-light" data-at={sideOf(at)} aria-hidden="true">
           <i />
         </div>
-        <Top />
+        <Top at={at} />
         <main>
           <Hero />
+          {handoff && <Handoff seen={seen} />}
           <Ai />
           <DesignSystem />
           <Server />
@@ -511,6 +528,7 @@ export function Home() {
           <Web3 />
           <Personal />
           <Range />
+          <Above />
         </main>
         <Contact />
         <Index at={at} />

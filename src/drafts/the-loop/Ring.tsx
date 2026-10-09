@@ -27,7 +27,7 @@ const RUN: Hop[] = [
 const TOTAL = RUN.reduce((sum, hop) => sum + hop.move + hop.hold, 0);
 const MOVE = "cubic-bezier(0.77, 0, 0.175, 1)";
 const LAST = stations.length - 1;
-const pad = (n: number) => String(n + 1).padStart(2, "0");
+const pad = (n: number) => String(n).padStart(2, "0");
 
 /** The dial: a 270° sweep in a 300-unit box. 0° is the top; angles grow clockwise. */
 const C = 150;
@@ -512,7 +512,7 @@ export function Ring() {
   ) : (
     <>
       <span className="dy-read-kicker">
-        Step {shown + 1} of {stations.length}
+        {shown === 0 ? "Start" : `Step ${shown} of ${LAST}`}
       </span>
       <span className="dy-read-time" data-long={current.time.length > 5 ? "" : undefined}>
         {current.time}
@@ -617,7 +617,7 @@ export function Ring() {
           </p>
         </div>
 
-        <ol className="dy-list" aria-label="The five steps of the day">
+        <ol className="dy-list" aria-label="The start and the four steps of the day">
           {stations.map((s, i) => {
             const body = (
               <>
@@ -660,7 +660,7 @@ export function Ring() {
               </span>
             </span>
           </span>
-          <ol className="dy-rail-stops" aria-label="The five steps of the day">
+          <ol className="dy-rail-stops" aria-label="The start and the four steps of the day">
             {stations.map((s, i) => {
               const label = `${pad(i)} ${s.name}, ${s.time}`;
               return (

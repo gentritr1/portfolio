@@ -1,11 +1,11 @@
 {
-  "rendered": "2026-10-09 from design-system-v2 origin/main f7e78ed (package 1.1.6), components imported from source, captured in Playwright Chromium at 1600x1000 CSS px, device scale 2",
+  "rendered": "2026-10-09 from design-system-v2 origin/main f7e78ed (package 1.1.6), components imported from source, captured in Playwright Chromium at 1600x1000 CSS px, device scale 2; boards 01, 03 and 04 re-rendered 2026-10-10 from the same source export for kicker and text changes",
   "boards": [
     {
       "file": "board-01.webp",
       "small": "board-01-1080.webp",
       "title": "Design System v2",
-      "kicker": "Rendered evidence",
+      "kicker": "Overview",
       "alt": "Title board. On the left: Design System v2, with three numbers: 41 components, 868 design values, 22 releases in 60 days. On the right: a tilted wall of real components, such as buttons, badges, a table, a date picker, steps, a progress ring, inputs and a toast.",
       "figures": [
         { "value": "41", "label": "components", "source": "design-system-v2 origin/main f7e78ed: docs/lifecycle.json, 41 keys under states; src/index.js exports 41 components" },
@@ -42,7 +42,7 @@
       "file": "board-03.webp",
       "small": "board-03-1080.webp",
       "title": "Every variant and tone, measured in a browser.",
-      "kicker": "Measured, not assumed",
+      "kicker": "Measured contrast",
       "alt": "A matrix of real buttons: four variants (solid, outline, ghost, link) by seven tones. Under each button is its measured label contrast, from 4.82 to 19.89 to 1, all above the 4.5 to 1 floor. Below, all 56 labels (rest and disabled) sit on one scale to the right of the floor, and one solid brand button is shown in five states: rest 6.11, hover 9.23, focus ring 6.11, disabled 5.16, loading 6.11.",
       "figures": [
         { "value": "56", "label": "labels measured", "source": "measured on this board: 28 variant x tone pairs at rest + the same 28 disabled (variants and tones from src/components/Button/Button.evidence.js)" },
@@ -55,7 +55,7 @@
       "file": "board-04.webp",
       "small": "board-04-1080.webp",
       "title": "A whole screen, built only from the parts.",
-      "kicker": "In context",
+      "kicker": "Whole screens",
       "alt": "A complete care-team screen made only from library parts: a sidebar, a search field, a page head with Export and Add person buttons, filter tabs, a program select, a date range field, a table of six invented people with avatars, program and status badges, progress bars and a row menu that is open, pagination, and a success toast. A list on the left names the 13 components on the screen.",
       "figures": [
         { "value": "13", "label": "components on this screen", "source": "counted in the board source (b4-screen.jsx): Sidebar, Input, Avatar, Button, Tabs, Select, Datepicker, Table, Badge, ProgressBar, Menu, Pagination, Toast" }
