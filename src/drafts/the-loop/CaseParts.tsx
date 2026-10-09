@@ -44,7 +44,7 @@ export function Chapter({ name, title, children, figure }: { name: string; title
         <p className="lp-chapter-name" id={`lp-ch-${name}`}>
           {name}
         </p>
-        <h2 className="lp-chapter-title" data-reveal="">
+        <h2 className="lp-chapter-title">
           {title}
         </h2>
         <div className="lp-chapter-body">{children}</div>
@@ -72,7 +72,7 @@ export function CaseTop() {
       const step = () => {
         if (window.location.pathname.replace(/\/$/, "") !== HOME || ++frames > 60) return;
         const home = document.querySelector('.lp[data-view="home"]');
-        if (home && document.documentElement.scrollHeight >= homeY + window.innerHeight) window.scrollTo(0, homeY);
+        if (home && document.documentElement.scrollHeight >= homeY + window.innerHeight) window.scrollTo({ top: homeY, behavior: "instant" });
         else requestAnimationFrame(step);
       };
       requestAnimationFrame(step);

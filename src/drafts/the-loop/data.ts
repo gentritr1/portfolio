@@ -135,8 +135,8 @@ export const twinSteps = [
   "Open the patient.",
 ];
 
-/** The four steps of the loop. `caption` names what the stage shows. */
-export const steps = [
+/** The four steps of the loop. `caption` names what the stage shows; `note` says where an example comes from. */
+export const steps: Array<{ name: string; caption: string; text: string; note?: string }> = [
   {
     name: "Test first",
     caption: "The old app. The test is written here first.",
@@ -145,12 +145,13 @@ export const steps = [
   {
     name: "Agents build",
     caption: "The new app. Agents build it part by part.",
-    text: "AI agents write the new screen. They follow written rules, step guides and decision records.",
+    text: "AI agents write the new screen, part by part. They follow written rules, step guides and decision records.",
   },
   {
     name: "Checks",
     caption: "Checks run. A failed check sends the work back.",
-    text: "Automatic checks run on every change. Each check is first shown to fail on bad work. A failed check sends the work back to the agents.",
+    text: "Automatic checks run on every change. A failed check sends the work back to the agents.",
+    note: "One real failure from 8 September, shown here as an example.",
   },
   {
     name: "Person approves",

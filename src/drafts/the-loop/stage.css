@@ -1,146 +1,407 @@
-/* ---------- Steps: text ---------- */
+/* ---------- Steps: intro ---------- */
 
 .lp-steps {
-  display: grid;
-  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
-  gap: clamp(32px, 5vw, 72px);
-  padding-block: 40px 120px;
+  padding-top: 40px;
 }
 
-.lp-step-list {
-  margin-top: 48px;
+.lp-steps-intro {
+  padding-bottom: 56px;
 }
 
-.lp-step {
+.lp-steps[data-mode="stack"] {
+  padding-bottom: 88px;
+}
+
+/* ---------- Steps: the pinned scene ---------- */
+
+/* Each step owns one snap point. The page snaps only while the scene is on the page. The site's 5rem scroll padding would move every snap point up by that much. */
+html:has(.lc-track) {
+  scroll-snap-type: y proximity;
+  scroll-padding-top: 0;
+}
+
+.lp-steps[data-mode="cinema"] {
+  scroll-margin-top: 5rem;
+}
+
+.lc-track {
   position: relative;
-  display: grid;
-  grid-template-columns: 52px minmax(0, 1fr);
-  align-content: start;
-  padding-block: 8px 40px;
+  height: calc(var(--n) * 100svh);
 }
 
-.lp-steps[data-mode="pin"] .lp-step {
-  min-height: 68svh;
-}
-
-.lp-steps[data-mode="pin"] .lp-step:last-child {
-  min-height: 52svh;
-}
-
-.lp-step::before {
-  content: "";
+.lc-snap {
   position: absolute;
-  left: -20px;
-  top: 10px;
-  width: 2px;
-  height: 120px;
-  border-radius: 2px;
-  background: var(--accent);
-  transform: scaleY(0);
-  transform-origin: top;
-  transition: transform 500ms var(--ease-out);
+  left: 0;
+  top: calc(var(--i) * 100svh);
+  width: 1px;
+  height: 1px;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  pointer-events: none;
 }
 
-.lp-step[data-now]::before {
-  transform: none;
-}
-
-.lp-steps[data-mode="stack"] .lp-step::before {
-  display: none;
-}
-
-.lp-step-n {
+.lc-pin {
+  position: sticky;
+  top: 0;
   display: grid;
-  grid-row: span 2;
-  padding-top: 7px;
+  grid-template-rows: 64px minmax(0, 1fr) 92px;
+  height: 100svh;
+  overflow: clip;
+  background: radial-gradient(ellipse 80% 75% at 58% 50%, var(--bg) 58%, #040506);
+}
+
+/* A pool of warm light behind the screen. It follows the camera's target. */
+.lc-light {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  transition: transform 1400ms var(--ease-move);
+}
+
+.lc-light i {
+  position: absolute;
+  left: 34%;
+  top: 6%;
+  width: 66%;
+  height: 92%;
+  background: radial-gradient(closest-side, rgb(255 181 71 / 0.11), rgb(255 181 71 / 0.035) 55%, transparent);
+}
+
+.lc-pin[data-step="0"] .lc-light {
+  transform: translate(7%, 6%);
+}
+
+.lc-pin[data-step="2"] .lc-light {
+  transform: translate(-7%, 6%);
+}
+
+/* Letterbox bars. They close in when the scene pins and open when it lets go. */
+.lc-bar {
+  position: relative;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding-inline: var(--g);
+  background: #040506;
+  transition: transform 300ms var(--ease-out);
+}
+
+.lc-bar-top {
+  transform: translateY(-100%);
+}
+
+.lc-bar-bottom {
+  grid-row: 3;
+  justify-content: center;
+  transform: translateY(100%);
+}
+
+.lc-pin[data-pinned] .lc-bar,
+.lc-bar-bottom:focus-within {
+  transform: none;
+  transition: transform 700ms var(--ease-reveal);
+}
+
+.lc-label {
+  color: var(--ink-3);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.lc-count {
+  display: flex;
+  gap: 8px;
+  color: var(--ink-3);
   font-family: var(--mono);
   font-size: 0.875rem;
 }
 
-.lp-step-n > span {
-  grid-area: 1 / 1;
-  color: var(--ink-3);
-}
-
-.lp-step-n > .lp-step-n-on {
-  color: var(--accent);
-  opacity: 0;
-  transition: opacity 250ms var(--ease-out);
-}
-
-.lp-step[data-now] .lp-step-n-on {
-  opacity: 1;
-}
-
-.lp-step-name {
+.lc-count-n {
+  display: grid;
   color: var(--ink);
-  font-size: clamp(1.5rem, 1.2rem + 1vw, 2rem);
-  line-height: 1.15;
-  letter-spacing: -0.02em;
+}
+
+.lc-count-n > span {
+  grid-area: 1 / 1;
+  opacity: 0;
+  transition: opacity 160ms ease-out;
+}
+
+.lc-count-n > span[data-on] {
+  opacity: 1;
+  transition-duration: 300ms;
+  transition-delay: 120ms;
+}
+
+.lc-frame {
+  position: relative;
+  grid-row: 2;
+  display: grid;
+  grid-template-columns: minmax(0, 25rem) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(32px, 4vw, 80px);
+  width: min(1560px, 100% - 2 * var(--g));
+  min-height: 0;
+  margin-inline: auto;
+  padding-block: 24px;
+}
+
+/* One step of text at a time. The outgoing text leaves in the scroll's direction; the incoming one arrives after it. */
+.lc-texts {
+  position: relative;
+  z-index: 3;
+  display: grid;
+}
+
+.lc-text {
+  grid-area: 1 / 1;
+  align-self: center;
+  pointer-events: none;
+}
+
+.lc-text[data-on] {
+  pointer-events: auto;
+}
+
+.lc-text > :not(.lc-n) {
+  opacity: 0;
+  transform: translateY(28px);
+  transition:
+    opacity 160ms var(--ease-out),
+    transform 160ms var(--ease-out);
+}
+
+.lc-text[data-pos="before"] > :not(.lc-n) {
+  transform: translateY(-20px);
+}
+
+.lc-text[data-on] > :not(.lc-n) {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 420ms var(--ease-out) var(--d),
+    transform 700ms var(--ease-reveal) var(--d);
+}
+
+.lc-text > :nth-child(2) {
+  --d: 200ms;
+}
+
+.lc-text > :nth-child(3) {
+  --d: 260ms;
+}
+
+.lc-text > :nth-child(4) {
+  --d: 320ms;
+}
+
+.lc-n {
+  display: block;
+  overflow: clip;
+  color: var(--accent);
+  font-family: var(--mono);
+  font-size: clamp(4rem, 2.5rem + 3.4vw, 6.5rem);
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+.lc-n > span {
+  display: block;
+  transform: translateY(105%);
+  transition: transform 200ms var(--ease-out);
+}
+
+.lc-text[data-pos="before"] .lc-n > span {
+  transform: translateY(-105%);
+}
+
+.lc-text[data-on] .lc-n > span {
+  transform: none;
+  transition: transform 800ms var(--ease-reveal) 120ms;
+}
+
+.lc-text .lc-title {
+  margin-top: 28px;
+  color: var(--ink);
+  font-size: clamp(2rem, 1.4rem + 1.6vw, 3rem);
+  line-height: 1.05;
+  letter-spacing: -0.025em;
   font-weight: 700;
 }
 
-.lp-step-text {
-  max-width: 40ch;
-  margin-top: 12px;
+.lc-text .lc-line {
+  max-width: 36ch;
+  margin-top: 16px;
   color: var(--ink-2);
-  font-size: 1.0625rem;
-  line-height: 1.6;
+  font-size: 1.125rem;
+  line-height: 1.55;
 }
 
-.lp-step-figure {
-  grid-column: 1 / -1;
-  margin-top: 24px;
+.lc-text .lc-note {
+  max-width: 40ch;
+  margin-top: 16px;
+  color: var(--ink-3);
+  font-size: 0.875rem;
+  line-height: 1.5;
 }
 
-.lp-steps[data-mode="stack"] {
-  grid-template-columns: minmax(0, 1fr);
+.lc-view {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  height: 100%;
+  min-height: 0;
+  perspective: 1800px;
+  perspective-origin: 50% 40%;
 }
 
-.lp-steps[data-mode="stack"] .lp-steps-text {
-  max-width: 760px;
+.lc-pin[data-wait] .lc-cam {
+  visibility: hidden;
 }
 
-.lp-steps-pin {
-  position: sticky;
-  top: calc(50svh - 290px);
-  align-self: start;
-  margin-top: 8px;
+/* Back from a case page: the scene starts settled on its step. */
+.lc-pin[data-instant] * {
+  transition: none !important;
 }
 
-/* ---------- Steps: the stage ---------- */
+.lc-pin[data-hold] :is(.lc-frame, .lc-bar) {
+  visibility: hidden;
+}
+
+.lc-cam {
+  width: min(100%, (100svh - 64px - 92px - 48px - 30px) * 1.6);
+  transform-style: preserve-3d;
+  transform-origin: 50% 50%;
+}
+
+/* The rail: four steps, each a 44 px target. */
+.lc-rail {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  width: min(1560px, 100%);
+}
+
+.lc-stop {
+  display: grid;
+  gap: 10px;
+  width: 100%;
+  min-height: 56px;
+  padding: 12px 0;
+  border: 0;
+  background: none;
+  color: var(--ink-3);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: transform 160ms var(--ease-out);
+}
+
+.lc-stop:active {
+  transform: scale(0.98);
+}
+
+.lc-pin .lc-stop:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+.lc-seg {
+  display: block;
+  height: 3px;
+  overflow: hidden;
+  border-radius: 3px;
+  background: rgb(255 255 255 / 0.14);
+}
+
+.lc-seg i {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 240ms var(--ease-out);
+}
+
+.lc-stop[data-past] .lc-seg i {
+  transform: none;
+}
+
+.lc-stop[aria-current] .lc-seg i {
+  transform: none;
+  transition: transform var(--len) linear;
+}
+
+.lc-stop-name {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  transition: color 200ms ease;
+}
+
+.lc-stop-n {
+  margin-right: 10px;
+  font-family: var(--mono);
+  font-size: 0.8125rem;
+  font-weight: 400;
+}
+
+.lc-stop[aria-current] .lc-stop-name {
+  color: var(--ink);
+}
+
+.lc-stop[aria-current] .lc-stop-n {
+  color: var(--accent);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .lc-stop:hover .lc-stop-name {
+    color: var(--ink);
+  }
+}
+
+/* ---------- Steps: the screen ---------- */
 
 .ls {
   --ls-radius: 14px;
   --ls-bar: 30px;
   position: relative;
   margin: 0;
-  perspective: 1700px;
-  perspective-origin: 50% 35%;
 }
 
 .ls-body {
   position: relative;
+}
+
+/* The camera rig is the only 3D level. The frame, the layers and the cards are its direct children, and each one is flat. */
+.ls[data-mode="pin"] {
   transform-style: preserve-3d;
+}
+
+.lc-cam > .ls-layer {
+  top: var(--ls-bar);
 }
 
 .ls-frame {
   position: relative;
   border-radius: var(--ls-radius);
   background: #1c1c20;
-  box-shadow: 0 0 0 1px rgb(0 0 0 / 0.55);
-  transform-style: preserve-3d;
+  box-shadow: 0 0 0 1px rgb(255 255 255 / 0.08);
 }
 
-/* A blurred shadow inside the 3D stage is drawn again on each frame of a move, so the shadow is a still floor under it. */
+/* The stage's shadow is a still gradient floor under it, so no shadow is drawn again on each frame of a move. */
 .ls[data-mode="pin"]::before {
   content: "";
   position: absolute;
   left: 4%;
   right: 4%;
-  bottom: -28px;
+  bottom: -30px;
   height: 64px;
-  background: radial-gradient(closest-side, rgb(0 0 0 / 0.7), transparent);
+  background: radial-gradient(closest-side, rgb(0 0 0 / 0.75), transparent);
 }
 
 .ls-bar {
@@ -196,7 +457,6 @@
   aspect-ratio: 16 / 10;
   border-radius: 0 0 var(--ls-radius) var(--ls-radius);
   background: #101216;
-  transform-style: preserve-3d;
 }
 
 .ls-screen picture {
@@ -214,11 +474,11 @@
   border-radius: 0 0 var(--ls-radius) var(--ls-radius);
   object-fit: cover;
   object-position: top left;
-  transition: opacity 300ms var(--ease-out);
 }
 
 .ls-old {
   opacity: 0;
+  transition: opacity 300ms var(--ease-out);
 }
 
 .ls[data-step="0"] .ls-old {
@@ -227,6 +487,7 @@
 
 .ls[data-step="0"] .ls-new {
   opacity: 0;
+  transition: opacity 300ms var(--ease-out);
 }
 
 .lp-old-slot {
@@ -245,7 +506,6 @@
 .ls-layers {
   position: absolute;
   inset: 0;
-  transform-style: preserve-3d;
   pointer-events: none;
 }
 
@@ -254,6 +514,15 @@
   inset: 0;
   container-type: size;
   opacity: 0;
+}
+
+.ls[data-step="1"] .ls-layer {
+  will-change: transform;
+}
+
+/* The layers hold about a hundred pieces of the full capture; they are drawn only in the step that uses them. */
+.ls[data-mode="pin"]:not([data-step="1"]) .ls-layer {
+  display: none;
 }
 
 .ls-piece {
@@ -267,11 +536,10 @@
   clip-path: inset(var(--t) var(--r) var(--b) var(--l));
 }
 
-.ls-scanwrap {
+.ls-clip {
   position: absolute;
   inset: 0;
-  overflow: hidden;
-  border-radius: 0 0 var(--ls-radius) var(--ls-radius);
+  overflow: clip;
   pointer-events: none;
 }
 
@@ -286,6 +554,25 @@
   opacity: 0;
 }
 
+.lc-sweep {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 45%;
+  background: linear-gradient(100deg, transparent 15%, rgb(255 255 255 / 0.22) 50%, transparent 85%);
+  opacity: 0;
+}
+
+.lc-alarm {
+  position: absolute;
+  inset: 0;
+  border-radius: 0 0 var(--ls-radius) var(--ls-radius);
+  background: rgb(255 143 143 / 0.08);
+  box-shadow: inset 0 0 0 3px var(--fail);
+  opacity: 0;
+}
+
 /* Cards that stand in front of the screen. */
 
 .ls-card {
@@ -295,14 +582,23 @@
   border-radius: 14px;
   border: 1px solid var(--line-strong);
   background: #15171c;
-  box-shadow: 0 24px 48px -20px rgb(0 0 0 / 0.8);
+  box-shadow: 0 0 0 1px rgb(0 0 0 / 0.6);
+}
+
+.ls[data-mode="pin"] :is(.ls-card, .ls-mark) {
   opacity: 0;
-  transition: opacity 180ms ease-out;
+  translate: 0 10px;
+  transition:
+    opacity 200ms ease-out,
+    translate 200ms ease-out;
 }
 
 .ls[data-step="0"] .ls-test,
-.ls[data-step="2"] .ls-checks {
+.ls[data-step="2"] .ls-checks,
+.ls[data-step="3"] .ls-mark {
   opacity: 1;
+  translate: none;
+  transition: none;
 }
 
 .ls-test {
@@ -312,9 +608,9 @@
 }
 
 .ls-checks {
-  left: -4%;
-  bottom: 7%;
-  width: min(54%, 400px);
+  left: 2%;
+  bottom: 6%;
+  width: min(56%, 420px);
 }
 
 .ls-card-head {
@@ -342,6 +638,19 @@
   font-size: 0.8125rem;
   font-weight: 500;
   white-space: nowrap;
+}
+
+.ls-runs {
+  display: grid;
+  justify-items: end;
+}
+
+.ls-runs > span {
+  grid-area: 1 / 1;
+}
+
+.ls-run-1 {
+  opacity: 0;
 }
 
 .ls-lines {
@@ -373,6 +682,8 @@
 }
 
 .ls-checks .ls-row {
+  position: relative;
+  isolation: isolate;
   grid-template-columns: minmax(0, 1fr) auto auto;
   gap: 4px 12px;
   padding-block: 7px;
@@ -380,6 +691,23 @@
 
 .ls-checks .ls-row + .ls-row {
   border-top: 1px solid var(--line);
+}
+
+.ls-flag,
+.ls-good {
+  position: absolute;
+  inset: 0 -10px;
+  z-index: -1;
+  border-radius: 8px;
+  opacity: 0;
+}
+
+.ls-flag {
+  background: rgb(255 143 143 / 0.12);
+}
+
+.ls-good {
+  background: rgb(126 240 166 / 0.1);
 }
 
 .ls-check-name {
@@ -431,6 +759,10 @@
   color: var(--ink-3);
 }
 
+.ls-note > .ls-fail {
+  font-weight: 600;
+}
+
 .ls-mark {
   position: absolute;
   z-index: 1;
@@ -443,13 +775,11 @@
   border-radius: 18px;
   background: var(--accent);
   color: var(--on-accent);
-  box-shadow: 0 24px 48px -20px rgb(0 0 0 / 0.8);
+  box-shadow: 0 0 0 6px rgb(255 181 71 / 0.2);
   font-size: 1.25rem;
   font-weight: 750;
   line-height: 1.1;
-  opacity: 0;
-  transform: rotate(-3deg);
-  transition: opacity 180ms ease-out;
+  transform: rotate(-2deg);
 }
 
 .ls-mark .lp-icon {
@@ -464,87 +794,57 @@
   font-weight: 600;
 }
 
-.ls[data-step="3"] .ls-mark {
-  opacity: 1;
-}
-
-.ls[data-wait] :is(.ls-card, .ls-mark),
-.ls[data-wait][data-step="1"] .ls-new {
+.ls[data-wait] .ls-body {
   opacity: 0;
-  transition: none;
 }
 
-/* Under the pinned stage: where the reader is. */
+/* ---------- Steps: one settled picture under each step ---------- */
 
-.ls-foot {
+.lp-step-list {
   display: grid;
-  gap: 14px;
-  margin-top: 28px;
+  gap: 64px;
 }
 
-.ls-progress {
+.lp-step {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 6px;
+  grid-template-columns: auto minmax(0, 1fr);
+  column-gap: 16px;
+  max-width: 820px;
 }
 
-.ls-progress li {
-  height: 3px;
-  border-radius: 3px;
-  background: rgb(255 255 255 / 0.12);
-  overflow: hidden;
-}
-
-.ls-progress i {
-  display: block;
-  height: 100%;
-  background: var(--accent);
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 600ms var(--ease-out);
-}
-
-.ls-progress li[data-on] i {
-  transform: none;
-}
-
-.ls-captions {
-  display: grid;
-}
-
-.ls-caption {
-  color: var(--ink-2);
-  font-size: 1rem;
-}
-
-.ls-captions > .ls-caption {
-  grid-area: 1 / 1;
-  opacity: 0;
-  transform: translateY(6px);
-  transition:
-    opacity 180ms var(--ease-out),
-    transform 180ms var(--ease-out);
-}
-
-.ls-captions > .ls-caption[data-on] {
-  opacity: 1;
-  transform: none;
-  transition:
-    opacity 400ms var(--ease-out) 120ms,
-    transform 500ms var(--ease-out) 120ms;
-}
-
-.ls-caption-n {
-  margin-right: 12px;
+.lp-step-n {
+  grid-row: span 2;
+  padding-top: 8px;
   color: var(--accent);
   font-family: var(--mono);
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
 }
 
-/* A narrow screen: one flat picture under each step. Cards sit under the screen, over its lower edge. */
+.lp-step .lp-step-name {
+  color: var(--ink);
+  font-size: clamp(1.5rem, 1.2rem + 1vw, 2rem);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  font-weight: 700;
+}
 
-.ls[data-mode="stack"] {
-  perspective: none;
+.lp-step .lp-step-text {
+  max-width: 44ch;
+  margin-top: 10px;
+  color: var(--ink-2);
+  font-size: 1.0625rem;
+  line-height: 1.6;
+}
+
+.lp-step-figure {
+  grid-column: 1 / -1;
+  margin-top: 24px;
+}
+
+.lp-step .lp-step-figure > .ls-caption {
+  margin-top: 12px;
+  color: var(--ink-3);
+  font-size: 0.875rem;
 }
 
 .ls[data-mode="stack"] .ls-body {
@@ -556,32 +856,11 @@
   inset: auto;
   width: auto;
   margin: -32px 12px 0;
-  opacity: 1;
 }
 
 .ls[data-mode="stack"] .ls-mark {
   justify-self: end;
   margin-top: -36px;
-}
-
-.lp-step-figure > .ls-caption {
-  margin-top: 12px;
-  color: var(--ink-3);
-  font-size: 0.875rem;
-}
-
-@media (max-width: 1023px) {
-  .lp-steps {
-    padding-block: 24px 88px;
-  }
-
-  .lp-step-list {
-    margin-top: 32px;
-  }
-
-  .lp-step {
-    padding-block: 20px 28px;
-  }
 }
 
 @media (max-width: 640px) {
@@ -609,647 +888,6 @@
   .ls-mark {
     font-size: 1.0625rem;
   }
-}
-
-.ls[data-wait] .ls-body {
-  opacity: 0;
-}
-
-/* ---------- The day: a tilted ring of five stations ---------- */
-
-.lr {
-  display: grid;
-  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
-  gap: clamp(32px, 4vw, 56px);
-  align-items: center;
-  margin-top: 48px;
-}
-
-.lr-orbit {
-  position: relative;
-  container-type: inline-size;
-  width: 100%;
-  aspect-ratio: 3 / 2;
-}
-
-.lr-scene {
-  position: absolute;
-  inset: 0;
-  perspective: 190cqw;
-  perspective-origin: 50% 31cqw;
-  pointer-events: none;
-}
-
-.lr-plane {
-  position: absolute;
-  left: 50%;
-  top: 31cqw;
-  width: 88cqw;
-  height: 88cqw;
-  margin: -44cqw 0 0 -44cqw;
-  border-radius: 50%;
-  background: radial-gradient(closest-side, rgb(255 255 255 / 0.05), rgb(255 255 255 / 0.015) 80%, transparent 93%);
-  transform: rotateX(58deg);
-}
-
-.lr-art {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  overflow: visible;
-}
-
-.lr-track {
-  fill: none;
-  stroke: rgb(255 255 255 / 0.2);
-  stroke-width: 0.35;
-}
-
-.lr-pad {
-  fill: #2a2d34;
-  stroke: rgb(255 255 255 / 0.3);
-  stroke-width: 0.25;
-}
-
-.lr-pad[data-on] {
-  fill: var(--accent);
-  stroke: var(--accent);
-}
-
-.lr-back {
-  fill: none;
-  stroke: var(--fail);
-  stroke-width: 0.45;
-  stroke-dasharray: 1.2 1.1;
-  stroke-linecap: round;
-  opacity: 0;
-  transition: opacity 300ms var(--ease-out);
-}
-
-.lr-back[data-on] {
-  opacity: 0.6;
-}
-
-.lr-back[data-now] {
-  opacity: 1;
-}
-
-.lr-head {
-  fill: var(--fail);
-}
-
-.lr-arm {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 0;
-  height: 0;
-}
-
-.lr-dot {
-  position: absolute;
-  left: -1.5cqw;
-  top: -42.5cqw;
-  width: 3cqw;
-  height: 3cqw;
-  border-radius: 50%;
-  background: var(--accent);
-  box-shadow: 0 0 0 1cqw rgb(255 181 71 / 0.22);
-}
-
-.lr-trail {
-  position: absolute;
-  left: -44cqw;
-  top: -44cqw;
-  width: 88cqw;
-  height: 88cqw;
-  border-radius: 50%;
-  background: conic-gradient(from 295deg, rgb(255 181 71 / 0), rgb(255 181 71 / 0.9) 65deg, transparent 65deg);
-  mask: radial-gradient(closest-side, transparent 91.5%, #000 91.8%, #000 94.6%, transparent 94.9%);
-  opacity: 0;
-}
-
-.lr-trail-back {
-  background: conic-gradient(from 0deg, rgb(255 143 143 / 0.95), rgb(255 143 143 / 0) 65deg, transparent 65deg);
-}
-
-.lr-cards {
-  position: absolute;
-  inset: 0;
-}
-
-.lr-card {
-  position: absolute;
-  left: calc(50% + var(--x) * 100cqw);
-  top: calc(31cqw + var(--y) * 100cqw - 0.8cqw);
-  transform: translate(-50%, -100%) scale(var(--s));
-  transform-origin: 50% 100%;
-}
-
-.lr-card > button,
-.lr-card-static {
-  position: relative;
-  display: block;
-  min-height: 54px;
-  max-width: 30cqw;
-  padding: 9px 14px 10px;
-  border: 1px solid var(--line-strong);
-  border-radius: 12px;
-  background: #15171c;
-  color: var(--ink);
-  font: inherit;
-  text-align: left;
-  cursor: pointer;
-  box-shadow: 0 14px 28px -16px rgb(0 0 0 / 0.9);
-  transition: transform 300ms var(--ease-out);
-}
-
-.lr-card-static {
-  cursor: default;
-}
-
-.lr-card > :is(button, .lr-card-static)::after {
-  content: "";
-  position: absolute;
-  inset: -1px;
-  border: 1.5px solid var(--accent);
-  border-radius: inherit;
-  opacity: 0;
-  transition: opacity 200ms var(--ease-out);
-}
-
-.lr-card[data-state="now"] > button {
-  --lift: -6px;
-}
-
-.lr-card > button {
-  transform: translateY(var(--lift, 0));
-}
-
-.lr-card > button:active {
-  transform: translateY(var(--lift, 0)) scale(0.97);
-  transition-duration: 160ms;
-}
-
-.lr-card[data-state="now"] > :is(button, .lr-card-static)::after {
-  opacity: 1;
-}
-
-.lr-card-in {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  align-items: baseline;
-  gap: 2px 8px;
-}
-
-.lr-card-n {
-  color: var(--ink-3);
-  font-family: var(--mono);
-  font-size: 0.8125rem;
-}
-
-.lr-card[data-state] .lr-card-n {
-  color: var(--accent);
-}
-
-.lr-card-name {
-  font-size: 0.9375rem;
-  font-weight: 650;
-  line-height: 1.25;
-  white-space: nowrap;
-}
-
-.lr-chip {
-  grid-column: 2;
-  justify-self: start;
-  font-family: var(--mono);
-  font-size: 0.8125rem;
-  animation: lr-in 220ms var(--ease-out);
-}
-
-.lr-chip[data-kind="fail"] {
-  color: var(--fail);
-}
-
-.lr-chip[data-kind="pass"] {
-  color: var(--pass);
-}
-
-.lr-center {
-  position: absolute;
-  left: 50%;
-  top: 29cqw;
-  display: grid;
-  gap: 2px;
-  width: 30cqw;
-  text-align: center;
-  transform: translate(-50%, -50%);
-  animation: lr-center 260ms var(--ease-out);
-}
-
-@keyframes lr-center {
-  from {
-    opacity: 0;
-    transform: translate(-50%, calc(-50% + 6px));
-  }
-}
-
-@keyframes lr-in {
-  from {
-    opacity: 0;
-    transform: translateY(4px);
-  }
-}
-
-.lr-time {
-  color: var(--ink-3);
-  font-family: var(--mono);
-  font-size: 0.875rem;
-}
-
-.lr-now {
-  font-size: clamp(1.0625rem, 3.4cqw, 1.5rem);
-  line-height: 1.2;
-  font-weight: 700;
-  letter-spacing: -0.015em;
-}
-
-.lr-fail {
-  color: var(--fail);
-  font-size: clamp(0.9375rem, 2.8cqw, 1.125rem);
-  line-height: 1.3;
-  font-weight: 650;
-}
-
-.lr-backlabel {
-  position: absolute;
-  left: 50%;
-  top: 60cqw;
-  width: 70cqw;
-  color: var(--fail);
-  font-size: 0.875rem;
-  line-height: 1.35;
-  text-align: center;
-  opacity: 0;
-  transform: translateX(-50%);
-  transition: opacity 300ms var(--ease-out);
-}
-
-.lr-backlabel[data-on] {
-  opacity: 1;
-}
-
-/* The panel for each station. */
-
-.lr-side {
-  display: grid;
-  align-content: start;
-}
-
-.lr-panels {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.lr[data-single] .lr-panels {
-  display: grid;
-}
-
-.lr-panel {
-  padding: clamp(18px, 2.2vw, 26px);
-  border-radius: 18px;
-  border: 1px solid var(--line);
-  background: var(--card);
-}
-
-.lr[data-single] .lr-panel {
-  grid-area: 1 / 1;
-  opacity: 0;
-  clip-path: inset(0 100% 0 0 round 18px);
-  transition:
-    opacity 150ms ease-out,
-    clip-path 0s linear 150ms;
-}
-
-.lr[data-single] .lr-panel[data-current] {
-  opacity: 1;
-  clip-path: inset(0 0 0 0 round 18px);
-  transition:
-    opacity 200ms ease-out,
-    clip-path 650ms var(--ease-reveal);
-}
-
-.lr-panel-head {
-  display: flex;
-  align-items: baseline;
-  gap: 12px;
-}
-
-.lr-panel-n {
-  color: var(--accent);
-  font-family: var(--mono);
-  font-size: 0.875rem;
-}
-
-.lr-panel-name {
-  font-size: 1.25rem;
-  font-weight: 650;
-}
-
-.lr-panel-time {
-  margin-left: auto;
-  color: var(--ink-3);
-  font-family: var(--mono);
-  font-size: 0.875rem;
-}
-
-.lr-panel-line {
-  margin-top: 8px;
-  color: var(--ink-2);
-  font-size: 1rem;
-  line-height: 1.55;
-}
-
-.lr-panel-source {
-  margin-top: 12px;
-  color: var(--ink-3);
-  font-size: 0.875rem;
-}
-
-.lr-vis {
-  margin-top: 16px;
-}
-
-.lr-code {
-  display: grid;
-  padding: 14px 16px;
-  border-radius: 12px;
-  border: 1px solid var(--line);
-  background: #0c0d10;
-  color: #dfe2e8;
-  font-family: var(--mono);
-  font-size: 0.875rem;
-  line-height: 1.6;
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-}
-
-.lr-row[data-row="fail"] {
-  color: var(--fail);
-}
-
-.lr-row[data-row="pass"] {
-  color: var(--pass);
-}
-
-.lr-lines .lr-row {
-  display: grid;
-  grid-template-columns: 2ch minmax(0, 1fr);
-  gap: 14px;
-}
-
-.lr-ln {
-  color: var(--ink-3);
-  text-align: right;
-}
-
-.lr[data-single] :is(.lr-row, .lr-file) {
-  opacity: 0;
-  transform: translateY(6px);
-}
-
-.lr[data-single] .lr-panel[data-current] :is(.lr-row, .lr-file) {
-  opacity: 1;
-  transform: none;
-  transition:
-    opacity 300ms var(--ease-out) calc(var(--i) * 60ms + 260ms),
-    transform 400ms var(--ease-out) calc(var(--i) * 60ms + 260ms);
-}
-
-.lr[data-single][data-status="running"][data-checks="fail"] .lr-checks .lr-row[data-row="pass"] {
-  opacity: 0;
-  transition: none;
-}
-
-.lr-vis-old {
-  position: relative;
-}
-
-.lr-mini {
-  display: block;
-  overflow: hidden;
-  border-radius: 10px;
-  border: 1px solid var(--line);
-  background: #1c1c20;
-}
-
-.lr-mini picture {
-  display: contents;
-}
-
-.lr-mini-bar {
-  display: block;
-  padding: 4px 0;
-  color: var(--ink-3);
-  font-size: 0.75rem;
-  text-align: center;
-}
-
-.lr-mini-screen {
-  display: grid;
-  width: 100%;
-  height: auto;
-  aspect-ratio: 16 / 10;
-  object-fit: cover;
-  object-position: top left;
-}
-
-.lr-float {
-  position: absolute;
-  left: 12px;
-  right: 12px;
-  bottom: 12px;
-  background: rgb(12 13 16 / 0.97);
-  box-shadow: 0 16px 32px -16px rgb(0 0 0 / 0.9);
-}
-
-.lr-files {
-  display: grid;
-  gap: 10px;
-  padding: 14px 16px;
-  border-radius: 12px;
-  border: 1px solid var(--line);
-  background: #0c0d10;
-  font-family: var(--mono);
-  font-size: 0.8125rem;
-}
-
-.lr-files ul {
-  display: grid;
-  gap: 3px;
-}
-
-.lr-file {
-  display: grid;
-  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr) 3.2em;
-  align-items: center;
-  gap: 10px;
-  line-height: 1.45;
-}
-
-.lr-file-name {
-  overflow: hidden;
-  color: #dfe2e8;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.lr-bar {
-  height: 6px;
-  border-radius: 3px;
-  background: rgb(255 255 255 / 0.06);
-}
-
-.lr-bar i {
-  display: block;
-  width: calc(var(--w) * 100%);
-  min-width: 3px;
-  height: 100%;
-  border-radius: inherit;
-  background: var(--pass);
-  transform-origin: left;
-}
-
-.lr[data-single] .lr-bar i {
-  transform: scaleX(0);
-}
-
-.lr[data-single] .lr-panel[data-current] .lr-bar i {
-  transform: none;
-  transition: transform 600ms var(--ease-out) calc(var(--i) * 45ms + 360ms);
-}
-
-.lr-file-n {
-  color: var(--pass);
-  text-align: right;
-}
-
-.lr-commit {
-  color: var(--ink-2);
-}
-
-.lr-merge {
-  display: grid;
-  gap: 14px;
-}
-
-.lr-seal {
-  display: inline-flex;
-  justify-self: start;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 20px 12px 16px;
-  border-radius: 16px;
-  background: var(--accent);
-  color: var(--on-accent);
-  font-size: 1.125rem;
-  font-weight: 750;
-  line-height: 1.15;
-}
-
-.lr-seal .lp-icon {
-  width: 28px;
-  height: 28px;
-}
-
-.lr-seal small {
-  display: block;
-  margin-top: 2px;
-  font-size: 0.875rem;
-  font-weight: 600;
-}
-
-.lr-play {
-  display: inline-flex;
-  justify-self: start;
-  align-items: center;
-  gap: 8px;
-  min-height: 44px;
-  margin-top: 12px;
-  padding: 0 12px 0 4px;
-  border: 0;
-  background: none;
-  color: var(--ink-2);
-  font: inherit;
-  cursor: pointer;
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .lr-play:hover {
-    color: var(--ink);
-  }
-}
-
-@media (min-width: 960px) {
-  .lr:not([data-single]) {
-    align-items: start;
-  }
-
-  .lr:not([data-single]) .lr-orbit {
-    position: sticky;
-    top: 18svh;
-  }
-}
-
-@media (max-width: 959px) {
-  .lr {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 24px;
-    margin-top: 32px;
-  }
-
-  .lr-orbit {
-    max-width: 640px;
-    margin-inline: auto;
-  }
-}
-
-@media (max-width: 640px) {
-  .lr-orbit {
-    aspect-ratio: 4 / 3;
-  }
-
-  .lr-card > button,
-  .lr-card-static {
-    max-width: 31cqw;
-    padding: 7px 10px 8px;
-  }
-
-  .lr-card-name {
-    font-size: 0.8125rem;
-    white-space: normal;
-  }
-
-  .lr-card-n {
-    font-size: 0.75rem;
-  }
-
-  .lr-center {
-    display: none;
-  }
-
-  .lr-backlabel {
-    top: 61cqw;
-    font-size: 0.8125rem;
-  }
-}
-
-@media (max-width: 640px) {
-  .ls-card-head {
-    flex-wrap: wrap;
-  }
 
   .ls-checks .ls-row code {
     display: none;
@@ -1258,67 +896,4 @@
   .ls-checks .ls-row {
     grid-template-columns: minmax(0, 1fr) auto;
   }
-}
-
-.ls[data-mode="pin"][data-step="1"] :is(.ls-body, .ls-layer) {
-  will-change: transform;
-}
-
-/* The same test on both apps, frame by frame. */
-
-.lr-twin {
-  display: grid;
-  gap: 8px;
-}
-
-.lr-twin-apps {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
-}
-
-.lr-twin-app {
-  margin: 0;
-  overflow: hidden;
-  border-radius: 10px;
-  border: 1px solid var(--line);
-  background: #1c1c20;
-}
-
-.lr-twin-app figcaption {
-  padding: 4px 0;
-  color: var(--ink-3);
-  font-size: 0.75rem;
-  text-align: center;
-}
-
-.lr-twin-screen {
-  position: relative;
-  display: block;
-  aspect-ratio: 16 / 10;
-  background: #121419;
-}
-
-.lr-twin-screen img {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  opacity: 0;
-  transition: opacity 400ms var(--ease-out);
-}
-
-.lr-twin-screen img[data-on] {
-  opacity: 1;
-}
-
-.lr-twin-step {
-  color: var(--ink-2);
-  font-size: 0.875rem;
-}
-
-.lr-twin-n {
-  margin-right: 10px;
-  color: var(--accent);
-  font-family: var(--mono);
 }

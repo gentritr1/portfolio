@@ -1,4 +1,4 @@
-import { useEffect, useRef, type CSSProperties } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { Link, useLocation } from "react-router";
 import { BrowserFrame } from "../../components/BrowserFrame";
 import { links } from "../../content/links";
@@ -397,11 +397,20 @@ function Foot() {
   );
 }
 
+let homeSeen = false;
+
 function Home() {
   const root = useRef<HTMLDivElement>(null);
+  const [seen] = useState(() => homeSeen);
   useReveal(root);
+  useEffect(
+    () => () => {
+      homeSeen = true;
+    },
+    [],
+  );
   return (
-    <div ref={root}>
+    <div ref={root} data-seen={seen ? "" : undefined}>
       <title>Gentrit Rashiti: web and mobile apps, built with AI kept in control</title>
       <Top />
       <main>

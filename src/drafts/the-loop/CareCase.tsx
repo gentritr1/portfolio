@@ -17,6 +17,9 @@ const day = [
 const minutes = (t: string) => Number(t.slice(0, 2)) * 60 + Number(t.slice(3));
 const FROM = minutes("11:15");
 const TO = minutes("16:00");
+const COLS = day
+  .map((d, i) => `minmax(var(--day-min), ${(day[i + 1] ? minutes(day[i + 1].time) : TO) - minutes(d.time)}fr)`)
+  .join(" ");
 
 const twin = ["A patient's name opens that patient", "The search stays when the tab changes", "A search with no match says so"];
 
@@ -134,7 +137,7 @@ export function CareCase() {
         title="A new app in React, one screen at a time."
         figure={
           <figure className="lp-figure lp-day">
-            <ol className="lp-day-line" aria-label="One screen on 8 September 2026">
+            <ol className="lp-day-line" aria-label="One screen on 8 September 2026" style={{ "--cols": COLS } as CSSProperties}>
               {day.map((d) => (
                 <li key={d.time} style={{ "--p": (minutes(d.time) - FROM) / (TO - FROM) } as CSSProperties} data-reveal="">
                   <span className="lp-day-time">{d.time}</span>

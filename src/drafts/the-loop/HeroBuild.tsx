@@ -32,18 +32,20 @@ export function pieceStyle(p: Piece): CSSProperties {
 
 type Phase = "wait" | "build" | "done";
 
+let built = false;
+
 /**
  * The care calendar fills itself from its own capture: the shell, the grid, the events, then two stamps.
  * The construction is real pixels of one file; the settled frame is the file itself.
  */
 export function HeroBuild() {
   const reduce = useReducedMotion();
-  const [phase, setPhase] = useState<Phase>(reduce ? "done" : "wait");
+  const [phase, setPhase] = useState<Phase>(reduce || built ? "done" : "wait");
   const [run, setRun] = useState(0);
   const timer = useRef<number | undefined>(undefined);
 
   useEffect(() => {
-    if (reduce) {
+    if (reduce || (built && run === 0)) {
       setPhase("done");
       return;
     }
@@ -53,6 +55,7 @@ export function HeroBuild() {
     image.src = small ? WEEK_SMALL : WEEK;
     const start = () => {
       if (!live) return;
+      built = true;
       setPhase("build");
       timer.current = window.setTimeout(() => setPhase("done"), BUILD_DONE);
     };

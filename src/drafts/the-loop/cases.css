@@ -56,7 +56,6 @@
 @media (hover: hover) and (pointer: fine) {
   .lp-next:hover {
     border-color: var(--accent);
-    transform: translateY(-6px);
   }
 }
 
