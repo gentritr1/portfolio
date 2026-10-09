@@ -104,28 +104,94 @@ export const CHECKS_AT = 2380;
 export const APPROVED_AT = 2800;
 export const BUILD_DONE = 3250;
 
-/** The four steps of the loop. */
+/** The same pieces as layers of the exploded view, from back to front. */
+export const layers: Piece[][] = [pieces.slice(4, 12), pieces.slice(1, 4), pieces.slice(0, 1), pieces.slice(12)];
+
+/** The old app's captures, on invented data, made apart from this draft. While a file is missing, its place shows an empty slot, never a drawing of the old app. */
+export const OLD_WEEK = {
+  src: "/showcase/care/old-new/old-appointments.webp",
+  small: "/showcase/care/old-new/old-appointments-1080.webp",
+  width: 1440,
+  height: 900,
+  alt: "The care team calendar for one week in the old app. Invented data.",
+};
+export const OLD_COMPLIANCE = {
+  src: "/showcase/care/old-new/old-compliance.webp",
+  small: "/showcase/care/old-new/old-compliance-1080.webp",
+  width: 1440,
+  height: 900,
+  alt: "The patient compliance list in the old app. Invented data.",
+};
+export type Shot = typeof OLD_WEEK;
+
+/** One run of the compliance screen's test on both apps: frame N of each app is the same step (manifest.json in the same folder). */
+export const twinBase = "/showcase/care/old-new/";
+export const twinSteps = [
+  "Open the list.",
+  "Search for a name.",
+  "Show one billing code.",
+  "Sort by priority, last first.",
+  "Change to the CCM program.",
+  "Open the patient.",
+];
+
+/** The four steps of the loop. `caption` names what the stage shows. */
 export const steps = [
   {
     name: "Test first",
-    stamp: "Test written first",
+    caption: "The old app. The test is written here first.",
     text: "First, a test is written on the old app. It says what the screen must do. The new screen must pass the same test.",
   },
   {
     name: "Agents build",
-    stamp: "Built by agents",
+    caption: "The new app. Agents build it part by part.",
     text: "AI agents write the new screen. They follow written rules, step guides and decision records.",
   },
   {
     name: "Checks",
-    stamp: "Checks passed",
+    caption: "Checks run. A failed check sends the work back.",
     text: "Automatic checks run on every change. Each check is first shown to fail on bad work. A failed check sends the work back to the agents.",
   },
   {
     name: "Person approves",
-    stamp: "Approved",
+    caption: "A person approves. Then the change joins the app.",
     text: "A person reads the change and approves it. Only then does it join the app.",
   },
+];
+
+/** Scenario names from the calendar screen's test file, without their requirement IDs. */
+export const testFile = "appointments-calendar.spec.ts";
+export const testLines = [
+  "/appointments opens on the current week in Week view",
+  "the arrows step one week and the header follows",
+  "Today returns the calendar to the current week",
+  "cancelled items are hidden until Show cancelled is on",
+];
+
+/** Leaves of the two check profiles, by their names in the repo. On the compliance screen, `registry:check` failed once, then passed. */
+export const checkRows = [
+  { name: "Types", cmd: "typecheck" },
+  { name: "Lint and format", cmd: "lint" },
+  { name: "Unit tests", cmd: "test:unit" },
+  { name: "Production build", cmd: "build" },
+  { name: "Route rules", cmd: "registry:check", once: true },
+];
+
+/** The files the agents changed in the commit that added the compliance screen, with their added lines. */
+export const builtFiles: Array<[string, number]> = [
+  ["ComplianceTrackerHeader.tsx", 42],
+  ["ComplianceTrackerLegend.tsx", 40],
+  ["ComplianceTrackerPage.test.tsx", 315],
+  ["ComplianceTrackerPage.tsx", 189],
+  ["ComplianceTrackerTable.test.tsx", 219],
+  ["ComplianceTrackerTable.tsx", 227],
+  ["ComplianceTrackerToolbar.tsx", 133],
+  ["use-compliance-export.ts", 48],
+  ["index.ts", 7],
+  ["labels.ts", 145],
+  ["page.tsx", 33],
+  ["compliance-tracker-route.tsx", 52],
+  ["router.tsx", 2],
 ];
 
 export interface Station {

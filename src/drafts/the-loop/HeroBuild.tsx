@@ -6,7 +6,7 @@ import { useReducedMotion } from "./hooks";
 
 const pct = (n: number, of: number) => `${((n / of) * 100).toFixed(4)}%`;
 
-function pieceStyle(p: Piece): CSSProperties {
+export function pieceStyle(p: Piece): CSSProperties {
   const timing = { animationDelay: `${p.at}ms`, animationDuration: `${p.len}ms` };
   if (p.wipe === "drop") {
     return {

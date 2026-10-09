@@ -56,3 +56,16 @@ export function useReveal(ref: RefObject<HTMLElement | null>) {
     return () => observer.disconnect();
   }, [ref]);
 }
+
+/** True while the media query matches. */
+export function useMedia(query: string) {
+  const [match, setMatch] = useState(() => typeof window !== "undefined" && window.matchMedia(query).matches);
+  useEffect(() => {
+    const media = window.matchMedia(query);
+    const change = () => setMatch(media.matches);
+    change();
+    media.addEventListener("change", change);
+    return () => media.removeEventListener("change", change);
+  }, [query]);
+  return match;
+}

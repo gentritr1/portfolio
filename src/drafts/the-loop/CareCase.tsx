@@ -1,41 +1,10 @@
-import { useRef, type CSSProperties, type ReactNode } from "react";
-import { Link } from "react-router";
-import { BrowserFrame, spotIn, type Box } from "../../components/BrowserFrame";
-import { Back, Checked } from "./icons";
+import { useRef, type CSSProperties } from "react";
+import { BrowserFrame } from "../../components/BrowserFrame";
+import { CaseEnd, CaseTop, Chapter, NextCase, Ring } from "./CaseParts";
+import { Checked } from "./icons";
 import { useReveal } from "./hooks";
 
 const NOTE = "Real product screen, invented data.";
-
-function Ring({ box, label }: { box: Box; label: string }) {
-  const s = spotIn(box, 1440, 900);
-  return (
-    <span
-      className="lp-proof"
-      data-reveal=""
-      style={{ "--x": `${s.x}%`, "--y": `${s.y}%`, "--w": `${s.w}%`, "--h": `${s.h}%` } as CSSProperties}
-    >
-      <span className="lp-proof-ring" aria-hidden="true" />
-      <span className="lp-proof-label">{label}</span>
-    </span>
-  );
-}
-
-function Chapter({ name, title, children, figure }: { name: string; title: string; children: ReactNode; figure: ReactNode }) {
-  return (
-    <section className="lp-chapter" aria-labelledby={`lp-ch-${name}`}>
-      <div className="lp-chapter-text lp-wrap">
-        <p className="lp-chapter-name" id={`lp-ch-${name}`}>
-          {name}
-        </p>
-        <h2 className="lp-chapter-title" data-reveal="">
-          {title}
-        </h2>
-        <div className="lp-chapter-body">{children}</div>
-      </div>
-      <div className="lp-chapter-figure lp-wrap">{figure}</div>
-    </section>
-  );
-}
 
 const day = [
   { time: "11:37", what: "Notes on the old app" },
@@ -84,12 +53,7 @@ export function CareCase() {
     <article className="lp-case" ref={root}>
       <title>Care platform: one tested screen at a time</title>
       <header className="lp-case-head">
-        <div className="lp-wrap lp-case-top">
-          <Link to="/drafts/the-loop" className="lp-link lp-back">
-            <Back />
-            Back to the loop
-          </Link>
-        </div>
+        <CaseTop />
         <div className="lp-wrap lp-case-hero">
           <p className="lp-case-label">Care platform, 2023 to 2026</p>
           <h1 className="lp-case-title">Rebuilding a live care platform, one tested screen at a time.</h1>
@@ -239,28 +203,11 @@ export function CareCase() {
         </p>
       </Chapter>
 
-      <section className="lp-wrap lp-case-end" aria-labelledby="lp-built-with">
-        <h2 id="lp-built-with" className="lp-h3">
-          Built with
-        </h2>
-        <ul className="lp-pills">
-          {stack.map((s) => (
-            <li key={s}>{s}</li>
-          ))}
-        </ul>
-        <details className="lp-eng" open>
-          <summary>For engineers</summary>
-          <ul>
-            {engineers.map((e) => (
-              <li key={e}>{e}</li>
-            ))}
-          </ul>
-        </details>
-        <Link to="/drafts/the-loop" className="lp-link lp-back">
-          <Back />
-          Back to the loop
-        </Link>
-      </section>
+      <CaseEnd
+        stack={stack}
+        engineers={engineers}
+        next={<NextCase to="/drafts/the-loop/design-system" name="Design System v2" line="One set of parts for every new screen." />}
+      />
     </article>
   );
 }

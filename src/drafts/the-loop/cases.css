@@ -1,0 +1,266 @@
+/* ---------- Cases: parts shared by the case pages ---------- */
+
+.lp-case-head[data-ground] {
+  background: linear-gradient(var(--head) 0 calc(100% - clamp(120px, 22vw, 300px)), var(--bg) 0);
+}
+
+.lp-case-head[data-ground] .lp-case-sentence {
+  color: #e2dfe6;
+}
+
+.lp-case-head[data-ground] .lp-facts dt {
+  color: #c2bcc8;
+}
+
+.lp-proof .lp-proof-label {
+  width: max-content;
+  max-width: 56cqi;
+  border-radius: 14px;
+  white-space: normal;
+}
+
+.lp-proof[data-side="left"] .lp-proof-label {
+  right: auto;
+  left: 0;
+}
+
+.lp-proof[data-above] .lp-proof-label {
+  top: auto;
+  bottom: calc(100% + 12px);
+}
+
+.lp-next {
+  display: grid;
+  gap: 6px;
+  max-width: 560px;
+  margin-top: 56px;
+  padding: clamp(20px, 3vw, 28px);
+  border-radius: 20px;
+  border: 1px solid var(--line-strong);
+  background: var(--card);
+  color: var(--ink);
+  text-decoration: none;
+  transition:
+    border-color 200ms ease,
+    transform 240ms var(--ease-out);
+}
+
+.lp .lp-next {
+  color: var(--ink);
+}
+
+.lp-next:active {
+  transform: scale(0.98);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .lp-next:hover {
+    border-color: var(--accent);
+    transform: translateY(-6px);
+  }
+}
+
+.lp-next-label {
+  color: var(--accent);
+  font-family: var(--mono);
+  font-size: 0.875rem;
+}
+
+.lp-next-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: clamp(1.5rem, 1.2rem + 1vw, 2rem);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  font-weight: 700;
+}
+
+.lp-next-line {
+  color: var(--ink-2);
+}
+
+.lp-next + .lp-back {
+  display: flex;
+  width: fit-content;
+}
+
+/* ---------- Design System v2 ---------- */
+
+.lp-dscheck {
+  max-width: 760px;
+  padding: clamp(18px, 2.4vw, 28px);
+  border-radius: 20px;
+  background: var(--card);
+  border: 1px solid var(--line);
+}
+
+.lp-big-num.lp-share-num {
+  align-items: baseline;
+  gap: 0.04em;
+  color: var(--accent);
+}
+
+.lp-share-unit {
+  font-size: 0.5em;
+  letter-spacing: 0;
+}
+
+.lp-bars {
+  display: grid;
+  gap: 14px;
+  margin-top: 36px;
+}
+
+.lp-bars li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 6px 12px;
+}
+
+.lp-bar-name {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.lp-bar-value {
+  justify-self: end;
+  color: var(--ink-2);
+  font-family: var(--mono);
+  font-size: 0.875rem;
+  line-height: 1.75;
+}
+
+.lp-bar {
+  grid-column: 1 / -1;
+  height: 12px;
+  border-radius: 999px;
+  background: var(--card-2);
+  overflow: hidden;
+}
+
+.lp-bar span {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--ink-3);
+  transform: scaleX(var(--share));
+  transform-origin: left center;
+}
+
+.lp-bars li:last-child .lp-bar span {
+  min-width: 6px;
+  background: var(--accent);
+}
+
+.lp-changed-top {
+  align-items: start;
+}
+
+.lp-counts {
+  padding: clamp(20px, 3vw, 36px);
+  border-radius: 20px;
+  background: var(--card);
+  border: 1px solid var(--line);
+}
+
+.lp-counts dl {
+  display: grid;
+  gap: 24px;
+}
+
+.lp-counts dl div {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 4px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+
+.lp-counts dl div:first-child {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.lp-counts dd {
+  font-size: clamp(2.25rem, 1.6rem + 2vw, 3.25rem);
+  line-height: 1;
+  font-weight: 750;
+  letter-spacing: -0.035em;
+}
+
+.lp-counts dt {
+  color: var(--ink-2);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .lp .lp-share[data-reveal=""] .lp-bar span {
+    transform: scaleX(1);
+  }
+
+  .lp .lp-share .lp-bar span {
+    transition: transform 900ms var(--ease-move) 500ms;
+  }
+
+  .lp .lp-share .lp-bars li:first-child .lp-bar span {
+    transition: none;
+  }
+}
+
+/* ---------- Bayyinah TV ---------- */
+
+.lp-one {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  gap: 24px clamp(20px, 3vw, 40px);
+  align-items: end;
+}
+
+.lp-one-phones {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.lp-one-phones img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 16px;
+  background: #47262d;
+}
+
+.lp-one-tag {
+  grid-column: 1 / -1;
+  margin-top: 12px;
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.lp-one > .lp-caption {
+  grid-column: 1 / -1;
+  margin-top: 0;
+}
+
+@media (max-width: 767px) {
+  .lp-one {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .lp-next {
+    margin-top: 40px;
+  }
+}
+
+/* ---------- Links from the home ---------- */
+
+.lp-ds > .lp-cta {
+  grid-column: 1 / -1;
+  justify-self: start;
+  margin-top: 0;
+}
+
+.lp-app-text .lp-cta {
+  margin-top: 20px;
+}

@@ -1,13 +1,16 @@
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useRef, type CSSProperties } from "react";
 import { Link, useLocation } from "react-router";
 import { BrowserFrame } from "../../components/BrowserFrame";
 import { links } from "../../content/links";
+import { BayyinahCase } from "./BayyinahCase";
 import { CareCase } from "./CareCase";
-import { apps, breadth, learned, own, ringProof, steps, WEEK, type Own } from "./data";
+import { apps, breadth, learned, own, ringProof, type Own } from "./data";
+import { DsCase } from "./DsCase";
 import { HeroBuild } from "./HeroBuild";
 import { useReveal } from "./hooks";
-import { Approved, Checked, Next, Out } from "./icons";
+import { Checked, Next, Out } from "./icons";
 import { Ring } from "./Ring";
+import { Steps } from "./Steps";
 import "./the-loop.css";
 
 function Top() {
@@ -42,63 +45,6 @@ function Hero() {
   );
 }
 
-/** The four steps light up in turn while the finished screen stays on the right. */
-function Steps() {
-  const [active, setActive] = useState(-1);
-  const list = useRef<HTMLOListElement>(null);
-  useEffect(() => {
-    const items = [...(list.current?.querySelectorAll<HTMLLIElement>(".lp-step") ?? [])];
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) setActive(items.indexOf(entry.target as HTMLLIElement));
-        }
-      },
-      { rootMargin: "-45% 0px -45% 0px" },
-    );
-    items.forEach((item) => observer.observe(item));
-    return () => observer.disconnect();
-  }, []);
-
-  return (
-    <section className="lp-steps lp-wrap" id="work" aria-labelledby="lp-steps-title">
-      <div className="lp-steps-text">
-        <h2 className="lp-h2" id="lp-steps-title">
-          How each new screen gets made
-        </h2>
-        <p className="lp-lead">
-          The care platform is being rebuilt in React, one screen at a time. AI agents do most of the typing. Tests, checks and a person decide what
-          gets in.
-        </p>
-        <ol className="lp-step-list" ref={list}>
-          {steps.map((s, i) => (
-            <li key={s.name} className="lp-step" data-on={i <= active ? "" : undefined} data-now={i === active ? "" : undefined}>
-              <span className="lp-step-n" aria-hidden="true">
-                {String(i + 1).padStart(2, "0")}
-              </span>
-              <h3 className="lp-step-name">{s.name}</h3>
-              <p className="lp-step-text">{s.text}</p>
-            </li>
-          ))}
-        </ol>
-      </div>
-      <div className="lp-steps-pin" aria-hidden="true">
-        <div className="lp-steps-frame">
-          <BrowserFrame src={WEEK} alt="" width={1440} height={900} label="Care platform, new app" tone="dark" />
-          <ul className="lp-steps-stamps">
-            {steps.map((s, i) => (
-              <li key={s.stamp} data-on={i <= active ? "" : undefined} data-last={i === 3 ? "" : undefined}>
-                {i === 3 ? <Approved /> : <Checked />}
-                {s.stamp}
-              </li>
-            ))}
-          </ul>
-        </div>
-      </div>
-    </section>
-  );
-}
-
 function Day() {
   return (
     <section className="lp-day-section lp-wrap" aria-labelledby="lp-day-title">
@@ -116,7 +62,7 @@ function Day() {
         ))}
       </ul>
       <p className="lp-proofs-rule">A check is trusted only after it is shown to fail.</p>
-      <Link className="lp-cta" to="/drafts/the-loop/care-platform">
+      <Link className="lp-cta" to="/drafts/the-loop/care-platform" state={{ fromHome: true }}>
         Read the care platform story
         <Next />
       </Link>
@@ -190,6 +136,10 @@ function DesignSystem() {
           A test changes the colour of one button by one step, on purpose. The picture check must fail, and it does. This proves the check works.
         </figcaption>
       </figure>
+      <Link className="lp-cta" to="/drafts/the-loop/design-system" state={{ fromHome: true }}>
+        Read the design system story
+        <Next />
+      </Link>
     </section>
   );
 }
@@ -217,6 +167,12 @@ function Mobile() {
               <p>{a.line}</p>
               <p>{a.built}</p>
               <p className="lp-result">{a.result}</p>
+              {a.name === "Bayyinah TV" && (
+                <Link className="lp-cta" to="/drafts/the-loop/bayyinah-tv" state={{ fromHome: true }}>
+                  Read the story
+                  <Next />
+                </Link>
+              )}
               <ul className="lp-links">
                 {a.links.map((l) => (
                   <li key={l.href}>
@@ -463,6 +419,8 @@ function Home() {
   );
 }
 
+const cases = { "care-platform": CareCase, "design-system": DsCase, "bayyinah-tv": BayyinahCase };
+
 export default function Draft() {
   const { pathname } = useLocation();
   useEffect(() => {
@@ -473,11 +431,12 @@ export default function Draft() {
       html.style.backgroundColor = before;
     };
   }, []);
-  const isCase = /\/care-platform\/?$/.test(pathname);
+  const slug = /\/(care-platform|design-system|bayyinah-tv)\/?$/.exec(pathname)?.[1];
+  const Case = slug ? cases[slug as keyof typeof cases] : undefined;
   return (
-    <div className="lp" data-view={isCase ? "case" : "home"}>
+    <div className="lp" data-view={Case ? "case" : "home"}>
       <meta name="theme-color" content="#0b0c0f" />
-      {isCase ? <CareCase key="case" /> : <Home key="home" />}
+      {Case ? <Case key={slug} /> : <Home key="home" />}
     </div>
   );
 }

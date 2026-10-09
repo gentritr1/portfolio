@@ -1,0 +1,245 @@
+{
+  "base": "/showcase/care/old-new/",
+  "note": "Real screens of the old app and the new app. Both apps ran on one local mock API with invented data (tenant \"Larkspur Valley Health\"). Every name, date of birth and number is invented.",
+  "viewport": {
+    "width": 1440,
+    "height": 900,
+    "deviceScaleFactor": 2,
+    "timezone": "America/Los_Angeles"
+  },
+  "apps": {
+    "old": "Legacy Nuxt 2 app at the parity pin 5a85b8ac",
+    "new": "React app"
+  },
+  "sequence": {
+    "screen": "compliance-tracker",
+    "frames": 6,
+    "rule": "Frame N of old and new shows the same step of the parity spec tests/parity/compliance-tracker.spec.ts."
+  },
+  "files": [
+    {
+      "path": "old-compliance.webp",
+      "width": 2880,
+      "height": 1800,
+      "app": "old",
+      "screen": "compliance-tracker",
+      "step": "whole-screen",
+      "caption": "The compliance list, whole screen.",
+      "bytes": 105084
+    },
+    {
+      "path": "old-compliance-1080.webp",
+      "width": 1080,
+      "height": 675,
+      "app": "old",
+      "screen": "compliance-tracker",
+      "step": "whole-screen",
+      "caption": "The compliance list, whole screen, 1080 px wide.",
+      "bytes": 30230
+    },
+    {
+      "path": "old-01.webp",
+      "width": 2880,
+      "height": 1800,
+      "app": "old",
+      "screen": "compliance-tracker",
+      "frame": 1,
+      "step": "open-list",
+      "caption": "Open the list.",
+      "detail": "The RPM tab opens. The patient with the least time left is first.",
+      "bytes": 105084
+    },
+    {
+      "path": "old-02.webp",
+      "width": 2880,
+      "height": 1800,
+      "app": "old",
+      "screen": "compliance-tracker",
+      "frame": 2,
+      "step": "search",
+      "caption": "Search for a name.",
+      "detail": "Type \"Ok\". The list shows only the two patients whose name has \"Ok\".",
+      "bytes": 96908
+    },
+    {
+      "path": "old-03.webp",
+      "width": 2880,
+      "height": 1800,
+      "app": "old",
+      "screen": "compliance-tracker",
+      "frame": 3,
+      "step": "filter-code",
+      "caption": "Show one billing code.",
+      "detail": "Choose CPT 99457 (20 min). The list shows only the patients who do not have this code yet.",
+      "bytes": 105278
+    },
+    {
+      "path": "old-04.webp",
+      "width": 2880,
+      "height": 1800,
+      "app": "old",
+      "screen": "compliance-tracker",
+      "frame": 4,
+      "step": "sort",
+      "caption": "Sort by priority, last first.",
+      "detail": "Click the Priority header. The order turns around.",
+      "bytes": 103860
+    },
+    {
+      "path": "old-05.webp",
+      "width": 2880,
+      "height": 1800,
+      "app": "old",
+      "screen": "compliance-tracker",
+      "frame": 5,
+      "step": "change-program",
+      "caption": "Change to the CCM program.",
+      "detail": "Click the CCM tab. The codes and the patients change.",
+      "bytes": 103424
+    },
+    {
+      "path": "old-06.webp",
+      "width": 2880,
+      "height": 1800,
+      "app": "old",
+      "screen": "compliance-tracker",
+      "frame": 6,
+      "step": "open-patient",
+      "caption": "Open the patient.",
+      "detail": "Click Amara Okonkwo. The patient's RPM overview opens.",
+      "bytes": 109132
+    },
+    {
+      "path": "old-appointments.webp",
+      "width": 2880,
+      "height": 1800,
+      "app": "old",
+      "screen": "appointments",
+      "step": "whole-screen",
+      "caption": "The week calendar, 4 to 10 October 2026.",
+      "bytes": 107462
+    },
+    {
+      "path": "old-appointments-1080.webp",
+      "width": 1080,
+      "height": 675,
+      "app": "old",
+      "screen": "appointments",
+      "step": "whole-screen",
+      "caption": "The week calendar, 4 to 10 October 2026, 1080 px wide.",
+      "bytes": 31242
+    },
+    {
+      "path": "new-compliance.webp",
+      "width": 2880,
+      "height": 1800,
+      "app": "new",
+      "screen": "compliance-tracker",
+      "step": "whole-screen",
+      "caption": "The compliance list, whole screen.",
+      "bytes": 109504
+    },
+    {
+      "path": "new-compliance-1080.webp",
+      "width": 1080,
+      "height": 675,
+      "app": "new",
+      "screen": "compliance-tracker",
+      "step": "whole-screen",
+      "caption": "The compliance list, whole screen, 1080 px wide.",
+      "bytes": 32682
+    },
+    {
+      "path": "new-01.webp",
+      "width": 2880,
+      "height": 1800,
+      "app": "new",
+      "screen": "compliance-tracker",
+      "frame": 1,
+      "step": "open-list",
+      "caption": "Open the list.",
+      "detail": "The RPM tab opens. The patient with the least time left is first.",
+      "bytes": 109504
+    },
+    {
+      "path": "new-02.webp",
+      "width": 2880,
+      "height": 1800,
+      "app": "new",
+      "screen": "compliance-tracker",
+      "frame": 2,
+      "step": "search",
+      "caption": "Search for a name.",
+      "detail": "Type \"Ok\". The list shows only the two patients whose name has \"Ok\".",
+      "bytes": 97444
+    },
+    {
+      "path": "new-03.webp",
+      "width": 2880,
+      "height": 1800,
+      "app": "new",
+      "screen": "compliance-tracker",
+      "frame": 3,
+      "step": "filter-code",
+      "caption": "Show one billing code.",
+      "detail": "Choose CPT 99457 (20 min). The list shows only the patients who do not have this code yet.",
+      "bytes": 110818
+    },
+    {
+      "path": "new-04.webp",
+      "width": 2880,
+      "height": 1800,
+      "app": "new",
+      "screen": "compliance-tracker",
+      "frame": 4,
+      "step": "sort",
+      "caption": "Sort by priority, last first.",
+      "detail": "Click the Priority header. The order turns around.",
+      "bytes": 108446
+    },
+    {
+      "path": "new-05.webp",
+      "width": 2880,
+      "height": 1800,
+      "app": "new",
+      "screen": "compliance-tracker",
+      "frame": 5,
+      "step": "change-program",
+      "caption": "Change to the CCM program.",
+      "detail": "Click the CCM tab. The codes and the patients change.",
+      "bytes": 107376
+    },
+    {
+      "path": "new-06.webp",
+      "width": 2880,
+      "height": 1800,
+      "app": "new",
+      "screen": "compliance-tracker",
+      "frame": 6,
+      "step": "open-patient",
+      "caption": "Open the patient.",
+      "detail": "Click Amara Okonkwo. The patient's RPM overview opens.",
+      "bytes": 112470
+    },
+    {
+      "path": "new-appointments.webp",
+      "width": 2880,
+      "height": 1800,
+      "app": "new",
+      "screen": "appointments",
+      "step": "whole-screen",
+      "caption": "The week calendar, 4 to 10 October 2026.",
+      "bytes": 118568
+    },
+    {
+      "path": "new-appointments-1080.webp",
+      "width": 1080,
+      "height": 675,
+      "app": "new",
+      "screen": "appointments",
+      "step": "whole-screen",
+      "caption": "The week calendar, 4 to 10 October 2026, 1080 px wide.",
+      "bytes": 33580
+    }
+  ]
+}
