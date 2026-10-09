@@ -4,6 +4,9 @@
  */
 import "./room.css";
 
+/** A screen wide enough, and not in portrait, for the room's 3D moves. Phones and portrait tablets get flat, stacked layouts. */
+export const ROOM_QUERY = "(min-width: 1024px) and (min-aspect-ratio: 6/5)";
+
 /** Entries and the camera's landing. */
 export const OUT = "cubic-bezier(0.22, 1, 0.36, 1)";
 /** Exits. */

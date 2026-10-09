@@ -37,7 +37,7 @@ export function Ring({
   );
 }
 
-export function Chapter({ name, title, children, figure }: { name: string; title: string; children: ReactNode; figure: ReactNode }) {
+export function Chapter({ name, title, children, figure }: { name: string; title: string; children: ReactNode; figure?: ReactNode }) {
   return (
     <section className="lp-chapter" aria-labelledby={`lp-ch-${name}`}>
       <div className="lp-chapter-text lp-wrap">
@@ -49,7 +49,7 @@ export function Chapter({ name, title, children, figure }: { name: string; title
         </h2>
         <div className="lp-chapter-body">{children}</div>
       </div>
-      <div className="lp-chapter-figure lp-wrap">{figure}</div>
+      {figure && <div className="lp-chapter-figure lp-wrap">{figure}</div>}
     </section>
   );
 }
@@ -86,7 +86,7 @@ export function CaseTop() {
   );
 }
 
-function BackLink() {
+export function BackLink() {
   const { state } = useLocation();
   const navigate = useNavigate();
   const back = (event: MouseEvent<HTMLAnchorElement>) => {

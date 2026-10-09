@@ -1,6 +1,8 @@
 import { useRef, type CSSProperties } from "react";
 import { BrowserFrame } from "../../components/BrowserFrame";
+import { HEAD, HEAD_MS } from "./arrive";
 import { CaseEnd, CaseTop, Chapter, NextCase, Ring } from "./CaseParts";
+import { Slab } from "./Slab";
 import { Checked } from "./icons";
 import { useReveal } from "./hooks";
 
@@ -75,13 +77,17 @@ export function CareCase() {
           </div>
         </div>
         <figure className="lp-wrap lp-case-shot">
-          <BrowserFrame
-            src="/showcase/care-dashboard/overview.webp"
-            alt="Care team dashboard in the new app: patients by program, patient engagement by calls and text messages, and patients for each provider. Invented data."
-            label="Care platform, new app"
-            tone="light"
-            eager
-          />
+          <Slab from={HEAD} ms={HEAD_MS}>
+            <BrowserFrame
+              src="/showcase/care-dashboard/overview.webp"
+              alt="Care team dashboard in the new app: patients by program, patient engagement by calls and text messages, and patients for each provider. Invented data."
+              label="Care platform, new app"
+              tone="light"
+              eager
+            >
+              <span className="room-sheen" aria-hidden="true" />
+            </BrowserFrame>
+          </Slab>
           <figcaption className="lp-caption">{NOTE}</figcaption>
         </figure>
       </header>

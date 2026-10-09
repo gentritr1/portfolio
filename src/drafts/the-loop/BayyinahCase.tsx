@@ -1,6 +1,8 @@
 import { useRef, type CSSProperties } from "react";
 import { BrowserFrame } from "../../components/BrowserFrame";
+import { HEAD, HEAD_MS } from "./arrive";
 import { CaseEnd, CaseTop, Chapter, NextCase, Ring } from "./CaseParts";
+import { Slab } from "./Slab";
 import { useReveal } from "./hooks";
 import { Out } from "./icons";
 
@@ -60,14 +62,18 @@ export function BayyinahCase() {
           </div>
         </div>
         <figure className="lp-wrap lp-case-shot">
-          <BrowserFrame
-            src="/showcase/bayyinah/web-02.webp"
-            alt="Bayyinah TV library, Subject tab: library tabs, search, filters and a row of course cards, one marked LIVE."
-            label={SITE}
-            site
-            tone="dark"
-            eager
-          />
+          <Slab from={HEAD} ms={HEAD_MS}>
+            <BrowserFrame
+              src="/showcase/bayyinah/web-02.webp"
+              alt="Bayyinah TV library, Subject tab: library tabs, search, filters and a row of course cards, one marked LIVE."
+              label={SITE}
+              site
+              tone="dark"
+              eager
+            >
+              <span className="room-sheen" aria-hidden="true" />
+            </BrowserFrame>
+          </Slab>
           <figcaption className="lp-caption">The library, a public page of bayyinahtv.com.</figcaption>
         </figure>
       </header>

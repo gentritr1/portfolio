@@ -6,7 +6,7 @@ import { pieceStyle } from "./HeroBuild";
 import { useMedia, useReducedMotion } from "./hooks";
 import { Approved, Checked } from "./icons";
 import { OldScreen } from "./OldScreen";
-import { ARRIVE, CARD_MS, cardFrom, decode, DRIFT, MOVE, moving, OUT, pose, SHEEN_AFTER, sheen, type Pose } from "./room";
+import { ARRIVE, CARD_MS, ROOM_QUERY, cardFrom, decode, DRIFT, MOVE, moving, OUT, pose, SHEEN_AFTER, sheen, type Pose } from "./room";
 import "./stage.css";
 
 const COUNT = steps.length;
@@ -83,6 +83,16 @@ function cut(cam: HTMLElement, box: Box, start: string, turn: Pose, step: number
   );
 }
 
+/**
+ * A dark card in front of a light screen. It is opaque early in its move, so no half-transparent dark card
+ * over the light screen reads as a grey sheet.
+ */
+const cardIn = (side: 1 | -1): Keyframe[] => [
+  { opacity: 0, transform: cardFrom(side) },
+  { opacity: 1, offset: 0.3 },
+  { opacity: 1, transform: "none" },
+];
+
 const shine = (root: HTMLElement, delay: number) => sheen(one(root, ".lc-cam .room-sheen"), delay);
 
 /** The checks run: four pass, "Route rules" fails, the work goes back, the second run passes. Every run ends on the rest state that CSS draws. */
@@ -153,7 +163,7 @@ const scene: Run[] = [
   (root, cam, box, start) => [
     cut(cam, box, start, { y: -2, z: -160, rx: 5, ry: -11, s: 0.9 }, 0, LENGTH[0]),
     shine(root, land(LENGTH[0])),
-    one(root, ".ls-test").animate([{ opacity: 0, transform: cardFrom(1) }, { opacity: 1, transform: "none" }], {
+    one(root, ".ls-test").animate(cardIn(1), {
       duration: CARD_MS,
       delay: 320,
       easing: OUT,
@@ -209,7 +219,7 @@ const scene: Run[] = [
   (root, cam, box, start) => [
     cut(cam, box, start, { y: -2, z: -140, rx: 6, ry: 10, s: 0.9 }, 2, 1500),
     shine(root, land(1500)),
-    one(root, ".ls-checks").animate([{ opacity: 0, transform: cardFrom(-1) }, { opacity: 1, transform: "none" }], {
+    one(root, ".ls-checks").animate(cardIn(-1), {
       duration: CARD_MS,
       delay: 180,
       easing: OUT,
@@ -719,14 +729,14 @@ function Cinema() {
   );
 }
 
-/** The four steps. On a wide screen with motion, one pinned scene that moves one step for each snap point; otherwise, one settled picture under each step. */
+/** The four steps. On a wide landscape screen with motion, one pinned scene that moves one step for each snap point; otherwise, one settled picture under each step. */
 export function Steps() {
   const reduce = useReducedMotion();
-  const wide = useMedia("(min-width: 1024px)");
+  const wide = useMedia(ROOM_QUERY);
   const cinema = wide && !reduce;
 
   return (
-    <section className="lp-steps" id="work" aria-labelledby="lp-steps-title" data-mode={cinema ? "cinema" : "stack"}>
+    <section className="lp-steps" aria-labelledby="lp-steps-title" data-mode={cinema ? "cinema" : "stack"}>
       <div className="lp-steps-intro lp-wrap">
         <h2 className="lp-h2" id="lp-steps-title">
           How each new screen gets made

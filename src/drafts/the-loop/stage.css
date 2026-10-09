@@ -37,6 +37,13 @@ html:has(.lc-track) {
   overflow: clip;
 }
 
+/* A touch fling travels far. On a touch screen the steps stand one screen apart, so one fling cannot pass two snap points. */
+@media (pointer: coarse) {
+  .lc-track {
+    --step: 100svh;
+  }
+}
+
 .lc-snap {
   position: absolute;
   left: 0;
@@ -674,12 +681,42 @@ html:has(.lc-track) {
   transform: translateY(-1px);
 }
 
+/* Name over command, status on the right: the three never share a line, so they cannot overlap at any width. */
 .ls-checks .ls-row {
   position: relative;
   isolation: isolate;
-  grid-template-columns: minmax(0, 1fr) auto auto;
-  gap: 4px 12px;
-  padding-block: 7px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "name status"
+    "cmd status"
+    "note note";
+  gap: 0 12px;
+  align-items: center;
+  padding-block: 6px;
+}
+
+.ls-checks .ls-check-name {
+  grid-area: name;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ls-checks .ls-row code {
+  grid-area: cmd;
+  min-width: 0;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.ls-checks .ls-status {
+  grid-area: status;
+}
+
+.ls-checks .ls-note {
+  grid-area: note;
+  margin-top: 4px;
 }
 
 .ls-checks .ls-row + .ls-row {
@@ -884,9 +921,5 @@ html:has(.lc-track) {
 
   .ls-checks .ls-row code {
     display: none;
-  }
-
-  .ls-checks .ls-row {
-    grid-template-columns: minmax(0, 1fr) auto;
   }
 }

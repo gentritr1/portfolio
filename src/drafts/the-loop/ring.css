@@ -387,6 +387,21 @@ button.dy-list-row:active {
   perspective-origin: 50% 40%;
 }
 
+/* The step back: while the work goes back to the agents, the camera backs away from the stage, then comes in again. */
+@media (prefers-reduced-motion: no-preference) {
+  .dy-stage {
+    transition: transform 1000ms var(--ease-move);
+  }
+
+  .dy[data-back] .dy-stage {
+    transform: scale(0.965);
+  }
+
+  .dy[data-instant] .dy-stage {
+    transition: none;
+  }
+}
+
 /* A still floor under the frames. */
 .dy-stage::before {
   content: "";

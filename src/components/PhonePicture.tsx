@@ -22,6 +22,7 @@ const PHONE_COPIES = new Set([
   "/personal/shots/offday-light-shifts-desktop.webp",
   "/personal/shots/offbeat-studio-desktop.webp",
   "/personal/shots/form-studio-desktop.webp",
+  "/personal/shots/za-table-two-seats.webp",
 ]);
 
 /** The image, with the smaller copy of its file for phone screens. The `img` keeps the original `src`, because the plate hand-off matches pictures by it. */

@@ -84,75 +84,6 @@
   width: fit-content;
 }
 
-/* ---------- Design System v2 ---------- */
-
-.lp-dscheck {
-  max-width: 760px;
-  padding: clamp(18px, 2.4vw, 28px);
-  border-radius: 20px;
-  background: var(--card);
-  border: 1px solid var(--line);
-}
-
-.lp-big-num.lp-share-num {
-  align-items: baseline;
-  gap: 0.04em;
-  color: var(--accent);
-}
-
-.lp-share-unit {
-  font-size: 0.5em;
-  letter-spacing: 0;
-}
-
-.lp-bars {
-  display: grid;
-  gap: 14px;
-  margin-top: 36px;
-}
-
-.lp-bars li {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 6px 12px;
-}
-
-.lp-bar-name {
-  color: var(--ink);
-  font-weight: 600;
-}
-
-.lp-bar-value {
-  justify-self: end;
-  color: var(--ink-2);
-  font-family: var(--mono);
-  font-size: 0.875rem;
-  line-height: 1.75;
-}
-
-.lp-bar {
-  grid-column: 1 / -1;
-  height: 12px;
-  border-radius: 999px;
-  background: var(--card-2);
-  overflow: hidden;
-}
-
-.lp-bar span {
-  display: block;
-  width: 100%;
-  height: 100%;
-  border-radius: inherit;
-  background: var(--ink-3);
-  transform: scaleX(var(--share));
-  transform-origin: left center;
-}
-
-.lp-bars li:last-child .lp-bar span {
-  min-width: 6px;
-  background: var(--accent);
-}
-
 .lp-changed-top {
   align-items: start;
 }
@@ -191,20 +122,6 @@
 
 .lp-counts dt {
   color: var(--ink-2);
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .lp .lp-share[data-reveal=""] .lp-bar span {
-    transform: scaleX(1);
-  }
-
-  .lp .lp-share .lp-bar span {
-    transition: transform 900ms var(--ease-move) 500ms;
-  }
-
-  .lp .lp-share .lp-bars li:first-child .lp-bar span {
-    transition: none;
-  }
 }
 
 /* ---------- Bayyinah TV ---------- */
@@ -250,16 +167,4 @@
   .lp-next {
     margin-top: 40px;
   }
-}
-
-/* ---------- Links from the home ---------- */
-
-.lp-ds > .lp-cta {
-  grid-column: 1 / -1;
-  justify-self: start;
-  margin-top: 0;
-}
-
-.lp-app-text .lp-cta {
-  margin-top: 20px;
 }

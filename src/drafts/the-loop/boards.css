@@ -1,0 +1,218 @@
+/* ---------- The Design System v2 boards (Boards.tsx) ---------- */
+
+.bd {
+  position: relative;
+  border-radius: 24px;
+}
+
+.lp .bd:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 10px;
+  border-radius: 24px;
+}
+
+/* The large screen: a thin dark bezel, a lit top edge, the board inside. */
+.bd-screen {
+  padding: clamp(6px, 0.7vw, 12px);
+  border-radius: clamp(14px, 1.5vw, 22px);
+  background: linear-gradient(#1b1d23, #101216);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.12),
+    0 0 0 1px rgb(0 0 0 / 0.65);
+}
+
+/* The camera of the board change. It has no 3D children of its own, so the clip does not flatten anything. */
+.bd-stage {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  border-radius: clamp(8px, 0.9vw, 12px);
+  background: #0d0e12;
+  perspective: 1800px;
+  perspective-origin: 50% 40%;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* A board that leaves goes back and to the side it came from, in 260 ms. */
+.bd-board {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  opacity: 0;
+  transform: translate3d(-24px, 0, -80px);
+  transition:
+    opacity 260ms var(--ease-out),
+    transform 380ms var(--ease-out);
+  -webkit-user-drag: none;
+}
+
+.bd[data-dir="-1"] .bd-board:not([data-now]) {
+  transform: translate3d(24px, 0, -80px);
+}
+
+/* The board that arrives comes forward from the far side and rests flat, so its text is sharp. */
+.bd-board[data-now] {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 380ms var(--ease-reveal),
+    transform 620ms var(--ease-reveal);
+}
+
+@starting-style {
+  .bd[data-dir="1"] .bd-board[data-now] {
+    opacity: 0;
+    transform: translate3d(32px, 0, -110px);
+  }
+
+  .bd[data-dir="-1"] .bd-board[data-now] {
+    opacity: 0;
+    transform: translate3d(-32px, 0, -110px);
+  }
+}
+
+.bd-bar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px 16px;
+  margin-top: 40px;
+}
+
+.bd-index {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  min-width: 0;
+}
+
+.bd-n {
+  flex: none;
+  color: var(--accent);
+  font-family: var(--mono);
+  font-size: 0.875rem;
+  white-space: nowrap;
+}
+
+.bd-of {
+  color: var(--ink-3);
+}
+
+.bd-title {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--ink);
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.4;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .bd-title {
+    animation: bd-title 320ms var(--ease-out) both;
+  }
+}
+
+@keyframes bd-title {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+.bd-controls {
+  display: flex;
+  gap: 8px;
+}
+
+.bd-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 44px;
+  height: 44px;
+  padding: 0;
+  border-radius: 999px;
+  border: 1px solid var(--line-strong);
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    border-color 200ms ease,
+    transform 160ms var(--ease-out);
+}
+
+.bd-play {
+  padding: 0 16px 0 14px;
+}
+
+.bd-button:active {
+  transform: scale(0.96);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .bd-button:hover {
+    border-color: var(--accent);
+  }
+}
+
+/* The time to the next board. Its animation is the timer: it pauses with the carousel. */
+.bd-time {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  height: 2px;
+  overflow: hidden;
+  border-radius: 2px;
+  background: var(--line);
+}
+
+.bd-time i {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  transform-origin: left center;
+  animation-name: bd-time;
+  animation-timing-function: linear;
+  animation-fill-mode: both;
+}
+
+@keyframes bd-time {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .bd-bar {
+    grid-template-columns: minmax(0, 1fr);
+    margin-top: 36px;
+  }
+
+  .bd-index {
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .bd-title {
+    display: -webkit-box;
+    min-height: 2.8em;
+    white-space: normal;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+  }
+}

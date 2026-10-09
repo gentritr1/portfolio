@@ -1,4 +1,4 @@
-import { useEffect, useState, type RefObject } from "react";
+import { createContext, useEffect, useState, type RefObject } from "react";
 
 const QUERY = "(prefers-reduced-motion: reduce)";
 
@@ -11,27 +11,6 @@ export function useReducedMotion() {
     return () => media.removeEventListener("change", change);
   }, []);
   return reduce;
-}
-
-/** True from the first time the element is at least `share` on screen. */
-export function useSeen(ref: RefObject<Element | null>, share = 0.3) {
-  const [seen, setSeen] = useState(false);
-  useEffect(() => {
-    const node = ref.current;
-    if (!node || seen) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setSeen(true);
-          observer.disconnect();
-        }
-      },
-      { threshold: share },
-    );
-    observer.observe(node);
-    return () => observer.disconnect();
-  }, [ref, share, seen]);
-  return seen;
 }
 
 /** Marks each `[data-reveal]` element under the root once it comes on screen. */
@@ -69,3 +48,6 @@ export function useMedia(query: string) {
   }, [query]);
   return match;
 }
+
+/** True on a page that mounts again in the same page load, for example the home after "Back to the loop": everything shows settled. */
+export const Settled = createContext(false);

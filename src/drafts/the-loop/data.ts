@@ -278,83 +278,88 @@ export const ringProof = [
   "Old bugs written down, not copied.",
 ];
 
-export interface App {
-  name: string;
-  years: string;
-  line: string;
-  built: string;
-  result: string;
-  shots: Array<{ src: string; alt: string }>;
-  links: Array<{ label: string; href: string }>;
-  engineers: string[];
+/** Two store-listing screens measured in content/phoneScreens.ts, shown in PhoneFrame. */
+export const phones = [
+  {
+    src: "/mobile/reading-1.webp",
+    app: "Read to Feed",
+    alt: "Read to Feed: My Books, with each book and how much of it is read.",
+  },
+  {
+    src: "/mobile/grocery-1.webp",
+    app: "Viva Fresh",
+    alt: "Viva Fresh: the home page with categories and products.",
+  },
+];
+
+export interface Board {
+  file: string;
+  small: string;
+  title: string;
+  alt: string;
 }
 
-export const apps: App[] = [
+const BOARDS = "/showcase/design-system/boards/";
+
+/** The seven Design System v2 boards, rendered from the real components (boards.json in the same folder). */
+export const boards: Board[] = [
   {
-    name: "Read to Feed",
-    years: "2022 to 2025",
-    line: "This app lets children read books, scan their own books and earn badges.",
-    built: "The team built a reader for two e-book formats that keeps the page, a barcode scanner with the camera, and badges and streaks.",
-    result: "About 14 updates went to both stores in four years.",
-    shots: [
-      { src: "/mobile/reading-1.webp", alt: "Read to Feed store screen: My Books, with each book and how much of it is read." },
-      { src: "/mobile/reading-2.webp", alt: "Read to Feed store screen: badges and eggs earned by reading and answering quiz questions." },
-    ],
-    links: [
-      { label: "App Store (archived)", href: "https://web.archive.org/web/20251124202817/https://apps.apple.com/us/app/read-to-feed/id1623561765" },
-      { label: "Google Play (archived)", href: "https://web.archive.org/web/20260316164104/https://play.google.com/store/apps/details?id=com.heifer.rtf" },
-    ],
-    engineers: ["React Native 0.63 to 0.81, three major upgrades", "Redux Toolkit, Firebase, Vision Camera", "epub.js and react-native-pdf, kept as maintained forks"],
+    file: "board-01.webp",
+    small: "board-01-1080.webp",
+    title: "Design System v2",
+    alt: "Title board. On the left: Design System v2, with three numbers: 41 components, 868 design values, 22 releases in 60 days. On the right: a tilted wall of real components, such as buttons, badges, a table, a date picker, steps, a progress ring, inputs and a toast.",
   },
   {
-    name: "Viva Fresh",
-    years: "2023",
-    line: "This app lets people order groceries for a set delivery time, in Albanian.",
-    built: "The team built it once for iPhone and Android: categories, cart, checkout with a delivery time, address search on a map, and loyalty.",
-    result: "Live in both stores.",
-    shots: [
-      { src: "/mobile/grocery-1.webp", alt: "Viva Fresh store screen: the home page with categories and products." },
-      { src: "/mobile/grocery-3.webp", alt: "Viva Fresh store screen: the cart with products, the total and the checkout button." },
-    ],
-    links: [
-      { label: "App Store", href: "https://apps.apple.com/us/app/viva-fresh/id1580739480" },
-      { label: "Google Play", href: "https://play.google.com/store/apps/details?id=com.zs.vivafresh" },
-    ],
-    engineers: ["React Native, Redux Toolkit", "Maps with address search", "Firebase"],
+    file: "board-02.webp",
+    small: "board-02-1080.webp",
+    title: "We write a value once. The build writes the rest.",
+    alt: "One design value followed from source to screen. The brand colour #006992 is written once in core.tokens.json, named interactive.bg in semantic.tokens.json, written out by the build to CSS, JavaScript and the Figma bundle, read by the Button stylesheet, and shown on a real button whose computed background is rgb(0, 105, 146).",
   },
   {
-    name: "Dukagjini Bookstore",
-    years: "2021 to 2022",
-    line: "This app is a publisher's bookshop: search, lists and promo codes.",
-    built: "The team built it once for both phones. A notification opens the right book, and panels close with a swipe.",
-    result: "Live in both stores.",
-    shots: [
-      { src: "/mobile/bookstore-1.webp", alt: "Dukagjini Bookstore store screen: search for books and the top categories." },
-      { src: "/mobile/bookstore-2.webp", alt: "Dukagjini Bookstore store screen: a list of foreign books with prices." },
-    ],
-    links: [
-      { label: "App Store", href: "https://apps.apple.com/us/app/dukagjini-bookstore/id1587352342" },
-      { label: "Google Play", href: "https://play.google.com/store/apps/details?id=com.zs.dukagjinibooks" },
-    ],
-    engineers: ["React Native, Redux", "Firebase Messaging with deep links", "Swipe-to-close panels"],
+    file: "board-03.webp",
+    small: "board-03-1080.webp",
+    title: "Every variant and tone, measured in a browser.",
+    alt: "A matrix of real buttons: four variants (solid, outline, ghost, link) by seven tones. Under each button is its measured label contrast, from 4.82 to 19.89 to 1, all above the 4.5 to 1 floor. Below, all 56 labels (rest and disabled) sit on one scale to the right of the floor, and one solid brand button is shown in five states: rest 6.11, hover 9.23, focus ring 6.11, disabled 5.16, loading 6.11.",
   },
   {
-    name: "Bayyinah TV",
-    years: "2023 to 2026",
-    line: "This platform has video lessons, live classes and subscriptions.",
-    built: "The core team rebuilt the web app from an empty template, in English and in Arabic, read from right to left. The iPhone and Android apps run the same web app.",
-    result: "Live on the web and in both stores.",
-    shots: [
-      { src: "/showcase/bayyinah/store-01.webp", alt: "Bayyinah TV store screen: Quran studies made simple, with a phone that shows a lesson." },
-      { src: "/showcase/bayyinah/store-05.webp", alt: "Bayyinah TV store screen: My Learning, with hours watched and lessons in progress." },
-    ],
-    links: [
-      { label: "Website", href: "https://bayyinahtv.com/" },
-      { label: "App Store", href: "https://apps.apple.com/us/app/bayyinah-tv/id1530635769" },
-      { label: "Google Play", href: "https://play.google.com/store/apps/details?id=com.zombiesoup.bayyinah" },
-    ],
-    engineers: ["Nuxt 3, Vue 3, Pinia", "video.js with HLS, AWS IVS live video, Pusher", "Stripe, Apple and Google subscriptions"],
+    file: "board-04.webp",
+    small: "board-04-1080.webp",
+    title: "A whole screen, built only from the parts.",
+    alt: "A complete care-team screen made only from library parts: a sidebar, a search field, a page head with Export and Add person buttons, filter tabs, a program select, a date range field, a table of six invented people with avatars, program and status badges, progress bars and a row menu that is open, pagination, and a success toast. A list on the left names the 13 components on the screen.",
   },
+  {
+    file: "board-05.webp",
+    small: "board-05-1080.webp",
+    title: "Fields that show their state.",
+    alt: "Real form parts in their states. On the left, the date range picker is open with two months, a presets list and Apply. On the right: an email field at rest, a name field in focus, a phone field with the error Enter the full number, a disabled ID field, an open program select with a disabled option, and a conditions combobox with two chosen values.",
+  },
+  {
+    file: "board-06.webp",
+    small: "board-06-1080.webp",
+    title: "A check is trusted only after it is shown to fail.",
+    alt: "Three pictures of the same card: expected, changed, and the difference. In the changed picture only the Save plan button is one step darker. In the difference picture that button is red. At Playwright's default tolerance of 0.2, 0 pixels differ; at tolerance 0, 13,442 pixels differ, so the check fails as it must.",
+  },
+  {
+    file: "board-07.webp",
+    small: "board-07-1080.webp",
+    title: "From one JSON edit to a release.",
+    alt: "A six-step line from edit to release: Edit (tokens/source), Build (npm run build), Static gates, Rendered evidence, Consumer smoke, and Release, each with its real step names. Release runs only after the three check jobs pass. Below, a bar shows 186,949 bytes before and 6,386 bytes after, 96.6 percent less JavaScript for an app that imports only Button.",
+  },
+].map((b) => ({ ...b, file: BOARDS + b.file, small: BOARDS + b.small }));
+
+/** Server lines. Sources: SPEC.md "Facts and sources". */
+export const serverProof = [
+  "Za!: one Node.js server decides every move for 2 to 8 players.",
+  "A billing report went from 16 database queries to 2. No more time-outs.",
+  "Patient times now follow the patient's own clock, also when the clocks change.",
+];
+
+/** The billing report's four sheets and the calendar months each one read, one patient query for each month. */
+export const sheets = [
+  { days: 30, months: 2 },
+  { days: 60, months: 3 },
+  { days: 90, months: 4 },
+  { days: 180, months: 7 },
 ];
 
 export interface Own {
