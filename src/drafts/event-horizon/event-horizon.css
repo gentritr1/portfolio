@@ -222,6 +222,44 @@
 .eh-foot-links { display: flex; flex-wrap: wrap; gap: 10px; }
 .eh-foot-note { font-size: 10px; color: var(--eh-dim); }
 
+/* ---------- Case page: the case reads in a column; the project's own screen holds in space beside it ---------- */
+.eh-case { position: relative; z-index: 2; max-width: 1440px; margin: 0 auto; padding: 104px clamp(16px, 5vw, 72px) 64px; }
+.eh-case-col { width: min(540px, 100%); display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+/* Grid children may shrink below their longest word, so a long project name never widens the column. */
+.eh-case-col > *, .eh-dive-page > * { min-width: 0; }
+.eh-case-back { justify-self: start; }
+.eh-case-body { overflow: hidden; border: 1px solid var(--eh-line); border-radius: 16px; background: var(--eh-glass-strong); backdrop-filter: blur(24px) saturate(1.2); -webkit-backdrop-filter: blur(24px) saturate(1.2); }
+/* Scoped under .eh-case: the drawer's .eh-dive rule comes later in this file. */
+.eh-case .eh-dive-page { padding: clamp(32px, 3.4vw, 44px) clamp(24px, 3vw, 36px) clamp(24px, 3vw, 36px); gap: 40px; }
+.eh-dive-page .eh-dive-head h1 { font: 200 clamp(34px, min(5vw, 11vw), 72px)/0.98 var(--eh-sans); overflow-wrap: break-word; hyphens: manual; font-stretch: 108%; letter-spacing: -0.01em; outline: none; }
+.eh-dive-page .eh-dive-lede { font-size: 17px; }
+.eh-case .eh-dive-page .eh-strip { margin: 0 calc(-1 * clamp(24px, 3vw, 36px)); padding: 0 clamp(24px, 3vw, 36px) 8px; }
+.eh-case-more { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.eh-case-link {
+  display: flex; align-items: center; gap: 12px; min-height: 72px; padding: 10px 14px 10px 10px; border: 1px solid var(--eh-line); border-radius: 14px;
+  background: var(--eh-glass); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); color: var(--eh-fg); text-decoration: none;
+  transition: border-color 200ms ease, transform 160ms var(--eh-ease-out);
+}
+.eh-case-link:active { transform: scale(0.98); }
+.eh-case-link img { width: 72px; height: 48px; object-fit: cover; object-position: top; border-radius: 8px; border: 1px solid var(--eh-line); flex: none; }
+.eh-case-link img[data-shape="phone"] { width: 34px; height: 56px; }
+.eh-case-link span { display: grid; gap: 2px; min-width: 0; }
+.eh-case-link small { font-size: 10px; color: var(--eh-dim); text-transform: uppercase; }
+.eh-case-link strong { font-weight: 500; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+@media (hover: hover) and (pointer: fine) { .eh-case-link:hover { border-color: rgb(95 227 255 / 0.5); } }
+/* Tall viewports: the screen sits above, the case reads below it. */
+@media (max-aspect-ratio: 1/1) {
+  .eh-case { padding-top: 88px; }
+  .eh-case-col { width: min(640px, 100%); margin: 0 auto; }
+  .eh-case-body { margin-top: 42svh; }
+}
+@media (max-width: 767px) {
+  .eh-case { padding: 84px 12px 32px; }
+  /* Two columns of readouts: an odd last one spans the row instead of leaving a hole. */
+  .eh-dive-readouts li:last-child:nth-child(odd) { grid-column: 1 / -1; }
+  .eh-case-more { grid-template-columns: 1fr; }
+}
+
 /* ---------- Drawer ---------- */
 .eh-scrim { position: fixed; inset: 0; z-index: 9; background: rgb(3 3 8 / 0.35); }
 .eh-drawer {
@@ -244,7 +282,9 @@
 .eh-dive-readouts b { display: inline-flex; align-items: center; gap: 6px; font: 500 24px/1 var(--eh-mono); font-stretch: 87.5%; color: var(--eh-amber); }
 .eh-dive-readouts b svg { color: var(--eh-dim); }
 .eh-dive-readouts span { font-size: 12px; color: var(--eh-fg-2); line-height: 1.4; }
-.eh-block { display: grid; gap: 14px; }
+.eh-block { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
+/* Code lines scroll inside their own box instead of widening the column. */
+.eh-block > *, .eh-day li > div { min-width: 0; }
 .eh-block h3 { font: 400 11px/1 var(--eh-mono); font-stretch: 87.5%; letter-spacing: 0.14em; text-transform: uppercase; color: var(--eh-cyan); }
 .eh-block > p { color: var(--eh-fg-2); font-size: 15px; text-wrap: pretty; }
 .eh-strip { display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; margin: 0 -28px; padding: 0 28px 8px; scrollbar-width: thin; }

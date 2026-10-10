@@ -43,11 +43,13 @@ function Twin() {
   )
 }
 
-export function Dive({ system: s, reduced }: { system: System; reduced: boolean }) {
+/** The deep dive: in the drawer, or as the full case page (`page`), where the name is the page's heading. */
+export function Dive({ system: s, reduced, page = false, onLeave }: { system: System; reduced: boolean; page?: boolean; onLeave?(): void }) {
+  const Heading = page ? 'h1' : 'h2'
   return (
-    <motion.div className="eh-dive" initial="hidden" animate="shown" variants={{ shown: { transition: { staggerChildren: reduced ? 0 : 0.045, delayChildren: reduced ? 0 : 0.18 } } }}>
+    <motion.div className={page ? 'eh-dive eh-dive-page' : 'eh-dive'} initial="hidden" animate="shown" variants={{ shown: { transition: { staggerChildren: reduced ? 0 : 0.045, delayChildren: reduced ? 0 : 0.18 } } }}>
       <motion.header className="eh-dive-head" variants={reduced ? undefined : rise}>
-        <h2 id="eh-drawer-h">{s.name}</h2>
+        <Heading id={page ? 'eh-case-h' : 'eh-drawer-h'} tabIndex={page ? -1 : undefined}>{s.name}</Heading>
         <p className="eh-dive-meta eh-mono">{[s.kind, s.years, s.role].filter(Boolean).join(' · ')}</p>
         {s.story && <p className="eh-dive-lede">{s.story.product}</p>}
       </motion.header>
@@ -148,10 +150,12 @@ export function Dive({ system: s, reduced }: { system: System; reduced: boolean 
       )}
 
       <motion.footer className="eh-dive-foot" variants={reduced ? undefined : rise}>
-        <Link className="eh-btn eh-btn-solid" to={`/work/${s.slug}`}>
-          Read the full case
-          <ArrowRightIcon size={16} weight="bold" aria-hidden="true" />
-        </Link>
+        {!page && (
+          <Link className="eh-btn eh-btn-solid" to={`/drafts/event-horizon/${s.slug}`} onClick={onLeave}>
+            Read the full case
+            <ArrowRightIcon size={16} weight="bold" aria-hidden="true" />
+          </Link>
+        )}
         {s.links.map((l) => (
           <a key={l.href} className="eh-btn" href={l.href} target="_blank" rel="noreferrer">
             {l.label}
