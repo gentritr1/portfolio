@@ -419,7 +419,9 @@ export function createScene(
   function buildPath() {
     const wide = camera.aspect > 1
     const tanHalf = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2))
-    const pos: THREE.Vector3[] = [new THREE.Vector3(0, 15, 0.01), new THREE.Vector3(0, 4.6, 13)]
+    // The hero camera sits about 12 degrees off vertical. Straight down (it was 0.01 off) leaves its roll undefined:
+    // a 0.02-unit hover lean then rolled the whole view 63 degrees, and 0.12 rolled it 85, so the galaxy spun with the cursor.
+    const pos: THREE.Vector3[] = [new THREE.Vector3(0, 15, 3.2), new THREE.Vector3(0, 4.6, 13)]
     const look: THREE.Vector3[] = [new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, -0.6, 0)]
     layout.forEach((l, i) => {
       const right = new THREE.Vector3().crossVectors(l.normal.clone().negate(), UP).normalize()
@@ -462,7 +464,7 @@ export function createScene(
   ro.observe(host)
 
   const ndc = new THREE.Vector2(), ray = new THREE.Raycaster(), viewPlane = new THREE.Plane(), hit = new THREE.Vector3()
-  const camPos = new THREE.Vector3(0, 15, 0.01), lookCur = new THREE.Vector3(), want = new THREE.Vector3(), wantLook = new THREE.Vector3()
+  const camPos = new THREE.Vector3(0, 15, 3.2), lookCur = new THREE.Vector3(), want = new THREE.Vector3(), wantLook = new THREE.Vector3()
   const parallax = new THREE.Vector2(), drift = new THREE.Vector2(), dir = new THREE.Vector3(), camRight = new THREE.Vector3(), camUp = new THREE.Vector3()
   let stage = 0, stageTarget = 0, lens = 0, lensTarget = 0, focusIdx: number | null = null, focusW = 0
   let hovered: number | null = null, shockT = -1, introT = 0
