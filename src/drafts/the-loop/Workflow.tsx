@@ -5,6 +5,7 @@ import { useReveal } from "./hooks";
 import { Checked } from "./icons";
 import { Ring } from "./Ring";
 import { Steps } from "./Steps";
+import { loopHref } from "./base";
 
 /** Three real catches. Sources: SPEC.md "Facts and sources". */
 const catches = [
@@ -200,7 +201,7 @@ export function Workflow() {
             </ol>
           </div>
         </div>
-        <NextCase to="/drafts/the-loop/care-platform" name="Care platform" line="Rebuilding a care platform that teams use every day, one tested screen at a time." />
+        <NextCase to={loopHref("care-platform")} name="Care platform" line="Rebuilding a care platform that teams use every day, one tested screen at a time." />
         <BackLink />
       </section>
     </article>

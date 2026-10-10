@@ -3,8 +3,8 @@ import { Link, useLocation, useNavigate } from "react-router";
 import { spotIn, type Box } from "../../components/BrowserFrame";
 import { Back, Next } from "./icons";
 import "./cases.css";
+import { loopBase, loopHref, routePath } from "./base";
 
-const HOME = "/drafts/the-loop";
 
 /** A ring on the part of a screen that proves the chapter. `box` is in the capture's CSS pixels. */
 export function Ring({
@@ -70,7 +70,7 @@ export function CaseTop() {
       restoreHome = undefined;
       let frames = 0;
       const step = () => {
-        if (window.location.pathname.replace(/\/$/, "") !== HOME || ++frames > 60) return;
+        if (routePath().replace(/\/$/, "") !== loopBase() || ++frames > 60) return;
         const home = document.querySelector('.lp[data-view="home"]');
         if (home && document.documentElement.scrollHeight >= homeY + window.innerHeight) window.scrollTo({ top: homeY, behavior: "instant" });
         else requestAnimationFrame(step);
@@ -95,7 +95,7 @@ export function BackLink() {
     navigate(-1);
   };
   return (
-    <Link to={HOME} className="lp-link lp-back" onClick={back}>
+    <Link to={loopHref()} className="lp-link lp-back" onClick={back}>
       <Back />
       Back to the loop
     </Link>

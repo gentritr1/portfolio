@@ -19,6 +19,7 @@ import { Next, Out } from "./icons";
 import { useMirrors } from "./mirror";
 import { Queries } from "./Queries";
 import { ROOM_QUERY } from "./room";
+import { loopHref } from "./base";
 
 const REDUCE = "(prefers-reduced-motion: reduce)";
 
@@ -189,7 +190,7 @@ function Ai() {
           "Each check has a test that feeds it bad work and expects it to fail.",
         ]}
       />
-      <More to="/drafts/the-loop/workflow">How the workflow works</More>
+      <More to={loopHref("workflow")}>How the workflow works</More>
     </Chapter>
   );
 }
@@ -217,7 +218,7 @@ function DesignSystem() {
           </div>
         ))}
       </dl>
-      <More to="/drafts/the-loop/design-system">The Design System story</More>
+      <More to={loopHref("design-system")}>The Design System story</More>
     </Chapter>
   );
 }
@@ -291,7 +292,7 @@ function Mobile() {
       <p className="lp-ch-line">
         Store apps for reading, shopping and learning, each built once for both phones: Read to Feed, Viva Fresh, Dukagjini Bookstore and Bayyinah TV.
       </p>
-      <More to="/drafts/the-loop/bayyinah-tv">Read the Bayyinah TV story</More>
+      <More to={loopHref("bayyinah-tv")}>Read the Bayyinah TV story</More>
     </Chapter>
   );
 }

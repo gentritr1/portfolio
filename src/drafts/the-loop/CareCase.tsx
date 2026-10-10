@@ -5,6 +5,7 @@ import { CaseEnd, CaseTop, Chapter, NextCase, Ring } from "./CaseParts";
 import { Slab } from "./Slab";
 import { Checked } from "./icons";
 import { useReveal } from "./hooks";
+import { loopHref } from "./base";
 
 const NOTE = "Real product screen, invented data.";
 
@@ -214,7 +215,7 @@ export function CareCase() {
       <CaseEnd
         stack={stack}
         engineers={engineers}
-        next={<NextCase to="/drafts/the-loop/design-system" name="Design System v2" line="One set of parts for every new screen." />}
+        next={<NextCase to={loopHref("design-system")} name="Design System v2" line="One set of parts for every new screen." />}
       />
     </article>
   );

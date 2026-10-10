@@ -6,6 +6,7 @@ import { boards, own, phones, WEEK_SMALL } from "./data";
 import { useReducedMotion } from "./hooks";
 import { Next } from "./icons";
 import { moving, OUT, pose } from "./room";
+import { loopHref } from "./base";
 
 /** The camera starts low, looking across the floor, and rises until it looks straight down. */
 const RISE = { y: 14, z: -320, rx: 62 };
@@ -40,7 +41,7 @@ const spots: Spot[] = [
   },
   { n: "05", name: "Web3", to: { chapter: "web3" }, shot: img("/showcase/incentiv/web-03-1080.webp") },
   { n: "06", name: "Own projects", to: { chapter: "own" }, shot: img(own[0].shot.small) },
-  { name: "How the workflow works", to: { page: "/drafts/the-loop/workflow" }, shot: img("/showcase/care/old-new/new-compliance-1080.webp") },
+  { name: "How the workflow works", to: { page: "workflow" }, shot: img("/showcase/care/old-new/new-compliance-1080.webp") },
 ];
 
 function rise(floor: HTMLElement) {
@@ -118,7 +119,7 @@ export function Above() {
                 return (
                   <li key={s.name} className="ab-spot" data-wide={s.wide ? "" : undefined}>
                     {"page" in s.to ? (
-                      <Link className="ab-link" to={s.to.page} state={{ fromHome: true }}>
+                      <Link className="ab-link" to={loopHref(s.to.page)} state={{ fromHome: true }}>
                         {label}
                       </Link>
                     ) : (
