@@ -53,6 +53,9 @@ export function Handoff({ seen }: { seen: boolean }) {
     const build = document.querySelector<HTMLElement>(".lp-build");
     const frame = build?.querySelector<HTMLElement>(".lp-build-frame");
     const foot = build?.querySelector<HTMLElement>(".lp-build-foot");
+    // The loop around the screen (the side cards and the seal) leaves with the hero window.
+    const around = build ? [...build.querySelectorAll<HTMLElement>(".hb-side, .hb-seal")] : [];
+    const fading = foot ? [foot, ...around] : [];
     const screen = frame?.querySelector<HTMLElement>(".fr-screen");
     const line = document.querySelector<HTMLElement>(".lp-hero .lp-display");
     const role = document.querySelector<HTMLElement>(".lp-hero .lp-role");
@@ -62,7 +65,7 @@ export function Handoff({ seen }: { seen: boolean }) {
     const shot = cam.querySelector<HTMLElement>(".ho-shot")!;
     const base = cam.querySelector<HTMLElement>(".ho-base")!;
     const layers = [...cam.querySelectorAll<HTMLElement>(".ho-layer")];
-    const moving = [cam, shot, base, frame, ...layers];
+    const moving = [cam, shot, base, frame, ...around, ...layers];
     const room = window.matchMedia(ROOM_QUERY);
 
     let mode: "off" | "wait" | "on" = "off";
@@ -102,7 +105,7 @@ export function Handoff({ seen }: { seen: boolean }) {
       delete slab.dataset.handoff;
       delete lamp.dataset.dark;
       frame.style.opacity = "";
-      foot.style.opacity = "";
+      for (const node of fading) node.style.opacity = "";
       still();
       if (end === "slab" && from === "air" && !lit) {
         lit = true;
@@ -154,7 +157,12 @@ export function Handoff({ seen }: { seen: boolean }) {
         layer.style.transform = `translate3d(0, 0, ${(i * GAP * t).toFixed(2)}px)`;
         layer.style.opacity = under;
       });
-      if (p < 0.2) frame.style.opacity = foot.style.opacity = String(1 - smooth(0, 0.1, p));
+      // Written on every change, so a jump past the first 10 % (a link, the End key) still hides the hero window.
+      const left = String(1 - smooth(0, 0.1, p));
+      if (frame.style.opacity !== left) {
+        frame.style.opacity = left;
+        for (const node of fading) node.style.opacity = left;
+      }
       // The room's light pool is a second full-screen layer; with it off, the flying stack fits in a frame.
       const dark = p > 0.06 && p < 0.94;
       if (dark !== (lamp.dataset.dark !== undefined)) {
@@ -213,7 +221,12 @@ export function Handoff({ seen }: { seen: boolean }) {
         }, RESTORE)
       : 0;
 
-    const phase = new MutationObserver(check);
+    // The build's last frame is busy; the hand-off measures the page a moment later.
+    let later = 0;
+    const phase = new MutationObserver(() => {
+      window.clearTimeout(later);
+      later = window.setTimeout(check, 300);
+    });
     phase.observe(build, { attributes: true, attributeFilter: ["data-phase"] });
     const sizes = new ResizeObserver(check);
     sizes.observe(document.documentElement);
@@ -223,6 +236,7 @@ export function Handoff({ seen }: { seen: boolean }) {
 
     return () => {
       window.clearTimeout(wait);
+      window.clearTimeout(later);
       cancelAnimationFrame(raf);
       phase.disconnect();
       sizes.disconnect();

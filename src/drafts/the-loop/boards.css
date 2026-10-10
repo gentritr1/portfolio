@@ -11,31 +11,75 @@
   border-radius: 24px;
 }
 
-/* The large screen: a thin dark bezel, a lit top edge, the board inside. */
-.bd-screen {
-  padding: clamp(6px, 0.7vw, 12px);
-  border-radius: clamp(14px, 1.5vw, 22px);
-  background: linear-gradient(#1b1d23, #101216);
-  box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 0.12),
-    0 0 0 1px rgb(0 0 0 / 0.65);
+/* The rack. The front board's box is the stage; the strip at its right side is where the next two boards show. */
+.bd {
+  --bezel: clamp(6px, 0.7vw, 12px);
+  --bd-r: clamp(14px, 1.5vw, 22px);
+  --bd-ri: clamp(8px, 0.9vw, 12px);
+  --rack: 6%;
 }
 
-/* The camera of the board change. It has no 3D children of its own, so the clip does not flatten anything. */
+/* The stage clips nothing, so the boards behind can show at its side. */
 .bd-stage {
   position: relative;
-  aspect-ratio: 16 / 10;
-  overflow: hidden;
-  border-radius: clamp(8px, 0.9vw, 12px);
-  background: #0d0e12;
-  perspective: 1800px;
-  perspective-origin: 50% 40%;
+  margin-right: var(--rack);
+  padding: var(--bezel);
+  border-radius: var(--bd-r);
   touch-action: pan-y;
   user-select: none;
   -webkit-user-select: none;
 }
 
-/* A board that leaves goes back and to the side it came from, in 260 ms. */
+.bd-stage::before {
+  content: "";
+  display: block;
+  aspect-ratio: 16 / 10;
+}
+
+/*
+ * One board on its own screen: a thin dark bezel and a lit top edge.
+ * A board further back is the room's camera (perspective 1800px, origin 50% 40%) looking at translate3d(x, 0, z):
+ * that is exactly scale(1800 / (1800 - z)) about the same origin, then translateX(x). The 2D form looks the same
+ * and is far cheaper to draw while four boards move.
+ * Depth order: a board that comes forward passes in front of the board that goes back 80 ms into the move, where their depths cross.
+ */
+.bd-card {
+  position: absolute;
+  inset: 0;
+  padding: var(--bezel);
+  border-radius: var(--bd-r);
+  background: linear-gradient(#1b1d23, #101216);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.12),
+    0 0 0 1px rgb(0 0 0 / 0.65);
+  transform-origin: 50% 40%;
+  transition:
+    transform 720ms var(--ease-reveal),
+    opacity 420ms var(--ease-reveal),
+    z-index 80ms step-end;
+}
+
+/* The boards behind are darker: a black sheet over each one, with more of it further back. */
+.bd-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: #08090b;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 360ms var(--ease-reveal);
+}
+
+.bd-glass {
+  position: relative;
+  display: block;
+  height: 100%;
+  overflow: hidden;
+  border-radius: var(--bd-ri);
+  background: #0d0e12;
+}
+
 .bd-board {
   position: absolute;
   inset: 0;
@@ -43,36 +87,150 @@
   width: 100%;
   max-width: none;
   height: 100%;
-  opacity: 0;
-  transform: translate3d(-24px, 0, -80px);
-  transition:
-    opacity 260ms var(--ease-out),
-    transform 380ms var(--ease-out);
   -webkit-user-drag: none;
 }
 
-.bd[data-dir="-1"] .bd-board:not([data-now]) {
-  transform: translate3d(24px, 0, -80px);
+/* The board's lower edge on the floor, upside down and faint (as mirror.css draws the other screens). */
+.bd-mirror {
+  position: absolute;
+  left: var(--bezel);
+  right: var(--bezel);
+  top: calc(100% + var(--bezel));
+  height: 56px;
+  border-radius: 0 0 var(--bd-ri) var(--bd-ri);
+  background: var(--m-src) center bottom / 100% auto no-repeat;
+  -webkit-mask-image: linear-gradient(to top, #000, rgb(0 0 0 / 0.35) 35%, transparent);
+  mask-image: linear-gradient(to top, #000, rgb(0 0 0 / 0.35) 35%, transparent);
+  transform: scaleY(-1);
+  opacity: 0.1;
+  pointer-events: none;
+  transition: opacity 520ms var(--ease-reveal);
 }
 
-/* The board that arrives comes forward from the far side and rests flat, so its text is sharp. */
-.bd-board[data-now] {
-  opacity: 1;
+/* The sheen crosses only the front board. */
+.bd-shine {
+  position: absolute;
+  inset: var(--bezel);
+  z-index: 50;
+  overflow: hidden;
+  border-radius: var(--bd-ri);
+  pointer-events: none;
+}
+
+.lp-home .bd .bd-stage::after {
+  z-index: 60;
+}
+
+/* The poses of the rack. The front board rests flat, at transform: none, so its text is sharp. */
+.bd-card[data-slot="0"] {
+  z-index: 30;
   transform: none;
+}
+
+/* z -110px */
+.bd-card[data-slot="1"] {
+  z-index: 20;
+  transform: scale(0.9424) translateX(6%);
+}
+
+/* z -220px */
+.bd-card[data-slot="2"] {
+  z-index: 10;
+  transform: scale(0.8911) translateX(12%);
+}
+
+/* z -330px, out of sight */
+.bd-card[data-slot="3"] {
+  z-index: 0;
+  opacity: 0;
+  transform: scale(0.8451) translateX(18%);
+}
+
+/* The board that leaves slides back and to the left (z -140px) behind the board that comes forward, and fades in 180 ms. */
+.bd-card[data-slot="-1"] {
+  z-index: 0;
+  opacity: 0;
+  transform: scale(0.9278) translateX(-12%);
   transition:
-    opacity 380ms var(--ease-reveal),
-    transform 620ms var(--ease-reveal);
+    transform 480ms var(--ease-out),
+    opacity 180ms var(--ease-out),
+    z-index 80ms step-end;
+}
+
+.bd-card[data-slot="1"]::after {
+  opacity: 0.5;
+}
+
+.bd-card[data-slot="2"]::after,
+.bd-card[data-slot="3"]::after {
+  opacity: 0.72;
+}
+
+.bd-card[data-slot="1"] .bd-mirror {
+  opacity: 0.05;
+}
+
+.bd-card:is([data-slot="2"], [data-slot="3"], [data-slot="-1"]) .bd-mirror {
+  opacity: 0.025;
+}
+
+/* The front changes first; then the boards behind move up one place, 60 ms apart, so no more than three boards move at once. */
+.bd:is([data-dir="1"], [data-dir="-1"]) .bd-card:is([data-slot="1"], [data-slot="2"]) {
+  transition-duration: 480ms, 420ms, 80ms;
+  transition-delay: 240ms, 240ms, 0ms;
+}
+
+.bd:is([data-dir="1"], [data-dir="-1"]) .bd-card[data-slot="2"] {
+  transition-delay: 300ms, 300ms, 0ms;
+}
+
+.bd:is([data-dir="1"], [data-dir="-1"]) .bd-card:is([data-slot="1"], [data-slot="2"])::after {
+  transition-delay: 240ms;
 }
 
 @starting-style {
-  .bd[data-dir="1"] .bd-board[data-now] {
+  .bd[data-dir="1"] .bd-card[data-slot="2"] {
     opacity: 0;
-    transform: translate3d(32px, 0, -110px);
+    transform: scale(0.8451) translateX(18%);
   }
 
-  .bd[data-dir="-1"] .bd-board[data-now] {
+  .bd[data-dir="-1"] .bd-card[data-slot="0"] {
+    z-index: 0;
     opacity: 0;
-    transform: translate3d(-32px, 0, -110px);
+    transform: scale(0.9278) translateX(-12%);
+  }
+}
+
+/* Phones and portrait tablets: a flat rack. The boards behind are thin edges at the right side of the front board. */
+@media not all and (min-width: 1024px) and (min-aspect-ratio: 6/5) {
+  .bd-card {
+    transform-origin: 100% 50%;
+  }
+
+  .bd-card[data-slot="1"] {
+    transform: scale(0.94) translateX(3%);
+  }
+
+  .bd-card[data-slot="2"] {
+    transform: scale(0.88) translateX(6%);
+  }
+
+  .bd-card[data-slot="3"] {
+    transform: scale(0.82) translateX(8%);
+  }
+
+  .bd-card[data-slot="-1"] {
+    transform: scale(1) translateX(-10%);
+  }
+
+  @starting-style {
+    .bd[data-dir="1"] .bd-card[data-slot="2"] {
+      transform: scale(0.82) translateX(8%);
+    }
+
+    .bd[data-dir="-1"] .bd-card[data-slot="0"] {
+      transform: scale(1) translateX(-10%);
+    }
   }
 }
 

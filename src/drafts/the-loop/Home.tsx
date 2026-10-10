@@ -8,12 +8,15 @@ import { Above } from "./Above";
 import { Boards } from "./Boards";
 import { breadth, learned, own, phones, serverProof, type Own } from "./data";
 import { Explode } from "./Explode";
+import { Flap } from "./Flap";
 import { Handoff } from "./Handoff";
 import { HeroBuild } from "./HeroBuild";
-import { Lamp } from "./LampMark";
+import { Lamp, useLights, useLightsOn } from "./LampMark";
 import { Settled, useReducedMotion, useReveal } from "./hooks";
 import { useCursorLight } from "./cursor";
+import { useDust } from "./dust";
 import { Checked, Next, Out } from "./icons";
+import { useMirrors } from "./mirror";
 import { Queries } from "./Queries";
 import { ROOM_QUERY } from "./room";
 
@@ -58,10 +61,11 @@ const toTitle = (at: string) => (at === "hero" ? null : document.querySelector(`
 const toName = (at: string) => document.querySelector(`.lp-index a[href="#ch-${at}"]`);
 
 function Top({ at }: { at: string }) {
+  const lit = useLights() !== "off";
   return (
     <header className="lp-top lp-wrap">
       <p className="lp-name">
-        <Lamp at={at} target={toTitle} className="lp-lamp-top" />
+        <Lamp at={at} target={toTitle} className="lp-lamp-top" lit={lit} />
         <strong>Gentrit Rashiti</strong>
       </p>
       <nav className="lp-nav" aria-label="Main">
@@ -191,7 +195,7 @@ function Ai() {
   );
 }
 
-const dsFigures = [
+export const dsFigures = [
   { value: "41", label: "components" },
   { value: "868", label: "design values" },
   { value: "22", label: "releases in 60 days" },
@@ -205,10 +209,12 @@ function DesignSystem() {
         contrast and pixels before each release.
       </p>
       <dl className="lp-figures">
-        {dsFigures.map((f) => (
+        {dsFigures.map((f, i) => (
           <div key={f.label} data-reveal="">
             <dt>{f.label}</dt>
-            <dd>{f.value}</dd>
+            <dd>
+              <Flap value={f.value} at={i * 60} />
+            </dd>
           </div>
         ))}
       </dl>
@@ -502,8 +508,11 @@ export function Home() {
   const [seen] = useState(() => homeSeen);
   const [handoff] = useState(() => window.matchMedia(ROOM_QUERY).matches && !window.matchMedia(REDUCE).matches);
   const at = useCurrent(root);
+  useLightsOn(root, seen);
   useReveal(root);
   useCursorLight(root);
+  useMirrors(root, ".lp-build-frame, .xp-view");
+  useDust(root);
   useEffect(
     () => () => {
       homeSeen = true;

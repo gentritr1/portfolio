@@ -1,6 +1,7 @@
 import { useRef, type CSSProperties } from "react";
 import { useArrive, type Mode } from "./arrive";
 import { sheets } from "./data";
+import { Flap } from "./Flap";
 import { ARRIVE, DRIFT, MOVE, moving, OUT, pose } from "./room";
 
 const FALL_AT = 950;
@@ -112,13 +113,15 @@ export function Queries() {
     <figure className="qv" ref={view} data-arrive={state}>
       <p className="qv-count">
         <span className="qv-from">
-          16
+          <Flap value="16" play={state === "in"} at={150} />
           <span className="qv-strike" aria-hidden="true" />
         </span>
         <span className="qv-arrow" aria-hidden="true">
           →
         </span>
-        <span className="qv-to">2</span>
+        <span className="qv-to">
+          <Flap value="2" play={state === "in"} at={JOIN_AT + 100} />
+        </span>
         <span className="qv-unit">database queries for one billing report</span>
       </p>
       <div className="room-view room-floor qv-view" aria-hidden="true">

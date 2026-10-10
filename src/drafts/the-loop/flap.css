@@ -1,0 +1,86 @@
+/* ---------- Figures that turn into place like a station board (Flap.tsx) ---------- */
+
+/* Every digit has the same width, so a turning card never moves the text around it. */
+.fl {
+  font-variant-numeric: tabular-nums;
+}
+
+.fl[data-flap="wait"] .fl-cards {
+  opacity: 0;
+}
+
+/* The real digit keeps its place and its text. Only its paint is off while its card turns over it. */
+.fl-c {
+  position: relative;
+  display: inline-block;
+  perspective: 5em;
+  -webkit-text-fill-color: transparent;
+}
+
+.fl-card {
+  position: absolute;
+  inset: 0;
+  -webkit-text-fill-color: currentColor;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* One half of one digit's card. It turns on the card's middle line. */
+.fl-half {
+  position: absolute;
+  inset: 0;
+  font-style: normal;
+  white-space: nowrap;
+  isolation: isolate;
+  transform-origin: 50% 50%;
+  backface-visibility: hidden;
+}
+
+.fl-half::before {
+  content: "";
+  position: absolute;
+  inset: 0.02em 0;
+  z-index: -1;
+  border-radius: 0.07em;
+  background: #262a32;
+}
+
+.fl-half[data-h="b"]::before {
+  background: #1c1f25;
+}
+
+.fl-half::after {
+  content: attr(data-d);
+}
+
+/* A 1 px gap between the halves is the hinge. */
+.fl-half[data-h="t"] {
+  clip-path: inset(-0.2em -0.2em calc(50% + 0.5px) -0.2em);
+}
+
+.fl-half[data-h="b"] {
+  clip-path: inset(calc(50% + 0.5px) -0.2em -0.2em -0.2em);
+}
+
+.fl-land {
+  transform: rotateX(90deg);
+}
+
+/* After the last turn only the real digit's two halves stay; their tiles fade and the plain number is left. */
+.fl[data-flap="fade"] .fl-half:not([data-final]) {
+  visibility: hidden;
+}
+
+.fl[data-flap="fade"] .fl-half[data-h="t"] {
+  clip-path: inset(-0.2em -0.2em 50% -0.2em);
+}
+
+.fl[data-flap="fade"] .fl-half[data-h="b"] {
+  clip-path: inset(50% -0.2em -0.2em -0.2em);
+}
+
+.fl[data-flap="fade"] .fl-half::before {
+  opacity: 0;
+  transition: opacity var(--fl-fade) var(--ease-out);
+}

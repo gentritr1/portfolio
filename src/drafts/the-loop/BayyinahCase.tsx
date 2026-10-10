@@ -2,6 +2,7 @@ import { useRef, type CSSProperties } from "react";
 import { BrowserFrame } from "../../components/BrowserFrame";
 import { HEAD, HEAD_MS } from "./arrive";
 import { CaseEnd, CaseTop, Chapter, NextCase, Ring } from "./CaseParts";
+import { Flap } from "./Flap";
 import { Slab } from "./Slab";
 import { useReveal } from "./hooks";
 import { Out } from "./icons";
@@ -20,7 +21,7 @@ const links = [
 ];
 
 const facts = [
-  { value: "270+", label: "reusable screen parts" },
+  { value: "270+", label: "reusable screen parts", flap: true },
   { value: "2", label: "languages: English, and Arabic read from right to left" },
   { value: "3", label: "ways to pay: on the web, through Apple, through Google" },
 ];
@@ -166,7 +167,9 @@ export function BayyinahCase() {
           <div className="lp-changed lp-changed-top">
             <figure className="lp-big" data-reveal="">
               <p className="lp-big-num">
-                <span className="lp-big-to">34</span>
+                <span className="lp-big-to">
+                  <Flap value="34" />
+                </span>
               </p>
               <figcaption>Pages in the new web app.</figcaption>
             </figure>
@@ -175,7 +178,7 @@ export function BayyinahCase() {
                 {facts.map((f) => (
                   <div key={f.label}>
                     <dt>{f.label}</dt>
-                    <dd>{f.value}</dd>
+                    <dd>{f.flap ? <Flap value={f.value} /> : f.value}</dd>
                   </div>
                 ))}
               </dl>

@@ -1,0 +1,22 @@
+/* ---------- Dust in the lamp light (dust.ts) ---------- */
+
+/* The canvas covers only the bright middle of the light pool. */
+.lp-dust {
+  position: absolute;
+  left: 28%;
+  top: 28%;
+  width: 44%;
+  height: 44%;
+  pointer-events: none;
+  transition:
+    opacity 900ms var(--ease-out),
+    visibility 0s;
+}
+
+.lp-dust[data-hide] {
+  visibility: hidden;
+  opacity: 0;
+  transition:
+    opacity 200ms var(--ease-out),
+    visibility 0s 200ms;
+}

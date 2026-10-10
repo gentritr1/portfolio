@@ -13,14 +13,19 @@ const SLOPE = (33 * Math.PI) / 180;
 const SHADES = 24;
 /** The ease toward a new light direction, in ms. */
 const EASE = 70;
+/** Lights on (LampMark.tsx): the dots go from dim to lit in this time. */
+export const GLOW_MS = 400;
 
 export interface Lamp {
   /** Turns the lit side toward a point `x`, `y` px from the sphere's centre. `instant` skips the ease. */
   aim(x: number, y: number, instant?: boolean): void;
+  /** Turns a dark lamp on: the dots go from dim to lit in `GLOW_MS`. */
+  glow(): void;
   destroy(): void;
 }
 
-export function createLamp(canvas: HTMLCanvasElement): Lamp {
+/** `dark`: the lamp starts with every dot dim and small, until `glow`. */
+export function createLamp(canvas: HTMLCanvasElement, dark = false): Lamp {
   const ctx = canvas.getContext("2d");
   const cur = { x: -1, y: -1 };
   const tgt = { x: -1, y: -1 };
@@ -28,6 +33,8 @@ export function createLamp(canvas: HTMLCanvasElement): Lamp {
   let last = 0;
   let shown = true;
   let stale = false;
+  let level = dark ? 0 : 1;
+  let glowing = 0;
 
   const fit = () => {
     const dpr = Math.min(2, window.devicePixelRatio || 1);
@@ -73,7 +80,7 @@ export function createLamp(canvas: HTMLCanvasElement): Lamp {
         if (rr > 1) continue;
         const nz = Math.sqrt(1 - rr);
         if (Math.abs(nx * ax + ny * ay + nz * az) < RING) continue;
-        const shade = Math.max(0, nx * lx + ny * ly + nz * lz);
+        const shade = Math.max(0, nx * lx + ny * ly + nz * lz) * level;
         const radius = step * 0.48 * (0.3 + 0.7 * shade);
         const path = paths[Math.min(SHADES - 1, Math.round(Math.pow(shade, 1.6) * (SHADES - 1)))];
         path.moveTo(px + radius, py);
@@ -143,8 +150,21 @@ export function createLamp(canvas: HTMLCanvasElement): Lamp {
         frame = requestAnimationFrame(tick);
       }
     },
+    glow() {
+      if (level === 1 || glowing) return;
+      const from = level;
+      const start = performance.now();
+      const step = (now: number) => {
+        const t = Math.min(1, Math.max(0, (now - start) / GLOW_MS));
+        level = from + (1 - from) * (1 - (1 - t) ** 3);
+        draw();
+        glowing = t < 1 ? requestAnimationFrame(step) : 0;
+      };
+      glowing = requestAnimationFrame(step);
+    },
     destroy() {
       cancelAnimationFrame(frame);
+      cancelAnimationFrame(glowing);
       seen.disconnect();
       window.removeEventListener("resize", onResize);
     },

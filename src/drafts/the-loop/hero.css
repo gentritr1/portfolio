@@ -1,0 +1,478 @@
+/* ---------- The hero: the screen builds, and the loop stands around it (HeroBuild.tsx) ---------- */
+
+/* Phones and portrait tablets: the test card and the check receipt stand under the screen; the seal sits on its corner. */
+.lp-build {
+  --seal: 76px;
+  --screen-h: calc(clamp(22px, 3.2cqw, 40px) + 62.5cqw);
+  container-type: inline-size;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 10px;
+}
+
+.lp-build-frame {
+  grid-row: 1;
+  grid-column: 1 / -1;
+}
+
+/* Replay stands in the band beside the seal, so the cards do not push the headline further down. */
+.lp-build-foot {
+  grid-row: 2;
+  grid-column: 1 / -1;
+  min-height: 44px;
+}
+
+.hb-card {
+  position: relative;
+  height: 100%;
+  padding: 12px 14px 13px;
+  border: 1px solid rgb(255 255 255 / 0.1);
+  border-radius: 12px;
+  background: linear-gradient(180deg, #181b21, #0f1115 72%);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.06);
+  color: var(--ink-2);
+  font-family: var(--mono);
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.hb-file {
+  color: var(--ink-3);
+  overflow-wrap: anywhere;
+}
+
+.hb-step {
+  color: var(--accent);
+}
+
+.hb-lines,
+.hb-checks {
+  display: grid;
+  gap: 5px;
+  margin-top: 9px;
+  padding-top: 9px;
+  border-top: 1px solid rgb(255 255 255 / 0.07);
+}
+
+.hb-line {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 8px;
+}
+
+.hb-ok {
+  display: inline-flex;
+  height: 1.45em;
+  align-items: center;
+  color: var(--pass);
+}
+
+.hb-checks li {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.hb-status {
+  display: grid;
+  flex: none;
+  justify-items: end;
+}
+
+.hb-status > * {
+  grid-area: 1 / 1;
+}
+
+.hb-pending {
+  align-self: center;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1.5px rgb(255 255 255 / 0.32);
+  opacity: 0;
+}
+
+.hb-pass {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--pass);
+  white-space: nowrap;
+}
+
+/* The seal: one stamped object. Its depth is gradients and a solid rim, with no blur. */
+.hb-seal {
+  position: absolute;
+  z-index: 2;
+  top: calc(var(--screen-h) - var(--seal) * 0.6);
+  left: calc(100% - var(--seal) + 6px);
+  width: var(--seal);
+  height: var(--seal);
+  transform: rotate(-8deg);
+  pointer-events: none;
+}
+
+.hb-seal::before,
+.hb-seal::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  border-radius: 50%;
+}
+
+.hb-seal::before {
+  inset: 18% -14% -26% -2%;
+  background: radial-gradient(closest-side, rgb(0 0 0 / 0.5), rgb(0 0 0 / 0.18) 60%, transparent);
+}
+
+.hb-seal::after {
+  inset: 0;
+  background:
+    radial-gradient(circle at 34% 28%, rgb(255 236 200 / 0.75), rgb(255 236 200 / 0) 34%),
+    radial-gradient(circle at 50% 50%, #ffbd57 0%, #f5a83a 58%, #cf8019 100%);
+  box-shadow:
+    inset 0 0 0 calc(var(--seal) * 0.04) rgb(11 12 15 / 0.14),
+    inset 0 -2px 0 rgb(120 70 6 / 0.35),
+    0 3px 0 #8f560e;
+}
+
+.hb-seal svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.hb-seal-ring text {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 2.2px;
+  fill: #0b0c0f;
+}
+
+.hb-seal-ring circle {
+  fill: none;
+  stroke: #0b0c0f;
+  stroke-opacity: 0.32;
+  stroke-width: 1.5;
+}
+
+.hb-seal-mark path {
+  fill: none;
+  stroke: #0b0c0f;
+  stroke-width: 7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+@media (max-width: 559px) {
+  .lp-build {
+    gap: 8px;
+  }
+
+  .hb-card {
+    padding: 10px 12px 11px;
+    font-size: 10px;
+    line-height: 1.4;
+  }
+
+  .hb-lines,
+  .hb-checks {
+    gap: 3px;
+    margin-top: 7px;
+    padding-top: 7px;
+  }
+
+  .hb-checks {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    column-gap: 16px;
+  }
+}
+
+@media (min-width: 560px) {
+  .lp-build {
+    --seal: 88px;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+}
+
+/* A wide landscape screen: the cards float at depth beside the screen, behind its edges; the seal lands on its corner. */
+@media (min-width: 1024px) and (min-aspect-ratio: 6/5) {
+  .lp-build {
+    --seal: clamp(96px, 13.5cqw, 132px);
+    --hb-w: clamp(156px, (100vw - 100cqw) / 2 - 16px, 240px);
+    display: block;
+    perspective: var(--room-perspective);
+    perspective-origin: 50% 40%;
+  }
+
+  .lp-build-frame {
+    position: relative;
+    z-index: 1;
+  }
+
+  .lp-build-foot {
+    min-height: 52px;
+  }
+
+  .hb-side {
+    position: absolute;
+    z-index: 0;
+    width: var(--hb-w);
+    margin: 0;
+    transform: translate3d(0, 0, -60px) rotateY(var(--turn));
+  }
+
+  .hb-side::before {
+    content: "";
+    position: absolute;
+    inset: 22% 2% -12% 6%;
+    z-index: -1;
+    background: radial-gradient(closest-side, rgb(0 0 0 / 0.6), transparent);
+  }
+
+  .hb-side-test {
+    --turn: 16deg;
+    --from: -18px;
+    top: 9cqw;
+    right: calc(100% + 4px);
+  }
+
+  .hb-side-checks {
+    --turn: -16deg;
+    --from: 18px;
+    top: 27cqw;
+    left: calc(100% + 4px);
+  }
+
+  .hb-card {
+    padding: 13px 16px 14px;
+    font-size: clamp(10px, var(--hb-w) / 21.5, 11.5px);
+  }
+
+  .hb-side-test .hb-card {
+    padding-right: 22px;
+  }
+
+  .hb-side-checks .hb-card {
+    padding-left: 22px;
+  }
+
+  .hb-seal {
+    top: calc(var(--screen-h) - var(--seal) / 2 - 20px);
+    left: calc(100% - var(--seal) / 2 - 16px);
+  }
+}
+
+/* ---------- The agents: three named cursors place the parts while the screen builds ---------- */
+
+.hb-cursors {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.hb-cursor {
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0;
+}
+
+.hb-cursor[data-tone="grid"] {
+  --c: #6b4ef0;
+}
+
+.hb-cursor[data-tone="filters"] {
+  --c: #c2410c;
+}
+
+.hb-cursor[data-tone="events"] {
+  --c: #0b7d72;
+}
+
+.hb-cursor-tip {
+  display: flex;
+  align-items: flex-start;
+  gap: 1px;
+  margin: -1px 0 0 -1px;
+  transform-origin: 1px 1px;
+}
+
+.hb-cursor svg {
+  display: block;
+  flex: none;
+  width: 16px;
+  height: 18px;
+  fill: var(--c);
+  stroke: #fff;
+  stroke-width: 1.2;
+  stroke-linejoin: round;
+}
+
+.hb-cursor-name {
+  margin-top: 12px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: var(--c);
+  box-shadow: 0 1px 0 rgb(0 0 0 / 0.25);
+  color: #fff;
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  .hb-cursor-name {
+    margin-top: 10px;
+    padding: 2px 6px;
+    font-size: 10px;
+  }
+}
+
+/* ---------- The order of the loop: before, during and after the build ---------- */
+
+/* `data-run` (HeroBuild.tsx): the runs exist, paused at their start, from the moment the screen waits; the build plays
+   them. A screen that never builds (a return, reduced motion) has no runs and shows the loop at rest. */
+.lp-build[data-run] :is(.hb-side, .hb-card, .hb-line, .hb-ok, .hb-pending, .hb-pass, .hb-seal, .hb-seal-ring, .hb-seal-mark) {
+  animation-fill-mode: backwards;
+  animation-play-state: paused;
+}
+
+.lp-build[data-run] .hb-side {
+  animation-name: hb-fade;
+  animation-duration: 420ms;
+  animation-timing-function: var(--ease-reveal);
+}
+
+.lp-build[data-run] .hb-card {
+  animation-name: hb-card;
+  animation-duration: 560ms;
+  animation-timing-function: var(--ease-reveal);
+}
+
+.lp-build[data-run] .hb-line {
+  animation-name: hb-line;
+  animation-duration: 320ms;
+  animation-timing-function: var(--ease-out);
+}
+
+.lp-build[data-run] .hb-ok {
+  animation-name: hb-ok;
+  animation-duration: 260ms;
+  animation-timing-function: var(--ease-out);
+}
+
+.lp-build[data-run] .hb-pending {
+  animation-name: hb-pending;
+  animation-duration: 160ms;
+  animation-timing-function: var(--ease-out);
+}
+
+.lp-build[data-run] .hb-pass {
+  animation-name: hb-pass;
+  animation-duration: 260ms;
+  animation-timing-function: var(--ease-out);
+}
+
+.lp-build[data-run] .hb-seal {
+  animation-name: hb-seal;
+  animation-duration: 440ms;
+  animation-timing-function: var(--ease-reveal);
+}
+
+.lp-build[data-run] .hb-seal-ring {
+  animation-name: hb-ring;
+  animation-duration: 400ms;
+  animation-timing-function: var(--ease-out);
+}
+
+.lp-build[data-run] .hb-seal-mark {
+  animation-name: hb-mark;
+  animation-duration: 260ms;
+  animation-timing-function: var(--ease-out);
+}
+
+/* Every last keyframe equals the rest pose, so nothing jumps when the build ends. */
+@keyframes hb-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes hb-card {
+  from {
+    transform: translate3d(var(--from, 0), 10px, 0);
+  }
+}
+
+@keyframes hb-line {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+}
+
+@keyframes hb-ok {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+}
+
+@keyframes hb-pending {
+  from {
+    opacity: 1;
+  }
+}
+
+@keyframes hb-pass {
+  from {
+    opacity: 0;
+    transform: translateX(-5px);
+  }
+}
+
+/* The seal lands from 160 px in front of the screen and turns from -20 to -8 degrees. */
+@keyframes hb-seal {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 0, 160px) scale(1.25) rotate(-20deg);
+  }
+  35% {
+    opacity: 1;
+  }
+  to {
+    transform: translate3d(0, 0, 0) scale(1) rotate(-8deg);
+  }
+}
+
+@keyframes hb-ring {
+  from {
+    opacity: 0;
+    transform: rotate(-80deg);
+  }
+}
+
+@keyframes hb-mark {
+  from {
+    clip-path: inset(0 62% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+/* ---------- Lights on: the first second of the first visit (LampMark.tsx) ---------- */
+
+.lp-home:not([data-lights="on"]) .lp-room-light {
+  transition: none;
+}
+
+.lp-home[data-lights="off"] .lp-room-light {
+  opacity: 0;
+}

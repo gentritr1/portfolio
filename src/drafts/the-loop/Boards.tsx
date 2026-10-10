@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
+import { useContext, useEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type PointerEvent } from "react";
 import { useArrive, arrive } from "./arrive";
 import { boards } from "./data";
 import { Settled, useReducedMotion } from "./hooks";
@@ -7,28 +7,46 @@ import "./boards.css";
 
 const COUNT = boards.length;
 const pad = (n: number) => String(n + 1).padStart(2, "0");
+const wrap = (n: number) => (n + COUNT) % COUNT;
 /** A board stays this long before the next one, in ms. The timer is the CSS animation of the progress line. */
 const DWELL = 6000;
-/** A board that left is unmounted after its exit, so only the current board and the one after it hold decoded pixels. */
-const UNMOUNT = 700;
+/**
+ * The rack settles this long after a move. Then a board that left is unmounted, so at rest only three boards hold decoded pixels,
+ * and the front board gets its large file; while it moves, it shows the 1080 copy.
+ */
+const UNMOUNT = 720;
 
 const SIZES = {
-  home: "(min-width: 1024px) 62vw, calc(100vw - 32px)",
-  case: "(min-width: 1320px) 1240px, calc(100vw - 32px)",
+  home: "(min-width: 1024px) 58vw, calc(100vw - 52px)",
+  case: "(min-width: 1320px) 1170px, calc(100vw - 52px)",
 };
 
 const srcSetOf = (i: number) => `${boards[i].small} 1080w, ${boards[i].file} 3200w`;
 
-/** Loads and decodes a board with the same choice of file the page makes. */
-function preload(i: number, sizes: string) {
+/** Loads and decodes a board with the same choice of file the page makes; without `sizes`, the 1080 copy only. */
+function preload(i: number, sizes?: string) {
   const image = new Image();
-  image.sizes = sizes;
-  image.srcset = srcSetOf(i);
+  if (sizes) {
+    image.sizes = sizes;
+    image.srcset = srcSetOf(i);
+  }
   image.src = boards[i].small;
   image.decode().catch(() => undefined);
 }
 
-/** The seven Design System v2 boards on one large screen in the room. */
+/**
+ * The place of a board in the rack, from the current board: 0 in front, 1 and 2 wait behind it,
+ * -1 has just left to the left, 3 is out of sight behind the rack.
+ */
+function slotOf(i: number, index: number) {
+  const rel = wrap(i - index);
+  if (rel <= 2) return rel;
+  return rel === COUNT - 1 ? -1 : 3;
+}
+
+const rackOf = (index: number) => [index, wrap(index + 1), wrap(index + 2)];
+
+/** The seven Design System v2 boards in a rack in the room: the current board in front, the next two behind it in depth. */
 export function Boards({ size = "home" }: { size?: "home" | "case" }) {
   const reduce = useReducedMotion();
   const settled = useContext(Settled);
@@ -37,7 +55,8 @@ export function Boards({ size = "home" }: { size?: "home" | "case" }) {
   const root = useRef<HTMLElement>(null);
   const [index, setIndex] = useState(0);
   const [dir, setDir] = useState<0 | 1 | -1>(0);
-  const [mounted, setMounted] = useState([0]);
+  const [mounted, setMounted] = useState(() => rackOf(0));
+  const [sharp, setSharp] = useState(0);
   const [stopped, setStopped] = useState(false);
   const [hover, setHover] = useState(false);
   const [focus, setFocus] = useState(false);
@@ -60,17 +79,22 @@ export function Boards({ size = "home" }: { size?: "home" | "case" }) {
   }, []);
 
   useEffect(() => {
-    preload((index + 1) % COUNT, sizes);
-    const id = window.setTimeout(() => setMounted([index]), UNMOUNT);
+    const id = window.setTimeout(() => {
+      setMounted(rackOf(index));
+      setSharp(index);
+      preload(wrap(index + 1), sizes);
+      preload(wrap(index + 3));
+      preload(wrap(index - 1));
+    }, UNMOUNT);
     return () => window.clearTimeout(id);
   }, [index, sizes]);
 
   const go = (next: number, way: 1 | -1) => {
-    const to = (next + COUNT) % COUNT;
+    const to = wrap(next);
     if (to === index) return;
     setDir(way);
     setIndex(to);
-    setMounted((list) => [...list.filter((i) => i !== to), to]);
+    setMounted((list) => [...new Set([...list, ...rackOf(to)])]);
   };
 
   const onKey = (event: KeyboardEvent) => {
@@ -112,24 +136,46 @@ export function Boards({ size = "home" }: { size?: "home" | "case" }) {
       <div ref={view} className="room-view room-floor lp-slab bd-view" data-arrive={state}>
         <div ref={screen} className="room-slab bd-screen">
           <div className="bd-stage" onPointerDown={onDown} onPointerUp={onUp} onPointerCancel={() => (touch.current = null)}>
-            {mounted.map((i) => (
-              <img
-                key={i}
-                className="bd-board"
-                data-now={i === index ? "" : undefined}
-                src={boards[i].small}
-                srcSet={srcSetOf(i)}
-                sizes={sizes}
-                width={1600}
-                height={1000}
-                alt={i === index ? boards[i].alt : ""}
-                aria-hidden={i === index ? undefined : true}
-                loading={i === 0 && !settled ? "lazy" : "eager"}
-                decoding="async"
-                draggable={false}
-              />
-            ))}
-            <span className="room-sheen" aria-hidden="true" />
+            {[...mounted]
+              .sort((a, b) => a - b)
+              .map((i) => {
+                const slot = slotOf(i, index);
+                const front = slot === 0;
+                return (
+                  <div key={i} className="bd-card" data-slot={slot} aria-hidden={front ? undefined : true}>
+                    <span className="bd-glass">
+                      <img
+                        className="bd-board"
+                        src={boards[i].small}
+                        width={1600}
+                        height={1000}
+                        alt={front && i !== sharp ? boards[i].alt : ""}
+                        loading="lazy"
+                        decoding="async"
+                        draggable={false}
+                      />
+                      {front && i === sharp && (
+                        <img
+                          className="bd-board"
+                          src={boards[i].small}
+                          srcSet={srcSetOf(i)}
+                          sizes={sizes}
+                          width={1600}
+                          height={1000}
+                          alt={boards[i].alt}
+                          loading={i === 0 && !settled ? "lazy" : "eager"}
+                          decoding="async"
+                          draggable={false}
+                        />
+                      )}
+                    </span>
+                    <span className="bd-mirror" style={{ "--m-src": `url("${boards[i].small}")` } as CSSProperties} />
+                  </div>
+                );
+              })}
+            <span className="bd-shine" aria-hidden="true">
+              <span className="room-sheen" />
+            </span>
           </div>
         </div>
       </div>

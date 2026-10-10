@@ -1269,3 +1269,10 @@ p.lp-own-link {
     gap: 6px;
   }
 }
+
+/* The Design System case: the big figure takes the wide column. */
+@media (min-width: 1024px) {
+  .lp-changed-wide {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  }
+}

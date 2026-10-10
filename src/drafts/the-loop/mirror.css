@@ -1,0 +1,49 @@
+/* ---------- Floor reflections (mirror.ts) ---------- */
+
+/* The lower edge of a screen, upside down on the dark floor, faint, and gone within --m-h. No blur. */
+:is(.room-slab, .lp-build-frame)[data-mirror]::before,
+.xp-view[data-mirror]::after {
+  content: "";
+  position: absolute;
+  left: var(--m-x);
+  top: calc(100% + var(--m-gap));
+  width: var(--m-w);
+  height: var(--m-h);
+  border-radius: 0 0 var(--m-r) var(--m-r);
+  background: var(--m-fill) var(--m-src) var(--m-bx) var(--m-by) / var(--m-bw) var(--m-bh) no-repeat;
+  -webkit-mask-image: linear-gradient(to top, #000, rgb(0 0 0 / 0.35) 35%, transparent);
+  mask-image: linear-gradient(to top, #000, rgb(0 0 0 / 0.35) 35%, transparent);
+  transform: scaleY(-1);
+  opacity: 0.09;
+  pointer-events: none;
+}
+
+.xp-view[data-mirror]::after {
+  transition: opacity 600ms var(--ease-out);
+}
+
+/* Chapter 1's screen and the hero screen leave the floor while they move: their reflections show only at rest. */
+.xp-view[data-mirror]:is([data-arrive="wait"], [data-handoff], :has(> .xp-rig[data-moving]))::after {
+  opacity: 0;
+  transition-duration: 200ms;
+}
+
+.lp-build-frame[data-mirror]::before {
+  transition: opacity 600ms var(--ease-out);
+}
+
+.lp-build:is([data-phase="wait"], [data-phase="build"], [data-handoff]) .lp-build-frame[data-mirror]::before {
+  opacity: 0;
+  transition-duration: 200ms;
+}
+
+/* A slab that lifts on hover rises off the floor: its reflection goes down by the same distance. */
+@media (hover: hover) and (pointer: fine) {
+  .lp-lift > .room-slab[data-mirror]::before {
+    transition: translate 220ms var(--ease-out);
+  }
+
+  .lp-lift:hover > .room-slab[data-mirror]::before {
+    translate: 0 8px;
+  }
+}

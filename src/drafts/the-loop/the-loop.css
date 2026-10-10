@@ -365,29 +365,27 @@
   perspective-origin: 50% 40%;
 }
 
+/* Each piece's run exists, paused at its first frame, from the first render; HeroBuild.tsx plays the runs when the
+   build starts, so that frame restyles no piece. The first frame of every run hides its piece. */
 .lp-piece {
   position: absolute;
   background-image: var(--shot);
   background-size: 100cqw 100cqh;
   background-repeat: no-repeat;
-  opacity: 0;
-}
-
-.lp-build[data-phase="build"] .lp-piece {
-  opacity: 1;
   animation-fill-mode: both;
   animation-timing-function: var(--ease-out);
+  animation-play-state: paused;
 }
 
-.lp-build[data-phase="build"] .lp-piece[data-wipe="right"] {
+.lp-piece[data-wipe="right"] {
   animation-name: lp-wipe-right;
 }
 
-.lp-build[data-phase="build"] .lp-piece[data-wipe="down"] {
+.lp-piece[data-wipe="down"] {
   animation-name: lp-wipe-down;
 }
 
-.lp-build[data-phase="build"] .lp-piece[data-wipe="drop"] {
+.lp-piece[data-wipe="drop"] {
   animation-name: lp-drop;
 }
 
@@ -427,7 +425,6 @@
   justify-content: space-between;
   align-items: flex-start;
   gap: 12px;
-  margin-top: -22px;
   padding-inline: clamp(8px, 2vw, 20px);
 }
 
@@ -436,7 +433,7 @@
   align-items: center;
   gap: 8px;
   min-height: 44px;
-  margin-top: 30px;
+  margin-top: 8px;
   padding: 0 12px 0 4px;
   border: 0;
   background: none;
@@ -454,74 +451,6 @@
 @media (hover: hover) and (pointer: fine) {
   .lp-replay:hover {
     color: var(--ink);
-  }
-}
-
-.lp-stamps {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: 8px;
-}
-
-.lp-stamp {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  height: 44px;
-  padding: 0 16px;
-  border-radius: 999px;
-  font-weight: 650;
-  white-space: nowrap;
-}
-
-.lp-stamp-checks {
-  background: var(--pass-bg);
-  color: var(--pass);
-  box-shadow:
-    0 0 0 1px rgb(126 240 166 / 0.4),
-    0 10px 24px -10px rgb(0 0 0 / 0.7);
-}
-
-.lp-stamp-approved {
-  background: var(--accent);
-  color: var(--on-accent);
-  box-shadow: 0 10px 24px -10px rgb(0 0 0 / 0.7);
-  transform: rotate(-3deg);
-}
-
-.lp-build[data-phase="wait"] .lp-stamp {
-  opacity: 0;
-}
-
-.lp-build[data-phase="build"] .lp-stamp-checks {
-  animation: lp-land 380ms var(--ease-out) backwards;
-}
-
-.lp-build[data-phase="build"] .lp-stamp-approved {
-  animation: lp-stamp 340ms var(--ease-out) backwards;
-}
-
-/* The stamps land from 160 px in front of the screen. The last frame equals the rest pose, so nothing jumps when the animation ends. */
-@keyframes lp-land {
-  from {
-    opacity: 0;
-    transform: perspective(1600px) translate3d(0, 0, 160px);
-  }
-  to {
-    opacity: 1;
-    transform: perspective(1600px) translate3d(0, 0, 0);
-  }
-}
-
-@keyframes lp-stamp {
-  from {
-    opacity: 0;
-    transform: perspective(1600px) translate3d(0, 0, 160px) scale(1.35) rotate(-9deg);
-  }
-  to {
-    opacity: 1;
-    transform: perspective(1600px) translate3d(0, 0, 0) scale(1) rotate(-3deg);
   }
 }
 
@@ -1014,7 +943,6 @@
   }
 
   .lp-build-foot {
-    flex-wrap: wrap;
     padding-inline: 8px 12px;
   }
 
@@ -1022,19 +950,8 @@
     text-align: left;
   }
 
-  .lp-stamps {
-    order: -1;
-    flex: 1 0 100%;
-    flex-wrap: nowrap;
-  }
-
   .lp-replay {
-    margin-top: 4px;
-  }
-
-  .lp-stamp {
-    height: 40px;
-    padding: 0 14px;
+    margin-top: 0;
   }
 
   .lp-day-section {

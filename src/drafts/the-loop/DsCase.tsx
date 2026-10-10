@@ -1,6 +1,8 @@
 import { useRef, type CSSProperties } from "react";
 import { Boards } from "./Boards";
 import { CaseEnd, CaseTop, Chapter, NextCase } from "./CaseParts";
+import { Flap } from "./Flap";
+import { dsFigures } from "./Home";
 import { useReveal } from "./hooks";
 
 const steps = [
@@ -90,7 +92,34 @@ export function DsCase() {
         </ol>
       </Chapter>
 
-      <Chapter name="What changed" title="A page loads only the parts it uses.">
+      <Chapter
+        name="What changed"
+        title="A page loads only the parts it uses."
+        figure={
+          <div className="lp-changed lp-changed-top lp-changed-wide">
+            <figure className="lp-big" data-reveal="">
+              <p className="lp-big-num">
+                <span className="lp-big-to">
+                  <Flap value="96.6%" />
+                </span>
+              </p>
+              <figcaption>Less JavaScript on a page that uses only a button.</figcaption>
+            </figure>
+            <figure className="lp-counts" data-reveal="">
+              <dl>
+                {dsFigures.map((f) => (
+                  <div key={f.label}>
+                    <dt>{f.label}</dt>
+                    <dd>
+                      <Flap value={f.value} />
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            </figure>
+          </div>
+        }
+      >
         <p>
           Before, a page that used one button loaded the whole library. Now each part loads on its own. A page that uses only a button loads 96.6%
           less JavaScript.

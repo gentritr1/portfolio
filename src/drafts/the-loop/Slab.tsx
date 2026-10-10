@@ -1,9 +1,11 @@
 import { useRef, type ReactNode } from "react";
 import { arrive, useArrive } from "./arrive";
+import { useMirror } from "./mirror";
 import { ARRIVE, ARRIVE_MS, type Pose } from "./room";
 
 /**
  * One screen standing on the room's floor. The floor stays on the ground; only the slab moves.
+ * The slab's reflection on the floor (mirror.ts) moves with the slab.
  * `lift` adds the hover lift for a fine pointer.
  */
 export function Slab({
@@ -32,6 +34,7 @@ export function Slab({
     },
     share,
   );
+  useMirror(slab);
   const names = ["room-view", "room-floor", "lp-slab", lift ? "lp-lift" : "", className ?? ""].filter(Boolean).join(" ");
   return (
     <div ref={view} className={names} data-arrive={state}>
