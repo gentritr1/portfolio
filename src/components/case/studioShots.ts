@@ -13,6 +13,7 @@ import incentivPortalPreview from './studio-previews/incentiv-portal.webp?inline
 import bookstoreHomePreview from './studio-previews/bookstore-home.webp?inline'
 import bookstoreBooksPreview from './studio-previews/bookstore-books.webp?inline'
 import bookstoreFavouritesPreview from './studio-previews/bookstore-favourites.webp?inline'
+import futurismaPreview from './studio-previews/futurisma-frostline.webp?inline'
 import designSystemPreview from './studio-previews/design-system-date-range.webp?inline'
 
 export interface StudioShot {
@@ -78,6 +79,12 @@ export const studioShots: Record<string, StudioComposition> = {
     title: 'Incentiv', colour: '#ad6036', device: 'display', platform: 'Web application',
     shots: [
       { src: '/showcase/incentiv/web-03.webp', preview: incentivPortalPreview, alt: 'The public Incentiv portal sign-in page, with no wallet connected' },
+    ],
+  },
+  futurisma: {
+    title: 'Futurisma', colour: '#3a4f8f', device: 'display', platform: 'Web browser · Three.js',
+    shots: [
+      { src: '/personal/shots/futurisma-frostline-1.webp', preview: futurismaPreview, alt: 'Futurisma on Frostline: the hover craft races a snowy mountain road through a lit village at midnight, autopilot demo' },
     ],
   },
 }

@@ -310,6 +310,22 @@ export const offday: Row = {
   ),
 };
 
+export const futurisma: Row = {
+  id: "futurisma",
+  name: "Futurisma",
+  line: "A hover racer in the browser: nine circuits, a garage, steer by tilting a phone.",
+  result: "Built with an AI crew; every phase checked by re-running its tests.",
+  role: "Owner, with an AI crew",
+  years: "2026",
+  links: [{ label: "GitHub", href: "https://github.com/gentritr1/futurisma" }],
+  plate: desktop(
+    "/personal/shots/futurisma-frostline-1.webp",
+    "Futurisma on Frostline: the hover craft races a snowy mountain road through a lit village at midnight, autopilot demo",
+    { label: "Futurisma · Frostline, autopilot demo", tone: "dark" },
+  ),
+  slug: "futurisma",
+};
+
 /** Small games, one line each, with no plate, so client work leads the page. */
 export interface Note {
   id: string;
@@ -367,6 +383,8 @@ export const screenColours: Record<string, string> = {
     "26201c2e281e1919140e0e0c191916242118575827393a1d25251b1a1b161415101818161313101d1d131c1c110e0e0c",
   "/personal/shots/form-studio-desktop.webp":
     "2624231c1a191b19181b19183b2f26423227222325212325392f27403125383c3f31373c211f1d1c1a192121211d1d1e",
+  "/personal/shots/futurisma-frostline-1.webp":
+    "3249682d447f3849883f4a79283a5a2f4b8328447d28344f52535c3744593d485b393e49354a582d4b603f5263263848",
   "/personal/shots/offday-light-shifts-desktop.webp":
     "f2f0f1f7f5f5fcfafbf7eff1f6f1f2f3f5f4f2f7f6f6f5f6f6f5f5f0f3f4edf4f7f4f4f4f5f2f3ecf2f2eaf4f4eeeff0",
 };

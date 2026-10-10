@@ -852,13 +852,37 @@ export const projects: Project[] = [
     channel: 'personal',
     group: 'Personal',
     years: '2026',
-    role: 'Owner',
-    stack: ['Three.js', 'TypeScript', 'Blender'],
-    line: 'Hover racer with seven circuits and weather, tide and day-night systems',
+    role: 'Owner, with an AI crew',
+    stack: ['Three.js', 'TypeScript', 'Vite', 'Blender'],
+    line: 'Hover racer with nine circuits and a garage, built with an AI crew',
     summary:
-      'Futurisma is a hover racer built with Three.js and TypeScript, with models made in Blender. It has seven circuits, and weather, tide and day-night systems change the look and light of each circuit. It is a personal project that explores real-time 3D in the browser: scene loading, lighting and a steady frame rate while the environment changes.',
-    links: [],
-    media: { thumb: 'track' },
+      'Futurisma is a hover racer for the browser with an early-2000s console look, built with Three.js, TypeScript and Blender. It has nine circuits, from a wetland airfield to a snowy mountain village at midnight, and each one changes while you race: a passing squall, a tide that floods and drains, a rocket that launches mid-race. A garage turns race winnings into new craft, parts and paint, and a phone can steer by tilting. Gentrit directs a small AI crew: a planning Claude writes the briefs, a building Claude writes the code, Codex models in Blender and Higgsfield makes pictures and sound. Every phase is checked by re-running its tests.',
+    links: [{ label: 'GitHub', href: 'https://github.com/gentritr1/futurisma' }],
+    media: {
+      shot: { src: '/personal/shots/thumbs/futurisma.webp', alt: 'Futurisma racing through Frostline, a snowy mountain village at night' },
+      galleries: [
+        {
+          title: 'Futurisma',
+          aspect: 'web',
+          links: [{ label: 'GitHub', href: 'https://github.com/gentritr1/futurisma' }],
+          items: [
+            web('/personal/shots/futurisma-frostline-1.webp', 'Futurisma on Frostline, Map 09: the hover craft races a snowy mountain road at midnight, autopilot demo', 'Frostline'),
+            web('/personal/shots/futurisma-frostline-2.webp', 'Futurisma on Frostline: the road enters the Christmas square under a clock tower and a FROSTLINE / MIDNIGHT RUN arch, autopilot demo', 'Christmas square'),
+            web('/personal/shots/futurisma-frostline-3.webp', 'Futurisma on Frostline: a snowy curve through the frosted forest, with darker cleared tracks to follow, autopilot demo', 'Frosted forest'),
+            web('/personal/shots/futurisma-garage.webp', 'Futurisma garage, FLEET tab: the TOTEM craft in the works bay, its ratings head to head, and five more frames to buy with race credits', 'Garage'),
+          ],
+        },
+      ],
+    },
+    featured: {
+      order: 8,
+      monitor: 'gallery',
+      readouts: [
+        { value: '9', label: 'Circuits' },
+        { value: '1', label: 'Week to build Dream Island, Map 07' },
+        { value: '1,397', to: '0', label: 'Floating props on Frostline, after the terrain fix' },
+      ],
+    },
   },
   {
     slug: 'secret-dictator',

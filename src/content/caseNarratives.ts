@@ -148,4 +148,23 @@ export const caseNarratives: Partial<Record<string, CaseNarrative>> = {
       { label: 'Motion', value: 'Animated book-detail header, swipe-to-close modals' },
     ],
   },
+  'futurisma': {
+    story: {
+      product:
+        'Futurisma is a hover racer for the browser that looks like a console game from 2002. Nine circuits each change while you race: a squall on a wetland airfield, a tide that floods and drains a glass road, a rocket that launches mid-race, an island that turns to night when its clock strikes, and Frostline, a mountain village at midnight. A garage turns race winnings into new craft, parts and paint, and in the development build an iPhone becomes the controller: tilt it like a wheel to steer.',
+      built:
+        'Gentrit directs a small AI crew with strict jobs. A planning Claude reads the code, writes each brief and judges the result by re-running its tests. A building Claude writes the code and is never allowed to commit. Codex models towers, craft and props in Blender, and Higgsfield makes reference pictures, textures, skies and sound. Dream Island, Map 07, was built this way in one week. Scenery comes from Blender build scripts and painted texture atlases.',
+      result:
+        'All nine circuits are playable with rivals, sprint and time attack, and an autopilot demo races any of them. More than seventy validators check routes, budgets, saves and sound. On Frostline a terrain fix took floating props from 1,397 to 0, measured by the same audit before and after. Racing is local against AI or recorded ghosts; online play is not built.',
+    },
+    facts: [
+      { label: 'Role', value: 'Owner; directs an AI crew' },
+      { label: 'Years', value: '2026' },
+      { label: 'Platforms', value: 'Web browser, keyboard, gamepad and phone controller' },
+      { label: 'Circuits', value: 'Greenwater, Bitterpan, Night Shift, Polarity, Tideline, Ascension Pad, Dream Island, Afterglow, Frostline' },
+      { label: 'Stack', value: 'Three.js, TypeScript, Vite, Blender (Python build scripts)' },
+      { label: 'Crew', value: 'Claude (planning and review), Claude (building), Codex (3D), Higgsfield (pictures and sound)' },
+      { label: 'Method', value: 'Written briefs, every phase checked by re-running its tests' },
+    ],
+  },
 }

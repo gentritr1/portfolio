@@ -40,6 +40,11 @@ export const systems: Record<string, { title: string; layers: Layer[] }> = {
     { title: 'The data', stack: 'RTK Query · next-intl', description: 'A typed frontend with English and French translations. The wallet and blockchain layer was built by teammates.' },
     { title: 'The access', stack: 'Passkeys · Route middleware', description: 'Passkey and external-wallet sign-in, animated onboarding and protected routes.' },
   ] },
+  futurisma: { title: 'Nine circuits,\nbuilt by a crew.', layers: [
+    { title: 'The game', stack: 'Three.js · TypeScript · Vite', description: 'Nine circuits that change during the race, rivals, ghosts, a garage and an autopilot demo.' },
+    { title: 'The art', stack: 'Blender · Python · Higgsfield', description: 'Scenery and craft from Blender build scripts and painted atlases; reference pictures and sound from Higgsfield.' },
+    { title: 'The crew', stack: 'Claude · Codex · Validators', description: 'A planning Claude writes briefs, a building Claude and Codex build, and every phase is checked by re-running its tests.' },
+  ] },
 }
 
 export function TechnicalDiagram({ slug }: { slug: string }) {

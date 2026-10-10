@@ -250,6 +250,28 @@ function FlowFigure({ plate, caption }: { plate: Extract<Plate, { kind: "flow" }
   );
 }
 
+/** A phone held sideways rocks like a wheel; the game screen behind it banks the same way. */
+function TiltFigure({ plate, caption, stage }: { plate: Extract<Plate, { kind: "tilt" }>; caption: string; stage: string }) {
+  return (
+    <figure className="cs-tilt" style={{ "--stage": stage } as CSSProperties}>
+      <div className="cs-tilt-scene" aria-hidden="true">
+        <div className="cs-tilt-screen">
+          <img src={plate.src} alt="" width={plate.width} height={plate.height} loading="lazy" decoding="async" />
+        </div>
+        <div className="cs-tilt-phone">
+          <span className="cs-tilt-pad cs-tilt-pad-l">BRAKE</span>
+          <span className="cs-tilt-gauge"><i /></span>
+          <span className="cs-tilt-pad cs-tilt-pad-r">GAS</span>
+        </div>
+      </div>
+      <figcaption className="cs-tilt-caption">
+        <span className="cs-sr">{plate.alt}. </span>
+        {caption} <span className="cs-tilt-note">{plate.note}</span>
+      </figcaption>
+    </figure>
+  );
+}
+
 interface PlateProps {
   part: Pick<Part, "target">;
   plate: Plate;
@@ -272,6 +294,7 @@ function Enlargeable({ plate, shot = plate, ring, eager, enlarge }: FrameProps &
 function PartPlate({ part, plate, caption, stage, first, enlarge }: PlateProps) {
   if (plate.kind === "number") return <NumberFigure plate={plate} />;
   if (plate.kind === "flow") return <FlowFigure plate={plate} caption={caption} />;
+  if (plate.kind === "tilt") return <TiltFigure plate={plate} caption={caption} stage={stage} />;
   const ring = part.target.kind === "shot" ? part.target.box : null;
   const more = plate.kind === "web" ? plate.more : undefined;
   return (

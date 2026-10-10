@@ -40,6 +40,11 @@ export const milestones: Record<string, Milestone[]> = {
     { title: 'Sign-in and onboarding', detail: 'Passkey and external-wallet sign-in interfaces, with animated onboarding.' },
     { title: 'Wallet views in two languages', detail: 'Dashboard cards, assets and a balance popup with a QR address, translated into English and French.' },
   ],
+  futurisma: [
+    { title: 'Seven circuits, one engine', detail: 'Greenwater to Ascension Pad: weather, a tide and a rocket launch that change each race.' },
+    { title: 'Dream Island in one week', detail: 'A planning Claude, a building Claude, Codex and Higgsfield, every phase checked by re-running its tests.' },
+    { title: 'Frostline and the garage', detail: 'A mountain village at midnight, grounded on one terrain mesh, and a garage of frames, parts and paint.' },
+  ],
 }
 
 export function BuildTimeline({ slug }: { slug: string }) {
