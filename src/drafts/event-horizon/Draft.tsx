@@ -29,6 +29,7 @@ export default function Draft() {
   const labelRefs = useRef<(HTMLButtonElement | null)[]>([])
   const [fps, setFps] = useState(0)
   const [calls, setCalls] = useState(0)
+  const [sceneReady, setSceneReady] = useState(false)
   const [count] = useState(() => (innerWidth < 768 || (navigator.hardwareConcurrency ?? 8) <= 4 ? 45_000 : 120_000))
   const [noGl, setNoGl] = useState(() => !hasWebGL())
   const [open, setOpen] = useState<number | null>(null)
@@ -54,6 +55,7 @@ export default function Draft() {
         bodies: systems.map((s) => ({ texture: s.texture, aspect: s.aspect, tint: s.tint })),
         onStats: (f, c) => { setFps(f); setCalls(c) },
         onHover: setHover,
+        onReady: () => setSceneReady(true),
       })
     } catch {
       queueMicrotask(() => setNoGl(true))
@@ -157,7 +159,7 @@ export default function Draft() {
   const jump = (i: number) => document.getElementById(`eh-sys-${systems[i].slug}`)?.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'center' })
 
   return (
-    <div className="eh-root" data-reduced={reduced || undefined}>
+    <div className="eh-root" data-reduced={reduced || undefined} data-ready={sceneReady || noGl || undefined}>
       <div className="eh-canvas" ref={hostRef} aria-hidden="true" />
       <div className="eh-vignette" aria-hidden="true" />
       {noGl && <p className="eh-nogl eh-mono">WebGL is off in this browser, so the field is hidden. Every project below still opens.</p>}
@@ -208,7 +210,7 @@ export default function Draft() {
       {systems.map((s, i) => (
         <section key={s.slug} id={`eh-sys-${s.slug}`} className="eh-stop" data-stage={stageOf.body(i)} aria-labelledby={`eh-h-${s.slug}`}>
           <div className="eh-stop-inner">
-            <article className="eh-panel eh-solid" data-active={(open === null && ((journey && i === active) || narrow || noGl)) || undefined}>
+            <article className="eh-panel eh-solid" style={{ '--tint': s.tint } as CSSProperties} data-active={(open === null && ((journey && i === active) || narrow || noGl)) || undefined}>
               <h2 id={`eh-h-${s.slug}`} className="eh-panel-name">{s.name}</h2>
               <p className="eh-panel-line">{s.line}</p>
               {s.readouts.length > 0 && (

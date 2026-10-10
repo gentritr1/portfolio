@@ -32,10 +32,10 @@ varying float vAlpha;
 
 void main() {
   float intro = uIntro;
-  float spin = (1.0 - intro) * 2.6;
-  float r = aRadius * (1.0 + (1.0 - intro) * 2.2);
-  // The arms turn as one pattern; only the hot inner ring spins fast (and may smear, like real accretion).
-  float a = aAngle + spin + uTime * 0.12 + uTime * aSpeed * 1.6 * exp(-(aRadius - 1.15) * 1.3);
+  // Arrival: the field settles a short way inward as it fades up. No spin.
+  float r = aRadius * (1.0 + (1.0 - intro) * 0.35);
+  // The arms turn slowly as one pattern; the hot inner ring turns a little faster, at one shared speed so it never shimmers.
+  float a = aAngle + uTime * 0.04 + uTime * 0.45 * exp(-(aRadius - 1.15) * 1.3);
 
   // Funnel around the void, then a flat spiral disk.
   vec3 vortex = vec3(cos(a) * r, -1.8 / (aRadius - 0.9) + aHeight * 0.25, sin(a) * r);
@@ -60,7 +60,7 @@ void main() {
     vec3 u = normalize(cross(vec3(0.0, 1.0, 0.0), n));
     vec3 v = cross(n, u);
     float focus = ci == int(uActive + 0.5) ? uFocusW : 0.0;
-    float a2 = aAngle * 3.0 + uTime * aSpeed * (0.9 + focus * 1.8);
+    float a2 = aAngle * 3.0 + uTime * aSpeed * (0.9 + focus * 0.7);
     float spread = 1.05 + fract(aSeed * 7.31) * 0.5;
     vec3 ring = c + (u * cos(a2) * ext.x + v * sin(a2) * ext.y) * spread + n * (aHeight * 0.6);
     halo = smoothstep(0.0, 1.0, clamp(uMorph - 1.0, 0.0, 1.0));
@@ -78,7 +78,7 @@ void main() {
   p += away * pull * 0.4 + cross(away, normalize(cameraPosition - p)) * pull * 0.2;
   float ring2 = length(p - uShockC) - uShockR;
   float wave = exp(-ring2 * ring2 * 5.0) * uShockA;
-  p += normalize(p - uShockC + 1e-4) * wave * 0.6;
+  p += normalize(p - uShockC + 1e-4) * wave * 0.45;
 
   // Temperature: white-amber near the void, cyan through the middle, violet at the rim.
   vec3 violet = vec3(0.42, 0.22, 0.95), cyan = vec3(0.2, 0.85, 1.0), amber = vec3(1.0, 0.62, 0.25);
@@ -93,7 +93,7 @@ void main() {
   vec3 toCam = normalize(cameraPosition - p);
   float doppler = 1.0 + 0.7 * dot(tangent, toCam);
   float heat = 1.0 + exp(-(aRadius - 1.15) * 1.6) * 1.4 * (1.0 - halo);
-  vColor = col * doppler * heat * (1.0 + lit * 0.7) + pull * 0.35 + wave * 1.0;
+  vColor = col * doppler * heat * (1.0 + lit * 0.7) + pull * 0.35 + wave * 0.45;
 
   gl_Position = projectionMatrix * mv;
   float depth = -mv.z;
@@ -227,7 +227,7 @@ void main() {
     // A soft reflection that slides across the glass as the camera moves past.
     float sheen = exp(-pow((uv.x + uv.y * 0.35) - uSheen, 2.0) * 40.0);
     col += vec3(0.75, 0.8, 1.0) * sheen * 0.06;
-    col = mix(col, vec3(0.37, 0.9, 1.0) * 1.6, band);
+    col = mix(col, vec3(0.37, 0.9, 1.0) * 1.1, band * 0.85);
     col *= 1.0 + uHover * 0.1;
   }
   if (!gl_FrontFacing) col = vec3(0.02, 0.02, 0.05) + vec3(0.55, 0.42, 1.0) * rim;
@@ -260,9 +260,10 @@ const clamp01 = (x: number) => Math.min(1, Math.max(0, x))
 
 export function createScene(
   host: HTMLElement,
-  options: { count: number; reduced: boolean; bodies: Body[]; onStats(fps: number, calls: number): void; onHover(index: number | null): void },
+  options: { count: number; reduced: boolean; bodies: Body[]; onStats(fps: number, calls: number): void; onHover(index: number | null): void; onReady(): void },
 ): EventHorizonScene {
-  const { count, reduced, bodies, onStats, onHover } = options
+  const { count, reduced, bodies, onStats, onHover, onReady } = options
+  performance.mark('eh:scene-start')
   const small = innerWidth < 768
   const dpr = Math.min(devicePixelRatio, 2)
   const renderer = new THREE.WebGLRenderer({ antialias: false, alpha: false, powerPreference: 'high-performance' })
@@ -363,7 +364,8 @@ export function createScene(
   scene.add(voidMesh)
 
   // Project screens.
-  const loader = new THREE.TextureLoader()
+  // ImageBitmapLoader decodes off the main thread; the flip happens in the decode, so the texture itself is not flipped.
+  const loader = new THREE.ImageBitmapLoader().setOptions({ imageOrientation: 'flipY' })
   const blank = track(new THREE.DataTexture(new Uint8Array([8, 8, 14, 255]), 1, 1))
   blank.needsUpdate = true
   const screens = layout.map((l, i) => {
@@ -381,18 +383,26 @@ export function createScene(
     scene.add(mesh)
     return { mesh, u, reveal: 0, hover: 0, base: mesh.quaternion.clone() }
   })
-  // Load the textures after the first frames so the field starts at once.
-  const loadTimer = setTimeout(() => {
+  // Textures load after the field is showing and upload one per frame, so no frame carries all eight.
+  const uploads: (() => void)[] = []
+  let disposed = false
+  function loadTextures() {
     screens.forEach((s, i) =>
-      loader.load(bodies[i].texture, (tex) => {
+      loader.load(bodies[i].texture, (bitmap) => {
+        if (disposed) { bitmap.close?.(); return }
+        const tex = track(new THREE.Texture(bitmap))
+        tex.flipY = false
         tex.colorSpace = THREE.SRGBColorSpace
         tex.anisotropy = 4
-        track(tex)
-        s.u.uMap.value = tex
-        s.u.uLoaded.value = 1
+        tex.needsUpdate = true
+        uploads.push(() => {
+          renderer.initTexture(tex)
+          s.u.uMap.value = tex
+          s.u.uLoaded.value = 1
+        })
       }),
     )
-  }, 250)
+  }
 
   // Post: bloom on what is brighter than white (dense particles, rims, the photon ring).
   const composer = new EffectComposer(renderer)
@@ -481,8 +491,10 @@ export function createScene(
     last = now
     const damp = (rate: number) => (reduced ? 1 : 1 - Math.pow(rate, dt))
 
-    if (!reduced && introT < 1) { introT = Math.min(1, introT + dt / 2.8); uniforms.uIntro.value = 1 - Math.pow(1 - introT, 4) }
-    stage += (stageTarget - stage) * damp(0.004)
+    if (!reduced && introT < 1) { introT = Math.min(1, introT + dt / 2.2); uniforms.uIntro.value = 1 - Math.pow(1 - introT, 3) }
+    uploads.shift()?.()
+    // Scroll drives the journey through two soft stages of smoothing (about 0.7 s together), so wheel steps glide.
+    stage += (stageTarget - stage) * damp(0.03)
     focusW += ((focusIdx === null ? 0 : 1) - focusW) * damp(0.02)
     lens += (lensTarget - lens) * damp(0.01)
     if (!reduced) uniforms.uTime.value += dt * (1 + Math.min(stage, 2) * 0.25)
@@ -496,9 +508,11 @@ export function createScene(
     uniforms.uFocusW.value = focusW
     if (shockT >= 0) {
       shockT += dt
-      uniforms.uShockR.value = shockT * 7
-      uniforms.uShockA.value = Math.max(0, 1 - shockT / 1.3)
-      if (shockT > 1.3) { shockT = -1; uniforms.uShockA.value = 0 }
+      // The ripple slows as it spreads and fades, like a wave on still water.
+      const k = Math.min(shockT / 1.8, 1)
+      uniforms.uShockR.value = 10 * (1 - (1 - k) * (1 - k))
+      uniforms.uShockA.value = 0.55 * (1 - k) * (1 - k)
+      if (shockT > 1.8) { shockT = -1; uniforms.uShockA.value = 0 }
     }
 
     // Screens: reveal by closeness on the journey, fully in the overview, and always when focused.
@@ -542,12 +556,12 @@ export function createScene(
       drift.x += (parallax.x * calm - drift.x) * (1 - Math.pow(0.25, dt))
       drift.y += (parallax.y * calm - drift.y) * (1 - Math.pow(0.25, dt))
       camera.matrixWorld.extractBasis(camRight, camUp, dir)
-      const t = uniforms.uTime.value
-      want.addScaledVector(camRight, drift.x * 0.12 + Math.sin(t * 0.21) * 0.1)
-      want.addScaledVector(camUp, drift.y * 0.08 + Math.sin(t * 0.17 + 1.3) * 0.06)
+      const t = now / 1000
+      want.addScaledVector(camRight, drift.x * 0.12 + Math.sin(t * 0.13) * 0.05)
+      want.addScaledVector(camUp, drift.y * 0.08 + Math.sin(t * 0.11 + 1.3) * 0.03)
     }
-    camPos.lerp(want, damp(0.03))
-    lookCur.lerp(wantLook, damp(0.03))
+    camPos.lerp(want, damp(0.06))
+    lookCur.lerp(wantLook, damp(0.06))
     camera.position.copy(camPos)
     camera.lookAt(lookCur)
 
@@ -569,10 +583,30 @@ export function createScene(
     fpsT += dt
     if (fpsT >= 0.5) { onStats(Math.round(frames / fpsT), renderer.info.render.calls); frames = 0; fpsT = 0 }
   }
-  frame()
+  performance.mark('eh:scene-built')
+
+  // Warm up while the canvas is still invisible: compile every shader, render one frame so the bloom and output
+  // passes compile too, then reveal and start the clock. Measured before this: a 100-150 ms stall (production) and
+  // 240 ms (dev) landed in the first frames of the intro.
+  let ready = false
+  async function warm() {
+    try { await renderer.compileAsync(scene, camera) } catch { /* compile on first render instead */ }
+    if (disposed) return
+    composer.render()
+    await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)))
+    if (disposed) return
+    ready = true
+    performance.mark('eh:ready')
+    onReady()
+    last = performance.now()
+    frame()
+    // Give the field a moment on screen before any image decodes or uploads.
+    setTimeout(() => { if (!disposed) loadTextures() }, reduced ? 0 : 1200)
+  }
+  void warm()
   function onVis() {
     if (document.hidden) { running = false; cancelAnimationFrame(raf) }
-    else if (!running) { running = true; last = performance.now(); frame() }
+    else if (!running && ready) { running = true; last = performance.now(); frame() }
   }
   document.addEventListener('visibilitychange', onVis)
 
@@ -595,8 +629,8 @@ export function createScene(
     bindLabels(els) { labels = els },
     dispose() {
       running = false
+      disposed = true
       cancelAnimationFrame(raf)
-      clearTimeout(loadTimer)
       document.removeEventListener('visibilitychange', onVis)
       ro.disconnect()
       disposables.forEach((d) => d.dispose())
