@@ -1,0 +1,8 @@
+{
+  "id": "event-horizon",
+  "title": "Event Horizon",
+  "band": "Experimental",
+  "description": "A shader-driven particle vortex that morphs from void to galaxy disk to project clusters as you scroll.",
+  "signature": "One Points draw of up to 120k particles orbits a dark void in the vertex shader; the cursor lenses orbits, clicks ripple, and each project card flies the camera into its own cluster.",
+  "caseSlug": "care-platform"
+}
