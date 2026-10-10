@@ -66,18 +66,25 @@ const events: Array<[number, number, number, number]> = [
   [2223, 1720, 314, 80],
 ];
 
-const EVENTS_AT = 1250;
+/**
+ * The moments, in ms from the start of the build, when an agent presses on the screen (HeroBuild.tsx). Each press
+ * starts the parts that agent places. Two presses of one agent are at least about 920 ms apart: the release, a move of
+ * 500 ms or more, and the stop before the press.
+ */
+export const PRESS = { sidebar: 800, grid: 2000, toolbar: 1300, dayRow: 2500, eventsA: 2750, eventsB: 3820 };
+
 /** Each piece runs this far under the piece that paints after it, so no seam of the dark ground shows between them. */
 const OVER = 6;
-const EVENT_STEP = 26;
 const PAD = 3;
+/** Monday's and Tuesday's events drop on the first press of the events agent; Wednesday to Friday on its second. */
+const FIRST_DROP = 9;
 
 export const pieces: Piece[] = [
-  { x: 0, y: 0, w: 472 + OVER, h: H, wipe: "right", at: 150, len: 520 },
-  { x: 472, y: 0, w: W - 472, h: 112 + OVER, wipe: "right", at: 260, len: 480 },
-  { x: 472, y: 112, w: W - 472, h: 304 + OVER, wipe: "down", at: 380, len: 460 },
-  { x: 472, y: 416, w: W - 472, h: 138 + OVER, wipe: "down", at: 560, len: 360 },
-  { x: 472, y: GRID_TOP, w: SUNDAY - 472 + OVER, h: GRID_H, wipe: "down", at: 720, len: 520 },
+  { x: 0, y: 0, w: 472 + OVER, h: H, wipe: "right", at: PRESS.sidebar, len: 600 },
+  { x: 472, y: 0, w: W - 472, h: 112 + OVER, wipe: "right", at: PRESS.sidebar + 120, len: 520 },
+  { x: 472, y: 112, w: W - 472, h: 304 + OVER, wipe: "down", at: PRESS.toolbar, len: 520 },
+  { x: 472, y: 416, w: W - 472, h: 138 + OVER, wipe: "down", at: PRESS.dayRow, len: 420 },
+  { x: 472, y: GRID_TOP, w: SUNDAY - 472 + OVER, h: GRID_H, wipe: "down", at: PRESS.grid, len: 600 },
   ...columns.map(([x, w], i): Piece => ({
     x,
     y: GRID_TOP,
@@ -85,8 +92,8 @@ export const pieces: Piece[] = [
     h: GRID_H,
     ...(i > 0 && i < 6 ? { sx: SUNDAY } : {}),
     wipe: "down",
-    at: 760 + i * 40,
-    len: 520,
+    at: PRESS.grid + 60 + i * 50,
+    len: 600,
   })),
   ...events.map(([x, y, w, h], i): Piece => ({
     x: x - PAD,
@@ -94,15 +101,15 @@ export const pieces: Piece[] = [
     w: w + PAD * 2,
     h: Math.min(h + PAD * 2, H - y + PAD),
     wipe: "drop",
-    at: EVENTS_AT + i * EVENT_STEP,
-    len: 340,
+    at: i < FIRST_DROP ? PRESS.eventsA + i * 45 : PRESS.eventsB + (i - FIRST_DROP) * 35,
+    len: 380,
   })),
-  { x: 1244, y: 1226, w: 338, h: 32, wipe: "right", at: 2120, len: 320 },
+  { x: 1244, y: 1226, w: 338, h: 32, wipe: "right", at: PRESS.eventsB + 450, len: 360 },
 ];
 
-export const CHECKS_AT = 2380;
-export const APPROVED_AT = 2800;
-export const BUILD_DONE = 3250;
+export const CHECKS_AT = 4960;
+export const APPROVED_AT = 5360;
+export const BUILD_DONE = 5800;
 
 /** The same pieces as layers of the exploded view, from back to front. */
 export const layers: Piece[][] = [pieces.slice(4, 12), pieces.slice(1, 4), pieces.slice(0, 1), pieces.slice(12)];
