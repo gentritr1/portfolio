@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
+import { ArrowRightIcon } from '@phosphor-icons/react'
 import { createScene, hasWebGL, stageOf, type EventHorizonScene } from './scene'
 import { breadth, learned, links, own, ringProof, steps, systems } from './data'
 import { Dive } from './Dive'
@@ -7,7 +8,6 @@ import './event-horizon.css'
 
 const OVERVIEW = stageOf.overview(systems.length)
 const BACKDROP = stageOf.backdrop(systems.length)
-const pad = (n: number) => String(n).padStart(2, '0')
 const TITLE = 'GENTRIT'
 
 function useMedia(query: string) {
@@ -28,6 +28,7 @@ export default function Draft() {
   const lastFocus = useRef<HTMLElement | null>(null)
   const labelRefs = useRef<(HTMLButtonElement | null)[]>([])
   const [fps, setFps] = useState(0)
+  const [calls, setCalls] = useState(0)
   const [count] = useState(() => (innerWidth < 768 || (navigator.hardwareConcurrency ?? 8) <= 4 ? 45_000 : 120_000))
   const [noGl, setNoGl] = useState(() => !hasWebGL())
   const [open, setOpen] = useState<number | null>(null)
@@ -50,8 +51,8 @@ export default function Draft() {
       scene = createScene(host, {
         count,
         reduced,
-        bodies: systems.map((s) => ({ texture: s.texture, aspect: s.aspect })),
-        onFps: setFps,
+        bodies: systems.map((s) => ({ texture: s.texture, aspect: s.aspect, tint: s.tint })),
+        onStats: (f, c) => { setFps(f); setCalls(c) },
         onHover: setHover,
       })
     } catch {
@@ -165,9 +166,6 @@ export default function Draft() {
       <nav className="eh-nav eh-solid" aria-label="Primary">
         <a className="eh-logo" href="#eh-top">G/R</a>
         <span className="eh-status eh-mono"><i className="eh-pulse" />Status: Online // Deploying Agents</span>
-        <span className="eh-nav-sys eh-mono" aria-live="polite">
-          {journey && active >= 0 && active < systems.length ? `SYS ${pad(active + 1)}/${pad(systems.length)} · ${systems[active].name}` : ''}
-        </span>
         <a href="#eh-work" className="eh-navlink">Work</a>
         <a href={`mailto:${links.email}`} className="eh-navlink">Contact</a>
       </nav>
@@ -177,7 +175,6 @@ export default function Draft() {
         {systems.map((s, i) => (
           <li key={s.slug}>
             <button type="button" aria-current={i === active || undefined} onClick={() => jump(i)} tabIndex={journey ? 0 : -1}>
-              <span className="eh-mono">{pad(i + 1)}</span>
               <span className="eh-rail-name">{s.name}</span>
             </button>
           </li>
@@ -190,19 +187,21 @@ export default function Draft() {
             <span key={i} aria-hidden="true" style={{ '--i': i } as CSSProperties}>{ch}</span>
           ))}
         </h1>
-        <p className="eh-sub">Senior Frontend, Mobile &amp; AI Engineer <span className="eh-sub-rule">//</span> Building Fluid Interfaces for Complex Model Architectures</p>
-        <dl className="eh-tele eh-mono" aria-label="Render telemetry">
-          <div><dt>FPS</dt><dd>{noGl || !fps ? '—' : fps}</dd></div>
-          <div><dt>Mesh density</dt><dd>{noGl ? '—' : `${count.toLocaleString('en-US')} pts`}</dd></div>
-          <div><dt>Model inference</dt><dd>0.04s <small>placeholder</small></dd></div>
-        </dl>
-        <p className="eh-cue eh-mono" aria-hidden="true"><span />Scroll into the field</p>
+        <p className="eh-role">Senior Frontend, Mobile &amp; AI Engineer</p>
+        <p className="eh-sub">Eight products shipped across web and mobile. Now built faster with AI agents, and kept honest by tests.</p>
+        {!noGl && (
+          <dl className="eh-tele eh-mono" aria-label="Live render stats">
+            <div><dt>Frames / s</dt><dd>{fps || '...'}</dd></div>
+            <div><dt>Particles</dt><dd>{count.toLocaleString('en-US')}</dd></div>
+            <div><dt>Draw calls</dt><dd>{calls || '...'}</dd></div>
+          </dl>
+        )}
       </header>
 
       <section id="eh-work" className="eh-pass" data-stage={1} aria-labelledby="eh-pass-h">
         <div className="eh-pass-inner">
-          <h2 id="eh-pass-h" className="eh-h2">Eight shipped systems in orbit.</h2>
-          <p>Healthcare, streaming, reading, Web3, a design system and a racing game. Fly past each one, or open it to see how it was built.</p>
+          <h2 id="eh-pass-h" className="eh-h2">Eight products, one orbit.</h2>
+          <p>Healthcare, streaming, reading, Web3, a design system and a game. Keep scrolling to visit each one.</p>
         </div>
       </section>
 
@@ -210,7 +209,6 @@ export default function Draft() {
         <section key={s.slug} id={`eh-sys-${s.slug}`} className="eh-stop" data-stage={stageOf.body(i)} aria-labelledby={`eh-h-${s.slug}`}>
           <div className="eh-stop-inner">
             <article className="eh-panel eh-solid" data-active={(open === null && ((journey && i === active) || narrow || noGl)) || undefined}>
-              <p className="eh-panel-index eh-mono">{pad(i + 1)} <span>/ {pad(systems.length)}</span></p>
               <h2 id={`eh-h-${s.slug}`} className="eh-panel-name">{s.name}</h2>
               <p className="eh-panel-line">{s.line}</p>
               {s.readouts.length > 0 && (
@@ -221,7 +219,7 @@ export default function Draft() {
                         {r.value}
                         {r.to && (
                           <>
-                            <svg viewBox="0 0 16 10" width="14" height="9" aria-hidden="true"><path d="M1 5h13M10 1l4 4-4 4" fill="none" stroke="currentColor" strokeWidth="1.4" /></svg>
+                            <ArrowRightIcon size={13} weight="bold" aria-hidden="true" />
                             <span className="eh-sr"> to </span>
                             {r.to}
                           </>
@@ -235,8 +233,9 @@ export default function Draft() {
               <p className="eh-panel-meta eh-mono">{[s.kind, s.years].filter(Boolean).join(' · ')}</p>
               <ul className="eh-tags" aria-label="Stack">{s.stack.slice(0, 5).map((t) => <li key={t}>{t}</li>)}</ul>
               <div className="eh-panel-actions">
-                <button type="button" className="eh-btn eh-btn-solid" onClick={(e) => openSystem(i, e.currentTarget)} aria-haspopup="dialog" aria-label={`Open ${s.name}`}>
-                  Open the system
+                <button type="button" className="eh-btn eh-btn-solid" onClick={(e) => openSystem(i, e.currentTarget)} aria-haspopup="dialog" aria-label={`How ${s.name} was built`}>
+                  How it was built
+                  <ArrowRightIcon size={14} weight="bold" aria-hidden="true" />
                 </button>
               </div>
             </article>
@@ -246,8 +245,8 @@ export default function Draft() {
 
       <section className="eh-overview" data-stage={OVERVIEW} aria-labelledby="eh-overview-h">
         <div className="eh-overview-inner eh-solid">
-          <h2 id="eh-overview-h" className="eh-h2">All eight, in one orbit.</h2>
-          <p>Pick any screen to open it.</p>
+          <h2 id="eh-overview-h" className="eh-h2">All eight at once.</h2>
+          <p>Open any of them.</p>
         </div>
       </section>
       <div className="eh-labels" aria-hidden={!labelsOn}>
@@ -271,7 +270,6 @@ export default function Draft() {
             <ol className="eh-loop-steps">
               {steps.map((st, i) => (
                 <li key={st.name} style={{ '--i': i } as CSSProperties}>
-                  <span className="eh-mono">{pad(i + 1)}</span>
                   <strong>{st.name}</strong>
                   <p>{st.text}</p>
                 </li>
@@ -281,7 +279,10 @@ export default function Draft() {
           <ul className="eh-proof">
             {ringProof.map((r) => <li key={r}>{r}</li>)}
           </ul>
-          <button type="button" className="eh-btn" onClick={(e) => openSystem(0, e.currentTarget)}>See one screen go from note to merge in a day</button>
+          <button type="button" className="eh-btn" onClick={(e) => openSystem(0, e.currentTarget)}>
+            One screen, from note to merge in a day
+            <ArrowRightIcon size={14} weight="bold" aria-hidden="true" />
+          </button>
         </section>
 
         <section className="eh-section" aria-labelledby="eh-own-h">
@@ -367,7 +368,6 @@ export default function Draft() {
               transition={{ duration: reduced ? 0.01 : 0.55, ease: [0.32, 0.72, 0, 1] }}
             >
               <div className="eh-drawer-bar">
-                <span className="eh-mono">SYS {pad((open ?? 0) + 1)}/{pad(systems.length)}</span>
                 <button type="button" className="eh-close" onClick={() => setOpen(null)}>
                   Close <kbd>Esc</kbd>
                 </button>

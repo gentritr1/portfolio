@@ -214,7 +214,7 @@ function DraftView() {
   return View ? (
     <Suspense
       fallback={
-        <div className="draft-loading" role="status">
+        <div className="draft-loading" role="status" data-draft={id}>
           Opening the draft…
         </div>
       }

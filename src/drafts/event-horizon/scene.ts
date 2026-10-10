@@ -8,17 +8,22 @@ import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js'
 export interface Body {
   texture: string
   aspect: number
+  /** The project's own colour, used to light its halo when the camera arrives. */
+  tint: string
 }
 
 /** Journey stages: 0 vortex, 1 disk, 2..2+n-1 one project each, the overview, then a far backdrop behind the page content. */
 export const stageOf = { vortex: 0, disk: 1, body: (i: number) => 2 + i, overview: (n: number) => 2 + n, backdrop: (n: number) => 3 + n }
 
 const MAX_BODIES = 8
+/** Glass bezel around each screen, in world units. */
+const BEZEL = 0.08
 
 const particleVertex = /* glsl */ `
 uniform float uTime, uMorph, uLens, uShockR, uShockA, uPx, uIntro, uActive, uActiveW, uFocusW;
 uniform vec3 uPointer, uShockC;
 uniform vec3 uCenters[${MAX_BODIES}];
+uniform vec3 uTints[${MAX_BODIES}];
 uniform vec3 uNormals[${MAX_BODIES}];
 uniform vec2 uExtent[${MAX_BODIES}];
 attribute float aRadius, aAngle, aSpeed, aHeight, aCluster, aSeed;
@@ -45,11 +50,13 @@ void main() {
 
   // A share of the particles leaves the disk to orbit each project screen like a halo.
   float halo = 0.0;
+  vec3 tint = vec3(0.0);
+  float lit = 0.0;
   if (aCluster >= 0.0) {
     int ci = int(aCluster);
     vec3 c = uCenters[0], n = uNormals[0];
     vec2 ext = uExtent[0];
-    for (int i = 0; i < ${MAX_BODIES}; i++) { if (i == ci) { c = uCenters[i]; n = uNormals[i]; ext = uExtent[i]; } }
+    for (int i = 0; i < ${MAX_BODIES}; i++) { if (i == ci) { c = uCenters[i]; n = uNormals[i]; ext = uExtent[i]; tint = uTints[i]; } }
     vec3 u = normalize(cross(vec3(0.0, 1.0, 0.0), n));
     vec3 v = cross(n, u);
     float focus = ci == int(uActive + 0.5) ? uFocusW : 0.0;
@@ -59,18 +66,16 @@ void main() {
     halo = smoothstep(0.0, 1.0, clamp(uMorph - 1.0, 0.0, 1.0));
     p = mix(p, ring, halo);
     tangent = mix(tangent, normalize(-u * sin(a2) + v * cos(a2)), halo);
-    vColor = vec3(float(ci == int(uActive + 0.5)) * uActiveW);
-  } else {
-    vColor = vec3(0.0);
+    lit = float(ci == int(uActive + 0.5)) * uActiveW;
   }
 
   // Cursor lens and click ripple, on the plane the camera looks at.
   vec3 d = p - uPointer;
   float dist2 = dot(d, d);
   // The cursor pushes the field aside and swirls it, so it never piles particles onto a project screen.
-  float pull = uLens * 1.2 / (dist2 + 0.5);
+  float pull = uLens * 0.7 / (dist2 + 0.8);
   vec3 away = normalize(d + 1e-4);
-  p += away * pull * 0.5 + cross(away, normalize(cameraPosition - p)) * pull * 0.3;
+  p += away * pull * 0.4 + cross(away, normalize(cameraPosition - p)) * pull * 0.2;
   float ring2 = length(p - uShockC) - uShockR;
   float wave = exp(-ring2 * ring2 * 5.0) * uShockA;
   p += normalize(p - uShockC + 1e-4) * wave * 0.6;
@@ -80,20 +85,24 @@ void main() {
   float t = fract(aSeed * 13.7);
   vec3 col = mix(violet, cyan, smoothstep(0.25, 0.85, t) * smoothstep(9.0, 3.0, aRadius));
   col = mix(col, amber, clamp(step(0.93, t) + exp(-(aRadius - 1.15) * 2.4) * (1.0 - halo), 0.0, 1.0));
-  col = mix(col, cyan * 1.2, halo * 0.55);
+  // A halo is cool cyan at rest and takes on its project's colour as the camera arrives.
+  vec3 haloCol = mix(mix(cyan, violet, 0.35), tint, 0.25 + lit * 0.55);
+  col = mix(col, haloCol * 1.15, halo * 0.7);
 
   vec4 mv = modelViewMatrix * vec4(p, 1.0);
   vec3 toCam = normalize(cameraPosition - p);
   float doppler = 1.0 + 0.7 * dot(tangent, toCam);
   float heat = 1.0 + exp(-(aRadius - 1.15) * 1.6) * 1.4 * (1.0 - halo);
-  vColor = col * doppler * heat * (1.0 + vColor.x * 0.9) + pull * 0.5 + wave * 1.2;
+  vColor = col * doppler * heat * (1.0 + lit * 0.7) + pull * 0.35 + wave * 1.0;
 
   gl_Position = projectionMatrix * mv;
   float depth = -mv.z;
   gl_PointSize = min(uPx * (0.55 + fract(aSeed * 3.1) * 1.3) * (10.0 / depth), uPx * 3.2);
   float fall = mix(pow(clamp(1.25 - aRadius / 9.5, 0.0, 1.0), 1.6), 1.0, halo);
   // The drawn-in disk is about five times denser, so each of its particles gives less light.
-  vAlpha = 0.34 * fall * mix(1.0, 0.3, m2 * (1.0 - halo)) * smoothstep(1.2, 4.5, depth) * intro;
+  // Far particles fade into the dark, so the field reads in depth.
+  float fog = smoothstep(62.0, 22.0, depth);
+  vAlpha = 0.34 * fall * mix(1.0, 0.3, m2 * (1.0 - halo)) * smoothstep(1.2, 4.5, depth) * fog * intro;
 }`
 
 const particleFragment = /* glsl */ `
@@ -122,6 +131,37 @@ void main() {
   gl_FragColor = vec4(vec3(0.72, 0.78, 1.0) * f * vA * 0.55, 1.0);
 }`
 
+const nebulaVertex = /* glsl */ `
+varying vec3 vDir;
+void main() {
+  vDir = normalize(position);
+  vec4 p = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  gl_Position = p.xyww;
+}`
+
+/** A faint nebula on the far sphere: two soft clouds of violet and teal, brightest along the disk plane. Kept very low; dark linear values grow a lot once they are shown as sRGB. */
+const nebulaFragment = /* glsl */ `
+uniform float uTime;
+varying vec3 vDir;
+float hash(vec3 p) { return fract(sin(dot(p, vec3(127.1, 311.7, 74.7))) * 43758.5453); }
+float noise(vec3 p) {
+  vec3 i = floor(p), f = fract(p), u = f * f * (3.0 - 2.0 * f);
+  return mix(mix(mix(hash(i), hash(i + vec3(1, 0, 0)), u.x), mix(hash(i + vec3(0, 1, 0)), hash(i + vec3(1, 1, 0)), u.x), u.y),
+             mix(mix(hash(i + vec3(0, 0, 1)), hash(i + vec3(1, 0, 1)), u.x), mix(hash(i + vec3(0, 1, 1)), hash(i + vec3(1, 1, 1)), u.x), u.y), u.z);
+}
+float fbm(vec3 p) { float v = 0.0, a = 0.5; for (int i = 0; i < 5; i++) { v += a * noise(p); p *= 2.03; a *= 0.5; } return v; }
+void main() {
+  vec3 d = normalize(vDir);
+  float band = exp(-d.y * d.y * 9.0);
+  float a = fbm(d * 2.4 + vec3(0.0, uTime * 0.004, 0.0));
+  float b = fbm(d * 3.1 + vec3(4.2, 1.3, -uTime * 0.003));
+  vec3 violet = vec3(0.16, 0.07, 0.34), teal = vec3(0.02, 0.14, 0.17);
+  vec3 col = violet * smoothstep(0.45, 0.85, a) + teal * smoothstep(0.5, 0.9, b);
+  col *= 0.035 + band * 0.05;
+  col += (hash(d * 913.0) - 0.5) * 0.0015;
+  gl_FragColor = vec4(max(col, 0.0), 1.0);
+}`
+
 const voidVertex = /* glsl */ `
 varying vec3 vN, vV;
 void main() {
@@ -144,7 +184,8 @@ void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(
 
 const screenFragment = /* glsl */ `
 uniform sampler2D uMap;
-uniform float uReveal, uTime, uAspect, uRadius, uHover, uLoaded, uFrame;
+uniform float uReveal, uTime, uAspect, uRadius, uHover, uLoaded, uFrame, uSheen;
+uniform vec2 uSize, uOuter;
 varying vec2 vUv;
 float sdRound(vec2 p, vec2 b, float r) { vec2 q = abs(p) - b + r; return length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - r; }
 float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
@@ -153,27 +194,42 @@ float noise(vec2 p) {
   return mix(mix(hash(i), hash(i + vec2(1, 0)), u.x), mix(hash(i + vec2(0, 1)), hash(i + vec2(1, 1)), u.x), u.y);
 }
 void main() {
-  vec2 p = (vUv - 0.5) * vec2(uAspect, 1.0);
-  float d = sdRound(p, vec2(uAspect * 0.5, 0.5) - 0.012, uRadius);
-  if (d > 0.012) discard;
-  float rim = smoothstep(0.012, 0.0, abs(d)) * uFrame;
+  // The plane is the screen plus a thin glass bezel; p is in plane units from its centre.
+  vec2 p = (vUv - 0.5) * uOuter;
+  float outer = sdRound(p, uOuter * 0.5 - 0.004, uRadius + 0.05);
+  if (outer > 0.0) discard;
+  float d = sdRound(p, uSize * 0.5, uRadius);
+  vec2 uv = p / uSize + 0.5;
+  float rim = smoothstep(0.03, 0.0, abs(outer)) * uFrame;
+  if (d > 0.0) {
+    // Bezel: dark glass that arrives with the screen. A distant screen shows only its faint outline.
+    vec3 edge = vec3(0.55, 0.42, 1.0) * rim * (0.55 + uHover * 0.6);
+    if (uReveal < 0.3) {
+      if (rim < 0.35) discard;
+      gl_FragColor = vec4(edge * 0.6, 1.0);
+      return;
+    }
+    gl_FragColor = vec4(vec3(0.018, 0.016, 0.034) + edge, 1.0);
+    return;
+  }
 
   // The screen assembles out of the field: a noise front sweeps it in, lit cyan at the edge.
-  float n = noise(vUv * vec2(uAspect, 1.0) * 16.0) * 0.72 + noise(vUv * 110.0) * 0.28;
+  float n = noise(uv * vec2(uAspect, 1.0) * 16.0) * 0.72 + noise(uv * 110.0) * 0.28;
   float front = uReveal * 1.3 - 0.15;
   bool shown = n < front && uLoaded > 0.5;
-  if (!shown && rim < 0.35) discard;
+  if (!shown) discard;
 
   vec3 col = vec3(0.0);
   if (shown) {
-    vec3 tex = texture2D(uMap, vUv).rgb;
+    vec3 tex = texture2D(uMap, uv).rgb;
     float band = smoothstep(0.09, 0.0, front - n) * (1.0 - smoothstep(0.92, 1.0, uReveal));
     col = tex * 0.8 * (0.35 + 0.65 * smoothstep(0.2, 1.0, uReveal));
-    col *= 0.97 + 0.03 * sin(vUv.y * 800.0 + uTime * 1.5);
+    // A soft reflection that slides across the glass as the camera moves past.
+    float sheen = exp(-pow((uv.x + uv.y * 0.35) - uSheen, 2.0) * 40.0);
+    col += vec3(0.75, 0.8, 1.0) * sheen * 0.06;
     col = mix(col, vec3(0.37, 0.9, 1.0) * 1.6, band);
     col *= 1.0 + uHover * 0.1;
   }
-  col += vec3(0.55, 0.42, 1.0) * rim * (0.5 + uHover * 0.9);
   if (!gl_FrontFacing) col = vec3(0.02, 0.02, 0.05) + vec3(0.55, 0.42, 1.0) * rim;
   gl_FragColor = vec4(col, 1.0);
 }`
@@ -204,20 +260,22 @@ const clamp01 = (x: number) => Math.min(1, Math.max(0, x))
 
 export function createScene(
   host: HTMLElement,
-  options: { count: number; reduced: boolean; bodies: Body[]; onFps(fps: number): void; onHover(index: number | null): void },
+  options: { count: number; reduced: boolean; bodies: Body[]; onStats(fps: number, calls: number): void; onHover(index: number | null): void },
 ): EventHorizonScene {
-  const { count, reduced, bodies, onFps, onHover } = options
+  const { count, reduced, bodies, onStats, onHover } = options
   const small = innerWidth < 768
   const dpr = Math.min(devicePixelRatio, 2)
   const renderer = new THREE.WebGLRenderer({ antialias: false, alpha: false, powerPreference: 'high-performance' })
   renderer.setPixelRatio(dpr)
   renderer.setClearColor(0x000000, 1)
   renderer.toneMapping = THREE.NoToneMapping
+  // The composer renders several passes a frame; count them all for the telemetry.
+  renderer.info.autoReset = false
   host.appendChild(renderer.domElement)
   const scene = new THREE.Scene()
   // Set as a colour-managed background: a raw clear colour here was encoded to sRGB twice and read as grey.
   scene.background = new THREE.Color(0x050508)
-  const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 200)
+  const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 400)
   const disposables: { dispose(): void }[] = []
   const track = <T extends { dispose(): void }>(x: T) => (disposables.push(x), x)
 
@@ -261,7 +319,14 @@ export function createScene(
   const centers = pad(layout.length, () => new THREE.Vector3(0, -99, 0)).map((v, i) => v ?? layout[i].center)
   const normals = pad(layout.length, () => new THREE.Vector3(0, 0, 1)).map((v, i) => v ?? layout[i].normal.clone())
   const extents = pad(layout.length, () => new THREE.Vector2(1, 1)).map((v, i) => v ?? new THREE.Vector2(layout[i].w * 0.5 + 0.55, layout[i].h * 0.5 + 0.5))
+  const tints = Array.from({ length: MAX_BODIES }, (_, i) => {
+    const c = new THREE.Color(bodies[i]?.tint ?? '#5fe3ff')
+    const hsl = { h: 0, s: 0, l: 0 }
+    c.getHSL(hsl)
+    return new THREE.Color().setHSL(hsl.h, Math.min(hsl.s, 0.62), 0.62)
+  })
   const uniforms = {
+    uTints: { value: tints },
     uTime: { value: 0 }, uMorph: { value: 0 }, uLens: { value: 0 }, uShockR: { value: 0 }, uShockA: { value: 0 },
     uPx: { value: 2.1 * dpr }, uIntro: { value: reduced ? 1 : 0 }, uActive: { value: -1 }, uActiveW: { value: 0 }, uFocusW: { value: 0 },
     uPointer: { value: new THREE.Vector3(0, -99, 0) }, uShockC: { value: new THREE.Vector3() },
@@ -288,6 +353,10 @@ export function createScene(
   stars.renderOrder = 0
   scene.add(stars)
 
+  const nebula = new THREE.Mesh(track(new THREE.SphereGeometry(150, 48, 24)), track(new THREE.ShaderMaterial({ uniforms: { uTime: uniforms.uTime }, vertexShader: nebulaVertex, fragmentShader: nebulaFragment, side: THREE.BackSide, depthWrite: false })))
+  nebula.renderOrder = -1
+  scene.add(nebula)
+
   // The event horizon: a black sphere that hides what is behind it, with a hot photon rim.
   const voidMesh = new THREE.Mesh(track(new THREE.SphereGeometry(1.0, 64, 32)), track(new THREE.ShaderMaterial({ vertexShader: voidVertex, fragmentShader: voidFragment })))
   voidMesh.renderOrder = 1
@@ -300,10 +369,11 @@ export function createScene(
   const screens = layout.map((l, i) => {
     const u = {
       uMap: { value: blank as THREE.Texture }, uReveal: { value: 0 }, uTime: uniforms.uTime, uAspect: { value: bodies[i].aspect },
-      uRadius: { value: bodies[i].aspect < 1 ? 0.08 : 0.035 }, uHover: { value: 0 }, uLoaded: { value: 0 }, uFrame: { value: 0 },
+      uRadius: { value: bodies[i].aspect < 1 ? 0.16 : 0.06 }, uHover: { value: 0 }, uLoaded: { value: 0 }, uFrame: { value: 0 },
+      uSheen: { value: 0.5 }, uSize: { value: new THREE.Vector2(l.w, l.h) }, uOuter: { value: new THREE.Vector2(l.w + BEZEL * 2, l.h + BEZEL * 2) },
     }
     const m = track(new THREE.ShaderMaterial({ uniforms: u, vertexShader: screenVertex, fragmentShader: screenFragment, side: THREE.DoubleSide }))
-    const mesh = new THREE.Mesh(track(new THREE.PlaneGeometry(l.w, l.h)), m)
+    const mesh = new THREE.Mesh(track(new THREE.PlaneGeometry(l.w + BEZEL * 2, l.h + BEZEL * 2)), m)
     mesh.position.copy(l.center)
     mesh.lookAt(l.center.clone().add(l.normal))
     mesh.renderOrder = 1
@@ -381,7 +451,7 @@ export function createScene(
 
   const ndc = new THREE.Vector2(), ray = new THREE.Raycaster(), viewPlane = new THREE.Plane(), hit = new THREE.Vector3()
   const camPos = new THREE.Vector3(0, 15, 0.01), lookCur = new THREE.Vector3(), want = new THREE.Vector3(), wantLook = new THREE.Vector3()
-  const parallax = new THREE.Vector2(), dir = new THREE.Vector3()
+  const parallax = new THREE.Vector2(), drift = new THREE.Vector2(), dir = new THREE.Vector3(), camRight = new THREE.Vector3(), camUp = new THREE.Vector3()
   let stage = 0, stageTarget = 0, lens = 0, lensTarget = 0, focusIdx: number | null = null, focusW = 0
   let hovered: number | null = null, shockT = -1, introT = 0
   let labels: (HTMLElement | null)[] = []
@@ -441,6 +511,7 @@ export function createScene(
       s.u.uReveal.value = s.reveal
       s.u.uHover.value = s.hover
       s.u.uFrame.value = clamp01((stage - 1.3) * 2) * (0.35 + 0.65 * Math.max(s.reveal, overview)) * (1 - 0.6 * clamp01(stage - lastStage()))
+      s.u.uSheen.value = 0.65 + camera.position.clone().sub(s.mesh.position).normalize().dot(camRight.set(1, 0, 0).applyQuaternion(s.mesh.quaternion)) * 0.9
       s.mesh.position.y = layout[i].center.y + (reduced ? 0 : Math.sin(uniforms.uTime.value * 0.45 + i * 1.7) * 0.06)
       // In the overview each screen turns to face the camera, and its halo turns with it.
       tmpObj.position.copy(s.mesh.position)
@@ -464,9 +535,16 @@ export function createScene(
         wantLook.lerp(focusPose[focusIdx].look, ease(focusW))
       }
     }
-    if (!reduced && focusIdx === null) {
-      want.x += parallax.x * 0.5
-      want.y += parallax.y * 0.35
+    // Hover only leans the view a touch, through a slow spring, and the camera breathes on its own.
+    // (A direct offset of half a unit read as the camera lunging toward the cursor.)
+    if (!reduced) {
+      const calm = focusIdx === null ? 1 : 0.3
+      drift.x += (parallax.x * calm - drift.x) * (1 - Math.pow(0.25, dt))
+      drift.y += (parallax.y * calm - drift.y) * (1 - Math.pow(0.25, dt))
+      camera.matrixWorld.extractBasis(camRight, camUp, dir)
+      const t = uniforms.uTime.value
+      want.addScaledVector(camRight, drift.x * 0.12 + Math.sin(t * 0.21) * 0.1)
+      want.addScaledVector(camUp, drift.y * 0.08 + Math.sin(t * 0.17 + 1.3) * 0.06)
     }
     camPos.lerp(want, damp(0.03))
     lookCur.lerp(wantLook, damp(0.03))
@@ -485,10 +563,11 @@ export function createScene(
       el.style.transform = `translate3d(${((proj.x + 1) / 2) * innerWidth}px, ${((1 - proj.y) / 2) * innerHeight}px, 0) translate(-50%, 0)`
     })
 
+    renderer.info.reset()
     composer.render()
     frames++
     fpsT += dt
-    if (fpsT >= 0.5) { onFps(Math.round(frames / fpsT)); frames = 0; fpsT = 0 }
+    if (fpsT >= 0.5) { onStats(Math.round(frames / fpsT), renderer.info.render.calls); frames = 0; fpsT = 0 }
   }
   frame()
   function onVis() {
@@ -504,7 +583,7 @@ export function createScene(
       parallax.set(nx, ny)
       const over = active ? pick(nx, ny) : null
       if (over !== hovered) { hovered = over; onHover(over) }
-      if (active && over === null && projectToView(nx, ny)) { uniforms.uPointer.value.copy(hit); lensTarget = reduced ? 0.4 : 1 } else lensTarget = 0
+      if (active && over === null && projectToView(nx, ny)) { uniforms.uPointer.value.copy(hit); lensTarget = reduced ? 0.3 : 0.8 } else lensTarget = 0
     },
     press(nx, ny) {
       const over = pick(nx, ny)

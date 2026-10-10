@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router'
 import { motion } from 'motion/react'
+import { ArrowRightIcon } from '@phosphor-icons/react'
 import { stations, twinBase, twinSteps, type System } from './data'
 
 const rise = {
@@ -59,7 +60,7 @@ export function Dive({ system: s, reduced }: { system: System; reduced: boolean 
                 {r.value}
                 {r.to && (
                   <>
-                    <svg viewBox="0 0 16 10" width="16" height="10" aria-hidden="true"><path d="M1 5h13M10 1l4 4-4 4" fill="none" stroke="currentColor" strokeWidth="1.4" /></svg>
+                    <ArrowRightIcon size={16} weight="bold" aria-hidden="true" />
                     <span className="eh-sr"> to </span>
                     {r.to}
                   </>
@@ -149,7 +150,7 @@ export function Dive({ system: s, reduced }: { system: System; reduced: boolean 
       <motion.footer className="eh-dive-foot" variants={reduced ? undefined : rise}>
         <Link className="eh-btn eh-btn-solid" to={`/work/${s.slug}`}>
           Read the full case
-          <svg viewBox="0 0 16 10" width="16" height="10" aria-hidden="true"><path d="M1 5h13M10 1l4 4-4 4" fill="none" stroke="currentColor" strokeWidth="1.4" /></svg>
+          <ArrowRightIcon size={16} weight="bold" aria-hidden="true" />
         </Link>
         {s.links.map((l) => (
           <a key={l.href} className="eh-btn" href={l.href} target="_blank" rel="noreferrer">
