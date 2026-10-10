@@ -1,61 +1,114 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState, type CSSProperties } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
-import { projects } from '../../content/projects'
-import { CLUSTERS, createScene, hasWebGL, type EventHorizonScene } from './scene'
+import { createScene, hasWebGL, stageOf, type EventHorizonScene } from './scene'
+import { breadth, learned, links, own, ringProof, steps, systems } from './data'
+import { Dive } from './Dive'
 import './event-horizon.css'
 
-const work = projects.slice(0, 6).map((p, i) => ({
-  slug: p.slug,
-  name: p.name,
-  kind: p.kind,
-  years: p.years,
-  role: p.role,
-  stack: p.stack,
-  summary: p.summary,
-  metric: p.featured?.readouts?.[0] ? `${p.featured.readouts[0].value}${p.featured.readouts[0].to ? ` → ${p.featured.readouts[0].to}` : ''} · ${p.featured.readouts[0].label}` : p.line,
-  readouts: p.featured?.readouts ?? [],
-  cluster: i % CLUSTERS,
-}))
+const OVERVIEW = stageOf.overview(systems.length)
+const BACKDROP = stageOf.backdrop(systems.length)
+const pad = (n: number) => String(n).padStart(2, '0')
+const TITLE = 'GENTRIT'
+
+function useMedia(query: string) {
+  const [match, setMatch] = useState(() => matchMedia(query).matches)
+  useEffect(() => {
+    const m = matchMedia(query)
+    const on = () => setMatch(m.matches)
+    m.addEventListener('change', on)
+    return () => m.removeEventListener('change', on)
+  }, [query])
+  return match
+}
 
 export default function Draft() {
   const hostRef = useRef<HTMLDivElement>(null)
   const sceneRef = useRef<EventHorizonScene | null>(null)
+  const drawerRef = useRef<HTMLElement>(null)
   const lastFocus = useRef<HTMLElement | null>(null)
-  const closeRef = useRef<HTMLButtonElement>(null)
+  const labelRefs = useRef<(HTMLButtonElement | null)[]>([])
   const [fps, setFps] = useState(0)
-  const [count] = useState(() => (innerWidth < 768 || (navigator.hardwareConcurrency ?? 8) <= 4 ? 40_000 : 120_000))
+  const [count] = useState(() => (innerWidth < 768 || (navigator.hardwareConcurrency ?? 8) <= 4 ? 45_000 : 120_000))
   const [noGl, setNoGl] = useState(() => !hasWebGL())
   const [open, setOpen] = useState<number | null>(null)
-  const [reduced] = useState(() => matchMedia('(prefers-reduced-motion: reduce)').matches)
+  const [stage, setStage] = useState(0)
+  const [hover, setHover] = useState<number | null>(null)
+  const reduced = useMedia('(prefers-reduced-motion: reduce)')
+  const narrow = useMedia('(max-width: 767px)')
 
+  const openSystem = useCallback((i: number, from?: HTMLElement | null) => {
+    lastFocus.current = from ?? (document.activeElement as HTMLElement | null)
+    setOpen(i)
+  }, [])
+
+  // The scene and the scroll journey.
   useEffect(() => {
     const host = hostRef.current
     if (!host || noGl) return
     let scene: EventHorizonScene
-    try { scene = createScene(host, count, reduced, setFps) } catch { queueMicrotask(() => setNoGl(true)); return }
-    sceneRef.current = scene
-    let pending = false, px = 0, py = 0, inside = false
-    const onScroll = () => {
-      const max = document.documentElement.scrollHeight - innerHeight
-      scene.setMorph(max > 0 ? Math.min(2, (scrollY / max) * 2.2) : 0)
+    try {
+      scene = createScene(host, {
+        count,
+        reduced,
+        bodies: systems.map((s) => ({ texture: s.texture, aspect: s.aspect })),
+        onFps: setFps,
+        onHover: setHover,
+      })
+    } catch {
+      queueMicrotask(() => setNoGl(true))
+      return
     }
+    sceneRef.current = scene
+    scene.bindLabels(labelRefs.current)
+
+    // Stage anchors: the centre of each anchored section maps to its stage; the viewport centre reads between them.
+    let anchors: { y: number; s: number }[] = []
+    const measure = () => {
+      anchors = [...document.querySelectorAll<HTMLElement>('[data-stage]')]
+        .map((el) => {
+          const r = el.getBoundingClientRect()
+          return { y: r.top + scrollY + r.height / 2, s: Number(el.dataset.stage) }
+        })
+        .sort((a, b) => a.y - b.y)
+    }
+    let shown = -1
+    const onScroll = () => {
+      const y = scrollY + innerHeight / 2
+      let s = anchors[0]?.s ?? 0
+      for (let i = 0; i < anchors.length - 1; i++) {
+        const a = anchors[i], b = anchors[i + 1]
+        if (y >= a.y && y <= b.y) s = a.s + ((y - a.y) / (b.y - a.y)) * (b.s - a.s)
+        else if (y > b.y) s = b.s
+      }
+      scene.setStage(s)
+      const q = Math.round(s * 4) / 4
+      if (q !== shown) { shown = q; setStage(q) }
+    }
+    let pending = false, px = 0, py = 0, inside = false
     const onMove = (e: PointerEvent) => {
-      px = (e.clientX / innerWidth) * 2 - 1; py = -(e.clientY / innerHeight) * 2 + 1; inside = true
+      px = (e.clientX / innerWidth) * 2 - 1
+      py = -(e.clientY / innerHeight) * 2 + 1
+      inside = !(e.target as HTMLElement).closest('.eh-solid, [role="dialog"], button, a')
       if (pending) return
       pending = true
       requestAnimationFrame(() => { pending = false; scene.setPointer(px, py, inside) })
     }
     const onLeave = () => { inside = false; scene.setPointer(px, py, false) }
     const onDown = (e: PointerEvent) => {
-      if ((e.target as HTMLElement).closest('button, a, [role="dialog"]')) return
-      scene.shock((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1)
+      if ((e.target as HTMLElement).closest('.eh-solid, [role="dialog"], button, a, input')) return
+      const hit = scene.press((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1)
+      if (hit !== null) openSystem(hit, null)
     }
+    measure()
     onScroll()
+    const ro = new ResizeObserver(() => { measure(); onScroll() })
+    ro.observe(document.body)
     addEventListener('scroll', onScroll, { passive: true })
     addEventListener('pointermove', onMove, { passive: true })
     document.documentElement.addEventListener('pointerleave', onLeave)
     addEventListener('pointerdown', onDown)
     return () => {
+      ro.disconnect()
       removeEventListener('scroll', onScroll)
       removeEventListener('pointermove', onMove)
       document.documentElement.removeEventListener('pointerleave', onLeave)
@@ -63,92 +116,265 @@ export default function Draft() {
       scene.dispose()
       sceneRef.current = null
     }
-  }, [reduced, count, noGl])
+  }, [reduced, count, noGl, openSystem])
 
   useEffect(() => {
-    sceneRef.current?.focus(open === null ? null : work[open].cluster)
-    if (open === null) { lastFocus.current?.focus(); return }
-    closeRef.current?.focus()
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(null) }
+    document.documentElement.style.cursor = hover !== null && open === null ? 'pointer' : ''
+    return () => { document.documentElement.style.cursor = '' }
+  }, [hover, open])
+
+  // Drawer: camera focus, scroll lock, Escape, focus trap, focus return.
+  useEffect(() => {
+    sceneRef.current?.focus(open)
+    if (open === null) { lastFocus.current?.focus({ preventScroll: true }); return }
+    const html = document.documentElement
+    const gutter = innerWidth - html.clientWidth
+    html.style.overflow = 'hidden'
+    html.style.paddingRight = `${gutter}px`
+    const t = setTimeout(() => drawerRef.current?.querySelector<HTMLElement>('.eh-close')?.focus({ preventScroll: true }), 30)
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOpen(null)
+      if (e.key !== 'Tab' || !drawerRef.current) return
+      const items = [...drawerRef.current.querySelectorAll<HTMLElement>('a[href], button:not([disabled])')]
+      const first = items[0], last = items[items.length - 1]
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus() }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus() }
+    }
     addEventListener('keydown', onKey)
-    return () => removeEventListener('keydown', onKey)
+    return () => {
+      clearTimeout(t)
+      removeEventListener('keydown', onKey)
+      html.style.overflow = ''
+      html.style.paddingRight = ''
+    }
   }, [open])
 
-  const p = open === null ? null : work[open]
+  const active = Math.round(stage - 2)
+  const journey = stage > 1.4 && stage < OVERVIEW - 0.4
+  const labelsOn = stage >= OVERVIEW - 0.5 && stage <= OVERVIEW + 0.25
+  const sys = open === null ? null : systems[open]
+  const jump = (i: number) => document.getElementById(`eh-sys-${systems[i].slug}`)?.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'center' })
 
   return (
-    <div className="eh-root">
+    <div className="eh-root" data-reduced={reduced || undefined}>
       <div className="eh-canvas" ref={hostRef} aria-hidden="true" />
-      {noGl && <p className="eh-nogl">WebGL is unavailable in this browser, so the particle field is off. Everything else still works.</p>}
+      <div className="eh-vignette" aria-hidden="true" />
+      {noGl && <p className="eh-nogl eh-mono">WebGL is off in this browser, so the field is hidden. Every project below still opens.</p>}
       <div className="eh-hud" aria-hidden="true"><span /><span /><span /><span /></div>
 
-      <nav className="eh-nav" aria-label="Primary">
-        <span className="eh-logo">G/R</span>
-        <span className="eh-status"><i className="eh-pulse" />Status: Online // Deploying Agents</span>
+      <nav className="eh-nav eh-solid" aria-label="Primary">
+        <a className="eh-logo" href="#eh-top">G/R</a>
+        <span className="eh-status eh-mono"><i className="eh-pulse" />Status: Online // Deploying Agents</span>
+        <span className="eh-nav-sys eh-mono" aria-live="polite">
+          {journey && active >= 0 && active < systems.length ? `SYS ${pad(active + 1)}/${pad(systems.length)} · ${systems[active].name}` : ''}
+        </span>
         <a href="#eh-work" className="eh-navlink">Work</a>
+        <a href={`mailto:${links.email}`} className="eh-navlink">Contact</a>
       </nav>
 
-      <header className="eh-hero">
-        <h1 className="eh-title">GENTRIT</h1>
-        <p className="eh-sub">Senior Frontend &amp; AI Engineer // Building Fluid Interfaces for Complex Model Architectures</p>
-        <dl className="eh-tele" aria-label="Render telemetry">
-          <div><dt>FPS</dt><dd data-testid="eh-fps">{noGl ? '—' : fps}</dd></div>
-          <div><dt>MESH DENSITY</dt><dd data-testid="eh-count">{noGl ? '—' : `${count.toLocaleString('en-US')} pts`}</dd></div>
-          <div><dt>MODEL INFERENCE</dt><dd>0.04s <small>(placeholder)</small></dd></div>
+      {/* The journey rail: where you are among the systems, and a way to jump. */}
+      <ol className="eh-rail eh-solid" data-shown={(journey && open === null) || undefined} aria-label="Systems">
+        {systems.map((s, i) => (
+          <li key={s.slug}>
+            <button type="button" aria-current={i === active || undefined} onClick={() => jump(i)} tabIndex={journey ? 0 : -1}>
+              <span className="eh-mono">{pad(i + 1)}</span>
+              <span className="eh-rail-name">{s.name}</span>
+            </button>
+          </li>
+        ))}
+      </ol>
+
+      <header id="eh-top" className="eh-hero" data-stage={0}>
+        <h1 className="eh-title" aria-label={TITLE}>
+          {TITLE.split('').map((ch, i) => (
+            <span key={i} aria-hidden="true" style={{ '--i': i } as CSSProperties}>{ch}</span>
+          ))}
+        </h1>
+        <p className="eh-sub">Senior Frontend, Mobile &amp; AI Engineer <span className="eh-sub-rule">//</span> Building Fluid Interfaces for Complex Model Architectures</p>
+        <dl className="eh-tele eh-mono" aria-label="Render telemetry">
+          <div><dt>FPS</dt><dd>{noGl || !fps ? '—' : fps}</dd></div>
+          <div><dt>Mesh density</dt><dd>{noGl ? '—' : `${count.toLocaleString('en-US')} pts`}</dd></div>
+          <div><dt>Model inference</dt><dd>0.04s <small>placeholder</small></dd></div>
         </dl>
+        <p className="eh-cue eh-mono" aria-hidden="true"><span />Scroll into the field</p>
       </header>
 
-      <section className="eh-spacer" aria-hidden="true" />
-
-      <section id="eh-work" className="eh-work" aria-labelledby="eh-work-h">
-        <h2 id="eh-work-h" className="eh-h2">Selected systems</h2>
-        <ul className="eh-grid">
-          {work.map((w, i) => (
-            <li key={w.slug} className={`eh-cell eh-cell-${i}`}>
-              <button type="button" className="eh-card" onClick={(e) => { lastFocus.current = e.currentTarget; setOpen(i) }} aria-haspopup="dialog">
-                <span className="eh-kind">{w.kind}{w.years ? ` · ${w.years}` : ''}</span>
-                <span className="eh-name">{w.name}</span>
-                <span className="eh-metric">{w.metric}</span>
-                <span className="eh-tags">{w.stack.slice(0, 4).map((t) => <span key={t}>{t}</span>)}</span>
-              </button>
-            </li>
-          ))}
-        </ul>
+      <section id="eh-work" className="eh-pass" data-stage={1} aria-labelledby="eh-pass-h">
+        <div className="eh-pass-inner">
+          <h2 id="eh-pass-h" className="eh-h2">Eight shipped systems in orbit.</h2>
+          <p>Healthcare, streaming, reading, Web3, a design system and a racing game. Fly past each one, or open it to see how it was built.</p>
+        </div>
       </section>
-      <footer className="eh-foot">Draft · Event Horizon · particles computed on the GPU</footer>
+
+      {systems.map((s, i) => (
+        <section key={s.slug} id={`eh-sys-${s.slug}`} className="eh-stop" data-stage={stageOf.body(i)} aria-labelledby={`eh-h-${s.slug}`}>
+          <div className="eh-stop-inner">
+            <article className="eh-panel eh-solid" data-active={(open === null && ((journey && i === active) || narrow || noGl)) || undefined}>
+              <p className="eh-panel-index eh-mono">{pad(i + 1)} <span>/ {pad(systems.length)}</span></p>
+              <h2 id={`eh-h-${s.slug}`} className="eh-panel-name">{s.name}</h2>
+              <p className="eh-panel-line">{s.line}</p>
+              {s.readouts.length > 0 && (
+                <ul className="eh-panel-readouts">
+                  {s.readouts.map((r) => (
+                    <li key={r.label}>
+                      <b className="eh-mono">
+                        {r.value}
+                        {r.to && (
+                          <>
+                            <svg viewBox="0 0 16 10" width="14" height="9" aria-hidden="true"><path d="M1 5h13M10 1l4 4-4 4" fill="none" stroke="currentColor" strokeWidth="1.4" /></svg>
+                            <span className="eh-sr"> to </span>
+                            {r.to}
+                          </>
+                        )}
+                      </b>
+                      <span>{r.label}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              <p className="eh-panel-meta eh-mono">{[s.kind, s.years].filter(Boolean).join(' · ')}</p>
+              <ul className="eh-tags" aria-label="Stack">{s.stack.slice(0, 5).map((t) => <li key={t}>{t}</li>)}</ul>
+              <div className="eh-panel-actions">
+                <button type="button" className="eh-btn eh-btn-solid" onClick={(e) => openSystem(i, e.currentTarget)} aria-haspopup="dialog" aria-label={`Open ${s.name}`}>
+                  Open the system
+                </button>
+              </div>
+            </article>
+          </div>
+        </section>
+      ))}
+
+      <section className="eh-overview" data-stage={OVERVIEW} aria-labelledby="eh-overview-h">
+        <div className="eh-overview-inner eh-solid">
+          <h2 id="eh-overview-h" className="eh-h2">All eight, in one orbit.</h2>
+          <p>Pick any screen to open it.</p>
+        </div>
+      </section>
+      <div className="eh-labels" aria-hidden={!labelsOn}>
+        {systems.map((s, i) => (
+          <button key={s.slug} ref={(el) => { labelRefs.current[i] = el }} type="button" className="eh-label eh-mono" tabIndex={labelsOn ? 0 : -1} onClick={(e) => openSystem(i, e.currentTarget)}>
+            {s.name}
+          </button>
+        ))}
+      </div>
+
+      <main className="eh-content" data-stage={BACKDROP}>
+        <section className="eh-section eh-solid" aria-labelledby="eh-loop-h">
+          <h2 id="eh-loop-h" className="eh-h2">How the work gets built</h2>
+          <p className="eh-lede">AI agents write and build. Automatic checks decide. A person approves every change.</p>
+          <div className="eh-loop">
+            <svg className="eh-loop-ring" viewBox="0 0 200 200" aria-hidden="true">
+              <circle cx="100" cy="100" r="80" />
+              <path className="eh-loop-back" d="M 180 100 A 80 80 0 0 1 100 180" />
+              <circle className="eh-loop-dot" r="3.5" />
+            </svg>
+            <ol className="eh-loop-steps">
+              {steps.map((st, i) => (
+                <li key={st.name} style={{ '--i': i } as CSSProperties}>
+                  <span className="eh-mono">{pad(i + 1)}</span>
+                  <strong>{st.name}</strong>
+                  <p>{st.text}</p>
+                </li>
+              ))}
+            </ol>
+          </div>
+          <ul className="eh-proof">
+            {ringProof.map((r) => <li key={r}>{r}</li>)}
+          </ul>
+          <button type="button" className="eh-btn" onClick={(e) => openSystem(0, e.currentTarget)}>See one screen go from note to merge in a day</button>
+        </section>
+
+        <section className="eh-section" aria-labelledby="eh-own-h">
+          <h2 id="eh-own-h" className="eh-h2">Own projects</h2>
+          <ul className="eh-own">
+            {own.map((o) => (
+              <li key={o.id} className="eh-own-card eh-solid">
+                <img src={o.shot.small} alt={o.shot.alt} width={1080} height={675} loading="lazy" decoding="async" />
+                <div className="eh-own-body">
+                  <h3>{o.name}</h3>
+                  <p>{o.line}</p>
+                  {o.role && <p className="eh-own-role">{o.role}</p>}
+                  <ul className="eh-own-eng eh-mono">{o.engineers.map((e) => <li key={e}>{e}</li>)}</ul>
+                  {o.link && (
+                    <a className="eh-btn" href={o.link.href} target="_blank" rel="noreferrer">
+                      {o.link.label}<span className="eh-sr"> (opens in a new tab)</span>
+                    </a>
+                  )}
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <section className="eh-section eh-solid" aria-labelledby="eh-range-h">
+          <h2 id="eh-range-h" className="eh-h2">Range</h2>
+          <div className="eh-table-wrap">
+            <table className="eh-table">
+              <thead>
+                <tr><th scope="col"><span className="eh-sr">Domain</span></th>{breadth.columns.map((c) => <th key={c} scope="col" className="eh-mono">{c}</th>)}</tr>
+              </thead>
+              <tbody>
+                {breadth.rows.map((r) => (
+                  <tr key={r.domain}>
+                    <th scope="row">{r.domain}</th>
+                    {r.cells.map((c, i) => <td key={i} data-empty={!c || undefined}>{c ?? <span className="eh-sr">None</span>}</td>)}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <ol className="eh-learned">
+            {learned.map((l) => (
+              <li key={l.what}><span className="eh-mono">{l.when}</span>{l.what}</li>
+            ))}
+          </ol>
+        </section>
+
+        <footer className="eh-foot eh-solid">
+          <h2 className="eh-foot-h">Let's build the next one.</h2>
+          <div className="eh-foot-links">
+            <a className="eh-btn eh-btn-solid" href={`mailto:${links.email}`}>{links.email}</a>
+            <a className="eh-btn" href={links.github} target="_blank" rel="noreferrer">GitHub<span className="eh-sr"> (opens in a new tab)</span></a>
+            <a className="eh-btn" href={links.linkedin} target="_blank" rel="noreferrer">LinkedIn<span className="eh-sr"> (opens in a new tab)</span></a>
+            <a className="eh-btn" href={links.cv}>CV (PDF)</a>
+          </div>
+          <p className="eh-foot-note eh-mono">Draft · Event Horizon · {count.toLocaleString('en-US')} particles computed on the GPU</p>
+        </footer>
+      </main>
 
       <AnimatePresence>
-        {p && (
-          <motion.aside
-            key={p.slug}
-            role="dialog" aria-modal="true" aria-labelledby="eh-drawer-h"
-            className="eh-drawer"
-            initial={reduced ? { opacity: 0 } : { x: '100%' }}
-            animate={reduced ? { opacity: 1 } : { x: 0 }}
-            exit={reduced ? { opacity: 0 } : { x: '100%' }}
-            transition={{ type: 'tween', duration: reduced ? 0.01 : 0.45, ease: [0.2, 0.8, 0.2, 1] }}
-          >
-            <button ref={closeRef} type="button" className="eh-close" onClick={() => setOpen(null)}>Close <kbd>Esc</kbd></button>
-            <h2 id="eh-drawer-h" className="eh-dname">{p.name}</h2>
-            <h3>System Specs</h3>
-            <dl className="eh-specs">
-              <div><dt>Role</dt><dd>{p.role}</dd></div>
-              <div><dt>Years</dt><dd>{p.years ?? 'n/a'}</dd></div>
-              <div><dt>Stack</dt><dd>{p.stack.join(' · ')}</dd></div>
-            </dl>
-            <p className="eh-summary">{p.summary}</p>
-            <h3>Architecture</h3>
-            <div className="eh-arch" aria-label="Architecture diagram placeholder">
-              {['Client', p.stack[0] ?? 'UI', p.stack[1] ?? 'State', 'API'].map((n, i, a) => (
-                <span key={n + i} className="eh-node">{n}{i < a.length - 1 && <i aria-hidden="true">→</i>}</span>
-              ))}
-              <small>Placeholder diagram</small>
-            </div>
-            <h3>Metrics &amp; Performance</h3>
-            {p.readouts.length ? (
-              <ul className="eh-readouts">{p.readouts.map((r) => <li key={r.label}><b>{r.value}{r.to ? `→${r.to}` : ''}</b>{r.label}</li>)}</ul>
-            ) : <p className="eh-summary">{p.metric}</p>}
-          </motion.aside>
+        {sys && (
+          <>
+            <motion.div
+              key="scrim"
+              className="eh-scrim"
+              onClick={() => setOpen(null)}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0, transition: { duration: 0.2 } }}
+              transition={{ duration: reduced ? 0 : 0.35 }}
+            />
+            <motion.aside
+              key="drawer"
+              ref={drawerRef}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="eh-drawer-h"
+              className="eh-drawer"
+              initial={reduced ? { opacity: 0 } : { transform: narrow ? 'translateY(100%)' : 'translateX(100%)' }}
+              animate={reduced ? { opacity: 1 } : { transform: 'translate(0%, 0%)' }}
+              exit={reduced ? { opacity: 0 } : { transform: narrow ? 'translateY(100%)' : 'translateX(100%)', transition: { duration: 0.28, ease: [0.23, 1, 0.32, 1] } }}
+              transition={{ duration: reduced ? 0.01 : 0.55, ease: [0.32, 0.72, 0, 1] }}
+            >
+              <div className="eh-drawer-bar">
+                <span className="eh-mono">SYS {pad((open ?? 0) + 1)}/{pad(systems.length)}</span>
+                <button type="button" className="eh-close" onClick={() => setOpen(null)}>
+                  Close <kbd>Esc</kbd>
+                </button>
+              </div>
+              <Dive key={sys.slug} system={sys} reduced={reduced} />
+            </motion.aside>
+          </>
         )}
       </AnimatePresence>
     </div>

@@ -1667,6 +1667,7 @@
 }
 .cs-tilt-scene {
   position: relative;
+  perspective: 900px;
   aspect-ratio: 16 / 10;
   overflow: hidden;
   border-radius: 14px;
@@ -1690,7 +1691,7 @@
   position: relative;
   width: min(46%, 300px);
   aspect-ratio: 19.5 / 9;
-  margin-top: 34%;
+  margin-top: 26%;
   border-radius: 22px;
   background: #0b1020;
   border: 3px solid #2a3350;
@@ -1701,6 +1702,17 @@
   gap: 6%;
   padding: 0 6%;
   transform-origin: 50% 50%;
+  transform: rotateX(14deg);
+  overflow: hidden;
+}
+/* Glass glare that slides across as the phone turns. */
+.cs-tilt-phone::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(105deg, transparent 30%, rgb(255 255 255 / 0.1) 46%, transparent 60%);
+  pointer-events: none;
 }
 .cs-tilt-pad {
   font: 600 clamp(8px, 1.1vw, 11px) / 1 ui-monospace, Menlo, monospace;
@@ -1733,26 +1745,31 @@
 .cs-tilt-note {
   opacity: 0.75;
 }
+/* One steering cycle: turn left, hold through the corner, centre, turn right, hold, centre. */
 @media (prefers-reduced-motion: no-preference) {
-  .cs-tilt-phone { animation: cs-tilt-wheel 4.8s cubic-bezier(0.45, 0, 0.55, 1) infinite; }
-  .cs-tilt-screen { animation: cs-tilt-bank 4.8s cubic-bezier(0.45, 0, 0.55, 1) infinite; }
-  .cs-tilt-gauge i { animation: cs-tilt-dot 4.8s cubic-bezier(0.45, 0, 0.55, 1) infinite; }
+  .cs-tilt-phone { animation: cs-tilt-wheel 5.6s cubic-bezier(0.65, 0, 0.35, 1) infinite; }
+  .cs-tilt-phone::after { animation: cs-tilt-glare 5.6s cubic-bezier(0.65, 0, 0.35, 1) infinite; }
+  .cs-tilt-screen { animation: cs-tilt-bank 5.6s cubic-bezier(0.65, 0, 0.35, 1) infinite; }
+  .cs-tilt-gauge i { animation: cs-tilt-dot 5.6s cubic-bezier(0.65, 0, 0.35, 1) infinite; }
 }
 @keyframes cs-tilt-wheel {
-  0%, 100% { transform: rotate(0deg); }
-  25% { transform: rotate(-24deg); }
-  50% { transform: rotate(0deg); }
-  75% { transform: rotate(24deg); }
+  0%, 100% { transform: rotateX(14deg) rotate(0deg); }
+  16%, 32% { transform: rotateX(14deg) rotate(-24deg) rotateY(-8deg); }
+  50% { transform: rotateX(14deg) rotate(0deg); }
+  66%, 82% { transform: rotateX(14deg) rotate(24deg) rotateY(8deg); }
+}
+@keyframes cs-tilt-glare {
+  0%, 50%, 100% { transform: translateX(0); }
+  16%, 32% { transform: translateX(-30%); }
+  66%, 82% { transform: translateX(30%); }
 }
 @keyframes cs-tilt-bank {
-  0%, 100% { transform: rotate(0deg) translateX(0); }
-  25% { transform: rotate(4deg) translateX(3%); }
-  50% { transform: rotate(0deg) translateX(0); }
-  75% { transform: rotate(-4deg) translateX(-3%); }
+  0%, 50%, 100% { transform: rotate(0deg) translateX(0); }
+  16%, 32% { transform: rotate(4deg) translateX(3%); }
+  66%, 82% { transform: rotate(-4deg) translateX(-3%); }
 }
 @keyframes cs-tilt-dot {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-280%); }
-  50% { transform: translateX(0); }
-  75% { transform: translateX(280%); }
+  0%, 50%, 100% { transform: translateX(0); }
+  16%, 32% { transform: translateX(-280%); }
+  66%, 82% { transform: translateX(280%); }
 }
