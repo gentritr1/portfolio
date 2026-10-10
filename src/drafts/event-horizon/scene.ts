@@ -236,9 +236,11 @@ void main() {
 
 export interface EventHorizonScene {
   setStage(stage: number): void
+  /** Moves straight to a far stage instead of walking the path through every stop in between. */
+  jumpTo(stage: number): void
   setPointer(nx: number, ny: number, active: boolean): void
-  /** Returns the body index under the pointer, or null after rippling the field. */
-  press(nx: number, ny: number): number | null
+  /** Returns the body index under the pointer; otherwise ripples the field when `ripple` is set and returns null. */
+  press(nx: number, ny: number, ripple: boolean): number | null
   focus(index: number | null): void
   /** Overview labels: the scene moves and fades them each frame. */
   bindLabels(els: (HTMLElement | null)[]): void
@@ -613,16 +615,21 @@ export function createScene(
   return {
     count,
     setStage(v) { stageTarget = v },
+    jumpTo(v) {
+      // Skip the path: the stage lands at once and the camera glides straight there from where it is.
+      stage = stageTarget = v
+      performance.mark('eh:jump')
+    },
     setPointer(nx, ny, active) {
       parallax.set(nx, ny)
       const over = active ? pick(nx, ny) : null
       if (over !== hovered) { hovered = over; onHover(over) }
       if (active && over === null && projectToView(nx, ny)) { uniforms.uPointer.value.copy(hit); lensTarget = reduced ? 0.3 : 0.8 } else lensTarget = 0
     },
-    press(nx, ny) {
+    press(nx, ny, ripple) {
       const over = pick(nx, ny)
       if (over !== null) return over
-      if (!reduced && projectToView(nx, ny)) { uniforms.uShockC.value.copy(hit); shockT = 0 }
+      if (ripple && !reduced && projectToView(nx, ny)) { uniforms.uShockC.value.copy(hit); shockT = 0; performance.mark('eh:ripple') }
       return null
     },
     focus(i) { focusIdx = i },

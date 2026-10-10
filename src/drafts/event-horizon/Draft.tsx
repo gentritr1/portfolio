@@ -88,7 +88,9 @@ export default function Draft() {
       if (q !== shown) { shown = q; setStage(q) }
     }
     let pending = false, px = 0, py = 0, inside = false
+    // The lens and the camera lean follow a mouse only: on touch the same finger is scrolling.
     const onMove = (e: PointerEvent) => {
+      if (e.pointerType !== 'mouse') return
       px = (e.clientX / innerWidth) * 2 - 1
       py = -(e.clientY / innerHeight) * 2 + 1
       inside = !(e.target as HTMLElement).closest('.eh-solid, [role="dialog"], button, a')
@@ -97,9 +99,17 @@ export default function Draft() {
       requestAnimationFrame(() => { pending = false; scene.setPointer(px, py, inside) })
     }
     const onLeave = () => { inside = false; scene.setPointer(px, py, false) }
+    // A press counts on release, and only if the pointer barely moved, so starting a scroll never fires it.
+    // Touch can open a screen with a tap; only a mouse click ripples the field.
+    let downX = 0, downY = 0, downOk = false
     const onDown = (e: PointerEvent) => {
-      if ((e.target as HTMLElement).closest('.eh-solid, [role="dialog"], button, a, input')) return
-      const hit = scene.press((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1)
+      downOk = !(e.target as HTMLElement).closest('.eh-solid, .eh-scrim, [role="dialog"], button, a, input')
+      downX = e.clientX
+      downY = e.clientY
+    }
+    const onUp = (e: PointerEvent) => {
+      if (!downOk || Math.hypot(e.clientX - downX, e.clientY - downY) > 6) return
+      const hit = scene.press((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1, e.pointerType === 'mouse')
       if (hit !== null) openSystem(hit, null)
     }
     measure()
@@ -110,12 +120,14 @@ export default function Draft() {
     addEventListener('pointermove', onMove, { passive: true })
     document.documentElement.addEventListener('pointerleave', onLeave)
     addEventListener('pointerdown', onDown)
+    addEventListener('pointerup', onUp)
     return () => {
       ro.disconnect()
       removeEventListener('scroll', onScroll)
       removeEventListener('pointermove', onMove)
       document.documentElement.removeEventListener('pointerleave', onLeave)
       removeEventListener('pointerdown', onDown)
+      removeEventListener('pointerup', onUp)
       scene.dispose()
       sceneRef.current = null
     }
@@ -156,7 +168,14 @@ export default function Draft() {
   const journey = stage > 1.4 && stage < OVERVIEW - 0.4
   const labelsOn = stage >= OVERVIEW - 0.5 && stage <= OVERVIEW + 0.25
   const sys = open === null ? null : systems[open]
-  const jump = (i: number) => document.getElementById(`eh-sys-${systems[i].slug}`)?.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'center' })
+  // A neighbour glides; a far jump scrolls at once and moves the camera straight there, instead of flying past every stop.
+  const jump = (i: number) => {
+    const el = document.getElementById(`eh-sys-${systems[i].slug}`)
+    if (!el) return
+    const far = Math.abs(i - active) > 1
+    if (far) sceneRef.current?.jumpTo(stageOf.body(i))
+    el.scrollIntoView({ behavior: reduced || far ? 'instant' : 'smooth', block: 'center' })
+  }
 
   return (
     <div className="eh-root" data-reduced={reduced || undefined} data-ready={sceneReady || noGl || undefined}>
@@ -355,7 +374,7 @@ export default function Draft() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0, transition: { duration: 0.2 } }}
-              transition={{ duration: reduced ? 0 : 0.35 }}
+              transition={{ duration: reduced ? 0.15 : 0.3 }}
             />
             <motion.aside
               key="drawer"
@@ -366,8 +385,8 @@ export default function Draft() {
               className="eh-drawer"
               initial={reduced ? { opacity: 0 } : { transform: narrow ? 'translateY(100%)' : 'translateX(100%)' }}
               animate={reduced ? { opacity: 1 } : { transform: 'translate(0%, 0%)' }}
-              exit={reduced ? { opacity: 0 } : { transform: narrow ? 'translateY(100%)' : 'translateX(100%)', transition: { duration: 0.28, ease: [0.23, 1, 0.32, 1] } }}
-              transition={{ duration: reduced ? 0.01 : 0.55, ease: [0.32, 0.72, 0, 1] }}
+              exit={reduced ? { opacity: 0, transition: { duration: 0.15 } } : { transform: narrow ? 'translateY(100%)' : 'translateX(100%)', transition: { duration: 0.28, ease: [0.23, 1, 0.32, 1] } }}
+              transition={{ duration: reduced ? 0.18 : 0.45, ease: [0.32, 0.72, 0, 1] }}
             >
               <div className="eh-drawer-bar">
                 <button type="button" className="eh-close" onClick={() => setOpen(null)}>
