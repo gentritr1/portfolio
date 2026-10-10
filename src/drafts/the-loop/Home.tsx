@@ -15,7 +15,7 @@ import { Lamp, useLights, useLightsOn } from "./LampMark";
 import { Settled, useReducedMotion, useReveal } from "./hooks";
 import { useCursorLight } from "./cursor";
 import { useDust } from "./dust";
-import { Checked, Next, Out } from "./icons";
+import { Next, Out } from "./icons";
 import { useMirrors } from "./mirror";
 import { Queries } from "./Queries";
 import { ROOM_QUERY } from "./room";
@@ -86,11 +86,11 @@ function Top({ at }: { at: string }) {
 function Hero() {
   return (
     <section className="lp-hero lp-wrap" data-chapter="hero" aria-labelledby="lp-hero-line">
-      <HeroBuild />
       <h1 className="lp-display" id="lp-hero-line">
         AI agents build inside tested rules. A person approves every change.
       </h1>
       <p className="lp-role">Web, mobile and server apps, from Kosovo.</p>
+      <HeroBuild />
     </section>
   );
 }
@@ -137,7 +137,6 @@ function Proofs({ lines }: { lines: string[] }) {
     <ul className="lp-ch-proofs">
       {lines.map((line) => (
         <li key={line} data-reveal="">
-          <Checked />
           {line}
         </li>
       ))}
@@ -168,7 +167,7 @@ function Ai() {
     <Chapter
       id="ai"
       n={1}
-      kicker="AI engineering"
+      kicker="Care platform rebuild, 2026"
       title="AI engineering, kept in control"
       figure={
         <figure>
@@ -456,7 +455,7 @@ function Contact() {
         <p className="lp-foot-line">Gentrit Rashiti builds web, mobile and server apps, from Kosovo.</p>
         <ul className="lp-links">
           <li>
-            <a className="lp-pill-link" href={`mailto:${links.email}`}>
+            <a className="lp-cta lp-foot-mail" href={`mailto:${links.email}`}>
               {links.email}
             </a>
           </li>

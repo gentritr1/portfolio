@@ -4,7 +4,8 @@ import { checkRows, H, layers, layerShots, OLD_WEEK, steps, testFile, testLines,
 import { PhonePicture } from "../../components/PhonePicture";
 import { pieceStyle } from "./HeroBuild";
 import { useMedia, useReducedMotion } from "./hooks";
-import { Approved, Checked } from "./icons";
+import { Checked } from "./icons";
+import { Seal, SEAL_LAND, SEAL_MS } from "./Seal";
 import { OldScreen } from "./OldScreen";
 import { ARRIVE, CARD_MS, ROOM_QUERY, cardFrom, decode, DRIFT, MOVE, moving, OUT, pose, SHEEN_AFTER, sheen, type Pose } from "./room";
 import "./stage.css";
@@ -230,13 +231,7 @@ const scene: Run[] = [
   (root, cam, box, start) => [
     cut(cam, box, start, { y: 2, z: -220, rx: 10, ry: -7, s: 0.88 }, 3, LENGTH[3], 0.94),
     shine(root, land(LENGTH[3])),
-    one(root, ".ls-mark").animate(
-      [
-        { opacity: 0, transform: "translate3d(0, 0, 160px) scale(1.15) rotate(-9deg)" },
-        { opacity: 1, transform: "translate3d(0, 0, 0) scale(1) rotate(-2deg)" },
-      ],
-      { duration: 360, delay: 1150, easing: OUT, fill: "backwards" },
-    ),
+    one(root, ".ls-mark .seal").animate(SEAL_LAND, { duration: SEAL_MS, delay: 1150, fill: "backwards" }),
   ],
 ];
 
@@ -280,13 +275,7 @@ const flatRuns: Array<(root: HTMLElement) => Animation[]> = [
     ...checks(root, true),
   ],
   (root) => [
-    one(root, ".ls-mark").animate(
-      [
-        { opacity: 0, transform: "scale(1.2) rotate(-8deg)" },
-        { opacity: 1, transform: "rotate(-2deg)" },
-      ],
-      { duration: 320, delay: 200, easing: OUT, fill: "backwards" },
-    ),
+    one(root, ".ls-mark .seal").animate(SEAL_LAND, { duration: SEAL_MS, delay: 200, fill: "backwards" }),
   ],
 ];
 
@@ -352,13 +341,9 @@ const ChecksCard = memo(function ChecksCard() {
 
 const Mark = memo(function Mark() {
   return (
-    <p className="ls-mark">
-      <Approved />
-      <span>
-        Approved
-        <small>and merged by a person</small>
-      </span>
-    </p>
+    <div className="ls-mark">
+      <Seal />
+    </div>
   );
 });
 

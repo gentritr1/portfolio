@@ -10,11 +10,13 @@ const pad = (n: number) => String(n + 1).padStart(2, "0");
 const wrap = (n: number) => (n + COUNT) % COUNT;
 /** A board stays this long before the next one, in ms. The timer is the CSS animation of the progress line. */
 const DWELL = 6000;
-/**
- * The rack settles this long after a move. Then a board that left is unmounted, so at rest only three boards hold decoded pixels,
- * and the front board gets its large file; while it moves, it shows the 1080 copy.
- */
+/** The rack settles this long after a move. Then a board that left is unmounted, so at rest only three boards hold decoded pixels. */
 const UNMOUNT = 720;
+/**
+ * The last board behind lands 780 ms after a move starts (boards.css: 300 ms delay, 480 ms move). After that the front board's
+ * large file is decoded off the main thread, and only then swapped in, so no move shares a frame with the swap.
+ */
+const SHARPEN = 800;
 
 const SIZES = {
   home: "(min-width: 1024px) 58vw, calc(100vw - 52px)",
@@ -31,7 +33,7 @@ function preload(i: number, sizes?: string) {
     image.srcset = srcSetOf(i);
   }
   image.src = boards[i].small;
-  image.decode().catch(() => undefined);
+  return image.decode().catch(() => undefined);
 }
 
 /**
@@ -79,14 +81,24 @@ export function Boards({ size = "home" }: { size?: "home" | "case" }) {
   }, []);
 
   useEffect(() => {
-    const id = window.setTimeout(() => {
+    let live = true;
+    const unmount = window.setTimeout(() => {
       setMounted(rackOf(index));
-      setSharp(index);
-      preload(wrap(index + 1), sizes);
       preload(wrap(index + 3));
       preload(wrap(index - 1));
     }, UNMOUNT);
-    return () => window.clearTimeout(id);
+    const sharpen = window.setTimeout(() => {
+      preload(index, sizes).then(() => {
+        if (!live) return;
+        setSharp(index);
+        preload(wrap(index + 1), sizes);
+      });
+    }, SHARPEN);
+    return () => {
+      live = false;
+      window.clearTimeout(unmount);
+      window.clearTimeout(sharpen);
+    };
   }, [index, sizes]);
 
   const go = (next: number, way: 1 | -1) => {

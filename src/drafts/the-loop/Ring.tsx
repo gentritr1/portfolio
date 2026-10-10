@@ -1,6 +1,7 @@
 import { memo, useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { builtFiles, OLD_COMPLIANCE, stations, twinBase, twinSteps } from "./data";
-import { Approved, Replay } from "./icons";
+import { Replay } from "./icons";
+import { Seal } from "./Seal";
 import { useReducedMotion } from "./hooks";
 import { OldScreen } from "./OldScreen";
 import "../../components/frames.css";
@@ -225,11 +226,11 @@ const ShotChecks = memo(function ShotChecks() {
             {row}
           </span>
         ))}
+        <span className="dy-line dy-verdict" data-in="" style={rise(s.artefact.length)}>
+          <span data-kind="fail">Failed. The work goes back to the agents.</span>
+          <span data-kind="pass">Passed after the fix.</span>
+        </span>
       </Pane>
-      <p className="dy-verdict">
-        <span data-kind="fail">Failed. The work goes back to the agents.</span>
-        <span data-kind="pass">Passed after the fix.</span>
-      </p>
     </div>
   );
 });
@@ -314,13 +315,13 @@ const ShotTwin = memo(function ShotTwin({ active, load, still }: { active: boole
             </span>
           ))}
         </p>
-        <p className="dy-seal">
-          <Approved />
-          <span>
+        <div className="dy-seal">
+          <Seal land={!still} />
+          <p className="dy-seal-text">
             Approved and merged
             <small>{s.time}, by a person</small>
-          </span>
-        </p>
+          </p>
+        </div>
       </div>
     </div>
   );

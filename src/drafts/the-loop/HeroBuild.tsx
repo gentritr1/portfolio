@@ -2,10 +2,11 @@ import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from
 import { BrowserFrame } from "../../components/BrowserFrame";
 import { onPointer } from "./cursor";
 import { APPROVED_AT, BUILD_DONE, CHECKS_AT, checkRows, H, pieces, testFile, testLines, W, WEEK, WEEK_SMALL, type Piece } from "./data";
-import { Checked, Replay } from "./icons";
+import { Replay } from "./icons";
 import { useLights } from "./LampMark";
 import { useReducedMotion } from "./hooks";
 import { MOVE, OUT, ROOM_QUERY, sheen, SHEEN_AFTER } from "./room";
+import { Seal } from "./Seal";
 import "./hero.css";
 
 const pct = (n: number, of: number) => `${((n / of) * 100).toFixed(4)}%`;
@@ -320,9 +321,7 @@ export function HeroBuild() {
           <ul className="hb-lines">
             {testLines.map((line, i) => (
               <li key={line} className="hb-line" style={{ animationDelay: `${LINE_AT + i * LINE_STEP}ms` }}>
-                <span className="hb-ok" style={{ animationDelay: `${LINE_AT + i * LINE_STEP + 60}ms` }}>
-                  <Checked />
-                </span>
+                <span className="hb-ok" aria-hidden="true" style={{ animationDelay: `${LINE_AT + i * LINE_STEP + 60}ms` }} />
                 {line}
               </li>
             ))}
@@ -341,9 +340,10 @@ export function HeroBuild() {
               <li key={name}>
                 <span>{name}</span>
                 <span className="hb-status">
-                  <span className="hb-pending" aria-hidden="true" style={{ animationDelay: `${CHECKS_AT + i * CHECK_STEP}ms` }} />
-                  <span className="hb-pass" style={{ animationDelay: `${CHECKS_AT + i * CHECK_STEP}ms` }}>
-                    <Checked />
+                  <span className="hb-state" aria-hidden="true">
+                    <i style={{ animationDelay: `${CHECKS_AT + i * CHECK_STEP}ms` }} />
+                  </span>
+                  <span className="hb-pass" style={{ animationDelay: `${CHECKS_AT + i * CHECK_STEP + 60}ms` }}>
                     passed
                   </span>
                 </span>
@@ -357,7 +357,7 @@ export function HeroBuild() {
         alt="Care team calendar for one week in the new React app: calls, video calls and office visits for each patient, with filters and a line at the current time. Invented data."
         width={1440}
         height={900}
-        label="Care platform, new app. Real screen, invented data."
+        label="Real care screen, invented data."
         tone="dark"
         eager
         className="lp-build-frame"
@@ -385,25 +385,8 @@ export function HeroBuild() {
         )}
         <span className="room-sheen" ref={light} aria-hidden="true" />
       </BrowserFrame>
-      <div className="hb-seal" style={{ animationDelay: `${APPROVED_AT}ms` }}>
-        <svg className="hb-seal-ring" viewBox="0 0 150 150" aria-hidden="true" style={{ animationDelay: `${APPROVED_AT + 100}ms` }}>
-          <defs>
-            <path id="hb-ring" d="M75,75 m-56,0 a56,56 0 1,1 112,0 a56,56 0 1,1 -112,0" />
-          </defs>
-          <circle cx="75" cy="75" r="44" />
-          <text>
-            <textPath href="#hb-ring">4 · APPROVED BY A PERSON • MERGED •</textPath>
-          </text>
-        </svg>
-        <svg
-          className="hb-seal-mark"
-          viewBox="0 0 150 150"
-          role="img"
-          aria-label="Step 4: approved by a person, then merged"
-          style={{ animationDelay: `${APPROVED_AT + 220}ms` }}
-        >
-          <path d="M58 76 l11 11 l23 -25" />
-        </svg>
+      <div className="hb-seal">
+        <Seal style={{ animationDelay: `${APPROVED_AT}ms` }} />
       </div>
       <div className="lp-build-foot">
         {reduce ? (

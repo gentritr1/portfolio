@@ -203,6 +203,17 @@
   grid-column: 5 / -1;
 }
 
+/* Up to 1366 px four columns are too narrow for the title: it wraps to four lines. */
+@media (min-width: 1024px) and (max-width: 1366px) {
+  .lp-ch-design-system .lp-ch-text {
+    grid-column: 1 / span 5;
+  }
+
+  .lp-ch-design-system .lp-ch-figure {
+    grid-column: 6 / -1;
+  }
+}
+
 .lp-ch-own .lp-ch-text,
 .lp-ch-range .lp-ch-text {
   grid-column: 1 / -1;
@@ -239,18 +250,10 @@
 }
 
 .lp-ch-proofs li {
-  display: flex;
-  gap: 12px;
-  align-items: baseline;
   max-width: 40ch;
   font-size: 1.125rem;
   line-height: 1.4;
   font-weight: 600;
-}
-
-.lp-ch-proofs .lp-icon {
-  color: var(--pass);
-  transform: translateY(0.14em);
 }
 
 .lp-ch .lp-cta {
@@ -288,6 +291,18 @@
   color: var(--ink-2);
   font-size: 0.875rem;
   line-height: 1.35;
+}
+
+/* The three labels keep one line, so they share one baseline. */
+@media (min-width: 420px) {
+  .lp-figures {
+    grid-template-columns: repeat(3, max-content);
+    gap: 28px;
+  }
+
+  .lp-figures dt {
+    white-space: nowrap;
+  }
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -854,6 +869,7 @@ p.lp-own-link {
 }
 
 .ab-label .lp-icon {
+  display: inline-block;
   margin-left: 6px;
   vertical-align: -0.15em;
 }
@@ -947,7 +963,14 @@ p.lp-own-link {
 }
 
 .lp-foot .lp-links {
+  align-items: center;
+  gap: 12px;
   margin-top: 32px;
+}
+
+/* The email is the one action of the contact, so it is the only filled control there. */
+.lp-foot .lp-foot-mail {
+  margin-top: 0;
 }
 
 /* ---------- The workflow page ---------- */

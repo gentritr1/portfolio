@@ -203,9 +203,11 @@
   background: var(--accent);
   color: var(--on-accent);
   font-size: 1.0625rem;
-  font-weight: 650;
+  font-weight: 600;
   text-decoration: none;
-  transition: transform 160ms var(--ease-out);
+  transition:
+    background-color 160ms ease,
+    transform 160ms var(--ease-out);
 }
 
 .lp .lp-cta {
@@ -216,15 +218,9 @@
   transform: scale(0.97);
 }
 
-.lp-cta .lp-icon,
-.lp-next .lp-icon {
-  transition: transform 200ms var(--ease-out);
-}
-
 @media (hover: hover) and (pointer: fine) {
-  .lp-cta:hover .lp-icon,
-  .lp-next:hover .lp-icon {
-    transform: translateX(3px);
+  .lp-cta:hover {
+    background: #ffc266;
   }
 }
 
@@ -342,6 +338,23 @@
   width: var(--fw);
 }
 
+/* Under 1024 px the claim comes first and the screen follows it; wider, the screen stands above the headline. */
+@media (max-width: 1023px) {
+  .lp-hero .lp-display {
+    margin-top: 8px;
+  }
+
+  .lp-hero .lp-build {
+    margin-top: 28px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .lp-hero .lp-build {
+    order: -1;
+  }
+}
+
 .lp-build-frame {
   --fr-radius: 14px;
 }
@@ -441,6 +454,13 @@
   font: inherit;
   cursor: pointer;
   visibility: hidden;
+  transition:
+    color 160ms ease,
+    transform 160ms var(--ease-out);
+}
+
+.lp-replay:active:not(:disabled) {
+  transform: scale(0.97);
 }
 
 .lp-build[data-phase="done"] .lp-replay {
@@ -889,19 +909,22 @@
   padding-block: 120px 120px;
 }
 
+/* Static names, drawn as code chips so they do not look like buttons. Pills are for links and buttons only. */
 .lp-pills {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 6px 8px;
   margin-top: 16px;
 }
 
 .lp-pills li {
-  padding: 6px 14px;
-  border-radius: 999px;
-  border: 1px solid var(--line-strong);
-  color: var(--ink);
-  font-size: 0.9375rem;
+  padding: 3px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  background: var(--card);
+  color: var(--ink-2);
+  font-family: var(--mono);
+  font-size: 0.8125rem;
 }
 
 .lp-case-end .lp-eng {

@@ -793,35 +793,13 @@ html:has(.lc-track) {
   font-weight: 600;
 }
 
+/* The approval seal (Seal.tsx) on the screen's lower right corner. */
 .ls-mark {
   position: absolute;
   z-index: 1;
   right: 5%;
   bottom: 7%;
-  display: inline-flex;
-  align-items: center;
-  gap: 12px;
-  padding: 14px 22px 14px 18px;
-  border-radius: 18px;
-  background: var(--accent);
-  color: var(--on-accent);
-  box-shadow: 0 0 0 6px rgb(255 181 71 / 0.2);
-  font-size: 1.25rem;
-  font-weight: 750;
-  line-height: 1.1;
-  transform: rotate(-2deg);
-}
-
-.ls-mark .lp-icon {
-  width: 30px;
-  height: 30px;
-}
-
-.ls-mark small {
-  display: block;
-  margin-top: 3px;
-  font-size: 0.875rem;
-  font-weight: 600;
+  --seal-size: 112px;
 }
 
 .ls[data-wait] .ls-body {
@@ -889,8 +867,9 @@ html:has(.lc-track) {
 }
 
 .ls[data-mode="stack"] .ls-mark {
+  --seal-size: 88px;
   justify-self: end;
-  margin-top: -36px;
+  margin-top: -44px;
 }
 
 @media (max-width: 640px) {
@@ -915,9 +894,6 @@ html:has(.lc-track) {
     padding: 14px 14px 16px;
   }
 
-  .ls-mark {
-    font-size: 1.0625rem;
-  }
 
   .ls-checks .ls-row code {
     display: none;

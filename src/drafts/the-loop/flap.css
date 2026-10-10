@@ -3,6 +3,7 @@
 /* Every digit has the same width, so a turning card never moves the text around it. */
 .fl {
   font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
 .fl[data-flap="wait"] .fl-cards {

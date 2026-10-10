@@ -1,0 +1,51 @@
+/* ---------- The approval seal (Seal.tsx): one mark in three sizes, on the hero, the steps and the day ---------- */
+
+.seal {
+  display: block;
+  width: var(--seal-size, 132px);
+  height: var(--seal-size, 132px);
+  overflow: visible;
+  transform: rotate(-8deg);
+}
+
+.seal-disc {
+  fill: var(--card);
+}
+
+.seal-ink {
+  fill: none;
+  stroke: var(--accent);
+  opacity: 0.92;
+}
+
+.seal-ink text {
+  fill: var(--accent);
+  stroke: none;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 2.2px;
+}
+
+.seal-check {
+  stroke-width: 4.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* A stamp hits once: it comes down a little large and turned, presses in, and stands. The last frame is the rest pose. */
+@keyframes seal-land {
+  0% {
+    opacity: 0;
+    transform: scale(1.18) rotate(-14deg);
+    animation-timing-function: var(--ease-reveal);
+  }
+  68.4% {
+    opacity: 1;
+    transform: scale(0.985) rotate(-8deg);
+    animation-timing-function: var(--ease-out);
+  }
+  100% {
+    opacity: 1;
+    transform: rotate(-8deg);
+  }
+}
