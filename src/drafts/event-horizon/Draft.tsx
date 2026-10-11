@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 import { ArrowLeftIcon, ArrowRightIcon } from '@phosphor-icons/react'
-import { Link, useLocation, useNavigate, useParams } from 'react-router'
-import { createScene, hasWebGL, stageOf, type EventHorizonScene } from './scene'
+import { Link, useLocation, useNavigate, useParams, useSearchParams } from 'react-router'
+import { createScene, hasWebGL, stageOf, type EventHorizonScene, type Variant } from './scene'
 import { breadth, learned, links, own, ringProof, steps, systems } from './data'
 import { Dive } from './Dive'
 import './event-horizon.css'
@@ -55,6 +55,15 @@ function CaseView({ index, reduced, onBack }: { index: number; reduced: boolean;
   )
 }
 
+/** Ways to show the projects after the opening, to compare by eye. Halos is the current one. */
+const VARIANTS: { id: Variant; label: string; note: string }[] = [
+  { id: 'halo', label: 'Halos', note: 'Particles circle each screen.' },
+  { id: 'glass', label: 'Glass', note: 'Dark glass panes lit by the disk.' },
+  { id: 'orrery', label: 'Orrery', note: 'Orbits by year: outer orbits are older work.' },
+  { id: 'lens', label: 'Lensing', note: 'The hole bends the light behind it.' },
+]
+const VARIANT_KEY = 'eh:variant'
+
 export default function Draft() {
   const hostRef = useRef<HTMLDivElement>(null)
   const sceneRef = useRef<EventHorizonScene | null>(null)
@@ -76,6 +85,18 @@ export default function Draft() {
   const navigate = useNavigate()
   const location = useLocation()
   const caseIdx = systems.findIndex((s) => s.slug === rest)
+  // The variant lives in the address (?variant=glass), and is remembered for this visit so case pages keep it.
+  const [params, setParams] = useSearchParams()
+  const asked = params.get('variant')
+  const variant: Variant = VARIANTS.find((v) => v.id === asked)?.id ?? (() => {
+    try { return VARIANTS.find((v) => v.id === sessionStorage.getItem(VARIANT_KEY))?.id } catch { return undefined }
+  })() ?? 'halo'
+  useEffect(() => {
+    try { sessionStorage.setItem(VARIANT_KEY, variant) } catch { /* private mode: the address still holds it */ }
+    // A variant remembered from earlier in the visit shows in the address too, so a shared link opens the same one.
+    if (!asked && variant !== 'halo') setParams((p) => { p.set('variant', variant); return p }, { replace: true, preventScrollReset: true })
+  }, [variant, asked, setParams])
+  const pickVariant = (v: Variant) => setParams((p) => { if (v === 'halo') p.delete('variant'); else p.set('variant', v); return p }, { replace: true, preventScrollReset: true })
   const inCase = caseIdx >= 0
   const caseRef = useRef(caseIdx)
   useEffect(() => { caseRef.current = caseIdx }, [caseIdx])
@@ -94,7 +115,8 @@ export default function Draft() {
       scene = createScene(host, {
         count,
         reduced,
-        bodies: systems.map((s) => ({ texture: s.texture, aspect: s.aspect, tint: s.tint })),
+        bodies: systems.map((s) => ({ texture: s.texture, aspect: s.aspect, tint: s.tint, year: s.years ? Number(s.years.slice(0, 4)) : undefined })),
+        variant,
         onStats: (f, c) => { setFps(f); setCalls(c) },
         onHover: setHover,
         onReady: () => setSceneReady(true),
@@ -175,7 +197,7 @@ export default function Draft() {
       scene.dispose()
       sceneRef.current = null
     }
-  }, [reduced, count, noGl, openSystem])
+  }, [reduced, count, noGl, openSystem, variant])
 
   useEffect(() => {
     document.documentElement.style.cursor = hover !== null && open === null && !inCase ? 'pointer' : ''
@@ -250,6 +272,16 @@ export default function Draft() {
       <div className="eh-vignette" aria-hidden="true" />
       {noGl && <p className="eh-nogl eh-mono">WebGL is off in this browser, so the field is hidden. Every project below still opens.</p>}
       <div className="eh-hud" aria-hidden="true"><span /><span /><span /><span /></div>
+
+      {!noGl && (
+        <div className="eh-variants eh-solid" role="group" aria-label="How the projects are shown">
+          <span className="eh-mono">Variant</span>
+          {VARIANTS.map((v) => (
+            <button key={v.id} type="button" aria-pressed={variant === v.id} title={v.note} onClick={() => pickVariant(v.id)}>{v.label}</button>
+          ))}
+          <p className="eh-mono">{VARIANTS.find((v) => v.id === variant)?.note}</p>
+        </div>
+      )}
 
       <nav className="eh-nav eh-solid" aria-label="Primary">
         <a className="eh-logo" href="#eh-top">G/R</a>

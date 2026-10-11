@@ -3,6 +3,7 @@ import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js'
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js'
 import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js'
+import { Pass, FullScreenQuad } from 'three/examples/jsm/postprocessing/Pass.js'
 
 /** One project screen floating in the field. `aspect` is width / height of the texture. */
 export interface Body {
@@ -10,7 +11,16 @@ export interface Body {
   aspect: number
   /** The project's own colour, used to light its halo when the camera arrives. */
   tint: string
+  /** First year of the work, for the orrery: older work sits on outer orbits. */
+  year?: number
 }
+
+/**
+ * How the projects sit in the field after the opening, which every variant shares.
+ * halo: particles circle each screen. glass: dark glass panes lit by the disk, nothing around them.
+ * orrery: screens ride orbits by year and turn into view. lens: the hole bends the light of what lies behind it.
+ */
+export type Variant = 'halo' | 'glass' | 'orrery' | 'lens'
 
 /** Journey stages: 0 vortex, 1 disk, 2..2+n-1 one project each, the overview, then a far backdrop behind the page content. */
 export const stageOf = { vortex: 0, disk: 1, body: (i: number) => 2 + i, overview: (n: number) => 2 + n, backdrop: (n: number) => 3 + n }
@@ -20,7 +30,7 @@ const MAX_BODIES = 8
 const BEZEL = 0.08
 
 const particleVertex = /* glsl */ `
-uniform float uTime, uMorph, uLens, uShockR, uShockA, uPx, uIntro, uActive, uActiveW, uFocusW;
+uniform float uTime, uMorph, uLens, uShockR, uShockA, uPx, uIntro, uActive, uActiveW, uFocusW, uHalos, uDiskIn, uDiskGain;
 uniform vec3 uPointer, uShockC;
 uniform vec3 uCenters[${MAX_BODIES}];
 uniform vec3 uTints[${MAX_BODIES}];
@@ -44,7 +54,7 @@ void main() {
   float m1 = smoothstep(0.0, 1.0, clamp(uMorph, 0.0, 1.0));
   float m2 = smoothstep(0.0, 1.0, clamp(uMorph - 1.0, 0.0, 1.0));
   // On the journey the disk draws in to a tight, bright accretion disk, leaving the outer orbit clear for the screens.
-  disk.xz *= mix(1.0, 0.42, m2);
+  disk.xz *= mix(1.0, uDiskIn, m2);
   vec3 p = mix(vortex, disk, m1);
   vec3 tangent = normalize(vec3(-sin(mix(a, arm, m1)), 0.0, cos(mix(a, arm, m1))));
 
@@ -52,7 +62,7 @@ void main() {
   float halo = 0.0;
   vec3 tint = vec3(0.0);
   float lit = 0.0;
-  if (aCluster >= 0.0) {
+  if (aCluster >= 0.0 && uHalos > 0.5) {
     int ci = int(aCluster);
     vec3 c = uCenters[0], n = uNormals[0];
     vec2 ext = uExtent[0];
@@ -102,7 +112,7 @@ void main() {
   // The drawn-in disk is about five times denser, so each of its particles gives less light.
   // Far particles fade into the dark, so the field reads in depth.
   float fog = smoothstep(62.0, 22.0, depth);
-  vAlpha = 0.34 * fall * mix(1.0, 0.3, m2 * (1.0 - halo)) * smoothstep(1.2, 4.5, depth) * fog * intro;
+  vAlpha = 0.34 * fall * mix(1.0, 0.3, m2 * (1.0 - halo)) * smoothstep(1.2, 4.5, depth) * fog * intro * mix(1.0, uDiskGain, m2);
 }`
 
 const particleFragment = /* glsl */ `
@@ -184,8 +194,8 @@ void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(
 
 const screenFragment = /* glsl */ `
 uniform sampler2D uMap;
-uniform float uReveal, uTime, uAspect, uRadius, uHover, uLoaded, uFrame, uSheen;
-uniform vec2 uSize, uOuter;
+uniform float uReveal, uTime, uAspect, uRadius, uHover, uLoaded, uFrame, uSheen, uGlass, uLit;
+uniform vec2 uSize, uOuter, uLight;
 varying vec2 vUv;
 float sdRound(vec2 p, vec2 b, float r) { vec2 q = abs(p) - b + r; return length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - r; }
 float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
@@ -196,6 +206,9 @@ float noise(vec2 p) {
 void main() {
   // The plane is the screen plus a thin glass bezel; p is in plane units from its centre.
   vec2 p = (vUv - 0.5) * uOuter;
+  // Glass variant: the disk's warm light catches the edge that faces it, and slides round as the camera passes.
+  vec3 warm = vec3(1.0, 0.64, 0.32);
+  float side = max(dot(normalize(p + 1e-4), uLight), 0.0);
   float outer = sdRound(p, uOuter * 0.5 - 0.004, uRadius + 0.05);
   if (outer > 0.0) discard;
   float d = sdRound(p, uSize * 0.5, uRadius);
@@ -204,12 +217,13 @@ void main() {
   if (d > 0.0) {
     // Bezel: dark glass that arrives with the screen. A distant screen shows only its faint outline.
     vec3 edge = vec3(0.55, 0.42, 1.0) * rim * (0.55 + uHover * 0.6);
+    edge = mix(edge, warm * rim * (0.25 + 1.3 * side * side * side) * (0.5 + uLit * 0.9 + uHover * 0.4), uGlass);
     if (uReveal < 0.3) {
       if (rim < 0.35) discard;
       gl_FragColor = vec4(edge * 0.6, 1.0);
       return;
     }
-    gl_FragColor = vec4(vec3(0.018, 0.016, 0.034) + edge, 1.0);
+    gl_FragColor = vec4(vec3(0.018, 0.016, 0.034) + edge + uGlass * (warm * side * side * 0.07 + vec3(0.008, 0.01, 0.018)), 1.0);
     return;
   }
 
@@ -226,13 +240,76 @@ void main() {
     col = tex * 0.8 * (0.35 + 0.65 * smoothstep(0.2, 1.0, uReveal));
     // A soft reflection that slides across the glass as the camera moves past.
     float sheen = exp(-pow((uv.x + uv.y * 0.35) - uSheen, 2.0) * 40.0);
-    col += vec3(0.75, 0.8, 1.0) * sheen * 0.06;
+    col += vec3(0.75, 0.8, 1.0) * sheen * (0.06 + uGlass * 0.1);
+    col += warm * pow(side, 4.0) * smoothstep(0.3, 0.75, length(p / (uOuter * 0.5))) * 0.08 * uGlass;
+    col *= mix(1.0, 0.72 + 0.28 * max(uLit, uHover), uGlass);
     col = mix(col, vec3(0.37, 0.9, 1.0) * 1.1, band * 0.85);
     col *= 1.0 + uHover * 0.1;
   }
   if (!gl_FrontFacing) col = vec3(0.02, 0.02, 0.05) + vec3(0.55, 0.42, 1.0) * rim;
   gl_FragColor = vec4(col, 1.0);
 }`
+
+/**
+ * Lens variant: a point lens around the hole, applied to the rendered frame. Whatever lies behind the hole is bent
+ * round it (an Einstein ring); whatever is in front of it, by depth, is left alone. The hole is drawn here too, so the
+ * light directly behind it can form the ring instead of being hidden by the sphere.
+ */
+const lensFragment = /* glsl */ `
+uniform sampler2D tColor, tDepth;
+uniform vec2 uCenter;
+uniform float uAspect, uE, uRho, uVoidZ, uNear, uFar, uOn;
+varying vec2 vUv;
+float viewZ(vec2 uv) { float z = texture2D(tDepth, uv).x * 2.0 - 1.0; return 2.0 * uNear * uFar / (uFar + uNear - z * (uFar - uNear)); }
+void main() {
+  vec4 base = texture2D(tColor, vUv);
+  // The hole is drawn for everything behind its front; light is bent only from well behind it.
+  float z = viewZ(vUv);
+  if (uOn < 0.5 || z < uVoidZ - 1.0) { gl_FragColor = base; return; }
+  vec2 t = (vUv - uCenter) * vec2(uAspect, 1.0);
+  float r = max(length(t), 1e-5);
+  if (r < uRho) {
+    float k = r / uRho;
+    float rim = pow(1.0 - sqrt(max(1.0 - k * k, 0.0)), 7.0);
+    gl_FragColor = vec4(vec3(1.0, 0.74, 0.42) * rim * 2.6, 1.0);
+    return;
+  }
+  if (z < uVoidZ + 1.5) { gl_FragColor = base; return; }
+  vec2 suv = clamp(uCenter + (t - t / (r * r) * uE * uE) / vec2(uAspect, 1.0), 0.0, 1.0);
+  // Only light from behind the hole is bent. A sample that lands on something in front of it (a screen) would
+  // paint a warped copy of that screen round itself, so the background stays where it is there instead.
+  if (viewZ(suv) < uVoidZ + 1.5) { gl_FragColor = base; return; }
+  gl_FragColor = vec4(texture2D(tColor, suv).rgb, 1.0);
+}`
+
+class LensPass extends Pass {
+  material: THREE.ShaderMaterial
+  quad: FullScreenQuad
+  constructor() {
+    super()
+    this.material = new THREE.ShaderMaterial({
+      uniforms: {
+        tColor: { value: null }, tDepth: { value: null }, uCenter: { value: new THREE.Vector2(0.5, 0.5) }, uAspect: { value: 1 },
+        uE: { value: 0 }, uRho: { value: 0 }, uVoidZ: { value: 10 }, uNear: { value: 0.1 }, uFar: { value: 400 }, uOn: { value: 0 },
+      },
+      vertexShader: 'varying vec2 vUv; void main() { vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }',
+      fragmentShader: lensFragment,
+      depthTest: false,
+      depthWrite: false,
+    })
+    this.quad = new FullScreenQuad(this.material)
+  }
+  render(renderer: THREE.WebGLRenderer, writeBuffer: THREE.WebGLRenderTarget, readBuffer: THREE.WebGLRenderTarget) {
+    this.material.uniforms.tColor.value = readBuffer.texture
+    this.material.uniforms.tDepth.value = readBuffer.depthTexture
+    renderer.setRenderTarget(this.renderToScreen ? null : writeBuffer)
+    this.quad.render(renderer)
+  }
+  dispose() {
+    this.material.dispose()
+    this.quad.dispose()
+  }
+}
 
 export interface EventHorizonScene {
   setStage(stage: number): void
@@ -262,9 +339,12 @@ const clamp01 = (x: number) => Math.min(1, Math.max(0, x))
 
 export function createScene(
   host: HTMLElement,
-  options: { count: number; reduced: boolean; bodies: Body[]; onStats(fps: number, calls: number): void; onHover(index: number | null): void; onReady(): void },
+  options: { count: number; reduced: boolean; bodies: Body[]; variant?: Variant; onStats(fps: number, calls: number): void; onHover(index: number | null): void; onReady(): void },
 ): EventHorizonScene {
   const { count, reduced, bodies, onStats, onHover, onReady } = options
+  const variant = options.variant ?? 'halo'
+  const glass = variant === 'glass', orrery = variant === 'orrery', lensing = variant === 'lens'
+  const bezel = glass ? 0.14 : BEZEL
   performance.mark('eh:scene-start')
   const small = innerWidth < 768
   const dpr = Math.min(devicePixelRatio, 2)
@@ -283,10 +363,23 @@ export function createScene(
   const track = <T extends { dispose(): void }>(x: T) => (disposables.push(x), x)
 
   // Body layout: a ring around the void at alternating heights, each screen facing outward.
+  // The orrery puts each screen on its own orbit by year (2026 innermost, a unit further out per year) and turns
+  // the orbits with the scroll; inner orbits turn faster. Each stop is the moment its screen reaches the front slot.
   const UP = new THREE.Vector3(0, 1, 0)
+  const SLOT = Math.PI / 2 - 0.35, TURN = 0.9
+  const orbit = bodies.map((b) => {
+    const r = 4.6 + Math.max(0, 2026 - (b.year ?? 2026))
+    return { r, w: Math.pow(4.6 / r, 0.75) }
+  })
+  const orbitAngle = (i: number, s: number) => SLOT + (s - i) * TURN * orbit[i].w
+  // Overview resting angles: each screen gets its own eighth of the circle, dealt three sectors apart in order of
+  // orbit, so screens on one orbit or on neighbouring orbits never line up and stack in the view.
+  const byOrbit = orbit.map((o, i) => ({ r: o.r, i })).sort((a, b) => a.r - b.r || a.i - b.i)
+  const restAngle: number[] = []
+  byOrbit.forEach(({ i }, k) => { restAngle[i] = 0.35 + ((k * 3) % orbit.length) * ((Math.PI * 2) / Math.max(orbit.length, 1)) })
   const layout = bodies.map((b, i) => {
-    const a = (i / bodies.length) * Math.PI * 2 + 0.35
-    const r = 6.6
+    const a = orrery ? SLOT : (i / bodies.length) * Math.PI * 2 + 0.35
+    const r = orrery ? orbit[i].r : 6.6
     const center = new THREE.Vector3(Math.cos(a) * r, (i % 2 ? 0.7 : -0.5), Math.sin(a) * r)
     const normal = new THREE.Vector3(center.x, 0, center.z).normalize()
     const h = b.aspect < 1 ? 2.7 : 2.05
@@ -332,6 +425,8 @@ export function createScene(
     uTints: { value: tints },
     uTime: { value: 0 }, uMorph: { value: 0 }, uLens: { value: 0 }, uShockR: { value: 0 }, uShockA: { value: 0 },
     uPx: { value: 2.1 * dpr }, uIntro: { value: reduced ? 1 : 0 }, uActive: { value: -1 }, uActiveW: { value: 0 }, uFocusW: { value: 0 },
+    // Without halos every particle stays in the disk, so each gives less light once the disk draws in.
+    uHalos: { value: variant === 'halo' ? 1 : 0 }, uDiskIn: { value: orrery ? 0.33 : 0.42 }, uDiskGain: { value: variant === 'halo' ? 1 : 0.62 },
     uPointer: { value: new THREE.Vector3(0, -99, 0) }, uShockC: { value: new THREE.Vector3() },
     uCenters: { value: centers }, uNormals: { value: normals }, uExtent: { value: extents },
   }
@@ -339,6 +434,23 @@ export function createScene(
   const points = new THREE.Points(g, mat)
   points.renderOrder = 2
   scene.add(points)
+
+  // Orrery rails: one faint orbit under each screen; the active one takes its project's colour.
+  const railBase = new THREE.Color(0x6f63ff)
+  const rails = orrery
+    ? layout.map((l, i) => {
+        const y = l.center.y - l.h / 2 - 0.16
+        const pts = Array.from({ length: 193 }, (_, k) => {
+          const a = (k / 192) * Math.PI * 2
+          return new THREE.Vector3(Math.cos(a) * orbit[i].r, y, Math.sin(a) * orbit[i].r)
+        })
+        const m = track(new THREE.LineBasicMaterial({ color: railBase.clone(), transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending }))
+        const line = new THREE.Line(track(new THREE.BufferGeometry().setFromPoints(pts)), m)
+        line.renderOrder = 1
+        scene.add(line)
+        return m
+      })
+    : []
 
   // Stars far behind everything, for parallax as the camera travels.
   const starCount = small ? 1200 : 2600
@@ -374,10 +486,11 @@ export function createScene(
     const u = {
       uMap: { value: blank as THREE.Texture }, uReveal: { value: 0 }, uTime: uniforms.uTime, uAspect: { value: bodies[i].aspect },
       uRadius: { value: bodies[i].aspect < 1 ? 0.16 : 0.06 }, uHover: { value: 0 }, uLoaded: { value: 0 }, uFrame: { value: 0 },
-      uSheen: { value: 0.5 }, uSize: { value: new THREE.Vector2(l.w, l.h) }, uOuter: { value: new THREE.Vector2(l.w + BEZEL * 2, l.h + BEZEL * 2) },
+      uSheen: { value: 0.5 }, uSize: { value: new THREE.Vector2(l.w, l.h) }, uOuter: { value: new THREE.Vector2(l.w + bezel * 2, l.h + bezel * 2) },
+      uGlass: { value: glass ? 1 : 0 }, uLit: { value: 0 }, uLight: { value: new THREE.Vector2(0, -1) },
     }
     const m = track(new THREE.ShaderMaterial({ uniforms: u, vertexShader: screenVertex, fragmentShader: screenFragment, side: THREE.DoubleSide }))
-    const mesh = new THREE.Mesh(track(new THREE.PlaneGeometry(l.w + BEZEL * 2, l.h + BEZEL * 2)), m)
+    const mesh = new THREE.Mesh(track(new THREE.PlaneGeometry(l.w + bezel * 2, l.h + bezel * 2)), m)
     mesh.position.copy(l.center)
     mesh.lookAt(l.center.clone().add(l.normal))
     mesh.renderOrder = 1
@@ -407,8 +520,13 @@ export function createScene(
   }
 
   // Post: bloom on what is brighter than white (dense particles, rims, the photon ring).
-  const composer = new EffectComposer(renderer)
+  // The lens reads depth, so its frames render into a target that keeps a depth texture.
+  const composer = lensing
+    ? new EffectComposer(renderer, new THREE.WebGLRenderTarget(1, 1, { type: THREE.HalfFloatType, depthTexture: new THREE.DepthTexture(1, 1) }))
+    : new EffectComposer(renderer)
   composer.addPass(new RenderPass(scene, camera))
+  const lensPass = lensing ? new LensPass() : null
+  if (lensPass) composer.addPass(lensPass)
   const bloom = new UnrealBloomPass(new THREE.Vector2(1, 1), small ? 0.55 : 0.7, 0.5, 0.98)
   composer.addPass(bloom)
   composer.addPass(new OutputPass())
@@ -441,8 +559,10 @@ export function createScene(
       // With the drawer open the screen moves into the space the drawer leaves: left of it, or above the bottom sheet.
       focusPose[i].look.copy(wide ? l.center.clone().addScaledVector(right, nearW * 0.36) : l.center.clone().addScaledVector(UP, -nearH * 0.62))
     })
-    pos.push(new THREE.Vector3(0, 13.5, wide ? 23 : 30))
-    look.push(new THREE.Vector3(0, -0.4, 0))
+    // The orrery is read from above; the lens from low down, so the far screens sit behind the hole.
+    if (orrery) { pos.push(new THREE.Vector3(0, 18, wide ? 19 : 27)); look.push(new THREE.Vector3(0, -0.6, 0)) }
+    else if (lensing) { pos.push(new THREE.Vector3(0, 5.6, wide ? 21 : 28)); look.push(new THREE.Vector3(0, 0, 0)) }
+    else { pos.push(new THREE.Vector3(0, 13.5, wide ? 23 : 30)); look.push(new THREE.Vector3(0, -0.4, 0)) }
     // Behind the page content the field drifts far back and low, a quiet backdrop.
     pos.push(new THREE.Vector3(wide ? -14 : -8, 4, wide ? 36 : 44))
     look.push(new THREE.Vector3(wide ? 4 : 0, 1.5, 0))
@@ -531,6 +651,22 @@ export function createScene(
       s.u.uFrame.value = clamp01((stage - 1.3) * 2) * (0.35 + 0.65 * Math.max(s.reveal, overview)) * (1 - 0.6 * clamp01(stage - lastStage()))
       s.u.uSheen.value = 0.65 + camera.position.clone().sub(s.mesh.position).normalize().dot(camRight.set(1, 0, 0).applyQuaternion(s.mesh.quaternion)) * 0.9
       s.mesh.position.y = layout[i].center.y + (reduced ? 0 : Math.sin(uniforms.uTime.value * 0.45 + i * 1.7) * 0.06)
+      if (orrery) {
+        // In the overview each screen settles at its own angle, evenly round, so screens on one orbit never stack.
+        const run = orbitAngle(i, Math.min(stage - 2, layout.length - 1))
+        const even = restAngle[i]
+        const a = run + Math.atan2(Math.sin(even - run), Math.cos(even - run)) * ease(overview)
+        s.mesh.position.x = Math.cos(a) * orbit[i].r
+        s.mesh.position.z = Math.sin(a) * orbit[i].r
+        tmpObj.position.copy(s.mesh.position)
+        tmpObj.lookAt(s.mesh.position.x * 2, s.mesh.position.y, s.mesh.position.z * 2)
+        s.base.copy(tmpObj.quaternion)
+      }
+      s.u.uLit.value = i === activeIdx ? uniforms.uActiveW.value : 0
+      if (glass) {
+        const sweep = s.u.uSheen.value * 2.2 + 0.4
+        s.u.uLight.value.set(Math.cos(sweep), -0.55 + Math.sin(sweep) * 0.35).normalize()
+      }
       // In the overview each screen turns to face the camera, and its halo turns with it.
       tmpObj.position.copy(s.mesh.position)
       tmpObj.lookAt(camera.position)
@@ -569,12 +705,37 @@ export function createScene(
     camera.position.copy(camPos)
     camera.lookAt(lookCur)
 
+    rails.forEach((m, i) => {
+      const lit = i === activeIdx ? uniforms.uActiveW.value : 0
+      m.opacity = clamp01((stage - 1.2) * 1.5) * (1 - 0.75 * clamp01(stage - lastStage())) * (0.13 + lit * 0.4 + overview * 0.05)
+      m.color.copy(railBase).lerp(tints[i], lit)
+    })
+
+    // The lens turns on after the opening and lets go behind the page content, so the opening is untouched.
+    if (lensPass) {
+      const lu = lensPass.material.uniforms
+      const d = camera.position.length()
+      proj.set(0, 0, 0).project(camera)
+      const w = proj.z > 1 ? 0 : clamp01((stage - 1.15) / 0.7) * (1 - clamp01((stage - lastStage()) * 1.2))
+      const rho = Math.tan(Math.asin(Math.min(1 / d, 0.99))) / (2 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)))
+      camera.getWorldDirection(dir)
+      lu.uCenter.value.set((proj.x + 1) / 2, (proj.y + 1) / 2)
+      lu.uAspect.value = camera.aspect
+      lu.uRho.value = rho
+      lu.uE.value = rho * 1.7 * w
+      lu.uVoidZ.value = -camera.position.dot(dir)
+      lu.uNear.value = camera.near
+      lu.uFar.value = camera.far
+      lu.uOn.value = w > 0.02 ? 1 : 0
+      voidMesh.visible = w <= 0.02
+    }
+
     // Overview labels follow their screens.
     const labelW = overview * clamp01(1 - (stage - lastStage()) * 3)
     labels.forEach((el, i) => {
       if (!el) return
       const l = layout[i]
-      proj.copy(l.center).addScaledVector(UP, -l.h * 0.5 - 0.35).project(camera)
+      proj.copy(screens[i].mesh.position).addScaledVector(UP, -l.h * 0.5 - 0.35).project(camera)
       const visible = labelW > 0.02 && proj.z < 1
       el.style.opacity = String(visible ? labelW : 0)
       el.style.visibility = visible ? 'visible' : 'hidden'
@@ -644,6 +805,7 @@ export function createScene(
       ro.disconnect()
       disposables.forEach((d) => d.dispose())
       bloom.dispose()
+      lensPass?.dispose()
       composer.dispose()
       renderer.dispose()
       renderer.domElement.remove()

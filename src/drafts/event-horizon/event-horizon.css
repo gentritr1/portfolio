@@ -370,3 +370,20 @@
 .eh-eng section { display: grid; gap: 10px; margin-top: 16px; }
 .eh-eng h4 { margin: 0; font-size: 11px; color: var(--eh-fg-2); }
 .eh-eng .eh-list li { font-size: 13.5px; }
+
+/* Draft-only switch for comparing how the projects are shown. */
+.eh-variants {
+  position: fixed; left: 16px; bottom: 16px; z-index: 6; display: flex; flex-wrap: wrap; align-items: center; gap: 4px; max-width: calc(100% - 32px);
+  padding: 6px; border: 1px solid var(--eh-line); border-radius: 14px; background: var(--eh-glass-strong);
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+}
+.eh-variants > span { padding: 0 8px; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--eh-dim); }
+.eh-variants button {
+  all: unset; cursor: pointer; min-height: 32px; padding: 0 12px; border-radius: 9px; font: 500 13px/32px var(--eh-sans); color: var(--eh-fg-2);
+  transition: background-color 160ms var(--eh-ease-out), color 160ms var(--eh-ease-out), transform 160ms var(--eh-ease-out);
+}
+.eh-variants button[aria-pressed="true"] { background: var(--eh-fg); color: #0a0914; }
+.eh-variants button:active { transform: scale(0.97); }
+.eh-variants button:focus-visible { outline: 2px solid var(--eh-cyan); outline-offset: 2px; }
+@media (hover: hover) and (pointer: fine) { .eh-variants button[aria-pressed="false"]:hover { background: rgb(255 255 255 / 0.07); color: var(--eh-fg); } }
+.eh-variants p { flex-basis: 100%; margin: 2px 8px 2px; font-size: 10.5px; color: var(--eh-dim); }
