@@ -31,7 +31,6 @@ export interface Case {
   /** Shown in the signal colour: only real, sourced outcomes. */
   result: string
   layers: LayerId[]
-  href: string
 }
 
 export const cases: Case[] = [
@@ -41,7 +40,6 @@ export const cases: Case[] = [
     answer: 'Vue to React, one route at a time, with parity tests that run the same scenario against the old app and the new one. I wrote most of the rules and merge gates the work runs inside.',
     result: 'One screen went from first note to merged in a working day, and the same test passed on both apps.',
     layers: ['interface', 'quality'],
-    href: '/work/care-platform',
   },
   {
     slug: 'design-system-react',
@@ -49,7 +47,6 @@ export const cases: Case[] = [
     answer: 'A team design system on one token source. I researched five leading systems and wrote the guides its AI agents follow; rendered checks decide each release.',
     result: '36 components, 805 tokens and 20 releases in about six weeks, with 96.6% less JavaScript for a page that uses only the Button.',
     layers: ['interface', 'quality'],
-    href: '/work/design-system-react',
   },
   {
     slug: 'multi-tenant',
@@ -57,7 +54,6 @@ export const cases: Case[] = [
     answer: "Per-tenant data separation, role-based access and patient times in each patient's own timezone, across the Vue app and the Laravel API.",
     result: 'On the same API, one billing report went from 16 database queries to 2 and no longer times out.',
     layers: ['interface', 'api', 'data'],
-    href: '/work/care-platform',
   },
   {
     slug: 'read-to-feed',
@@ -65,7 +61,6 @@ export const cases: Case[] = [
     answer: 'A PDF and EPUB reader, ISBN scanning and rewards, on maintained forks of epubjs-react-native and react-native-pdf.',
     result: 'About 14 releases to both stores, and React Native 0.63 to 0.81 through three major upgrades.',
     layers: ['mobile', 'interface'],
-    href: '/work/read-to-feed',
   },
 ]
 

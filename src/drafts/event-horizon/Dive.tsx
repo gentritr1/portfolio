@@ -3,6 +3,7 @@ import { Link } from 'react-router'
 import { motion } from 'motion/react'
 import { ArrowRightIcon } from '@phosphor-icons/react'
 import { stations, twinBase, twinSteps, type System } from './data'
+import { caseDetails, questionOf } from '../exploded-view/cases'
 
 const rise = {
   hidden: { opacity: 0, transform: 'translateY(10px)' },
@@ -46,11 +47,15 @@ function Twin() {
 /** The deep dive: in the drawer, or as the full case page (`page`), where the name is the page's heading. */
 export function Dive({ system: s, reduced, page = false, onLeave }: { system: System; reduced: boolean; page?: boolean; onLeave?(): void }) {
   const Heading = page ? 'h1' : 'h2'
+  // The full case page carries the written brief (question, constraints, decision, result); the drawer stays short.
+  const c = page ? caseDetails[s.slug] : undefined
+  const question = page ? questionOf(s.slug) : undefined
   return (
     <motion.div className={page ? 'eh-dive eh-dive-page' : 'eh-dive'} initial="hidden" animate="shown" variants={{ shown: { transition: { staggerChildren: reduced ? 0 : 0.045, delayChildren: reduced ? 0 : 0.18 } } }}>
       <motion.header className="eh-dive-head" variants={reduced ? undefined : rise}>
         <Heading id={page ? 'eh-case-h' : 'eh-drawer-h'} tabIndex={page ? -1 : undefined}>{s.name}</Heading>
         <p className="eh-dive-meta eh-mono">{[s.kind, s.years, s.role].filter(Boolean).join(' · ')}</p>
+        {question && <p className="eh-dive-q">{question}</p>}
         {s.story && <p className="eh-dive-lede">{s.story.product}</p>}
       </motion.header>
 
@@ -72,6 +77,29 @@ export function Dive({ system: s, reduced, page = false, onLeave }: { system: Sy
             </li>
           ))}
         </motion.ul>
+      )}
+
+      {c && (
+        <>
+          <Block title="Context" reduced={reduced}>
+            <dl className="eh-specs">
+              <div><dt className="eh-mono">Users</dt><dd>{c.context.users}</dd></div>
+              <div><dt className="eh-mono">My role</dt><dd>{c.context.role}</dd></div>
+              <div><dt className="eh-mono">Time</dt><dd>{c.context.time}</dd></div>
+            </dl>
+          </Block>
+          <Block title="Constraints" reduced={reduced}>
+            <ul className="eh-list">{c.constraints.map((x) => <li key={x}>{x}</li>)}</ul>
+          </Block>
+          {c.didntWork && (
+            <Block title={c.didntWork.label} reduced={reduced}>
+              <p>{c.didntWork.text}</p>
+            </Block>
+          )}
+          <Block title="The decision that worked" reduced={reduced}>
+            <ul className="eh-list">{c.decision.map((x) => <li key={x}>{x}</li>)}</ul>
+          </Block>
+        </>
       )}
 
       {s.gallery.length > 0 && (
@@ -130,9 +158,15 @@ export function Dive({ system: s, reduced, page = false, onLeave }: { system: Sy
         </>
       )}
 
-      {s.story && (
+      {(c || s.story) && (
         <Block title="The result" reduced={reduced}>
-          <p>{s.story.result}</p>
+          <p className={c ? 'eh-dive-result' : undefined}>{c ? c.result : s.story?.result}</p>
+        </Block>
+      )}
+
+      {c?.differently && (
+        <Block title="What I'd do differently" reduced={reduced}>
+          <p>{c.differently}</p>
         </Block>
       )}
 
@@ -147,6 +181,18 @@ export function Dive({ system: s, reduced, page = false, onLeave }: { system: Sy
             ))}
           </dl>
         </Block>
+      )}
+
+      {c && c.engineering.length > 0 && (
+        <motion.details className="eh-eng" variants={reduced ? undefined : rise}>
+          <summary className="eh-mono">Engineering details</summary>
+          {c.engineering.map((g) => (
+            <section key={g.title}>
+              <h4 className="eh-mono">{g.title}</h4>
+              <ul className="eh-list">{g.items.map((x) => <li key={x}>{x}</li>)}</ul>
+            </section>
+          ))}
+        </motion.details>
       )}
 
       <motion.footer className="eh-dive-foot" variants={reduced ? undefined : rise}>

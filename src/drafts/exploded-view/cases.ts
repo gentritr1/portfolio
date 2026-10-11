@@ -71,7 +71,7 @@ export const caseDetails: Record<string, CaseDetail> = {
       title: 'One screen, one working day',
       rows: stations.map((s) => ({ when: s.time, what: s.name, lines: s.artefact })),
     },
-    links: [{ label: 'Read the full case on the site', href: '/work/care-platform' }],
+    links: [],
   },
 
   'design-system-react': {
@@ -111,7 +111,7 @@ export const caseDetails: Record<string, CaseDetail> = {
         items: ['Edit the token source', 'Build', 'Static gates', 'Rendered evidence', 'Consumer smoke test', 'Release, only after the three check jobs pass'],
       },
     ],
-    links: [{ label: 'Read the full case on the site', href: '/work/design-system-react' }],
+    links: [],
   },
 
   'multi-tenant': {
@@ -144,7 +144,7 @@ export const caseDetails: Record<string, CaseDetail> = {
     engineering: [
       { title: 'The report, before and after', items: ['Before: 4 sheets × their calendar months = 2 + 3 + 4 + 7 = 16 patient queries', 'After: 1 patient query + 1 grouped aggregate = 2 queries'] },
     ],
-    links: [{ label: 'Read the full case on the site', href: '/work/care-platform' }],
+    links: [],
   },
 
   'read-to-feed': {
@@ -178,7 +178,6 @@ export const caseDetails: Record<string, CaseDetail> = {
       { title: 'Upgrades', items: ['React Native 0.63 to 0.81, through three major upgrades', 'About 14 releases to both stores'] },
     ],
     links: [
-      { label: 'Read the full case on the site', href: '/work/read-to-feed' },
       { label: 'epubjs-react-native and react-native-pdf forks on GitHub', href: 'https://github.com/gentritr1' },
     ],
   },
@@ -207,7 +206,7 @@ export const caseDetails: Record<string, CaseDetail> = {
       { title: 'The membership', stack: 'Stripe · Apple · Google', note: 'Subscriptions, gifts, promo codes', layer: 'data' },
     ],
     engineering: [{ title: 'Scale of the rebuild', items: ['34 routes', '270+ components', '25 Pinia stores', 'Full right-to-left layout for Arabic'] }],
-    links: [{ label: 'bayyinahtv.com', href: 'https://bayyinahtv.com/' }, { label: 'Read the full case on the site', href: '/work/bayyinah-tv' }],
+    links: [{ label: 'bayyinahtv.com', href: 'https://bayyinahtv.com/' }],
   },
 
   'viva-fresh': {
@@ -231,7 +230,7 @@ export const caseDetails: Record<string, CaseDetail> = {
       { title: 'The delivery', stack: 'Maps · Firebase', note: 'Address search on a map', layer: 'api' },
     ],
     engineering: [{ title: 'In the released app', items: ['Online orders with delivery slots', 'Loyalty programme and wishlist', 'Address search on a map'] }],
-    links: [{ label: 'Read the full case on the site', href: '/work/viva-fresh' }],
+    links: [],
   },
 
   incentiv: {
@@ -255,7 +254,7 @@ export const caseDetails: Record<string, CaseDetail> = {
       { title: 'The access', stack: 'Passkeys · route middleware', note: 'Sign-in and protected routes', layer: 'api' },
     ],
     engineering: [{ title: 'Scope', items: ['Portal frontend only: sign-in, first-run tour, dashboard cards, asset list, QR balance pop-up', 'Wallet and blockchain layer built by teammates'] }],
-    links: [{ label: 'portal.incentiv.io', href: 'https://portal.incentiv.io/' }, { label: 'Read the full case on the site', href: '/work/incentiv' }],
+    links: [{ label: 'portal.incentiv.io', href: 'https://portal.incentiv.io/' }],
   },
 
   'dukagjini-bookstore': {
@@ -279,7 +278,7 @@ export const caseDetails: Record<string, CaseDetail> = {
       { title: 'The return', stack: 'Firebase Messaging · deep links', note: 'Notifications open the right screen', layer: 'api' },
     ],
     engineering: [{ title: 'Details', items: ['Push deep links to the right screen', 'Animated book-detail header', 'Swipe-to-close modals'] }],
-    links: [{ label: 'Read the full case on the site', href: '/work/dukagjini-bookstore' }],
+    links: [],
   },
 
   futurisma: {
@@ -314,7 +313,7 @@ export const caseDetails: Record<string, CaseDetail> = {
     engineering: [
       { title: 'Dream Island, by the numbers', items: ['A 2,400 m lap of 800 points, 8 gates', 'The lap that sets the clock: 32.579 s', 'Draw calls at worst: 94 of 110', 'Triangles: 157,650 of 180,000', 'Lowest a goldfish gets to the road: 8.44 m'] },
     ],
-    links: [{ label: 'GitHub', href: 'https://github.com/gentritr1/futurisma' }, { label: 'Read the full case on the site', href: '/work/futurisma' }],
+    links: [{ label: 'GitHub', href: 'https://github.com/gentritr1/futurisma' }],
   },
 }
 

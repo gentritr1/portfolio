@@ -95,17 +95,15 @@ export function CasePage({ slug }: { slug: string }) {
                   </ol>
                 </section>
               )}
-              <ul className="xv-case-links">
-                {c.links.map((l) => (
-                  <li key={l.href}>
-                    {l.href.startsWith('/') ? (
-                      <a className="xv-link" href={l.href}>{l.label}</a>
-                    ) : (
+              {c.links.length > 0 && (
+                <ul className="xv-case-links">
+                  {c.links.map((l) => (
+                    <li key={l.href}>
                       <a className="xv-link" href={l.href} target="_blank" rel="noreferrer">{l.label}<span className="xv-sr"> (opens in a new tab)</span></a>
-                    )}
-                  </li>
-                ))}
-              </ul>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
           </details>
         </article>

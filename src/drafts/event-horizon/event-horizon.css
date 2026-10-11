@@ -358,3 +358,15 @@
   .eh-rail button::after { transition: none; }
   .eh-pulse::after { animation: none; }
 }
+
+/* The written brief on the full case page. */
+.eh-dive-q { font: 300 clamp(19px, 1.9vw, 24px)/1.32 var(--eh-sans); color: var(--eh-fg); text-wrap: balance; max-width: 36ch; }
+.eh-list { display: grid; gap: 9px; }
+.eh-list li { position: relative; padding-left: 18px; font-size: 15px; color: var(--eh-fg-2); text-wrap: pretty; overflow-wrap: anywhere; }
+.eh-list li::before { content: ""; position: absolute; left: 0; top: 0.75em; width: 8px; height: 1px; background: var(--eh-cyan); }
+.eh-block > p.eh-dive-result { font-size: 19px; line-height: 1.4; color: var(--eh-fg); }
+.eh-eng { border-top: 1px solid var(--eh-line); padding-top: 14px; }
+.eh-eng summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--eh-cyan); }
+.eh-eng section { display: grid; gap: 10px; margin-top: 16px; }
+.eh-eng h4 { margin: 0; font-size: 11px; color: var(--eh-fg-2); }
+.eh-eng .eh-list li { font-size: 13.5px; }

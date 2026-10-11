@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useRef, useState, type CSSProperties } from 'react'
-import { Link } from 'react-router'
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react'
+import { useNavigate, useParams } from 'react-router'
 import Lenis from 'lenis'
 import { ArrowCounterClockwiseIcon, ArrowRightIcon, ArrowUpRightIcon, GaugeIcon, XIcon } from '@phosphor-icons/react'
 import { createScene, hasWebGL, STAGE, type RefractiveScene, type Stats } from './scene'
 import { ledger, links, systems, type Value } from './data'
+import { CasePage } from './CasePage'
 import './refractive-engine.css'
 
 type Mode = 'lens' | 'tensor'
@@ -23,6 +24,7 @@ const saveMode = (m: Mode) => {
   }
 }
 const RATIOS = [1, 1.5, 2] as const
+const BASE = '/drafts/refractive-engine'
 const fmt = (n: number) => n.toLocaleString('en-US')
 
 function useMedia(query: string) {
@@ -113,6 +115,14 @@ export default function Draft() {
   const [ratio, setRatio] = useState(() => RATIOS.reduce((a, b) => (Math.abs(b - Math.min(devicePixelRatio || 1, 2)) < Math.abs(a - Math.min(devicePixelRatio || 1, 2)) ? b : a)))
   const [coords, setCoords] = useState<{ x: number; y: number; z: number }[]>([])
   const modeRef = useRef(mode)
+  // /drafts/refractive-engine/<slug> is that product's full case, read over the same field.
+  const { '*': rest } = useParams()
+  const caseSlug = systems.some((s) => s.slug === rest) ? rest : undefined
+  const navigate = useNavigate()
+  const onCase = useRef(false)
+  onCase.current = caseSlug !== undefined
+  const homeScroll = useRef<number | null>(null)
+  const lastCase = useRef<string | undefined>(undefined)
 
   const setMode = useCallback((m: Mode) => {
     setModeState(m)
@@ -168,6 +178,7 @@ export default function Draft() {
       anchors = [...document.querySelectorAll<HTMLElement>('[data-stage]')]
         .flatMap((el) => {
           const r = el.getBoundingClientRect()
+          if (!r.height) return []
           const c = r.top + scrollY + r.height / 2
           const hold = Math.max(0, (r.height - innerHeight) / 2)
           const s = Number(el.dataset.stage)
@@ -194,7 +205,7 @@ export default function Draft() {
       if (e.pointerType !== 'mouse') return
       px = e.clientX
       py = e.clientY
-      inside = !(e.target as HTMLElement).closest('.re-solid, [role="dialog"], button, a, input')
+      inside = !onCase.current && !(e.target as HTMLElement).closest('.re-solid, [role="dialog"], button, a, input')
       if (pending) return
       pending = true
       requestAnimationFrame(() => { pending = false; scene.setPointer(px, py, inside) })
@@ -204,7 +215,7 @@ export default function Draft() {
     // A tap can open a prism; only a mouse click ripples the field.
     let downX = 0, downY = 0, downOk = false
     const onDown = (e: PointerEvent) => {
-      downOk = !(e.target as HTMLElement).closest('.re-solid, [role="dialog"], button, a, input')
+      downOk = !onCase.current && !(e.target as HTMLElement).closest('.re-solid, [role="dialog"], button, a, input')
       downX = e.clientX
       downY = e.clientY
     }
@@ -278,9 +289,51 @@ export default function Draft() {
   }, [coordsOn, sceneKey])
 
   useEffect(() => {
-    document.documentElement.style.cursor = hover !== null && open === null ? 'pointer' : ''
+    document.documentElement.style.cursor = hover !== null && open === null && !caseSlug ? 'pointer' : ''
     return () => { document.documentElement.style.cursor = '' }
-  }, [hover, open])
+  }, [hover, open, caseSlug])
+
+  // The draft places the scroll itself on every route change, so the browser's restore on Back must not move it again.
+  useEffect(() => {
+    const was = history.scrollRestoration
+    history.scrollRestoration = 'manual'
+    return () => { history.scrollRestoration = was }
+  }, [])
+
+  // Into a case: start at its top. Back out (the button, the mark or the browser): land where the reader left the lab.
+  useLayoutEffect(() => {
+    const jump = (y: number) => {
+      const lenis = lenisRef.current
+      if (lenis) { lenis.resize(); lenis.scrollTo(y, { immediate: true, force: true }) }
+      else window.scrollTo({ top: y, behavior: 'instant' })
+    }
+    const from = lastCase.current
+    lastCase.current = caseSlug
+    if (caseSlug) {
+      if (from !== caseSlug) jump(0)
+      return
+    }
+    if (from === undefined) return
+    const lab = document.querySelector<HTMLElement>('.re-lab')
+    jump(homeScroll.current ?? (lab ? lab.getBoundingClientRect().top + scrollY : 0))
+    const i = systems.findIndex((s) => s.slug === from)
+    requestAnimationFrame(() => {
+      const label = labelRefs.current[i]
+      label?.focus({ preventScroll: true })
+      if (document.activeElement !== label) document.getElementById('re-lab-h')?.focus({ preventScroll: true })
+    })
+  }, [caseSlug])
+
+  const toCase = (slug: string) => {
+    homeScroll.current = scrollY
+    lastFocus.current = null
+    setOpen(null)
+    navigate(`${BASE}/${slug}`, { viewTransition: true })
+  }
+  const toHome = (top = false) => {
+    if (top) homeScroll.current = 0
+    navigate(BASE, { viewTransition: true })
+  }
 
   // Module panel: scene focus, scroll lock, Escape, focus trap, focus return.
   useEffect(() => {
@@ -343,13 +396,17 @@ export default function Draft() {
   )
 
   return (
-    <div ref={rootRef} className="re-root" data-mode={mode} data-reduced={reduced || undefined} data-ready={ready || noGl || undefined} data-open={open !== null || undefined}>
+    <div ref={rootRef} className="re-root" data-mode={mode} data-reduced={reduced || undefined} data-ready={ready || noGl || undefined} data-open={open !== null || undefined} data-case={caseSlug !== undefined || undefined}>
       <div className="re-canvas" ref={hostRef} aria-hidden="true" />
       <div className="re-shade" aria-hidden="true" />
       {noGl && <p className="re-nogl re-mono">WebGL 2 is off in this browser, so the field is hidden. Every project still opens.</p>}
 
       <header className="re-bar re-solid">
-        <a className="re-mark" href="#re-top">Gentrit Rashiti</a>
+        {caseSlug ? (
+          <a className="re-mark" href={BASE} onClick={(e) => { e.preventDefault(); toHome(true) }}>Gentrit Rashiti</a>
+        ) : (
+          <a className="re-mark" href="#re-top">Gentrit Rashiti</a>
+        )}
         <div className="re-switch" role="group" aria-label="Lens">
           <button type="button" aria-pressed={mode === 'lens'} onClick={() => setMode('lens')}>Frontend Lens</button>
           <button type="button" aria-pressed={mode === 'tensor'} onClick={() => setMode('tensor')}>AI Tensor Field</button>
@@ -371,7 +428,9 @@ export default function Draft() {
         {coordTable}
       </section>
 
-      <main>
+      {caseSlug && <CasePage slug={caseSlug} onBack={() => toHome()} />}
+
+      <main hidden={caseSlug !== undefined}>
         <header id="re-top" className="re-hero" data-stage={STAGE.hero}>
           <h1 className="re-title">Gentrit Rashiti</h1>
           <p className="re-role">Senior Frontend, Mobile &amp; AI Engineer</p>
@@ -400,7 +459,7 @@ export default function Draft() {
 
         <section className="re-lab" data-stage={STAGE.lab} aria-labelledby="re-lab-h">
           <div className="re-lab-head">
-            <h2 id="re-lab-h" className="re-h2">Eight products, three layers each</h2>
+            <h2 id="re-lab-h" className="re-h2" tabIndex={-1}>Eight products, three layers each</h2>
             <p className="re-lede">Each prism is a shipped product. Open one and it splits into the layers it is built from.</p>
           </div>
           {noGl && (
@@ -557,10 +616,10 @@ export default function Draft() {
             ))}
           </ul>
         )}
-        <Link className="re-btn re-btn-solid re-case" to={`/drafts/event-horizon/${sys.slug}`}>
+        <a className="re-btn re-btn-solid re-case" href={`${BASE}/${sys.slug}`} onClick={(e) => { if (e.metaKey || e.ctrlKey || e.shiftKey) return; e.preventDefault(); toCase(sys.slug) }}>
           Read the full case
           <ArrowRightIcon size={14} weight="bold" aria-hidden="true" />
-        </Link>
+        </a>
       </aside>
     </div>
   )
