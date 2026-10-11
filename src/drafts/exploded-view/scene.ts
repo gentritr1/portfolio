@@ -39,12 +39,13 @@ const seg = (t: number, a: number, b: number) => clamp01((t - a) / (b - a))
 
 /** Per state: the gap between plates, the layers lit, whether labels show, and how long its animation runs. */
 const STATES: Record<SceneState, { gap: number; lit: LayerId[]; labels: boolean; ms: number }> = {
-  hero: { gap: 0.72, lit: [], labels: true, ms: 900 },
-  rewrite: { gap: 0.72, lit: ['interface', 'quality'], labels: false, ms: 1400 },
-  tokens: { gap: 0.72, lit: ['interface', 'quality'], labels: false, ms: 1400 },
+  // The hero gap matches the drawing (44 px between layers at 0.102 of the figure width per unit), so the handover is seamless.
+  hero: { gap: 0.96, lit: [], labels: true, ms: 900 },
+  rewrite: { gap: 0.96, lit: ['interface', 'quality'], labels: false, ms: 1400 },
+  tokens: { gap: 0.96, lit: ['interface', 'quality'], labels: false, ms: 1400 },
   tenants: { gap: 1.18, lit: ['interface', 'api', 'data'], labels: false, ms: 1200 },
-  reader: { gap: 0.9, lit: ['mobile', 'interface'], labels: false, ms: 1400 },
-  stack: { gap: 1.02, lit: [], labels: true, ms: 1100 },
+  reader: { gap: 1.0, lit: ['mobile', 'interface'], labels: false, ms: 1400 },
+  stack: { gap: 1.4, lit: [], labels: true, ms: 1100 },
   contact: { gap: 0.16, lit: [], labels: false, ms: 1100 },
 }
 
@@ -117,7 +118,7 @@ export function createStack(
   })
 
   // Leader lines to the HTML labels, from each plate's right-hand corner (screen right is +x, -z).
-  const leaderGeo = keep(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(H, PLATE / 2, -H), new THREE.Vector3(H + 0.62, PLATE / 2, -H - 0.62)]))
+  const leaderGeo = keep(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(H, PLATE / 2, -H), new THREE.Vector3(H + 0.86, PLATE / 2, -H - 0.86)]))
   const leaderMat = keep(new THREE.LineBasicMaterial({ transparent: true, opacity: 0 }))
   plates.forEach((p) => p.g.add(new THREE.Line(leaderGeo, leaderMat)))
 
@@ -285,15 +286,20 @@ export function createStack(
     renderer.setSize(w, hh, false)
     const r = anchor.getBoundingClientRect()
     // The anchor rect is followed with a short glide, so a change of anchor reads as one camera move.
-    const k = box.init ? 1 - Math.pow(0.0004, dt) : 1
+    const k = box.init ? 1 - Math.pow(0.03, dt) : 1
     box.x += (r.left - box.x) * k; box.y += (r.top - box.y) * k
     box.w += (r.width - box.w) * k; box.h += (r.height - box.h) * k
     box.init = true
-    const narrow = box.w < 520
-    unitPx = Math.max(18, Math.min((box.w * (narrow ? 0.5 : 0.56)) / (SIZE * Math.SQRT2), (box.h * 0.86) / 6.4))
+    // Width: the same scale as the drawing (its plate diagonal is 300/520 of the figure). Height: the whole stack,
+    // at its current gap, always fits the box, so full separation never outgrows the stage.
+    const stackHeight = SIZE * Math.SQRT2 * Math.sin(elevation) + (layers.length - 1) * gapNow * Math.cos(elevation) + 0.6
+    unitPx = Math.max(16, Math.min(box.w * 0.102, (box.h * 0.9) / stackHeight))
     camera.left = -w / (2 * unitPx); camera.right = w / (2 * unitPx)
     camera.top = hh / (2 * unitPx); camera.bottom = -hh / (2 * unitPx)
-    const fx = box.x + box.w * (narrow ? 0.27 : 0.4), fy = box.y + box.h * 0.5
+    // Anchors are the drawings themselves (520 x 391 viewBox), so these are the drawing's own stack centre.
+    const fx = box.x + box.w * 0.365, fy = box.y + box.h * 0.481
+    // Labels scale with the drawing, as its SVG text does (15 px at 520 wide).
+    host.style.setProperty('--xv-label-size', `${Math.max(10, (box.w * 15) / 520).toFixed(1)}px`)
     camera.setViewOffset(w, hh, w / 2 - fx, hh / 2 - fy, w, hh)
     camera.updateProjectionMatrix()
   }
@@ -458,7 +464,8 @@ export function createStack(
     plates.forEach((p, i) => {
       const el = labels[i]
       if (!el) return
-      v.set(H + 0.7, PLATE / 2, -H - 0.7).applyMatrix4(p.g.matrixWorld).project(camera)
+      // Leader end and label start match the drawing's (its leader runs 64 px, its text starts 72 px past the corner).
+      v.set(H + 0.96, PLATE / 2, -H - 0.96).applyMatrix4(p.g.matrixWorld).project(camera)
       el.style.transform = `translate3d(${((v.x + 1) / 2) * innerWidth}px, ${((1 - v.y) / 2) * innerHeight}px, 0) translateY(-50%)`
       el.style.opacity = String(labelsOpacity * (hoverLayer && hoverLayer !== p.id ? 0.45 : 1))
     })

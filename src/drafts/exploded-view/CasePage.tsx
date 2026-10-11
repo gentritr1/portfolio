@@ -24,7 +24,7 @@ export function CasePage({ slug }: { slug: string }) {
   return (
     <main className="xv-casepage" aria-labelledby="xv-case-h">
       <nav className="xv-case-top">
-        <Link className="xv-link" to="/drafts/exploded-view" state={{ at: 'work' }}>
+        <Link className="xv-link" to="/drafts/exploded-view" state={{ at: 'work' }} viewTransition>
           <ArrowLeftIcon size={14} weight="bold" aria-hidden="true" />
           All work
         </Link>
@@ -117,7 +117,7 @@ export function CasePage({ slug }: { slug: string }) {
 
       <nav className="xv-case-more" aria-label="More cases">
         {[{ label: 'Previous', s: prev }, { label: 'Next', s: next }].map(({ label, s }) => (
-          <Link key={label} className="xv-case-next" to={`/drafts/exploded-view/${s}`}>
+          <Link key={label} className="xv-case-next" to={`/drafts/exploded-view/${s}`} viewTransition>
             <span className="xv-mono">{label}</span>
             <span className="xv-case-next-q">{questionOf(s)}</span>
           </Link>

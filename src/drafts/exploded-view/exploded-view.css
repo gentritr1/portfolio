@@ -71,8 +71,8 @@
 
 /* ---------- Stack drawing ---------- */
 .xv-stack { display: block; width: 100%; height: auto; overflow: visible; }
-.xv-layer polygon { fill: var(--xv-layer); stroke: var(--xv-ink); stroke-width: 1; vector-effect: non-scaling-stroke; }
-.xv-layer[data-on] polygon { fill: var(--xv-layer-on); stroke: var(--xv-accent); }
+.xv-layer :is(polygon, path) { fill: var(--xv-layer); stroke: var(--xv-ink); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.xv-layer[data-on] :is(polygon, path) { fill: var(--xv-layer-on); stroke: var(--xv-accent); }
 .xv-align { stroke: var(--xv-muted); stroke-width: 1; stroke-dasharray: 3 4; opacity: 0.6; vector-effect: non-scaling-stroke; }
 .xv-leader { stroke: var(--xv-muted); stroke-width: 1; vector-effect: non-scaling-stroke; }
 .xv-layer text { font: 500 15px var(--xv-sans); fill: var(--xv-ink); }
@@ -87,12 +87,11 @@
 .xv-root[data-live] .xv-hero-figure .xv-stack { opacity: 0; }
 .xv-hero-figure .xv-stack { transition: opacity 600ms var(--xv-ease-out); }
 .xv-3d-labels > span {
-  position: absolute; top: 0; left: 0; white-space: nowrap; font: 500 15px var(--xv-sans); color: var(--xv-ink);
-  opacity: 0; transition: opacity 400ms var(--xv-ease-out); transition-delay: calc(var(--i) * 50ms);
+  position: absolute; top: 0; left: 0; white-space: nowrap; font: 500 var(--xv-label-size, 15px) var(--xv-sans); color: var(--xv-ink);
+  opacity: 0;
 }
-.xv-3d-labels .xv-layer-no { font: 400 11px var(--xv-mono); color: var(--xv-muted); margin-right: 4px; }
+.xv-3d-labels .xv-layer-no { font: 400 calc(var(--xv-label-size, 15px) * 0.733) var(--xv-mono); color: var(--xv-muted); margin-right: 4px; }
 .xv-3d-labels[data-on] > span { opacity: 1; }
-@media (max-width: 520px) { .xv-3d-labels > span { font-size: 12.5px; } .xv-3d-labels .xv-layer-no { font-size: 9.5px; } }
 .xv-hero, .xv-root main { position: relative; z-index: 1; }
 
 /* ---------- Hero ---------- */
@@ -237,10 +236,12 @@
   .xv-stack-grid { grid-template-columns: 1fr; }
   .xv-stack-grid > .xv-stack { display: none; }
 }
-.xv-stage-poster { width: 100%; max-width: 520px; animation: xv-crossfade 500ms var(--xv-ease-out) both; }
+.xv-stage-frame { width: 100%; max-width: 520px; }
+.xv-stage-poster { animation: xv-crossfade 500ms var(--xv-ease-out) both; }
 @keyframes xv-crossfade { from { opacity: 0; } to { opacity: 1; } }
 /* With the live 3D stack, the stage drawing steps aside. */
 .xv-root[data-live] .xv-stage-poster { visibility: hidden; }
+.xv-stage-poster .xv-stack { display: block; }
 
 /* The last section can reach the middle of the viewport, so the stack settles there. */
 @media (min-width: 1024px) { .xv-contact { padding-bottom: 46vh; } }
@@ -269,4 +270,23 @@
 @media (prefers-reduced-motion: reduce) {
   .xv-stage-poster { animation-duration: 200ms; }
   .xv-copy-icon > * { transition: opacity 120ms ease; transform: none !important; }
+}
+
+/* ---------- Route changes and case entrance ---------- */
+/* Moving between the homepage and a case crossfades (View Transitions), instead of a hard swap. */
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: 320ms; animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1); }
+/* The question is readable on the first frame; the rest of the case settles in once, briefly (brief: opacity + 8 px, 400 ms). */
+@media (prefers-reduced-motion: no-preference) {
+  .xv-context > div, .xv-case-text > section, .xv-eng, .xv-case-figure { animation: xv-settle 400ms var(--xv-ease-out) both; }
+  .xv-context > div:nth-child(2) { animation-delay: 50ms; }
+  .xv-context > div:nth-child(3) { animation-delay: 100ms; }
+  .xv-context > div:nth-child(4) { animation-delay: 150ms; }
+  .xv-case-figure { animation-delay: 120ms; }
+  .xv-case-text > section:nth-child(1) { animation-delay: 160ms; }
+  .xv-case-text > section:nth-child(2) { animation-delay: 210ms; }
+  .xv-case-text > section:nth-child(n + 3), .xv-eng { animation-delay: 260ms; }
+}
+@keyframes xv-settle { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root), ::view-transition-new(root) { animation: none; }
 }

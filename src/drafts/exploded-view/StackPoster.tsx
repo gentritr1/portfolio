@@ -1,5 +1,19 @@
 import { layers, type LayerId } from './data'
 
+type P = number[]
+/** A rhombus with each corner rounded by `k` of its side, like the 3D plates (radius 0.32 on a 4-unit plate). */
+function roundedRhombus(t: P, r: P, b: P, l: P, k = 0.08) {
+  const pts = [t, r, b, l]
+  const lerp = (a: P, c: P, f: number) => [a[0] + (c[0] - a[0]) * f, a[1] + (c[1] - a[1]) * f]
+  let d = ''
+  pts.forEach((v, i) => {
+    const prev = pts[(i + 3) % 4], next = pts[(i + 1) % 4]
+    const a = lerp(v, prev, k), c = lerp(v, next, k)
+    d += `${i === 0 ? 'M' : 'L'}${a[0].toFixed(2)},${a[1].toFixed(2)} Q${v[0]},${v[1]} ${c[0].toFixed(2)},${c[1].toFixed(2)} `
+  })
+  return d + 'Z'
+}
+
 /**
  * The exploded stack as a technical drawing: five thin layers in isometric view, hairline edges,
  * dashed alignment lines between corners, and labels on leader lines. It is the motion-off and
@@ -8,7 +22,7 @@ import { layers, type LayerId } from './data'
 export function StackPoster({ lit = [], compact = false, title }: { lit?: LayerId[]; compact?: boolean; title?: string }) {
   const w = compact ? 46 : 150
   const h = w * 0.5
-  const gap = compact ? 15 : 56
+  const gap = compact ? 15 : 44
   const cx = compact ? 56 : 190
   const top = compact ? 30 : 100
   const width = compact ? 112 : 520
@@ -28,7 +42,7 @@ export function StackPoster({ lit = [], compact = false, title }: { lit?: LayerI
         const on = lit.includes(layer.id)
         return (
           <g key={layer.id} className="xv-layer" data-on={on || undefined}>
-            <polygon points={`${c.t.join(',')} ${c.r.join(',')} ${c.b.join(',')} ${c.l.join(',')}`} />
+            <path d={roundedRhombus(c.t, c.r, c.b, c.l)} />
             {!compact && (
               <>
                 <line className="xv-leader" x1={c.r[0]} y1={c.r[1]} x2={c.r[0] + 64} y2={c.r[1]} />
@@ -62,7 +76,7 @@ export function CaseDiagram({ items, title }: { items: { title: string; stack: s
         const p = c(i)
         return (
           <g key={item.title} className="xv-layer" data-on="">
-            <polygon points={`${p.t.join(',')} ${p.r.join(',')} ${p.b.join(',')} ${p.l.join(',')}`} />
+            <path d={roundedRhombus(p.t, p.r, p.b, p.l)} />
             <line className="xv-leader" x1={p.r[0]} y1={p.r[1]} x2={p.r[0] + 34} y2={p.r[1]} />
             <text x={p.r[0] + 42} y={p.r[1] - 10}>
               <tspan className="xv-layer-no">{String(i + 1).padStart(2, '0')}</tspan> {item.title}

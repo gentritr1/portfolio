@@ -46,9 +46,12 @@ export default function Draft() {
   const hostRef = useRef<HTMLDivElement>(null)
   const figureRef = useRef<HTMLElement>(null)
   const stageRef = useRef<HTMLElement>(null)
+  /** The stage drawing's frame: the 3D lines up with the drawing it replaces. */
+  const stageFrameRef = useRef<HTMLDivElement>(null)
   const badgeRef = useRef<HTMLSpanElement>(null)
   const labelRefs = useRef<(HTMLSpanElement | null)[]>([])
   const sceneRef = useRef<StackScene | null>(null)
+  const previewTimer = useRef(0)
   const scrollState = useRef<SceneState>('hero')
   const [live, setLive] = useState(false)
   const [labelsOn, setLabelsOn] = useState(false)
@@ -57,7 +60,7 @@ export default function Draft() {
 
   // The 3D stack replaces the drawing once compiled; with reduced motion or no WebGL the drawings stay.
   useEffect(() => {
-    const host = hostRef.current, anchor = figureRef.current, theme = rootRef.current
+    const host = hostRef.current, anchor = figureRef.current?.querySelector<HTMLElement>('.xv-stack') ?? null, theme = rootRef.current
     if (caseSlug || !host || !anchor || !theme || !canUse3d()) return
     let stack: StackScene
     try {
@@ -85,10 +88,11 @@ export default function Draft() {
     const apply = (state: SceneState) => {
       scrollState.current = state
       setShown(state)
-      const scene = sceneRef.current, stage = stageRef.current, figure = figureRef.current
+      const scene = sceneRef.current, stage = stageRef.current, frame = stageFrameRef.current
+      const figure = figureRef.current?.querySelector<HTMLElement>('.xv-stack')
       if (!scene || !figure) return
-      const hasStage = !!stage && stage.offsetParent !== null
-      scene.setAnchor(state === 'hero' || !hasStage ? figure : stage)
+      const hasStage = !!stage && !!frame && stage.offsetParent !== null
+      scene.setAnchor(state === 'hero' || !hasStage ? figure : frame)
       scene.setState(hasStage ? state : 'hero')
     }
     const io = new IntersectionObserver((entries) => {
@@ -106,6 +110,7 @@ export default function Draft() {
   }, [caseSlug, live])
 
   useEffect(() => { sceneRef.current?.setHoverLayer(hoverLayer) }, [hoverLayer])
+  useEffect(() => () => clearTimeout(previewTimer.current), [])
 
   // "All work" from a case returns to the work list, not the top of the page.
   useEffect(() => {
@@ -115,14 +120,20 @@ export default function Draft() {
   }, [caseSlug, routeLocation.state])
 
   // Hovering or focusing a case card previews its state at half strength; leaving returns to the scroll state.
+  // A short intent delay, so sweeping the mouse across the cards does not flicker through their states.
   const preview = (state: SceneState | null) => {
-    const scene = sceneRef.current, stage = stageRef.current
-    if (!scene || !stage || stage.offsetParent === null) return
+    clearTimeout(previewTimer.current)
+    previewTimer.current = window.setTimeout(() => applyPreview(state), state ? 140 : 90)
+  }
+  const applyPreview = (state: SceneState | null) => {
+    const scene = sceneRef.current, stage = stageRef.current, frame = stageFrameRef.current
+    const figure = figureRef.current?.querySelector<HTMLElement>('.xv-stack')
+    if (!scene || !stage || !frame || stage.offsetParent === null) return
     if (state && state !== scrollState.current) {
-      scene.setAnchor(stage)
+      scene.setAnchor(frame)
       scene.setState(state, 0.5)
     } else {
-      scene.setAnchor(scrollState.current === 'hero' && figureRef.current ? figureRef.current : stage)
+      scene.setAnchor(scrollState.current === 'hero' && figure ? figure : frame)
       scene.setState(scrollState.current, 1)
     }
   }
@@ -201,7 +212,7 @@ export default function Draft() {
                         <p className="xv-tags xv-mono" aria-label="Layers">
                           {c.layers.map((id) => layers.find((l) => l.id === id)?.name).join(' / ')}
                         </p>
-                        <Link className="xv-link" to={`/drafts/exploded-view/${c.slug}`}>
+                        <Link className="xv-link" to={`/drafts/exploded-view/${c.slug}`} viewTransition>
                           Read the case
                           <ArrowRightIcon size={14} weight="bold" aria-hidden="true" />
                         </Link>
@@ -213,7 +224,7 @@ export default function Draft() {
                 <ul className="xv-more">
                   {moreCases.map((m) => (
                     <li key={m.slug}>
-                      <Link to={`/drafts/exploded-view/${m.slug}`}>
+                      <Link to={`/drafts/exploded-view/${m.slug}`} viewTransition>
                         <StackPoster lit={m.layers} compact />
                         <span className="xv-more-q">{m.question}</span>
                         <ArrowRightIcon className="xv-more-arrow" size={14} weight="bold" aria-hidden="true" />
@@ -304,8 +315,10 @@ export default function Draft() {
             {/* The stage: the 3D stack lives here beside the sections. Without WebGL or with reduced motion it
                 shows the matching static drawing, crossfaded per section. */}
             <aside className="xv-stage" ref={stageRef} aria-hidden="true">
-              <div className="xv-stage-poster" key={shown}>
-                <StackPoster lit={STATE_LIT[shown] ?? []} />
+              <div className="xv-stage-frame" ref={stageFrameRef}>
+                <div className="xv-stage-poster" key={shown}>
+                  <StackPoster lit={STATE_LIT[shown] ?? []} />
+                </div>
               </div>
             </aside>
           </main>
