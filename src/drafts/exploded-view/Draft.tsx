@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { ArrowRightIcon, CopyIcon, CheckIcon, DownloadSimpleIcon } from '@phosphor-icons/react'
 import { StackPoster } from './StackPoster'
-import { alsoShipped, cases, howIWork, lab, layers, links } from './data'
+import { alsoShipped, cases, howIWork, lab, labLesson, layers, links } from './data'
 import './exploded-view.css'
 
 /**
@@ -28,7 +28,7 @@ export default function Draft() {
           <p className="xv-role">Frontend &amp; Full-Stack Developer · Healthcare &amp; Mobile</p>
           <h1 className="xv-tagline">I build clear software where clarity matters.</h1>
           <p className="xv-lede">5+ years shipping web and mobile products, from first screen to store release.</p>
-          <p className="xv-meta xv-mono">Kosovo · Remote · CET</p>
+          <p className="xv-meta xv-mono">Kosovo · CET · Open to remote, full-time</p>
           <div className="xv-actions">
             <a className="xv-btn xv-btn-primary" href={links.cv} download>
               <DownloadSimpleIcon size={16} weight="bold" aria-hidden="true" />
@@ -111,6 +111,7 @@ export default function Draft() {
               </li>
             ))}
           </ul>
+          <p className="xv-lab-learned"><span className="xv-mono">What these taught me</span> {labLesson}</p>
         </section>
 
         <section className="xv-section" aria-labelledby="xv-how-h">

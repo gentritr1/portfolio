@@ -1,7 +1,7 @@
 /**
  * Content for Exploded View. Every result line comes from CONTENT.md, projects.ts, caseNarratives.ts
  * or THE LOOP's sourced data. Bracketed values from the brief that the repo cannot answer are left out
- * (open-to roles, client-organization counts, Lab "what I learned" lines), never filled with examples.
+ * (client-organization counts, screen counts), never filled with examples.
  */
 import { links } from '../../content/links'
 
@@ -108,6 +108,9 @@ export const lab: LabItem[] = [
     link: { label: 'Website', href: 'https://za-game.vercel.app/' },
   },
 ]
+
+/** The owner's own lesson from shipping the side projects end to end (2026-10-11). */
+export const labLesson = 'Shipping these end to end, from deployment and backends on Neon and Render to the WebSocket server behind Za!, taught me to see a product as one stack, from the first commit to production.'
 
 /** The owner's own four sentences, from the brief. */
 export const howIWork = [
