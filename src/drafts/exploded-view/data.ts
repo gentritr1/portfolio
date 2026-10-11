@@ -69,7 +69,7 @@ export const cases: Case[] = [
   },
 ]
 
-export const alsoShipped = 'Also shipped: a video-learning platform with live streaming and Arabic right-to-left, a Web3 smart wallet, and an AI business dashboard.'
+export const alsoShipped = 'Also shipped: an AI business dashboard (headshot generation and chat with uploaded PDFs) and a donations app with Stripe subscriptions.'
 
 export interface LabItem {
   name: string
