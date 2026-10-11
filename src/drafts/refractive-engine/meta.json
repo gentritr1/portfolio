@@ -1,0 +1,8 @@
+{
+  "id": "refractive-engine",
+  "title": "The Refractive Engine",
+  "band": "Experimental",
+  "description": "Frontend engineering as an optical lens: a latent particle field that snaps into a page layout wherever the cursor looks, with eight projects as glass prisms that split into their real layers.",
+  "signature": "One Points draw of up to 100k particles positioned in the vertex shader; a screen-space cursor lens snaps them onto a UI wireframe with a chromatic ring in post, and every HUD number is read from the live renderer.",
+  "caseSlug": "care-platform"
+}
