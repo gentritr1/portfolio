@@ -79,6 +79,22 @@
 .xv-layer-no { font-family: var(--xv-mono); font-size: 11px; fill: var(--xv-muted); }
 .xv-stack-compact { width: 112px; flex: none; }
 
+/* ---------- 3D layer ---------- */
+/* One canvas, fixed behind the page; the scene draws the stack where the hero figure sits. */
+.xv-canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: 0; transition: opacity 600ms var(--xv-ease-out); }
+.xv-canvas canvas { display: block; width: 100% !important; height: 100% !important; }
+.xv-root[data-live] .xv-canvas { opacity: 1; }
+.xv-root[data-live] .xv-hero-figure .xv-stack { opacity: 0; }
+.xv-hero-figure .xv-stack { transition: opacity 600ms var(--xv-ease-out); }
+.xv-3d-labels > span {
+  position: absolute; top: 0; left: 0; white-space: nowrap; font: 500 15px var(--xv-sans); color: var(--xv-ink);
+  opacity: 0; transition: opacity 400ms var(--xv-ease-out); transition-delay: calc(var(--i) * 50ms);
+}
+.xv-3d-labels .xv-layer-no { font: 400 11px var(--xv-mono); color: var(--xv-muted); margin-right: 4px; }
+.xv-3d-labels[data-on] > span { opacity: 1; }
+@media (max-width: 520px) { .xv-3d-labels > span { font-size: 12.5px; } .xv-3d-labels .xv-layer-no { font-size: 9.5px; } }
+.xv-hero, .xv-root main { position: relative; z-index: 1; }
+
 /* ---------- Hero ---------- */
 .xv-hero {
   display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: clamp(24px, 4vw, 64px); align-items: center;

@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { ArrowRightIcon, CopyIcon, CheckIcon, DownloadSimpleIcon } from '@phosphor-icons/react'
 import { StackPoster } from './StackPoster'
+import { createStack } from './scene'
 import { alsoShipped, cases, howIWork, lab, labLesson, layers, links } from './data'
 import './exploded-view.css'
 
@@ -8,7 +9,37 @@ import './exploded-view.css'
  * Exploded View, step 2 of the brief's process: the static, motion-off homepage, to judge content and
  * layout alone. The 3D stack and its scene states come next, after review.
  */
+function canUse3d() {
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return false
+  try {
+    const c = document.createElement('canvas')
+    return !!(c.getContext('webgl2') || c.getContext('webgl'))
+  } catch {
+    return false
+  }
+}
+
 export default function Draft() {
+  const rootRef = useRef<HTMLDivElement>(null)
+  const hostRef = useRef<HTMLDivElement>(null)
+  const figureRef = useRef<HTMLElement>(null)
+  const labelRefs = useRef<(HTMLSpanElement | null)[]>([])
+  const [live, setLive] = useState(false)
+  const [labelsOn, setLabelsOn] = useState(false)
+
+  // The 3D stack replaces the drawing once it is compiled; with reduced motion or no WebGL the drawing stays.
+  useEffect(() => {
+    const host = hostRef.current, anchor = figureRef.current, theme = rootRef.current
+    if (!host || !anchor || !theme || !canUse3d()) return
+    let stack: ReturnType<typeof createStack> | null = null
+    try {
+      stack = createStack(host, { anchor, theme, labels: labelRefs.current, small: innerWidth < 768, onReady: () => setLive(true), onOpen: () => setLabelsOn(true) })
+    } catch {
+      return
+    }
+    return () => stack?.dispose()
+  }, [])
+
   const [copied, setCopied] = useState(false)
   const copy = async () => {
     try {
@@ -21,7 +52,16 @@ export default function Draft() {
   }
 
   return (
-    <div className="xv-root">
+    <div className="xv-root" ref={rootRef} data-live={live || undefined}>
+      <div className="xv-canvas" ref={hostRef} aria-hidden="true">
+        <div className="xv-3d-labels" data-on={labelsOn || undefined}>
+          {layers.map((l, i) => (
+            <span key={l.id} ref={(el) => { labelRefs.current[i] = el }} style={{ '--i': i } as CSSProperties}>
+              <span className="xv-layer-no">{String(i + 1).padStart(2, '0')}</span> {l.name}
+            </span>
+          ))}
+        </div>
+      </div>
       <header className="xv-hero">
         <div className="xv-hero-text">
           <p className="xv-name">Gentrit Rashiti</p>
@@ -39,7 +79,7 @@ export default function Draft() {
             <a className="xv-btn xv-btn-quiet" href={links.linkedin} target="_blank" rel="noreferrer">LinkedIn<span className="xv-sr"> (opens in a new tab)</span></a>
           </div>
         </div>
-        <figure className="xv-hero-figure">
+        <figure className="xv-hero-figure" ref={figureRef}>
           <StackPoster title="One product in exploded view: interface, mobile, API and services, data, and quality, stacked and labelled." />
           <figcaption className="xv-mono">The work, in five layers</figcaption>
         </figure>
