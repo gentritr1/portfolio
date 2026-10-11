@@ -214,6 +214,11 @@
   background: #f1ff6b;
   color: #251a2c;
 }
+/* A dark draft opens on its own ground, so the first frame is not a flash of yellow. */
+.draft-loading[data-draft="event-horizon"] {
+  background: #050508;
+  color: #9894b3;
+}
 @media (max-width: 700px) {
   .draft-picker-intro {
     grid-template-columns: 1fr;

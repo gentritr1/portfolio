@@ -49,7 +49,9 @@ export type Plate =
       /** Two bars to scale: the whole before, and the part that is left now. */
       share?: Share;
     }
-  | { kind: "flow"; steps: Step[]; back: Back };
+  | { kind: "flow"; steps: Step[]; back: Back }
+  /** A phone held sideways like a wheel, rocking in front of a game screen that banks with it. */
+  | ({ kind: "tilt"; note: string } & Shot);
 
 export interface Share {
   before: string;
@@ -642,6 +644,128 @@ export const caseCopy: Record<string, CaseCopy> = {
     ],
     builtWith:
       "Next.js 14 with the App Router, React 18, TypeScript, Redux Toolkit and RTK Query, next-intl, Framer Motion, Tailwind, ApexCharts.",
+  },
+
+  futurisma: {
+    title: "A browser racing game, built by one person and an AI\u00a0crew.",
+    sentence:
+      "Futurisma is a hover racer with nine circuits that change while you race, and a garage that turns winnings into faster craft.",
+    role: "Owner; directs an AI crew",
+    platforms: "Web browser",
+    stage: "#141b33",
+    plates: [
+      {
+        kind: "web",
+        bar: { label: "Futurisma · Frostline, autopilot demo", tone: "dark" },
+        name: "Frostline",
+        ...desktop(
+          "/personal/shots/futurisma-frostline-1.webp",
+          "Futurisma on Frostline, Map 09: the hover craft races a snowy mountain road through a lit village at midnight, autopilot demo",
+        ),
+        more: [
+          {
+            name: "Christmas square",
+            ...desktop(
+              "/personal/shots/futurisma-frostline-2.webp",
+              "Futurisma on Frostline: the road enters the Christmas square under a clock tower and a FROSTLINE / MIDNIGHT RUN arch, autopilot demo",
+            ),
+          },
+          {
+            name: "Frosted forest",
+            ...desktop(
+              "/personal/shots/futurisma-frostline-3.webp",
+              "Futurisma on Frostline: a snowy curve through the frosted forest, with darker cleared tracks to follow, autopilot demo",
+            ),
+          },
+          {
+            name: "Garage",
+            ...desktop(
+              "/personal/shots/futurisma-garage.webp",
+              "Futurisma garage, FLEET tab: the TOTEM craft in the works bay, its ratings head to head, and five more frames to buy with race credits",
+            ),
+          },
+        ],
+      },
+      {
+        kind: "flow",
+        steps: [
+          { name: "Brief", note: "A planning Claude reads the code and writes the plan" },
+          { name: "Build", note: "A building Claude codes; Codex models in Blender" },
+          { name: "Re-run", note: "The planner re-runs the tests, never just reads the report" },
+          { name: "Decide", note: "Gentrit judges taste and fun, then commits", person: true },
+        ],
+        back: { from: 2, to: 1, label: "A test fails: back to the builder" },
+      },
+      {
+        kind: "tilt",
+        note: "Tilt to steer, or touch. Paired by QR over the local Wi-Fi.",
+        ...desktop(
+          "/personal/shots/futurisma-frostline-1.webp",
+          "A phone held sideways like a steering wheel tilts left and right, and the Frostline race behind it banks with it",
+        ),
+      },
+    ],
+    captions: [
+      "Frostline, autopilot demo, captured at 1440 × 900.",
+      "How each phase was built and checked.",
+      "Steer with a phone.",
+    ],
+    parts: [
+      {
+        heading: "The product",
+        text: "A hover racer with an early-2000s console look. Nine circuits each change during the race: a squall, a tide, a rocket launch, a clock that turns day to night. Frostline, Map 09, runs through a mountain village at midnight, where cyan stabilisers on the road restore grip in the snow.",
+        proof: "Nine circuits, three formats, three rival paces.",
+        plate: 0,
+        target: { kind: "shot", box: { x: 1117, y: 760, w: 287, h: 112 } },
+        narrow: "plate",
+      },
+      {
+        heading: "How it is built",
+        text: "Gentrit directs a crew with strict jobs. A planning Claude writes each brief and checks the result by re-running its tests. A building Claude writes the code and never commits. Codex models in Blender, and Higgsfield makes reference pictures, textures, skies and sound. Dream Island, Map 07, was built this way in one week.",
+        proof: "Every phase was checked by running it again.",
+        plate: 1,
+        target: { kind: "figure" },
+        narrow: "plate",
+      },
+      {
+        heading: "What was built",
+        text: "Pick up an iPhone and it becomes the controller: scan a QR code, hold the phone sideways like a wheel and tilt it to steer, or use the touch pads. Steering is read from the gravity vector and tuned after playtests to 40° full lock. A garage pays for each race and sells frames, parts and paint, each with its own Blender body.",
+        proof: "Phone steering runs in the development build only.",
+        plate: 2,
+        target: { kind: "figure" },
+        narrow: "plate",
+      },
+      {
+        heading: "The result",
+        text: "All nine circuits race against rivals or a ghost, and an autopilot demo drives any of them. More than seventy validators check routes, budgets, saves and sound. On Frostline, one terrain mesh took floating props from 1,397 to 0. Racing is local; online play is not built.",
+        proof: "1,397 floating props to 0, measured by the same audit.",
+        plate: 0,
+        target: { kind: "figure" },
+      },
+    ],
+    figures: [
+      { value: "9", label: "Circuits" },
+      { value: "1", label: "Week to build Dream Island" },
+      { value: "1,397", to: "0", label: "Floating props on Frostline" },
+    ],
+    short: [
+      "A hover racer that runs in the browser",
+      "Nine circuits, including Dream Island and Frostline",
+      "Steer by tilting a phone, paired by QR (dev build)",
+      "A garage: winnings buy frames, parts and paint",
+      "Scenery built in Blender from Python scripts",
+      "Planning and building Claudes, Codex and Higgsfield",
+      "Every phase checked by re-running its tests",
+      "Local racing against AI or ghosts; no online play",
+    ],
+    builtWith: "Three.js, TypeScript, Vite, Blender with Python build scripts, Web Audio.",
+    engineering: [
+      "Numbers are measured, not typed: Dream Island's clock strike is 2.05 laps of an autopilot-timed lap, and the schedule file is generated from that recording.",
+      "Budgets are enforced by validators: Dream Island uses 94 of 110 draw calls at worst and 157,650 of 180,000 triangles.",
+      "A rendering probe checks which texture square each object samples; it caught a flipped atlas that had shipped twice before.",
+      "Phone controller: the phone POSTs pad state over HTTP/2 to a relay in the Vite dev server, which pushes it to the game over Server-Sent Events; a per-run 128-bit token from the QR guards every request.",
+      "Frostline's terrain is one 29,040-triangle heightfield that follows the road; every grounded prop is audited against the snow below it.",
+    ],
   },
 };
 

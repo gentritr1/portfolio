@@ -30,6 +30,7 @@ import {
   leadPhone,
   leadWeb,
   offday,
+  futurisma,
   screenColours,
   type Card,
   type Concept,
@@ -1519,6 +1520,7 @@ export default function Draft() {
               </div>
               <ol className="k2-rows">
                 <WorkRow row={offday} />
+                <WorkRow row={futurisma} />
                 {stacked ? (
                   concepts.map((c) => (
                     <li key={c.id} className="k2-row" data-shape="wide">
