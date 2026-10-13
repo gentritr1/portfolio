@@ -161,6 +161,8 @@ export function Boards({
               .map((i) => {
                 const slot = slotOf(i, index, count);
                 const front = slot === 0;
+                // A relative url() in a custom property resolves against the stylesheet that reads it, not the page.
+                const mirrorSrc = new URL(boards[i].small, document.baseURI).href;
                 return (
                   <div key={i} className="bd-card" data-slot={slot} aria-hidden={front ? undefined : true}>
                     <span className="bd-glass">
@@ -189,7 +191,7 @@ export function Boards({
                         />
                       )}
                     </span>
-                    <span className="bd-mirror" style={{ "--m-src": `url("${boards[i].small}")` } as CSSProperties} />
+                    <span className="bd-mirror" style={{ "--m-src": `url("${mirrorSrc}")` } as CSSProperties} />
                   </div>
                 );
               })}
