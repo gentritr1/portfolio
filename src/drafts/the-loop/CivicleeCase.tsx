@@ -12,7 +12,6 @@ const listings = [
   { src: `${STORE}store-home.webp`, alt: "CivicLee App Store image: Your coaching hub at a glance, with the home screen and one card for each week, three of them marked Completed." },
   { src: `${STORE}store-week-1.webp`, alt: "CivicLee App Store image: Track and complete your goals effortlessly, with the Week 1 screen: a worksheet, two videos, the week's action steps and office hours." },
   { src: `${STORE}store-week-2.webp`, alt: "CivicLee App Store image: Meet deadlines with ease, with the Week 2 screen and a deadline note under the week's action steps." },
-  { src: `${STORE}store-chat.webp`, alt: "CivicLee App Store image: Connect and grow together, with a cohort group chat." },
 ];
 
 const links = [
@@ -64,10 +63,10 @@ export function CivicleeCase() {
         <figure className="lp-wrap lp-case-shot">
           <div className="lp-store-row" data-reveal="">
             {listings.map((l, i) => (
-              <img key={l.src} src={l.src} alt={l.alt} width={1242} height={2208} loading={i < 3 ? "eager" : "lazy"} decoding="async" />
+              <img key={l.src} src={l.src} alt={l.alt} width={1242} height={2208} loading={i < 2 ? "eager" : "lazy"} decoding="async" />
             ))}
           </div>
-          <figcaption className="lp-caption">The five images of the App Store listing.</figcaption>
+          <figcaption className="lp-caption">Four images of the App Store listing.</figcaption>
         </figure>
       </header>
 
