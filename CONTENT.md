@@ -227,6 +227,7 @@ Render as a compact, scannable index (not cards): grouped by employer, each row 
 | Chatbot runtime, web port | 2025 | Frontend | React 19, TypeScript, Vite, Zustand | TypeScript web version of the chatbot runtime, with an example app | — |
 | EPUB reader prototype | 2022 | Mobile | React Native, epub.js | Downloads, renders and resizes an EPUB; the start of the reading app's reader | — |
 | Sadaqah app for Islamic Relief USA (named, owner 2026-10-04) | 2021 – 2022 | Mobile, team member | React Native, Redux Toolkit, Stripe, Firebase | Donations and subscriptions with Stripe, badges, guided tasks and video. Owner's part (git, 60 of 184 commits): payment and subscription screens incl. cancel, badges, in-app web views, Android builds. No longer in the stores and no archived listing, so no screenshots; abstract thumbnail only | — |
+| CivicLee (named, owner 2026-10-13; featured case /civiclee) | 2022 – 2024 | Mobile | React Native, Redux Toolkit, React Navigation, Expo AV, Firebase Messaging | Coaching app for a leadership program: weekly tasks, worksheets, articles, podcasts, video. Owner's part (git, Bitbucket zombiesoup/lee-mobile-app, 661 of 1,022 commits, 2022-09-05 to 2024-05-30): started the app from an empty React Native template; sign-up with confirmation code, onboarding, tasks, worksheets, article reader, podcast player, video, push notifications. Teammates: chat, cohorts, town hall, inbox, delete account. Public on the App Store (id1496597338, seller Vianova Health Inc., version 2.0 on 2024-03-21) and Google Play (com.educationalequity.rosie); closed to program members. Images: 4 of the 5 App Store listing images, shown whole; the chat image is left out because teammates built the chat. The web "Member portal" row below is the same product (civic-lee-web-app) | /civiclee |
 | Coaching app | 2022 – 2023 | Mobile | React Native, Redux Toolkit, React Navigation | Organization sign-in, a daily calendar strip, reactions, and dev, staging and release builds | — |
 | Member portal, web | 2025 | Frontend | Next.js 15, TypeScript, RTK Query, next-intl, Pusher | Member portal foundation: protected routes, external sign-in, app shell and layout | — |
 | Grocery shopping and loyalty app | 2023 | Mobile | React Native, Redux Toolkit, Maps, Firebase | Online grocery orders with delivery slots, loyalty, wishlist and address search on a map | #reading |
@@ -246,6 +247,7 @@ Render as a compact, scannable index (not cards): grouped by employer, each row 
 | Open-source forks | 2022 | Maintainer | React Native | Forks of epubjs-react-native and react-native-pdf, used in a production reading app | #personal |
 | Geo Guesser World 3D | 2026 | Mobile · co-built | Expo, React Native, MapLibre, Mapillary | Street-view guessing game, published on Google Play | — |
 | FJALË | 2026 | Owner | Vanilla JS, PWA | Daily Albanian word game, 21k-word dictionary, archive, offline play; live on the web | — |
+| Tondo (owner 2026-10-13) | 2026 | Owner | Node, WebSocket, PostgreSQL | Pizza card game for 2–4 players around a round table, server-authoritative with bots and saved crews; live at https://tondo.onrender.com/ (Render free plan, sleeps when idle); repo https://github.com/gentritr1/tondo, 77 commits, all the owner's | — |
 | Za! | 2026 | Owner | Node, WebSocket | Multiplayer pizza card game for 2–8 players, server-authoritative with bots; live | — |
 | Morse Trainer | 2026 | Owner | JavaScript | Morse-code learning game with spaced repetition and Farnsworth timing; live | — |
 | Futurisma | 2026 | Owner | Three.js, TypeScript, Blender | Hover racer with seven circuits and weather, tide and day-night systems | — |
@@ -257,7 +259,7 @@ Voice rule (owner, 2026-10-02): every project text is an overview: what the prod
 
 Frontend: React, Next.js, Vue, Nuxt, TypeScript, Tailwind
 Mobile: React Native, iOS, Android
-Backend: Laravel / PHP, Python / FastAPI, MySQL, Redis
+Backend: Node.js, Laravel / PHP, MySQL, PostgreSQL, MongoDB, Redis
 Quality: Playwright, Vitest, Pest, CI/CD
 Services: Stripe, Firebase, AWS IVS, Twilio, Pusher
 Localization: multi-language, Arabic RTL

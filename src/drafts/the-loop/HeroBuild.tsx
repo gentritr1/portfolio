@@ -1,11 +1,11 @@
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from "react";
 import { BrowserFrame } from "../../components/BrowserFrame";
 import { onPointer } from "./cursor";
-import { APPROVED_AT, BUILD_DONE, CHECKS_AT, checkRows, H, pieces, testFile, testLines, W, WEEK, WEEK_SMALL, type Piece } from "./data";
+import { APPROVED_AT, BUILD_DONE, CHECKS_AT, checkRows, H, pieces, PRESS, testFile, testLines, W, WEEK, WEEK_SMALL, type Piece } from "./data";
 import { Replay } from "./icons";
 import { useLights } from "./LampMark";
 import { useReducedMotion } from "./hooks";
-import { MOVE, OUT, ROOM_QUERY, sheen, SHEEN_AFTER } from "./room";
+import { OUT, ROOM_QUERY, sheen, SHEEN_AFTER } from "./room";
 import { Seal } from "./Seal";
 import "./hero.css";
 
@@ -35,56 +35,140 @@ export function pieceStyle(p: Piece): CSSProperties {
   } as CSSProperties;
 }
 
+type Stop = { press: number; piece: number; fx: number; fy: number };
+
 /**
- * Three agents place the parts of the screen. Each stop is a piece of `pieces` and a point in its box (0 to 1 of the
- * box's width and height); the agent presses there when the piece starts to appear. No stop is right of Thursday,
- * so a name label stays inside a 343 px screen.
+ * Three agents place the parts of the screen. A stop is a point in a piece's box (0 to 1 of its width and height) and
+ * the press there, which starts the parts of that stop (`PRESS` in data.ts). No stop is right of Thursday, so a name
+ * label stays inside a 343 px screen. `from` is where the agent comes in from, in capture pixels from its first stop.
  */
-const agents: Array<{ name: string; tone: string; stops: Array<[number, number, number]> }> = [
+const agents: Array<{ name: string; tone: string; from: [number, number]; stops: Stop[] }> = [
   {
     name: "Agent · grid",
     tone: "grid",
+    from: [300, 240],
     stops: [
-      [0, 0.5, 0.12],
-      [4, 0.5, 0.14],
-      [9, 0.3, 0.12],
+      { press: PRESS.sidebar, piece: 0, fx: 0.5, fy: 0.12 },
+      { press: PRESS.grid, piece: 5, fx: 0.4, fy: 0.37 },
     ],
   },
   {
     name: "Agent · filters",
     tone: "filters",
+    from: [240, 300],
     stops: [
-      [2, 0.1, 0.78],
-      [3, 0.22, 0.5],
+      { press: PRESS.toolbar, piece: 2, fx: 0.4, fy: 0.75 },
+      { press: PRESS.dayRow, piece: 3, fx: 0.55, fy: 0.5 },
     ],
   },
   {
     name: "Agent · events",
     tone: "events",
+    from: [420, -60],
     stops: [
-      [12, 0.3, 0.5],
-      [21, 0.3, 0.5],
-      [29, 0.3, 0.5],
-      [35, 0.3, 0.5],
+      { press: PRESS.eventsA, piece: 12, fx: 0.35, fy: 0.5 },
+      { press: PRESS.eventsB, piece: 21, fx: 0.3, fy: 0.5 },
     ],
   },
 ];
 
-/** The agents leave when the last piece has appeared. */
+/** The agents leave together when the last piece has appeared, before the checks fill. */
 const LEAVE_AT = Math.max(...pieces.map((p) => p.at + p.len));
-const LEAVE_MS = 200;
-/** An agent arrives this long before its press, and comes on screen this long before its first stop. */
-const SETTLE = 40;
-const ENTER_MS = 220;
-const PRESS_IN = 50;
+const LEAVE_MS = 240;
+const ENTER_MS = 600;
+/** An agent stands still this long at a stop before it presses. */
+const REST = 230;
+const PRESS_IN = 70;
 const PRESS_OUT = 120;
+
+/** The y of a CSS cubic-bezier with these control points at time x, by bisection. */
+function bezier(x1: number, y1: number, x2: number, y2: number) {
+  const at = (a: number, b: number, t: number) => 3 * a * t * (1 - t) ** 2 + 3 * b * t * t * (1 - t) + t ** 3;
+  return (x: number) => {
+    let lo = 0;
+    let hi = 1;
+    for (let i = 0; i < 24; i++) {
+      const mid = (lo + hi) / 2;
+      if (at(x1, x2, mid) < x) lo = mid;
+      else hi = mid;
+    }
+    return at(y1, y2, (lo + hi) / 2);
+  };
+}
+const travel = bezier(0.45, 0, 0.2, 1);
+
+/** A move takes longer for a longer way: 500 to 800 ms, by the distance in capture pixels. */
+const moveMs = (distance: number) => Math.max(500, Math.min(800, 380 + distance * 0.32));
+
+/**
+ * One agent's runs: the move along curved paths between its stops, and the press of its arrow tip. A move is a
+ * quadratic curve that bends to one side by a fifth of its length, sampled each 20 ms on a cubic-bezier(0.45, 0, 0.2, 1) ease, so the
+ * WAAPI run between two samples is linear.
+ */
+function cursorRuns(node: HTMLElement, tip: HTMLElement, from: [number, number], stops: Stop[], scale: number) {
+  const points = stops.map(({ piece, fx, fy, press }) => {
+    const p = pieces[piece];
+    return { x: p.x + p.w * fx, y: p.y + p.h * fy, press };
+  });
+  const end = LEAVE_AT + LEAVE_MS;
+  const offset = (ms: number) => Math.min(1, Math.max(0, ms / end));
+  const place = (x: number, y: number) => `translate3d(${(x * scale).toFixed(1)}px, ${(y * scale).toFixed(1)}px, 0)`;
+  const moves: Keyframe[] = [];
+  const curve = (x0: number, y0: number, x1: number, y1: number, start: number, ms: number, fade: boolean) => {
+    const dx = x1 - x0;
+    const dy = y1 - y0;
+    const cx = Math.max(0, Math.min(W, (x0 + x1) / 2 + dy * 0.2));
+    const cy = Math.max(0, Math.min(H, (y0 + y1) / 2 - dx * 0.2));
+    const n = Math.max(2, Math.round(ms / 20));
+    for (let k = 0; k <= n; k++) {
+      const s = travel(k / n);
+      const x = (1 - s) ** 2 * x0 + 2 * s * (1 - s) * cx + s * s * x1;
+      const y = (1 - s) ** 2 * y0 + 2 * s * (1 - s) * cy + s * s * y1;
+      moves.push({ offset: offset(start + (ms * k) / n), transform: place(x, y), opacity: fade ? Math.min(1, (k / n) * 2.2) : 1 });
+    }
+  };
+
+  const first = points[0];
+  const arrive = first.press - PRESS_IN - REST;
+  const enter = Math.max(0, arrive - ENTER_MS);
+  moves.push({ offset: 0, transform: place(first.x + from[0], first.y + from[1]), opacity: 0 });
+  curve(first.x + from[0], first.y + from[1], first.x, first.y, enter, arrive - enter, true);
+  for (let i = 1; i < points.length; i++) {
+    const a = points[i - 1];
+    const b = points[i];
+    const ms = moveMs(Math.hypot(b.x - a.x, b.y - a.y));
+    const reach = b.press - PRESS_IN - REST;
+    const start = Math.max(a.press + PRESS_OUT + 40, reach - ms);
+    curve(a.x, a.y, b.x, b.y, start, reach - start, false);
+  }
+  const last = points[points.length - 1];
+  moves.push(
+    { offset: offset(LEAVE_AT), transform: place(last.x, last.y), opacity: 1, easing: OUT },
+    { offset: 1, transform: place(last.x, last.y), opacity: 0 },
+  );
+
+  const presses: Keyframe[] = [{ offset: 0, transform: "scale(1)" }];
+  for (const p of points) {
+    presses.push(
+      { offset: offset(p.press - PRESS_IN), transform: "scale(1)", easing: OUT },
+      { offset: offset(p.press), transform: "scale(0.92)", easing: OUT },
+      { offset: offset(p.press + PRESS_OUT), transform: "scale(1)" },
+    );
+  }
+  presses.push({ offset: 1, transform: "scale(1)" });
+
+  for (const frames of [moves, presses]) {
+    for (let i = 1; i < frames.length; i++) frames[i].offset = Math.max(frames[i].offset!, frames[i - 1].offset!);
+  }
+  return [node.animate(moves, { duration: end, fill: "both" }), tip.animate(presses, { duration: end, fill: "both" })];
+}
 
 /** The check rows: the leaves of the check profiles by their names in the repo, then the run of one test on both apps. */
 const checks = [...checkRows.filter((row) => !row.once).map((row) => row.cmd), "same test, both apps"];
-const LINE_AT = 240;
-const LINE_STEP = 120;
+const LINE_AT = 300;
+const LINE_STEP = 180;
 const CHECK_STEP = 80;
-const RECEIPT_AT = 300;
+const RECEIPT_AT = 450;
 
 /** How far the pointer moves the two side cards from their resting pose (hero.css). */
 const SWAY = 8;
@@ -108,57 +192,6 @@ function decodeWeek() {
 /** The CSS runs of the cards and the seal around the screen (hero.css, under `data-run`). */
 const loopRuns = (node: HTMLElement) =>
   [...node.querySelectorAll(".hb-side, .hb-seal")].flatMap((part) => part.getAnimations({ subtree: true }));
-
-function cursorRuns(node: HTMLElement, tip: HTMLElement, stops: Array<[number, number, number]>, scale: number) {
-  const point = ([index, fx, fy]: [number, number, number]) => {
-    const p = pieces[index];
-    return { x: Math.round((p.x + p.w * fx) * scale), y: Math.round((p.y + p.h * fy) * scale), at: p.at };
-  };
-  const points = stops.map(point);
-  const end = LEAVE_AT + LEAVE_MS;
-  const at = (ms: number) => Math.min(1, Math.max(0, ms / end));
-  const pose = (x: number, y: number) => `translate3d(${x}px, ${y}px, 0)`;
-
-  const first = points[0];
-  const enterAt = Math.max(0, first.at - SETTLE - ENTER_MS);
-  const moves: Keyframe[] = [
-    { offset: 0, transform: pose(first.x + 36, first.y + 30), opacity: 0 },
-    { offset: at(enterAt), transform: pose(first.x + 36, first.y + 30), opacity: 0, easing: OUT },
-    { offset: at(first.at - SETTLE), transform: pose(first.x, first.y), opacity: 1 },
-  ];
-  for (let i = 1; i < points.length; i++) {
-    const from = points[i - 1];
-    const to = points[i];
-    const arrive = to.at - SETTLE;
-    const distance = Math.hypot(to.x - from.x, to.y - from.y);
-    const travel = Math.max(0, Math.min(arrive - (from.at + PRESS_OUT), Math.max(180, Math.min(360, 160 + distance * 0.5))));
-    moves.push(
-      { offset: at(arrive - travel), transform: pose(from.x, from.y), opacity: 1, easing: MOVE },
-      { offset: at(arrive), transform: pose(to.x, to.y), opacity: 1 },
-    );
-  }
-  const last = points[points.length - 1];
-  moves.push(
-    { offset: at(LEAVE_AT), transform: pose(last.x, last.y), opacity: 1 },
-    { offset: 1, transform: pose(last.x, last.y), opacity: 0 },
-  );
-
-  const presses: Keyframe[] = [{ offset: 0, transform: "scale(1)" }];
-  for (const p of points) {
-    presses.push(
-      { offset: at(p.at - PRESS_IN), transform: "scale(1)", easing: OUT },
-      { offset: at(p.at), transform: "scale(0.92)", easing: OUT },
-      { offset: at(p.at + PRESS_OUT), transform: "scale(1)" },
-    );
-  }
-  presses.push({ offset: 1, transform: "scale(1)" });
-
-  // Two stops closer than a press and a move would give offsets out of order; each offset is kept at or after the last.
-  for (const frames of [moves, presses]) {
-    for (let i = 1; i < frames.length; i++) frames[i].offset = Math.max(frames[i].offset!, frames[i - 1].offset!);
-  }
-  return [node.animate(moves, { duration: end, fill: "both" }), tip.animate(presses, { duration: end, fill: "both" })];
-}
 
 /**
  * The care calendar fills itself from its own capture while three agents place its parts. Around the screen stands
@@ -228,7 +261,7 @@ export function HeroBuild() {
       for (const r of agentRuns.current) r.cancel();
       const scale = (light.current?.parentElement?.clientWidth ?? 0) / W;
       agentRuns.current = [...layer.querySelectorAll<HTMLElement>(".hb-cursor")].flatMap((cursor, i) =>
-        cursorRuns(cursor, cursor.querySelector<HTMLElement>(".hb-cursor-tip")!, agents[i].stops, scale),
+        cursorRuns(cursor, cursor.querySelector<HTMLElement>(".hb-cursor-tip")!, agents[i].from, agents[i].stops, scale),
       );
       for (const r of agentRuns.current) r.pause();
       return;

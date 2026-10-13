@@ -66,18 +66,25 @@ const events: Array<[number, number, number, number]> = [
   [2223, 1720, 314, 80],
 ];
 
-const EVENTS_AT = 1250;
+/**
+ * The moments, in ms from the start of the build, when an agent presses on the screen (HeroBuild.tsx). Each press
+ * starts the parts that agent places. Two presses of one agent are at least about 920 ms apart: the release, a move of
+ * 500 ms or more, and the stop before the press.
+ */
+export const PRESS = { sidebar: 800, grid: 2000, toolbar: 1300, dayRow: 2500, eventsA: 2750, eventsB: 3820 };
+
 /** Each piece runs this far under the piece that paints after it, so no seam of the dark ground shows between them. */
 const OVER = 6;
-const EVENT_STEP = 26;
 const PAD = 3;
+/** Monday's and Tuesday's events drop on the first press of the events agent; Wednesday to Friday on its second. */
+const FIRST_DROP = 9;
 
 export const pieces: Piece[] = [
-  { x: 0, y: 0, w: 472 + OVER, h: H, wipe: "right", at: 150, len: 520 },
-  { x: 472, y: 0, w: W - 472, h: 112 + OVER, wipe: "right", at: 260, len: 480 },
-  { x: 472, y: 112, w: W - 472, h: 304 + OVER, wipe: "down", at: 380, len: 460 },
-  { x: 472, y: 416, w: W - 472, h: 138 + OVER, wipe: "down", at: 560, len: 360 },
-  { x: 472, y: GRID_TOP, w: SUNDAY - 472 + OVER, h: GRID_H, wipe: "down", at: 720, len: 520 },
+  { x: 0, y: 0, w: 472 + OVER, h: H, wipe: "right", at: PRESS.sidebar, len: 600 },
+  { x: 472, y: 0, w: W - 472, h: 112 + OVER, wipe: "right", at: PRESS.sidebar + 120, len: 520 },
+  { x: 472, y: 112, w: W - 472, h: 304 + OVER, wipe: "down", at: PRESS.toolbar, len: 520 },
+  { x: 472, y: 416, w: W - 472, h: 138 + OVER, wipe: "down", at: PRESS.dayRow, len: 420 },
+  { x: 472, y: GRID_TOP, w: SUNDAY - 472 + OVER, h: GRID_H, wipe: "down", at: PRESS.grid, len: 600 },
   ...columns.map(([x, w], i): Piece => ({
     x,
     y: GRID_TOP,
@@ -85,8 +92,8 @@ export const pieces: Piece[] = [
     h: GRID_H,
     ...(i > 0 && i < 6 ? { sx: SUNDAY } : {}),
     wipe: "down",
-    at: 760 + i * 40,
-    len: 520,
+    at: PRESS.grid + 60 + i * 50,
+    len: 600,
   })),
   ...events.map(([x, y, w, h], i): Piece => ({
     x: x - PAD,
@@ -94,15 +101,15 @@ export const pieces: Piece[] = [
     w: w + PAD * 2,
     h: Math.min(h + PAD * 2, H - y + PAD),
     wipe: "drop",
-    at: EVENTS_AT + i * EVENT_STEP,
-    len: 340,
+    at: i < FIRST_DROP ? PRESS.eventsA + i * 45 : PRESS.eventsB + (i - FIRST_DROP) * 35,
+    len: 380,
   })),
-  { x: 1244, y: 1226, w: 338, h: 32, wipe: "right", at: 2120, len: 320 },
+  { x: 1244, y: 1226, w: 338, h: 32, wipe: "right", at: PRESS.eventsB + 450, len: 360 },
 ];
 
-export const CHECKS_AT = 2380;
-export const APPROVED_AT = 2800;
-export const BUILD_DONE = 3250;
+export const CHECKS_AT = 4960;
+export const APPROVED_AT = 5360;
+export const BUILD_DONE = 5800;
 
 /** The same pieces as layers of the exploded view, from back to front. */
 export const layers: Piece[][] = [pieces.slice(4, 12), pieces.slice(1, 4), pieces.slice(0, 1), pieces.slice(12)];
@@ -347,9 +354,39 @@ export const boards: Board[] = [
   },
 ].map((b) => ({ ...b, file: BOARDS + b.file, small: BOARDS + b.small }));
 
+const CARE_BOARDS = "/showcase/care-dashboard/boards/";
+
+/** The four care platform boards, each made from real screens of the new app with invented data (boards.json in the same folder). */
+export const careBoards: Board[] = [
+  {
+    file: "board-01.webp",
+    small: "board-01-1080.webp",
+    title: "Care platform",
+    alt: "Title board. On the left: Care platform, a web app for care teams who follow patients at home, rebuilt in React one tested screen at a time, with three numbers: one working day for one screen from first note to merged, 4 languages, and 2 apps with one test that passes on both. On the right: a tilted wall of real screens of the new app. Invented data.",
+  },
+  {
+    file: "board-02.webp",
+    small: "board-02-1080.webp",
+    title: "Vitals and labs",
+    alt: "The vitals and labs screen for one patient, with the glucose graph open: the latest reading of 146 mg/dL and a 7-day trend line from Sep 26 to Oct 2, with one high reading of 192 mg/dL marked in red. A larger copy shows the trend chart. On the left, the screen also lists blood pressure, heart rate, oxygen, weight and lab results. Invented data.",
+  },
+  {
+    file: "board-03.webp",
+    small: "board-03-1080.webp",
+    title: "Claims that need another look stand out.",
+    alt: "The claims screen for September: counts of draft, approved and finalized claims, filters by month, year, status and program, and a table of claims with programs, CPT codes and status. A larger copy shows two rows: one approved claim marked Needs attention with View and Edit, and one claim marked Transfer Failed with a Retry button. Invented data.",
+  },
+  {
+    file: "board-04.webp",
+    small: "board-04-1080.webp",
+    title: "A care team's week on one calendar.",
+    alt: "The calendar screen for one week in October: six filters, Week, Day and List views, and visits and calls in two colours from Monday to Friday. A larger copy shows Tuesday and Wednesday around noon, with a red line for the current time between an endocrine consult and a primary care visit. Invented data.",
+  },
+].map((b) => ({ ...b, file: CARE_BOARDS + b.file, small: CARE_BOARDS + b.small }));
+
 /** Server lines. Sources: SPEC.md "Facts and sources". */
 export const serverProof = [
-  "Za!: one Node.js server decides every move for 2 to 8 players.",
+  "Za! and Tondo: Node.js game servers decide every move. Tondo keeps its crews in PostgreSQL.",
   "A billing report went from 16 database queries to 2, and it no longer times out.",
   "Patient times now follow the patient's own clock, even when the clocks change.",
 ];
@@ -432,6 +469,18 @@ export const own: Own[] = [
     },
     link: { label: "Website", href: "https://za-game.vercel.app/" },
     engineers: ["The server decides every move", "Node with one runtime dependency, ws", "Table codes and a health endpoint"],
+  },
+  {
+    id: "tondo",
+    name: "Tondo",
+    line: "A pizza card game for 2 to 4 players around a round table, with bots and saved crews.",
+    shot: {
+      src: "/personal/shots/tondo-desktop.webp",
+      small: "/personal/shots/tondo-desktop-1080.webp",
+      alt: "Tondo card game: a round pizza table with three bot players, Carmela, Dominic and Pina, the Cheese 0 card in the middle, and the player's hand of seven cards below, one of them raised as playable.",
+    },
+    link: { label: "Website", href: "https://tondo.onrender.com/" },
+    engineers: ["The server decides every move; Node with ws", "Crews saved in PostgreSQL, with SQL migrations and database tests", "Rate limits for each real client address behind a proxy"],
   },
   {
     id: "morse",

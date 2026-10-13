@@ -6,8 +6,15 @@ import type { ComponentType } from "react";
  */
 export const firstView: { loop: ComponentType | null } = { loop: null };
 
+const LIVE = /^\/(?:(?:workflow|care-platform|design-system|bayyinah-tv|civiclee)\/?)?$/;
+
+/** The live site root and its four pages. */
+export function isLiveLoopPath(path: string) {
+  return LIVE.test(path);
+}
+
 export function isLoopPath(path: string) {
-  return path === "/drafts/the-loop" || path.startsWith("/drafts/the-loop/");
+  return isLiveLoopPath(path) || path === "/drafts/the-loop" || path.startsWith("/drafts/the-loop/");
 }
 
 export function preloadFirstView(): Promise<unknown> {

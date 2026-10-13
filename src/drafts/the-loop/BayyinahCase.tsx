@@ -6,6 +6,7 @@ import { Flap } from "./Flap";
 import { Slab } from "./Slab";
 import { useReveal } from "./hooks";
 import { Out } from "./icons";
+import { loopHref } from "./base";
 
 const SITE = "bayyinahtv.com";
 
@@ -202,7 +203,7 @@ export function BayyinahCase() {
       <CaseEnd
         stack={stack}
         engineers={engineers}
-        next={<NextCase to="/drafts/the-loop/care-platform" name="Care platform" line="Rebuilding a care platform that teams use every day, one tested screen at a time." />}
+        next={<NextCase to={loopHref("civiclee")} name="CivicLee" line="A coaching app that takes members through their program, week by week." />}
       />
     </article>
   );

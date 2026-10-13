@@ -5,10 +5,10 @@ import { featuredProjects } from "./content/projects";
 import { caseStudyPage } from "./lib/routes";
 import { fontsReady, preloadCaseFonts } from "./pages/caseFonts";
 import { groundNow } from "./pages/caseLight";
-import { firstView, isLoopPath } from "./lib/firstView";
+import { firstView, isLiveLoopPath, isLoopPath } from "./lib/firstView";
 const NotFoundPage = lazy(() => import("./pages/NotFoundPage").then((m) => fontsReady().then(() => m)));
 const DraftApp = lazy(() => import("./drafts/DraftApp"));
-const KosovoHome = lazy(() => import("./drafts/kosovo-time-2/Draft"));
+const LoopHome = lazy(() => import("./drafts/the-loop/Draft"));
 
 const CaseStudyPage = caseStudyPage.Component;
 
@@ -24,15 +24,21 @@ function CaseStudyRoute() {
 
 export default function App() {
   const { pathname } = useLocation();
-  if (pathname === "/")
+  if (isLiveLoopPath(pathname)) {
+    const Loop = firstView.loop;
     return (
       <>
         <ScrollToTop />
-        <Suspense fallback={<div className="min-h-[100svh]" style={{ background: groundNow() }} />}>
-          <KosovoHome />
-        </Suspense>
+        {Loop ? (
+          <Loop />
+        ) : (
+          <Suspense fallback={<div className="min-h-[100svh]" style={{ background: "#0b0c0f" }} />}>
+            <LoopHome />
+          </Suspense>
+        )}
       </>
     );
+  }
   if (pathname.startsWith("/work/")) {
     preloadCaseFonts();
     return (

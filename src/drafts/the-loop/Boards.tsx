@@ -1,13 +1,12 @@
 import { useContext, useEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type PointerEvent } from "react";
 import { useArrive, arrive } from "./arrive";
-import { boards } from "./data";
+import { boards as dsBoards, type Board } from "./data";
 import { Settled, useReducedMotion } from "./hooks";
 import { Forward, Pause, Play, Prev } from "./icons";
 import "./boards.css";
 
-const COUNT = boards.length;
 const pad = (n: number) => String(n + 1).padStart(2, "0");
-const wrap = (n: number) => (n + COUNT) % COUNT;
+const wrap = (n: number, count: number) => (n + count) % count;
 /** A board stays this long before the next one, in ms. The timer is the CSS animation of the progress line. */
 const DWELL = 6000;
 /** The rack settles this long after a move. Then a board that left is unmounted, so at rest only three boards hold decoded pixels. */
@@ -23,16 +22,16 @@ const SIZES = {
   case: "(min-width: 1320px) 1170px, calc(100vw - 52px)",
 };
 
-const srcSetOf = (i: number) => `${boards[i].small} 1080w, ${boards[i].file} 3200w`;
+const srcSetOf = (board: Board) => `${board.small} 1080w, ${board.file} 3200w`;
 
 /** Loads and decodes a board with the same choice of file the page makes; without `sizes`, the 1080 copy only. */
-function preload(i: number, sizes?: string) {
+function preload(board: Board, sizes?: string) {
   const image = new Image();
   if (sizes) {
     image.sizes = sizes;
-    image.srcset = srcSetOf(i);
+    image.srcset = srcSetOf(board);
   }
-  image.src = boards[i].small;
+  image.src = board.small;
   return image.decode().catch(() => undefined);
 }
 
@@ -40,16 +39,25 @@ function preload(i: number, sizes?: string) {
  * The place of a board in the rack, from the current board: 0 in front, 1 and 2 wait behind it,
  * -1 has just left to the left, 3 is out of sight behind the rack.
  */
-function slotOf(i: number, index: number) {
-  const rel = wrap(i - index);
+function slotOf(i: number, index: number, count: number) {
+  const rel = wrap(i - index, count);
   if (rel <= 2) return rel;
-  return rel === COUNT - 1 ? -1 : 3;
+  return rel === count - 1 ? -1 : 3;
 }
 
-const rackOf = (index: number) => [index, wrap(index + 1), wrap(index + 2)];
+const rackOf = (index: number, count: number) => [index, wrap(index + 1, count), wrap(index + 2, count)];
 
-/** The seven Design System v2 boards in a rack in the room: the current board in front, the next two behind it in depth. */
-export function Boards({ size = "home" }: { size?: "home" | "case" }) {
+/** A set of boards in a rack in the room: the current board in front, the next two behind it in depth. */
+export function Boards({
+  size = "home",
+  boards = dsBoards,
+  label = "Design System v2 boards",
+}: {
+  size?: "home" | "case";
+  boards?: Board[];
+  label?: string;
+}) {
+  const count = boards.length;
   const reduce = useReducedMotion();
   const settled = useContext(Settled);
   const view = useRef<HTMLDivElement>(null);
@@ -57,7 +65,7 @@ export function Boards({ size = "home" }: { size?: "home" | "case" }) {
   const root = useRef<HTMLElement>(null);
   const [index, setIndex] = useState(0);
   const [dir, setDir] = useState<0 | 1 | -1>(0);
-  const [mounted, setMounted] = useState(() => rackOf(0));
+  const [mounted, setMounted] = useState(() => rackOf(0, count));
   const [sharp, setSharp] = useState(0);
   const [stopped, setStopped] = useState(false);
   const [hover, setHover] = useState(false);
@@ -83,15 +91,15 @@ export function Boards({ size = "home" }: { size?: "home" | "case" }) {
   useEffect(() => {
     let live = true;
     const unmount = window.setTimeout(() => {
-      setMounted(rackOf(index));
-      preload(wrap(index + 3));
-      preload(wrap(index - 1));
+      setMounted(rackOf(index, count));
+      preload(boards[wrap(index + 3, count)]);
+      preload(boards[wrap(index - 1, count)]);
     }, UNMOUNT);
     const sharpen = window.setTimeout(() => {
-      preload(index, sizes).then(() => {
+      preload(boards[index], sizes).then(() => {
         if (!live) return;
         setSharp(index);
-        preload(wrap(index + 1), sizes);
+        preload(boards[wrap(index + 1, count)], sizes);
       });
     }, SHARPEN);
     return () => {
@@ -99,14 +107,14 @@ export function Boards({ size = "home" }: { size?: "home" | "case" }) {
       window.clearTimeout(unmount);
       window.clearTimeout(sharpen);
     };
-  }, [index, sizes]);
+  }, [index, sizes, boards, count]);
 
   const go = (next: number, way: 1 | -1) => {
-    const to = wrap(next);
+    const to = wrap(next, count);
     if (to === index) return;
     setDir(way);
     setIndex(to);
-    setMounted((list) => [...new Set([...list, ...rackOf(to)])]);
+    setMounted((list) => [...new Set([...list, ...rackOf(to, count)])]);
   };
 
   const onKey = (event: KeyboardEvent) => {
@@ -135,7 +143,7 @@ export function Boards({ size = "home" }: { size?: "home" | "case" }) {
       data-size={size}
       data-dir={dir}
       aria-roledescription="carousel"
-      aria-label="Design System v2 boards"
+      aria-label={label}
       tabIndex={0}
       onKeyDown={onKey}
       onPointerEnter={(e) => e.pointerType === "mouse" && setHover(true)}
@@ -151,8 +159,10 @@ export function Boards({ size = "home" }: { size?: "home" | "case" }) {
             {[...mounted]
               .sort((a, b) => a - b)
               .map((i) => {
-                const slot = slotOf(i, index);
+                const slot = slotOf(i, index, count);
                 const front = slot === 0;
+                // A relative url() in a custom property resolves against the stylesheet that reads it, not the page.
+                const mirrorSrc = new URL(boards[i].small, document.baseURI).href;
                 return (
                   <div key={i} className="bd-card" data-slot={slot} aria-hidden={front ? undefined : true}>
                     <span className="bd-glass">
@@ -170,7 +180,7 @@ export function Boards({ size = "home" }: { size?: "home" | "case" }) {
                         <img
                           className="bd-board"
                           src={boards[i].small}
-                          srcSet={srcSetOf(i)}
+                          srcSet={srcSetOf(boards[i])}
                           sizes={sizes}
                           width={1600}
                           height={1000}
@@ -181,7 +191,7 @@ export function Boards({ size = "home" }: { size?: "home" | "case" }) {
                         />
                       )}
                     </span>
-                    <span className="bd-mirror" style={{ "--m-src": `url("${boards[i].small}")` } as CSSProperties} />
+                    <span className="bd-mirror" style={{ "--m-src": `url("${mirrorSrc}")` } as CSSProperties} />
                   </div>
                 );
               })}
@@ -194,7 +204,7 @@ export function Boards({ size = "home" }: { size?: "home" | "case" }) {
       <div className="bd-bar">
         <p className="bd-index" aria-live={ticking ? "off" : "polite"} aria-atomic="true">
           <span className="bd-n">
-            {pad(index)} <span className="bd-of">/ {pad(COUNT - 1)}</span>
+            {pad(index)} <span className="bd-of">/ {pad(count - 1)}</span>
           </span>
           <span className="bd-title" key={index}>
             {board.title}

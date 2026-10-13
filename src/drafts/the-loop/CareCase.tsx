@@ -1,12 +1,10 @@
 import { useRef, type CSSProperties } from "react";
-import { BrowserFrame } from "../../components/BrowserFrame";
-import { HEAD, HEAD_MS } from "./arrive";
-import { CaseEnd, CaseTop, Chapter, NextCase, Ring } from "./CaseParts";
-import { Slab } from "./Slab";
+import { Boards } from "./Boards";
+import { CaseEnd, CaseTop, Chapter, NextCase } from "./CaseParts";
+import { careBoards } from "./data";
 import { Checked } from "./icons";
 import { useReveal } from "./hooks";
-
-const NOTE = "Real product screen, invented data.";
+import { loopHref } from "./base";
 
 const day = [
   { time: "11:37", what: "Notes on the old app" },
@@ -76,62 +74,19 @@ export function CareCase() {
             </dl>
           </div>
         </div>
-        <figure className="lp-wrap lp-case-shot">
-          <Slab from={HEAD} ms={HEAD_MS}>
-            <BrowserFrame
-              src="/showcase/care-dashboard/overview.webp"
-              alt="Care team dashboard in the new app: patients by program, patient engagement by calls and text messages, and patients for each provider. Invented data."
-              label="Care platform, new app"
-              tone="light"
-              eager
-            >
-              <span className="room-sheen" aria-hidden="true" />
-            </BrowserFrame>
-          </Slab>
-          <figcaption className="lp-caption">{NOTE}</figcaption>
-        </figure>
+        <div className="lp-wrap lp-case-shot">
+          <Boards size="case" boards={careBoards} label="Care platform boards" />
+        </div>
       </header>
 
-      <Chapter
-        name="What it does"
-        title="Vitals, care plans, claims and calls in one app."
-        figure={
-          <figure className="lp-figure">
-            <BrowserFrame
-              src="/showcase/care-dashboard/rpm-overview-cgm.webp"
-              alt="Glucose overview for one patient: time in range, average, highest and lowest values, device usage and one day's glucose curve. Invented data."
-              label="Care platform, new app"
-              tone="light"
-            >
-              <Ring box={{ x: 706, y: 146, w: 130, h: 88 }} label="Readings from a connected device" />
-            </BrowserFrame>
-            <figcaption className="lp-caption">Glucose overview for one patient. {NOTE}</figcaption>
-          </figure>
-        }
-      >
+      <Chapter name="What it does" title="Vitals, care plans, claims and calls in one app.">
         <p>
           The app shows vitals from connected devices, care plans, lab results, billing claims, calls and chat. It works in English, German, Spanish
           and Turkish.
         </p>
       </Chapter>
 
-      <Chapter
-        name="The problem"
-        title="The old app worked, but it ran on an old framework."
-        figure={
-          <figure className="lp-figure">
-            <BrowserFrame
-              src="/showcase/care-dashboard/claims.webp"
-              alt="Claims for one month: counts by status, filters, and each claim with its program, CPT codes and status. One claim needs attention. Invented data."
-              label="Care platform, new app"
-              tone="light"
-            >
-              <Ring box={{ x: 676, y: 500, w: 308, h: 40 }} label="Claims that need another look" />
-            </BrowserFrame>
-            <figcaption className="lp-caption">Claims for one month. {NOTE}</figcaption>
-          </figure>
-        }
-      >
+      <Chapter name="The problem" title="The old app worked, but it ran on an old framework.">
         <p>
           The old app runs on Vue 2 and Nuxt 2. Care teams use it every day, so it cannot stop. The new app must do the same things, and the old
           bugs must not move into it.
@@ -214,7 +169,7 @@ export function CareCase() {
       <CaseEnd
         stack={stack}
         engineers={engineers}
-        next={<NextCase to="/drafts/the-loop/design-system" name="Design System v2" line="One set of parts for every new screen." />}
+        next={<NextCase to={loopHref("design-system")} name="Design System v2" line="One set of parts for every new screen." />}
       />
     </article>
   );

@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useLocation } from "react-router";
 import { BayyinahCase } from "./BayyinahCase";
 import { CareCase } from "./CareCase";
+import { CivicleeCase } from "./CivicleeCase";
 import { DsCase } from "./DsCase";
 import { Home } from "./Home";
 import { Workflow } from "./Workflow";
@@ -12,6 +13,7 @@ const pages = {
   "care-platform": CareCase,
   "design-system": DsCase,
   "bayyinah-tv": BayyinahCase,
+  civiclee: CivicleeCase,
   workflow: Workflow,
 };
 
@@ -25,7 +27,7 @@ export default function Draft() {
       html.style.backgroundColor = before;
     };
   }, []);
-  const slug = /\/(care-platform|design-system|bayyinah-tv|workflow)\/?$/.exec(pathname)?.[1];
+  const slug = /\/(care-platform|design-system|bayyinah-tv|civiclee|workflow)\/?$/.exec(pathname)?.[1];
   const Page = slug ? pages[slug as keyof typeof pages] : undefined;
   return (
     <div className="lp" data-view={Page ? "case" : "home"}>

@@ -6,31 +6,32 @@
     <title>Gentrit Rashiti</title>
     <meta
       name="description"
-      content="Gentrit Rashiti, frontend and mobile developer moving to full stack. Web and mobile products in healthcare, video streaming, e-reading and Web3."
+      content="Gentrit Rashiti builds web, mobile and server apps, from Kosovo. AI agents build inside tested rules, and a person approves every change."
     />
     <meta property="og:type" content="website" />
     <meta property="og:title" content="Gentrit Rashiti" />
     <meta
       property="og:description"
-      content="Gentrit Rashiti, frontend and mobile developer moving to full stack. Web and mobile products in healthcare, video streaming, e-reading and Web3."
+      content="Gentrit Rashiti builds web, mobile and server apps, from Kosovo. AI agents build inside tested rules, and a person approves every change."
     />
     <meta property="og:image" content="/og-image.png" />
     <meta property="og:image:type" content="image/png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="Gentrit Rashiti builds web and mobile apps, from Kosovo. A web screen and a phone screen stand on orange ground at dusk and cast long violet shadows." />
+    <meta property="og:image:alt" content="Gentrit Rashiti: AI agents build inside tested rules, and a person approves every change. A real care platform calendar screen with invented data and an amber approval seal, on a dark ground." />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Gentrit Rashiti" />
-    <meta name="twitter:description" content="Web and mobile products, from the first screen to release: healthcare, video streaming, e-reading and Web3." />
+    <meta name="twitter:description" content="Web, mobile and server apps. AI agents build inside tested rules, and a person approves every change." />
     <meta name="twitter:image" content="/og-image.png" />
-    <meta name="twitter:image:alt" content="Gentrit Rashiti builds web and mobile apps, from Kosovo. A web screen and a phone screen stand on orange ground at dusk and cast long violet shadows." />
+    <meta name="twitter:image:alt" content="Gentrit Rashiti: AI agents build inside tested rules, and a person approves every change. A real care platform calendar screen with invented data and an amber approval seal, on a dark ground." />
     <meta name="color-scheme" content="dark light" />
-    <meta name="theme-color" content="#68a6dc" />
+    <meta name="theme-color" content="#0b0c0f" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="preload" href="/fonts/creative/PublicSans-Latin.woff2" as="font" type="font/woff2" crossorigin />
     <script>
       (function () {
-        var loop = location.pathname.indexOf('/drafts/the-loop') === 0;
+        var p = location.pathname;
+        var loop = p.indexOf('/drafts/the-loop') === 0 || /^\/(?:(?:workflow|care-platform|design-system|bayyinah-tv)\/?)?$/.test(p);
         var link = document.createElement('link');
         link.rel = 'preload';
         link.as = 'font';

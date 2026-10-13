@@ -4,6 +4,7 @@ import { CaseEnd, CaseTop, Chapter, NextCase } from "./CaseParts";
 import { Flap } from "./Flap";
 import { dsFigures } from "./Home";
 import { useReveal } from "./hooks";
+import { loopHref } from "./base";
 
 const steps = [
   "Study five design systems: Material, Carbon, Polaris, Atlassian and Primer.",
@@ -129,7 +130,7 @@ export function DsCase() {
       <CaseEnd
         stack={stack}
         engineers={engineers}
-        next={<NextCase to="/drafts/the-loop/bayyinah-tv" name="Bayyinah TV" line="One web app for the web, iPhone and Android." />}
+        next={<NextCase to={loopHref("bayyinah-tv")} name="Bayyinah TV" line="One web app for the web, iPhone and Android." />}
       />
     </article>
   );

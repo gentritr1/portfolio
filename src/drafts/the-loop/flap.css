@@ -1,24 +1,21 @@
 /* ---------- Figures that turn into place like a station board (Flap.tsx) ---------- */
 
-/* Every digit has the same width, so a turning card never moves the text around it. */
+/* The figure is always one plain text run, so the cards never change its width or its glyphs. Kerning is off, because
+   each card draws one character alone. */
 .fl {
+  position: relative;
+  isolation: isolate;
+  font-kerning: none;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
 
-.fl[data-flap="wait"] .fl-cards {
-  opacity: 0;
-}
-
-/* The real digit keeps its place and its text. Only its paint is off while its card turns over it. */
-.fl-c {
-  position: relative;
-  display: inline-block;
-  perspective: 5em;
+.fl:is([data-flap="wait"], [data-flap="run"]) {
   -webkit-text-fill-color: transparent;
 }
 
-.fl-card {
+.fl-cards,
+.fl-hinges {
   position: absolute;
   inset: 0;
   -webkit-text-fill-color: currentColor;
@@ -27,61 +24,96 @@
   -webkit-user-select: none;
 }
 
+/* The tiles stand behind the real text, so the real digits can take over while the tiles fade. */
+.fl-cards {
+  z-index: -1;
+}
+
+.fl[data-flap="wait"] :is(.fl-cards, .fl-hinges) {
+  opacity: 0;
+}
+
+/* Flap.tsx puts each card on its character. */
+.fl-card {
+  position: absolute;
+  perspective: 520px;
+}
+
 /* One half of one digit's card. It turns on the card's middle line. */
 .fl-half {
   position: absolute;
   inset: 0;
   font-style: normal;
-  white-space: nowrap;
-  isolation: isolate;
+  background: #262a32;
   transform-origin: 50% 50%;
   backface-visibility: hidden;
 }
 
-.fl-half::before {
-  content: "";
-  position: absolute;
-  inset: 0.02em 0;
-  z-index: -1;
-  border-radius: 0.07em;
-  background: #262a32;
-}
-
-.fl-half[data-h="b"]::before {
-  background: #1c1f25;
-}
-
-.fl-half::after {
+/* The glyph box is the character's own box in the text, so the last digit of a card covers the real digit exactly. A
+   digit wider than its card stands in its middle. */
+.fl-half::before,
+.fl-still::before {
   content: attr(data-d);
+  position: absolute;
+  top: calc(-1 * var(--fl-dy));
+  right: -0.2em;
+  left: -0.2em;
+  height: var(--fl-h);
+  line-height: normal;
+  text-align: center;
+  white-space: nowrap;
 }
 
-/* A 1 px gap between the halves is the hinge. */
+/* The shade of a half that stands at an angle to the light. Flap.tsx turns its opacity with the half. */
+.fl-shade {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+}
+
 .fl-half[data-h="t"] {
-  clip-path: inset(-0.2em -0.2em calc(50% + 0.5px) -0.2em);
+  clip-path: inset(0.03em 0.015em 50%);
+}
+
+.fl-half[data-h="t"] .fl-shade {
+  background: linear-gradient(to bottom, rgb(0 0 0 / 0.2), rgb(0 0 0 / 0.9));
 }
 
 .fl-half[data-h="b"] {
-  clip-path: inset(calc(50% + 0.5px) -0.2em -0.2em -0.2em);
+  clip-path: inset(50% 0.015em 0.03em);
+  background: #1f2329;
+}
+
+.fl-half[data-h="b"] .fl-shade {
+  background: linear-gradient(to bottom, rgb(0 0 0 / 0.9), rgb(0 0 0 / 0.2));
 }
 
 .fl-land {
   transform: rotateX(90deg);
 }
 
-/* After the last turn only the real digit's two halves stay; their tiles fade and the plain number is left. */
-.fl[data-flap="fade"] .fl-half:not([data-final]) {
+/* The hinge: one dark line across the middle of a tile, above the digits. */
+.fl-hinge {
+  position: absolute;
+  height: 1px;
+  margin-top: -0.5px;
+  background: rgb(0 0 0 / 0.55);
+}
+
+/* After the last turn the real digits paint on the same pixels as the cards' digits; then the tiles and hinges fade. */
+.fl[data-flap="settle"] .fl-half::before,
+.fl[data-flap="settle"] .fl-still::before {
   visibility: hidden;
 }
 
-.fl[data-flap="fade"] .fl-half[data-h="t"] {
-  clip-path: inset(-0.2em -0.2em 50% -0.2em);
-}
-
-.fl[data-flap="fade"] .fl-half[data-h="b"] {
-  clip-path: inset(50% -0.2em -0.2em -0.2em);
-}
-
-.fl[data-flap="fade"] .fl-half::before {
+.fl[data-flap="settle"] :is(.fl-cards, .fl-hinges) {
   opacity: 0;
   transition: opacity var(--fl-fade) var(--ease-out);
+}
+
+/* A group with a turning figure arrives by opacity only, so its digits do not slide while they turn. */
+@media (prefers-reduced-motion: no-preference) {
+  .lp [data-reveal=""]:has(.fl) {
+    transform: none;
+  }
 }

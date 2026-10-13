@@ -532,6 +532,24 @@ export const projects: Project[] = [
     media: { thumb: 'donation-ring' },
   },
   {
+    slug: 'civiclee',
+    name: 'CivicLee',
+    kind: 'Mobile app',
+    channel: 'reading',
+    group: 'Vianova',
+    years: '2022–24',
+    role: 'Mobile',
+    stack: ['React Native', 'Redux Toolkit', 'React Navigation', 'Expo AV', 'Firebase Messaging'],
+    line: 'A coaching app: weekly tasks, worksheets, articles, podcasts, video and a coach',
+    summary:
+      'CivicLee takes members of a leadership program through their program week by week. Each week has tasks: worksheets, short videos, tips, action steps and office hours, and members send their work to a coach. The app started in September 2022 from an empty React Native template; that work covered sign-up with a confirmation code, onboarding in steps, the weekly tasks, worksheets, an article reader, a podcast player, video and push notifications. Teammates later added the chat, cohorts, town halls and an inbox. It is on the App Store and Google Play, open to program members.',
+    links: [
+      { label: 'App Store', href: 'https://apps.apple.com/us/app/civiclee/id1496597338' },
+      { label: 'Google Play', href: 'https://play.google.com/store/apps/details?id=com.educationalequity.rosie' },
+    ],
+    media: { thumb: 'calendar-strip' },
+  },
+  {
     slug: 'coaching-app',
     name: 'Coaching app',
     kind: 'Mobile app',
@@ -787,6 +805,23 @@ export const projects: Project[] = [
           ],
         },
       ],
+    },
+  },
+  {
+    slug: 'tondo',
+    name: 'Tondo',
+    kind: 'Multiplayer card game',
+    channel: 'personal',
+    group: 'Personal',
+    years: '2026',
+    role: 'Owner',
+    stack: ['Node', 'WebSocket', 'PostgreSQL'],
+    line: 'Pizza card game for 2–4 players around a round table, server-authoritative with bots and saved crews; live',
+    summary:
+      'Tondo is a pizza card game for two to four players around a round table. It reuses the multiplayer spine of Za!: a Node server with one runtime dependency, ws, decides every move and sends each player a full snapshot after each change. Bots fill empty seats, and "One quick pie" deals a game against three bots in one tap. Groups of friends can save a crew, kept in PostgreSQL with SQL migrations and database tests. The server limits requests for each real client address behind a proxy.',
+    links: [{ label: 'Website', href: 'https://tondo.onrender.com/' }, { label: 'GitHub', href: 'https://github.com/gentritr1/tondo' }],
+    media: {
+      shot: { src: '/personal/shots/thumbs/tondo.webp', alt: 'Tondo card game table with three bot players' },
     },
   },
   {
