@@ -354,6 +354,36 @@ export const boards: Board[] = [
   },
 ].map((b) => ({ ...b, file: BOARDS + b.file, small: BOARDS + b.small }));
 
+const CARE_BOARDS = "/showcase/care-dashboard/boards/";
+
+/** The four care platform boards, each made from real screens of the new app with invented data (boards.json in the same folder). */
+export const careBoards: Board[] = [
+  {
+    file: "board-01.webp",
+    small: "board-01-1080.webp",
+    title: "Care platform",
+    alt: "Title board. On the left: Care platform, a web app for care teams who follow patients at home, rebuilt in React one tested screen at a time, with three numbers: one working day for one screen from first note to merged, 4 languages, and 2 apps with one test that passes on both. On the right: a tilted wall of real screens of the new app. Invented data.",
+  },
+  {
+    file: "board-02.webp",
+    small: "board-02-1080.webp",
+    title: "Vitals and labs",
+    alt: "The vitals and labs screen for one patient, with the glucose graph open: the latest reading of 146 mg/dL and a 7-day trend line from Sep 26 to Oct 2, with one high reading of 192 mg/dL marked in red. A larger copy shows the trend chart. On the left, the screen also lists blood pressure, heart rate, oxygen, weight and lab results. Invented data.",
+  },
+  {
+    file: "board-03.webp",
+    small: "board-03-1080.webp",
+    title: "Claims that need another look stand out.",
+    alt: "The claims screen for September: counts of draft, approved and finalized claims, filters by month, year, status and program, and a table of claims with programs, CPT codes and status. A larger copy shows two rows: one approved claim marked Needs attention with View and Edit, and one claim marked Transfer Failed with a Retry button. Invented data.",
+  },
+  {
+    file: "board-04.webp",
+    small: "board-04-1080.webp",
+    title: "A care team's week on one calendar.",
+    alt: "The calendar screen for one week in October: six filters, Week, Day and List views, and visits and calls in two colours from Monday to Friday. A larger copy shows Tuesday and Wednesday around noon, with a red line for the current time between an endocrine consult and a primary care visit. Invented data.",
+  },
+].map((b) => ({ ...b, file: CARE_BOARDS + b.file, small: CARE_BOARDS + b.small }));
+
 /** Server lines. Sources: SPEC.md "Facts and sources". */
 export const serverProof = [
   "Za!: one Node.js server decides every move for 2 to 8 players.",

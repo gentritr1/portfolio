@@ -1,0 +1,75 @@
+{
+  "rendered": "2026-10-13 from real captures of the new React app (vianova-dashboard-react origin/main 9dcd8002 for the vitals capture) with invented data; plain HTML boards in the same frame, fonts and colours as the Design System v2 boards, captured in Playwright Chromium at 1600x1000 CSS px, device scale 2",
+  "boards": [
+    {
+      "file": "board-01.webp",
+      "small": "board-01-1080.webp",
+      "title": "Care platform",
+      "screens": [
+        "overview.webp",
+        "claims.webp",
+        "vitals-graph.webp",
+        "appointments-week.webp"
+      ],
+      "figures": [
+        {
+          "value": "1",
+          "label": "working day, one screen from first note to merged",
+          "source": "SPEC.md: React repo origin/main commits 9f5b5237 11:37 to 769bf99f 15:40 on 2026-09-08"
+        },
+        {
+          "value": "4",
+          "label": "languages",
+          "source": "vianova-dashboard-react origin/main 9dcd8002: src/lib/i18n/locales/de.json, en.json, es.json, tr.json"
+        },
+        {
+          "value": "2",
+          "label": "apps, one test that passes on both",
+          "source": "SPEC.md: migration/reviews/compliance-tracker/build.md, Local dual-origin run"
+        }
+      ]
+    },
+    {
+      "file": "board-02.webp",
+      "small": "board-02-1080.webp",
+      "title": "Vitals and labs",
+      "screens": [
+        "vitals-graph.webp"
+      ],
+      "detail": {
+        "x": 822,
+        "y": 262,
+        "w": 570,
+        "h": 236
+      }
+    },
+    {
+      "file": "board-03.webp",
+      "small": "board-03-1080.webp",
+      "title": "Claims that need another look stand out.",
+      "screens": [
+        "claims.webp"
+      ],
+      "detail": {
+        "x": 958,
+        "y": 700,
+        "w": 414,
+        "h": 116
+      }
+    },
+    {
+      "file": "board-04.webp",
+      "small": "board-04-1080.webp",
+      "title": "A care team's week on one calendar.",
+      "screens": [
+        "appointments-week.webp"
+      ],
+      "detail": {
+        "x": 604,
+        "y": 538,
+        "w": 352,
+        "h": 168
+      }
+    }
+  ]
+}
