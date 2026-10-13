@@ -636,6 +636,15 @@
   grid-column: span 4;
 }
 
+.lp-own:nth-child(4),
+.lp-own:nth-child(5) {
+  grid-column: span 6;
+}
+
+.lp-own:nth-child(n + 6) {
+  grid-column: span 4;
+}
+
 .lp-own-shot {
   position: relative;
   overflow: hidden;
@@ -1155,8 +1164,15 @@ p.lp-own-link {
 
   .lp-own,
   .lp-own:nth-child(2),
-  .lp-own:nth-child(3) {
+  .lp-own:nth-child(3),
+  .lp-own:nth-child(4),
+  .lp-own:nth-child(5),
+  .lp-own:nth-child(n + 6) {
     grid-column: span 6;
+  }
+
+  .lp-own:nth-child(even):last-child {
+    grid-column: 1 / -1;
   }
 
   .lp-own[data-big] {
@@ -1217,7 +1233,10 @@ p.lp-own-link {
   .lp-own,
   .lp-own[data-big],
   .lp-own:nth-child(2),
-  .lp-own:nth-child(3) {
+  .lp-own:nth-child(3),
+  .lp-own:nth-child(4),
+  .lp-own:nth-child(5),
+  .lp-own:nth-child(n + 6) {
     grid-column: 1;
   }
 

@@ -386,7 +386,7 @@ export const careBoards: Board[] = [
 
 /** Server lines. Sources: SPEC.md "Facts and sources". */
 export const serverProof = [
-  "Za!: one Node.js server decides every move for 2 to 8 players.",
+  "Za! and Tondo: Node.js game servers decide every move. Tondo keeps its crews in PostgreSQL.",
   "A billing report went from 16 database queries to 2, and it no longer times out.",
   "Patient times now follow the patient's own clock, even when the clocks change.",
 ];
@@ -469,6 +469,18 @@ export const own: Own[] = [
     },
     link: { label: "Website", href: "https://za-game.vercel.app/" },
     engineers: ["The server decides every move", "Node with one runtime dependency, ws", "Table codes and a health endpoint"],
+  },
+  {
+    id: "tondo",
+    name: "Tondo",
+    line: "A pizza card game for 2 to 4 players around a round table, with bots and saved crews.",
+    shot: {
+      src: "/personal/shots/tondo-desktop.webp",
+      small: "/personal/shots/tondo-desktop-1080.webp",
+      alt: "Tondo card game: a round pizza table with three bot players, Carmela, Dominic and Pina, the Cheese 0 card in the middle, and the player's hand of seven cards below, one of them raised as playable.",
+    },
+    link: { label: "Website", href: "https://tondo.onrender.com/" },
+    engineers: ["The server decides every move; Node with ws", "Crews saved in PostgreSQL, with SQL migrations and database tests", "Rate limits for each real client address behind a proxy"],
   },
   {
     id: "morse",

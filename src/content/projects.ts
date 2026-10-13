@@ -808,6 +808,23 @@ export const projects: Project[] = [
     },
   },
   {
+    slug: 'tondo',
+    name: 'Tondo',
+    kind: 'Multiplayer card game',
+    channel: 'personal',
+    group: 'Personal',
+    years: '2026',
+    role: 'Owner',
+    stack: ['Node', 'WebSocket', 'PostgreSQL'],
+    line: 'Pizza card game for 2–4 players around a round table, server-authoritative with bots and saved crews; live',
+    summary:
+      'Tondo is a pizza card game for two to four players around a round table. It reuses the multiplayer spine of Za!: a Node server with one runtime dependency, ws, decides every move and sends each player a full snapshot after each change. Bots fill empty seats, and "One quick pie" deals a game against three bots in one tap. Groups of friends can save a crew, kept in PostgreSQL with SQL migrations and database tests. The server limits requests for each real client address behind a proxy.',
+    links: [{ label: 'Website', href: 'https://tondo.onrender.com/' }, { label: 'GitHub', href: 'https://github.com/gentritr1/tondo' }],
+    media: {
+      shot: { src: '/personal/shots/thumbs/tondo.webp', alt: 'Tondo card game table with three bot players' },
+    },
+  },
+  {
     slug: 'za',
     name: 'Za!',
     kind: 'Multiplayer card game',

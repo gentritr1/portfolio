@@ -247,6 +247,7 @@ Render as a compact, scannable index (not cards): grouped by employer, each row 
 | Open-source forks | 2022 | Maintainer | React Native | Forks of epubjs-react-native and react-native-pdf, used in a production reading app | #personal |
 | Geo Guesser World 3D | 2026 | Mobile · co-built | Expo, React Native, MapLibre, Mapillary | Street-view guessing game, published on Google Play | — |
 | FJALË | 2026 | Owner | Vanilla JS, PWA | Daily Albanian word game, 21k-word dictionary, archive, offline play; live on the web | — |
+| Tondo (owner 2026-10-13) | 2026 | Owner | Node, WebSocket, PostgreSQL | Pizza card game for 2–4 players around a round table, server-authoritative with bots and saved crews; live at https://tondo.onrender.com/ (Render free plan, sleeps when idle); repo https://github.com/gentritr1/tondo, 77 commits, all the owner's | — |
 | Za! | 2026 | Owner | Node, WebSocket | Multiplayer pizza card game for 2–8 players, server-authoritative with bots; live | — |
 | Morse Trainer | 2026 | Owner | JavaScript | Morse-code learning game with spaced repetition and Farnsworth timing; live | — |
 | Futurisma | 2026 | Owner | Three.js, TypeScript, Blender | Hover racer with seven circuits and weather, tide and day-night systems | — |
