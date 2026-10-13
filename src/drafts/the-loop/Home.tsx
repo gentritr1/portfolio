@@ -290,8 +290,10 @@ function Mobile() {
       }
     >
       <p className="lp-ch-line">
-        Store apps for reading, shopping and learning, each built once for both phones: Read to Feed, Viva Fresh, Dukagjini Bookstore and Bayyinah TV.
+        Store apps for coaching, reading, shopping and learning, each built once for both phones: CivicLee, Read to Feed, Viva Fresh, Dukagjini
+        Bookstore and Bayyinah TV.
       </p>
+      <More to={loopHref("civiclee")}>Read the CivicLee story</More>
       <More to={loopHref("bayyinah-tv")}>Read the Bayyinah TV story</More>
     </Chapter>
   );

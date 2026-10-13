@@ -124,6 +124,37 @@
   color: var(--ink-2);
 }
 
+/* ---------- CivicLee ---------- */
+
+.lp-store-row {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: clamp(8px, 1.2vw, 16px);
+}
+
+.lp-store-row img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 14px;
+  background: #fff;
+}
+
+@media (max-width: 767px) {
+  .lp-store-row {
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    grid-auto-columns: 58%;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    padding-bottom: 8px;
+  }
+
+  .lp-store-row img {
+    scroll-snap-align: start;
+  }
+}
+
 /* ---------- Bayyinah TV ---------- */
 
 .lp-one {

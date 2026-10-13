@@ -203,7 +203,7 @@ export function BayyinahCase() {
       <CaseEnd
         stack={stack}
         engineers={engineers}
-        next={<NextCase to={loopHref("care-platform")} name="Care platform" line="Rebuilding a care platform that teams use every day, one tested screen at a time." />}
+        next={<NextCase to={loopHref("civiclee")} name="CivicLee" line="A coaching app that takes members through their program, week by week." />}
       />
     </article>
   );

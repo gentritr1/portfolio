@@ -6,7 +6,7 @@ import type { ComponentType } from "react";
  */
 export const firstView: { loop: ComponentType | null } = { loop: null };
 
-const LIVE = /^\/(?:(?:workflow|care-platform|design-system|bayyinah-tv)\/?)?$/;
+const LIVE = /^\/(?:(?:workflow|care-platform|design-system|bayyinah-tv|civiclee)\/?)?$/;
 
 /** The live site root and its four pages. */
 export function isLiveLoopPath(path: string) {

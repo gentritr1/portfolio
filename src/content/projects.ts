@@ -532,6 +532,24 @@ export const projects: Project[] = [
     media: { thumb: 'donation-ring' },
   },
   {
+    slug: 'civiclee',
+    name: 'CivicLee',
+    kind: 'Mobile app',
+    channel: 'reading',
+    group: 'Vianova',
+    years: '2022–24',
+    role: 'Mobile',
+    stack: ['React Native', 'Redux Toolkit', 'React Navigation', 'Expo AV', 'Firebase Messaging'],
+    line: 'A coaching app: weekly tasks, worksheets, articles, podcasts, video and a coach',
+    summary:
+      'CivicLee takes members of a leadership program through their program week by week. Each week has tasks: worksheets, short videos, tips, action steps and office hours, and members send their work to a coach. The app started in September 2022 from an empty React Native template; that work covered sign-up with a confirmation code, onboarding in steps, the weekly tasks, worksheets, an article reader, a podcast player, video and push notifications. Teammates later added the chat, cohorts, town halls and an inbox. It is on the App Store and Google Play, open to program members.',
+    links: [
+      { label: 'App Store', href: 'https://apps.apple.com/us/app/civiclee/id1496597338' },
+      { label: 'Google Play', href: 'https://play.google.com/store/apps/details?id=com.educationalequity.rosie' },
+    ],
+    media: { thumb: 'calendar-strip' },
+  },
+  {
     slug: 'coaching-app',
     name: 'Coaching app',
     kind: 'Mobile app',
