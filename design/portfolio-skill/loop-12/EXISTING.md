@@ -1,0 +1,69 @@
+# Directions that already exist
+
+Each line: draft id (title): its rule or first sentence. Do not repeat a rule. Combining an idea with a new rule is fine.
+
+- `added-clauses` (ADDED CLAUSES): the identity sentence is earned on the way down: each card adds the clause it proves
+- `aisle` (Aisle 7): scan to basket; the receipt is the CV
+- `bitrate` (BITRATE): the quality menu renders the whole site
+- `blueprint` (Blueprint): separate the device into layers
+- `both-stores` (BOTH STORES): one claim a visitor can count: three apps shipped to both stores
+- `brief` (BRIEF): problem, decision, result: one brief per screen
+- `canvas` (A working canvas): work arranged on artboards
+- `changelog` (CHANGELOG): every element is a typeset line of release notes
+- `cited-claims` (Cited Claims): every claim is a query the index can answer
+- `crossword` (Fjalëkryq): the crossword is the site map: each answer is one piece of work, each clue is its result in plain words
+- `deal` (Deal): the project cards are the navigation
+- `decision-record` (DECISION RECORD): the portfolio is indexed by decisions, not by projects
+- `departures` (DEPARTURES): the first screen is one flip-disc board; the HTML under it is a printed bus timetable of the work
+- `desk` (At work): the project object
+- `desktop` (Gentrit Desktop): projects open as windows
+- `diff` (DIFF): the migration seam
+- `dither` (Work in colour): one-bit to colour
+- `fable-blind` (FABLE BLIND): Two screens on dusk ground, a monitor and a phone, with real public screens inside; one switch puts the whole 
+- `facing-pages` (Facing Pages): the bilingual book
+- `fjalekryq` (Fjalëkryq): the crossword is the site map
+- `four-languages` (THREE LANGUAGES, ONE PAGE): the home page exists in English, Shqip and Arabic; the switch re-sets the whole page live, and Arabic mirrors 
+- `hybrid` (Index × Preview): select a row, reveal its work
+- `index` (Work in focus): the active project becomes the image
+- `issue` (The working issue): the feature spread
+- `kosovo-time-2` (KOSOVO TIME II): the real sun over Kosovo lights the page at the visitor's time and every screen stands on the ground and casts
+- `kosovo-time` (KOSOVO TIME): the sun over Kosovo lights the page at the visitor's time: every screen stands on the page and casts the shado
+- `lap` (LAP): the project names are the track
+- `ledger` (LEDGER): 30 dense rows, each one live
+- `linja` (LINJA): the flip-disc board
+- `live-objects` (LIVE OBJECTS): the first screen runs: the owner's own FORM trefoil, live in WebGL, beside a real care-platform screen (client
+- `margin-notes` (MARGIN NOTES): the work is the page; every fact is a note pinned to the pixel that shows it
+- `one-screen` (ONE SCREEN): the whole portfolio fits on one screen at 1440 x 900, and every project line lights a real screen beside it
+- `orbit-index` (Orbit Index): the mark looks at what you look at
+- `orbit` (Liquid Orbit): the refracting orb
+- `personal-studio` (PERSONAL STUDIO): own products lead, shown like a studio's showcase: each product gets a room in its own colour and real screens
+- `pinned-decisions` (PINNED DECISIONS): ten decisions, each a big card whose consequence is pinned to the pixel that proves it
+- `primetime` (Primetime): the project channel
+- `projector` (PROJECTOR): one frame per log: the frame never moves, the log scrolls beside it and decides what the frame shows
+- `proof-tiles` (PROOF TILES): every tile is a crop of the part that proves its caption, and its caption is a result
+- `proven-cv` (PROVEN CV): the CV is the home page, and every claim line carries its proof
+- `rebuilt-twice` (REBUILT TWICE): one claim, and the two screens that prove it, in the order they happened
+- `redline` (REDLINE): the screen is the page; the review is written in its margins, and a note with no marker has no proof
+- `release-brief` (RELEASE BRIEF): one sentence moves; every clause cites its proof
+- `riso` (Riso): the printable poster
+- `same-behaviour` (SAME BEHAVIOUR): the proof is the same screen twice: one control changes both
+- `sampled-frame` (SAMPLED FRAME): one fixed frame, and the whole page is the colour of the screen inside it
+- `sampled-ground` (SAMPLED GROUND): the page takes its colour from the screen it shows; nobody picks a colour
+- `sampled-review` (SAMPLED REVIEW): the screen is the page, the review is drawn on it, and the margins take the screen's own colour
+- `savefile` (Save File): choose a project slot and try its work
+- `specimen` (Specimen): every value cites the example that proves it
+- `statement-of-record` (STATEMENT OF RECORD): one sentence says who he is, every clause cites a decision, and each decision corrects itself as it is read
+- `strike-index` (Strike Index): the list is the work, and the list talks back
+- `studio` (Studio Shot): the phone fan
+- `swiss` (In formation): the resetting letter grid
+- `tenant-switch` (Tenant Switch): the navigation is the multi-tenant switcher he builds
+- `the-seam` (THE SEAM): the seam: this page in two skins, and a cord with mass between them
+- `then-now` (THEN / NOW): every row is one change made to a product: an earlier state stays grey, a problem has only its measured part s
+- `three-things` (THREE THINGS THAT RUN): client work first, then three things that run, all three the owner's own projects built from their real code (
+- `token-source` (TOKEN SOURCE): one token file paints the page; the hero plate is a real Design System v2 screen that the notes point at
+- `two-readers` (TWO READERS): one set of facts, two readers: a switch rewrites every line for a hiring manager or for an engineer
+- `wall` (The Wall): the image wall
+- `workspace-rail` (Workspace Rail): the page is one app shell, and scrolling is switching the workspace
+- `year-stack` (YEAR STACK): the scroll is time; one sentence at the top says what was true in the year under it
+- `zine` (The work, cut together): cut type and work into crossing bands
+The live home (`/`) is KOSOVO TIME II: the real sun over Kosovo lights the page at the visitor's time; screens stand on the ground and cast shadows.

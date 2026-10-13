@@ -1,0 +1,42 @@
+/* Tile → case: the chosen screen grows into the case hero; everything else cross-fades.
+
+   1. Give the tile and the case hero the same view-transition-name, set inline per project
+      (style={{ viewTransitionName: `shot-${slug}` }}); a var() in a shared rule is not enough.
+   2. Navigate inside document.startViewTransition(async () => { flushSync(() => navigate(to));
+      await heroImg.decode(); }) when it exists; otherwise navigate.
+   3. Keyboard-initiated navigation (event.detail === 0) and reduced motion navigate with no
+      transition. After the route changes, move focus to the new page's h1.
+   4. If the tile is off screen when the visitor navigates, skip the name (plain cross-fade).
+   5. Keep 3–6 named elements at most; snapshots cost paint.
+   6. Coming back: restore the scroll position the visitor left (not a few pixels off, so the
+      masthead is not clipped) and return focus to the tile that opened the case.
+   7. Text that moves with or over the growing screen must be clipped or faded before the screen
+      moves, or it is drawn across the incoming snapshot mid-transition. */
+
+::view-transition-group(*) {
+  animation-duration: 380ms;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 200ms; /* the page behind cross-fades quickly */
+}
+
+/* Screenshots must not zoom during the morph (text blur). By default the old and new snapshots
+   stretch to the group's size. For a crop window that only gets wider, keep both images at
+   their real pixel size and let the group's box reveal more of them: */
+::view-transition-old(shot-care),
+::view-transition-new(shot-care) {
+  inline-size: auto;
+  block-size: auto;
+  object-fit: none;          /* no scaling of the snapshot */
+  object-position: 0 0;      /* anchor at the crop's top-left; translate if the crops differ */
+  overflow: clip;
+}
+::view-transition-group(shot-care) { overflow: clip; }
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) { animation: none; }
+}

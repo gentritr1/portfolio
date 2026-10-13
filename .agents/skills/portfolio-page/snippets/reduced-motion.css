@@ -1,0 +1,15 @@
+/* Reduced motion: keep every state, drop travel and loops. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;   /* end states still apply */
+    animation-iteration-count: 1 !important; /* loops stop */
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  /* Keep meaningful colour/opacity feedback short instead of instant, if needed: */
+  .pp-keep-fade { transition: opacity 160ms ease !important; }
+  /* Scroll-driven animations show their end state. */
+  * { animation-timeline: auto !important; }
+}
+/* Canvases and rAF loops: check matchMedia('(prefers-reduced-motion: reduce)') before starting;
+   render one designed still frame and do not schedule further frames. */
