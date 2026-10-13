@@ -258,7 +258,7 @@ Voice rule (owner, 2026-10-02): every project text is an overview: what the prod
 
 Frontend: React, Next.js, Vue, Nuxt, TypeScript, Tailwind
 Mobile: React Native, iOS, Android
-Backend: Laravel / PHP, Python / FastAPI, MySQL, Redis
+Backend: Node.js, Laravel / PHP, MySQL, MongoDB, Redis
 Quality: Playwright, Vitest, Pest, CI/CD
 Services: Stripe, Firebase, AWS IVS, Twilio, Pusher
 Localization: multi-language, Arabic RTL
