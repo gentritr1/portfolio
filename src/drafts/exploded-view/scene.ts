@@ -132,7 +132,7 @@ export function createStack(
   ctx.fillStyle = grad
   ctx.fillRect(0, 0, 128, 128)
   const shadowMat = keep(new THREE.MeshBasicMaterial({ map: keep(new THREE.CanvasTexture(sc)), transparent: true, depthWrite: false, opacity: 0 }))
-  const shadow = new THREE.Mesh(keep(new THREE.PlaneGeometry(SIZE * 1.9, SIZE * 1.9)), shadowMat)
+  const shadow = new THREE.Mesh(keep(new THREE.PlaneGeometry(SIZE * 1.9, SIZE * 1.9)), shadowMat) // taste-skill-ignore: a three.js contact-shadow mesh under the 3D plates, not a CSS box-shadow
   shadow.rotation.x = -Math.PI / 2
   shadow.renderOrder = -1
   stack.add(shadow)

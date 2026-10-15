@@ -75,3 +75,6 @@ export const ledger: LedgerRow[] = [
     source: 'Measured October 2026 with the scene\'s own camera',
   },
 ]
+
+/** Owner rule (PRODUCT.md, 2026-10-06): internal care / design-system screens are captioned as invented data. */
+export const INVENTED = new Set(['care-platform', 'design-system-react', 'multi-tenant'])

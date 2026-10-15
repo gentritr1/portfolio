@@ -3,8 +3,9 @@ import { Link, useLocation, useParams } from 'react-router'
 import { ArrowRightIcon, CheckIcon, CopyIcon, DownloadSimpleIcon } from '@phosphor-icons/react'
 import { StackPoster } from './StackPoster'
 import { createStack, type SceneState, type StackScene } from './scene'
-import { CasePage } from './CasePage'
+import { CasePage, Shots } from './CasePage'
 import { caseDetails, moreCases } from './cases'
+import { caseNames, caseShots, type Shot } from './shots'
 import { alsoShipped, cases, howIWork, lab, labLesson, layers, links, type LayerId } from './data'
 import './exploded-view.css'
 
@@ -24,6 +25,14 @@ const STATE_LIT: Record<SceneState, LayerId[]> = {
   reader: ['mobile', 'interface'],
   stack: ['interface', 'mobile', 'api', 'data', 'quality'],
   contact: [],
+}
+
+/** The screen each homepage case shows: one desktop screen, or two phone screens side by side. */
+const HOME_SHOTS: Record<string, Shot[]> = {
+  'care-platform': [caseShots['care-platform'][1]],
+  'design-system-react': [caseShots['design-system-react'][0]],
+  'multi-tenant': [caseShots['multi-tenant'][0]],
+  'read-to-feed': [caseShots['read-to-feed'][0], caseShots['read-to-feed'][2]],
 }
 
 function canUse3d() {
@@ -155,7 +164,7 @@ export default function Draft() {
         <div className="xv-3d-labels" data-on={labelsOn || undefined}>
           {layers.map((l, i) => (
             <span key={l.id} ref={(el) => { labelRefs.current[i] = el }} style={{ '--i': i } as CSSProperties}>
-              <span className="xv-layer-no">{String(i + 1).padStart(2, '0')}</span> {l.name}
+              {l.name}
             </span>
           ))}
           <span className="xv-badge" ref={badgeRef}>AA <CheckIcon size={13} weight="bold" /></span>
@@ -168,11 +177,10 @@ export default function Draft() {
         <>
           <header className="xv-hero" data-scene="hero">
             <div className="xv-hero-text">
-              <p className="xv-name">Gentrit Rashiti</p>
-              <p className="xv-role">Frontend &amp; Full-Stack Developer · Healthcare &amp; Mobile</p>
               <h1 className="xv-tagline">I build clear software where clarity matters.</h1>
+              <p className="xv-name">Gentrit Rashiti <span>· Frontend &amp; Full-Stack Developer · Healthcare &amp; Mobile</span></p>
               <p className="xv-lede">5+ years shipping web and mobile products, from first screen to store release.</p>
-              <p className="xv-meta xv-mono">Kosovo · CET · Open to remote, full-time</p>
+              <p className="xv-meta xv-note">Kosovo · CET · Open to remote, full-time</p>
               <div className="xv-actions">
                 <a className="xv-btn xv-btn-primary" href={links.cv} download>
                   <DownloadSimpleIcon size={16} weight="bold" aria-hidden="true" />
@@ -185,7 +193,7 @@ export default function Draft() {
             </div>
             <figure className="xv-hero-figure" ref={figureRef}>
               <StackPoster title="One product in exploded view: interface, mobile, API and services, data, and quality, stacked and labelled." />
-              <figcaption className="xv-mono">The work, in five layers</figcaption>
+              <figcaption className="xv-note">The work, in five layers</figcaption>
             </figure>
           </header>
 
@@ -206,16 +214,21 @@ export default function Draft() {
                     >
                       <StackPoster lit={c.layers} compact />
                       <div className="xv-case-body">
-                        <h3 className="xv-question">{c.question}</h3>
+                        {/* The question titles the case; it is set as a statement, so the heading carries the name. */}
+                        <h3 className="xv-sr">{caseNames[c.slug]}</h3>
+                        <p className="xv-question">{c.question}</p>
                         <p className="xv-answer">{c.answer}</p>
+                        <Shots shots={HOME_SHOTS[c.slug] ?? []} />
                         <p className="xv-result">{c.result}</p>
-                        <p className="xv-tags xv-mono" aria-label="Layers">
-                          {c.layers.map((id) => layers.find((l) => l.id === id)?.name).join(' / ')}
-                        </p>
-                        <Link className="xv-link" to={`/drafts/exploded-view/${c.slug}`} viewTransition>
-                          Read the case
-                          <ArrowRightIcon size={14} weight="bold" aria-hidden="true" />
-                        </Link>
+                        <div className="xv-case-foot">
+                          <p className="xv-tags xv-note" aria-label="Layers">
+                            {c.layers.map((id) => layers.find((l) => l.id === id)?.name).join(' / ')}
+                          </p>
+                          <Link className="xv-link" to={`/drafts/exploded-view/${c.slug}`} viewTransition>
+                            Read the case
+                            <ArrowRightIcon size={14} weight="bold" aria-hidden="true" />
+                          </Link>
+                        </div>
                       </div>
                     </li>
                   ))}
@@ -239,7 +252,7 @@ export default function Draft() {
                 <div className="xv-stack-grid">
                   <StackPoster lit={hoverLayer ? [hoverLayer] : layers.map((l) => l.id)} />
                   <dl className="xv-layers">
-                    {layers.map((l, i) => (
+                    {layers.map((l) => (
                       <div
                         key={l.id}
                         tabIndex={0}
@@ -249,7 +262,7 @@ export default function Draft() {
                         onFocus={() => setHoverLayer(l.id)}
                         onBlur={() => setHoverLayer(null)}
                       >
-                        <dt><span className="xv-mono">{String(i + 1).padStart(2, '0')}</span> {l.name}</dt>
+                        <dt>{l.name}</dt>
                         <dd>{l.tools.join(', ')}</dd>
                       </div>
                     ))}
@@ -263,28 +276,28 @@ export default function Draft() {
                 <ul className="xv-lab">
                   {lab.map((item) => (
                     <li key={item.name}>
-                      <h3>
-                        {item.name}
+                      <div className="xv-lab-head">
+                        <h3>{item.name}</h3>
                         {item.link && (
                           <a className="xv-link" href={item.link.href} target="_blank" rel="noreferrer">
                             {item.link.label}<span className="xv-sr"> (opens in a new tab)</span>
                             <ArrowRightIcon size={13} weight="bold" aria-hidden="true" />
                           </a>
                         )}
-                      </h3>
+                      </div>
                       <p>{item.line}</p>
                       {item.agents && (
                         <dl className="xv-agents">
-                          <div><dt className="xv-mono">The agents do</dt><dd>{item.agents.do}</dd></div>
-                          <div><dt className="xv-mono">I decide</dt><dd>{item.agents.decide}</dd></div>
-                          <div><dt className="xv-mono">One thing that failed</dt><dd>{item.agents.failed}</dd></div>
+                          <div><dt className="xv-note">The agents do</dt><dd>{item.agents.do}</dd></div>
+                          <div><dt className="xv-note">I decide</dt><dd>{item.agents.decide}</dd></div>
+                          <div><dt className="xv-note">One thing that failed</dt><dd>{item.agents.failed}</dd></div>
                         </dl>
                       )}
-                      {item.learned && <p className="xv-learned"><span className="xv-mono">Learned</span> {item.learned}</p>}
+                      {item.learned && <p className="xv-learned"><span className="xv-note">Learned</span> {item.learned}</p>}
                     </li>
                   ))}
                 </ul>
-                <p className="xv-lab-learned"><span className="xv-mono">What these taught me</span> {labLesson}</p>
+                <p className="xv-lab-learned"><span className="xv-note">What these taught me</span> {labLesson}</p>
               </section>
 
               <section className="xv-section" aria-labelledby="xv-how-h">

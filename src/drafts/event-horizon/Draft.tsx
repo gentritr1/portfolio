@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
-import { ArrowLeftIcon, ArrowRightIcon } from '@phosphor-icons/react'
+import { ArrowLeftIcon, ArrowRightIcon, CaretDownIcon } from '@phosphor-icons/react'
 import { Link, useLocation, useNavigate, useParams, useSearchParams } from 'react-router'
 import { createScene, hasWebGL, stageOf, type EventHorizonScene, type Variant } from './scene'
 import { breadth, learned, links, own, ringProof, steps, systems } from './data'
@@ -44,7 +44,7 @@ function CaseView({ index, reduced, onBack }: { index: number; reduced: boolean;
             <Link key={label} className="eh-case-link eh-solid" to={`/drafts/event-horizon/${p.slug}`}>
               <img src={p.texture} alt="" width={160} height={100} loading="lazy" decoding="async" data-shape={p.aspect < 1 ? 'phone' : 'wide'} />
               <span>
-                <small className="eh-mono">{label}</small>
+                <small>{label}</small>
                 <strong>{p.name}</strong>
               </span>
             </Link>
@@ -56,6 +56,9 @@ function CaseView({ index, reduced, onBack }: { index: number; reduced: boolean;
 }
 
 /** Ways to show the projects after the opening, to compare by eye. Halos is the current one. */
+/** Owner rule (PRODUCT.md, 2026-10-06): internal care / design-system screens are captioned as invented data. */
+const INVENTED = new Set(['care-platform', 'design-system-react', 'multi-tenant'])
+
 const VARIANTS: { id: Variant; label: string; note: string }[] = [
   { id: 'halo', label: 'Halos', note: 'Particles circle each screen.' },
   { id: 'glass', label: 'Glass', note: 'Dark glass panes lit by the disk.' },
@@ -68,6 +71,7 @@ export default function Draft() {
   const hostRef = useRef<HTMLDivElement>(null)
   const sceneRef = useRef<EventHorizonScene | null>(null)
   const drawerRef = useRef<HTMLElement>(null)
+  const navRef = useRef<HTMLElement>(null)
   const lastFocus = useRef<HTMLElement | null>(null)
   const labelRefs = useRef<(HTMLButtonElement | null)[]>([])
   const [fps, setFps] = useState(0)
@@ -199,6 +203,21 @@ export default function Draft() {
     }
   }, [reduced, count, noGl, openSystem, variant])
 
+  // On phones the nav steps out of the way while you read down the page, and comes back as soon as you scroll up.
+  useEffect(() => {
+    let last = scrollY
+    const onScroll = () => {
+      const nav = navRef.current
+      const y = scrollY
+      if (!nav) return
+      if (y < innerHeight * 0.5 || y < last - 4) nav.removeAttribute('data-away')
+      else if (y > last + 4) nav.setAttribute('data-away', '')
+      last = y
+    }
+    addEventListener('scroll', onScroll, { passive: true })
+    return () => removeEventListener('scroll', onScroll)
+  }, [])
+
   useEffect(() => {
     document.documentElement.style.cursor = hover !== null && open === null && !inCase ? 'pointer' : ''
     return () => { document.documentElement.style.cursor = '' }
@@ -270,22 +289,22 @@ export default function Draft() {
     <div className="eh-root" data-reduced={reduced || undefined} data-ready={sceneReady || noGl || undefined}>
       <div className="eh-canvas" ref={hostRef} aria-hidden="true" />
       <div className="eh-vignette" aria-hidden="true" />
-      {noGl && <p className="eh-nogl eh-mono">WebGL is off in this browser, so the field is hidden. Every project below still opens.</p>}
+      {noGl && <p className="eh-nogl">WebGL is off in this browser, so the field is hidden. Every project below still opens.</p>}
       <div className="eh-hud" aria-hidden="true"><span /><span /><span /><span /></div>
 
-      {!noGl && (
-        <div className="eh-variants eh-solid" role="group" aria-label="How the projects are shown">
-          <span className="eh-mono">Variant</span>
-          {VARIANTS.map((v) => (
-            <button key={v.id} type="button" aria-pressed={variant === v.id} title={v.note} onClick={() => pickVariant(v.id)}>{v.label}</button>
-          ))}
-          <p className="eh-mono">{VARIANTS.find((v) => v.id === variant)?.note}</p>
-        </div>
-      )}
-
-      <nav className="eh-nav eh-solid" aria-label="Primary">
+      {/* The draft-only variant switch lives in the nav, so nothing fixed sits over the cards at the bottom of the screen. */}
+      <nav ref={navRef} className="eh-nav eh-solid" aria-label="Primary">
         <a className="eh-logo" href="#eh-top">G/R</a>
-        <span className="eh-status eh-mono"><i className="eh-pulse" />Status: Online // Deploying Agents</span>
+        <span className="eh-status"><i className="eh-pulse" /><span className="eh-status-text">Status: Online // Deploying Agents</span></span>
+        {!noGl && (
+          <label className="eh-variant" title={VARIANTS.find((v) => v.id === variant)?.note}>
+            <span className="eh-variant-word">Variant</span>
+            <select value={variant} onChange={(e) => pickVariant(e.currentTarget.value as Variant)} aria-label="How the projects are shown">
+              {VARIANTS.map((v) => <option key={v.id} value={v.id}>{v.label}</option>)}
+            </select>
+            <CaretDownIcon size={12} weight="bold" aria-hidden="true" />
+          </label>
+        )}
         <a href="#eh-work" className="eh-navlink">Work</a>
         <a href={`mailto:${links.email}`} className="eh-navlink">Contact</a>
       </nav>
@@ -314,7 +333,7 @@ export default function Draft() {
           <p className="eh-role">Senior Frontend, Mobile &amp; AI Engineer</p>
           <p className="eh-sub">Eight products shipped across web and mobile. Now built faster with AI agents, and kept honest by tests.</p>
           {!noGl && (
-            <dl className="eh-tele eh-mono" aria-label="Live render stats">
+            <dl className="eh-tele eh-num" aria-label="Live render stats">
               <div><dt>Frames / s</dt><dd>{fps || '...'}</dd></div>
               <div><dt>Particles</dt><dd>{count.toLocaleString('en-US')}</dd></div>
               <div><dt>Draw calls</dt><dd>{calls || '...'}</dd></div>
@@ -333,13 +352,24 @@ export default function Draft() {
           <section key={s.slug} id={`eh-sys-${s.slug}`} className="eh-stop" data-stage={stageOf.body(i)} aria-labelledby={`eh-h-${s.slug}`}>
             <div className="eh-stop-inner">
               <article className="eh-panel eh-solid" style={{ '--tint': s.tint } as CSSProperties} data-active={(open === null && ((journey && i === active) || narrow || noGl)) || undefined}>
+                <img
+                  className="eh-panel-shot"
+                  src={s.texture}
+                  alt={`${s.name}, the product's own screen`}
+                  width={s.aspect < 1 ? Math.round(1024 * s.aspect) : 1280}
+                  height={s.aspect < 1 ? 1024 : 800}
+                  loading="lazy"
+                  decoding="async"
+                  data-shape={s.aspect < 1 ? 'phone' : 'wide'}
+                />
+                {INVENTED.has(s.slug) && <p className="eh-panel-proof">Real product screens · invented data</p>}
                 <h2 id={`eh-h-${s.slug}`} className="eh-panel-name">{s.name}</h2>
                 <p className="eh-panel-line">{s.line}</p>
                 {s.readouts.length > 0 && (
                   <ul className="eh-panel-readouts">
                     {s.readouts.map((r) => (
                       <li key={r.label}>
-                        <b className="eh-mono">
+                        <b className="eh-num">
                           {r.value}
                           {r.to && (
                             <>
@@ -354,7 +384,7 @@ export default function Draft() {
                     ))}
                   </ul>
                 )}
-                <p className="eh-panel-meta eh-mono">{[s.kind, s.years].filter(Boolean).join(' · ')}</p>
+                <p className="eh-panel-meta">{[s.kind, s.years].filter(Boolean).join(' · ')}</p>
                 <ul className="eh-tags" aria-label="Stack">{s.stack.slice(0, 5).map((t) => <li key={t}>{t}</li>)}</ul>
                 <div className="eh-panel-actions">
                   <button type="button" className="eh-btn eh-btn-solid" onClick={(e) => openSystem(i, e.currentTarget)} aria-haspopup="dialog" aria-label={`How ${s.name} was built`}>
@@ -375,7 +405,7 @@ export default function Draft() {
         </section>
         <div className="eh-labels" aria-hidden={!labelsOn}>
           {systems.map((s, i) => (
-            <button key={s.slug} ref={(el) => { labelRefs.current[i] = el }} type="button" className="eh-label eh-mono" tabIndex={labelsOn ? 0 : -1} onClick={(e) => openSystem(i, e.currentTarget)}>
+            <button key={s.slug} ref={(el) => { labelRefs.current[i] = el }} type="button" className="eh-label" tabIndex={labelsOn ? 0 : -1} onClick={(e) => openSystem(i, e.currentTarget)}>
               {s.name}
             </button>
           ))}
@@ -419,7 +449,7 @@ export default function Draft() {
                     <h3>{o.name}</h3>
                     <p>{o.line}</p>
                     {o.role && <p className="eh-own-role">{o.role}</p>}
-                    <ul className="eh-own-eng eh-mono">{o.engineers.map((e) => <li key={e}>{e}</li>)}</ul>
+                    <ul className="eh-own-eng">{o.engineers.map((e) => <li key={e}>{e}</li>)}</ul>
                     {o.link && (
                       <a className="eh-btn" href={o.link.href} target="_blank" rel="noreferrer">
                         {o.link.label}<span className="eh-sr"> (opens in a new tab)</span>
@@ -436,7 +466,7 @@ export default function Draft() {
             <div className="eh-table-wrap">
               <table className="eh-table">
                 <thead>
-                  <tr><th scope="col"><span className="eh-sr">Domain</span></th>{breadth.columns.map((c) => <th key={c} scope="col" className="eh-mono">{c}</th>)}</tr>
+                  <tr><th scope="col"><span className="eh-sr">Domain</span></th>{breadth.columns.map((c) => <th key={c} scope="col">{c}</th>)}</tr>
                 </thead>
                 <tbody>
                   {breadth.rows.map((r) => (
@@ -450,7 +480,7 @@ export default function Draft() {
             </div>
             <ol className="eh-learned">
               {learned.map((l) => (
-                <li key={l.what}><span className="eh-mono">{l.when}</span>{l.what}</li>
+                <li key={l.what}><span className="eh-num">{l.when}</span>{l.what}</li>
               ))}
             </ol>
           </section>
@@ -463,7 +493,7 @@ export default function Draft() {
               <a className="eh-btn" href={links.linkedin} target="_blank" rel="noreferrer">LinkedIn<span className="eh-sr"> (opens in a new tab)</span></a>
               <a className="eh-btn" href={links.cv}>CV (PDF)</a>
             </div>
-            <p className="eh-foot-note eh-mono">Draft · Event Horizon · {count.toLocaleString('en-US')} particles computed on the GPU</p>
+            <p className="eh-foot-note">Draft · Event Horizon · {count.toLocaleString('en-US')} particles computed on the GPU</p>
           </footer>
         </main>
         </>

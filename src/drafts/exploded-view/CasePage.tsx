@@ -3,15 +3,36 @@ import { Link } from 'react-router'
 import { ArrowLeftIcon, ArrowRightIcon } from '@phosphor-icons/react'
 import { CaseDiagram } from './StackPoster'
 import { caseDetails, caseOrder, questionOf } from './cases'
+import { caseNames, caseShots, type Shot } from './shots'
+
+/** Real product screens, lazy, with their true size so nothing shifts as they load. */
+const INVENTED = /^\/showcase\/(care|care-dashboard|design-system)\//
+
+export function Shots({ shots }: { shots: Shot[] }) {
+  if (!shots.length) return null
+  return (
+    <div className="xv-shots">
+      {shots.map((s) => (
+        <figure key={s.src} className={s.phone ? 'xv-shot xv-shot-phone' : 'xv-shot'}>
+          <img src={s.src} alt={s.alt} width={s.width} height={s.height} loading="lazy" decoding="async" />
+          {/* Owner rule (PRODUCT.md, 2026-10-06): every internal care / design-system screen says it holds invented data. */}
+          {INVENTED.test(s.src) && <figcaption>Real product screens · invented data</figcaption>}
+        </figure>
+      ))}
+    </div>
+  )
+}
 
 /**
  * A case study in the brief's order, readable in about two minutes: context, the question, constraints,
  * what didn't work, the decision, the result, what I'd do differently. Engineering detail waits behind a
- * disclosure. Healthcare rule: no real screens; the drawing explains the system instead.
+ * disclosure. The drawing explains the system; the screens beside it are real product screens (the healthcare
+ * ones ran on a mock API with invented data).
  */
 export function CasePage({ slug }: { slug: string }) {
   const c = caseDetails[slug]
   const question = questionOf(slug) ?? ''
+  const shots = caseShots[slug] ?? []
   const at = caseOrder.indexOf(slug)
   const prev = caseOrder[(at - 1 + caseOrder.length) % caseOrder.length]
   const next = caseOrder[(at + 1) % caseOrder.length]
@@ -31,14 +52,26 @@ export function CasePage({ slug }: { slug: string }) {
       </nav>
 
       <header className="xv-case-head">
-        <h1 id="xv-case-h" ref={heading} tabIndex={-1} className="xv-case-question">{question}</h1>
+        <h1 id="xv-case-h" ref={heading} tabIndex={-1} className="xv-case-name">{caseNames[slug] ?? question}</h1>
+        <p className="xv-case-question">{question}</p>
         <dl className="xv-context">
-          <div><dt className="xv-mono">Product</dt><dd>{c.context.product}</dd></div>
-          <div><dt className="xv-mono">Users</dt><dd>{c.context.users}</dd></div>
-          <div><dt className="xv-mono">My role</dt><dd>{c.context.role}</dd></div>
-          <div><dt className="xv-mono">Time</dt><dd>{c.context.time}</dd></div>
+          <div><dt className="xv-note">Product</dt><dd>{c.context.product}</dd></div>
+          <div><dt className="xv-note">Users</dt><dd>{c.context.users}</dd></div>
+          <div><dt className="xv-note">My role</dt><dd>{c.context.role}</dd></div>
+          <div><dt className="xv-note">Time</dt><dd>{c.context.time}</dd></div>
         </dl>
       </header>
+
+      {shots.length > 0 && (
+        <section className="xv-case-shots" aria-label="Product screens" data-phone={shots[0].phone || undefined} data-count={shots.length}>
+          {shots.map((s) => (
+            <figure key={s.src} className="xv-shot">
+              <img src={s.src} alt={s.alt} width={s.width} height={s.height} loading="lazy" decoding="async" />
+              {(s.caption || INVENTED.test(s.src)) && <figcaption className="xv-note">{[s.caption, INVENTED.test(s.src) && 'Real product screens, invented data'].filter(Boolean).join('. ')}</figcaption>}
+            </figure>
+          ))}
+        </section>
+      )}
 
       <div className="xv-case-grid">
         <article className="xv-case-text">
@@ -75,20 +108,20 @@ export function CasePage({ slug }: { slug: string }) {
             <div className="xv-eng-body">
               {c.engineering.map((g) => (
                 <section key={g.title}>
-                  <h3 className="xv-mono">{g.title}</h3>
+                  <h3 className="xv-note">{g.title}</h3>
                   <ul className="xv-case-list">{g.items.map((x) => <li key={x}>{x}</li>)}</ul>
                 </section>
               ))}
               {c.record && (
                 <section>
-                  <h3 className="xv-mono">{c.record.title}</h3>
+                  <h3 className="xv-note">{c.record.title}</h3>
                   <ol className="xv-record">
                     {c.record.rows.map((r) => (
                       <li key={r.what}>
-                        <span className="xv-mono">{r.when}</span>
+                        <span className="xv-note">{r.when}</span>
                         <div>
                           <strong>{r.what}</strong>
-                          <pre className="xv-mono">{r.lines.join('\n')}</pre>
+                          <pre>{r.lines.join('\n')}</pre>
                         </div>
                       </li>
                     ))}
@@ -110,13 +143,19 @@ export function CasePage({ slug }: { slug: string }) {
 
         <aside className="xv-case-figure">
           <CaseDiagram items={c.diagram} title={`How it is built, in ${c.diagram.length} layers: ${c.diagram.map((d) => d.title).join(', ')}.`} />
+          {/* On narrow screens the drawing's notes move here, at a readable size; beside the text the drawing carries them. */}
+          <ol className="xv-diagram-key">
+            {c.diagram.map((d) => (
+              <li key={d.title}><strong>{d.title}</strong><span>{d.stack}</span><span>{d.note}</span></li>
+            ))}
+          </ol>
         </aside>
       </div>
 
       <nav className="xv-case-more" aria-label="More cases">
         {[{ label: 'Previous', s: prev }, { label: 'Next', s: next }].map(({ label, s }) => (
           <Link key={label} className="xv-case-next" to={`/drafts/exploded-view/${s}`} viewTransition>
-            <span className="xv-mono">{label}</span>
+            <span className="xv-note">{label}</span>
             <span className="xv-case-next-q">{questionOf(s)}</span>
           </Link>
         ))}

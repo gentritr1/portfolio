@@ -47,7 +47,7 @@ export function StackPoster({ lit = [], compact = false, title }: { lit?: LayerI
               <>
                 <line className="xv-leader" x1={c.r[0]} y1={c.r[1]} x2={c.r[0] + 64} y2={c.r[1]} />
                 <text x={c.r[0] + 72} y={c.r[1]} dominantBaseline="middle">
-                  <tspan className="xv-layer-no">{String(i + 1).padStart(2, '0')}</tspan> {layer.name}
+                  {layer.name}
                 </text>
               </>
             )}
@@ -79,7 +79,7 @@ export function CaseDiagram({ items, title }: { items: { title: string; stack: s
             <path d={roundedRhombus(p.t, p.r, p.b, p.l)} />
             <line className="xv-leader" x1={p.r[0]} y1={p.r[1]} x2={p.r[0] + 34} y2={p.r[1]} />
             <text x={p.r[0] + 42} y={p.r[1] - 10}>
-              <tspan className="xv-layer-no">{String(i + 1).padStart(2, '0')}</tspan> {item.title}
+              {item.title}
             </text>
             <text className="xv-diagram-stack" x={p.r[0] + 42} y={p.r[1] + 8}>{item.stack}</text>
             <text className="xv-diagram-note" x={p.r[0] + 42} y={p.r[1] + 25}>{item.note}</text>

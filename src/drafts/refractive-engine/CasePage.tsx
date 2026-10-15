@@ -3,7 +3,7 @@ import { Link } from 'react-router'
 import { ArrowLeftIcon, ArrowRightIcon, ArrowUpRightIcon, CaretDownIcon } from '@phosphor-icons/react'
 import { caseDetails, questionOf } from '../exploded-view/cases'
 import { STAGE } from './scene'
-import { systems } from './data'
+import { INVENTED, systems } from './data'
 
 const BASE = '/drafts/refractive-engine'
 
@@ -37,7 +37,7 @@ function Prism({ layers, active, onActive }: { layers: { title: string; stack: s
             onMouseLeave={() => onActive(null)}
           >
             <strong>{l.title}</strong>
-            <span className="re-mono">{l.stack}</span>
+            <span className="re-num">{l.stack}</span>
           </li>
         ))}
       </ol>
@@ -74,14 +74,14 @@ export function CasePage({ slug, onBack }: { slug: string; onBack(): void }) {
       </nav>
 
       <header className="re-case-head">
-        <p className="re-mono re-case-meta">{[s.kind, s.years].filter(Boolean).join(' · ')}</p>
         <h1 id="re-case-h" ref={heading} tabIndex={-1} className="re-case-name">{s.name}</h1>
         <p className="re-case-q">{questionOf(slug) ?? s.line}</p>
+        <p className="re-num re-case-meta">{[s.kind, s.years].filter(Boolean).join(' · ')}</p>
         {s.readouts.length > 0 && (
           <ul className="re-readouts-list re-case-readouts">
             {s.readouts.map((r) => (
               <li key={r.label}>
-                <b className="re-mono">
+                <b className="re-num">
                   {r.value}
                   {r.to && (<><ArrowRightIcon size={12} weight="bold" aria-hidden="true" /><span className="re-sr"> to </span>{r.to}</>)}
                 </b>
@@ -96,10 +96,10 @@ export function CasePage({ slug, onBack }: { slug: string; onBack(): void }) {
         <div className="re-case-body re-solid">
           {c && (
             <dl className="re-case-context">
-              <div><dt className="re-mono">Product</dt><dd>{c.context.product}</dd></div>
-              <div><dt className="re-mono">Users</dt><dd>{c.context.users}</dd></div>
-              <div><dt className="re-mono">My role</dt><dd>{c.context.role}</dd></div>
-              <div><dt className="re-mono">Time</dt><dd>{c.context.time}</dd></div>
+              <div><dt className="re-num">Product</dt><dd>{c.context.product}</dd></div>
+              <div><dt className="re-num">Users</dt><dd>{c.context.users}</dd></div>
+              <div><dt className="re-num">My role</dt><dd>{c.context.role}</dd></div>
+              <div><dt className="re-num">Time</dt><dd>{c.context.time}</dd></div>
             </dl>
           )}
 
@@ -145,7 +145,7 @@ export function CasePage({ slug, onBack }: { slug: string; onBack(): void }) {
               {s.layers.map((l, i) => (
                 <li key={l.title} data-active={active === i || undefined} onMouseEnter={() => setActive(i)}>
                   <h3>{l.title}</h3>
-                  <p className="re-mono re-layer-stack">{l.stack}</p>
+                  <p className="re-num re-layer-stack">{l.stack}</p>
                   <p>{l.description}</p>
                 </li>
               ))}
@@ -161,20 +161,20 @@ export function CasePage({ slug, onBack }: { slug: string; onBack(): void }) {
               <div className="re-eng-body">
                 {c.engineering.map((g) => (
                   <section key={g.title}>
-                    <h3 className="re-mono">{g.title}</h3>
+                    <h3 className="re-num">{g.title}</h3>
                     <ul className="re-case-list">{g.items.map((x) => <li key={x}>{x}</li>)}</ul>
                   </section>
                 ))}
                 {c.record && (
                   <section>
-                    <h3 className="re-mono">{c.record.title}</h3>
+                    <h3 className="re-num">{c.record.title}</h3>
                     <ol className="re-record">
                       {c.record.rows.map((r) => (
                         <li key={r.what}>
-                          <span className="re-mono">{r.when}</span>
+                          <span className="re-num">{r.when}</span>
                           <div>
                             <strong>{r.what}</strong>
-                            <pre className="re-mono">{r.lines.join('\n')}</pre>
+                            <pre className="re-num">{r.lines.join('\n')}</pre>
                           </div>
                         </li>
                       ))}
@@ -201,6 +201,10 @@ export function CasePage({ slug, onBack }: { slug: string; onBack(): void }) {
         </div>
 
         <aside className="re-case-side">
+          <figure className="re-case-shot" data-shape={s.aspect < 1 ? 'phone' : 'wide'}>
+            <img src={s.texture} alt={`${s.name}, a screen from the product`} width={s.aspect < 1 ? Math.round(1024 * s.aspect) : 1280} height={s.aspect < 1 ? 1024 : 800} loading="lazy" decoding="async" />
+            {INVENTED.has(s.slug) && <figcaption>Real product screens · invented data</figcaption>}
+          </figure>
           <Prism layers={s.layers} active={active} onActive={setActive} />
         </aside>
       </div>
@@ -208,7 +212,7 @@ export function CasePage({ slug, onBack }: { slug: string; onBack(): void }) {
       {s.gallery.length > 0 && (
         <section className="re-case-screens" aria-labelledby="re-screens-h">
           <h2 id="re-screens-h" className="re-case-h2">Screens</h2>
-          {s.gallery.some((g) => g.alt.includes('Invented data')) && <p className="re-case-note re-mono">Recreated screens, with invented data.</p>}
+          {s.gallery.some((g) => g.alt.includes('Invented data')) && <p className="re-case-note re-num">Recreated screens, with invented data.</p>}
           <ul data-shape={s.gallery[0].height > s.gallery[0].width ? 'phone' : 'wide'}>
             {s.gallery.map((g) => (
               <li key={g.src} className="re-solid">
@@ -223,7 +227,7 @@ export function CasePage({ slug, onBack }: { slug: string; onBack(): void }) {
       <nav className="re-case-more" aria-label="More cases">
         {[{ label: 'Previous', p: prev }, { label: 'Next', p: next }].map(({ label, p }) => (
           <Link key={label} className="re-case-next re-solid" to={`${BASE}/${p.slug}`} viewTransition>
-            <span className="re-mono">{label}</span>
+            <span className="re-num">{label}</span>
             <strong>{p.name}</strong>
             <span className="re-case-next-q">{questionOf(p.slug) ?? p.line}</span>
           </Link>

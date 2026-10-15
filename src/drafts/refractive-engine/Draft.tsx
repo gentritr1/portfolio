@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router'
 import Lenis from 'lenis'
 import { ArrowCounterClockwiseIcon, ArrowRightIcon, ArrowUpRightIcon, GaugeIcon, XIcon } from '@phosphor-icons/react'
 import { createScene, hasWebGL, STAGE, type RefractiveScene, type Stats } from './scene'
-import { ledger, links, systems, type Value } from './data'
+import { INVENTED, ledger, links, systems, type Value } from './data'
 import { CasePage } from './CasePage'
 import './refractive-engine.css'
 
@@ -78,7 +78,7 @@ function Bar({ v, scale, kind }: { v: Value; scale: number; kind: 'before' | 'af
   return (
     <div className="re-meter" data-kind={kind}>
       <span className="re-meter-kind">{kind === 'before' ? 'Before' : 'After'}</span>
-      <b className="re-mono">{v.text}</b>
+      <b className="re-num">{v.text}</b>
       <span className="re-meter-track" aria-hidden="true">
         <i className="re-meter-fill" style={{ '--w': low } as CSSProperties} />
         {v.high !== undefined && <i className="re-meter-range" style={{ '--l': low, '--w': high - low } as CSSProperties} />}
@@ -143,7 +143,17 @@ export default function Draft() {
     if (reduced) return () => html.classList.remove('re-html')
     const lenis = new Lenis({ autoRaf: true, anchors: true, duration: 1.1 })
     lenisRef.current = lenis
+    // While Lenis eases a wheel scroll it ignores native scroll events and keeps writing its own position, so a
+    // scroll it did not make (a key, focus moving into view, a script's scrollTo) within that second was undone.
+    // A position far from the one Lenis last wrote is someone else's: hand it to Lenis instead of fighting it.
+    const onForeign = () => {
+      if (lenis.isScrolling === 'smooth' && Math.abs(lenis.actualScroll - lenis.animatedScroll) > 8) {
+        lenis.scrollTo(lenis.actualScroll, { immediate: true, force: true })
+      }
+    }
+    addEventListener('scroll', onForeign, { passive: true })
     return () => {
+      removeEventListener('scroll', onForeign)
       lenis.destroy()
       lenisRef.current = null
       html.classList.remove('re-html')
@@ -318,6 +328,10 @@ export default function Draft() {
     jump(homeScroll.current ?? (lab ? lab.getBoundingClientRect().top + scrollY : 0))
     const i = systems.findIndex((s) => s.slug === from)
     requestAnimationFrame(() => {
+      // Opened from the picture index: focus returns to that picture's link, which is where the reader is.
+      const card = document.querySelector<HTMLElement>(`.re-work-item[href="${BASE}/${from}"]`)
+      const r = card?.getBoundingClientRect()
+      if (card && r && r.bottom > 0 && r.top < innerHeight) { card.focus({ preventScroll: true }); return }
       const label = labelRefs.current[i]
       label?.focus({ preventScroll: true })
       if (document.activeElement !== label) document.getElementById('re-lab-h')?.focus({ preventScroll: true })
@@ -379,7 +393,7 @@ export default function Draft() {
     </>
   )
   const coordTable = mode === 'tensor' ? (
-    <table className="re-coords re-mono">
+    <table className="re-coords re-num">
       <caption>Scene coordinates, cluster centres</caption>
       <thead><tr><th scope="col"><span className="re-sr">Cluster</span></th><th scope="col">x</th><th scope="col">y</th><th scope="col">z</th></tr></thead>
       <tbody>
@@ -389,7 +403,7 @@ export default function Draft() {
       </tbody>
     </table>
   ) : (
-    <dl className="re-coords re-coords-grid re-mono">
+    <dl className="re-coords re-coords-grid re-num">
       <dt>Scene coordinates, layout grid</dt>
       <dd>12 columns, pitch {(25 / 12).toFixed(2)} units, from x -12.50 to 12.50</dd>
     </dl>
@@ -399,7 +413,7 @@ export default function Draft() {
     <div ref={rootRef} className="re-root" data-mode={mode} data-reduced={reduced || undefined} data-ready={ready || noGl || undefined} data-open={open !== null || undefined} data-case={caseSlug !== undefined || undefined}>
       <div className="re-canvas" ref={hostRef} aria-hidden="true" />
       <div className="re-shade" aria-hidden="true" />
-      {noGl && <p className="re-nogl re-mono">WebGL 2 is off in this browser, so the field is hidden. Every project still opens.</p>}
+      {noGl && <p className="re-nogl re-num">WebGL 2 is off in this browser, so the field is hidden. Every project still opens.</p>}
 
       <header className="re-bar re-solid">
         {caseSlug ? (
@@ -413,18 +427,18 @@ export default function Draft() {
         </div>
         <button type="button" className="re-statbtn" aria-expanded={statsOpen} aria-controls="re-stats" onClick={() => setStatsOpen((o) => !o)}>
           <GaugeIcon size={16} weight="regular" aria-hidden="true" />
-          <span className="re-mono"><span data-stat="fps">...</span> fps</span>
+          <span className="re-num"><span data-stat="fps">...</span> fps</span>
           <span className="re-sr">, show live render stats</span>
         </button>
       </header>
 
       <section id="re-stats" className="re-stats re-solid" data-open={statsOpen || undefined} inert={!statsOpen} aria-label="Live render stats">
-        <dl className="re-readouts re-mono">{statsRows}</dl>
+        <dl className="re-readouts re-num">{statsRows}</dl>
         <div className="re-spark">
           <canvas data-spark aria-hidden="true" />
-          <p className="re-mono">Last 120 frames, ms. Dashed line: 16.7 ms.</p>
+          <p className="re-num">Last 120 frames, ms. Dashed line: 16.7 ms.</p>
         </div>
-        {mode === 'tensor' && <p className="re-tag re-mono">Simulation: the clusters are drawn by the shader, not taken from a model.</p>}
+        {mode === 'tensor' && <p className="re-tag re-num">Simulation: the clusters are drawn by the shader, not taken from a model.</p>}
         {coordTable}
       </section>
 
@@ -435,7 +449,7 @@ export default function Draft() {
           <h1 className="re-title">Gentrit Rashiti</h1>
           <p className="re-role">Senior Frontend, Mobile &amp; AI Engineer</p>
           <p className="re-sub">A model gives you raw possibility. An interface gives it a shape people can use. I build that shape, on the web and on phones.</p>
-          {!noGl && <p className="re-hint re-mono">Move the cursor over the field. Inside the lens it snaps into a page layout.</p>}
+          {!noGl && <p className="re-hint re-num">Move the cursor over the field. Inside the lens it snaps into a page layout.</p>}
         </header>
 
         <section className="re-modes" data-stage={STAGE.modes} aria-labelledby="re-modes-h">
@@ -452,7 +466,7 @@ export default function Draft() {
                 <span>Seven clusters and the links between them, the way related items group in an embedding.</span>
               </button>
             </div>
-            {mode === 'tensor' && <p className="re-tag re-mono">Simulation: the clusters are drawn by the shader, not taken from a model.</p>}
+            {mode === 'tensor' && <p className="re-tag re-num">Simulation: the clusters are drawn by the shader, not taken from a model.</p>}
             {!noGl && coordTable}
           </div>
         </section>
@@ -495,7 +509,7 @@ export default function Draft() {
             <p className="re-lede">These controls change the scene behind this page. The numbers are measured live in this tab. A 60 Hz screen caps the rate at 60 frames a second, so watch the frame time too.</p>
             <div className="re-ctl">
               <label htmlFor="re-count">Particles drawn</label>
-              <output htmlFor="re-count" className="re-mono">{fmt(drawn)}</output>
+              <output htmlFor="re-count" className="re-num">{fmt(drawn)}</output>
               <input id="re-count" type="range" min={5000} max={count} step={5000} value={drawn} onChange={(e) => setDrawn(Number(e.target.value))} style={{ '--p': (drawn - 5000) / (count - 5000) } as CSSProperties} />
             </div>
             <div className="re-ctl re-ctl-row">
@@ -510,11 +524,11 @@ export default function Draft() {
               <span id="re-pr-l">Pixel ratio</span>
               <div className="re-seg" role="group" aria-labelledby="re-pr-l">
                 {RATIOS.map((r) => (
-                  <button key={r} type="button" aria-pressed={ratio === r} onClick={() => setRatio(r)} className="re-mono">{r}x</button>
+                  <button key={r} type="button" aria-pressed={ratio === r} onClick={() => setRatio(r)} className="re-num">{r}x</button>
                 ))}
               </div>
             </div>
-            <dl className="re-live re-mono">
+            <dl className="re-live re-num">
               <div><dt>Frames / s</dt><dd data-stat="fps">...</dd></div>
               <div><dt>Frame time</dt><dd><span data-stat="ms">...</span> ms</dd></div>
               <div><dt>Worst of 120</dt><dd><span data-stat="worst">...</span> ms</dd></div>
@@ -522,7 +536,7 @@ export default function Draft() {
             </dl>
             <div className="re-spark re-spark-lg">
               <canvas data-spark aria-hidden="true" />
-              <p className="re-mono">Last 120 frames, ms. Dashed line: 16.7 ms.</p>
+              <p className="re-num">Last 120 frames, ms. Dashed line: 16.7 ms.</p>
             </div>
             <button type="button" className="re-btn re-btn-quiet" onClick={() => { setDrawn(count); setBloomOn(true); setCaOn(true); setRatio(RATIOS.reduce((a, b) => (Math.abs(b - Math.min(devicePixelRatio || 1, 2)) < Math.abs(a - Math.min(devicePixelRatio || 1, 2)) ? b : a))) }}>
               <ArrowCounterClockwiseIcon size={14} weight="bold" aria-hidden="true" />
@@ -550,10 +564,31 @@ export default function Draft() {
                   </div>
                 ))}
                 <p className="re-row-note">{row.note}</p>
-                <p className="re-src re-mono">Source: {row.source}</p>
+                <p className="re-src re-num">Source: {row.source}</p>
               </li>
             ))}
           </ol>
+        </section>
+
+        <section className="re-work" data-stage={STAGE.ledger} aria-labelledby="re-work-h">
+          <h2 id="re-work-h" className="re-h2">The eight, in full</h2>
+          <p className="re-lede">The same screens the prisms carry. Each one opens its case: the question, the constraints, the decision and the result.</p>
+          <ul className="re-work-list">
+            {systems.map((s) => (
+              <li key={s.slug} className="re-solid">
+                <a className="re-work-item" href={`${BASE}/${s.slug}`} onClick={(e) => { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return; e.preventDefault(); toCase(s.slug) }}>
+                  <span className="re-work-shot" data-shape={s.aspect < 1 ? 'phone' : 'wide'}>
+                    <img src={s.texture} alt={`${s.name}, a screen from the product`} width={s.aspect < 1 ? Math.round(1024 * s.aspect) : 1280} height={s.aspect < 1 ? 1024 : 800} loading="lazy" decoding="async" />
+                  </span>
+                  <span className="re-work-text">
+                    <strong>{s.name}</strong>
+                    <span>{[s.kind, s.years].filter(Boolean).join(' · ')}</span>
+                    {INVENTED.has(s.slug) && <span>Real product screens · invented data</span>}
+                  </span>
+                </a>
+              </li>
+            ))}
+          </ul>
         </section>
 
         <footer className="re-contact" data-stage={STAGE.contact}>
@@ -565,14 +600,14 @@ export default function Draft() {
               <a className="re-btn" href={links.linkedin} target="_blank" rel="noreferrer">LinkedIn<ArrowUpRightIcon size={14} weight="bold" aria-hidden="true" /><span className="re-sr"> (opens in a new tab)</span></a>
               <a className="re-btn" href={links.cv}>CV (PDF)</a>
             </div>
-            <p className="re-foot re-mono">Draft · The Refractive Engine · {fmt(count)} particles positioned on the GPU</p>
+            <p className="re-foot re-num">Draft · The Refractive Engine · {fmt(count)} particles positioned on the GPU</p>
           </div>
         </footer>
       </main>
 
       <div className="re-layer-labels" aria-hidden="true">
         {[0, 1, 2].map((l) => (
-          <span key={l} ref={(el) => { layerRefs.current[l] = el }} className="re-layer-label re-mono">{sys.layers[l]?.title}</span>
+          <span key={l} ref={(el) => { layerRefs.current[l] = el }} className="re-layer-label re-num">{sys.layers[l]?.title}</span>
         ))}
       </div>
 
@@ -586,7 +621,7 @@ export default function Draft() {
       />
       <aside ref={panelRef} className="re-panel re-solid" role="dialog" aria-modal="true" aria-labelledby="re-panel-h" data-open={open !== null || undefined} inert={open === null}>
         <div className="re-panel-bar">
-          <p className="re-mono re-panel-meta">{[sys.kind, sys.years].filter(Boolean).join(' · ')}</p>
+          <p className="re-num re-panel-meta">{[sys.kind, sys.years].filter(Boolean).join(' · ')}</p>
           <button type="button" className="re-close" onClick={() => setOpen(null)}>
             <XIcon size={14} weight="bold" aria-hidden="true" />
             Close <kbd>Esc</kbd>
@@ -598,7 +633,7 @@ export default function Draft() {
           {sys.layers.map((l, i) => (
             <li key={l.title} onMouseEnter={() => sceneRef.current?.highlightLayer(i)}>
               <h3>{l.title}</h3>
-              <p className="re-mono re-layer-stack">{l.stack}</p>
+              <p className="re-num re-layer-stack">{l.stack}</p>
               <p>{l.description}</p>
             </li>
           ))}
@@ -607,7 +642,7 @@ export default function Draft() {
           <ul className="re-readouts-list">
             {sys.readouts.map((r) => (
               <li key={r.label}>
-                <b className="re-mono">
+                <b className="re-num">
                   {r.value}
                   {r.to && (<><ArrowRightIcon size={12} weight="bold" aria-hidden="true" /><span className="re-sr"> to </span>{r.to}</>)}
                 </b>

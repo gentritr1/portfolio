@@ -36,7 +36,7 @@ function Twin() {
       <div className="eh-twin-steps" role="group" aria-label="Test steps">
         {twinSteps.map((s, i) => (
           <button key={s} type="button" aria-pressed={i === step} onClick={() => setStep(i)}>
-            <span className="eh-mono">{String(i + 1).padStart(2, '0')}</span> {s}
+            <span className="eh-num">{i + 1}</span> {s}
           </button>
         ))}
       </div>
@@ -54,7 +54,7 @@ export function Dive({ system: s, reduced, page = false, onLeave }: { system: Sy
     <motion.div className={page ? 'eh-dive eh-dive-page' : 'eh-dive'} initial="hidden" animate="shown" variants={{ shown: { transition: { staggerChildren: reduced ? 0 : 0.045, delayChildren: reduced ? 0 : 0.18 } } }}>
       <motion.header className="eh-dive-head" variants={reduced ? undefined : rise}>
         <Heading id={page ? 'eh-case-h' : 'eh-drawer-h'} tabIndex={page ? -1 : undefined}>{s.name}</Heading>
-        <p className="eh-dive-meta eh-mono">{[s.kind, s.years, s.role].filter(Boolean).join(' · ')}</p>
+        <p className="eh-dive-meta">{[s.kind, s.years, s.role].filter(Boolean).join(' · ')}</p>
         {question && <p className="eh-dive-q">{question}</p>}
         {s.story && <p className="eh-dive-lede">{s.story.product}</p>}
       </motion.header>
@@ -83,9 +83,9 @@ export function Dive({ system: s, reduced, page = false, onLeave }: { system: Sy
         <>
           <Block title="Context" reduced={reduced}>
             <dl className="eh-specs">
-              <div><dt className="eh-mono">Users</dt><dd>{c.context.users}</dd></div>
-              <div><dt className="eh-mono">My role</dt><dd>{c.context.role}</dd></div>
-              <div><dt className="eh-mono">Time</dt><dd>{c.context.time}</dd></div>
+              <div><dt>Users</dt><dd>{c.context.users}</dd></div>
+              <div><dt>My role</dt><dd>{c.context.role}</dd></div>
+              <div><dt>Time</dt><dd>{c.context.time}</dd></div>
             </dl>
           </Block>
           <Block title="Constraints" reduced={reduced}>
@@ -120,7 +120,7 @@ export function Dive({ system: s, reduced, page = false, onLeave }: { system: Sy
           <ol className="eh-layers">
             {s.layers.map((l, i) => (
               <li key={l.title} style={{ '--i': i } as React.CSSProperties}>
-                <span className="eh-layer-stack eh-mono">{l.stack}</span>
+                <span className="eh-layer-stack">{l.stack}</span>
                 <strong>{l.title}</strong>
                 <p>{l.description}</p>
               </li>
@@ -141,11 +141,11 @@ export function Dive({ system: s, reduced, page = false, onLeave }: { system: Sy
             <ol className="eh-day">
               {stations.map((st) => (
                 <li key={st.name}>
-                  <span className="eh-day-time eh-mono">{st.time}</span>
+                  <span className="eh-day-time eh-num">{st.time}</span>
                   <div>
                     <strong>{st.name}</strong>
                     <p>{st.line}</p>
-                    <pre className="eh-mono">{st.artefact.join('\n')}</pre>
+                    <pre>{st.artefact.join('\n')}</pre>
                     <small>{st.source}</small>
                   </div>
                 </li>
@@ -175,7 +175,7 @@ export function Dive({ system: s, reduced, page = false, onLeave }: { system: Sy
           <dl className="eh-specs">
             {s.facts.map((f) => (
               <div key={f.label}>
-                <dt className="eh-mono">{f.label}</dt>
+                <dt>{f.label}</dt>
                 <dd>{f.value}</dd>
               </div>
             ))}
@@ -185,10 +185,10 @@ export function Dive({ system: s, reduced, page = false, onLeave }: { system: Sy
 
       {c && c.engineering.length > 0 && (
         <motion.details className="eh-eng" variants={reduced ? undefined : rise}>
-          <summary className="eh-mono">Engineering details</summary>
+          <summary>Engineering details</summary>
           {c.engineering.map((g) => (
             <section key={g.title}>
-              <h4 className="eh-mono">{g.title}</h4>
+              <h4>{g.title}</h4>
               <ul className="eh-list">{g.items.map((x) => <li key={x}>{x}</li>)}</ul>
             </section>
           ))}
