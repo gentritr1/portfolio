@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react'
 import { useNavigate, useParams } from 'react-router'
 import Lenis from 'lenis'
-import { ArrowCounterClockwiseIcon, ArrowRightIcon, ArrowUpRightIcon, GaugeIcon, XIcon } from '@phosphor-icons/react'
+import { ArrowCounterClockwiseIcon, ArrowUpRightIcon, GaugeIcon } from '@phosphor-icons/react'
 import { createScene, hasWebGL, STAGE, type RefractiveScene, type Stats } from './scene'
 import { INVENTED, ledger, links, systems, type Value } from './data'
 import { CasePage } from './CasePage'
+import { Lab } from './Lab'
 import './refractive-engine.css'
 
 type Mode = 'lens' | 'tensor'
@@ -93,11 +94,6 @@ export default function Draft() {
   const hostRef = useRef<HTMLDivElement>(null)
   const sceneRef = useRef<RefractiveScene | null>(null)
   const lenisRef = useRef<Lenis | null>(null)
-  const panelRef = useRef<HTMLElement>(null)
-  const lastFocus = useRef<HTMLElement | null>(null)
-  const scrimDown = useRef(false)
-  const labelRefs = useRef<(HTMLButtonElement | null)[]>([])
-  const layerRefs = useRef<(HTMLSpanElement | null)[]>([])
   const reduced = useMedia('(prefers-reduced-motion: reduce)')
   const [count] = useState(() => (innerWidth < 768 || (navigator.hardwareConcurrency ?? 8) <= 4 ? 45_000 : 100_000))
   const [noGl, setNoGl] = useState(() => !hasWebGL())
@@ -105,9 +101,6 @@ export default function Draft() {
   const [sceneKey, setSceneKey] = useState(0)
   const [mode, setModeState] = useState<Mode>(readMode)
   const [statsOpen, setStatsOpen] = useState(false)
-  const [open, setOpen] = useState<number | null>(null)
-  const [shown, setShown] = useState(0)
-  const [hover, setHover] = useState<number | null>(null)
   const [stageQ, setStageQ] = useState(0)
   const [drawn, setDrawn] = useState(count)
   const [bloomOn, setBloomOn] = useState(true)
@@ -128,12 +121,6 @@ export default function Draft() {
     setModeState(m)
     saveMode(m)
     sceneRef.current?.setMode(m === 'tensor' ? 1 : 0)
-  }, [])
-
-  const openModule = useCallback((i: number, from?: HTMLElement | null) => {
-    lastFocus.current = from ?? (document.activeElement as HTMLElement | null)
-    setShown(i)
-    setOpen(i)
   }, [])
 
   // Lenis smooth scroll, off under reduced motion. The page's own smooth scroll-behavior would fight it, so it is switched off here.
@@ -170,8 +157,6 @@ export default function Draft() {
         count,
         reduced,
         mode: modeRef.current === 'tensor' ? 1 : 0,
-        prisms: systems.map((s) => ({ texture: s.texture, aspect: s.aspect, tint: s.tint })),
-        onHover: setHover,
         onReady: () => setReady(true),
       })
     } catch {
@@ -179,7 +164,6 @@ export default function Draft() {
       return
     }
     sceneRef.current = scene
-    scene.bindLabels(labelRefs.current, layerRefs.current)
     queueMicrotask(() => setSceneKey((k) => k + 1))
 
     // Each section's centre maps to its stage. A section taller than the screen holds its stage while it fills the view.
@@ -215,24 +199,22 @@ export default function Draft() {
       if (e.pointerType !== 'mouse') return
       px = e.clientX
       py = e.clientY
-      inside = !onCase.current && !(e.target as HTMLElement).closest('.re-solid, [role="dialog"], button, a, input')
+      inside = !onCase.current && !(e.target as HTMLElement).closest('.re-solid, button, a, input')
       if (pending) return
       pending = true
       requestAnimationFrame(() => { pending = false; scene.setPointer(px, py, inside) })
     }
     const onLeave = () => { inside = false; scene.setPointer(px, py, false) }
-    // A press counts on release, and only if the pointer barely moved, so starting a scroll never fires it.
-    // A tap can open a prism; only a mouse click ripples the field.
+    // A mouse click ripples the field. It counts on release, and only if the pointer barely moved, so starting a scroll never fires it.
     let downX = 0, downY = 0, downOk = false
     const onDown = (e: PointerEvent) => {
-      downOk = !onCase.current && !(e.target as HTMLElement).closest('.re-solid, [role="dialog"], button, a, input')
+      downOk = e.pointerType === 'mouse' && !onCase.current && !(e.target as HTMLElement).closest('.re-solid, button, a, input')
       downX = e.clientX
       downY = e.clientY
     }
     const onUp = (e: PointerEvent) => {
       if (!downOk || Math.hypot(e.clientX - downX, e.clientY - downY) > 6) return
-      const hit = scene.press(e.clientX, e.clientY, e.pointerType === 'mouse')
-      if (hit !== null) openModule(hit, null)
+      scene.ripple(e.clientX, e.clientY)
     }
     measure()
     onScroll()
@@ -253,7 +235,7 @@ export default function Draft() {
       scene.dispose()
       sceneRef.current = null
     }
-  }, [reduced, count, noGl, openModule])
+  }, [reduced, count, noGl])
 
   useEffect(() => { modeRef.current = mode }, [mode])
 
@@ -298,11 +280,6 @@ export default function Draft() {
     return () => clearInterval(id)
   }, [coordsOn, sceneKey])
 
-  useEffect(() => {
-    document.documentElement.style.cursor = hover !== null && open === null && !caseSlug ? 'pointer' : ''
-    return () => { document.documentElement.style.cursor = '' }
-  }, [hover, open, caseSlug])
-
   // The draft places the scroll itself on every route change, so the browser's restore on Back must not move it again.
   useEffect(() => {
     const was = history.scrollRestoration
@@ -326,22 +303,20 @@ export default function Draft() {
     if (from === undefined) return
     const lab = document.querySelector<HTMLElement>('.re-lab')
     jump(homeScroll.current ?? (lab ? lab.getBoundingClientRect().top + scrollY : 0))
-    const i = systems.findIndex((s) => s.slug === from)
     requestAnimationFrame(() => {
-      // Opened from the picture index: focus returns to that picture's link, which is where the reader is.
-      const card = document.querySelector<HTMLElement>(`.re-work-item[href="${BASE}/${from}"]`)
-      const r = card?.getBoundingClientRect()
-      if (card && r && r.bottom > 0 && r.top < innerHeight) { card.focus({ preventScroll: true }); return }
-      const label = labelRefs.current[i]
-      label?.focus({ preventScroll: true })
-      if (document.activeElement !== label) document.getElementById('re-lab-h')?.focus({ preventScroll: true })
+      // Focus returns to the link the reader left by: a picture in the index, or the chamber's Open project, which still
+      // shows that product. Otherwise to that product's row in the chamber index.
+      const inView = (el: HTMLElement | null) => { const r = el?.getBoundingClientRect(); return el && r && r.bottom > 0 && r.top < innerHeight ? el : null }
+      const back =
+        inView(document.querySelector<HTMLElement>(`.re-work-item[href="${BASE}/${from}"]`)) ??
+        inView(document.querySelector<HTMLElement>(`.re-ch-open[href="${BASE}/${from}"]`)) ??
+        inView(document.querySelector<HTMLElement>(`.re-ch-index button[data-slug="${from}"]`))
+      ;(back ?? document.getElementById('re-lab-h'))?.focus({ preventScroll: true })
     })
   }, [caseSlug])
 
   const toCase = (slug: string) => {
     homeScroll.current = scrollY
-    lastFocus.current = null
-    setOpen(null)
     navigate(`${BASE}/${slug}`, { viewTransition: true })
   }
   const toHome = (top = false) => {
@@ -349,40 +324,6 @@ export default function Draft() {
     navigate(BASE, { viewTransition: true })
   }
 
-  // Module panel: scene focus, scroll lock, Escape, focus trap, focus return.
-  useEffect(() => {
-    sceneRef.current?.open(open)
-    if (open === null) {
-      sceneRef.current?.highlightLayer(null)
-      lastFocus.current?.focus({ preventScroll: true })
-      return
-    }
-    const html = document.documentElement
-    const gutter = innerWidth - html.clientWidth
-    lenisRef.current?.stop()
-    html.style.overflow = 'hidden'
-    html.style.paddingRight = `${gutter}px`
-    const t = setTimeout(() => panelRef.current?.querySelector<HTMLElement>('.re-close')?.focus({ preventScroll: true }), 40)
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setOpen(null)
-      if (e.key !== 'Tab' || !panelRef.current) return
-      const els = [...panelRef.current.querySelectorAll<HTMLElement>('a[href], button:not([disabled])')]
-      const first = els[0], last = els[els.length - 1]
-      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus() }
-      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus() }
-    }
-    addEventListener('keydown', onKey)
-    return () => {
-      clearTimeout(t)
-      removeEventListener('keydown', onKey)
-      html.style.overflow = ''
-      html.style.paddingRight = ''
-      lenisRef.current?.start()
-    }
-  }, [open])
-
-  const labOn = !noGl && open === null && Math.abs(stageQ - STAGE.lab) <= 0.5
-  const sys = systems[shown]
   const statsRows = (
     <>
       <div><dt>Frames / s</dt><dd data-stat="fps">...</dd></div>
@@ -410,7 +351,7 @@ export default function Draft() {
   )
 
   return (
-    <div ref={rootRef} className="re-root" data-mode={mode} data-reduced={reduced || undefined} data-ready={ready || noGl || undefined} data-open={open !== null || undefined} data-case={caseSlug !== undefined || undefined}>
+    <div ref={rootRef} className="re-root" data-mode={mode} data-reduced={reduced || undefined} data-ready={ready || noGl || undefined} data-case={caseSlug !== undefined || undefined}>
       <div className="re-canvas" ref={hostRef} aria-hidden="true" />
       <div className="re-shade" aria-hidden="true" />
       {noGl && <p className="re-nogl re-num">WebGL 2 is off in this browser, so the field is hidden. Every project still opens.</p>}
@@ -471,37 +412,7 @@ export default function Draft() {
           </div>
         </section>
 
-        <section className="re-lab" data-stage={STAGE.lab} aria-labelledby="re-lab-h">
-          <div className="re-lab-head">
-            <h2 id="re-lab-h" className="re-h2" tabIndex={-1}>Eight products, three layers each</h2>
-            <p className="re-lede">Each prism is a shipped product. Open one and it splits into the layers it is built from.</p>
-          </div>
-          {noGl && (
-            <ul className="re-lab-list">
-              {systems.map((s, i) => (
-                <li key={s.slug}>
-                  <button type="button" className="re-btn" onClick={(e) => openModule(i, e.currentTarget)}>{s.name}<ArrowRightIcon size={14} weight="bold" aria-hidden="true" /></button>
-                </li>
-              ))}
-            </ul>
-          )}
-        </section>
-        <div className="re-labels" aria-hidden={!labOn || undefined}>
-          {systems.map((s, i) => (
-            <button
-              key={s.slug}
-              ref={(el) => { labelRefs.current[i] = el }}
-              type="button"
-              className="re-label re-solid"
-              data-hover={hover === i || undefined}
-              tabIndex={labOn ? 0 : -1}
-              aria-haspopup="dialog"
-              onClick={(e) => openModule(i, e.currentTarget)}
-            >
-              {s.name}
-            </button>
-          ))}
-        </div>
+        <Lab mode={mode} reduced={reduced} noGl={noGl} onOpen={toCase} />
 
         <section className="re-sim" data-stage={STAGE.sim} aria-labelledby="re-sim-h">
           <div className="re-card re-solid">
@@ -605,57 +516,6 @@ export default function Draft() {
         </footer>
       </main>
 
-      <div className="re-layer-labels" aria-hidden="true">
-        {[0, 1, 2].map((l) => (
-          <span key={l} ref={(el) => { layerRefs.current[l] = el }} className="re-layer-label re-num">{sys.layers[l]?.title}</span>
-        ))}
-      </div>
-
-      {/* Closes only on a press that began on the scrim: the click that follows the tap which opened a prism lands here too. */}
-      <div
-        className="re-scrim"
-        data-open={open !== null || undefined}
-        onPointerDown={() => { scrimDown.current = true }}
-        onClick={() => { if (scrimDown.current) setOpen(null); scrimDown.current = false }}
-        aria-hidden="true"
-      />
-      <aside ref={panelRef} className="re-panel re-solid" role="dialog" aria-modal="true" aria-labelledby="re-panel-h" data-open={open !== null || undefined} inert={open === null}>
-        <div className="re-panel-bar">
-          <p className="re-num re-panel-meta">{[sys.kind, sys.years].filter(Boolean).join(' · ')}</p>
-          <button type="button" className="re-close" onClick={() => setOpen(null)}>
-            <XIcon size={14} weight="bold" aria-hidden="true" />
-            Close <kbd>Esc</kbd>
-          </button>
-        </div>
-        <h2 id="re-panel-h" className="re-panel-name">{sys.name}</h2>
-        <p className="re-panel-line">{sys.line}</p>
-        <ol className="re-layers" onMouseLeave={() => sceneRef.current?.highlightLayer(null)}>
-          {sys.layers.map((l, i) => (
-            <li key={l.title} onMouseEnter={() => sceneRef.current?.highlightLayer(i)}>
-              <h3>{l.title}</h3>
-              <p className="re-num re-layer-stack">{l.stack}</p>
-              <p>{l.description}</p>
-            </li>
-          ))}
-        </ol>
-        {sys.readouts.length > 0 && (
-          <ul className="re-readouts-list">
-            {sys.readouts.map((r) => (
-              <li key={r.label}>
-                <b className="re-num">
-                  {r.value}
-                  {r.to && (<><ArrowRightIcon size={12} weight="bold" aria-hidden="true" /><span className="re-sr"> to </span>{r.to}</>)}
-                </b>
-                <span>{r.label}</span>
-              </li>
-            ))}
-          </ul>
-        )}
-        <a className="re-btn re-btn-solid re-case" href={`${BASE}/${sys.slug}`} onClick={(e) => { if (e.metaKey || e.ctrlKey || e.shiftKey) return; e.preventDefault(); toCase(sys.slug) }}>
-          Read the full case
-          <ArrowRightIcon size={14} weight="bold" aria-hidden="true" />
-        </a>
-      </aside>
     </div>
   )
 }

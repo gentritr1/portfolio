@@ -4,18 +4,9 @@ import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js'
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js'
 import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js'
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js'
-import { Pass, FullScreenQuad } from 'three/examples/jsm/postprocessing/Pass.js'
-import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js'
 
 /** Scroll stages, one per section. */
 export const STAGE = { hero: 0, modes: 1, lab: 2, sim: 3, ledger: 4, contact: 5 } as const
-
-export interface Prism {
-  texture: string
-  /** Width / height of the texture. */
-  aspect: number
-  tint: string
-}
 
 export interface Stats {
   fps: number
@@ -35,11 +26,9 @@ export interface RefractiveScene {
   setStage(stage: number): void
   /** Mouse only. Client pixels; `inside` is false over UI. */
   setPointer(x: number, y: number, inside: boolean): void
-  /** Returns the prism under the point, if any; otherwise ripples the field when `ripple` is set. */
-  press(x: number, y: number, ripple: boolean): number | null
+  /** A mouse click: a ripple across the field. */
+  ripple(x: number, y: number): void
   setMode(mode: 0 | 1): void
-  open(index: number | null): void
-  highlightLayer(index: number | null): void
   setDrawCount(n: number): void
   setBloom(on: boolean): void
   setAberration(on: boolean): void
@@ -47,7 +36,6 @@ export interface RefractiveScene {
   /** Live cluster centroids in world units. */
   centroids(): { x: number; y: number; z: number }[]
   grid: { columns: number; pitch: number; left: number }
-  bindLabels(prisms: (HTMLElement | null)[], layers: (HTMLElement | null)[]): void
   dispose(): void
 }
 
@@ -267,79 +255,9 @@ uniform vec3 uColor;
 uniform float uAlpha;
 void main() { gl_FragColor = vec4(uColor * uAlpha, 1.0); }`
 
-const copyFragment = /* glsl */ `
-uniform sampler2D tDiffuse;
-varying vec2 vUv;
-void main() { gl_FragColor = texture2D(tDiffuse, vUv); }`
 const quadVertex = /* glsl */ `
 varying vec2 vUv;
 void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`
-
-const prismVertex = /* glsl */ `
-varying vec3 vN, vVP, vOP, vON, vOV;
-void main() {
-  vOP = position;
-  vON = normal;
-  vec4 mv = modelViewMatrix * vec4(position, 1.0);
-  vVP = mv.xyz;
-  vN = normalize(normalMatrix * normal);
-  vec3 camObj = (inverse(modelMatrix) * vec4(cameraPosition, 1.0)).xyz;
-  vOV = camObj - position;
-  gl_Position = projectionMatrix * mv;
-}`
-
-/** Glass: the scene behind is sampled with a per-channel offset along the surface normal, so edges split into colour. */
-const prismFragment = /* glsl */ `
-uniform sampler2D uBg, uMap;
-uniform vec2 uRes;
-uniform vec3 uSize, uTint, uAccent;
-uniform float uLayer, uLoaded, uTexAspect, uDim, uHover, uHi, uAppear, uOpen;
-varying vec3 vN, vVP, vOP, vON, vOV;
-float sdRound(vec2 p, vec2 b, float r) { vec2 q = abs(p) - b + r; return length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - r; }
-void main() {
-  vec3 n = normalize(vN);
-  vec3 v = normalize(-vVP);
-  float ndv = clamp(dot(n, v), 0.0, 1.0);
-  vec2 suv = gl_FragCoord.xy / uRes;
-  vec2 off = n.xy * (0.006 + 0.05 * (1.0 - ndv));
-  vec3 straight = texture2D(uBg, suv).rgb;
-  vec3 refr = vec3(texture2D(uBg, suv - off * 0.82).r, texture2D(uBg, suv - off).g, texture2D(uBg, suv - off * 1.22).b);
-  vec3 col = refr * 0.8 + vec3(0.010, 0.012, 0.018);
-  float fres = pow(1.0 - ndv, 3.0);
-  vec3 rim = mix(uAccent, vec3(1.0), 0.35);
-  col += rim * fres * (0.22 + uHover * 0.3 + uHi * 0.6);
-
-  if (vON.z > 0.6) {
-    vec2 bezel = vec2(0.07);
-    vec2 inner = uSize.xy - bezel * 2.0;
-    // The screen sits a little inside the glass: shift it against the view for a touch of parallax.
-    vec3 ov = normalize(vOV);
-    vec2 p = vOP.xy - ov.xy / max(ov.z, 0.25) * 0.05;
-    float d = sdRound(p, inner * 0.5, 0.06);
-    vec2 q = p / inner + 0.5;
-    float ia = inner.x / inner.y;
-    if (ia > uTexAspect) q.y = (q.y - 0.5) * (uTexAspect / ia) + 0.5; else q.x = (q.x - 0.5) * (ia / uTexAspect) + 0.5;
-    float inside = smoothstep(0.012, -0.004, d);
-    if (uLayer < 0.5) {
-      vec3 tex = texture2D(uMap, q).rgb;
-      vec3 screen = mix(vec3(0.02, 0.022, 0.03), tex * 0.92, uLoaded);
-      col = mix(col, screen, inside * 0.94);
-      // A soft diagonal reflection on top of the screen.
-      float sheen = exp(-pow((q.x + q.y * 0.4) - (0.35 + 0.5 * ov.x), 2.0) * 30.0);
-      col += vec3(0.8, 0.85, 1.0) * sheen * 0.05 * inside;
-    } else {
-      // The layers beneath: an outline of the screen and a fine pattern, in the project's colour.
-      vec2 cell = uLayer < 1.5 ? vec2(0.22) : vec2(0.14);
-      vec2 gp = abs(fract(p / cell) - 0.5);
-      float pat = uLayer < 1.5 ? smoothstep(0.47, 0.5, max(gp.x, gp.y)) : smoothstep(0.2, 0.05, length(gp));
-      float edge = smoothstep(0.02, 0.0, abs(d));
-      col += uTint * (pat * 0.16 + edge * 0.7) * inside * (0.5 + 0.5 * uOpen) + uTint * edge * 0.3;
-    }
-  }
-  col += uTint * uHi * 0.05;
-  col *= 1.0 - uDim * 0.72;
-  gl_FragColor = vec4(mix(straight, col, uAppear), 1.0);
-}`
 
 const aberrationShader = {
   uniforms: {
@@ -370,38 +288,6 @@ void main() {
 }`,
 }
 
-/** Draws the glass prisms over the rendered field, sampling that field as the scene behind them. */
-class PrismPass extends Pass {
-  private quad: FullScreenQuad
-  private copyMat: THREE.ShaderMaterial
-  private pscene: THREE.Scene
-  private camera: THREE.Camera
-  private bg: { value: THREE.Texture | null }
-  constructor(pscene: THREE.Scene, camera: THREE.Camera, bg: { value: THREE.Texture | null }) {
-    super()
-    this.pscene = pscene
-    this.camera = camera
-    this.bg = bg
-    this.copyMat = new THREE.ShaderMaterial({ uniforms: { tDiffuse: { value: null } }, vertexShader: quadVertex, fragmentShader: copyFragment, depthTest: false, depthWrite: false })
-    this.quad = new FullScreenQuad(this.copyMat)
-  }
-  render(renderer: THREE.WebGLRenderer, writeBuffer: THREE.WebGLRenderTarget, readBuffer: THREE.WebGLRenderTarget) {
-    this.bg.value = readBuffer.texture
-    this.copyMat.uniforms.tDiffuse.value = readBuffer.texture
-    renderer.setRenderTarget(this.renderToScreen ? null : writeBuffer)
-    renderer.clear()
-    this.quad.render(renderer)
-    const auto = renderer.autoClear
-    renderer.autoClear = false
-    renderer.render(this.pscene, this.camera)
-    renderer.autoClear = auto
-  }
-  dispose() {
-    this.copyMat.dispose()
-    this.quad.dispose()
-  }
-}
-
 const ease = (x: number) => x * x * (3 - 2 * x)
 const easeOut = (x: number) => 1 - Math.pow(1 - x, 3)
 const clamp01 = (x: number) => Math.min(1, Math.max(0, x))
@@ -412,9 +298,9 @@ const gauss = () => {
 
 export function createScene(
   host: HTMLElement,
-  options: { count: number; reduced: boolean; mode: 0 | 1; prisms: Prism[]; onHover(index: number | null): void; onReady(): void },
+  options: { count: number; reduced: boolean; mode: 0 | 1; onReady(): void },
 ): RefractiveScene {
-  const { count, reduced, prisms, onHover, onReady } = options
+  const { count, reduced, onReady } = options
   performance.mark('re:scene-start')
   let pixelRatio = Math.min(devicePixelRatio || 1, 2)
   // Phone dots are a little larger, or the grid disappears at arm's length.
@@ -517,150 +403,30 @@ export function createScene(
   lines.frustumCulled = false
   scene.add(lines)
 
-  // ---------- Prisms, drawn in their own scene by the prism pass ----------
-  const pscene = new THREE.Scene()
-  const bg = { value: null as THREE.Texture | null }
-  const blank = track(new THREE.DataTexture(new Uint8Array([6, 6, 10, 255]), 1, 1))
-  blank.needsUpdate = true
-  const SLAB = 0.15
-  const LAB = new THREE.Vector3(0, -5.5, 2.5)
-  const res = new THREE.Vector2(1, 1)
-  const items = prisms.map((p, i) => {
-    const h = p.aspect < 1 ? 2.55 : 1.95
-    const w = h * p.aspect
-    const group = new THREE.Group()
-    const tint = new THREE.Color(p.tint)
-    const hsl = { h: 0, s: 0, l: 0 }
-    tint.getHSL(hsl)
-    tint.setHSL(hsl.h, Math.min(hsl.s, 0.7), 0.6)
-    const geo = track(new RoundedBoxGeometry(w, h, SLAB, 3, 0.06))
-    const slabs = [0, 1, 2].map((layer) => {
-      const u = {
-        uBg: bg, uMap: { value: blank as THREE.Texture }, uRes: { value: res }, uSize: { value: new THREE.Vector3(w, h, SLAB) },
-        uTint: { value: tint }, uAccent: { value: accent }, uLayer: { value: layer }, uLoaded: { value: 0 }, uTexAspect: { value: p.aspect },
-        uDim: { value: 0 }, uHover: { value: 0 }, uHi: { value: 0 }, uAppear: { value: 0 }, uOpen: { value: 0 },
-      }
-      const mesh = new THREE.Mesh(geo, track(new THREE.ShaderMaterial({ uniforms: u, vertexShader: prismVertex, fragmentShader: prismFragment })))
-      mesh.userData.index = i
-      mesh.position.z = (1 - layer) * SLAB
-      group.add(mesh)
-      return { mesh, u }
-    })
-    pscene.add(group)
-    return { group, slabs, w, h, base: new THREE.Vector3(), baseRot: 0, hover: 0, dim: 0, explode: 0, hi: [0, 0, 0] }
-  })
-  const meshes = items.flatMap((it) => it.slabs.map((s) => s.mesh))
-  let labBounds = { w: 1, h: 1 }
-  let layoutCols = 0
-  function layoutPrisms(cols: number) {
-    if (cols === layoutCols) return
-    layoutCols = cols
-    const rowsOf: (typeof items)[] = []
-    items.forEach((it, i) => { (rowsOf[Math.floor(i / cols)] ??= []).push(it) })
-    const gapX = 0.75, gapY = cols > 2 ? 1.25 : 1.05
-    // On two columns every slot is as wide as the widest prism, so a narrow phone screenshot still leaves room for its label.
-    const cell = cols > 2 ? 0 : Math.max(...items.map((it) => it.w))
-    const slotW = (it: (typeof items)[number]) => Math.max(it.w, cell)
-    const rowH = rowsOf.map((r) => Math.max(...r.map((it) => it.h)))
-    const totalH = rowH.reduce((a, b) => a + b, 0) + gapY * (rowsOf.length - 1)
-    let top = totalH / 2, maxW = 0
-    rowsOf.forEach((row, ri) => {
-      const rowW = row.reduce((a, it) => a + slotW(it), 0) + gapX * (row.length - 1)
-      maxW = Math.max(maxW, rowW)
-      let x = -rowW / 2
-      const baseline = top - rowH[ri]
-      row.forEach((it) => {
-        it.base.set(LAB.x + x + slotW(it) / 2, LAB.y + baseline + it.h / 2, LAB.z)
-        x += slotW(it) + gapX
-      })
-      top = baseline - gapY
-    })
-    // Each prism turns a little toward the middle, so its sides catch the field behind.
-    items.forEach((it) => { it.baseRot = -((it.base.x - LAB.x) / Math.max(maxW, 1)) * 0.5 })
-    labBounds = { w: maxW, h: totalH + 0.6 }
-  }
-
-  // Textures load once the field is on screen, and upload one per frame.
-  const loader = new THREE.ImageBitmapLoader().setOptions({ imageOrientation: 'flipY' })
-  const uploads: (() => void)[] = []
-  let disposed = false
-  function loadTextures() {
-    items.forEach((it, i) =>
-      loader.load(prisms[i].texture, (bitmap) => {
-        if (disposed) { (bitmap as ImageBitmap).close?.(); return }
-        const tex = track(new THREE.Texture(bitmap as ImageBitmap))
-        tex.flipY = false
-        tex.colorSpace = THREE.SRGBColorSpace
-        tex.anisotropy = 4
-        tex.needsUpdate = true
-        uploads.push(() => {
-          renderer.initTexture(tex)
-          it.slabs[0].u.uMap.value = tex
-          it.slabs[0].u.uLoaded.value = 1
-        })
-      }),
-    )
-  }
-
   // ---------- Post ----------
   const composer = new EffectComposer(renderer)
   composer.addPass(new RenderPass(scene, camera))
-  // Bloom lights the field only; the prisms are drawn after it, so a light screenshot never glows.
   const bloom = new UnrealBloomPass(new THREE.Vector2(1, 1), 0.5, 0.45, 0.78)
   composer.addPass(bloom)
-  const prismPass = new PrismPass(pscene, camera, bg)
-  composer.addPass(prismPass)
   const aberration = new ShaderPass(aberrationShader)
   composer.addPass(aberration)
   composer.addPass(new OutputPass())
 
   // ---------- Camera path: one pose per stage, rebuilt on resize ----------
   let path: { pos: THREE.CatmullRomCurve3; look: THREE.CatmullRomCurve3 } | null = null
-  const focusPose = items.map(() => ({ pos: new THREE.Vector3(), look: new THREE.Vector3() }))
-  const UP = new THREE.Vector3(0, 1, 0)
-  const OPEN_ROT = new THREE.Euler(0.12, -0.74, 0)
-  const GAP = 1.1
   function buildPath() {
     const wide = camera.aspect > 1
-    const tanH = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2))
-    layoutPrisms(wide ? 4 : 2)
     const P: THREE.Vector3[] = [], L: THREE.Vector3[] = []
     // Hero: nearly straight on. No pose ever looks straight down, so the roll is always defined.
     P.push(new THREE.Vector3(0, 0.5, wide ? 18.5 : 19.5)); L.push(new THREE.Vector3(0, 0, 0))
     P.push(wide ? new THREE.Vector3(8.5, 2.8, 14.5) : new THREE.Vector3(5, 3, 21)); L.push(wide ? new THREE.Vector3(1.8, 0, -2.5) : new THREE.Vector3(0.5, 0.4, -2.5))
-    // Lab: fit the prism grid below the heading.
-    {
-      const center = LAB.clone()
-      const ndcY = wide ? -0.17 : -0.24, availH = wide ? 0.72 : 0.72, availW = wide ? 0.9 : 0.96
-      const dist = Math.max(labBounds.h / 2 / (availH * tanH), labBounds.w / 2 / (availW * tanH * camera.aspect))
-      const look = center.clone().addScaledVector(UP, -ndcY * dist * tanH)
-      L.push(look)
-      P.push(look.clone().add(new THREE.Vector3(0, 0.9, dist)))
-    }
+    // Lab: the pose that used to frame the prism grid, so the field around the chamber moves as before.
+    P.push(wide ? new THREE.Vector3(0, -3.8, 14.2) : new THREE.Vector3(0, -2.9, 22)); L.push(wide ? new THREE.Vector3(0, -4.7, 2.5) : new THREE.Vector3(0, -3.8, 2.5))
     P.push(wide ? new THREE.Vector3(3, 1.5, 19) : new THREE.Vector3(0, -0.5, 25)); L.push(wide ? new THREE.Vector3(5.5, 0.4, 0) : new THREE.Vector3(0, -0.5, 0))
     // Close enough that the dots stay about 5 px apart: further back, the grid beats against the pixels into moire.
     P.push(new THREE.Vector3(wide ? -5 : -3, -2.5, wide ? 25 : 30)); L.push(new THREE.Vector3(1, -1, -2))
     P.push(new THREE.Vector3(0, 1.5, wide ? 24 : 30)); L.push(new THREE.Vector3(0, 0.5, 0))
     path = { pos: new THREE.CatmullRomCurve3(P, false, 'centripetal'), look: new THREE.CatmullRomCurve3(L, false, 'centripetal') }
-
-    // Focus poses: the opened prism turns three-quarters and its layers spread toward the camera.
-    items.forEach((it, i) => {
-      const c = it.base.clone().add(new THREE.Vector3(0, 0, 1.2))
-      // Half extents of the turned, spread stack as the camera sees it, with room above for the layer titles.
-      const rw = 0.5 * (it.w * Math.cos(-OPEN_ROT.y) + 2 * (SLAB + GAP) * Math.sin(-OPEN_ROT.y))
-      const rh = 0.5 * it.h + 0.45
-      const right = new THREE.Vector3(1, 0, 0)
-      if (wide) {
-        const dist = Math.max(rh / (0.5 * tanH), rw / (0.5 * tanH * camera.aspect))
-        focusPose[i].look.copy(c).addScaledVector(right, 0.3 * dist * tanH * camera.aspect)
-        focusPose[i].pos.copy(focusPose[i].look).add(new THREE.Vector3(0, 0.5, dist))
-      } else {
-        // Above the bottom sheet, below the bar.
-        const dist = Math.max(rh / (0.27 * tanH), rw / (0.86 * tanH * camera.aspect))
-        focusPose[i].look.copy(c).addScaledVector(UP, -0.4 * dist * tanH)
-        focusPose[i].pos.copy(focusPose[i].look).add(new THREE.Vector3(0, 0.5, dist))
-      }
-    })
   }
 
   let cssW = 1, cssH = 1
@@ -675,7 +441,6 @@ export function createScene(
     uniforms.uViewport.value.set(bw, bh)
     uniforms.uLensR.value = LENS_R * pixelRatio
     uniforms.uPx.value = dot * pixelRatio
-    res.set(bw, bh)
     aberration.uniforms.uRes.value.set(bw, bh)
     aberration.uniforms.uR.value = LENS_R * pixelRatio
     aberration.uniforms.uScale.value = pixelRatio
@@ -698,26 +463,16 @@ export function createScene(
   const lensPos = new THREE.Vector2(-9999, -9999), lensTarget = new THREE.Vector2(-9999, -9999)
   let stage = 0, stageTarget = 0, lens = 0, lensWanted = false, lensFresh = true
   let modeFrom = options.mode as number, modeTo = options.mode as number, modeT = 1
-  let openIdx: number | null = null, focusW = 0, hovered: number | null = null, hiLayer: number | null = null
-  let shockT = -1, introT = 0, prismsOn = false, appearNow = 0
-  let labels: (HTMLElement | null)[] = [], layerLabels: (HTMLElement | null)[] = []
+  let shockT = -1, introT = 0, disposed = false
   const stats: Stats = { fps: 0, frameMs: 0, worstMs: 0, calls: 0, drawn: count, history: new Float32Array(120), head: 0, frames: 0 }
   const ray = new THREE.Raycaster(), ndc = new THREE.Vector2(), plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0), hitP = new THREE.Vector3()
 
   function toNdc(x: number, y: number) { return ndc.set((x / cssW) * 2 - 1, -(y / cssH) * 2 + 1) }
-  function pick(x: number, y: number) {
-    if (!prismsOn || appearNow < 0.5) return null
-    ray.setFromCamera(toNdc(x, y), camera)
-    const hits = ray.intersectObjects(meshes, false)
-    return hits.length ? (hits[0].object.userData.index as number) : null
-  }
-  // The lens rests while the prisms are on screen, so it never sits between the cursor and a module.
+  // The lens rests while the chamber is on screen.
   const lensStageW = () => clamp01((Math.abs(stage - STAGE.lab) - 0.35) * 4)
-  const lensAllowed = () => openIdx === null && lensStageW() > 0.5
+  const lensAllowed = () => lensStageW() > 0.5
 
   let last = performance.now(), raf = 0, running = true, fpsFrames = 0, fpsT = 0
-  const proj = new THREE.Vector3(), tmp = new THREE.Vector3(), qOpen = new THREE.Quaternion().setFromEuler(OPEN_ROT), qBase = new THREE.Quaternion()
-  const label = { last: [] as string[] }
 
   function frame() {
     if (!running) return
@@ -732,7 +487,6 @@ export function createScene(
     stats.frames++
 
     if (!reduced && introT < 1) { introT = Math.min(1, introT + dt / 2); uniforms.uIntro.value = easeOut(introT) }
-    uploads.shift()?.()
     stage += (stageTarget - stage) * damp(0.02)
     if (!reduced) uniforms.uTime.value += dt
     const t = uniforms.uTime.value
@@ -754,7 +508,7 @@ export function createScene(
     })
 
     // Lens: the circle follows the cursor through a short ease, and fades in and out.
-    lens += ((lensWanted && openIdx === null ? 1 : 0) - lens) * damp(0.004)
+    lens += ((lensWanted ? 1 : 0) - lens) * damp(0.004)
     if (lensFresh) { lensPos.copy(lensTarget); lensFresh = false }
     lensPos.lerp(lensTarget, damp(0.00005))
     const lensW = lens * lensStageW()
@@ -772,39 +526,7 @@ export function createScene(
       if (shockT > 1.6) { shockT = -1; uniforms.uShockA.value = 0 }
     }
 
-    // Prisms: drawn only while the lab is near or a module is open.
-    focusW += ((openIdx === null ? 0 : 1) - focusW) * damp(0.03)
-    const appear = clamp01(1.6 - Math.abs(stage - STAGE.lab) * 1.6)
-    appearNow = appear
-    prismsOn = appear > 0.001 || focusW > 0.001
-    prismPass.enabled = prismsOn
-    if (prismsOn) {
-      items.forEach((it, i) => {
-        const isOpen = openIdx === i
-        it.explode += ((isOpen ? 1 : 0) - it.explode) * damp(0.02)
-        it.dim += ((openIdx !== null && !isOpen ? 1 : 0) - it.dim) * damp(0.02)
-        it.hover += ((hovered === i && openIdx === null ? 1 : 0) - it.hover) * damp(0.001)
-        const e = ease(it.explode)
-        const bob = reduced ? 0 : Math.sin(t * 0.4 + i * 1.3) * 0.03
-        it.group.position.copy(it.base)
-        it.group.position.y += bob
-        it.group.position.z += e * 1.2 + it.hover * 0.12 - it.dim * 0.8
-        qBase.setFromEuler(tmpEuler.set(0, it.baseRot + (reduced ? 0 : Math.sin(t * 0.3 + i) * 0.03), 0))
-        it.group.quaternion.slerpQuaternions(qBase, qOpen, e)
-        it.slabs.forEach((s, layer) => {
-          s.mesh.position.z = (1 - layer) * (SLAB + e * GAP)
-          it.hi[layer] += ((isOpen && hiLayer === layer ? 1 : 0) - it.hi[layer]) * damp(0.002)
-          s.u.uAppear.value = Math.max(appear, isOpen ? focusW : appear)
-          s.u.uDim.value = it.dim
-          s.u.uHover.value = it.hover
-          s.u.uHi.value = it.hi[layer]
-          s.u.uOpen.value = e
-        })
-      })
-      pscene.updateMatrixWorld()
-    }
-
-    // Camera along the path; an open prism pulls it in.
+    // Camera along the path.
     if (path) {
       const n = path.pos.points.length - 1
       const s = Math.min(Math.max(stage, 0), n)
@@ -812,16 +534,11 @@ export function createScene(
       const u = (seg + ease(s - seg)) / n
       path.pos.getPoint(u, want)
       path.look.getPoint(u, wantLook)
-      if (openIdx !== null || focusW > 0.001) {
-        const f = focusPose[openIdx ?? lastOpen]
-        want.lerp(f.pos, ease(focusW))
-        wantLook.lerp(f.look, ease(focusW))
-      }
     }
     // A mouse leans the view a touch through a slow spring; the camera also breathes on its own.
     if (!reduced) {
-      lean.x += (leanTarget.x * (openIdx === null ? 1 : 0.3) - lean.x) * (1 - Math.pow(0.3, dt))
-      lean.y += (leanTarget.y * (openIdx === null ? 1 : 0.3) - lean.y) * (1 - Math.pow(0.3, dt))
+      lean.x += (leanTarget.x - lean.x) * (1 - Math.pow(0.3, dt))
+      lean.y += (leanTarget.y - lean.y) * (1 - Math.pow(0.3, dt))
       camera.matrixWorld.extractBasis(camRight, camUp, camDir)
       const s = now / 1000
       want.addScaledVector(camRight, lean.x * 0.3 + Math.sin(s * 0.13) * 0.05)
@@ -832,8 +549,6 @@ export function createScene(
     camera.position.copy(camPos)
     camera.lookAt(lookCur)
     camera.updateMatrixWorld()
-
-    placeLabels(appear)
 
     renderer.info.reset()
     composer.render()
@@ -850,49 +565,13 @@ export function createScene(
       fpsT = 0
     }
   }
-  const tmpEuler = new THREE.Euler()
-  let lastOpen = 0
-
-  function setLabel(el: HTMLElement, i: number, opacity: number, x: number, y: number) {
-    const key = opacity < 0.02 ? 'off' : `${opacity.toFixed(2)}|${x.toFixed(1)}|${y.toFixed(1)}`
-    if (label.last[i] === key) return
-    label.last[i] = key
-    if (key === 'off') { el.style.visibility = 'hidden'; el.style.opacity = '0'; return }
-    el.style.visibility = 'visible'
-    el.style.opacity = opacity.toFixed(2)
-    el.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0)`
-  }
-  function screenOf(v: THREE.Vector3) {
-    proj.copy(v).project(camera)
-    return { x: ((proj.x + 1) / 2) * cssW, y: ((1 - proj.y) / 2) * cssH, ok: proj.z < 1 }
-  }
-  function placeLabels(appear: number) {
-    const labW = clamp01(appear * 1.4 - 0.4) * (1 - focusW)
-    labels.forEach((el, i) => {
-      if (!el) return
-      const it = items[i]
-      const s = screenOf(tmp.copy(it.group.position).addScaledVector(UP, -it.h / 2 - 0.22))
-      setLabel(el, i, s.ok ? labW : 0, s.x, s.y)
-    })
-    const it = items[openIdx ?? lastOpen]
-    const e = ease(it.explode)
-    layerLabels.forEach((el, layer) => {
-      if (!el) return
-      const mesh = it.slabs[layer].mesh
-      const s = screenOf(mesh.localToWorld(tmp.set(-it.w / 2, it.h / 2 + 0.08, 0)))
-      setLabel(el, 100 + layer, s.ok && openIdx !== null ? clamp01(e * 2 - 1) : 0, s.x, s.y)
-    })
-  }
-
   // ---------- Warm-up while the canvas is still invisible ----------
   let ready = false
   async function warm() {
-    // Compile every program first (prisms and the link lines included), then render one frame so the post passes compile too.
+    // Compile every program first (the link lines included), then render one frame so the post passes compile too.
     lines.visible = true
-    prismPass.enabled = true
     try {
       await renderer.compileAsync(scene, camera)
-      await renderer.compileAsync(pscene, camera)
     } catch { /* compile on first render instead */ }
     if (disposed) return
     camera.position.copy(camPos)
@@ -913,7 +592,6 @@ export function createScene(
     onReady()
     last = performance.now()
     frame()
-    setTimeout(() => { if (!disposed) loadTextures() }, reduced ? 0 : 1200)
   }
   void warm()
   function onVis() {
@@ -929,26 +607,20 @@ export function createScene(
     setStage(v) { stageTarget = v },
     setPointer(x, y, inside) {
       leanTarget.set((x / cssW) * 2 - 1, -(y / cssH) * 2 + 1)
-      const over = inside ? pick(x, y) : null
-      if (over !== hovered) { hovered = over; onHover(over) }
-      const want = inside && over === null
+      const want = inside
       if (want && !lensWanted && lensAllowed()) performance.mark('re:lens')
       if (lens < 0.01) lensFresh = true
       lensWanted = want
       lensTarget.set(x, y)
     },
-    press(x, y, ripple) {
-      const over = pick(x, y)
-      if (over !== null) return over
-      if (ripple && !reduced && lensAllowed()) {
-        ray.setFromCamera(toNdc(x, y), camera)
-        if (ray.ray.intersectPlane(plane, hitP)) {
-          uniforms.uShockC.value.copy(hitP)
-          shockT = 0
-          performance.mark('re:ripple')
-        }
+    ripple(x, y) {
+      if (reduced || !lensAllowed()) return
+      ray.setFromCamera(toNdc(x, y), camera)
+      if (ray.ray.intersectPlane(plane, hitP)) {
+        uniforms.uShockC.value.copy(hitP)
+        shockT = 0
+        performance.mark('re:ripple')
       }
-      return null
     },
     setMode(m) {
       if (m === modeTo) return
@@ -957,12 +629,6 @@ export function createScene(
       modeT = 0
       performance.mark('re:mode')
     },
-    open(i) {
-      if (i !== null) lastOpen = i
-      openIdx = i
-      if (i !== null) { lensWanted = false; if (hovered !== null) { hovered = null; onHover(null) } }
-    },
-    highlightLayer(i) { hiLayer = i },
     setDrawCount(n) {
       const c = Math.max(0, Math.min(count, Math.round(n)))
       g.setDrawRange(0, c)
@@ -975,7 +641,6 @@ export function createScene(
       applySize()
     },
     centroids: () => centroids.map((c) => ({ x: c.x, y: c.y, z: c.z })),
-    bindLabels(a, b) { labels = a; layerLabels = b; label.last = [] },
     dispose() {
       running = false
       disposed = true
@@ -983,7 +648,6 @@ export function createScene(
       document.removeEventListener('visibilitychange', onVis)
       ro.disconnect()
       disposables.forEach((d) => d.dispose())
-      prismPass.dispose()
       bloom.dispose()
       aberration.dispose()
       composer.dispose()

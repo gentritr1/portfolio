@@ -1,5 +1,5 @@
 /* The Refractive Engine: a dark optical bench. Frontend Lens is monochrome with one emerald accent; AI Tensor Field is cyan, with violet kept to the scene.
-   One face (Archivo). Surfaces are fills one tone step above the page; nothing is outlined and nothing is ruled.
+   One face (Archivo). Surfaces are fills one tone step above the page; nothing is outlined, and the only rules are the hairlines of the chamber's index.
    Type scale: 13 small, 16 body, 20 lead, the section heading, the display name. */
 .re-root {
   --re-bg: #050508;
@@ -178,33 +178,139 @@ html.re-html.lenis-stopped { overflow: clip; }
 @media (hover: hover) and (pointer: fine) { .re-option[aria-pressed="false"]:hover { background: var(--re-fill-2); } }
 .re-modes .re-tag { margin-bottom: 16px; }
 
-/* The lab holds its stage while it fills the view; the heading stays with it. */
-.re-lab { min-height: 175svh; padding: 0 var(--re-gutter); max-width: 1440px; margin: 0 auto; }
-.re-lab-head { position: sticky; top: 92px; padding-top: 4px; transition: opacity 200ms ease; }
+/* ---------- The focus chamber: an eight-row index beside one product in thick glass ---------- */
+.re-lab { position: relative; isolation: isolate; padding: 88px var(--re-gutter) 72px; max-width: 1440px; margin: 0 auto; }
 .re-lab-head .re-lede { margin-top: 8px; }
-/* An open prism raises its layer titles where the heading sits, so the heading steps aside until it closes. */
-.re-root[data-open] .re-lab-head { opacity: 0; }
-.re-lab-list { display: grid; gap: 10px; margin-top: 28px; pointer-events: auto; }
-.re-labels, .re-layer-labels { position: fixed; inset: 0; z-index: 3; pointer-events: none; }
-.re-label {
-  all: unset; box-sizing: border-box; position: absolute; left: 0; top: 0; translate: -50% 0; visibility: hidden; opacity: 0; cursor: pointer; pointer-events: auto;
-  display: inline-flex; align-items: center; min-height: 36px; padding: 0 14px; border-radius: 999px; white-space: nowrap;
-  background: var(--re-glass-strong); font: 500 13px/1 var(--re-sans); color: var(--re-fg-2);
-  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); transition: scale 160ms var(--re-ease), background-color 160ms ease;
+.re-ch {
+  position: relative; display: grid; margin-top: 20px;
+  grid-template-columns: minmax(0, 26fr) minmax(0, 70fr); column-gap: 4%;
+  grid-template-areas: "index stage" "index bar" ". layers";
 }
-.re-label[data-hover] { background: var(--re-accent); color: var(--re-ink); }
-.re-label:active { scale: 0.97; }
-@media (hover: hover) and (pointer: fine) { .re-label:hover { background: var(--re-accent); color: var(--re-ink); } }
-/* Each layer's title rises from its plate's corner on a leader; deeper plates sit higher, so the titles stair-step instead of colliding.
-   The leader is part of the drawing (it ties a title to its plate), so it stays; the title sits on its own dark ground. */
-.re-layer-label {
+/* The field steps back about 90% under the index and the screen, and fades in again past their edges (behind the heading too). */
+.re-ch::before {
+  content: ""; position: absolute; inset: -12px -8px; z-index: -1; pointer-events: none; border-radius: 40px;
+  background: rgb(5 5 8 / 0.9); box-shadow: 0 0 72px 56px rgb(5 5 8 / 0.9); /* taste-skill-ignore: a neutral legibility scrim over the WebGL field behind the chamber */
+}
+
+.re-ch-index { grid-area: index; align-self: start; }
+.re-ch-index li + li { border-top: 1px solid rgb(255 255 255 / 0.09); }
+.re-ch-index button {
+  all: unset; box-sizing: border-box; cursor: pointer; display: grid; grid-template-columns: 44px minmax(0, 1fr) 20px; align-items: center; gap: 4px;
+  width: 100%; min-height: 56px; padding: 8px 0; color: var(--re-fg-2); transition: color 160ms ease;
+}
+.re-ch-n { font-size: 13px; color: var(--re-dim); transition: color 160ms ease; }
+.re-ch-name { font: 400 18px/1.3 var(--re-sans); letter-spacing: -0.005em; text-wrap: pretty; }
+.re-ch-arrow { color: var(--re-accent); opacity: 0; translate: -6px 0; transition: opacity 180ms var(--re-ease), translate 180ms var(--re-ease); }
+.re-ch-index button[aria-pressed="true"] { color: var(--re-accent); }
+.re-ch-index button[aria-pressed="true"] .re-ch-n { color: var(--re-accent); }
+.re-ch-index button[aria-pressed="true"] .re-ch-arrow { opacity: 1; translate: 0 0; }
+.re-ch-index button:focus-visible { outline-offset: -2px; }
+@media (hover: hover) and (pointer: fine) {
+  .re-ch-index button[aria-pressed="false"]:hover { color: var(--re-fg); }
+  .re-ch-index button[aria-pressed="false"]:hover .re-ch-arrow { opacity: 0.4; translate: 0 0; color: var(--re-fg-2); }
+}
+
+.re-ch-stage { grid-area: stage; position: relative; height: clamp(420px, calc(100svh - 308px), 680px); container-type: size; }
+.re-ch-canvas { position: absolute; inset: 0; display: block; width: 100%; height: 100%; }
+/* The same screen as a page image: shown until the glass is ready, and in place of it without WebGL. Two plates stand for the layers. */
+.re-ch-still { position: absolute; inset: 0; display: grid; place-items: center; margin: 0; transition: opacity 240ms ease; }
+.re-ch-still > * { grid-area: 1 / 1; }
+.re-ch-still img { display: block; width: min(80cqw, 74cqh * var(--a, 1.6)); height: auto; border-radius: 8px; background: var(--re-fill); }
+.re-ch-plate {
+  width: min(80cqw, 74cqh * var(--a, 1.6)); aspect-ratio: var(--a, 1.6); border-radius: 8px; background: rgb(255 255 255 / 0.03);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.16); transition: transform 290ms var(--re-ease);
+}
+.re-ch-stage[data-expanded] .re-ch-plate:nth-child(1) { transform: translate(5%, -5%); }
+.re-ch-stage[data-expanded] .re-ch-plate:nth-child(2) { transform: translate(10%, -10%); }
+.re-ch-stage[data-ready] .re-ch-still { opacity: 0; }
+/* Each layer's title rises from its plate's corner on a leader; deeper plates sit higher, so the titles stair-step instead of colliding. */
+.re-ch-labels { position: absolute; inset: 0; pointer-events: none; }
+.re-ch-label {
   --lift: 10px;
-  position: absolute; left: 0; top: 0; translate: -1px calc(-100% - var(--lift)); visibility: hidden; opacity: 0; padding: 4px 8px; max-width: 42vw;
-  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; color: var(--re-accent); border-radius: 6px; background: var(--re-glass-strong);
+  position: absolute; left: 0; top: 0; translate: -1px calc(-100% - var(--lift)); visibility: hidden; opacity: 0; padding: 4px 8px;
+  white-space: nowrap; font-size: 13px; line-height: 1.3; color: var(--re-fg-2); border-radius: 6px; background: rgb(5 5 8 / 0.82);
+  transition: color 160ms ease;
 }
-.re-layer-label::after { content: ""; position: absolute; left: 0; top: 100%; width: 2px; height: var(--lift); background: var(--re-accent-mid); }
-.re-layer-label:nth-child(2) { --lift: 38px; }
-.re-layer-label:nth-child(3) { --lift: 66px; }
+.re-ch-label::after { content: ""; position: absolute; left: 0; top: 100%; width: 1px; height: var(--lift); background: rgb(255 255 255 / 0.35); }
+.re-ch-label:nth-child(2) { --lift: 28px; }
+.re-ch-label:nth-child(3) { --lift: 44px; }
+.re-ch-label[data-active] { color: var(--re-accent); }
+.re-ch-label[data-active]::after { background: var(--re-accent-mid); }
+
+.re-ch-bar {
+  grid-area: bar; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: start; gap: 8px 32px;
+  padding-top: 12px; border-top: 1px solid rgb(255 255 255 / 0.09);
+}
+.re-ch-view { display: inline-flex; align-items: center; gap: 2px; color: var(--re-dim); font-size: 13px; }
+.re-ch-view button {
+  all: unset; box-sizing: border-box; cursor: pointer; position: relative; display: inline-flex; align-items: center; min-height: 44px; padding: 0 10px;
+  font: 500 15px/1 var(--re-sans); color: var(--re-dim); transition: color 160ms ease;
+}
+.re-ch-view button:first-child { padding-left: 0; }
+.re-ch-view button::after {
+  content: ""; position: absolute; left: 10px; right: 10px; bottom: 8px; height: 2px; border-radius: 2px; background: var(--re-accent);
+  transform: scaleX(0); transition: transform 200ms var(--re-ease);
+}
+.re-ch-view button:first-child::after { left: 0; }
+.re-ch-view button[aria-pressed="true"] { color: var(--re-fg); }
+.re-ch-view button[aria-pressed="true"]::after { transform: scaleX(1); }
+@media (hover: hover) and (pointer: fine) { .re-ch-view button[aria-pressed="false"]:hover { color: var(--re-fg-2); } }
+.re-ch-now { display: grid; gap: 4px; padding-top: 6px; }
+.re-ch-now h3 { font: 400 22px/1.15 var(--re-sans); letter-spacing: -0.012em; }
+.re-ch-now p { max-width: 62ch; line-height: 1.5; color: var(--re-fg-2); text-wrap: pretty; }
+.re-ch-now .re-ch-note { font-size: 13px; color: var(--re-dim); }
+.re-ch-open {
+  display: inline-flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 18px; border-radius: 999px; white-space: nowrap;
+  font: 500 16px/1 var(--re-sans); color: #0a0a0d; background: var(--re-fg); text-decoration: none;
+  transition: transform 160ms var(--re-ease), background-color 160ms ease;
+}
+.re-ch-open:active { transform: scale(0.97); }
+@media (hover: hover) and (pointer: fine) { .re-ch-open:hover { background: #fff; } }
+
+.re-ch-layers { grid-area: layers; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 28px; }
+.re-ch-layers li { position: relative; padding: 12px 16px 16px; border-radius: 12px; background: var(--re-fill); transition: background-color 160ms ease; }
+.re-ch-layers li[data-active] { background: var(--re-accent-soft); }
+.re-ch-layers button { all: unset; cursor: pointer; display: flex; align-items: center; min-height: 32px; font: 500 16px/1.3 var(--re-sans); color: var(--re-fg); }
+.re-ch-layers button::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }
+.re-ch-layers li[data-active] button { color: var(--re-accent); }
+.re-ch-layers li:has(button:focus-visible) { outline: 2px solid var(--re-accent); outline-offset: 3px; }
+.re-ch-layers button:focus-visible { outline: none; }
+.re-ch-layers li > p:last-child { font-size: 16px; line-height: 1.5; color: var(--re-fg-2); text-wrap: pretty; }
+@media (hover: hover) and (pointer: fine) { .re-ch-layers li:not([data-active]):hover { background: var(--re-fill-2); } }
+
+/* Below 900 px: the screen first, then its controls, the index and the layers, in one column. */
+@media (max-width: 899px) {
+  .re-lab { padding-top: 96px; }
+  .re-ch { grid-template-columns: minmax(0, 1fr); grid-template-areas: "stage" "bar" "index" "layers"; margin-top: 20px; }
+  .re-ch::before { inset: -8px -4px; }
+  .re-ch-stage { height: auto; aspect-ratio: 4 / 3; max-height: 72svh; }
+  .re-ch-bar { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "now now" "view open"; align-items: center; margin-top: 12px; }
+  .re-ch-now { grid-area: now; padding-top: 0; }
+  .re-ch-view { grid-area: view; }
+  .re-ch-open { grid-area: open; }
+  .re-ch-index { display: grid; grid-template-columns: 1fr 1fr; column-gap: 24px; margin-top: 24px; border-top: 1px solid rgb(255 255 255 / 0.09); }
+  .re-ch-index li + li { border-top: 0; }
+  .re-ch-index li { border-bottom: 1px solid rgb(255 255 255 / 0.09); }
+  .re-ch-index button { min-height: 52px; grid-template-columns: 36px minmax(0, 1fr) 20px; }
+  .re-ch-name { font-size: 16px; }
+  .re-ch-layers { grid-template-columns: minmax(0, 1fr); margin-top: 24px; }
+}
+/* Phones: a square stage holds a landscape stack or a tall phone screen without resizing between them, and the index
+   folds into two columns so the stage stays in view while a row is chosen. */
+@media (max-width: 599px) {
+  .re-ch-stage { aspect-ratio: 1 / 1; }
+  .re-ch-index { column-gap: 16px; margin-top: 16px; }
+  .re-ch-index button { grid-template-columns: 26px minmax(0, 1fr); min-height: 52px; }
+  .re-ch-arrow { display: none; }
+  .re-ch-now h3 { font-size: 22px; }
+}
+@media (max-width: 399px) {
+  .re-ch-bar { grid-template-columns: minmax(0, 1fr); grid-template-areas: "now" "view" "open"; }
+  .re-ch-open { justify-self: start; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .re-ch-plate, .re-ch-arrow, .re-ch-view button::after { transition: none; }
+}
 
 .re-sim { min-height: 130svh; display: flex; align-items: center; padding: 96px var(--re-gutter); max-width: 1440px; margin: 0 auto; }
 .re-sim .re-card { display: grid; gap: 18px; }
@@ -285,42 +391,12 @@ html.re-html.lenis-stopped { overflow: clip; }
 .re-links { display: flex; flex-wrap: wrap; gap: 10px; }
 .re-foot { font-size: 13px; color: var(--re-dim); }
 
-/* ---------- Module panel ---------- */
-.re-scrim {
-  position: fixed; inset: 0; z-index: 4; background: linear-gradient(to left, rgb(5 5 8 / 0.55), transparent 55%); /* taste-skill-ignore: a neutral scrim over the field behind the open panel */
-  opacity: 0; visibility: hidden; transition: opacity 200ms ease, visibility 0s 200ms;
-}
-.re-scrim[data-open] { opacity: 1; visibility: visible; transition: opacity 300ms var(--re-ease), visibility 0s; }
-.re-panel {
-  position: fixed; top: 80px; right: max(16px, calc((100% - 1180px) / 2)); bottom: 16px; z-index: 5; width: min(420px, calc(100% - 32px)); overflow: auto; overscroll-behavior: contain;
-  display: flex; flex-direction: column; gap: 14px; padding: 18px 20px 22px; border-radius: 16px; background: var(--re-glass-strong);
-  backdrop-filter: blur(22px) saturate(1.2); -webkit-backdrop-filter: blur(22px) saturate(1.2);
-  transform: translateX(calc(100% + 24px)); visibility: hidden;
-  transition: transform 280ms var(--re-ease), visibility 0s 280ms;
-}
-.re-panel[data-open] { transform: none; visibility: visible; transition: transform 450ms var(--re-drawer), visibility 0s; }
-.re-panel-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-.re-panel-meta { font-size: 13px; color: var(--re-dim); }
-.re-close {
-  all: unset; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 14px; border-radius: 999px; background: var(--re-fill-2);
-  font: 500 13px/1 var(--re-sans); color: var(--re-fg); transition: transform 160ms var(--re-ease), background-color 160ms ease;
-}
-.re-close kbd { font: 13px/1 var(--re-sans); color: var(--re-dim); padding: 3px 6px; border-radius: 5px; background: var(--re-fill); }
-.re-close:active { transform: scale(0.97); }
-@media (hover: hover) and (pointer: fine) { .re-close:hover { background: var(--re-accent-soft); } }
-.re-panel-name { font: 400 30px/1.1 var(--re-sans); letter-spacing: -0.015em; }
-.re-panel-line { color: var(--re-fg-2); font-size: 16px; line-height: 1.55; }
-.re-layers { display: grid; gap: 8px; }
-.re-layers li { padding: 12px 14px; border-radius: 12px; background: var(--re-fill); transition: background-color 160ms ease; }
-@media (hover: hover) and (pointer: fine) { .re-layers li:hover { background: var(--re-accent-soft); } }
-.re-layers h3 { font: 500 16px/1.3 var(--re-sans); }
+/* Layer descriptions, kept for the case page's readouts. */
 .re-layer-stack { margin: 4px 0 8px; font-size: 13px; color: var(--re-accent); }
-.re-layers li > p:last-child { font-size: 16px; line-height: 1.5; color: var(--re-fg-2); }
 .re-readouts-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 12px; padding-top: 2px; }
 .re-readouts-list li { display: grid; gap: 2px; }
 .re-readouts-list b { display: inline-flex; align-items: center; gap: 6px; font-size: 16px; font-weight: 400; color: var(--re-fg); }
 .re-readouts-list span { font-size: 13px; line-height: 1.4; color: var(--re-dim); }
-.re-case { align-self: flex-start; margin-top: 4px; }
 
 /* ---------- Phones ---------- */
 @media (max-width: 767px) {
@@ -333,13 +409,8 @@ html.re-html.lenis-stopped { overflow: clip; }
   .re-hero::before { width: 100%; height: 60%; }
   .re-modes, .re-sim { align-items: flex-end; padding-bottom: 48px; }
   .re-live { grid-template-columns: 1fr 1fr; }
-  .re-lab-head { top: 84px; }
 
   .re-pair-bars { grid-template-columns: 1fr; gap: 10px; }
-  .re-scrim { background: linear-gradient(to top, rgb(5 5 8 / 0.6), transparent 60%); } /* taste-skill-ignore: the same neutral panel scrim, from below on phones */
-  .re-panel { top: auto; left: 0; right: 0; bottom: 0; width: 100%; max-height: 56svh; border-radius: 16px 16px 0 0; transform: translateY(100%); }
-  .re-panel-name { font-size: 26px; }
-  .re-layer-label { max-width: 60vw; }
 }
 @media (max-width: 560px) {
   .re-mark { display: none; }
@@ -347,8 +418,6 @@ html.re-html.lenis-stopped { overflow: clip; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .re-panel, .re-panel[data-open] { transform: none; opacity: 0; transition: opacity 180ms ease, visibility 0s 180ms; }
-  .re-panel[data-open] { opacity: 1; transition: opacity 180ms ease, visibility 0s; }
   .re-stats, .re-stats[data-open] { transform: none; }
 }
 
