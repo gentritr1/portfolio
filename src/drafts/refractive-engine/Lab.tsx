@@ -59,7 +59,7 @@ export function Lab({ mode, reduced, noGl, onOpen }: { mode: 'lens' | 'tensor'; 
           texture: s.texture,
           sharp: SHARP[s.slug]?.src,
           aspect: s.aspect,
-          plates: plates[s.slug]?.slice(1).map((p, j) => ({ ...p, title: s.layers[j + 1].title, stack: s.layers[j + 1].stack, proof: p.proof && { ...p.proof, kind: proofKind[p.proof.kind] } })),
+          plates: plates[s.slug]?.slice(1).map((p, j) => ({ ...p, index: j + 2, title: s.layers[j + 1].title, stack: s.layers[j + 1].stack, proof: p.proof && { ...p.proof, kind: proofKind[p.proof.kind] } })),
         })),
         selected: now.selected,
         expanded: now.layersExpanded,
@@ -98,7 +98,8 @@ export function Lab({ mode, reduced, noGl, onOpen }: { mode: 'lens' | 'tensor'; 
       formation.current = formed ? 1 : Math.min(1, Math.max(0, (innerHeight * 0.92 - top) / (innerHeight * 0.62)))
       chamber.current?.setFormation(formation.current)
     }
-    const onFocus = () => { formed = true; update() }
+    // Only keyboard focus completes it: a click also focuses its button, and must not snap the arrival mid-scroll.
+    const onFocus = (e: FocusEvent) => { if ((e.target as Element).matches?.(':focus-visible')) { formed = true; update() } }
     update()
     addEventListener('scroll', update, { passive: true })
     addEventListener('resize', update)
@@ -192,7 +193,8 @@ export function Lab({ mode, reduced, noGl, onOpen }: { mode: 'lens' | 'tensor'; 
           )}
           {/* Phones: the chosen layer's words as page text over its plate, at a size the 3D texture cannot give them. */}
           {layersExpanded && !tryOpen && activeLayer && plates[sys.slug] && (
-            <div className="re-ch-card" aria-hidden="true">
+            <div className="re-ch-card">
+              <p className="re-ch-card-n re-num">{String(activeLayer + 1).padStart(2, '0')}</p>
               <p className="re-ch-card-title">{sys.layers[activeLayer].title}</p>
               <p className="re-num re-layer-stack">{sys.layers[activeLayer].stack}</p>
               <LayerFacts plate={plates[sys.slug][activeLayer]} />
@@ -200,7 +202,9 @@ export function Lab({ mode, reduced, noGl, onOpen }: { mode: 'lens' | 'tensor'; 
           )}
           <div className="re-ch-labels" aria-hidden="true">
             {[0, 1, 2].map((k) => (
-              <span key={k} ref={(el) => { labelRefs.current[k] = el }} className="re-ch-label" data-active={activeLayer === k || undefined}>{sys.layers[k]?.title}</span>
+              <span key={k} ref={(el) => { labelRefs.current[k] = el }} className="re-ch-label" data-active={activeLayer === k || undefined}>
+                <span className="re-num">{String(k + 1).padStart(2, '0')}</span> {sys.layers[k]?.title}
+              </span>
             ))}
           </div>
         </div>

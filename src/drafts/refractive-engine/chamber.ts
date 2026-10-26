@@ -19,6 +19,8 @@ export interface ChamberProduct {
 }
 
 export interface PlateText {
+  /** The layer's number in its product, 1 to 3. */
+  index: number
   title: string
   stack: string
   concepts: string[]
@@ -139,7 +141,8 @@ void main() {
       float rd = length(g);
       pat = 1.0 - smoothstep(0.0035, 0.0035 + max(w.x, w.y), rd);
     }
-    pat *= within;
+    // Quieter structure on a plate that carries words, and none on a chosen one: the words lead.
+    pat *= within * mix(1.0, 0.35, uHasInfo) * (1.0 - 0.9 * uFwd);
     vec3 ink = mix(vec3(0.72, 0.75, 0.82), uAccent, 0.2 + 0.8 * uHi);
     float boost = 1.0 + uHi * 1.3;
     // The substrate: a faint fill, a little lighter toward the lit corner, so each plate reads as a surface, not an outline.
@@ -150,7 +153,10 @@ void main() {
     // The layer's own words. Behind them, and whenever the plate comes forward over the screen, the glass darkens so they read.
     // Fanned, the words sit in the plate's exposed edge; brought forward, they take the whole plate.
     vec2 uvp = vOP.xy / uSize.xy + 0.5;
-    vec4 info = mix(texture2D(uInfo, uvp), texture2D(uInfoFwd, uvp), uFwd) * uHasInfo * face;
+    // One arrangement at a time: the edge preview leaves early, the full surface arrives only near the end of the move.
+    vec4 fanText = texture2D(uInfo, uvp) * (1.0 - smoothstep(0.0, 0.35, uFwd)) * uHasInfo * face;
+    vec4 fullText = texture2D(uInfoFwd, uvp) * smoothstep(0.72, 1.0, uFwd) * uHasInfo * face;
+    vec4 info = vec4(mix(fanText.rgb, fullText.rgb, step(fanText.a, fullText.a)), max(fanText.a, fullText.a));
     float solid = max(info.a * 0.55, uFwd * uHasInfo * 0.97) * face;
     col = mix(col, vec3(0.016, 0.018, 0.024) + rimLine * ink * 0.6 * boost, solid * 0.8);
     alpha = max(alpha, solid);
@@ -158,14 +164,16 @@ void main() {
     alpha = max(alpha, info.a);
   }
   // Another layer in focus: the plates step back further than the screen, which stays the clearest thing in the chamber.
-  // A plate brought forward over the screen dims it further, so the screen never reads through the words.
-  col *= 1.0 - (uKind < 0.5 ? 0.3 + 0.5 * uFwd : 0.5) * uDim;
+  // A chosen layer dims the rest: the screen a little (it stays the product), the other plates more.
+  col *= 1.0 - (uKind < 0.5 ? 0.3 : 0.5) * uDim;
   gl_FragColor = vec4(col, clamp(alpha, 0.0, 1.0) * uAlpha);
   #include <colorspace_fragment>
 }`
 
 interface Tween { from: number; to: number; t0: number; dur: number }
 const easeOut = (x: number) => 1 - Math.pow(1 - x, 3)
+/** On-screen movement: the object accelerates and settles, instead of jumping most of the way at once. */
+const easeInOut = (x: number) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2)
 const clamp01 = (x: number) => Math.min(1, Math.max(0, x))
 const tween = (v: number): Tween => ({ from: v, to: v, t0: 0, dur: 0 })
 const valueOf = (t: Tween, now: number, curve = easeOut) => (t.dur <= 0 ? t.to : t.from + (t.to - t.from) * curve(clamp01((now - t.t0) / t.dur)))
@@ -182,9 +190,10 @@ function aim(t: Tween, to: number, dur: number, now: number, curve?: (x: number)
 const spread = (aspect: number) => (aspect < 1 ? 0.5 : 0.3)
 
 /**
- * One plate's words. Fanned, only the plate's exposed right edge is seen, so the technologies, concepts and proof sit there.
- * Brought forward, the whole plate is seen: a wide plate puts the title, technologies and proof on the left and the concepts
- * on the right; a tall one stacks them. Sizes follow the plate, never the page.
+ * One plate's words, as an information surface. Fanned, only the plate's exposed right edge shows: a preview of its concepts
+ * under its technologies. Chosen, the whole plate is the surface: number and title, technologies, the concepts as a group,
+ * and across the foot the proof (its kind, the figure, what it counts) or the scope note. Concepts are sized to sit on one
+ * line; a phrase too long for that breaks into two balanced lines, never a ragged stack. Sizes follow the plate.
  */
 function plateCanvas(t: PlateText, aspect: number, forward: boolean) {
   const H = 1024, W = Math.round(H * aspect)
@@ -194,72 +203,94 @@ function plateCanvas(t: PlateText, aspect: number, forward: boolean) {
   const g = c.getContext('2d')
   if (!g) return c
   const face = (size: number, weight: number) => `${weight} ${Math.round(size)}px Archivo, ui-sans-serif, system-ui, sans-serif`
-  const dim = 'rgba(214, 218, 230, 0.68)', ink = 'rgba(242, 243, 247, 0.96)', pad = H * 0.08
+  const ink = 'rgba(244, 245, 248, 0.97)', soft = 'rgba(226, 229, 238, 0.86)', quiet = 'rgba(200, 205, 220, 0.58)', rule = 'rgba(255, 255, 255, 0.14)'
+  const pad = H * 0.075
   g.textBaseline = 'top'
-  /** A pen bound to one column of the plate. */
-  const column = (x0: number, x1: number) => {
-    const wide = x1 - x0
-    const lines = (text: string, size: number, weight: number) => {
-      g.font = face(size, weight)
-      const out: string[] = []
-      for (const word of text.split(' ')) {
-        const last = out[out.length - 1]
-        if (last !== undefined && g.measureText(`${last} ${word}`).width <= wide) out[out.length - 1] = `${last} ${word}`
-        else out.push(word)
-      }
-      return out
+  const width = (text: string, size: number, weight: number) => { g.font = face(size, weight); return g.measureText(text).width }
+  /** One or two lines: the whole phrase if it fits, otherwise the split that keeps the two lines most even. */
+  const balance = (text: string, size: number, weight: number, wide: number) => {
+    if (width(text, size, weight) <= wide) return [text]
+    const words = text.split(' ')
+    let best = [text], worst = Infinity
+    for (let i = 1; i < words.length; i++) {
+      const a = words.slice(0, i).join(' '), b = words.slice(i).join(' ')
+      const m = Math.max(width(a, size, weight), width(b, size, weight))
+      if (m < worst) { worst = m; best = [a, b] }
     }
-    const write = (text: string, y: number, size: number, color: string, weight = 400, lead = 1.22) => {
-      const ls = lines(text, size, weight)
-      g.fillStyle = color
-      ls.forEach((l, i) => g.fillText(l, x0, y + i * size * lead))
-      return y + ls.length * size * lead
-    }
-    const concepts = (y: number, u: number) => {
-      for (const concept of t.concepts) {
-        g.fillStyle = 'rgba(255, 255, 255, 0.16)'
-        g.fillRect(x0, y, wide, Math.max(2, H * 0.002))
-        y = write(concept, y + u * 0.42, u, ink) + u * 0.36
-      }
-      return y
-    }
-    /** The proof (its kind, the figure on one line, what it counts) or the scope note, set on the foot of the plate. */
-    const foot = (yMin: number, u: number) => {
-      g.font = face(u * 2, 400)
-      const valueSize = t.proof ? Math.min(u * 2, (u * 2 * wide) / g.measureText(t.proof.value).width) : 0
-      const rows = t.proof
-        ? [
-            { text: t.proof.kind, size: u * 0.62, color: dim, weight: 500 },
-            { text: t.proof.value, size: valueSize, color: ink, weight: 400 },
-            { text: t.proof.label, size: u * 0.7, color: dim, weight: 400 },
-          ]
-        : t.note ? [{ text: t.note, size: u * 0.7, color: dim, weight: 400 }] : []
-      const height = rows.reduce((sum, r) => sum + lines(r.text, r.size, r.weight).length * r.size * 1.22 + u * 0.15, 0)
-      let y = Math.max(yMin, H - pad - height)
-      for (const r of rows) y = write(r.text, y, r.size, r.color, r.weight) + u * 0.15
-    }
-    return { wide, write, concepts, foot }
+    return best
   }
+  const write = (lines: string[], x: number, y: number, size: number, color: string, weight = 400, lead = 1.2) => {
+    g.font = face(size, weight)
+    g.fillStyle = color
+    lines.forEach((l, i) => g.fillText(l, x, y + i * size * lead))
+    return y + lines.length * size * lead
+  }
+  const hair = (x: number, y: number, wide: number) => { g.fillStyle = rule; g.fillRect(x, y, wide, Math.max(2, H * 0.002)) }
+  /** The concepts as one group: the largest size (up to `max`) at which every phrase fits one line, but no smaller than `min`. */
+  const concepts = (x: number, y: number, wide: number, max: number, min: number) => {
+    let size = max
+    for (const c of t.concepts) size = Math.min(size, (max * wide) / width(c, max, 400))
+    size = Math.max(min, size)
+    for (const c of t.concepts) {
+      hair(x, y, wide)
+      y = write(balance(c, size, 400, wide), x, y + size * 0.42, size, ink, 400, 1.14) + size * 0.34
+    }
+    return y
+  }
+  const conceptsHeight = (wide: number, max: number, min: number) => {
+    let size = max
+    for (const c of t.concepts) size = Math.min(size, (max * wide) / width(c, max, 400))
+    size = Math.max(min, size)
+    return t.concepts.reduce((h, c) => h + size * 0.42 + balance(c, size, 400, wide).length * size * 1.14 + size * 0.34, 0)
+  }
+  /** The proof, or the scope note, set across the foot of a column. */
+  const foot = (x: number, wide: number, u: number, yMin: number) => {
+    if (t.proof) {
+      // Wide: the figure with what it counts beside it. Narrow: the figure, then what it counts beneath.
+      const side = wide > u * 14
+      const label = side ? balance(t.proof.label, u * 0.72, 400, wide * 0.52) : balance(t.proof.label, u * 0.72, 400, wide)
+      const vSize = Math.min(u * 2.1, (u * 2.1 * wide * (side ? 0.44 : 1)) / width(t.proof.value, u * 2.1, 400))
+      const labelH = label.length * u * 0.72 * 1.2
+      const blockH = u * 0.62 * 1.2 + u * 0.35 + (side ? Math.max(vSize, labelH) : vSize * 1.1 + u * 0.2 + labelH)
+      let y = Math.max(yMin, H - pad - blockH)
+      hair(x, y - u * 0.5, wide)
+      y = write([t.proof.kind], x, y, u * 0.62, quiet, 500) + u * 0.35
+      write([t.proof.value], x, y, vSize, ink, 400, 1)
+      if (side) write(label, x + wide * 0.48, y + Math.max(0, (vSize - labelH) / 2), u * 0.72, soft)
+      else write(label, x, y + vSize * 1.1 + u * 0.2, u * 0.72, soft)
+    } else if (t.note) {
+      const lines = balance(t.note, u * 0.74, 400, wide)
+      let y = Math.max(yMin, H - pad - lines.length * u * 0.74 * 1.25)
+      hair(x, y - u * 0.5, wide)
+      write(lines, x, y, u * 0.74, soft, 400, 1.25)
+    }
+  }
+  const number = String(t.index).padStart(2, '0')
   if (!forward) {
-    const col = column(W * (1 - spread(aspect)) + W * 0.03, W - W * 0.05)
-    const u = Math.min(H * 0.056, col.wide * 0.19)
-    let y = col.write(t.stack, pad, u * 0.66, dim, 500)
-    y = col.concepts(y + u * 0.7, u)
-    col.foot(y + u * 0.5, u)
+    // Fanned: the preview sits in the exposed edge, technologies first, then the concepts.
+    const x = W * (1 - spread(aspect)) + W * 0.035, wide = W - W * 0.05 - x
+    const u = Math.min(H * 0.052, wide * 0.15)
+    const y = write(balance(t.stack, u * 0.62, 500, wide), x, pad, u * 0.62, quiet, 500, 1.25)
+    concepts(x, y + u * 0.8, wide, u, u * 0.72)
   } else if (aspect >= 1) {
-    const left = column(pad, W / 2 - pad / 2), right = column(W / 2 + pad / 2, W - pad)
-    const u = H * 0.066
-    let y = left.write(t.title, pad, u * 1.5, ink, 400, 1.12)
-    y = left.write(t.stack, y + u * 0.45, u * 0.72, dim, 500)
-    left.foot(y + u, u)
-    right.concepts(pad + u * 0.2, u)
+    // Chosen, wide: number, title and technologies on the left; the concepts as a group on the right; the proof across the foot.
+    const u = H * 0.062, colW = (W - pad * 3) / 2, right = pad * 2 + colW
+    let y = write([number], pad, pad, u * 0.7, quiet, 500) + u * 0.4
+    y = write(balance(t.title, u * 1.55, 400, colW), pad, y, u * 1.55, ink, 400, 1.08) + u * 0.5
+    y = write(balance(t.stack, u * 0.7, 500, colW), pad, y, u * 0.7, quiet, 500, 1.3)
+    // With a proof or note, the concepts sit level with the title and the foot closes the surface. Without one, they settle
+    // to the bottom of their column, across the surface from the title.
+    const hasFoot = !!(t.proof || t.note)
+    const cy = concepts(right, hasFoot ? pad + u * 0.25 : H - pad - conceptsHeight(colW, u * 1.02, u * 0.78), colW, u * 1.02, u * 0.78)
+    foot(pad, W - pad * 2, u, Math.max(y, cy) + u * 1.1)
   } else {
-    const col = column(W * 0.09, W * 0.91)
-    const u = Math.min(H * 0.05, col.wide * 0.105)
-    let y = col.write(t.title, pad, u * 1.4, ink, 400, 1.12)
-    y = col.write(t.stack, y + u * 0.4, u * 0.72, dim, 500)
-    y = col.concepts(y + u * 0.9, u)
-    col.foot(y + u * 0.5, u)
+    // Chosen, tall: the same order, top to bottom.
+    const x = W * 0.09, wide = W * 0.82, u = Math.min(H * 0.05, wide * 0.1)
+    let y = write([number], x, pad, u * 0.7, quiet, 500) + u * 0.35
+    y = write(balance(t.title, u * 1.45, 400, wide), x, y, u * 1.45, ink, 400, 1.08) + u * 0.45
+    y = write(balance(t.stack, u * 0.7, 500, wide), x, y, u * 0.7, quiet, 500, 1.3) + u * 0.9
+    y = concepts(x, y, wide, u, u * 0.74)
+    foot(x, wide, u, y + u * 1.1)
   }
   return c
 }
@@ -293,10 +324,8 @@ void main() {
   float k = clamp((uP - aSeed * 0.42) / 0.58, 0.0, 1.0);
   k = 1.0 - pow(1.0 - k, 3.0);
   vec3 p = mix(aStart * vec3(uSize.xy, 1.0), target, k);
-  // A quarter stay on the rim at rest, most of them along the bottom edge: the light the glass sits in.
-  float bottom = step(edge.y, -h.y + 1e-3);
-  float stays = step(aSeed, 0.16 + 0.34 * bottom);
-  vA = 0.4 * (1.0 - k) + 0.95 * sin(3.14159 * k) * (1.0 - 0.4 * k) + k * stays * (0.55 + 0.35 * bottom);
+  // Landed, every dot is absorbed into the glass; what remains at rest is the contact light under it, not a dotted outline.
+  vA = 0.4 * (1.0 - k) + 0.95 * sin(3.14159 * k) * (1.0 - k * 0.4);
   vTint = step(0.7, fract(aSeed * 13.7));
   gl_PointSize = uPx * (0.8 + 0.7 * fract(aSeed * 7.3));
   gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.0);
@@ -360,6 +389,24 @@ export function createChamber(
   dots.renderOrder = 10
   scene.add(dots)
 
+  // ---------- Contact light: a soft neutral pool on the surface the glass stands on ----------
+  const glowU = { uAlpha: { value: 0 } }
+  const glow = new THREE.Mesh(
+    new THREE.PlaneGeometry(1, 1),
+    new THREE.ShaderMaterial({
+      uniforms: glowU,
+      transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+      vertexShader: /* glsl */ `varying vec2 vUv; void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
+      fragmentShader: /* glsl */ `uniform float uAlpha; varying vec2 vUv;
+        void main() { vec2 d = (vUv - 0.5) * 2.0; float a = exp(-dot(d, d) * 3.2) * uAlpha; gl_FragColor = vec4(vec3(0.82, 0.85, 0.92) * a, 1.0); }`,
+    }),
+  )
+  glow.rotation.x = -Math.PI / 2
+  const glowRoot = new THREE.Object3D()
+  glowRoot.add(glow)
+  glowRoot.renderOrder = glow.renderOrder = 9
+  scene.add(glowRoot)
+
   const items = products.map((p, i) => {
     const h = 1
     const w = (h - 2 * BEZEL) * p.aspect + 2 * BEZEL
@@ -377,7 +424,7 @@ export function createChamber(
       // Deepest plate first, the front glass last.
       mesh.renderOrder = 2 - k
       group.add(mesh)
-      return { mesh, u, hi: tween(0), fwd: 0 }
+      return { mesh, u, hi: tween(0) }
     })
     group.visible = false
     scene.add(group)
@@ -385,50 +432,70 @@ export function createChamber(
   })
   if (layer !== null) items[selected].slabs[layer].hi = tween(1)
 
-  // ---------- Layout: one camera, and each product scaled and placed so its opened stack fills the stage ----------
+  // ---------- Layout: composed poses, each fitted to what is actually visible in it ----------
+  // closed: the whole product, near-frontal and large. open: the layers fanned. sel1/sel2: one layer chosen, the screen moved
+  // aside and the plate grown into the space it left. side: closed, in the left third beside a demo.
+  // In every pose the depth order is the same (screen, then plate 1, then plate 2), so draw order never has to change and
+  // nothing passes through the screen on the way between them.
+  type PoseName = 'closed' | 'open' | 'sel1' | 'sel2' | 'side'
+  interface Pose { pos: THREE.Vector3; scale: number; yaw: number }
   let cssW = 1, cssH = 1, narrow = false
-  const offsets = (it: (typeof items)[number], k: number, e: number, out: THREE.Vector3) => {
-    if (k === 0) return out.set(0, 0, 0)
-    // Closed, each plate sits a hair up and to the right of the one in front: a seam that hints at the layers inside.
-    const shut = new THREE.Vector3(0.01 * k, 0.008 * k, -(T / 2 + TP / 2 + 0.004) - (k - 1) * (TP + 0.004))
-    // Phones keep the plates shallow so they stay inside a small stage. A product whose layers carry words fans them out
-    // far enough that each plate's right edge, where its words sit, is in view, while the screen stays the largest thing.
-    const open = narrow
-      ? new THREE.Vector3(0.05 * k, 0.12 * k, -0.34 * k)
-      : it.info ? new THREE.Vector3(spread(it.w / it.h) * it.w * k, 0.1 * k, -0.36 * k) : new THREE.Vector3(0.15 * k, 0.05 * k, -0.5 * k)
-    return out.lerpVectors(shut, open, e)
+  const yawOf = (pose: PoseName) => (pose === 'open' ? (narrow ? -0.16 : -0.3) : pose === 'closed' || pose === 'side' ? (narrow ? -0.08 : -0.17) : -0.22)
+  /** Where slab k stands in a pose, in the product's own space, and how large it is. */
+  function place(it: (typeof items)[number], pose: PoseName, k: number, out: THREE.Vector3) {
+    const w = it.w
+    if (pose === 'closed' || pose === 'side') {
+      // Closed, each plate sits a hair up and to the right of the one in front: a seam that hints at the layers inside.
+      if (k === 0) return (out.set(0, 0, 0), 1)
+      return (out.set(0.01 * k, 0.008 * k, -(T / 2 + TP / 2 + 0.004) - (k - 1) * (TP + 0.004)), 1)
+    }
+    if (pose === 'open' || !it.info) {
+      if (k === 0) return (out.set(0, 0, 0), 1)
+      // Phones keep the plates shallow. A product whose layers carry words fans them so each plate's right edge is in view.
+      if (narrow) return (out.set(0.05 * k, 0.12 * k, -0.34 * k), 1)
+      if (it.info) return (out.set(spread(w / it.h) * w * k, 0.1 * k, -0.36 * k), 1)
+      return (out.set(0.15 * k, 0.05 * k, -0.5 * k), 1)
+    }
+    const chosen = pose === 'sel1' ? 1 : 2
+    if (k === 0) return (out.set(-0.66 * w, -0.04, -0.3), 0.62)
+    if (k === chosen) return chosen === 1 ? (out.set(0.4 * w, 0, -0.36), 1.36) : (out.set(0.4 * w, 0, -0.6), 1.5)
+    // The other plate: tucked behind the screen if it lies in front of the chosen one, behind the chosen one if it lies deeper.
+    return k < chosen ? (out.set(-0.66 * w, -0.04, -0.5), 0.56) : (out.set(0.62 * w, 0.1, -0.75), 1.2)
   }
-  /** Where a plate stands when its layer is chosen: in front of the screen, centred on the opened fan, a little larger. */
-  const forward = (it: (typeof items)[number], out: THREE.Vector3) => out.set(narrow ? 0 : 0.5 * it.w, 0, T / 2 + TP / 2 + 0.14)
-  const fwdAt = new THREE.Vector3()
-  const corner = new THREE.Vector3(), off = new THREE.Vector3(), box = new THREE.Box2()
-  /** Places a product's stack in a region of the stage: the whole stage opened (with room for the titles), or the left third closed. */
-  function fit(it: (typeof items)[number], side: boolean) {
-    it.group.rotation.set(narrow ? 0.02 : 0.04, narrow ? -0.16 : -0.3, narrow ? 0 : -0.03)
-    it.group.position.set(0, 0, 0)
-    it.group.scale.setScalar(1)
+  const corner = new THREE.Vector3(), slabAt = new THREE.Vector3(), box = new THREE.Box2(), probe = new THREE.Object3D()
+  const vC = new THREE.Vector3(), vO = new THREE.Vector3(), v1 = new THREE.Vector3(), v2 = new THREE.Vector3()
+  /** Fits a pose to the stage from the projected corners of the slabs that pose shows. */
+  function fit(it: (typeof items)[number], pose: PoseName): Pose {
+    const yaw = yawOf(pose)
+    probe.rotation.set(narrow ? 0.02 : 0.04, yaw, narrow ? 0 : -0.03)
+    probe.position.set(0, 0, 0)
+    probe.scale.setScalar(1)
     const dist = camera.position.length()
     const hh = Math.tan(THREE.MathUtils.degToRad(FOV / 2)) * dist, hw = hh * camera.aspect
-    const room = narrow || side ? 0 : (2 * LABEL_ROOM) / cssH
-    const pad = narrow ? 0.03 : side ? 0.08 : 0.02
-    const top = 1 - pad - room, bottom = -1 + pad, left = -1 + pad, right = side ? -0.36 : 1 - pad
+    const room = pose === 'open' && !narrow ? (2 * LABEL_ROOM) / cssH : 0
+    const pad = narrow ? 0.03 : pose === 'side' ? 0.08 : 0.03
+    const top = 1 - pad - room, bottom = -1 + pad, left = -1 + pad, right = pose === 'side' ? -0.36 : 1 - pad
     for (let pass = 0; pass < 4; pass++) {
-      it.group.updateMatrixWorld()
+      probe.updateMatrixWorld()
       box.makeEmpty()
       for (let k = 0; k < 3; k++) {
-        offsets(it, k, side ? 0 : 1, off)
+        // Closed, the plates hide behind the screen: only the screen counts.
+        if ((pose === 'closed' || pose === 'side') && k) continue
+        const sc = place(it, pose, k, slabAt)
         for (const sx of [-1, 1]) for (const sy of [-1, 1]) {
-          corner.set((sx * it.w) / 2, (sy * it.h) / 2, 0).add(off).applyMatrix4(it.group.matrixWorld).project(camera)
+          corner.set((sx * it.w * sc) / 2, (sy * it.h * sc) / 2, 0).add(slabAt).applyMatrix4(probe.matrixWorld).project(camera)
           box.expandByPoint(new THREE.Vector2(corner.x, corner.y))
         }
       }
       const k = Math.min((right - left) / (box.max.x - box.min.x), (top - bottom) / (box.max.y - box.min.y))
-      it.group.scale.multiplyScalar(k)
-      it.group.position.x += ((left + right) / 2 - ((box.min.x + box.max.x) / 2) * k) * hw
-      // Opened, the stack hangs from the top of the stage, level with the index; beside a demo it is centred.
-      it.group.position.y += (side ? (top + bottom) / 2 - ((box.min.y + box.max.y) / 2) * k : top - box.max.y * k) * hh
+      probe.scale.multiplyScalar(k)
+      probe.position.x += ((left + right) / 2 - ((box.min.x + box.max.x) / 2) * k) * hw
+      // Closed and open, the stack hangs from the top of the stage, level with the index; a chosen layer and the demo pose are
+      // centred, so the information surface sits in the middle of the stage.
+      const centred = pose === 'side' || pose === 'sel1' || pose === 'sel2'
+      probe.position.y += (centred ? (top + bottom) / 2 - ((box.min.y + box.max.y) / 2) * k : top - box.max.y * k) * hh
     }
-    return { pos: it.group.position.clone(), scale: it.group.scale.x }
+    return { pos: probe.position.clone(), scale: probe.scale.x, yaw }
   }
   function resize() {
     cssW = host.clientWidth
@@ -439,7 +506,9 @@ export function createChamber(
     renderer.setSize(cssW, cssH, false)
     camera.aspect = cssW / cssH
     camera.updateProjectionMatrix()
-    items.forEach((it) => { it.group.userData.full = fit(it, false); it.group.userData.side = fit(it, true) })
+    items.forEach((it) => {
+      it.group.userData.poses = { closed: fit(it, 'closed'), open: fit(it, 'open'), sel1: fit(it, 'sel1'), sel2: fit(it, 'sel2'), side: fit(it, 'side') }
+    })
     loadSharp(selected)
     invalidate()
   }
@@ -553,10 +622,11 @@ export function createChamber(
     if (!visible || !cssW || !cssH || document.hidden) return
     const now = performance.now()
     // Beside a demo the stack reads closed, whatever the reader chose; the choice returns when the demo closes.
-    const sd = valueOf(aside, now)
-    const e = valueOf(explode, now) * (1 - sd)
+    const sd = valueOf(aside, now, easeInOut)
+    const e = valueOf(explode, now, easeInOut) * (1 - sd)
     let moving = busy(explode, now) || busy(aside, now)
     const it0 = items[selected]
+    let fAny0 = 0
     items.forEach((it) => {
       // The leaving screen fades out in the first half, the arriving one fades in over the second, with a short move back and forward.
       const pr = valueOf(it.presence, now, (x) => x)
@@ -564,39 +634,40 @@ export function createChamber(
       const a = clamp01((pr - 0.45) / 0.55)
       it.group.visible = a > 0.001
       if (!it.group.visible) return
-      const { full, side } = it.group.userData as Record<'full' | 'side', { pos: THREE.Vector3; scale: number }>
-      it.group.position.lerpVectors(full.pos, side.pos, sd)
-      it.group.scale.setScalar(full.scale + (side.scale - full.scale) * sd)
-      // Arriving, the product settles from a slightly wider turn as its dots land.
-      it.group.rotation.y = (narrow ? -0.16 : -0.3) - 0.14 * (1 - easeOut(formation))
-      it.group.position.z -= (1 - easeOut(clamp01(pr))) * 0.18
-      let any = 0, fwdAny = 0
-      it.slabs.forEach((s, k) => {
-        const hi = valueOf(s.hi, now)
-        any = Math.max(any, hi)
-        if (k && it.info) fwdAny = Math.max(fwdAny, hi * e)
-      })
-      it.slabs.forEach((s, k) => {
-        const hi = valueOf(s.hi, now)
-        moving ||= busy(s.hi, now)
-        // Open, a chosen layer with words comes forward over the screen; the rest step back.
-        const fwd = k && it.info ? hi * e : 0
-        offsets(it, k, e, s.mesh.position).lerp(forward(it, fwdAt), fwd)
-        s.mesh.position.z -= (fwdAny - fwd) * 0.22
-        // A wide plate grows a little; a tall one is already as high as the stage allows.
-        s.mesh.scale.setScalar(1 + (narrow || it.w < it.h ? 0 : 0.14) * fwd)
-        s.mesh.renderOrder = fwd > 0.5 ? 3 : 2 - k
-        // The screen hears how far another layer has come forward; a plate, its own step.
-        s.fwd = fwd
-        s.u.uFwd.value = k ? fwd : fwdAny
-        // On a phone the plates sit close behind the screen, so their words show only on the one brought forward.
-        // Phones show a chosen layer's words as page text over its plate instead, at a readable size.
-        if (k && it.info) s.u.uHasInfo.value = s.u.uInfo.value === blank || narrow ? 0 : 1
-        s.u.uAlpha.value = a
-        s.u.uHi.value = hi
-        s.u.uDim.value = Math.max(0, any - hi)
+      // One progress per transition: the expansion carries closed to open, and each chosen layer carries open to its own pose.
+      // Group fit, slab places, sizes and turn all blend through the same values, so the object rearranges as one.
+      const P = it.group.userData.poses as Record<PoseName, Pose>
+      const hi = it.slabs.map((sl) => valueOf(sl.hi, now, easeInOut))
+      it.slabs.forEach((sl) => { moving ||= busy(sl.hi, now) })
+      const f = [0, it.info ? hi[1] * e : 0, it.info ? hi[2] * e : 0]
+      const fAny = Math.max(f[1], f[2])
+      if (it === it0) fAny0 = fAny
+      const blend = (get: (p: Pose) => number) => {
+        const v = get(P.closed) + (get(P.open) - get(P.closed)) * e + (get(P.sel1) - get(P.open)) * f[1] + (get(P.sel2) - get(P.open)) * f[2]
+        return v + (get(P.side) - v) * sd
+      }
+      it.group.position.set(blend((p) => p.pos.x), blend((p) => p.pos.y), blend((p) => p.pos.z) - (1 - easeOut(clamp01(pr))) * 0.18)
+      it.group.scale.setScalar(blend((p) => p.scale))
+      // Arriving, the product settles from a slightly wider turn as the field gathers onto it.
+      it.group.rotation.set(narrow ? 0.02 : 0.04, blend((p) => p.yaw) - 0.1 * (1 - easeOut(formation)), narrow ? 0 : -0.03)
+      const any = Math.max(...hi)
+      it.slabs.forEach((sl, k) => {
+        const cS = place(it, 'closed', k, vC), oS = place(it, 'open', k, vO), s1 = place(it, 'sel1', k, v1), s2 = place(it, 'sel2', k, v2)
+        const blended = sl.mesh.position.copy(vC).lerp(vO, e).addScaledVector(v1.sub(vO), f[1]).addScaledVector(v2.sub(vO), f[2])
+        blended.lerp(vC, sd)
+        const scale = cS + (oS - cS) * e + (s1 - oS) * f[1] + (s2 - oS) * f[2]
+        sl.mesh.scale.setScalar(scale + (cS - scale) * sd)
+        // The screen hears how far a layer has been chosen; a plate, its own progress.
+        sl.u.uFwd.value = k ? f[k] : fAny
+        // Phones show a chosen layer's words as page text over the stage instead, at a readable size.
+        // A plate that is not the chosen one keeps no words while another is chosen: it is context, not a second text.
+        if (k && it.info) sl.u.uHasInfo.value = sl.u.uInfo.value === blank || narrow ? 0 : 1 - Math.max(0, fAny - f[k])
+        // A plate that lies in front of the chosen one slides behind the screen and fades there, so it never ghosts over the surface.
+        sl.u.uAlpha.value = a * (k ? 1 - Math.max(0, ...f.map((fj, j) => (j > k ? fj : 0))) : 1)
+        sl.u.uHi.value = hi[k]
+        sl.u.uDim.value = Math.max(0, any - hi[k])
         // A fading screen must not write depth, or it cuts a hole in the one arriving behind it.
-        s.mesh.material.depthWrite = k === 0 && a > 0.99
+        sl.mesh.material.depthWrite = k === 0 && a > 0.99
       })
     })
     // The dots ride the shown product: its place, turn and size, and its crossfade.
@@ -609,8 +680,16 @@ export function createChamber(
     formU.uP.value = formation
     formU.uPx.value = (narrow ? 2.4 : 2.1) * renderer.getPixelRatio()
     formU.uAlpha.value = a0 * (1 - sd)
+    // The contact light sits under the screen wherever the screen stands, and grows in as the formation lands.
+    const scr = it0.slabs[0].mesh
+    glowRoot.position.copy(it0.group.position)
+    glowRoot.quaternion.copy(it0.group.quaternion)
+    glowRoot.scale.copy(it0.group.scale)
+    glow.position.set(scr.position.x, scr.position.y - (it0.h / 2) * scr.scale.x - 0.02, scr.position.z)
+    glow.scale.set(it0.w * scr.scale.x * 1.15, 0.34 * scr.scale.x, 1)
+    glowU.uAlpha.value = 0.3 * a0 * easeOut(formation) * (1 - 0.6 * fAny0)
     renderer.render(scene, camera)
-    placeLabels(it0, e, clamp01((valueOf(it0.presence, now, (x) => x) - 0.45) / 0.55))
+    placeLabels(it0, e, clamp01((valueOf(it0.presence, now, (x) => x) - 0.45) / 0.55) * (1 - fAny0))
     report()
     if (moving) invalidate()
   }
@@ -619,9 +698,8 @@ export function createChamber(
   function placeLabels(it: (typeof items)[number], e: number, a: number) {
     labels.forEach((el, k) => {
       if (!el) return
-      // While a plate stands forward it carries its own title, and the titles of the plates behind it step out of its way.
-      const behind = k && it.info ? Math.max(...it.slabs.map((s) => s.fwd)) : 0
-      const op = narrow ? 0 : clamp01(e * 2 - 1) * a * (1 - behind)
+      // A chosen layer carries its own numbered title, so every projected title steps aside while one is chosen (in `a`).
+      const op = narrow ? 0 : clamp01(e * 2 - 1) * a
       it.group.updateMatrixWorld()
       // Fanned plates show their right half, so their titles start there.
       const x0 = k && it.info && !narrow ? 0.03 : -it.w / 2 + 0.03
@@ -654,7 +732,7 @@ export function createChamber(
       const now = performance.now()
       const dur = reduced || instant ? 0 : DUR.product
       items.forEach((it, j) => aim(it.presence, j === i ? 1 : 0, dur, now, (x) => x))
-      items[selected].slabs.forEach((s) => aim(s.hi, 0, 0, now))
+      items[selected].slabs.forEach((s) => aim(s.hi, 0, 0, now, easeInOut))
       selected = i
       layer = null
       loadSharp(i)
@@ -663,18 +741,18 @@ export function createChamber(
       invalidate()
     },
     setExpanded(on, instant) {
-      aim(explode, on ? 1 : 0, reduced || instant ? 0 : DUR.layers, performance.now())
+      aim(explode, on ? 1 : 0, reduced || instant ? 0 : DUR.layers, performance.now(), easeInOut)
       invalidate()
     },
     setLayer(i, instant) {
       if (i === layer) return
       layer = i
       const now = performance.now()
-      items[selected].slabs.forEach((s, k) => aim(s.hi, k === i ? 1 : 0, reduced || instant ? 0 : DUR.layers, now))
+      items[selected].slabs.forEach((s, k) => aim(s.hi, k === i ? 1 : 0, reduced || instant ? 0 : DUR.layers, now, easeInOut))
       invalidate()
     },
     setAside(on, instant) {
-      aim(aside, on ? 1 : 0, reduced || instant ? 0 : DUR.layers, performance.now())
+      aim(aside, on ? 1 : 0, reduced || instant ? 0 : DUR.layers, performance.now(), easeInOut)
       invalidate()
     },
     setFormation(v) {
@@ -704,6 +782,8 @@ export function createChamber(
       wordsOf.forEach((texs) => texs.forEach((t) => t.dispose()))
       fg.dispose()
       formMat.dispose()
+      glow.geometry.dispose()
+      glow.material.dispose()
       blank.dispose()
       renderer.dispose()
       renderer.forceContextLoss()
