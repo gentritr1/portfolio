@@ -44,6 +44,7 @@ export function Lab({ mode, reduced, noGl, onOpen }: { mode: 'lens' | 'tensor'; 
   const sys = systems[selected]
   const tryOpen = trying && DEMOS.has(sys.slug)
   // A new chamber (first mount, or a change of motion preference) starts from all three choices the reader has made.
+  const formation = useRef(1)
   const latest = useRef({ selected, layersExpanded, activeLayer, mode, tryOpen })
   useEffect(() => { latest.current = { selected, layersExpanded, activeLayer, mode, tryOpen } })
 
@@ -64,6 +65,7 @@ export function Lab({ mode, reduced, noGl, onOpen }: { mode: 'lens' | 'tensor'; 
         expanded: now.layersExpanded,
         layer: now.activeLayer,
         mode: now.mode === 'tensor' ? 1 : 0,
+        formation: formation.current,
         reduced,
         labels: labelRefs.current,
         onReady: setGlReady,
@@ -83,6 +85,30 @@ export function Lab({ mode, reduced, noGl, onOpen }: { mode: 'lens' | 'tensor'; 
   }, [noGl, glLost, reduced])
 
   useEffect(() => { chamber.current?.setMode(mode === 'tensor' ? 1 : 0) }, [mode])
+
+  // The formation runs while the product comes into view: from the stage's top at 92% of the viewport to 30% (Lenis smooths
+  // the scroll it reads). Arriving by keyboard, or with reduced motion, it is already formed: nothing travels.
+  useEffect(() => {
+    const stage = stageRef.current
+    const root = stage?.parentElement
+    if (!stage || !root) return
+    let formed = reduced
+    const update = () => {
+      const top = stage.getBoundingClientRect().top
+      formation.current = formed ? 1 : Math.min(1, Math.max(0, (innerHeight * 0.92 - top) / (innerHeight * 0.62)))
+      chamber.current?.setFormation(formation.current)
+    }
+    const onFocus = () => { formed = true; update() }
+    update()
+    addEventListener('scroll', update, { passive: true })
+    addEventListener('resize', update)
+    root.addEventListener('focusin', onFocus)
+    return () => {
+      removeEventListener('scroll', update)
+      removeEventListener('resize', update)
+      root.removeEventListener('focusin', onFocus)
+    }
+  }, [reduced, glReady])
 
   // A keyboard press (detail 0) changes the chamber at once; a click or tap animates. The effects above then find it settled.
   const select = (i: number, instant: boolean) => {

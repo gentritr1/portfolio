@@ -34,6 +34,8 @@ export interface Chamber {
   /** A product demo is open beside the glass: the stack closes and moves into the left third of the stage. */
   setAside(on: boolean, instant?: boolean): void
   setMode(mode: 0 | 1): void
+  /** 0 as the stage enters the view, 1 once it is in place: the field's dots gather onto the glass. Driven by scroll. */
+  setFormation(progress: number): void
   dispose(): void
 }
 
@@ -262,9 +264,56 @@ function plateCanvas(t: PlateText, aspect: number, forward: boolean) {
   return c
 }
 
+/**
+ * The formation: field dots that fly in from the stage, land on the glass contour and are absorbed, leaving a sparse seam
+ * brightest along the bottom edge. Positions are in the product's own space, so the dots follow its fit, turn and crossfade.
+ * Each dot eases out on its own short window of the scroll progress, so they arrive staggered rather than as one sheet.
+ */
+const formVertex = /* glsl */ `
+attribute vec3 aStart;
+attribute float aT, aSeed;
+uniform float uP, uPx;
+uniform vec3 uSize;
+varying float vA, vTint;
+vec2 perimeter(float t, vec2 h) {
+  float d = t * 4.0 * (h.x + h.y);
+  if (d < 2.0 * h.x) return vec2(-h.x + d, -h.y);
+  d -= 2.0 * h.x;
+  if (d < 2.0 * h.y) return vec2(h.x, -h.y + d);
+  d -= 2.0 * h.y;
+  if (d < 2.0 * h.x) return vec2(h.x - d, h.y);
+  return vec2(-h.x, h.y - (d - 2.0 * h.x));
+}
+void main() {
+  vec2 h = uSize.xy * 0.5;
+  vec2 edge = perimeter(aT, h);
+  // A hair outside the glass edge, so the seam reads as light on its rim.
+  vec2 out2 = edge / max(h, 1e-3);
+  vec3 target = vec3(edge + sign(out2) * step(0.999, abs(out2)) * (0.004 + 0.006 * aSeed), uSize.z * 0.5 + 0.004);
+  float k = clamp((uP - aSeed * 0.42) / 0.58, 0.0, 1.0);
+  k = 1.0 - pow(1.0 - k, 3.0);
+  vec3 p = mix(aStart * vec3(uSize.xy, 1.0), target, k);
+  // A quarter stay on the rim at rest, most of them along the bottom edge: the light the glass sits in.
+  float bottom = step(edge.y, -h.y + 1e-3);
+  float stays = step(aSeed, 0.16 + 0.34 * bottom);
+  vA = 0.4 * (1.0 - k) + 0.95 * sin(3.14159 * k) * (1.0 - 0.4 * k) + k * stays * (0.55 + 0.35 * bottom);
+  vTint = step(0.7, fract(aSeed * 13.7));
+  gl_PointSize = uPx * (0.8 + 0.7 * fract(aSeed * 7.3));
+  gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.0);
+}`
+const formFragment = /* glsl */ `
+uniform vec3 uAccent;
+uniform float uAlpha;
+varying float vA, vTint;
+void main() {
+  float f = smoothstep(0.5, 0.1, length(gl_PointCoord - 0.5));
+  vec3 col = mix(vec3(0.76, 0.78, 0.84), uAccent, vTint * 0.8);
+  gl_FragColor = vec4(col * f * vA * uAlpha, 1.0);
+}`
+
 export function createChamber(
   host: HTMLElement,
-  options: { products: ChamberProduct[]; selected: number; expanded: boolean; layer: number | null; mode: 0 | 1; reduced: boolean; labels: (HTMLElement | null)[]; onReady(ready: boolean): void; onLost(): void },
+  options: { products: ChamberProduct[]; selected: number; expanded: boolean; layer: number | null; mode: 0 | 1; formation: number; reduced: boolean; labels: (HTMLElement | null)[]; onReady(ready: boolean): void; onLost(): void },
 ): Chamber {
   const { products, reduced, labels } = options
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' })
@@ -285,6 +334,31 @@ export function createChamber(
   let layer: number | null = options.layer
   const explode = tween(options.expanded ? 1 : 0)
   const aside = tween(0)
+  let formation = reduced ? 1 : options.formation
+
+  // ---------- The formation's dots: one draw, positions in the shader ----------
+  const FORM = innerWidth < 600 ? 700 : 1600
+  const fg = new THREE.BufferGeometry()
+  const fStart = new Float32Array(FORM * 3), fT = new Float32Array(FORM), fSeed = new Float32Array(FORM)
+  for (let i = 0; i < FORM; i++) {
+    // Starts spread over and past the stage, in front of and behind the glass, the way the field lies around it.
+    fStart[i * 3] = (Math.random() - 0.5) * 3.4
+    fStart[i * 3 + 1] = (Math.random() - 0.5) * 2.6
+    fStart[i * 3 + 2] = -1.2 + Math.random() * 1.8
+    fT[i] = Math.random()
+    fSeed[i] = Math.random()
+  }
+  fg.setAttribute('position', new THREE.BufferAttribute(new Float32Array(FORM * 3), 3))
+  fg.setAttribute('aStart', new THREE.BufferAttribute(fStart, 3))
+  fg.setAttribute('aT', new THREE.BufferAttribute(fT, 1))
+  fg.setAttribute('aSeed', new THREE.BufferAttribute(fSeed, 1))
+  const formU = { uP: { value: formation }, uPx: { value: 2 }, uSize: { value: new THREE.Vector3(1, 1, T) }, uAccent: { value: accent }, uAlpha: { value: 1 } }
+  // Depth-tested, so a dot that starts behind the glass passes behind the screen, never across it.
+  const formMat = new THREE.ShaderMaterial({ uniforms: formU, vertexShader: formVertex, fragmentShader: formFragment, transparent: true, depthTest: true, depthWrite: false, blending: THREE.AdditiveBlending })
+  const dots = new THREE.Points(fg, formMat)
+  dots.frustumCulled = false
+  dots.renderOrder = 10
+  scene.add(dots)
 
   const items = products.map((p, i) => {
     const h = 1
@@ -493,6 +567,8 @@ export function createChamber(
       const { full, side } = it.group.userData as Record<'full' | 'side', { pos: THREE.Vector3; scale: number }>
       it.group.position.lerpVectors(full.pos, side.pos, sd)
       it.group.scale.setScalar(full.scale + (side.scale - full.scale) * sd)
+      // Arriving, the product settles from a slightly wider turn as its dots land.
+      it.group.rotation.y = (narrow ? -0.16 : -0.3) - 0.14 * (1 - easeOut(formation))
       it.group.position.z -= (1 - easeOut(clamp01(pr))) * 0.18
       let any = 0, fwdAny = 0
       it.slabs.forEach((s, k) => {
@@ -523,6 +599,16 @@ export function createChamber(
         s.mesh.material.depthWrite = k === 0 && a > 0.99
       })
     })
+    // The dots ride the shown product: its place, turn and size, and its crossfade.
+    const a0 = clamp01((valueOf(it0.presence, now, (x) => x) - 0.45) / 0.55)
+    dots.visible = a0 > 0.001
+    dots.position.copy(it0.group.position)
+    dots.quaternion.copy(it0.group.quaternion)
+    dots.scale.copy(it0.group.scale)
+    formU.uSize.value.set(it0.w, it0.h, T)
+    formU.uP.value = formation
+    formU.uPx.value = (narrow ? 2.4 : 2.1) * renderer.getPixelRatio()
+    formU.uAlpha.value = a0 * (1 - sd)
     renderer.render(scene, camera)
     placeLabels(it0, e, clamp01((valueOf(it0.presence, now, (x) => x) - 0.45) / 0.55))
     report()
@@ -591,6 +677,12 @@ export function createChamber(
       aim(aside, on ? 1 : 0, reduced || instant ? 0 : DUR.layers, performance.now())
       invalidate()
     },
+    setFormation(v) {
+      const next = reduced ? 1 : clamp01(v)
+      if (Math.abs(next - formation) < 0.002) return
+      formation = next
+      invalidate()
+    },
     setMode(m) {
       accent.set(m ? '#5be7ff' : '#3ee6a4')
       invalidate()
@@ -610,6 +702,8 @@ export function createChamber(
         it.slabs.forEach((s) => s.mesh.material.dispose())
       })
       wordsOf.forEach((texs) => texs.forEach((t) => t.dispose()))
+      fg.dispose()
+      formMat.dispose()
       blank.dispose()
       renderer.dispose()
       renderer.forceContextLoss()
