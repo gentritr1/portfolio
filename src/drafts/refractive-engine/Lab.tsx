@@ -58,7 +58,7 @@ export function Lab({ mode, reduced, noGl, onOpen }: { mode: 'lens' | 'tensor'; 
           texture: s.texture,
           sharp: SHARP[s.slug]?.src,
           aspect: s.aspect,
-          plates: plates[s.slug]?.slice(1).map((p, j) => ({ ...p, stack: s.layers[j + 1].stack, proof: p.proof && { ...p.proof, kind: proofKind[p.proof.kind] } })),
+          plates: plates[s.slug]?.slice(1).map((p, j) => ({ ...p, title: s.layers[j + 1].title, stack: s.layers[j + 1].stack, proof: p.proof && { ...p.proof, kind: proofKind[p.proof.kind] } })),
         })),
         selected: now.selected,
         expanded: now.layersExpanded,
@@ -89,6 +89,8 @@ export function Lab({ mode, reduced, noGl, onOpen }: { mode: 'lens' | 'tensor'; 
     setSelectedSlug(systems[i].slug)
     setActiveLayer(null)
     setTrying(false)
+    // Choosing the product already shown still clears its layer, in the glass as on the page.
+    chamber.current?.setLayer(null, instant)
     chamber.current?.setAside(false, true)
     chamber.current?.select(i, instant)
   }
@@ -97,8 +99,14 @@ export function Lab({ mode, reduced, noGl, onOpen }: { mode: 'lens' | 'tensor'; 
     chamber.current?.setAside(on, instant)
     if (!on) tryRef.current?.focus({ preventScroll: true })
   }
-  // Opening the demo moves focus into it; Escape or Close hands it back to Try it.
-  useEffect(() => { if (tryOpen) demoRef.current?.focus({ preventScroll: true }) }, [tryOpen])
+  // Opening the demo brings its whole frame into view under the bar and moves focus into it; Escape or Close hands it back.
+  useEffect(() => {
+    const demo = demoRef.current
+    if (!tryOpen || !demo) return
+    const r = demo.getBoundingClientRect()
+    if (r.top < 76 || r.bottom > innerHeight) demo.scrollIntoView({ block: 'start', behavior: reduced ? 'auto' : 'smooth' })
+    demo.focus({ preventScroll: true })
+  }, [tryOpen, reduced])
   const expand = (on: boolean, instant: boolean) => {
     setLayersExpanded(on)
     chamber.current?.setExpanded(on, instant)
@@ -154,6 +162,14 @@ export function Lab({ mode, reduced, noGl, onOpen }: { mode: 'lens' | 'tensor'; 
                   <ReaderDemo bare />
                 </Suspense>
               </div>
+            </div>
+          )}
+          {/* Phones: the chosen layer's words as page text over its plate, at a size the 3D texture cannot give them. */}
+          {layersExpanded && !tryOpen && activeLayer && plates[sys.slug] && (
+            <div className="re-ch-card" aria-hidden="true">
+              <p className="re-ch-card-title">{sys.layers[activeLayer].title}</p>
+              <p className="re-num re-layer-stack">{sys.layers[activeLayer].stack}</p>
+              <LayerFacts plate={plates[sys.slug][activeLayer]} />
             </div>
           )}
           <div className="re-ch-labels" aria-hidden="true">
