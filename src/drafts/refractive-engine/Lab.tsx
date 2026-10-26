@@ -2,6 +2,7 @@ import { lazy, Suspense, useEffect, useRef, useState, type CSSProperties, type M
 import { ArrowRightIcon, BookOpenTextIcon, XIcon } from '@phosphor-icons/react'
 import { createChamber, type Chamber } from './chamber'
 import { INVENTED, systems } from './data'
+import { plates, proofKind } from './plates'
 import { STAGE } from './scene'
 
 const BASE = '/drafts/refractive-engine'
@@ -31,7 +32,8 @@ export function Lab({ mode, reduced, noGl, onOpen }: { mode: 'lens' | 'tensor'; 
   const labelRefs = useRef<(HTMLSpanElement | null)[]>([])
   const chamber = useRef<Chamber | null>(null)
   const [selectedSlug, setSelectedSlug] = useState(FIRST)
-  const [layersExpanded, setLayersExpanded] = useState(true)
+  // Arrive on the whole product; opening its layers is the reader's move, and that choice holds across products.
+  const [layersExpanded, setLayersExpanded] = useState(false)
   const [activeLayer, setActiveLayer] = useState<number | null>(null)
   const [glReady, setGlReady] = useState(false)
   const [glLost, setGlLost] = useState(false)
@@ -52,7 +54,12 @@ export function Lab({ mode, reduced, noGl, onOpen }: { mode: 'lens' | 'tensor'; 
     let c: Chamber
     try {
       c = createChamber(host, {
-        products: systems.map((s) => ({ texture: s.texture, sharp: SHARP[s.slug]?.src, aspect: s.aspect })),
+        products: systems.map((s) => ({
+          texture: s.texture,
+          sharp: SHARP[s.slug]?.src,
+          aspect: s.aspect,
+          plates: plates[s.slug]?.slice(1).map((p, j) => ({ ...p, stack: s.layers[j + 1].stack, proof: p.proof && { ...p.proof, kind: proofKind[p.proof.kind] } })),
+        })),
         selected: now.selected,
         expanded: now.layersExpanded,
         layer: now.activeLayer,
@@ -206,10 +213,30 @@ export function Lab({ mode, reduced, noGl, onOpen }: { mode: 'lens' | 'tensor'; 
               </button>
               <p className="re-num re-layer-stack">{l.stack}</p>
               <p>{l.description}</p>
+              {plates[sys.slug] && <LayerFacts plate={plates[sys.slug][k]} />}
             </li>
           ))}
         </ol>
       </div>
     </section>
+  )
+}
+
+/** The same words the plate carries, as page text: they never depend on the canvas. */
+function LayerFacts({ plate }: { plate: (typeof plates)[string][number] }) {
+  return (
+    <>
+      <ul className="re-ch-concepts">
+        {plate.concepts.map((c) => <li key={c}>{c}</li>)}
+      </ul>
+      {plate.proof && (
+        <p className="re-ch-proof">
+          <span>{proofKind[plate.proof.kind]}</span>
+          <b className="re-num">{plate.proof.value}</b>
+          <span>{plate.proof.label}</span>
+        </p>
+      )}
+      {plate.note && <p className="re-ch-scope">{plate.note}</p>}
+    </>
   )
 }
