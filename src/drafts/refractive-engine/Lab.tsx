@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState, type CSSProperties, type MouseEvent } from 'react'
-import { ArrowRightIcon } from '@phosphor-icons/react'
+import { lazy, Suspense, useEffect, useRef, useState, type CSSProperties, type MouseEvent } from 'react'
+import { ArrowRightIcon, BookOpenTextIcon, XIcon } from '@phosphor-icons/react'
 import { createChamber, type Chamber } from './chamber'
 import { INVENTED, systems } from './data'
 import { STAGE } from './scene'
@@ -17,6 +17,12 @@ const SHARP: Record<string, { src: string; width: number }> = {
   'design-system-react': { src: '/showcase/design-system/boards/board-04.webp', width: 3200 },
   futurisma: { src: '/personal/shots/futurisma-frostline-1.webp', width: 2880 },
 }
+/**
+ * Products with a hands-on demo beside the glass. Only Read to Feed for now: reading and scanning a book are the product,
+ * and the site already has an authored recreation of both. It loads when first opened.
+ */
+const DEMOS = new Set(['read-to-feed'])
+const ReaderDemo = lazy(() => import('../../worlds/reading/Recreation').then((m) => ({ default: m.Recreation })))
 const plain = (e: MouseEvent) => !(e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0)
 
 /** Eight products, one in focus: a text index beside one large screen whose glass splits into its three layers. */
@@ -29,11 +35,15 @@ export function Lab({ mode, reduced, noGl, onOpen }: { mode: 'lens' | 'tensor'; 
   const [activeLayer, setActiveLayer] = useState<number | null>(null)
   const [glReady, setGlReady] = useState(false)
   const [glLost, setGlLost] = useState(false)
+  const [trying, setTrying] = useState(false)
+  const tryRef = useRef<HTMLButtonElement>(null)
+  const demoRef = useRef<HTMLDivElement>(null)
   const selected = Math.max(0, systems.findIndex((s) => s.slug === selectedSlug))
   const sys = systems[selected]
+  const tryOpen = trying && DEMOS.has(sys.slug)
   // A new chamber (first mount, or a change of motion preference) starts from all three choices the reader has made.
-  const latest = useRef({ selected, layersExpanded, activeLayer, mode })
-  useEffect(() => { latest.current = { selected, layersExpanded, activeLayer, mode } })
+  const latest = useRef({ selected, layersExpanded, activeLayer, mode, tryOpen })
+  useEffect(() => { latest.current = { selected, layersExpanded, activeLayer, mode, tryOpen } })
 
   useEffect(() => {
     const host = stageRef.current
@@ -57,6 +67,7 @@ export function Lab({ mode, reduced, noGl, onOpen }: { mode: 'lens' | 'tensor'; 
       return
     }
     chamber.current = c
+    c.setAside(now.tryOpen, true)
     return () => {
       c.dispose()
       chamber.current = null
@@ -70,8 +81,17 @@ export function Lab({ mode, reduced, noGl, onOpen }: { mode: 'lens' | 'tensor'; 
   const select = (i: number, instant: boolean) => {
     setSelectedSlug(systems[i].slug)
     setActiveLayer(null)
+    setTrying(false)
+    chamber.current?.setAside(false, true)
     chamber.current?.select(i, instant)
   }
+  const tryIt = (on: boolean, instant: boolean) => {
+    setTrying(on)
+    chamber.current?.setAside(on, instant)
+    if (!on) tryRef.current?.focus({ preventScroll: true })
+  }
+  // Opening the demo moves focus into it; Escape or Close hands it back to Try it.
+  useEffect(() => { if (tryOpen) demoRef.current?.focus({ preventScroll: true }) }, [tryOpen])
   const expand = (on: boolean, instant: boolean) => {
     setLayersExpanded(on)
     chamber.current?.setExpanded(on, instant)
@@ -89,7 +109,7 @@ export function Lab({ mode, reduced, noGl, onOpen }: { mode: 'lens' | 'tensor'; 
         <p className="re-lede">Select a product to explore the three layers it is built from.</p>
       </div>
       <div className="re-ch re-solid">
-        <div ref={stageRef} className="re-ch-stage" data-expanded={layersExpanded || undefined} data-ready={glReady || undefined} data-shape={sys.aspect < 1 ? 'phone' : 'wide'}>
+        <div ref={stageRef} className="re-ch-stage" data-expanded={layersExpanded || undefined} data-ready={glReady || undefined} data-trying={tryOpen || undefined} data-shape={sys.aspect < 1 ? 'phone' : 'wide'}>
           {/* The real screen as a page image: what shows before the glass is ready, and without WebGL. */}
           <figure className="re-ch-still" style={{ '--a': sys.aspect } as CSSProperties}>
             <span className="re-ch-plate" aria-hidden="true" />
@@ -105,6 +125,30 @@ export function Lab({ mode, reduced, noGl, onOpen }: { mode: 'lens' | 'tensor'; 
               decoding="async"
             />
           </figure>
+          {tryOpen && (
+            <div
+              ref={demoRef}
+              id="re-ch-demo"
+              className="re-ch-demo"
+              role="region"
+              aria-label={`${sys.name}, interactive recreation`}
+              tabIndex={-1}
+              onKeyDown={(e) => { if (e.key === 'Escape') { e.stopPropagation(); tryIt(false, true) } }}
+            >
+              <div className="re-ch-demo-bar">
+                <p>Interactive recreation</p>
+                <button type="button" onClick={(e) => tryIt(false, e.detail === 0)}>
+                  Close
+                  <XIcon size={16} weight="regular" aria-hidden="true" />
+                </button>
+              </div>
+              <div className="re-ch-demo-stage">
+                <Suspense fallback={null}>
+                  <ReaderDemo bare />
+                </Suspense>
+              </div>
+            </div>
+          )}
           <div className="re-ch-labels" aria-hidden="true">
             {[0, 1, 2].map((k) => (
               <span key={k} ref={(el) => { labelRefs.current[k] = el }} className="re-ch-label" data-active={activeLayer === k || undefined}>{sys.layers[k]?.title}</span>
@@ -123,10 +167,18 @@ export function Lab({ mode, reduced, noGl, onOpen }: { mode: 'lens' | 'tensor'; 
             <p>{sys.line}</p>
             {INVENTED.has(sys.slug) && <p className="re-ch-note">Real product screens, invented data.</p>}
           </div>
-          <a className="re-ch-open" href={`${BASE}/${sys.slug}`} onClick={(e) => { if (!plain(e)) return; e.preventDefault(); onOpen(sys.slug) }}>
-            Open project
-            <ArrowRightIcon size={20} weight="regular" aria-hidden="true" />
-          </a>
+          <div className="re-ch-actions">
+            {DEMOS.has(sys.slug) && (
+              <button ref={tryRef} type="button" className="re-ch-try" aria-expanded={tryOpen} aria-controls="re-ch-demo" onClick={(e) => tryIt(!tryOpen, e.detail === 0)}>
+                <BookOpenTextIcon size={20} weight="regular" aria-hidden="true" />
+                Try it
+              </button>
+            )}
+            <a className="re-ch-open" href={`${BASE}/${sys.slug}`} onClick={(e) => { if (!plain(e)) return; e.preventDefault(); onOpen(sys.slug) }}>
+              Open project
+              <ArrowRightIcon size={20} weight="regular" aria-hidden="true" />
+            </a>
+          </div>
         </div>
 
         <ol className="re-ch-index" aria-label="Products">

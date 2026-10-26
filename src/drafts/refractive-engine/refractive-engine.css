@@ -269,6 +269,43 @@ html.re-html.lenis-stopped { overflow: clip; }
 .re-ch-open svg { transition: translate 200ms var(--re-ease); }
 .re-ch-open:active svg { translate: 3px 0; }
 @media (hover: hover) and (pointer: fine) { .re-ch-open:hover { color: var(--re-accent); } .re-ch-open:hover svg { translate: 3px 0; } }
+.re-ch-actions { display: flex; align-items: center; gap: 28px; }
+.re-ch-try {
+  all: unset; box-sizing: border-box; cursor: pointer; display: inline-flex; align-items: center; gap: 10px; min-height: 44px; white-space: nowrap;
+  font: 500 17px/1 var(--re-sans); color: var(--re-fg-2); transition: color 160ms ease;
+}
+.re-ch-try svg { color: var(--re-accent); }
+.re-ch-try[aria-expanded="true"] { color: var(--re-accent); }
+@media (hover: hover) and (pointer: fine) { .re-ch-try:hover { color: var(--re-fg); } }
+
+/* Try it: an authored recreation of the product's reader opens beside the glass, which closes and steps into the left third.
+   The page is light, like the app's own reader; the scan card stays dark glass, part of the chamber. */
+.re-ch-demo {
+  position: absolute; top: 0; right: 0; bottom: 0; z-index: 3; display: flex; flex-direction: column;
+  width: min(66cqw, calc((100cqh - 80px) / 0.82));
+}
+.re-ch-demo:focus { outline: none; }
+.re-ch-demo:focus-visible { outline: 2px solid var(--re-accent); outline-offset: 4px; border-radius: 12px; }
+.re-ch-demo-bar { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 44px; padding: 0 4px 0 16px; }
+.re-ch-demo-bar p { font-size: 13px; line-height: 1.3; color: var(--re-dim); }
+.re-ch-demo-bar button {
+  all: unset; box-sizing: border-box; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 12px;
+  border-radius: 999px; font: 500 15px/1 var(--re-sans); color: var(--re-fg-2); transition: color 160ms ease, background-color 160ms ease;
+}
+@media (hover: hover) and (pointer: fine) { .re-ch-demo-bar button:hover { color: var(--re-fg); background: var(--re-fill-2); } }
+.re-ch-demo-stage {
+  position: relative; flex: 1; min-height: 0; container-type: size; color-scheme: light;
+  --world-bg: #f5f1e8; --surface: #fbf9f4; --ink: #1d1c1a; --muted: #6b675f; --line: #ddd6c8; --line-strong: #23232b;
+  --accent-soft: color-mix(in oklab, var(--re-accent) 18%, #f5f1e8);
+  --accent: color-mix(in oklab, var(--re-accent) 55%, #0b2a20); --accent-ink: var(--accent); --on-accent: #fff;
+}
+.re-ch-demo-stage section[aria-label="Scan a book"] {
+  color-scheme: dark; --surface: rgb(12 12 17 / 0.9); --ink: var(--re-fg); --muted: var(--re-dim); --line: rgb(255 255 255 / 0.1);
+  --line-strong: rgb(255 255 255 / 0.22); --accent: var(--re-accent); --accent-soft: var(--re-accent-soft); --accent-ink: var(--re-accent); --on-accent: var(--re-ink);
+}
+/* Without WebGL (or while the screen loads) the plain image takes the same left third. */
+.re-ch-stage[data-trying] .re-ch-still { inset: 0 auto 0 0; width: 34%; }
+.re-ch-stage[data-trying] :is(.re-ch-still img, .re-ch-plate) { width: min(28cqw, 70cqh * var(--a, 1.6)); }
 
 .re-ch-layers { grid-area: layers; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px; margin-top: 32px; }
 /* The layers read as a caption rail: three columns under a hairline that takes the accent when its plate is lit. */
@@ -291,7 +328,7 @@ html.re-html.lenis-stopped { overflow: clip; }
   .re-ch-bar { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "now now" "view open"; align-items: center; margin-top: 12px; }
   .re-ch-now { grid-area: now; padding-top: 0; }
   .re-ch-view { grid-area: view; }
-  .re-ch-open { grid-area: open; }
+  .re-ch-actions { grid-area: open; }
   .re-ch-index { display: grid; grid-template-columns: 1fr 1fr; column-gap: 24px; margin-top: 24px; border-top: 1px solid rgb(255 255 255 / 0.09); }
   .re-ch-index li + li { border-top: 0; }
   .re-ch-index li { border-bottom: 1px solid rgb(255 255 255 / 0.09); }
@@ -316,10 +353,18 @@ html.re-html.lenis-stopped { overflow: clip; }
   .re-ch-index button { grid-template-columns: 26px minmax(0, 1fr); min-height: 52px; }
   .re-ch-arrow { display: none; }
   .re-ch-now h3 { font-size: 22px; }
+  /* The demo takes the whole pinned stage, which grows to most of the screen so the page holds real paragraphs. */
+  .re-ch-stage[data-trying] { aspect-ratio: auto; height: min(calc(100svh - 168px), 620px); }
+  .re-ch-stage[data-trying] .re-ch-canvas { opacity: 0; }
+  .re-ch-demo { inset: 0; width: auto; background: var(--re-bg); }
+  .re-ch-demo-bar { padding-left: 0; }
+}
+@media (max-width: 599px) and (min-height: 640px) {
+  .re-ch:has(.re-ch-stage[data-trying]) :is(button, a) { scroll-margin-top: calc(72px + min(100svh - 168px, 620px) + 16px); }
 }
 @media (max-width: 399px) {
   .re-ch-bar { grid-template-columns: minmax(0, 1fr); grid-template-areas: "now" "view" "open"; }
-  .re-ch-open { justify-self: start; }
+  .re-ch-actions { justify-self: start; flex-wrap: wrap; column-gap: 24px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .re-ch-plate, .re-ch-arrow, .re-ch-view button::after { transition: none; }

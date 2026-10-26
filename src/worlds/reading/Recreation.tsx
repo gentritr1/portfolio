@@ -659,7 +659,8 @@ function ScanCard({ demoStep }: { demoStep?: number }) {
   );
 }
 
-export function Recreation({ demoStep }: { demoStep?: number } = {}) {
+/** `bare` drops the stage background, for a host that draws its own ground (the Refractive Engine chamber). */
+export function Recreation({ demoStep, bare = false }: { demoStep?: number; bare?: boolean } = {}) {
   useEffect(() => {
     if (document.getElementById(SERIF_FONT_ID)) return;
     const link = document.createElement("link");
@@ -672,7 +673,10 @@ export function Recreation({ demoStep }: { demoStep?: number } = {}) {
   return (
     <div
       style={tokens}
-      className="absolute inset-0 flex flex-col items-center gap-3 bg-[color-mix(in_oklab,var(--accent-soft)_35%,var(--surface))] p-4 @lg:flex-row @lg:justify-center @lg:gap-[4cqi]"
+      className={cn(
+        "absolute inset-0 flex flex-col items-center gap-3 p-4 @lg:flex-row @lg:justify-center @lg:gap-[4cqi]",
+        !bare && "bg-[color-mix(in_oklab,var(--accent-soft)_35%,var(--surface))]",
+      )}
     >
       <Reader demoStep={demoStep} />
       <ScanCard demoStep={demoStep} />

@@ -21,6 +21,8 @@ export interface Chamber {
   select(index: number, instant?: boolean): void
   setExpanded(on: boolean, instant?: boolean): void
   setLayer(index: number | null, instant?: boolean): void
+  /** A product demo is open beside the glass: the stack closes and moves into the left third of the stage. */
+  setAside(on: boolean, instant?: boolean): void
   setMode(mode: 0 | 1): void
   dispose(): void
 }
@@ -176,6 +178,7 @@ export function createChamber(
   let selected = options.selected
   let layer: number | null = options.layer
   const explode = tween(options.expanded ? 1 : 0)
+  const aside = tween(0)
 
   const items = products.map((p, i) => {
     const h = 1
@@ -211,20 +214,21 @@ export function createChamber(
     return out.set(open.x * e, open.y * e, shut + (open.z - shut) * e)
   }
   const corner = new THREE.Vector3(), off = new THREE.Vector3(), box = new THREE.Box2()
-  function fit(it: (typeof items)[number]) {
+  /** Places a product's stack in a region of the stage: the whole stage opened (with room for the titles), or the left third closed. */
+  function fit(it: (typeof items)[number], side: boolean) {
     it.group.rotation.set(narrow ? 0.02 : 0.04, narrow ? -0.16 : -0.3, narrow ? 0 : -0.03)
     it.group.position.set(0, 0, 0)
     it.group.scale.setScalar(1)
     const dist = camera.position.length()
     const hh = Math.tan(THREE.MathUtils.degToRad(FOV / 2)) * dist, hw = hh * camera.aspect
-    const room = narrow ? 0 : (2 * LABEL_ROOM) / cssH
-    const pad = narrow ? 0.03 : 0.02
-    const top = 1 - pad - room, bottom = -1 + pad, left = -1 + pad, right = 1 - pad
+    const room = narrow || side ? 0 : (2 * LABEL_ROOM) / cssH
+    const pad = narrow ? 0.03 : side ? 0.08 : 0.02
+    const top = 1 - pad - room, bottom = -1 + pad, left = -1 + pad, right = side ? -0.36 : 1 - pad
     for (let pass = 0; pass < 4; pass++) {
       it.group.updateMatrixWorld()
       box.makeEmpty()
       for (let k = 0; k < 3; k++) {
-        offsets(k, 1, off)
+        offsets(k, side ? 0 : 1, off)
         for (const sx of [-1, 1]) for (const sy of [-1, 1]) {
           corner.set((sx * it.w) / 2, (sy * it.h) / 2, 0).add(off).applyMatrix4(it.group.matrixWorld).project(camera)
           box.expandByPoint(new THREE.Vector2(corner.x, corner.y))
@@ -235,7 +239,7 @@ export function createChamber(
       it.group.position.x += ((left + right) / 2 - ((box.min.x + box.max.x) / 2) * k) * hw
       it.group.position.y += ((top + bottom) / 2 - ((box.min.y + box.max.y) / 2) * k) * hh
     }
-    it.group.userData.base = it.group.position.clone()
+    return { pos: it.group.position.clone(), scale: it.group.scale.x }
   }
   function resize() {
     cssW = host.clientWidth
@@ -246,7 +250,7 @@ export function createChamber(
     renderer.setSize(cssW, cssH, false)
     camera.aspect = cssW / cssH
     camera.updateProjectionMatrix()
-    items.forEach(fit)
+    items.forEach((it) => { it.group.userData.full = fit(it, false); it.group.userData.side = fit(it, true) })
     loadSharp(selected)
     invalidate()
   }
@@ -322,8 +326,10 @@ export function createChamber(
     raf = 0
     if (!visible || !cssW || !cssH || document.hidden) return
     const now = performance.now()
-    const e = valueOf(explode, now)
-    let moving = busy(explode, now)
+    // Beside a demo the stack reads closed, whatever the reader chose; the choice returns when the demo closes.
+    const sd = valueOf(aside, now)
+    const e = valueOf(explode, now) * (1 - sd)
+    let moving = busy(explode, now) || busy(aside, now)
     const it0 = items[selected]
     items.forEach((it) => {
       // The leaving screen fades out in the first half, the arriving one fades in over the second, with a short move back and forward.
@@ -332,8 +338,9 @@ export function createChamber(
       const a = clamp01((pr - 0.45) / 0.55)
       it.group.visible = a > 0.001
       if (!it.group.visible) return
-      const base = it.group.userData.base as THREE.Vector3
-      it.group.position.copy(base)
+      const { full, side } = it.group.userData as Record<'full' | 'side', { pos: THREE.Vector3; scale: number }>
+      it.group.position.lerpVectors(full.pos, side.pos, sd)
+      it.group.scale.setScalar(full.scale + (side.scale - full.scale) * sd)
       it.group.position.z -= (1 - easeOut(clamp01(pr))) * 0.18
       let any = 0
       it.slabs.forEach((s) => { any = Math.max(any, valueOf(s.hi, now)) })
@@ -405,6 +412,10 @@ export function createChamber(
       layer = i
       const now = performance.now()
       items[selected].slabs.forEach((s, k) => aim(s.hi, k === i ? 1 : 0, reduced || instant ? 0 : DUR.layer, now))
+      invalidate()
+    },
+    setAside(on, instant) {
+      aim(aside, on ? 1 : 0, reduced || instant ? 0 : DUR.layers, performance.now())
       invalidate()
     },
     setMode(m) {
