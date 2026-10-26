@@ -19,15 +19,15 @@ export interface ChamberProduct {
 export interface Chamber {
   /** `instant` skips the cross-fade (keyboard and reduced motion). */
   select(index: number, instant?: boolean): void
-  setExpanded(on: boolean): void
-  setLayer(index: number | null): void
+  setExpanded(on: boolean, instant?: boolean): void
+  setLayer(index: number | null, instant?: boolean): void
   setMode(mode: 0 | 1): void
   dispose(): void
 }
 
 const T = 0.05 // front glass thickness, in screen heights
 const TP = 0.012 // plate thickness
-const BEZEL = 0.026
+const BEZEL = 0.018
 const FOV = 20
 const DUR = { product: 220, layers: 290, layer: 160 }
 const LABEL_ROOM = 70 // px above the deepest plate for its stepped title
@@ -70,44 +70,50 @@ void main() {
   float dOut = sdRound(vOP.xy, hs, 0.025);
   vec3 col;
   float alpha;
+  // One key light, up and to the left of the viewer; every highlight on the glass and the plates comes from it.
+  vec3 L = normalize(vec3(-0.45, 0.75, 0.5));
+  float glint = pow(max(dot(r, L), 0.0), 48.0);
   if (uKind < 0.5) {
     // The screen sits halfway into the glass, so it shifts a touch against the bevel as the view turns.
     vec3 ov = normalize(vOV);
     vec2 inner = hs - ${BEZEL.toFixed(3)};
     vec2 p = vOP.xy - ov.xy / max(ov.z, 0.3) * uSize.z * 0.5;
-    float d = sdRound(p, inner, 0.012);
+    float d = sdRound(p, inner, 0.01);
     float aa = fwidth(d);
     float inside = (1.0 - smoothstep(-aa, aa, d)) * face;
     vec2 q = p / (inner * 2.0) + 0.5;
     vec3 tex = texture2D(uMap, q).rgb;
-    // Dark glass; near its edges the screen's own light runs into the thickness, split by dispersion.
+    // Near-black glass. Only the screen's own light reaches into its edge, split by dispersion.
     vec2 qc = clamp(q, 0.002, 0.998);
     vec2 o = normalize(vOP.xy + 1e-4) * 0.012;
     vec3 bleed = vec3(texture2D(uMap, qc - o).r, texture2D(uMap, qc).g, texture2D(uMap, qc + o).b) * uLoaded;
-    col = vec3(0.008, 0.009, 0.012) + bleed * (face * 0.025 + (1.0 - face) * 0.06);
+    col = vec3(0.004, 0.0045, 0.006) + bleed * (face * 0.012 + (1.0 - face) * 0.035);
     col = mix(col, mix(vec3(0.02, 0.021, 0.026), tex, uLoaded), inside);
-    // The reflection stays faint over the screen and polishes the bezel and the bevel.
-    col += spec * fres * mix(1.6, 0.35, inside);
-    col += vec3(0.32) * (1.0 - smoothstep(0.0, aa * 1.5, abs(d))) * face * (1.0 - inside);
-    // A soft diagonal of the same strip light across the upper left, bright on the bezel and barely there over the screen,
-    // and the top and left bevels catching it.
+    // The polished bevel: the narrow rounded band between face and side. It carries the bright edge and the strip light;
+    // the flat bezel and the thickness stay dark, with only a trace of reflection.
+    float arc = smoothstep(0.08, 0.4, vON.z) * (1.0 - smoothstep(0.86, 0.97, vON.z));
+    float side = (1.0 - face) * (1.0 - arc);
+    col += vec3(1.0, 0.985, 0.96) * glint * arc * 1.8;
+    col += spec * fres * (arc * 1.3 + side * 0.3 + face * mix(0.35, 0.12, inside));
+    col += vec3(0.75, 0.78, 0.84) * smoothstep(0.3, 0.95, dot(n, L)) * arc * 0.22;
+    // Where the glass meets the screen: a hairline, barely there.
+    col += vec3(0.12) * (1.0 - smoothstep(0.0, aa * 1.5, abs(d))) * face * (1.0 - inside);
     float band = dot(vOP.xy / uSize.y, vec2(0.8, -0.6)) + ov.x * 0.35;
-    float sheen = exp(-pow((band + 0.62) / 0.11, 2.0));
-    col += vec3(0.88, 0.9, 0.96) * sheen * mix(0.12, 0.025, inside) * face;
-    col += vec3(0.85, 0.88, 0.95) * (1.0 - face) * (smoothstep(0.2, 0.9, vON.y) * 0.32 + smoothstep(0.2, 0.9, -vON.x) * 0.16);
-    float rim = (1.0 - face) + face * smoothstep(-0.012, 0.0, dOut);
-    col += uAccent * uHi * rim * 0.55;
-    alpha = mix(0.9, 1.0, inside);
+    col += vec3(0.88, 0.9, 0.96) * exp(-pow((band + 0.62) / 0.09, 2.0)) * mix(0.05, 0.015, inside) * face;
+    float rim = arc + face * smoothstep(-0.01, 0.0, dOut);
+    col += uAccent * uHi * rim * 0.6;
+    alpha = mix(mix(0.92, 0.82, side), 1.0, inside);
   } else {
-    // A plate: a clear substrate with a fine engraving. The application layer carries a twelve-column grid,
+    // A plate: smoky glass with its own silhouette and a fine engraving. The application layer carries a twelve-column grid,
     // the deepest layer a dot lattice; both read as structure, not as a drawing of something that was not built.
     vec2 p = vOP.xy;
     float aa = fwidth(dOut);
-    float rimLine = 1.0 - smoothstep(0.0, aa * 1.5, abs(dOut + 0.003));
+    // The edge is lit from the key light: bright along the top and left, fading to almost nothing at the bottom right.
+    vec2 od = normalize(sign(p) * max(abs(p) - (hs - 0.04), 0.0) + 1e-5);
+    float lit = pow(clamp(dot(od, normalize(vec2(-0.55, 0.85))) * 0.5 + 0.5, 0.0, 1.0), 2.0);
+    float rimLine = (1.0 - smoothstep(0.0, aa * 1.5, abs(dOut + 0.003))) * (0.12 + 0.88 * lit);
     vec2 inner = hs - 0.05;
-    float dIn = sdRound(p, inner, 0.015);
-    float frame = 1.0 - smoothstep(0.0, fwidth(dIn) * 1.2, abs(dIn));
-    float within = 1.0 - step(0.0, dIn);
+    float within = 1.0 - smoothstep(-0.01, 0.0, sdRound(p, inner, 0.015));
     vec2 w = fwidth(p);
     float pat;
     if (uKind < 1.5) {
@@ -121,10 +127,12 @@ void main() {
     }
     pat *= within;
     vec3 ink = mix(vec3(0.72, 0.75, 0.82), uAccent, 0.2 + 0.8 * uHi);
-    float lit = 1.0 + uHi * 1.3;
-    col = vec3(0.02, 0.022, 0.03) + ink * (pat * 0.2 + frame * 0.3 + rimLine * 0.7) * lit + spec * fres * 0.8;
-    alpha = face * (0.14 + (pat * 0.22 + frame * 0.35 + rimLine * 0.7) * lit) + (1.0 - face) * 0.8;
-    col = mix(col, vec3(0.5, 0.52, 0.58) + spec, 1.0 - face);
+    float boost = 1.0 + uHi * 1.3;
+    // The substrate: a faint fill, a little lighter toward the lit corner, so each plate reads as a surface, not an outline.
+    float fill = 0.05 + 0.05 * clamp(dot(p / hs, vec2(-0.5, 0.5)) + 0.5, 0.0, 1.0);
+    col = vec3(0.55, 0.58, 0.66) * fill + ink * (pat * 0.16 + rimLine * 0.75) * boost + spec * fres * 0.6 + glint * 0.6;
+    alpha = face * (0.32 + (pat * 0.18 + rimLine * 0.7) * boost) + (1.0 - face) * 0.7;
+    col = mix(col, vec3(0.2, 0.21, 0.24) + spec * 0.6 + glint, 1.0 - face);
   }
   // Another layer in focus: the plates step back further than the screen, which stays the clearest thing in the chamber.
   col *= 1.0 - (uKind < 0.5 ? 0.3 : 0.5) * uDim;
@@ -148,7 +156,7 @@ function aim(t: Tween, to: number, dur: number, now: number, curve?: (x: number)
 
 export function createChamber(
   host: HTMLElement,
-  options: { products: ChamberProduct[]; selected: number; expanded: boolean; mode: 0 | 1; reduced: boolean; labels: (HTMLElement | null)[]; onReady(): void; onLost(): void },
+  options: { products: ChamberProduct[]; selected: number; expanded: boolean; layer: number | null; mode: 0 | 1; reduced: boolean; labels: (HTMLElement | null)[]; onReady(ready: boolean): void; onLost(): void },
 ): Chamber {
   const { products, reduced, labels } = options
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' })
@@ -166,7 +174,7 @@ export function createChamber(
   blank.needsUpdate = true
 
   let selected = options.selected
-  let layer: number | null = null
+  let layer: number | null = options.layer
   const explode = tween(options.expanded ? 1 : 0)
 
   const items = products.map((p, i) => {
@@ -191,6 +199,7 @@ export function createChamber(
     scene.add(group)
     return { group, slabs, w, h, front, plate, presence: tween(i === selected ? 1 : 0), small: null as THREE.Texture | null, sharp: null as THREE.Texture | null }
   })
+  if (layer !== null) items[selected].slabs[layer].hi = tween(1)
 
   // ---------- Layout: one camera, and each product scaled and placed so its opened stack fills the stage ----------
   let cssW = 1, cssH = 1, narrow = false
@@ -198,7 +207,7 @@ export function createChamber(
     if (k === 0) return out.set(0, 0, 0)
     const shut = -(T / 2 + TP / 2 + 0.004) - (k - 1) * (TP + 0.004)
     // Phones keep the plates shallow so they stay inside a small stage.
-    const open = narrow ? new THREE.Vector3(0.05 * k, 0.12 * k, -0.34 * k) : new THREE.Vector3(0.1 * k, 0.015 * k, -0.42 * k)
+    const open = narrow ? new THREE.Vector3(0.05 * k, 0.12 * k, -0.34 * k) : new THREE.Vector3(0.15 * k, 0.05 * k, -0.5 * k)
     return out.set(open.x * e, open.y * e, shut + (open.z - shut) * e)
   }
   const corner = new THREE.Vector3(), off = new THREE.Vector3(), box = new THREE.Box2()
@@ -245,7 +254,7 @@ export function createChamber(
   // ---------- Textures: every 1280 px screen up front; the full-size original only for the shown product on a big stage ----------
   const smallLoader = new THREE.ImageBitmapLoader().setOptions({ imageOrientation: 'flipY' })
   const sharpLoader = new THREE.ImageBitmapLoader().setOptions({ imageOrientation: 'flipY', resizeWidth: 2048, resizeQuality: 'high' })
-  let disposed = false, ready = false
+  let disposed = false, shownReady: boolean | null = null
   const sharpOrder: number[] = []
   const toTexture = (bitmap: ImageBitmap) => {
     const tex = new THREE.Texture(bitmap)
@@ -254,6 +263,17 @@ export function createChamber(
     tex.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy())
     tex.needsUpdate = true
     return tex
+  }
+  // A texture owns its decoded bitmap: free both, once nothing shows it any more.
+  const drop = (tex: THREE.Texture | null) => {
+    tex?.dispose()
+    ;(tex?.image as ImageBitmap | undefined)?.close?.()
+  }
+  // Tells the page whether the shown product's own screen is on the glass. Until it is (still loading, or its decode failed),
+  // the page keeps the plain image of that screen in view instead of empty glass.
+  function report() {
+    const ok = items[selected].slabs[0].u.uLoaded.value === 1
+    if (ok !== shownReady) { shownReady = ok; options.onReady(ok) }
   }
   function show(it: (typeof items)[number]) {
     const u = it.slabs[0].u
@@ -267,7 +287,7 @@ export function createChamber(
       items[i].small = toTexture(bitmap as ImageBitmap)
       show(items[i])
       if (i === selected) invalidate()
-    }),
+    }, undefined, () => { if (i === selected) report() }),
   )
   function loadSharp(i: number) {
     const src = products[i].sharp
@@ -284,9 +304,10 @@ export function createChamber(
       while (sharpOrder.length > 2) {
         const j = sharpOrder.findIndex((x) => x !== selected)
         const [old] = sharpOrder.splice(j, 1)
-        items[old].sharp?.dispose()
+        const tex = items[old].sharp
         items[old].sharp = null
         show(items[old])
+        drop(tex)
       }
       invalidate()
     }, undefined, () => { it.group.userData.sharpLoading = false })
@@ -329,7 +350,7 @@ export function createChamber(
     })
     renderer.render(scene, camera)
     placeLabels(it0, e, clamp01((valueOf(it0.presence, now, (x) => x) - 0.45) / 0.55))
-    if (!ready && it0.slabs[0].u.uLoaded.value) { ready = true; options.onReady() }
+    report()
     if (moving) invalidate()
   }
   const proj = new THREE.Vector3()
@@ -372,17 +393,18 @@ export function createChamber(
       selected = i
       layer = null
       loadSharp(i)
+      report()
       invalidate()
     },
-    setExpanded(on) {
-      aim(explode, on ? 1 : 0, reduced ? 0 : DUR.layers, performance.now())
+    setExpanded(on, instant) {
+      aim(explode, on ? 1 : 0, reduced || instant ? 0 : DUR.layers, performance.now())
       invalidate()
     },
-    setLayer(i) {
+    setLayer(i, instant) {
       if (i === layer) return
       layer = i
       const now = performance.now()
-      items[selected].slabs.forEach((s, k) => aim(s.hi, k === i ? 1 : 0, reduced ? 0 : DUR.layer, now))
+      items[selected].slabs.forEach((s, k) => aim(s.hi, k === i ? 1 : 0, reduced || instant ? 0 : DUR.layer, now))
       invalidate()
     },
     setMode(m) {
@@ -399,8 +421,8 @@ export function createChamber(
       items.forEach((it) => {
         it.front.dispose()
         it.plate.dispose()
-        it.small?.dispose()
-        it.sharp?.dispose()
+        drop(it.small)
+        drop(it.sharp)
         it.slabs.forEach((s) => s.mesh.material.dispose())
       })
       blank.dispose()

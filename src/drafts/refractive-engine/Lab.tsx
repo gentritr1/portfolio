@@ -31,8 +31,9 @@ export function Lab({ mode, reduced, noGl, onOpen }: { mode: 'lens' | 'tensor'; 
   const [glLost, setGlLost] = useState(false)
   const selected = Math.max(0, systems.findIndex((s) => s.slug === selectedSlug))
   const sys = systems[selected]
-  const latest = useRef({ selected, layersExpanded, mode })
-  useEffect(() => { latest.current = { selected, layersExpanded, mode } })
+  // A new chamber (first mount, or a change of motion preference) starts from all three choices the reader has made.
+  const latest = useRef({ selected, layersExpanded, activeLayer, mode })
+  useEffect(() => { latest.current = { selected, layersExpanded, activeLayer, mode } })
 
   useEffect(() => {
     const host = stageRef.current
@@ -44,10 +45,11 @@ export function Lab({ mode, reduced, noGl, onOpen }: { mode: 'lens' | 'tensor'; 
         products: systems.map((s) => ({ texture: s.texture, sharp: SHARP[s.slug]?.src, aspect: s.aspect })),
         selected: now.selected,
         expanded: now.layersExpanded,
+        layer: now.activeLayer,
         mode: now.mode === 'tensor' ? 1 : 0,
         reduced,
         labels: labelRefs.current,
-        onReady: () => setGlReady(true),
+        onReady: setGlReady,
         onLost: () => setGlLost(true),
       })
     } catch {
@@ -62,15 +64,21 @@ export function Lab({ mode, reduced, noGl, onOpen }: { mode: 'lens' | 'tensor'; 
     }
   }, [noGl, glLost, reduced])
 
-  useEffect(() => { chamber.current?.setExpanded(layersExpanded) }, [layersExpanded])
-  useEffect(() => { chamber.current?.setLayer(activeLayer) }, [activeLayer])
   useEffect(() => { chamber.current?.setMode(mode === 'tensor' ? 1 : 0) }, [mode])
 
-  // A keyboard press (detail 0) switches at once; a click or tap cross-fades.
+  // A keyboard press (detail 0) changes the chamber at once; a click or tap animates. The effects above then find it settled.
   const select = (i: number, instant: boolean) => {
     setSelectedSlug(systems[i].slug)
     setActiveLayer(null)
     chamber.current?.select(i, instant)
+  }
+  const expand = (on: boolean, instant: boolean) => {
+    setLayersExpanded(on)
+    chamber.current?.setExpanded(on, instant)
+  }
+  const highlight = (k: number | null, instant: boolean) => {
+    setActiveLayer(k)
+    chamber.current?.setLayer(k, instant)
   }
   const sharp = SHARP[sys.slug]
 
@@ -106,9 +114,9 @@ export function Lab({ mode, reduced, noGl, onOpen }: { mode: 'lens' | 'tensor'; 
 
         <div className="re-ch-bar">
           <div className="re-ch-view" role="group" aria-label="View">
-            <button type="button" aria-pressed={!layersExpanded} onClick={() => setLayersExpanded(false)}>Assembled</button>
+            <button type="button" aria-pressed={!layersExpanded} onClick={(e) => expand(false, e.detail === 0)}>Assembled</button>
             <span aria-hidden="true">/</span>
-            <button type="button" aria-pressed={layersExpanded} onClick={() => setLayersExpanded(true)}>Layers</button>
+            <button type="button" aria-pressed={layersExpanded} onClick={(e) => expand(true, e.detail === 0)}>Layers</button>
           </div>
           <div className="re-ch-now">
             <h3>{sys.name}</h3>
@@ -117,7 +125,7 @@ export function Lab({ mode, reduced, noGl, onOpen }: { mode: 'lens' | 'tensor'; 
           </div>
           <a className="re-ch-open" href={`${BASE}/${sys.slug}`} onClick={(e) => { if (!plain(e)) return; e.preventDefault(); onOpen(sys.slug) }}>
             Open project
-            <ArrowRightIcon size={18} weight="regular" aria-hidden="true" />
+            <ArrowRightIcon size={20} weight="regular" aria-hidden="true" />
           </a>
         </div>
 
@@ -139,8 +147,8 @@ export function Lab({ mode, reduced, noGl, onOpen }: { mode: 'lens' | 'tensor'; 
               <button
                 type="button"
                 aria-pressed={activeLayer === k}
-                onClick={() => setActiveLayer((a) => (a === k ? null : k))}
-                onFocus={(e) => { if (e.currentTarget.matches(':focus-visible')) setActiveLayer(k) }}
+                onClick={(e) => highlight(activeLayer === k ? null : k, e.detail === 0)}
+                onFocus={(e) => { if (e.currentTarget.matches(':focus-visible')) highlight(k, true) }}
               >
                 {l.title}
               </button>

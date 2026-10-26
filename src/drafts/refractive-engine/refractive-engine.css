@@ -211,7 +211,7 @@ html.re-html.lenis-stopped { overflow: clip; }
 }
 
 .re-ch-stage { grid-area: stage; position: relative; height: clamp(420px, calc(100svh - 308px), 680px); container-type: size; }
-.re-ch-canvas { position: absolute; inset: 0; display: block; width: 100%; height: 100%; }
+.re-ch-canvas { position: absolute; inset: 0; display: block; width: 100%; height: 100%; transition: opacity 240ms ease; }
 /* The same screen as a page image: shown until the glass is ready, and in place of it without WebGL. Two plates stand for the layers. */
 .re-ch-still { position: absolute; inset: 0; display: grid; place-items: center; margin: 0; transition: opacity 240ms ease; }
 .re-ch-still > * { grid-area: 1 / 1; }
@@ -223,6 +223,9 @@ html.re-html.lenis-stopped { overflow: clip; }
 .re-ch-stage[data-expanded] .re-ch-plate:nth-child(1) { transform: translate(5%, -5%); }
 .re-ch-stage[data-expanded] .re-ch-plate:nth-child(2) { transform: translate(10%, -10%); }
 .re-ch-stage[data-ready] .re-ch-still { opacity: 0; }
+/* Until the shown product's own screen is on the glass (loading, or a decode that failed), its plain image stands in. */
+.re-ch-stage:not([data-ready]) .re-ch-canvas { opacity: 0; }
+.re-ch-stage:not([data-ready]) .re-ch-labels { opacity: 0; }
 /* Each layer's title rises from its plate's corner on a leader; deeper plates sit higher, so the titles stair-step instead of colliding. */
 .re-ch-labels { position: absolute; inset: 0; pointer-events: none; }
 .re-ch-label {
@@ -260,23 +263,24 @@ html.re-html.lenis-stopped { overflow: clip; }
 .re-ch-now p { max-width: 62ch; line-height: 1.5; color: var(--re-fg-2); text-wrap: pretty; }
 .re-ch-now .re-ch-note { font-size: 13px; color: var(--re-dim); }
 .re-ch-open {
-  display: inline-flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 18px; border-radius: 999px; white-space: nowrap;
-  font: 500 16px/1 var(--re-sans); color: #0a0a0d; background: var(--re-fg); text-decoration: none;
-  transition: transform 160ms var(--re-ease), background-color 160ms ease;
+  display: inline-flex; align-items: center; gap: 12px; min-height: 44px; white-space: nowrap;
+  font: 500 17px/1 var(--re-sans); color: var(--re-fg); text-decoration: none; transition: color 160ms ease;
 }
-.re-ch-open:active { transform: scale(0.97); }
-@media (hover: hover) and (pointer: fine) { .re-ch-open:hover { background: #fff; } }
+.re-ch-open svg { transition: translate 200ms var(--re-ease); }
+.re-ch-open:active svg { translate: 3px 0; }
+@media (hover: hover) and (pointer: fine) { .re-ch-open:hover { color: var(--re-accent); } .re-ch-open:hover svg { translate: 3px 0; } }
 
-.re-ch-layers { grid-area: layers; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 28px; }
-.re-ch-layers li { position: relative; padding: 12px 16px 16px; border-radius: 12px; background: var(--re-fill); transition: background-color 160ms ease; }
-.re-ch-layers li[data-active] { background: var(--re-accent-soft); }
+.re-ch-layers { grid-area: layers; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px; margin-top: 32px; }
+/* The layers read as a caption rail: three columns under a hairline that takes the accent when its plate is lit. */
+.re-ch-layers li { position: relative; padding-top: 10px; border-radius: 2px; box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.12); transition: box-shadow 160ms ease; }
+.re-ch-layers li[data-active] { box-shadow: inset 0 2px 0 var(--re-accent); }
 .re-ch-layers button { all: unset; cursor: pointer; display: flex; align-items: center; min-height: 32px; font: 500 16px/1.3 var(--re-sans); color: var(--re-fg); }
 .re-ch-layers button::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }
 .re-ch-layers li[data-active] button { color: var(--re-accent); }
-.re-ch-layers li:has(button:focus-visible) { outline: 2px solid var(--re-accent); outline-offset: 3px; }
+.re-ch-layers li:has(button:focus-visible) { outline: 2px solid var(--re-accent); outline-offset: 6px; }
 .re-ch-layers button:focus-visible { outline: none; }
 .re-ch-layers li > p:last-child { font-size: 16px; line-height: 1.5; color: var(--re-fg-2); text-wrap: pretty; }
-@media (hover: hover) and (pointer: fine) { .re-ch-layers li:not([data-active]):hover { background: var(--re-fill-2); } }
+@media (hover: hover) and (pointer: fine) { .re-ch-layers li:not([data-active]):hover button { color: var(--re-accent); } }
 
 /* Below 900 px: the screen first, then its controls, the index and the layers, in one column. */
 @media (max-width: 899px) {
@@ -293,7 +297,16 @@ html.re-html.lenis-stopped { overflow: clip; }
   .re-ch-index li { border-bottom: 1px solid rgb(255 255 255 / 0.09); }
   .re-ch-index button { min-height: 52px; grid-template-columns: 36px minmax(0, 1fr) 20px; }
   .re-ch-name { font-size: 16px; }
-  .re-ch-layers { grid-template-columns: minmax(0, 1fr); margin-top: 24px; }
+  .re-ch-layers { grid-template-columns: minmax(0, 1fr); gap: 24px; margin-top: 28px; }
+}
+/* While the index and the layers below are read, the preview stays pinned under the bar, so every choice shows at once.
+   It lets go at the end of the chamber. Short screens (a phone on its side) keep it in the flow. */
+@media (max-width: 899px) and (min-height: 640px) {
+  .re-ch-stage { --pin: 72px; position: sticky; top: var(--pin); z-index: 2; background: var(--re-bg); box-shadow: 0 -12px 0 var(--re-bg), 0 14px 18px -10px var(--re-bg); }
+  .re-ch :is(button, a) { scroll-margin-top: calc(var(--pin, 72px) + (100vw - 2 * var(--re-gutter)) * 0.75 + 16px); }
+}
+@media (max-width: 599px) and (min-height: 640px) {
+  .re-ch :is(button, a) { scroll-margin-top: calc(72px + 100vw - 2 * var(--re-gutter) + 16px); }
 }
 /* Phones: a square stage holds a landscape stack or a tall phone screen without resizing between them, and the index
    folds into two columns so the stage stays in view while a row is chosen. */
