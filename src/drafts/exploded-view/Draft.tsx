@@ -5,7 +5,7 @@ import { TransitionLink } from '../../components/TransitionLink'
 import { StackPoster } from './StackPoster'
 import { CasePage, INVENTED_CAPTION, ShotImage } from './CasePage'
 import { caseDetails, moreCases } from './cases'
-import { caseNames, caseShots, sharedShot } from './shots'
+import { careBoards, caseNames, caseShots, dsBoards, sharedShot } from './shots'
 import { TenantConcept } from './figures'
 import { alsoShipped, cases, howIWork, lab, labLesson, layers, links, type LayerId } from './data'
 import { canUseWebGL, useReducedMotion } from './motion'
@@ -14,7 +14,7 @@ import './exploded-view.css'
 
 const HERO_SCREEN = caseShots['care-platform'][1]
 /** Stories whose evidence is narrow (a control, two phones) sit beside their text instead of under it. */
-const STORY_LAYOUT: Record<string, 'picker' | 'phones' | undefined> = { 'design-system-react': 'picker', 'read-to-feed': 'phones' }
+const STORY_LAYOUT: Record<string, 'phones' | undefined> = { 'read-to-feed': 'phones' }
 const shot = (slug: string, i: number) => caseShots[slug][i]
 /** The homepage screen that carries into its case page on the page change. */
 const carry = (slug: string, i: number) => (caseShots[slug][i].src === sharedShot[slug] ? slug : undefined)
@@ -129,17 +129,17 @@ function Evidence({ slug }: { slug: string }) {
       )
     case 'design-system-react':
       return (
-        <figure className="xv-ev xv-ev-picker">
-          <ShotImage shot={shot(slug, 0)} carry={carry(slug, 0)} />
-          <figcaption className="xv-note">The date range picker. {INVENTED_CAPTION}</figcaption>
+        <figure className="xv-ev xv-ev-board">
+          <ShotImage shot={dsBoards[2]} carry={slug} />
+          <figcaption className="xv-note">{INVENTED_CAPTION}</figcaption>
         </figure>
       )
     case 'multi-tenant':
       return (
         <div className="xv-ev-split">
-          <figure className="xv-ev">
-            <ShotImage shot={shot(slug, 0)} carry={carry(slug, 0)} />
-            <figcaption className="xv-note">One organization’s dashboard. {INVENTED_CAPTION}</figcaption>
+          <figure className="xv-ev xv-ev-board">
+            <ShotImage shot={careBoards[2]} carry={slug} />
+            <figcaption className="xv-note">{INVENTED_CAPTION}</figcaption>
           </figure>
           <TenantConcept />
         </div>

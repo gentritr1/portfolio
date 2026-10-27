@@ -222,6 +222,9 @@ img.xv-plate { max-width: none; object-fit: cover; }
 .xv-full img { display: block; width: 100%; height: auto; border-radius: 8px; background: var(--xv-surface); }
 .xv-ev-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(12px, 2vw, 24px); }
 .xv-ev-picker { max-width: 680px; }
+/* Boards are dark slides with their own type: they get the full content width, so their text reads. */
+.xv-ev-board { max-width: 1120px; }
+.xv-ev-board .xv-full, .xv-ev-board .xv-full img { border-radius: 12px; }
 /* Narrow evidence (one control, two phones) sits beside its story, which reads as one column. */
 @media (min-width: 861px) {
   .xv-case[data-layout] { grid-template-columns: minmax(0, 1fr) auto; align-items: center; column-gap: clamp(40px, 6vw, 96px); }
@@ -230,7 +233,7 @@ img.xv-plate { max-width: none; object-fit: cover; }
   .xv-case[data-layout] .xv-story-head { grid-template-columns: 1fr; }
   .xv-case[data-layout] .xv-story-side { padding-top: 0; }
 }
-.xv-ev-split { display: grid; grid-template-columns: minmax(0, 2.4fr) minmax(0, 1fr); gap: clamp(16px, 3vw, 40px); align-items: end; }
+.xv-ev-split { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 1fr); gap: clamp(16px, 3vw, 40px); align-items: end; }
 .xv-concept svg { display: block; width: 100%; max-width: 280px; height: auto; }
 .xv-concept rect { fill: var(--xv-layer); stroke: var(--xv-ink); stroke-width: 1; vector-effect: non-scaling-stroke; }
 .xv-concept [data-on] rect { fill: var(--xv-layer-on); stroke: var(--xv-accent); }
@@ -270,6 +273,23 @@ img.xv-plate { max-width: none; object-fit: cover; }
 .xv-parity-n { color: var(--xv-accent); font-variant-numeric: tabular-nums; margin-right: 2px; }
 .xv-parity-detail { min-height: 3.2em; max-width: 68ch; }
 .xv-parity-note { color: var(--xv-muted); }
+
+/* ---------- Boards: one at a time, stepped by the visitor ---------- */
+.xv-boards { display: grid; gap: 12px; margin-top: clamp(40px, 5vw, 64px); }
+.xv-boards-stage { display: grid; border-radius: 12px; overflow: hidden; background: #0b0c0f; }
+.xv-boards-stage img { grid-area: 1 / 1; display: block; width: 100%; height: auto; border-radius: 0; opacity: 0; transition: opacity 220ms ease; }
+.xv-boards-stage img[data-on] { opacity: 1; }
+.xv-boards[data-instant] .xv-boards-stage img { transition: none; }
+.xv-boards-bar { display: flex; align-items: center; gap: 8px; }
+.xv-boards-title { flex: 1; min-width: 0; font: 500 clamp(18px, 1.6vw, 22px)/1.3 var(--xv-serif); }
+.xv-boards-count { margin-right: 10px; color: var(--xv-accent); font: 500 15px var(--xv-sans); font-variant-numeric: tabular-nums; }
+.xv-boards-step { width: 44px; padding: 0; justify-content: center; }
+.xv-boards-dots { display: flex; gap: 2px; }
+.xv-boards-dots button { width: 28px; height: 28px; padding: 0; border: 0; background: none; cursor: pointer; display: grid; place-items: center; }
+.xv-boards-dots button::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--xv-line); transition: background-color 140ms ease; }
+.xv-boards-dots button[aria-current]::before { background: var(--xv-accent); }
+@media (hover: hover) and (pointer: fine) { .xv-boards-dots button:hover::before { background: var(--xv-muted); } }
+.xv-boards-note { color: var(--xv-muted); }
 
 /* ---------- Before / after, up close ---------- */
 .xv-compare { display: grid; gap: 10px; max-width: 880px; margin-top: clamp(40px, 5vw, 64px); }
@@ -350,6 +370,7 @@ img.xv-plate { max-width: none; object-fit: cover; }
 @media (max-width: 520px) {
   .xv-question { font-size: 24px; }
   .xv-ev-pair, .xv-ev-split { grid-template-columns: 1fr; }
+  .xv-concept svg { max-width: 220px; }
   .xv-lab-more li { grid-template-columns: 96px minmax(0, 1fr); }
   .xv-lab-more img { width: 96px; height: 60px; }
 }

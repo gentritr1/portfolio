@@ -41,7 +41,7 @@ Project facts below come from git history; contact and education details were co
 **Facts list:**
 - Vue → React rewrite, route by route, parity-tested
 - Decision records, automated quality gates, AI agents with independent review (high level only, owner 2026-10-05: no internal counts)
-- Built on Design System v2 (36 components)
+- Built on Design System v2 (41 components)
 - Patient profile, care plans, labs and vitals, claims, calls
 - Multi-tenant: data separation, roles, timezones
 - Laravel API: enrollment drafts, lab catalog, security fixes
@@ -178,9 +178,9 @@ Owner confirmed (2026-10-02): built bayyinah.org, Next.js, 2024–25; repo acces
 
 **Kind:** Token-driven React design system · **Role:** Design system · **Case:** `/work/design-system-react`, featured order 7.
 
-**Owner decision (2026-10-07, updated the same day): present it as the team's work, with no individual credit.** Say what the system does and how the team works: one shared library, seen and tried in Storybook; AI agents build to written guides drawn from research; automatic checks are the gates; a person on the team approves each change. Give the numbers to the team ("the team released it 20 times in about six weeks"). Do not write what Gentrit did on this project ("Gentrit laid", "Gentrit turned", "Gentrit wrote"): everyone on the team built it. This is how the page should read; it is not a scope or credit problem for reviewers to flag.
+**Owner decision (2026-10-07, updated the same day): present it as the team's work, with no individual credit.** Say what the system does and how the team works: one shared library, seen and tried in Storybook; AI agents build to written guides drawn from research; automatic checks are the gates; a person on the team approves each change. Give the numbers to the team ("the team released it 22 times in 60 days"). Do not write what Gentrit did on this project ("Gentrit laid", "Gentrit turned", "Gentrit wrote"): everyone on the team built it. This is how the page should read; it is not a scope or credit problem for reviewers to flag.
 
-**Allowed facts (owner, high level only):** 36 components; 805 design tokens in three tiers (core, semantic, component) from one source to CSS, TypeScript and a Figma bundle; 20 releases in about six weeks; 96.6% less JavaScript for a Button-only consumer; built to WCAG 2.1 AA floors with automated, rendered evidence. Research and agent work stays qualitative: a research corpus, a large multi-agent audit of the old frontend, a best-practices guide, decision records, an append-only lessons log, agent skills, fresh independent reviewers, executable gates and the founding rule ("every claim derives from one artifact, through a check that runs"). Adoption: the new React dashboard uses the system across its screens through one adapter layer; a gate keeps raw colours and native controls out; the dashboard is not in production yet.
+**Allowed facts (owner, high level only; numbers updated by the owner 2026-10-27 to the repo counts at design-system-v2 `origin/main` f7e78ed: `docs/lifecycle.json` 41 components, `tokens/source/*.tokens.json` 130 + 205 + 533 values, tags v0.1.0 2026-07-29 to v1.1.6 2026-09-27):** 41 components; 868 design values (tokens) in three tiers (core, semantic, component) from one source to CSS, TypeScript and a Figma bundle; 22 releases in 60 days; 96.6% less JavaScript for a Button-only consumer; built to WCAG 2.1 AA floors with automated, rendered evidence. Research and agent work stays qualitative: a research corpus, a large multi-agent audit of the old frontend, a best-practices guide, decision records, an append-only lessons log, agent skills, fresh independent reviewers, executable gates and the founding rule ("every claim derives from one artifact, through a check that runs"). Adoption: the new React dashboard uses the system across its screens through one adapter layer; a gate keeps raw colours and native controls out; the dashboard is not in production yet.
 
 **How it is built (case part, owner request 2026-10-06; checked on the design-system repo `origin/main` f7e78ed, 2026-09-27):**
 - Case text (team voice, owner 2026-10-07): "Research into five leading design systems became written guides for AI agents. The agents build to the guides, automatic checks decide, and a person on the team approves each change." Proof: "No guide can overrule a failed check."
@@ -191,7 +191,7 @@ Owner confirmed (2026-10-02): built bayyinah.org, Next.js, 2024–25; repo acces
 
 **Do not publish:** old-vs-new dashboard comparisons (tests, CI, lint, file sizes), internal counts (skills, lessons, ADRs, asks, version bumps, routes), client or tenant names, internal URLs, repo or package links, other contributors' names. Never claim "WCAG compliant", "faster" or "more stable in production".
 
-**Readouts:** 36 Components · 805 Design tokens in three tiers · 20 Releases in about six weeks · 96.6% Less JavaScript for a Button-only consumer.
+**Readouts:** 41 Components · 868 Design values in three tiers · 22 Releases in 60 days · 96.6% Less JavaScript for a Button-only consumer.
 
 **Live recreation (invented data, own palette, no employer visuals):** "Component specimen" for an invented project-tracker kit. A bento board with a three-tier token strip whose Light/Dark switch re-points the semantic tier live (circular reveal from the switch), five alert tones, a Sonner-style toast stack, Steps, Select, chip Combobox, Input states, Button hierarchy and sizes, Tabs with Pagination, avatars and switches. A gentle demo loop runs until hover, focus, a hidden tab or the pause button stops it. Marked "Recreation · invented data".
 
@@ -221,7 +221,7 @@ Render as a compact, scannable index (not cards): grouped by employer, each row 
 | Care-management platform, React rewrite | 2026 | Frontend | React 19, TypeScript, TanStack, Zod, Vitest, Playwright | Route-by-route move from Nuxt 2 to React with parity tests, decision records, CI gates | #healthcare |
 | Care-management platform, Vue app | 2023 – 2026 | Frontend | Nuxt 2, Vue 2, Vuex, ECharts, Twilio, Chime | Remote patient care: profiles, care plans, claims, vitals and labs, calls, 4 locales | #healthcare |
 | Care-management API | 2026 | Full stack | Laravel 13, PHP 8.3, MySQL, Redis, Pest | Laravel API for enrollment drafts, a lab catalog, multi-tenant security and fast reports | #healthcare |
-| Design System v2 (featured case, owner 2026-10-05, facts from ds-factsheet) | 2026 | Design system | React 19, TypeScript, CSS Modules, Storybook 10, DTCG tokens, Playwright, axe | 36 components, 805 design tokens and 20 releases in about six weeks | /work/design-system-react |
+| Design System v2 (featured case, owner 2026-10-05, facts from ds-factsheet) | 2026 | Design system | React 19, TypeScript, CSS Modules, Storybook 10, DTCG tokens, Playwright, axe | 41 components, 868 design values and 22 releases in 60 days | /work/design-system-react |
 | Design system, Vue | 2026 | Design system | Vue 2, Style Dictionary, Histoire, Playwright | Design tokens from Figma, codemods, visual regression tests and a health dashboard | — |
 | Design dashboard (prototype) | 2026 | Frontend | React 19, Vite, Tailwind 4 | Call-activity screen on the design system with demo data, as a design reference | — |
 | Video-learning platform, web | 2023 – 2026 | Frontend | Nuxt 3, Vue 3, Pinia, video.js, AWS IVS, Pusher, Stripe | Full Nuxt 3 rebuild: live streams, HLS player, subscriptions, gifting, English/Arabic | #streaming |

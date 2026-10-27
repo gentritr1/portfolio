@@ -80,7 +80,7 @@ export const caseDetails: Record<string, CaseDetail> = {
       product: 'Design System v2: the shared controls and layout parts for the new React dashboard of the care platform.',
       users: 'The developers and AI agents who build the new dashboard.',
       role: 'Frontend developer on the team that builds it.',
-      time: '2026, about six weeks to 20 releases',
+      time: '2026, 22 releases in 60 days',
     },
     constraints: [
       'Built to the WCAG 2.1 AA accessibility floor, with proof on a rendered screen.',
@@ -92,10 +92,10 @@ export const caseDetails: Record<string, CaseDetail> = {
       'The guides advise, but automatic checks decide. No guide can overrule a failed check.',
       'A check is trusted only after it is shown to fail.',
     ],
-    result: '36 components, 805 design tokens and 20 releases in about six weeks, with 96.6% less JavaScript for a page that uses only the Button.',
+    result: '41 components, 868 design values and 22 releases in 60 days, with 96.6% less JavaScript for a page that uses only the Button.',
     diagram: [
       { title: 'Research and agents', stack: 'Research · agent guides · reviewers', note: 'Five systems studied; guides advise', layer: 'quality' },
-      { title: 'Tokens and components', stack: 'DTCG tokens · React 19 · CSS Modules', note: '805 tokens generate CSS, TypeScript and Figma', layer: 'interface' },
+      { title: 'Tokens and components', stack: 'DTCG tokens · React 19 · CSS Modules', note: '868 design values generate CSS, TypeScript and Figma', layer: 'interface' },
       { title: 'Evidence and adoption', stack: 'Playwright · axe · gates', note: 'Rendered contrast checks; one adapter layer', layer: 'quality' },
     ],
     engineering: [

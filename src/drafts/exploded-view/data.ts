@@ -45,7 +45,7 @@ export const cases: Case[] = [
     slug: 'design-system-react',
     question: 'How do you make accessibility the default, not a checklist?',
     answer: 'A team design system on one token source. Research into five leading design systems became written guides for AI agents; rendered checks decide each release.',
-    result: '36 components, 805 tokens and 20 releases in about six weeks, with 96.6% less JavaScript for a page that uses only the Button.',
+    result: '41 components, 868 design values and 22 releases in 60 days, with 96.6% less JavaScript for a page that uses only the Button.',
     layers: ['interface', 'quality'],
   },
   {

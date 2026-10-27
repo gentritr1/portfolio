@@ -1,3 +1,5 @@
+import { boards as dsBoardSource, careBoards as careBoardSource } from '../the-loop/data'
+
 /**
  * Real product screens for each case, from the files already in public/ (the same screens other drafts use).
  * Care-platform screens ran on a local mock API with invented data; the store frames are the public listings.
@@ -12,8 +14,8 @@ export interface Shot {
   caption?: string
 }
 
-/** The full-resolution original behind a 1080 px screen; other files are already full size. */
-export const fullSize = (src: string) => src.replace(/-1080\.webp$/, '.webp')
+/** The full-resolution original behind a 1080 or 1600 px screen; other files are already full size. */
+export const fullSize = (src: string) => src.replace(/-(1080|1600)\.webp$/, '.webp')
 
 const desk = (src: string, alt: string, caption?: string, width = 1080, height = 675): Shot => ({ src, alt, width, height, caption })
 const phone = (src: string, alt: string, caption?: string): Shot => ({ src, alt, width: 780, height: 1689, phone: true, caption })
@@ -111,10 +113,23 @@ export const parityFrames = [
   new: `/showcase/care/old-new/new-0${i + 1}-1080.webp`,
 }))
 
+/**
+ * The Design System v2 and care platform boards: real components and real screens of the new app, set out with
+ * their measurements (rendered for the Loop draft; boards.json beside them). These are crops in `xv/` without
+ * the boards' top counter and their footer line, which names the package.
+ */
+const toBoards = (dir: string, source: { file: string; title: string; alt: string }[]): Shot[] =>
+  source.map((b) => {
+    const n = b.file.match(/board-0\d/)![0]
+    return { src: `${dir}/xv/${n}-1600.webp`, alt: b.alt, width: 1600, height: 870, caption: b.title }
+  })
+export const dsBoards = toBoards('/showcase/design-system/boards', dsBoardSource)
+export const careBoards = toBoards('/showcase/care-dashboard/boards', careBoardSource)
+
 /** The screen each homepage story shows that its case page shows too: it carries across the page change. */
 export const sharedShot: Record<string, string> = {
   'care-platform': caseShots['care-platform'][1].src,
-  'design-system-react': caseShots['design-system-react'][0].src,
-  'multi-tenant': caseShots['multi-tenant'][0].src,
+  'design-system-react': dsBoards[2].src,
+  'multi-tenant': careBoards[2].src,
   'read-to-feed': caseShots['read-to-feed'][0].src,
 }

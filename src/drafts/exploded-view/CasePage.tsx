@@ -6,8 +6,8 @@ import { caseDetails, caseOrder, questionOf } from './cases'
 import { layers } from './data'
 import { canUseWebGL, useReducedMotion } from './motion'
 import { CASE_STATES, createCaseScene, type CaseScene, type CaseState } from './scene'
-import { caseNames, caseShots, detailShots, fullSize, sharedShot, type Shot } from './shots'
-import { CompareSlider, ParityPlayer } from './figures'
+import { careBoards, caseNames, caseShots, detailShots, dsBoards, fullSize, sharedShot, type Shot } from './shots'
+import { BoardViewer, CompareSlider, ParityPlayer } from './figures'
 
 /** Owner rule (PRODUCT.md, 2026-10-06): every care-platform and design-system screen says it holds invented data. */
 const INVENTED = /^\/showcase\/(care|care-dashboard|design-system)\//
@@ -35,6 +35,12 @@ export function ShotImage({ shot, eager, carry }: { shot: Shot; eager?: boolean;
       <span className="xv-sr"> (full size, opens in a new tab)</span>
     </a>
   )
+}
+
+/** Cases shown through boards instead of plain screens; each opens on the board its homepage story shows. */
+const CASE_BOARDS: Record<string, { boards: Shot[]; start: number; label: string }> = {
+  'design-system-react': { boards: dsBoards, start: 2, label: 'Design System v2, in seven boards' },
+  'multi-tenant': { boards: careBoards, start: 2, label: 'The care platform, in four boards' },
 }
 
 /** The case each 3D explanation belongs to, and what it shows, in words for every reader. */
@@ -164,7 +170,8 @@ export function CasePage({ slug }: { slug: string }) {
         </dl>
       </header>
 
-      {shots.length > 0 && (
+      {CASE_BOARDS[slug] && <BoardViewer {...CASE_BOARDS[slug]} carry={slug} />}
+      {shots.length > 0 && !CASE_BOARDS[slug] && (
         <section className="xv-case-shots" aria-label="Product screens" data-phone={shots[0].phone || undefined} data-count={shots.length}>
           {shots.map((s) => (
             <figure key={s.src} className="xv-shot">

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
-import { PauseIcon, PlayIcon } from '@phosphor-icons/react'
+import { ArrowLeftIcon, ArrowRightIcon, PauseIcon, PlayIcon } from '@phosphor-icons/react'
 import { useReducedMotion } from './motion'
-import { parityFrames, type Shot } from './shots'
+import { fullSize, parityFrames, type Shot } from './shots'
 
 /**
  * Runs `onEnter` once, the first time `ref` is at least `threshold` in view. The first report can arrive with only a
@@ -200,5 +200,58 @@ export function TenantConcept() {
       </svg>
       <figcaption className="xv-note">A concept, not a product screen: one API, and each organization’s data kept apart.</figcaption>
     </figure>
+  )
+}
+
+/**
+ * The boards, one at a time, at full width. The visitor steps through them; nothing plays on its own. A pointer
+ * step crossfades (220 ms); a keyboard step switches at once. It opens on the board its homepage story showed,
+ * so that board carries across the page change (`carry`).
+ */
+export function BoardViewer({ boards, start = 0, carry, label }: { boards: Shot[]; start?: number; carry?: string; label: string }) {
+  const [at, setAt] = useState(start)
+  const [instant, setInstant] = useState(false)
+  const go = (n: number, byKey: boolean) => { setInstant(byKey); setAt((n + boards.length) % boards.length) }
+  const cur = boards[at]
+  return (
+    <section className="xv-boards" aria-roledescription="carousel" aria-label={label} data-instant={instant || undefined}>
+      <a className="xv-boards-stage xv-full" href={fullSize(cur.src)} target="_blank" rel="noreferrer">
+        {boards.map((b, i) => (
+          <img
+            key={b.src}
+            src={b.src}
+            width={b.width}
+            height={b.height}
+            alt={i === at ? b.alt : ''}
+            aria-hidden={i === at ? undefined : true}
+            data-on={i === at || undefined}
+            data-carry={carry && i === start ? '' : undefined}
+            style={carry && i === start ? ({ '--carry': `xv-shot-${carry}` } as CSSProperties) : undefined}
+            loading={i === at ? 'eager' : 'lazy'}
+            decoding="async"
+          />
+        ))}
+        <span className="xv-sr"> (full size, opens in a new tab)</span>
+      </a>
+      <div className="xv-boards-bar">
+        <p className="xv-boards-title" aria-live="polite">
+          <span className="xv-boards-count">{at + 1} / {boards.length}</span> {cur.caption}
+        </p>
+        <button type="button" className="xv-btn xv-boards-step" aria-label="Previous board" onClick={(e) => go(at - 1, e.detail === 0)}>
+          <ArrowLeftIcon size={16} weight="bold" aria-hidden="true" />
+        </button>
+        <button type="button" className="xv-btn xv-boards-step" aria-label="Next board" onClick={(e) => go(at + 1, e.detail === 0)}>
+          <ArrowRightIcon size={16} weight="bold" aria-hidden="true" />
+        </button>
+      </div>
+      <ol className="xv-boards-dots">
+        {boards.map((b, i) => (
+          <li key={b.src}>
+            <button type="button" aria-label={`Board ${i + 1}: ${b.caption}`} aria-current={i === at || undefined} onClick={(e) => go(i, e.detail === 0)} />
+          </li>
+        ))}
+      </ol>
+      <p className="xv-note xv-boards-note">Real product screens, invented data. Select the board for full size.</p>
+    </section>
   )
 }
