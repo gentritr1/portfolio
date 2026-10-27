@@ -29,6 +29,8 @@ export interface PlateText {
 }
 
 export interface Chamber {
+  /** Prepare the hovered/focused product's layer surfaces before an intentional selection. */
+  prepare(index: number): void
   /** `instant` skips the cross-fade (keyboard and reduced motion). */
   select(index: number, instant?: boolean): void
   setExpanded(on: boolean, instant?: boolean): void
@@ -38,6 +40,8 @@ export interface Chamber {
   setMode(mode: 0 | 1): void
   /** 0 as the stage enters the view, 1 once it is in place: the field's dots gather onto the glass. Driven by scroll. */
   setFormation(progress: number): void
+  /** Once inspection begins, finish the arrival and keep the selected surface still. */
+  finishFormation(instant?: boolean): void
   dispose(): void
 }
 
@@ -111,7 +115,7 @@ void main() {
     float side = (1.0 - face) * (1.0 - arc);
     col += vec3(1.0, 0.985, 0.96) * glint * arc * 1.8;
     col += spec * fres * (arc * 1.3 + side * 0.3 + face * mix(0.35, 0.12, inside));
-    col += vec3(0.75, 0.78, 0.84) * smoothstep(0.3, 0.95, dot(n, L)) * arc * 0.22;
+    col += vec3(0.75, 0.78, 0.84) * smoothstep(0.3, 0.95, dot(n, L)) * arc * 0.1;
     // Where the glass meets the screen: a hairline, barely there.
     col += vec3(0.12) * (1.0 - smoothstep(0.0, aa * 1.5, abs(d))) * face * (1.0 - inside);
     float band = dot(vOP.xy / uSize.y, vec2(0.8, -0.6)) + ov.x * 0.35;
@@ -142,13 +146,13 @@ void main() {
       pat = 1.0 - smoothstep(0.0035, 0.0035 + max(w.x, w.y), rd);
     }
     // Quieter structure on a plate that carries words, and none on a chosen one: the words lead.
-    pat *= within * mix(1.0, 0.35, uHasInfo) * (1.0 - 0.9 * uFwd);
+    pat *= within * mix(1.0, 0.1, uHasInfo) * (1.0 - uFwd);
     vec3 ink = mix(vec3(0.72, 0.75, 0.82), uAccent, 0.2 + 0.8 * uHi);
     float boost = 1.0 + uHi * 1.3;
     // The substrate: a faint fill, a little lighter toward the lit corner, so each plate reads as a surface, not an outline.
     float fill = 0.05 + 0.05 * clamp(dot(p / hs, vec2(-0.5, 0.5)) + 0.5, 0.0, 1.0);
-    col = vec3(0.55, 0.58, 0.66) * fill + ink * (pat * 0.16 + rimLine * 0.75) * boost + spec * fres * 0.6 + glint * 0.6;
-    alpha = face * (0.32 + (pat * 0.18 + rimLine * 0.7) * boost) + (1.0 - face) * 0.7;
+    col = vec3(0.22, 0.25, 0.32) * fill + ink * (pat * 0.16 + rimLine * 0.55) * boost + spec * fres * 0.3 + glint * 0.3;
+    alpha = face * (mix(0.32, 0.78, uHasInfo) + (pat * 0.18 + rimLine * 0.7) * boost) + (1.0 - face) * 0.7;
     col = mix(col, vec3(0.2, 0.21, 0.24) + spec * 0.6 + glint, 1.0 - face);
     // The layer's own words. Behind them, and whenever the plate comes forward over the screen, the glass darkens so they read.
     // Fanned, the words sit in the plate's exposed edge; brought forward, they take the whole plate.
@@ -158,7 +162,7 @@ void main() {
     vec4 fullText = texture2D(uInfoFwd, uvp) * smoothstep(0.72, 1.0, uFwd) * uHasInfo * face;
     vec4 info = vec4(mix(fanText.rgb, fullText.rgb, step(fanText.a, fullText.a)), max(fanText.a, fullText.a));
     float solid = max(info.a * 0.55, uFwd * uHasInfo * 0.97) * face;
-    col = mix(col, vec3(0.016, 0.018, 0.024) + rimLine * ink * 0.6 * boost, solid * 0.8);
+    col = mix(col, vec3(0.007, 0.009, 0.014) + rimLine * ink * 0.45 * boost, solid);
     alpha = max(alpha, solid);
     col = mix(col, info.rgb, info.a);
     alpha = max(alpha, info.a);
@@ -179,7 +183,8 @@ const tween = (v: number): Tween => ({ from: v, to: v, t0: 0, dur: 0 })
 const valueOf = (t: Tween, now: number, curve = easeOut) => (t.dur <= 0 ? t.to : t.from + (t.to - t.from) * curve(clamp01((now - t.t0) / t.dur)))
 const busy = (t: Tween, now: number) => t.dur > 0 && now < t.t0 + t.dur
 function aim(t: Tween, to: number, dur: number, now: number, curve?: (x: number) => number) {
-  if (t.to === to) return
+  // An instant repeat (keyboard/reduced motion) must settle an in-flight target too.
+  if (t.to === to && dur > 0) return
   t.from = valueOf(t, now, curve)
   t.to = to
   t.t0 = now
@@ -364,6 +369,7 @@ export function createChamber(
   const explode = tween(options.expanded ? 1 : 0)
   const aside = tween(0)
   let formation = reduced ? 1 : options.formation
+  const formationFinish = tween(0)
 
   // ---------- The formation's dots: one draw, positions in the shader ----------
   const FORM = innerWidth < 600 ? 700 : 1600
@@ -395,10 +401,12 @@ export function createChamber(
     new THREE.PlaneGeometry(1, 1),
     new THREE.ShaderMaterial({
       uniforms: glowU,
-      transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+      transparent: true, depthWrite: false,
       vertexShader: /* glsl */ `varying vec2 vUv; void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
       fragmentShader: /* glsl */ `uniform float uAlpha; varying vec2 vUv;
-        void main() { vec2 d = (vUv - 0.5) * 2.0; float a = exp(-dot(d, d) * 3.2) * uAlpha; gl_FragColor = vec4(vec3(0.82, 0.85, 0.92) * a, 1.0); }`,
+        void main() { vec2 d = (vUv - 0.5) * 2.0; float a = exp(-dot(d, d) * 5.0) * uAlpha;
+          a *= (1.0 - smoothstep(0.6, 1.0, abs(d.x))) * (1.0 - smoothstep(0.6, 1.0, abs(d.y)));
+          gl_FragColor = vec4(vec3(0.5, 0.53, 0.6), a); }`,
     }),
   )
   glow.rotation.x = -Math.PI / 2
@@ -578,10 +586,22 @@ export function createChamber(
   // ---------- The layers' words: drawn for the shown product once the page font is ready; two products' worth kept ----------
   const fontsReady = document.fonts.load('400 48px Archivo').catch(() => {})
   const wordsOf = new Map<number, THREE.Texture[]>()
+  function trimWords(now: number) {
+    for (const [j, texs] of wordsOf) {
+      if (wordsOf.size <= 2) break
+      // The previous product still owns its surfaces until its crossfade ends.
+      if (j === selected || busy(items[j].presence, now) || !texs.length) continue
+      items[j].slabs.forEach((sl) => { sl.u.uInfo.value = blank; sl.u.uInfoFwd.value = blank })
+      texs.forEach((t) => t.dispose())
+      wordsOf.delete(j)
+    }
+  }
   const toWords = (canvas: HTMLCanvasElement) => {
     const tex = new THREE.CanvasTexture(canvas)
     tex.colorSpace = THREE.SRGBColorSpace
     tex.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy())
+    // Upload during preparation, so the first moving frame does not also upload four large surfaces.
+    renderer.initTexture(tex)
     return tex
   }
   function ensureWords(i: number) {
@@ -600,13 +620,7 @@ export function createChamber(
         made.push(u.uInfo.value, u.uInfoFwd.value)
       })
       wordsOf.set(i, made)
-      for (const [j, texs] of wordsOf) {
-        if (wordsOf.size <= 2) break
-        if (j === selected || !texs.length) continue
-        items[j].slabs.forEach((sl) => { sl.u.uInfo.value = blank; sl.u.uInfoFwd.value = blank })
-        texs.forEach((t) => t.dispose())
-        wordsOf.delete(j)
-      }
+      trimWords(performance.now())
       invalidate()
     })
   }
@@ -624,7 +638,8 @@ export function createChamber(
     // Beside a demo the stack reads closed, whatever the reader chose; the choice returns when the demo closes.
     const sd = valueOf(aside, now, easeInOut)
     const e = valueOf(explode, now, easeInOut) * (1 - sd)
-    let moving = busy(explode, now) || busy(aside, now)
+    const formed = formation + (1 - formation) * valueOf(formationFinish, now)
+    let moving = busy(explode, now) || busy(aside, now) || busy(formationFinish, now)
     const it0 = items[selected]
     let fAny0 = 0
     items.forEach((it) => {
@@ -649,7 +664,7 @@ export function createChamber(
       it.group.position.set(blend((p) => p.pos.x), blend((p) => p.pos.y), blend((p) => p.pos.z) - (1 - easeOut(clamp01(pr))) * 0.18)
       it.group.scale.setScalar(blend((p) => p.scale))
       // Arriving, the product settles from a slightly wider turn as the field gathers onto it.
-      it.group.rotation.set(narrow ? 0.02 : 0.04, blend((p) => p.yaw) - 0.1 * (1 - easeOut(formation)), narrow ? 0 : -0.03)
+      it.group.rotation.set(narrow ? 0.02 : 0.04, blend((p) => p.yaw) - 0.1 * (1 - easeOut(formed)), narrow ? 0 : -0.03)
       const any = Math.max(...hi)
       it.slabs.forEach((sl, k) => {
         const cS = place(it, 'closed', k, vC), oS = place(it, 'open', k, vO), s1 = place(it, 'sel1', k, v1), s2 = place(it, 'sel2', k, v2)
@@ -672,12 +687,12 @@ export function createChamber(
     })
     // The dots ride the shown product: its place, turn and size, and its crossfade.
     const a0 = clamp01((valueOf(it0.presence, now, (x) => x) - 0.45) / 0.55)
-    dots.visible = a0 > 0.001
+    dots.visible = a0 > 0.001 && formed < 0.999 && !reduced
     dots.position.copy(it0.group.position)
     dots.quaternion.copy(it0.group.quaternion)
     dots.scale.copy(it0.group.scale)
     formU.uSize.value.set(it0.w, it0.h, T)
-    formU.uP.value = formation
+    formU.uP.value = formed
     formU.uPx.value = (narrow ? 2.4 : 2.1) * renderer.getPixelRatio()
     formU.uAlpha.value = a0 * (1 - sd)
     // The contact light sits under the screen wherever the screen stands, and grows in as the formation lands.
@@ -687,10 +702,11 @@ export function createChamber(
     glowRoot.scale.copy(it0.group.scale)
     glow.position.set(scr.position.x, scr.position.y - (it0.h / 2) * scr.scale.x - 0.02, scr.position.z)
     glow.scale.set(it0.w * scr.scale.x * 1.15, 0.34 * scr.scale.x, 1)
-    glowU.uAlpha.value = 0.3 * a0 * easeOut(formation) * (1 - 0.6 * fAny0)
+    glowU.uAlpha.value = 0.3 * a0 * easeOut(formed) * (1 - 0.6 * fAny0)
     renderer.render(scene, camera)
     placeLabels(it0, e, clamp01((valueOf(it0.presence, now, (x) => x) - 0.45) / 0.55) * (1 - fAny0))
     report()
+    if (!moving && wordsOf.size > 2) trimWords(now)
     if (moving) invalidate()
   }
   const proj = new THREE.Vector3()
@@ -727,6 +743,10 @@ export function createChamber(
   renderer.compileAsync(scene, camera).catch(() => {}).finally(invalidate)
 
   return {
+    prepare(i) {
+      if (i < 0 || i >= items.length) return
+      ensureWords(i)
+    },
     select(i, instant) {
       if (i === selected) return
       const now = performance.now()
@@ -745,7 +765,7 @@ export function createChamber(
       invalidate()
     },
     setLayer(i, instant) {
-      if (i === layer) return
+      if (i === layer && !instant && !reduced) return
       layer = i
       const now = performance.now()
       items[selected].slabs.forEach((s, k) => aim(s.hi, k === i ? 1 : 0, reduced || instant ? 0 : DUR.layers, now, easeInOut))
@@ -756,9 +776,14 @@ export function createChamber(
       invalidate()
     },
     setFormation(v) {
+      if (formationFinish.to === 1) return
       const next = reduced ? 1 : clamp01(v)
       if (Math.abs(next - formation) < 0.002) return
       formation = next
+      invalidate()
+    },
+    finishFormation(instant) {
+      aim(formationFinish, 1, reduced || instant ? 0 : 220, performance.now())
       invalidate()
     },
     setMode(m) {

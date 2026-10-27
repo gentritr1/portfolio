@@ -3,9 +3,10 @@ import { useNavigate, useParams } from 'react-router'
 import Lenis from 'lenis'
 import { ArrowCounterClockwiseIcon, ArrowUpRightIcon, GaugeIcon } from '@phosphor-icons/react'
 import { createScene, hasWebGL, STAGE, type RefractiveScene, type Stats } from './scene'
-import { INVENTED, ledger, links, systems, type Value } from './data'
+import { ledger, links, systems, type Value } from './data'
 import { CasePage } from './CasePage'
 import { Lab } from './Lab'
+import { Production } from './Production'
 import './refractive-engine.css'
 
 type Mode = 'lens' | 'tensor'
@@ -115,6 +116,7 @@ export default function Draft() {
   const onCase = useRef(false)
   onCase.current = caseSlug !== undefined
   const homeScroll = useRef<number | null>(null)
+  const productionTrigger = useRef<HTMLAnchorElement | null>(null)
   const lastCase = useRef<string | undefined>(undefined)
 
   const setMode = useCallback((m: Mode) => {
@@ -304,19 +306,22 @@ export default function Draft() {
     const lab = document.querySelector<HTMLElement>('.re-lab')
     jump(homeScroll.current ?? (lab ? lab.getBoundingClientRect().top + scrollY : 0))
     requestAnimationFrame(() => {
-      // Focus returns to the link the reader left by: a picture in the index, or the chamber's Open project, which still
-      // shows that product. Otherwise to that product's row in the chamber index.
+      // Production has a title link and a case link, often a screen apart. Restore the actual trigger before looking
+      // for a visible chamber action or product row.
       const inView = (el: HTMLElement | null) => { const r = el?.getBoundingClientRect(); return el && r && r.bottom > 0 && r.top < innerHeight ? el : null }
       const back =
-        inView(document.querySelector<HTMLElement>(`.re-work-item[href="${BASE}/${from}"]`)) ??
+        inView(productionTrigger.current) ??
+        inView(document.querySelector<HTMLElement>(`.re-prod-case[href="${BASE}/${from}"]`)) ??
+        inView(document.querySelector<HTMLElement>(`.re-prod-name a[href="${BASE}/${from}"]`)) ??
         inView(document.querySelector<HTMLElement>(`.re-ch-open[href="${BASE}/${from}"]`)) ??
         inView(document.querySelector<HTMLElement>(`.re-ch-index button[data-slug="${from}"]`))
       ;(back ?? document.getElementById('re-lab-h'))?.focus({ preventScroll: true })
     })
   }, [caseSlug])
 
-  const toCase = (slug: string) => {
+  const toCase = (slug: string, trigger?: HTMLAnchorElement) => {
     homeScroll.current = scrollY
+    productionTrigger.current = trigger ?? null
     navigate(`${BASE}/${slug}`, { viewTransition: true })
   }
   const toHome = (top = false) => {
@@ -392,6 +397,8 @@ export default function Draft() {
           <p className="re-sub">A model gives you raw possibility. An interface gives it a shape people can use. I build that shape, on the web and on phones.</p>
           {!noGl && <p className="re-hint re-num">Move the cursor over the field. Inside the lens it snaps into a page layout.</p>}
         </header>
+
+        <Production onOpen={toCase} />
 
         <section className="re-modes" data-stage={STAGE.modes} aria-labelledby="re-modes-h">
           <div className="re-card re-solid">
@@ -479,27 +486,6 @@ export default function Draft() {
               </li>
             ))}
           </ol>
-        </section>
-
-        <section className="re-work" data-stage={STAGE.ledger} aria-labelledby="re-work-h">
-          <h2 id="re-work-h" className="re-h2">The eight, in full</h2>
-          <p className="re-lede">The same screens the prisms carry. Each one opens its case: the question, the constraints, the decision and the result.</p>
-          <ul className="re-work-list">
-            {systems.map((s) => (
-              <li key={s.slug} className="re-solid">
-                <a className="re-work-item" href={`${BASE}/${s.slug}`} onClick={(e) => { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return; e.preventDefault(); toCase(s.slug) }}>
-                  <span className="re-work-shot" data-shape={s.aspect < 1 ? 'phone' : 'wide'}>
-                    <img src={s.texture} alt={`${s.name}, a screen from the product`} width={s.aspect < 1 ? Math.round(1024 * s.aspect) : 1280} height={s.aspect < 1 ? 1024 : 800} loading="lazy" decoding="async" />
-                  </span>
-                  <span className="re-work-text">
-                    <strong>{s.name}</strong>
-                    <span>{[s.kind, s.years].filter(Boolean).join(' · ')}</span>
-                    {INVENTED.has(s.slug) && <span>Real product screens · invented data</span>}
-                  </span>
-                </a>
-              </li>
-            ))}
-          </ul>
         </section>
 
         <footer className="re-contact" data-stage={STAGE.contact}>

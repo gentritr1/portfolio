@@ -45,6 +45,7 @@ export function Lab({ mode, reduced, noGl, onOpen }: { mode: 'lens' | 'tensor'; 
   const tryOpen = trying && DEMOS.has(sys.slug)
   // A new chamber (first mount, or a change of motion preference) starts from all three choices the reader has made.
   const formation = useRef(1)
+  const inspected = useRef(false)
   const latest = useRef({ selected, layersExpanded, activeLayer, mode, tryOpen })
   useEffect(() => { latest.current = { selected, layersExpanded, activeLayer, mode, tryOpen } })
 
@@ -95,11 +96,11 @@ export function Lab({ mode, reduced, noGl, onOpen }: { mode: 'lens' | 'tensor'; 
     let formed = reduced
     const update = () => {
       const top = stage.getBoundingClientRect().top
-      formation.current = formed ? 1 : Math.min(1, Math.max(0, (innerHeight * 0.92 - top) / (innerHeight * 0.62)))
+      formation.current = formed || inspected.current ? 1 : Math.min(1, Math.max(0, (innerHeight * 0.92 - top) / (innerHeight * 0.62)))
       chamber.current?.setFormation(formation.current)
     }
     // Only keyboard focus completes it: a click also focuses its button, and must not snap the arrival mid-scroll.
-    const onFocus = (e: FocusEvent) => { if ((e.target as Element).matches?.(':focus-visible')) { formed = true; update() } }
+    const onFocus = (e: FocusEvent) => { if ((e.target as Element).matches?.(':focus-visible')) { inspected.current = true; formed = true; update() } }
     update()
     addEventListener('scroll', update, { passive: true })
     addEventListener('resize', update)
@@ -112,7 +113,13 @@ export function Lab({ mode, reduced, noGl, onOpen }: { mode: 'lens' | 'tensor'; 
   }, [reduced, glReady])
 
   // A keyboard press (detail 0) changes the chamber at once; a click or tap animates. The effects above then find it settled.
+  const finishArrival = (instant: boolean) => {
+    inspected.current = true
+    formation.current = 1
+    chamber.current?.finishFormation(instant)
+  }
   const select = (i: number, instant: boolean) => {
+    finishArrival(instant)
     setSelectedSlug(systems[i].slug)
     setActiveLayer(null)
     setTrying(false)
@@ -122,6 +129,7 @@ export function Lab({ mode, reduced, noGl, onOpen }: { mode: 'lens' | 'tensor'; 
     chamber.current?.select(i, instant)
   }
   const tryIt = (on: boolean, instant: boolean) => {
+    finishArrival(instant)
     setTrying(on)
     chamber.current?.setAside(on, instant)
     if (!on) tryRef.current?.focus({ preventScroll: true })
@@ -135,10 +143,22 @@ export function Lab({ mode, reduced, noGl, onOpen }: { mode: 'lens' | 'tensor'; 
     demo.focus({ preventScroll: true })
   }, [tryOpen, reduced])
   const expand = (on: boolean, instant: boolean) => {
+    finishArrival(instant)
+    setTrying(false)
+    chamber.current?.setAside(false, instant)
     setLayersExpanded(on)
+    setActiveLayer(null)
+    chamber.current?.setLayer(null, instant)
     chamber.current?.setExpanded(on, instant)
   }
   const highlight = (k: number | null, instant: boolean) => {
+    finishArrival(instant)
+    setTrying(false)
+    chamber.current?.setAside(false, instant)
+    if (k !== null) {
+      setLayersExpanded(true)
+      chamber.current?.setExpanded(true, instant)
+    }
     setActiveLayer(k)
     chamber.current?.setLayer(k, instant)
   }
@@ -151,70 +171,83 @@ export function Lab({ mode, reduced, noGl, onOpen }: { mode: 'lens' | 'tensor'; 
         <p className="re-lede">Select a product to explore the three layers it is built from.</p>
       </div>
       <div className="re-ch re-solid">
-        <div ref={stageRef} className="re-ch-stage" data-expanded={layersExpanded || undefined} data-ready={glReady || undefined} data-trying={tryOpen || undefined} data-shape={sys.aspect < 1 ? 'phone' : 'wide'}>
-          {/* The real screen as a page image: what shows before the glass is ready, and without WebGL. */}
-          <figure className="re-ch-still" style={{ '--a': sys.aspect } as CSSProperties}>
-            <span className="re-ch-plate" aria-hidden="true" />
-            <span className="re-ch-plate" aria-hidden="true" />
-            <img
-              key={sys.slug}
-              src={sys.texture}
-              srcSet={sharp ? `${sys.texture} 1280w, ${sharp.src} ${sharp.width}w` : undefined}
-              sizes={sharp ? '(min-width: 900px) 56vw, 92vw' : undefined}
-              alt={`${sys.name}, a screen from the product`}
-              width={sys.aspect < 1 ? Math.round(1024 * sys.aspect) : 1280}
-              height={sys.aspect < 1 ? 1024 : 800}
-              decoding="async"
-            />
-          </figure>
-          {tryOpen && (
-            <div
-              ref={demoRef}
-              id="re-ch-demo"
-              className="re-ch-demo"
-              role="region"
-              aria-label={`${sys.name}, interactive recreation`}
-              tabIndex={-1}
-              onKeyDown={(e) => { if (e.key === 'Escape') { e.stopPropagation(); tryIt(false, true) } }}
-            >
-              <div className="re-ch-demo-bar">
-                <p>Interactive recreation</p>
-                <button type="button" onClick={(e) => tryIt(false, e.detail === 0)}>
-                  Close
-                  <XIcon size={16} weight="regular" aria-hidden="true" />
+        <div className="re-ch-viewer">
+          <div className="re-ch-toolbar">
+            <div className="re-ch-view" role="group" aria-label="View">
+              <button type="button" aria-pressed={!layersExpanded} onClick={(e) => expand(false, e.detail === 0)}>Assembled</button>
+              <span aria-hidden="true">/</span>
+              <button type="button" aria-pressed={layersExpanded} onClick={(e) => expand(true, e.detail === 0)}>Layers</button>
+            </div>
+            <div className="re-ch-inspect" role="group" aria-label="Inspect a layer">
+              {sys.layers.map((l, k) => (
+                <button key={k} type="button" aria-pressed={layersExpanded && activeLayer === k}
+                  onClick={(e) => highlight(activeLayer === k && layersExpanded ? null : k, e.detail === 0)}>
+                  <span className="re-num" aria-hidden="true">{String(k + 1).padStart(2, '0')}</span>
+                  <span>{l.title}</span>
                 </button>
-              </div>
-              <div className="re-ch-demo-stage">
-                <Suspense fallback={null}>
-                  <ReaderDemo bare />
-                </Suspense>
-              </div>
+              ))}
             </div>
-          )}
-          {/* Phones: the chosen layer's words as page text over its plate, at a size the 3D texture cannot give them. */}
-          {layersExpanded && !tryOpen && activeLayer && plates[sys.slug] && (
-            <div className="re-ch-card">
-              <p className="re-ch-card-n re-num">{String(activeLayer + 1).padStart(2, '0')}</p>
-              <p className="re-ch-card-title">{sys.layers[activeLayer].title}</p>
-              <p className="re-num re-layer-stack">{sys.layers[activeLayer].stack}</p>
-              <LayerFacts plate={plates[sys.slug][activeLayer]} />
+          </div>
+          <div ref={stageRef} className="re-ch-stage" data-expanded={layersExpanded || undefined} data-ready={glReady || undefined} data-trying={tryOpen || undefined} data-shape={sys.aspect < 1 ? 'phone' : 'wide'}>
+            {/* The real screen as a page image: what shows before the glass is ready, and without WebGL. */}
+            <figure className="re-ch-still" style={{ '--a': sys.aspect } as CSSProperties}>
+              <span className="re-ch-plate" aria-hidden="true" />
+              <span className="re-ch-plate" aria-hidden="true" />
+              <img
+                key={sys.slug}
+                src={sys.texture}
+                srcSet={sharp ? `${sys.texture} 1280w, ${sharp.src} ${sharp.width}w` : undefined}
+                sizes={sharp ? '(min-width: 900px) 56vw, 92vw' : undefined}
+                alt={`${sys.name}, a screen from the product`}
+                width={sys.aspect < 1 ? Math.round(1024 * sys.aspect) : 1280}
+                height={sys.aspect < 1 ? 1024 : 800}
+                decoding="async"
+              />
+            </figure>
+            {tryOpen && (
+              <div
+                ref={demoRef}
+                id="re-ch-demo"
+                className="re-ch-demo"
+                role="region"
+                aria-label={`${sys.name}, interactive recreation`}
+                tabIndex={-1}
+                onKeyDown={(e) => { if (e.key === 'Escape') { e.stopPropagation(); tryIt(false, true) } }}
+              >
+                <div className="re-ch-demo-bar">
+                  <p>Interactive recreation</p>
+                  <button type="button" onClick={(e) => tryIt(false, e.detail === 0)}>
+                    Close
+                    <XIcon size={16} weight="regular" aria-hidden="true" />
+                  </button>
+                </div>
+                <div className="re-ch-demo-stage">
+                  <Suspense fallback={<p className="re-ch-demo-loading" role="status">Opening the reader…</p>}>
+                    <ReaderDemo bare />
+                  </Suspense>
+                </div>
+              </div>
+            )}
+            {/* Phones: the chosen layer's words as page text over its plate, at a size the 3D texture cannot give them. */}
+            {layersExpanded && !tryOpen && activeLayer !== null && plates[sys.slug] && (
+              <div className="re-ch-card" tabIndex={0} role="region" aria-label={`${sys.layers[activeLayer].title}, details`}>
+                <p className="re-ch-card-n re-num">{String(activeLayer + 1).padStart(2, '0')}</p>
+                <p className="re-ch-card-title">{sys.layers[activeLayer].title}</p>
+                <p className="re-num re-layer-stack">{sys.layers[activeLayer].stack}</p>
+                <LayerFacts plate={plates[sys.slug][activeLayer]} />
+              </div>
+            )}
+            <div className="re-ch-labels" aria-hidden="true">
+              {[0, 1, 2].map((k) => (
+                <span key={k} ref={(el) => { labelRefs.current[k] = el }} className="re-ch-label" data-active={activeLayer === k || undefined}>
+                  <span className="re-num">{String(k + 1).padStart(2, '0')}</span> {sys.layers[k]?.title}
+                </span>
+              ))}
             </div>
-          )}
-          <div className="re-ch-labels" aria-hidden="true">
-            {[0, 1, 2].map((k) => (
-              <span key={k} ref={(el) => { labelRefs.current[k] = el }} className="re-ch-label" data-active={activeLayer === k || undefined}>
-                <span className="re-num">{String(k + 1).padStart(2, '0')}</span> {sys.layers[k]?.title}
-              </span>
-            ))}
           </div>
         </div>
 
         <div className="re-ch-bar">
-          <div className="re-ch-view" role="group" aria-label="View">
-            <button type="button" aria-pressed={!layersExpanded} onClick={(e) => expand(false, e.detail === 0)}>Assembled</button>
-            <span aria-hidden="true">/</span>
-            <button type="button" aria-pressed={layersExpanded} onClick={(e) => expand(true, e.detail === 0)}>Layers</button>
-          </div>
           <div className="re-ch-now">
             <h3>{sys.name}</h3>
             <p>{sys.line}</p>
@@ -237,7 +270,10 @@ export function Lab({ mode, reduced, noGl, onOpen }: { mode: 'lens' | 'tensor'; 
         <ol className="re-ch-index" aria-label="Products">
           {systems.map((s, i) => (
             <li key={s.slug}>
-              <button type="button" data-slug={s.slug} aria-pressed={i === selected} onClick={(e) => select(i, e.detail === 0)}>
+              <button type="button" data-slug={s.slug} aria-pressed={i === selected}
+                onPointerEnter={(e) => { if (e.pointerType === 'mouse') chamber.current?.prepare(i) }}
+                onFocus={() => chamber.current?.prepare(i)}
+                onClick={(e) => select(i, e.detail === 0)}>
                 <span className="re-ch-n re-num" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
                 <span className="re-ch-name">{s.name}</span>
                 <ArrowRightIcon className="re-ch-arrow" size={18} weight="regular" aria-hidden="true" />
@@ -253,8 +289,8 @@ export function Lab({ mode, reduced, noGl, onOpen }: { mode: 'lens' | 'tensor'; 
                 type="button"
                 aria-pressed={activeLayer === k}
                 onClick={(e) => highlight(activeLayer === k ? null : k, e.detail === 0)}
-                onFocus={(e) => { if (e.currentTarget.matches(':focus-visible')) highlight(k, true) }}
               >
+                <span className="re-num" aria-hidden="true">{String(k + 1).padStart(2, '0')}</span>
                 {l.title}
               </button>
               <p className="re-num re-layer-stack">{l.stack}</p>
