@@ -88,6 +88,33 @@ export const caseShots: Record<string, Shot[]> = {
 export const detailShots: Record<string, Shot[]> = {
   'care-platform': [
     desk('/showcase/care/old-new/old-compliance-detail.webp', 'The first two rows of the compliance list in the old Vue app: priority, patient, progress bars to each billing code, and what remains. Invented data.', 'Before: the Vue app', 1578, 488),
-    desk('/showcase/care/old-new/new-compliance-detail.webp', 'The same two rows in the new React app, with the same values. Invented data.', 'After: the React app', 1613, 453),
+    desk('/showcase/care/old-new/new-compliance-detail.webp', 'The same two rows in the new React app, with the same values. Invented data.', 'After: the React app', 1613, 499),
   ],
+}
+
+/**
+ * One parity test, step by step: frame N of the old app and of the new app is the same step of
+ * tests/parity/compliance-tracker.spec.ts (manifest.json in the same folder). Invented data.
+ */
+export const parityFrames = [
+  ['open-list', 'Open the list.', 'The RPM tab opens. The patient with the least time left is first.'],
+  ['search', 'Search for a name.', 'Type “Ok”. The list shows only the two patients whose name has “Ok”.'],
+  ['filter-code', 'Show one billing code.', 'Choose CPT 99457 (20 min). The list shows only the patients who do not have this code yet.'],
+  ['sort', 'Sort by priority, last first.', 'Click the Priority header. The order turns around.'],
+  ['change-program', 'Change to the CCM program.', 'Click the CCM tab. The codes and the patients change.'],
+  ['open-patient', 'Open the patient.', 'Click Amara Okonkwo. The patient’s RPM overview opens.'],
+].map(([step, caption, detail], i) => ({
+  step,
+  caption,
+  detail,
+  old: `/showcase/care/old-new/old-0${i + 1}-1080.webp`,
+  new: `/showcase/care/old-new/new-0${i + 1}-1080.webp`,
+}))
+
+/** The screen each homepage story shows that its case page shows too: it carries across the page change. */
+export const sharedShot: Record<string, string> = {
+  'care-platform': caseShots['care-platform'][1].src,
+  'design-system-react': caseShots['design-system-react'][0].src,
+  'multi-tenant': caseShots['multi-tenant'][0].src,
+  'read-to-feed': caseShots['read-to-feed'][0].src,
 }

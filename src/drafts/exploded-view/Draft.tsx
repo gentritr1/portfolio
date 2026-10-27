@@ -1,17 +1,23 @@
-import { useEffect, useRef, useState, type CSSProperties } from 'react'
-import { Link, useLocation, useParams } from 'react-router'
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react'
+import { useLocation, useParams } from 'react-router'
 import { ArrowDownIcon, ArrowRightIcon, CheckIcon, CopyIcon, DownloadSimpleIcon } from '@phosphor-icons/react'
+import { TransitionLink } from '../../components/TransitionLink'
 import { StackPoster } from './StackPoster'
 import { CasePage, INVENTED_CAPTION, ShotImage } from './CasePage'
 import { caseDetails, moreCases } from './cases'
-import { caseNames, caseShots } from './shots'
+import { caseNames, caseShots, sharedShot } from './shots'
+import { TenantConcept } from './figures'
 import { alsoShipped, cases, howIWork, lab, labLesson, layers, links, type LayerId } from './data'
 import { canUseWebGL, useReducedMotion } from './motion'
 import { createHero, type HeroScene } from './hero'
 import './exploded-view.css'
 
 const HERO_SCREEN = caseShots['care-platform'][1]
+/** Stories whose evidence is narrow (a control, two phones) sit beside their text instead of under it. */
+const STORY_LAYOUT: Record<string, 'picker' | 'phones' | undefined> = { 'design-system-react': 'picker', 'read-to-feed': 'phones' }
 const shot = (slug: string, i: number) => caseShots[slug][i]
+/** The homepage screen that carries into its case page on the page change. */
+const carry = (slug: string, i: number) => (caseShots[slug][i].src === sharedShot[slug] ? slug : undefined)
 
 /**
  * The first screen's object: the work in five layers, front to back, with a real product screen as the front
@@ -21,43 +27,51 @@ const shot = (slug: string, i: number) => caseShots[slug][i]
 function HeroObject() {
   const boxRef = useRef<HTMLDivElement>(null)
   const imgRef = useRef<HTMLImageElement>(null)
-  const labelRefs = useRef<(HTMLSpanElement | null)[]>([])
+  const labelRefs = useRef<(HTMLButtonElement | null)[]>([])
+  const sceneRef = useRef<HeroScene | null>(null)
   const [live, setLive] = useState(false)
+  const [layer, setLayer] = useState<number | null>(null)
   const reduced = useReducedMotion()
 
   useEffect(() => {
     const box = boxRef.current, img = imgRef.current
     if (reduced || !box || !img || !canUseWebGL()) return
-    let hero: HeroScene | null = null, gone = false
+    let gone = false
     img.decode().then(() => {
       if (gone) return
       try {
-        hero = createHero(box, img, labelRefs.current, () => setLive(true))
+        sceneRef.current = createHero(box, img, labelRefs.current, () => setLive(true))
       } catch {
         // The drawing stays.
       }
     }, () => {})
     return () => {
       gone = true
-      hero?.dispose()
+      sceneRef.current?.dispose()
+      sceneRef.current = null
       setLive(false)
     }
   }, [reduced])
 
+  // Pointing at a layer's label, or focusing it, lifts that layer and names what it holds. Focus from the
+  // keyboard lifts it at once: a keyboard action is never animated.
+  const choose = (i: number | null, instant = false) => {
+    setLayer(i)
+    sceneRef.current?.setLayer(i, instant)
+  }
+  const chosen = layer === null ? null : layers[layer]
+
   return (
     <figure className="xv-hero-figure">
-      <div
-        className="xv-obj"
-        ref={boxRef}
-        data-live={live || undefined}
-        role="img"
-        aria-label="The work in five layers: Interface, Mobile, API and services, Data, and Quality. The Interface layer is a real screen from the care platform rewrite."
-      >
-        <div className="xv-obj-still">
-          {[4, 3, 2, 1].map((i) => <span key={i} className="xv-plate" style={{ '--i': i } as CSSProperties} />)}
+      <p className="xv-sr">The work in five layers: Interface, Mobile, API and services, Data, and Quality. The Interface layer is a real screen from the care platform rewrite.</p>
+      <div className="xv-obj" ref={boxRef} data-live={live || undefined} data-layer={layer ?? undefined}>
+        <div className="xv-obj-still" aria-hidden="true">
+          <span className="xv-obj-shadow" />
+          {[4, 3, 2, 1].map((i) => <span key={i} className="xv-plate" data-i={i} style={{ '--i': i } as CSSProperties} />)}
           <img
             ref={imgRef}
             className="xv-plate"
+            data-i={0}
             style={{ '--i': 0 } as CSSProperties}
             src={HERO_SCREEN.src}
             width={HERO_SCREEN.width}
@@ -66,17 +80,34 @@ function HeroObject() {
             fetchPriority="high"
           />
         </div>
-        <div className="xv-obj-labels">
+        <div className="xv-obj-labels" onPointerLeave={(e) => e.pointerType === 'mouse' && choose(null)}>
           {layers.map((l, i) => (
-            <span key={l.id} className="xv-obj-label" ref={(el) => { labelRefs.current[i] = el }} style={{ '--i': i } as CSSProperties}>
+            <button
+              key={l.id}
+              type="button"
+              className="xv-obj-label"
+              data-i={i}
+              ref={(el) => { labelRefs.current[i] = el }}
+              style={{ '--i': i } as CSSProperties}
+              aria-describedby={`xv-obj-tools-${l.id}`}
+              aria-pressed={layer === i}
+              onPointerEnter={(e) => e.pointerType === 'mouse' && choose(i)}
+              onFocus={(e) => choose(i, e.target.matches(':focus-visible'))}
+              onBlur={() => choose(null, true)}
+              onClick={() => choose(layer === i ? null : i)}
+            >
               {l.name}
-            </span>
+              <span id={`xv-obj-tools-${l.id}`} hidden>{l.tools.join(', ')}</span>
+            </button>
           ))}
         </div>
       </div>
+      <p className="xv-obj-note xv-note" aria-hidden="true" data-on={chosen ? true : undefined}>
+        {chosen && <><strong>{chosen.name}</strong> {chosen.tools.join(', ')}</>}
+      </p>
       <p className="xv-obj-key xv-note" aria-hidden="true">{layers.map((l) => l.name).join(' · ')}</p>
       <figcaption className="xv-note">
-        <Link className="xv-link" to="/drafts/exploded-view/care-platform" viewTransition>Care platform rewrite</Link>
+        <TransitionLink className="xv-link" to="/drafts/exploded-view/care-platform">Care platform rewrite</TransitionLink>
         , the new React app. {INVENTED_CAPTION}
       </figcaption>
     </figure>
@@ -90,16 +121,16 @@ function Evidence({ slug }: { slug: string }) {
       return (
         <figure className="xv-ev">
           <div className="xv-ev-pair">
-            <div className="xv-shot"><ShotImage shot={shot(slug, 0)} /><span className="xv-note">Before · the Vue app</span></div>
-            <div className="xv-shot"><ShotImage shot={shot(slug, 1)} /><span className="xv-note">After · the React app</span></div>
+            <div className="xv-shot"><ShotImage shot={shot(slug, 0)} carry={carry(slug, 0)} /><span className="xv-note">Before · the Vue app</span></div>
+            <div className="xv-shot"><ShotImage shot={shot(slug, 1)} carry={carry(slug, 1)} /><span className="xv-note">After · the React app</span></div>
           </div>
           <figcaption className="xv-note">{INVENTED_CAPTION} Select a screen for full size.</figcaption>
         </figure>
       )
     case 'design-system-react':
       return (
-        <figure className="xv-ev xv-ev-wide">
-          <ShotImage shot={shot(slug, 0)} />
+        <figure className="xv-ev xv-ev-picker">
+          <ShotImage shot={shot(slug, 0)} carry={carry(slug, 0)} />
           <figcaption className="xv-note">The date range picker. {INVENTED_CAPTION}</figcaption>
         </figure>
       )
@@ -107,23 +138,10 @@ function Evidence({ slug }: { slug: string }) {
       return (
         <div className="xv-ev-split">
           <figure className="xv-ev">
-            <ShotImage shot={shot(slug, 0)} />
+            <ShotImage shot={shot(slug, 0)} carry={carry(slug, 0)} />
             <figcaption className="xv-note">One organization’s dashboard. {INVENTED_CAPTION}</figcaption>
           </figure>
-          <figure className="xv-ev xv-concept">
-            <svg viewBox="0 0 240 172" role="img" aria-label="Concept: one shared API above three data partitions, each locked to one organization.">
-              <g className="xv-layer"><rect x="12" y="10" width="216" height="40" rx="7" /></g>
-              <text x="120" y="35" textAnchor="middle">One API</text>
-              {[0, 1, 2].map((k) => (
-                <g key={k}>
-                  <line className="xv-align" x1={44 + k * 76} y1="50" x2={44 + k * 76} y2="92" />
-                  <g className="xv-layer" data-on=""><rect x={12 + k * 76} y="92" width="64" height="60" rx="7" /></g>
-                  <path className="xv-lock" d={`M${36 + k * 76} 118h16v14h-16z M${39 + k * 76} 118v-4a5 5 0 0 1 10 0v4`} />
-                </g>
-              ))}
-            </svg>
-            <figcaption className="xv-note">A concept, not a product screen: one API, and each organization’s data kept apart.</figcaption>
-          </figure>
+          <TenantConcept />
         </div>
       )
     case 'read-to-feed':
@@ -131,7 +149,7 @@ function Evidence({ slug }: { slug: string }) {
         <div className="xv-ev-phones">
           {[0, 2].map((i) => (
             <figure key={i} className="xv-ev">
-              <ShotImage shot={shot(slug, i)} />
+              <ShotImage shot={shot(slug, i)} carry={carry(slug, i)} />
               <figcaption className="xv-note">{shot(slug, i).caption}</figcaption>
             </figure>
           ))}
@@ -151,11 +169,11 @@ export default function Draft() {
   // Arrow keys change the selection at once: a keyboard action is never animated.
   const [byKeyboard, setByKeyboard] = useState(false)
 
-  // "All work" from a case returns to the work list, not the top of the page.
-  useEffect(() => {
+  // "All work" from a case returns to the work list, not the top of the page. A layout effect, so the page
+  // change captures the list where it lands and the shared screen moves to the right place.
+  useLayoutEffect(() => {
     if (caseSlug || (routeLocation.state as { at?: string } | null)?.at !== 'work') return
-    const raf = requestAnimationFrame(() => document.getElementById('xv-work-h')?.scrollIntoView({ block: 'start' }))
-    return () => cancelAnimationFrame(raf)
+    document.getElementById('xv-work-h')?.scrollIntoView({ block: 'start', behavior: 'instant' })
   }, [caseSlug, routeLocation.state])
 
   const [copied, setCopied] = useState(false)
@@ -210,20 +228,20 @@ export default function Draft() {
           <h2 id="xv-work-h" className="xv-h2">Selected work</h2>
           <ol className="xv-cases">
             {cases.map((c) => (
-              <li key={c.slug} className="xv-case">
-                <div className="xv-case-head">
-                  <div className="xv-case-lead">
+              <li key={c.slug} className="xv-case" data-layout={STORY_LAYOUT[c.slug]}>
+                <div className="xv-story-head">
+                  <div className="xv-story-lead">
                     <h3 className="xv-case-title">{caseNames[c.slug]}</h3>
                     <p className="xv-question">{c.question}</p>
                   </div>
-                  <div className="xv-case-side">
+                  <div className="xv-story-side">
                     <p className="xv-answer">{c.answer}</p>
                     <p className="xv-result">{c.result}</p>
                     <div className="xv-case-foot">
-                      <Link className="xv-link" to={`/drafts/exploded-view/${c.slug}`} viewTransition>
+                      <TransitionLink className="xv-link" to={`/drafts/exploded-view/${c.slug}`}>
                         Read the case
                         <ArrowRightIcon size={14} weight="bold" aria-hidden="true" />
-                      </Link>
+                      </TransitionLink>
                       <p className="xv-tags xv-note" aria-label="Layers">
                         {c.layers.map((id) => layers.find((l) => l.id === id)?.name).join(' / ')}
                       </p>
@@ -238,11 +256,11 @@ export default function Draft() {
           <ul className="xv-more">
             {moreCases.map((m) => (
               <li key={m.slug}>
-                <Link to={`/drafts/exploded-view/${m.slug}`} viewTransition>
+                <TransitionLink to={`/drafts/exploded-view/${m.slug}`}>
                   <span className="xv-more-name">{caseNames[m.slug]}</span>
                   <span className="xv-more-line">{m.line}</span>
                   <ArrowRightIcon className="xv-more-arrow" size={16} weight="bold" aria-hidden="true" />
-                </Link>
+                </TransitionLink>
               </li>
             ))}
           </ul>
@@ -286,10 +304,10 @@ export default function Draft() {
                 <h3>{item.name}</h3>
                 <p>{item.line}</p>
                 <div className="xv-lab-links">
-                  <Link className="xv-link" to="/drafts/exploded-view/futurisma" viewTransition>
+                  <TransitionLink className="xv-link" to="/drafts/exploded-view/futurisma">
                     Read the case
                     <ArrowRightIcon size={14} weight="bold" aria-hidden="true" />
-                  </Link>
+                  </TransitionLink>
                   {item.link && (
                     <a className="xv-link" href={item.link.href} target="_blank" rel="noreferrer">
                       {item.link.label}<span className="xv-sr"> (opens in a new tab)</span>

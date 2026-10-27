@@ -19,7 +19,7 @@ function prefersReducedMotion() {
  * BrowserRouter with synchronous updates, so flushSync commits the new route
  * inside the transition callback.
  */
-export function TransitionLink({ to, preload, beforeTransition, onClick, onPointerEnter, onFocus, target, ...rest }: TransitionLinkProps) {
+export function TransitionLink({ to, state, preload, beforeTransition, onClick, onPointerEnter, onFocus, target, ...rest }: TransitionLinkProps) {
   const navigate = useNavigate()
 
   const pending = useRef(false)
@@ -38,13 +38,13 @@ export function TransitionLink({ to, preload, beforeTransition, onClick, onPoint
       }
       if (!mounted.current) return
       if (typeof document.startViewTransition !== 'function' || prefersReducedMotion()) {
-        navigate(to)
+        navigate(to, { state })
         return
       }
       cleanup = await beforeTransition?.()
       if (!mounted.current) return
       const transition = document.startViewTransition(() => {
-        flushSync(() => navigate(to))
+        flushSync(() => navigate(to, { state }))
       })
       await transition.finished.catch(() => undefined)
     } finally {
@@ -64,6 +64,7 @@ export function TransitionLink({ to, preload, beforeTransition, onClick, onPoint
   return (
     <Link
       to={to}
+      state={state}
       target={target}
       onClick={handleClick}
       onPointerEnter={(event) => {

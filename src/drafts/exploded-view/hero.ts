@@ -11,6 +11,8 @@ import { roundedRect } from './scene'
  * moves it natively and never needs a frame.
  */
 export interface HeroScene {
+  /** Slide one layer out of the stack (null: none). `instant` skips the spring, for keyboard focus. */
+  setLayer(i: number | null, instant?: boolean): void
   dispose(): void
 }
 
@@ -20,6 +22,8 @@ const SETTLE_MS = 700
 const REST = { x: -0.07, y: -0.1 }
 const TILT = THREE.MathUtils.degToRad(2.5)
 const SPRING = 14
+/** A chosen layer slides out of the stack along its own offset, down and right, by these fractions of the width. */
+const LIFT_X = 0.015, LIFT_Y = 0.028
 
 /** Where each layer's leader starts, as a fraction of the plate's height. The CSS uses the same numbers. */
 const anchorAt = (i: number) => 0.1 + 0.2 * i
@@ -41,21 +45,51 @@ export function createHero(box: HTMLElement, screen: HTMLImageElement, labels: (
   texture.anisotropy = renderer.capabilities.getMaxAnisotropy()
   texture.needsUpdate = true
   const screenMat = new THREE.MeshBasicMaterial({ map: texture })
-  const faceMat = new THREE.MeshBasicMaterial()
-  const edgeMat = new THREE.LineBasicMaterial()
+  // The back plates step in tone toward the back, as the drawing's color-mix does (in sRGB, 20% a step).
+  const faceMats = [1, 2, 3, 4].map(() => new THREE.MeshBasicMaterial())
   const plates = Array.from({ length: 5 }, (_, i) => {
     const g = new THREE.Group()
-    const mesh = new THREE.Mesh(new THREE.BufferGeometry(), i === 0 ? screenMat : faceMat)
+    const mesh = new THREE.Mesh(new THREE.BufferGeometry(), i === 0 ? screenMat : faceMats[i - 1])
+    const edgeMat = new THREE.LineBasicMaterial()
     const edge = new THREE.LineLoop(new THREE.BufferGeometry(), edgeMat)
     g.add(mesh, edge)
     pivot.add(g)
-    return { g, mesh, edge }
+    // lift: 0 at rest, 1 when chosen, sprung like the tilt; base: its resting place.
+    return { g, mesh, edge, edgeMat, lift: 0, v: 0, target: 0, base: new THREE.Vector3() }
   })
+  let ink = new THREE.Color(), accent = new THREE.Color()
 
+  // One soft contact shadow behind the stack: the drawing's radial gradient, painted once.
+  const sc = document.createElement('canvas')
+  sc.width = sc.height = 128
+  const ctx = sc.getContext('2d')!
+  const grad = ctx.createRadialGradient(64, 64, 0, 64, 64, 64)
+  grad.addColorStop(0, 'rgba(255,255,255,0.2)')
+  grad.addColorStop(0.55, 'rgba(255,255,255,0.2)')
+  grad.addColorStop(1, 'rgba(255,255,255,0)')
+  ctx.fillStyle = grad
+  ctx.fillRect(0, 0, 128, 128)
+  const shadowTex = new THREE.CanvasTexture(sc)
+  const shadowMat = new THREE.MeshBasicMaterial({ map: shadowTex, transparent: true, depthWrite: false })
+  const shadow = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), shadowMat) // taste-skill-ignore: a three.js contact-shadow mesh behind the plates, not a CSS box-shadow
+  shadow.renderOrder = -1
+  pivot.add(shadow)
+
+  const hex = (css: CSSStyleDeclaration, name: string, fallback: string) => {
+    const v = css.getPropertyValue(name).trim()
+    return /^#[0-9a-f]{6}$/i.test(v) ? v : fallback
+  }
   function applyTheme() {
     const css = getComputedStyle(box)
-    faceMat.color.set(css.getPropertyValue('--xv-layer').trim() || '#fdfcf9')
-    edgeMat.color.set(css.getPropertyValue('--xv-ink').trim() || '#14202b')
+    const a = new THREE.Color(hex(css, '--xv-layer', '#fdfcf9')).convertLinearToSRGB()
+    const b = new THREE.Color(hex(css, '--xv-recede', '#e6e3da')).convertLinearToSRGB()
+    faceMats.forEach((m, k) => {
+      const t = (k + 1) * 0.2
+      m.color.setRGB(a.r + (b.r - a.r) * t, a.g + (b.g - a.g) * t, a.b + (b.b - a.b) * t, THREE.SRGBColorSpace)
+    })
+    ink = new THREE.Color(hex(css, '--xv-ink', '#14202b'))
+    accent = new THREE.Color(hex(css, '--xv-accent', '#0f6b66'))
+    shadowMat.color.set(hex(css, '--xv-shadow', '#14202b'))
   }
   applyTheme()
 
@@ -84,14 +118,20 @@ export function createHero(box: HTMLElement, screen: HTMLImageElement, labels: (
     // The pivot sits at the middle of the whole stack, so a tilt turns it about its own centre.
     const cx = x0 + (sw + 4 * ox) / 2, cy = y0 + (sh + 4 * oy) / 2, cz = -2 * dz
     pivot.position.set(cx, -cy, cz)
+    // The shadow's box, as in the CSS: behind the back plate, a little larger, offset down and right.
+    const shw = sw + 0.05 * w, shh = sh + 0.04 * w
+    const shx = x0 + 4 * ox - 0.01 * w, shy = y0 + 4 * oy + 0.012 * w
+    shadow.scale.set(shw, shh, 1)
+    shadow.position.set(shx + shw / 2 - cx, -(shy + shh / 2) + cy, -4 * dz - 1 - cz)
     plates.forEach((p, i) => {
       p.mesh.geometry.dispose()
       p.edge.geometry.dispose()
       // Each plate gets its own copy, so disposing one never pulls the geometry from under another.
       p.mesh.geometry = i === 0 ? face : face.clone()
       p.edge.geometry = i === 0 ? outline : outline.clone()
-      p.g.position.set(x0 + i * ox + sw / 2 - cx, -(y0 + i * oy + sh / 2) + cy, -i * dz - cz)
+      p.base.set(x0 + i * ox + sw / 2 - cx, -(y0 + i * oy + sh / 2) + cy, -i * dz - cz)
     })
+    placePlates()
   }
 
   // ---------- Motion: one settle, then a sprung pointer tilt ----------
@@ -103,13 +143,23 @@ export function createHero(box: HTMLElement, screen: HTMLImageElement, labels: (
     plates.forEach((p, i) => {
       const el = labels[i]
       if (!el) return
-      v.set(sw / 2, sh / 2 - anchorAt(i) * sh, 0).applyMatrix4(p.g.matrixWorld).project(camera)
+      // A label keeps its resting height while its layer slides out, so it never moves out from under the pointer.
+      v.set(sw / 2, sh / 2 - anchorAt(i) * sh + p.lift * LIFT_Y * w, 0).applyMatrix4(p.g.matrixWorld).project(camera)
       el.style.setProperty('--ax', `${(((v.x + 1) / 2) * w).toFixed(2)}px`)
       el.style.setProperty('--ay', `${(((1 - v.y) / 2) * h).toFixed(2)}px`)
     })
   }
 
+  /** Each plate at its resting place, slid out by its lift; a chosen plate's edge turns accent. */
+  function placePlates() {
+    plates.forEach((p) => {
+      p.g.position.set(p.base.x + p.lift * LIFT_X * w, p.base.y - p.lift * LIFT_Y * w, p.base.z)
+      p.edgeMat.color.copy(ink).lerp(accent, Math.min(1, Math.max(0, p.lift)))
+    })
+  }
+
   function draw() {
+    placePlates()
     pivot.updateMatrixWorld()
     renderer.render(scene, camera)
     placeLabels()
@@ -129,8 +179,14 @@ export function createHero(box: HTMLElement, screen: HTMLImageElement, labels: (
       tilt[k] += tilt[vk] * dt
     }
     pivot.rotation.set(REST.x * s + tilt.x, REST.y * s + tilt.y, 0)
+    let lifting = false
+    plates.forEach((p) => {
+      p.v += (-SPRING * SPRING * (p.lift - p.target) - 2 * SPRING * p.v) * dt
+      p.lift += p.v * dt
+      if (Math.abs(p.lift - p.target) + Math.abs(p.v) < 1e-4) { p.lift = p.target; p.v = 0 } else lifting = true
+    })
     draw()
-    const resting = s >= 1 && Math.abs(tilt.x - tilt.tx) + Math.abs(tilt.y - tilt.ty) < 1e-4 && Math.abs(tilt.vx) + Math.abs(tilt.vy) < 1e-4
+    const resting = !lifting && s >= 1 && Math.abs(tilt.x - tilt.tx) + Math.abs(tilt.y - tilt.ty) < 1e-4 && Math.abs(tilt.vx) + Math.abs(tilt.vy) < 1e-4
     if (!resting) kick()
     else performance.mark('xv:hero:idle')
   }
@@ -144,7 +200,8 @@ export function createHero(box: HTMLElement, screen: HTMLImageElement, labels: (
   const area = box.parentElement ?? box
   const fine = matchMedia('(pointer: fine)')
   const onMove = (e: PointerEvent) => {
-    if (!fine.matches || e.pointerType === 'touch') return
+    // Over a label the tilt holds still, so the label stays under the pointer.
+    if (!fine.matches || e.pointerType === 'touch' || (e.target as Element).closest?.('.xv-obj-label')) return
     const r = box.getBoundingClientRect()
     const nx = Math.max(-1, Math.min(1, ((e.clientX - r.left) / r.width) * 2 - 1))
     const ny = Math.max(-1, Math.min(1, ((e.clientY - r.top) / r.height) * 2 - 1))
@@ -176,6 +233,14 @@ export function createHero(box: HTMLElement, screen: HTMLImageElement, labels: (
   const idle = requestIdleCallback(() => { settling = true; last = performance.now(); kick() }, { timeout: 500 })
 
   return {
+    setLayer(i, instant = false) {
+      plates.forEach((p, k) => {
+        p.target = k === i ? 1 : 0
+        if (instant) { p.lift = p.target; p.v = 0 }
+      })
+      if (instant) draw()
+      kick()
+    },
     dispose() {
       cancelIdleCallback(idle)
       cancelAnimationFrame(raf)
@@ -187,7 +252,7 @@ export function createHero(box: HTMLElement, screen: HTMLImageElement, labels: (
       scheme.removeEventListener('change', onScheme)
       document.removeEventListener('visibilitychange', onVis)
       plates.forEach((p) => { p.mesh.geometry.dispose(); p.edge.geometry.dispose() })
-      ;[screenMat, faceMat, edgeMat, texture].forEach((x) => x.dispose())
+      ;[screenMat, ...faceMats, ...plates.map((p) => p.edgeMat), texture, shadowMat, shadowTex, shadow.geometry].forEach((x) => x.dispose())
       renderer.dispose()
       renderer.domElement.remove()
       labels.forEach((el) => { el?.style.removeProperty('--ax'); el?.style.removeProperty('--ay') })

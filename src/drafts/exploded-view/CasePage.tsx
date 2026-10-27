@@ -1,23 +1,37 @@
-import { useEffect, useRef, useState, type CSSProperties } from 'react'
-import { Link } from 'react-router'
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react'
 import { ArrowLeftIcon, ArrowRightIcon, CheckIcon } from '@phosphor-icons/react'
+import { TransitionLink } from '../../components/TransitionLink'
 import { CaseDiagram, StackPoster } from './StackPoster'
 import { caseDetails, caseOrder, questionOf } from './cases'
 import { layers } from './data'
 import { canUseWebGL, useReducedMotion } from './motion'
 import { CASE_STATES, createCaseScene, type CaseScene, type CaseState } from './scene'
-import { caseNames, caseShots, detailShots, fullSize, type Shot } from './shots'
+import { caseNames, caseShots, detailShots, fullSize, sharedShot, type Shot } from './shots'
+import { CompareSlider, ParityPlayer } from './figures'
 
 /** Owner rule (PRODUCT.md, 2026-10-06): every care-platform and design-system screen says it holds invented data. */
 const INVENTED = /^\/showcase\/(care|care-dashboard|design-system)\//
 export const INVENTED_CAPTION = 'Real product screens, invented data.'
 const captionOf = (s: Shot) => (INVENTED.test(s.src) ? (s.caption ? `${s.caption}. ${INVENTED_CAPTION}` : INVENTED_CAPTION) : s.caption ?? '')
 
-/** A real screen at its true size (nothing shifts as it loads), linked to its full-resolution original. */
-export function ShotImage({ shot, eager }: { shot: Shot; eager?: boolean }) {
+/**
+ * A real screen at its true size (nothing shifts as it loads), linked to its full-resolution original. `carry`
+ * names it for the page change, so the same screen on the homepage and on its case page moves from one to the
+ * other (the CSS names it only on the case page and in the homepage story being opened).
+ */
+export function ShotImage({ shot, eager, carry }: { shot: Shot; eager?: boolean; carry?: string }) {
   return (
     <a className="xv-full" href={fullSize(shot.src)} target="_blank" rel="noreferrer">
-      <img src={shot.src} alt={shot.alt} width={shot.width} height={shot.height} loading={eager ? 'eager' : 'lazy'} decoding="async" />
+      <img
+        src={shot.src}
+        alt={shot.alt}
+        width={shot.width}
+        height={shot.height}
+        loading={eager ? 'eager' : 'lazy'}
+        decoding="async"
+        data-carry={carry ? '' : undefined}
+        style={carry ? ({ '--carry': `xv-shot-${carry}` } as CSSProperties) : undefined}
+      />
       <span className="xv-sr"> (full size, opens in a new tab)</span>
     </a>
   )
@@ -93,6 +107,20 @@ function CaseMotion({ state, caption }: { state: CaseState; caption: string }) {
   )
 }
 
+/** A case's own architecture as an exploded drawing, with its notes as a list where the drawing is too small for them. */
+function CaseDrawing({ c }: { c: (typeof caseDetails)[string] }) {
+  return (
+    <>
+      <CaseDiagram items={c.diagram} title={`How it is built, in ${c.diagram.length} layers: ${c.diagram.map((d) => d.title).join(', ')}.`} />
+      <ol className="xv-diagram-key">
+        {c.diagram.map((d) => (
+          <li key={d.title}><strong>{d.title}</strong><span>{d.stack}</span><span>{d.note}</span></li>
+        ))}
+      </ol>
+    </>
+  )
+}
+
 /**
  * A case study in the brief's order, readable in about two minutes: context, the question, constraints,
  * what didn't work, the decision, the result, what I'd do differently. Engineering detail waits behind a
@@ -109,7 +137,8 @@ export function CasePage({ slug }: { slug: string }) {
   const prev = caseOrder[(at - 1 + caseOrder.length) % caseOrder.length]
   const next = caseOrder[(at + 1) % caseOrder.length]
   const heading = useRef<HTMLHeadingElement>(null)
-  useEffect(() => {
+  // A layout effect, so the page change captures the case at the top, where its shared screen lands.
+  useLayoutEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' })
     heading.current?.focus({ preventScroll: true })
   }, [slug])
@@ -117,10 +146,10 @@ export function CasePage({ slug }: { slug: string }) {
   return (
     <main className="xv-casepage" aria-labelledby="xv-case-h">
       <nav className="xv-case-top">
-        <Link className="xv-link" to="/drafts/exploded-view" state={{ at: 'work' }} viewTransition>
+        <TransitionLink className="xv-link" to="/drafts/exploded-view" state={{ at: 'work' }}>
           <ArrowLeftIcon size={14} weight="bold" aria-hidden="true" />
           All work
-        </Link>
+        </TransitionLink>
       </nav>
 
       <header className="xv-case-head">
@@ -138,22 +167,14 @@ export function CasePage({ slug }: { slug: string }) {
         <section className="xv-case-shots" aria-label="Product screens" data-phone={shots[0].phone || undefined} data-count={shots.length}>
           {shots.map((s) => (
             <figure key={s.src} className="xv-shot">
-              <ShotImage shot={s} />
+              <ShotImage shot={s} eager={s.src === sharedShot[slug]} carry={s.src === sharedShot[slug] ? slug : undefined} />
               {captionOf(s) && <figcaption className="xv-note">{captionOf(s)}</figcaption>}
             </figure>
           ))}
         </section>
       )}
-      {detail.length > 0 && (
-        <section className="xv-case-detail" aria-label="The same rows, before and after, at full size">
-          {detail.map((s) => (
-            <figure key={s.src} className="xv-shot">
-              <ShotImage shot={s} />
-              <figcaption className="xv-note">{captionOf(s)}</figcaption>
-            </figure>
-          ))}
-        </section>
-      )}
+      {slug === 'care-platform' && <ParityPlayer />}
+      {detail.length === 2 && <CompareSlider before={detail[0]} after={detail[1]} />}
 
       <div className="xv-case-grid">
         <article className="xv-case-text">
@@ -171,7 +192,6 @@ export function CasePage({ slug }: { slug: string }) {
             <h2 className="xv-case-h2">The decision that worked</h2>
             <ul className="xv-case-list">{c.decision.map((x) => <li key={x}>{x}</li>)}</ul>
           </section>
-          {motion && <CaseMotion key={slug} state={motion.state} caption={motion.caption} />}
           <section>
             <h2 className="xv-case-h2">Result</h2>
             <p className="xv-result xv-case-result">{c.result}</p>
@@ -189,6 +209,12 @@ export function CasePage({ slug }: { slug: string }) {
               <ArrowRightIcon className="xv-eng-arrow" size={14} weight="bold" aria-hidden="true" />
             </summary>
             <div className="xv-eng-body">
+              {motion && (
+                <section>
+                  <h3 className="xv-note">How it is built, layer by layer</h3>
+                  <CaseDrawing c={c} />
+                </section>
+              )}
               {c.engineering.map((g) => (
                 <section key={g.title}>
                   <h3 className="xv-note">{g.title}</h3>
@@ -224,23 +250,18 @@ export function CasePage({ slug }: { slug: string }) {
           </details>
         </article>
 
+        {/* One figure beside the story: the case's animated explanation where it has one, otherwise its architecture drawing. */}
         <aside className="xv-case-figure">
-          <CaseDiagram items={c.diagram} title={`How it is built, in ${c.diagram.length} layers: ${c.diagram.map((d) => d.title).join(', ')}.`} />
-          {/* On narrow screens the drawing's notes move here, at a readable size; beside the text the drawing carries them. */}
-          <ol className="xv-diagram-key">
-            {c.diagram.map((d) => (
-              <li key={d.title}><strong>{d.title}</strong><span>{d.stack}</span><span>{d.note}</span></li>
-            ))}
-          </ol>
+          {motion ? <CaseMotion key={slug} state={motion.state} caption={motion.caption} /> : <CaseDrawing c={c} />}
         </aside>
       </div>
 
       <nav className="xv-case-more" aria-label="More cases">
         {[{ label: 'Previous', s: prev }, { label: 'Next', s: next }].map(({ label, s }) => (
-          <Link key={label} className="xv-case-next" to={`/drafts/exploded-view/${s}`} viewTransition>
+          <TransitionLink key={label} className="xv-case-next" to={`/drafts/exploded-view/${s}`}>
             <span className="xv-note">{label}</span>
             <span className="xv-case-next-q">{questionOf(s)}</span>
-          </Link>
+          </TransitionLink>
         ))}
       </nav>
     </main>

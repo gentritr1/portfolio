@@ -457,6 +457,7 @@ export function createCaseScene(
       raf = 0
       tp = 1
       draw(1)
+      performance.mark('xv:case:idle')
     },
     dispose() {
       cancelIdleCallback(idle)
