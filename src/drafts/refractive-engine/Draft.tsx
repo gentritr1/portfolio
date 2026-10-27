@@ -293,8 +293,10 @@ export default function Draft() {
   useLayoutEffect(() => {
     const jump = (y: number) => {
       const lenis = lenisRef.current
-      if (lenis) { lenis.resize(); lenis.scrollTo(y, { immediate: true, force: true }) }
-      else window.scrollTo({ top: y, behavior: 'instant' })
+      // A wheel scroll still easing when a link is clicked would write its old target back over the jump (the case then
+      // opened mid-page). Stopping Lenis drops that easing before the jump; starting it again keeps scrolling smooth.
+      if (lenis) { lenis.stop(); lenis.start(); lenis.resize(); lenis.scrollTo(y, { immediate: true, force: true }) }
+      window.scrollTo({ top: y, behavior: 'instant' })
     }
     const from = lastCase.current
     lastCase.current = caseSlug
