@@ -3,7 +3,10 @@ import { PauseIcon, PlayIcon } from '@phosphor-icons/react'
 import { useReducedMotion } from './motion'
 import { parityFrames, type Shot } from './shots'
 
-/** Runs `onEnter` once, the first time `ref` is at least `threshold` in view. */
+/**
+ * Runs `onEnter` once, the first time `ref` is at least `threshold` in view. The first report can arrive with only a
+ * sliver showing, so the ratio is checked too; otherwise the one-time reveal would be spent before anyone sees it.
+ */
 function useOnceInView(ref: React.RefObject<Element | null>, onEnter: () => void, threshold = 0.5) {
   const cb = useRef(onEnter)
   useEffect(() => { cb.current = onEnter })
@@ -11,7 +14,7 @@ function useOnceInView(ref: React.RefObject<Element | null>, onEnter: () => void
     const el = ref.current
     if (!el) return
     const io = new IntersectionObserver(([e]) => {
-      if (!e.isIntersecting) return
+      if (!e.isIntersecting || e.intersectionRatio < threshold) return
       cb.current()
       io.disconnect()
     }, { threshold })
@@ -26,7 +29,7 @@ const STEP_MS = 2400
  * The parity claim, shown rather than told: the same six steps of one parity test, captured on the old app
  * and on the new one, stepping together. It plays through once when it comes into view, then rests on the
  * last step; the step buttons and Play replay it. Keyboard steps switch at once. With reduced motion it never
- * plays on its own. A hidden tab or an off-screen player pauses.
+ * plays and has no Play button: the step buttons show each step. A hidden tab or an off-screen player pauses.
  */
 export function ParityPlayer() {
   const ref = useRef<HTMLElement>(null)
@@ -72,10 +75,13 @@ export function ParityPlayer() {
     <section className="xv-parity" ref={ref} aria-labelledby="xv-parity-h" data-instant={instant || undefined}>
       <div className="xv-parity-head">
         <h2 id="xv-parity-h" className="xv-case-h2">One test, both apps</h2>
-        <button type="button" className="xv-btn xv-btn-quiet xv-parity-play" onClick={toggle} aria-pressed={playing}>
-          {playing ? <PauseIcon size={16} weight="bold" aria-hidden="true" /> : <PlayIcon size={16} weight="bold" aria-hidden="true" />}
-          {playing ? 'Pause' : step >= last ? 'Play again' : 'Play'}
-        </button>
+        {/* With reduced motion nothing plays on its own, so Play goes too; the six steps remain. */}
+        {!reduced && (
+          <button type="button" className="xv-btn xv-btn-quiet xv-parity-play" onClick={toggle} aria-pressed={playing}>
+            {playing ? <PauseIcon size={16} weight="bold" aria-hidden="true" /> : <PlayIcon size={16} weight="bold" aria-hidden="true" />}
+            {playing ? 'Pause' : step >= last ? 'Play again' : 'Play'}
+          </button>
+        )}
       </div>
       <div className="xv-parity-screens">
         {(['old', 'new'] as const).map((app) => (
@@ -124,7 +130,7 @@ export function ParityPlayer() {
 
 /**
  * The same two rows before and after, one over the other: a native range input moves the line between them,
- * by drag or arrow keys. When it first comes into view the line sweeps once, to show it moves.
+ * by drag or arrow keys. When it first comes into view the line leans once (650 ms), to show it moves.
  */
 export function CompareSlider({ before, after }: { before: Shot; after: Shot }) {
   const ref = useRef<HTMLElement>(null)
@@ -135,9 +141,9 @@ export function CompareSlider({ before, after }: { before: Shot; after: Shot }) 
     if (reduced) return
     const t0 = performance.now()
     const tick = (now: number) => {
-      const t = Math.min(1, (now - t0) / 1100)
-      // One gentle swing either side of the middle, settling back on it.
-      setPos(50 + Math.sin(t * Math.PI * 2) * 14 * (1 - t))
+      const t = Math.min(1, (now - t0) / 650)
+      // One restrained hint: the line leans toward the new app and settles back in the middle.
+      setPos(50 - Math.sin(t * Math.PI) * 8)
       raf.current = t < 1 ? requestAnimationFrame(tick) : 0
     }
     raf.current = requestAnimationFrame(tick)

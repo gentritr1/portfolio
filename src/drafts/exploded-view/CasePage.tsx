@@ -71,7 +71,8 @@ function CaseMotion({ state, caption }: { state: CaseState; caption: string }) {
     sceneRef.current = scene
     if (reducedRef.current) scene.finish()
     const io = new IntersectionObserver(([e]) => {
-      if (!e.isIntersecting) return
+      // The first report can come with only a sliver showing; wait for the figure itself.
+      if (!e.isIntersecting || e.intersectionRatio < 0.6) return
       if (reducedRef.current) scene.finish()
       else scene.play()
       io.disconnect()

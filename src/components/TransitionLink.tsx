@@ -26,7 +26,7 @@ export function TransitionLink({ to, state, preload, beforeTransition, onClick, 
   const mounted = useRef(true)
   useEffect(() => { mounted.current = true; return () => { mounted.current = false } }, [])
 
-  async function go() {
+  async function go(instant: boolean) {
     if (pending.current) return
     pending.current = true
     let cleanup: (() => void) | undefined
@@ -37,7 +37,7 @@ export function TransitionLink({ to, state, preload, beforeTransition, onClick, 
         // A failed import surfaces again when the route renders.
       }
       if (!mounted.current) return
-      if (typeof document.startViewTransition !== 'function' || prefersReducedMotion()) {
+      if (instant || typeof document.startViewTransition !== 'function' || prefersReducedMotion()) {
         navigate(to, { state })
         return
       }
@@ -58,7 +58,9 @@ export function TransitionLink({ to, state, preload, beforeTransition, onClick, 
     if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.altKey || event.ctrlKey || event.shiftKey) return
     if (target && target !== '_self') return
     event.preventDefault()
-    void go()
+    // A click with no pointer behind it (Enter on the link, or assistive technology) navigates at once:
+    // a keyboard action is never animated.
+    void go(event.detail === 0)
   }
 
   return (
