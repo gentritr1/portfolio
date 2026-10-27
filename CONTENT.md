@@ -254,7 +254,7 @@ Render as a compact, scannable index (not cards): grouped by employer, each row 
 | Tondo (owner 2026-10-13) | 2026 | Owner | Node, WebSocket, PostgreSQL | Pizza card game for 2–4 players around a round table, server-authoritative with bots and saved crews; live at https://tondo.onrender.com/ (Render free plan, sleeps when idle); repo https://github.com/gentritr1/tondo, 77 commits, all the owner's | — |
 | Za! | 2026 | Owner | Node, WebSocket | Multiplayer pizza card game for 2–8 players, server-authoritative with bots; live | — |
 | Morse Trainer | 2026 | Owner | JavaScript | Morse-code learning game with spaced repetition and Farnsworth timing; live | — |
-| Futurisma | 2026 | Owner | Three.js, TypeScript, Blender | Hover racer with seven circuits and weather, tide and day-night systems | — |
+| Futurisma | 2026 | Owner | Three.js, TypeScript, Blender | Hover racer with nine circuits and weather, tide and day-night systems | — |
 | Secret Dictator | 2026 | Owner | Three.js, TypeScript | Single-player social-deduction game against AI opponents in a 3D town | — |
 
 Voice rule (owner, 2026-10-02): every project text is an overview: what the product is, what the team built, and the skills it involved. Neutral voice: no first person, no "led", no "top contributor", no commit counts or shares of work. Keep numbers that describe the product or the result; drop numbers that describe effort. World stories have 2 paragraphs of 55 words or fewer; index lines have 14 words or fewer. Role words stay neutral.

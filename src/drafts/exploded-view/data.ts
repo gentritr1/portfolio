@@ -37,14 +37,14 @@ export const cases: Case[] = [
   {
     slug: 'care-platform',
     question: 'How do you rewrite a live healthcare platform without breaking it for patients?',
-    answer: 'Vue to React, one route at a time, with parity tests that run the same scenario against the old app and the new one. I wrote most of the rules and merge gates the work runs inside.',
+    answer: 'Vue to React, one route at a time, with parity tests that run the same scenario against the old app and the new one. The team wrote the rules and the checks. AI agents build inside them, and a person on the team approves each change.',
     result: 'One screen went from first note to merged in a working day, and the same test passed on both apps.',
     layers: ['interface', 'quality'],
   },
   {
     slug: 'design-system-react',
     question: 'How do you make accessibility the default, not a checklist?',
-    answer: 'A team design system on one token source. I researched five leading systems and wrote the guides its AI agents follow; rendered checks decide each release.',
+    answer: 'A team design system on one token source. Research into five leading design systems became written guides for AI agents; rendered checks decide each release.',
     result: '36 components, 805 tokens and 20 releases in about six weeks, with 96.6% less JavaScript for a page that uses only the Button.',
     layers: ['interface', 'quality'],
   },

@@ -36,7 +36,7 @@ export const caseDetails: Record<string, CaseDetail> = {
     context: {
       product: 'A care-management platform for remote patient monitoring (RPM) and chronic care management (CCM).',
       users: 'Care teams in many client organizations, who use it every day for vitals, care plans, labs, billing claims and calls.',
-      role: 'Frontend on the Vue app since 2023; driving the move to React and writing most of its rules and merge gates; the Laravel API since 2026.',
+      role: 'Frontend on the Vue app since 2023, then the move to React and the rules and merge gates it runs inside; the Laravel API since 2026.',
       time: '2023 to now; the React migration since 2026',
     },
     constraints: [
@@ -79,7 +79,7 @@ export const caseDetails: Record<string, CaseDetail> = {
     context: {
       product: 'Design System v2: the shared controls and layout parts for the new React dashboard of the care platform.',
       users: 'The developers and AI agents who build the new dashboard.',
-      role: 'Led the research and wrote the guides the AI agents follow. A teammate built most of the components.',
+      role: 'Frontend developer on the team that builds it.',
       time: '2026, about six weeks to 20 releases',
     },
     constraints: [
@@ -317,13 +317,13 @@ export const caseDetails: Record<string, CaseDetail> = {
   },
 }
 
-/** Every other project, titled by its question, for the homepage's "More work" list. */
+/** Every other project, for the homepage's "More work" list: a short problem line there, the question on its case page. */
 export const moreCases = [
-  { slug: 'bayyinah-tv', question: 'How do you serve the browser and both app stores from one web app, in English and Arabic?', layers: ['interface', 'api'] as LayerId[] },
-  { slug: 'futurisma', question: 'How do you build a 3D racing game with an AI crew, without losing control of quality?', layers: ['interface', 'quality'] as LayerId[] },
-  { slug: 'incentiv', question: 'How do you make signing in to a Web3 wallet as simple as a normal app?', layers: ['interface', 'api'] as LayerId[] },
-  { slug: 'viva-fresh', question: 'How do you fit a grocery shop, delivery slots and loyalty into one mobile app?', layers: ['mobile', 'api'] as LayerId[] },
-  { slug: 'dukagjini-bookstore', question: 'How do you bring readers back to a book they were looking at?', layers: ['mobile', 'api'] as LayerId[] },
+  { slug: 'bayyinah-tv', line: 'One web app for the browser and both app stores, in English and Arabic.', question: 'How do you serve the browser and both app stores from one web app, in English and Arabic?', layers: ['interface', 'api'] as LayerId[] },
+  { slug: 'futurisma', line: 'A 3D racing game built with an AI crew, quality kept in hand.', question: 'How do you build a 3D racing game with an AI crew, without losing control of quality?', layers: ['interface', 'quality'] as LayerId[] },
+  { slug: 'incentiv', line: 'Signing in to a Web3 wallet as simply as to a normal app.', question: 'How do you make signing in to a Web3 wallet as simple as a normal app?', layers: ['interface', 'api'] as LayerId[] },
+  { slug: 'viva-fresh', line: 'A grocery shop, delivery slots and loyalty in one mobile app.', question: 'How do you fit a grocery shop, delivery slots and loyalty into one mobile app?', layers: ['mobile', 'api'] as LayerId[] },
+  { slug: 'dukagjini-bookstore', line: 'Bringing readers back to a book they were looking at.', question: 'How do you bring readers back to a book they were looking at?', layers: ['mobile', 'api'] as LayerId[] },
 ]
 
 /** The question that titles any case page, from the homepage cases or the "More work" list. */

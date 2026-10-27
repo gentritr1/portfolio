@@ -12,6 +12,9 @@ export interface Shot {
   caption?: string
 }
 
+/** The full-resolution original behind a 1080 px screen; other files are already full size. */
+export const fullSize = (src: string) => src.replace(/-1080\.webp$/, '.webp')
+
 const desk = (src: string, alt: string, caption?: string, width = 1080, height = 675): Shot => ({ src, alt, width, height, caption })
 const phone = (src: string, alt: string, caption?: string): Shot => ({ src, alt, width: 780, height: 1689, phone: true, caption })
 
@@ -78,5 +81,13 @@ export const caseShots: Record<string, Shot[]> = {
     phone('/mobile/bookstore-1.webp', 'Dukagjini Bookstore store screenshot: home with book search, top categories and books on sale', 'Home'),
     phone('/mobile/bookstore-2.webp', 'Dukagjini Bookstore store screenshot: foreign books list with ratings, prices and favourites', 'Foreign books'),
     phone('/mobile/bookstore-3.webp', 'Dukagjini Bookstore store screenshot: sheet with favourite lists and book categories', 'Favourites'),
+  ],
+}
+
+/** Matched crops from the full-resolution screens: the same two rows of the same list, readable, before and after. */
+export const detailShots: Record<string, Shot[]> = {
+  'care-platform': [
+    desk('/showcase/care/old-new/old-compliance-detail.webp', 'The first two rows of the compliance list in the old Vue app: priority, patient, progress bars to each billing code, and what remains. Invented data.', 'Before: the Vue app', 1578, 488),
+    desk('/showcase/care/old-new/new-compliance-detail.webp', 'The same two rows in the new React app, with the same values. Invented data.', 'After: the React app', 1613, 453),
   ],
 }

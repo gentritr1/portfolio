@@ -2,58 +2,52 @@ import * as THREE from 'three'
 import { layers, type LayerId } from './data'
 
 /**
- * The exploded stack in 3D: five thin frosted plates with 1 px ink edges, dashed alignment lines and one
- * soft contact shadow, seen by an orthographic camera at the drawing's angle (30 degrees up, 45 round).
- * One canvas, fixed behind the page. The stack is drawn where its anchor sits: the hero figure, then the
- * sticky stage beside the sections. Each section sets a scene state; the stack eases to it, and each case
- * plays its one explanatory animation once:
+ * A case's explanation as the exploded stack in 3D: five thin frosted plates with 1 px ink edges, dashed
+ * alignment lines and one soft contact shadow, seen by an orthographic camera at the drawing's angle (30 degrees
+ * up, 45 round). The canvas sits inside a bounded figure, over the static drawing it replaces, and its first frame
+ * is that drawing. When the figure comes into view the case plays its one animation once, then rests on a still
+ * frame and stops rendering:
  *  - rewrite: tiles on the Interface layer flip from old (outline) to new (accent), each with a check;
  *  - tokens: a swatch on Quality pulses, colour travels up an alignment line to every tile, "AA" appears;
  *  - tenants: the Data layer splits into three locked partitions under a whole API layer;
- *  - reader: the Mobile layer lifts forward, a page curls once, a wrench snaps onto a library block;
- *  - stack: every layer separates fully; hovering a layer in the list lights it;
- *  - contact: the layers settle back into a stack.
+ *  - reader: the Mobile layer lifts forward, a page curls once, a wrench snaps onto a library block.
+ * Every value is a function of the animation's progress, so the last frame is exact and reduced motion is that frame.
  */
-export type SceneState = 'hero' | 'rewrite' | 'tokens' | 'tenants' | 'reader' | 'stack' | 'contact'
+export type CaseState = 'rewrite' | 'tokens' | 'tenants' | 'reader'
 
-export interface StackScene {
-  setState(state: SceneState, intensity?: number): void
-  setAnchor(el: HTMLElement): void
-  setHoverLayer(id: LayerId | null): void
-  /** Pause rendering when the stack is off screen (phones, once the hero has scrolled away). */
-  setActive(active: boolean): void
+export interface CaseScene {
+  /** Play the animation once, from the drawing's pose. */
+  play(): void
+  /** Jump to the rested last frame (reduced motion). */
+  finish(): void
   dispose(): void
 }
 
 const SIZE = 4
 const H = SIZE / 2
 const PLATE = 0.06
-const TILT_MAX = THREE.MathUtils.degToRad(3)
-const ASSEMBLE_MS = 1200
 const IDX: Record<LayerId, number> = { interface: 0, mobile: 1, api: 2, data: 3, quality: 4 }
+/** The drawing's gap (44 px between layers at 0.102 of the figure width per unit), so the handover is seamless. */
+const BASE_GAP = 0.96
 
 const easeOutQuint = (x: number) => 1 - Math.pow(1 - x, 5)
 const easeInOut = (x: number) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2)
 const clamp01 = (x: number) => Math.min(1, Math.max(0, x))
 const seg = (t: number, a: number, b: number) => clamp01((t - a) / (b - a))
 
-/** Per state: the gap between plates, the layers lit, whether labels show, and how long its animation runs. */
-const STATES: Record<SceneState, { gap: number; lit: LayerId[]; labels: boolean; ms: number }> = {
-  // The hero gap matches the drawing (44 px between layers at 0.102 of the figure width per unit), so the handover is seamless.
-  hero: { gap: 0.96, lit: [], labels: true, ms: 900 },
-  rewrite: { gap: 0.96, lit: ['interface', 'quality'], labels: false, ms: 1400 },
-  tokens: { gap: 0.96, lit: ['interface', 'quality'], labels: false, ms: 1400 },
-  tenants: { gap: 1.18, lit: ['interface', 'api', 'data'], labels: false, ms: 1200 },
-  reader: { gap: 1.0, lit: ['mobile', 'interface'], labels: false, ms: 1400 },
-  stack: { gap: 1.4, lit: [], labels: true, ms: 1100 },
-  contact: { gap: 0.16, lit: [], labels: false, ms: 1100 },
+/** Per state: the gap it opens to, the layers lit (as in the drawing), and how long its animation runs. */
+export const CASE_STATES: Record<CaseState, { gap: number; lit: LayerId[]; ms: number }> = {
+  rewrite: { gap: 0.96, lit: ['interface', 'quality'], ms: 900 },
+  tokens: { gap: 0.96, lit: ['interface', 'quality'], ms: 900 },
+  tenants: { gap: 1.18, lit: ['interface', 'api', 'data'], ms: 800 },
+  reader: { gap: 1.0, lit: ['mobile', 'interface'], ms: 900 },
 }
 
 function cssColor(name: string, el: HTMLElement) {
   return new THREE.Color(getComputedStyle(el).getPropertyValue(name).trim() || '#14202b')
 }
 
-function roundedRect(w: number, d: number, r: number) {
+export function roundedRect(w: number, d: number, r: number) {
   const s = new THREE.Shape(), x = w / 2, z = d / 2
   s.moveTo(-x + r, -z)
   s.lineTo(x - r, -z); s.quadraticCurveTo(x, -z, x, -z + r)
@@ -63,15 +57,16 @@ function roundedRect(w: number, d: number, r: number) {
   return s
 }
 
-export function createStack(
+export function createCaseScene(
   host: HTMLElement,
-  options: { anchor: HTMLElement; theme: HTMLElement; labels: (HTMLElement | null)[]; badge: HTMLElement | null; small: boolean; onReady(): void; onOpen(): void },
-): StackScene {
-  const { theme, labels, badge, small, onReady, onOpen } = options
-  let anchor = options.anchor
-  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' })
-  renderer.setPixelRatio(Math.min(devicePixelRatio, small ? 1.5 : 2))
+  options: { anchor: HTMLElement; state: CaseState; labels: (HTMLElement | null)[]; badge: HTMLElement | null; onReady(): void },
+): CaseScene {
+  const { anchor, state, labels, badge, onReady } = options
+  const def = CASE_STATES[state]
+  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true })
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 2))
   renderer.setClearColor(0x000000, 0)
+  renderer.domElement.className = 'xv-motion-canvas'
   host.appendChild(renderer.domElement)
   const scene = new THREE.Scene()
   const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 100)
@@ -90,15 +85,14 @@ export function createStack(
   scene.add(stack)
 
   // ---------- Plates ----------
-  const segs = small ? 4 : 8
   const plateShape = roundedRect(SIZE, SIZE, 0.32)
-  const plateGeo = keep(new THREE.ExtrudeGeometry(plateShape, { depth: PLATE, bevelEnabled: false, curveSegments: segs }))
+  const plateGeo = keep(new THREE.ExtrudeGeometry(plateShape, { depth: PLATE, bevelEnabled: false, curveSegments: 8 }))
   plateGeo.rotateX(-Math.PI / 2)
-  const outline = (shape: THREE.Shape, y: number) => keep(new THREE.BufferGeometry().setFromPoints(shape.getPoints(segs).map((p) => new THREE.Vector3(p.x, y, -p.y))))
+  const outline = (shape: THREE.Shape, y: number) => keep(new THREE.BufferGeometry().setFromPoints(shape.getPoints(8).map((p) => new THREE.Vector3(p.x, y, -p.y))))
   const plateEdgeGeo = outline(plateShape, PLATE + 0.002)
   const plates = layers.map((layer, i) => {
-    const face = keep(new THREE.MeshStandardMaterial({ roughness: 0.95, metalness: 0, transparent: true, opacity: 0 }))
-    const edge = keep(new THREE.LineBasicMaterial({ transparent: true, opacity: 0 }))
+    const face = keep(new THREE.MeshStandardMaterial({ roughness: 0.95, metalness: 0, transparent: true, opacity: 0.93 }))
+    const edge = keep(new THREE.LineBasicMaterial())
     const g = new THREE.Group()
     const mesh = new THREE.Mesh(plateGeo, face)
     mesh.renderOrder = layers.length - i
@@ -106,11 +100,11 @@ export function createStack(
     line.renderOrder = layers.length - i + 0.5
     g.add(mesh, line)
     stack.add(g)
-    return { id: layer.id, g, mesh, line, face, edge, lit: 0, hover: 0, extra: new THREE.Vector3() }
+    return { id: layer.id, g, mesh, line, face, edge }
   })
 
   // Dashed alignment lines through the four corners.
-  const alignMat = keep(new THREE.LineDashedMaterial({ dashSize: 0.08, gapSize: 0.1, transparent: true, opacity: 0 }))
+  const alignMat = keep(new THREE.LineDashedMaterial({ dashSize: 0.08, gapSize: 0.1, transparent: true, opacity: 0.55 }))
   const aligns = [[-H, -H], [H, -H], [H, H], [-H, H]].map(([x, z]) => {
     const line = new THREE.Line(keep(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(x, 0, z), new THREE.Vector3(x, 1, z)])), alignMat)
     stack.add(line)
@@ -119,7 +113,7 @@ export function createStack(
 
   // Leader lines to the HTML labels, from each plate's right-hand corner (screen right is +x, -z).
   const leaderGeo = keep(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(H, PLATE / 2, -H), new THREE.Vector3(H + 0.86, PLATE / 2, -H - 0.86)]))
-  const leaderMat = keep(new THREE.LineBasicMaterial({ transparent: true, opacity: 0 }))
+  const leaderMat = keep(new THREE.LineBasicMaterial({ transparent: true, opacity: 0.9 }))
   plates.forEach((p) => p.g.add(new THREE.Line(leaderGeo, leaderMat)))
 
   // Contact shadow.
@@ -131,7 +125,7 @@ export function createStack(
   grad.addColorStop(1, 'rgba(0,0,0,0)')
   ctx.fillStyle = grad
   ctx.fillRect(0, 0, 128, 128)
-  const shadowMat = keep(new THREE.MeshBasicMaterial({ map: keep(new THREE.CanvasTexture(sc)), transparent: true, depthWrite: false, opacity: 0 }))
+  const shadowMat = keep(new THREE.MeshBasicMaterial({ map: keep(new THREE.CanvasTexture(sc)), transparent: true, depthWrite: false, opacity: 0.18 }))
   const shadow = new THREE.Mesh(keep(new THREE.PlaneGeometry(SIZE * 1.9, SIZE * 1.9)), shadowMat) // taste-skill-ignore: a three.js contact-shadow mesh under the 3D plates, not a CSS box-shadow
   shadow.rotation.x = -Math.PI / 2
   shadow.renderOrder = -1
@@ -143,10 +137,10 @@ export function createStack(
   tileGeo.rotateX(-Math.PI / 2)
   const tileEdgeGeo = outline(tileShape, 0.002)
   const checkGeo = keep(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(-0.12, 0.004, 0.0), new THREE.Vector3(-0.03, 0.004, 0.09), new THREE.Vector3(0.14, 0.004, -0.1)]))
-  const tileOld = keep(new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, side: THREE.DoubleSide }))
-  const tileNew = keep(new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, side: THREE.DoubleSide }))
-  const tileEdgeMat = keep(new THREE.LineBasicMaterial({ transparent: true, opacity: 0 }))
-  const checkMat = keep(new THREE.LineBasicMaterial({ transparent: true, opacity: 0 }))
+  const tileOld = keep(new THREE.MeshBasicMaterial({ transparent: true, side: THREE.DoubleSide }))
+  const tileNew = keep(new THREE.MeshBasicMaterial({ transparent: true, side: THREE.DoubleSide }))
+  const tileEdgeMat = keep(new THREE.LineBasicMaterial({ transparent: true }))
+  const checkMat = keep(new THREE.LineBasicMaterial({ transparent: true }))
   const tilesGroup = new THREE.Group()
   plates[IDX.interface].g.add(tilesGroup)
   const COLS = 4, ROWS = 3
@@ -168,19 +162,19 @@ export function createStack(
   // Token swatch on Quality, and the travelling dot.
   const swatchGeo = keep(new THREE.ShapeGeometry(roundedRect(0.5, 0.5, 0.06), 2))
   swatchGeo.rotateX(-Math.PI / 2)
-  const swatchMat = keep(new THREE.MeshBasicMaterial({ transparent: true, opacity: 0 }))
+  const swatchMat = keep(new THREE.MeshBasicMaterial({ transparent: true }))
   const swatch = new THREE.Mesh(swatchGeo, swatchMat)
   swatch.position.set(H - 0.55, PLATE + 0.01, -H + 0.55)
   swatch.renderOrder = 10
   plates[IDX.quality].g.add(swatch)
-  const dotMat = keep(new THREE.MeshBasicMaterial({ transparent: true, opacity: 0 }))
+  const dotMat = keep(new THREE.MeshBasicMaterial({ transparent: true }))
   const dot = new THREE.Mesh(keep(new THREE.SphereGeometry(0.07, 12, 8)), dotMat)
   dot.renderOrder = 20
   stack.add(dot)
 
   // ---------- Tenants: the Data layer as three partitions with locks ----------
   const partShape = roundedRect(SIZE / 3 - 0.1, SIZE, 0.2)
-  const partGeo = keep(new THREE.ExtrudeGeometry(partShape, { depth: PLATE, bevelEnabled: false, curveSegments: segs }))
+  const partGeo = keep(new THREE.ExtrudeGeometry(partShape, { depth: PLATE, bevelEnabled: false, curveSegments: 8 }))
   partGeo.rotateX(-Math.PI / 2)
   const partEdgeGeo = outline(partShape, PLATE + 0.002)
   const arc = Array.from({ length: 10 }, (_, i) => {
@@ -192,7 +186,7 @@ export function createStack(
     new THREE.Vector3(0.17, 0.26, 0), new THREE.Vector3(-0.17, 0.26, 0), new THREE.Vector3(-0.17, 0.26, 0), new THREE.Vector3(-0.17, 0, 0),
     ...arc,
   ]))
-  const lockMat = keep(new THREE.LineBasicMaterial({ transparent: true, opacity: 0 }))
+  const lockMat = keep(new THREE.LineBasicMaterial())
   const dataPlate = plates[IDX.data]
   const parts = [-1, 0, 1].map((k) => {
     const g = new THREE.Group()
@@ -214,8 +208,8 @@ export function createStack(
   // ---------- Reader: a page that curls, a library block and a wrench ----------
   const pageGeo = keep(new THREE.PlaneGeometry(1.6, 2.1, 16, 1))
   const pageBase = (pageGeo.attributes.position.array as Float32Array).slice()
-  const pageMat = keep(new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, side: THREE.DoubleSide }))
-  const pageEdgeMat = keep(new THREE.LineBasicMaterial({ transparent: true, opacity: 0 }))
+  const pageMat = keep(new THREE.MeshBasicMaterial({ transparent: true, side: THREE.DoubleSide }))
+  const pageEdgeMat = keep(new THREE.LineBasicMaterial({ transparent: true }))
   const page = new THREE.Mesh(pageGeo, pageMat)
   page.renderOrder = 10
   const pageG = new THREE.Group()
@@ -229,7 +223,7 @@ export function createStack(
   const pageOutline = new THREE.LineLoop(pageOutlineGeo, pageEdgeMat)
   pageOutline.renderOrder = 11
   pageG.add(pageOutline)
-  const blockMat = keep(new THREE.MeshStandardMaterial({ roughness: 0.9, transparent: true, opacity: 0 }))
+  const blockMat = keep(new THREE.MeshStandardMaterial({ roughness: 0.9, transparent: true }))
   const blockGeo = keep(new THREE.BoxGeometry(1.1, 0.3, 0.7))
   const block = new THREE.Mesh(blockGeo, blockMat)
   block.position.set(1.15, PLATE + 0.15, -1.05)
@@ -240,7 +234,7 @@ export function createStack(
   wrenchShape.moveTo(-0.05, -0.32); wrenchShape.lineTo(0.05, -0.32); wrenchShape.lineTo(0.05, 0.1)
   wrenchShape.absarc(0, 0.2, 0.11, -Math.PI / 2 + 0.45, Math.PI * 1.5 - 0.45, false)
   wrenchShape.lineTo(-0.05, 0.1); wrenchShape.lineTo(-0.05, -0.32)
-  const wrenchMat = keep(new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, side: THREE.DoubleSide }))
+  const wrenchMat = keep(new THREE.MeshBasicMaterial({ transparent: true, side: THREE.DoubleSide }))
   const wrenchGeo = keep(new THREE.ShapeGeometry(wrenchShape, 8))
   wrenchGeo.rotateX(-Math.PI / 2)
   const wrench = new THREE.Mesh(wrenchGeo, wrenchMat)
@@ -251,13 +245,13 @@ export function createStack(
   // ---------- Theme ----------
   let layer = new THREE.Color(), accent = new THREE.Color(), accentWash = new THREE.Color(), ink = new THREE.Color()
   function applyTheme() {
-    const paper = cssColor('--xv-paper', theme)
-    layer = cssColor('--xv-layer', theme)
-    accent = cssColor('--xv-accent', theme)
+    const paper = cssColor('--xv-paper', host)
+    layer = cssColor('--xv-layer', host)
+    accent = cssColor('--xv-accent', host)
     accentWash = layer.clone().lerp(accent, 0.14)
-    ink = cssColor('--xv-ink', theme)
-    const muted = cssColor('--xv-muted', theme)
-    const signal = cssColor('--xv-signal', theme)
+    ink = cssColor('--xv-ink', host)
+    const muted = cssColor('--xv-muted', host)
+    const signal = cssColor('--xv-signal', host)
     leaderMat.color.copy(muted)
     alignMat.color.copy(muted)
     shadowMat.color.copy(ink)
@@ -273,99 +267,55 @@ export function createStack(
     blockMat.color.copy(layer)
     blockMat.emissive.copy(layer).multiplyScalar(0.55)
     wrenchMat.color.copy(accent)
+    // The lit layers are lit from the first frame, as in the drawing.
+    plates.forEach((p) => {
+      const glow = def.lit.includes(p.id) ? 1 : 0
+      p.face.color.copy(layer).lerp(accentWash, glow)
+      p.face.emissive.copy(p.face.color).multiplyScalar(0.55)
+      p.edge.color.copy(ink).lerp(accent, glow)
+    })
   }
   applyTheme()
-  const scheme = matchMedia('(prefers-color-scheme: dark)')
-  scheme.addEventListener('change', applyTheme)
 
-  // ---------- Layout: glide between anchors ----------
-  const box = { x: 0, y: 0, w: 0, h: 0, init: false }
-  let unitPx = 60
-  function layout(dt: number) {
-    const w = innerWidth, hh = innerHeight
+  // ---------- Layout: the stack sits where the drawing does ----------
+  const box = { x: 0, y: 0, w: 0, h: 0 }
+  let w = 0, hh = 0
+  function resize() {
+    w = host.clientWidth
+    hh = host.clientHeight
     renderer.setSize(w, hh, false)
-    const r = anchor.getBoundingClientRect()
-    // The anchor rect is followed with a short glide, so a change of anchor reads as one camera move.
-    const k = box.init ? 1 - Math.pow(0.03, dt) : 1
-    box.x += (r.left - box.x) * k; box.y += (r.top - box.y) * k
-    box.w += (r.width - box.w) * k; box.h += (r.height - box.h) * k
-    box.init = true
-    // Width: the same scale as the drawing (its plate diagonal is 300/520 of the figure). Height: the whole stack,
-    // at its current gap, always fits the box, so full separation never outgrows the stage.
-    const stackHeight = SIZE * Math.SQRT2 * Math.sin(elevation) + (layers.length - 1) * gapNow * Math.cos(elevation) + 0.6
-    unitPx = Math.max(16, Math.min(box.w * 0.102, (box.h * 0.9) / stackHeight))
-    camera.left = -w / (2 * unitPx); camera.right = w / (2 * unitPx)
-    camera.top = hh / (2 * unitPx); camera.bottom = -hh / (2 * unitPx)
-    // Anchors are the drawings themselves (520 x 391 viewBox), so these are the drawing's own stack centre.
-    const fx = box.x + box.w * 0.365, fy = box.y + box.h * 0.481
+    const hr = host.getBoundingClientRect(), r = anchor.getBoundingClientRect()
+    box.x = r.left - hr.left; box.y = r.top - hr.top; box.w = r.width; box.h = r.height
     // Labels scale with the drawing, as its SVG text does (15 px at 520 wide).
     host.style.setProperty('--xv-label-size', `${Math.max(10, (box.w * 15) / 520).toFixed(1)}px`)
+  }
+  function frameCamera(gap: number) {
+    // Width: the same scale as the drawing (its plate diagonal is 300/520 of the figure). Height: the whole stack,
+    // at its current gap, always fits the box.
+    const stackHeight = SIZE * Math.SQRT2 * Math.sin(elevation) + (layers.length - 1) * gap * Math.cos(elevation) + 0.6
+    const unitPx = Math.max(16, Math.min(box.w * 0.102, (box.h * 0.9) / stackHeight))
+    camera.left = -w / (2 * unitPx); camera.right = w / (2 * unitPx)
+    camera.top = hh / (2 * unitPx); camera.bottom = -hh / (2 * unitPx)
+    // The drawing's own stack centre (520 x 391 viewBox).
+    const fx = box.x + box.w * 0.365, fy = box.y + box.h * 0.481
     camera.setViewOffset(w, hh, w / 2 - fx, hh / 2 - fy, w, hh)
     camera.updateProjectionMatrix()
   }
 
-  // ---------- State ----------
-  let state: SceneState = 'hero', intensity = 1, stateStart = 0, hoverLayer: LayerId | null = null
-  let gapNow = 1.25, assembleStart = -1, opened = false
-  const tilt = new THREE.Vector2(), tiltTarget = new THREE.Vector2()
-  const onMove = (e: PointerEvent) => {
-    if (e.pointerType !== 'mouse') return
-    tiltTarget.set((e.clientY / innerHeight - 0.5) * 2, (e.clientX / innerWidth - 0.5) * 2)
-  }
-  addEventListener('pointermove', onMove, { passive: true })
-
+  // ---------- One frame, as a function of progress ----------
   const v = new THREE.Vector3(), camDir = new THREE.Vector3()
   camera.getWorldDirection(camDir)
-  let running = false, raf = 0, last = performance.now()
+  function draw(tp: number) {
+    const gap = BASE_GAP + (def.gap - BASE_GAP) * easeInOut(seg(tp, 0, 0.4))
+    const show = seg(tp, 0, 0.15)
+    const top = ((layers.length - 1) * gap) / 2
 
-  function frame(now: number) {
-    if (!running) return
-    raf = requestAnimationFrame(frame)
-    const dt = Math.min((now - last) / 1000, 0.05)
-    last = now
-    if (assembleStart < 0) { assembleStart = now; stateStart = now }
-    const damp = (rate: number) => 1 - Math.pow(rate, dt)
-
-    // The one-time hero assembly: slide in, stack, then open to the hero gap.
-    const ta = (now - assembleStart) / ASSEMBLE_MS
-    const assembling = ta < 1
-    const def = STATES[state]
-    const gapTarget = STATES.hero.gap + (def.gap - STATES.hero.gap) * intensity
-    if (assembling) {
-      gapNow = ta < 0.5 ? 1.25 + (0.16 - 1.25) * easeOutQuint(ta / 0.5) : 0.16 + (STATES.hero.gap - 0.16) * easeInOut((ta - 0.5) / 0.5)
-    } else {
-      gapNow += (gapTarget - gapNow) * damp(0.06)
-    }
-    if (!opened && ta >= 0.75) { opened = true; onOpen() }
-    const tp = clamp01((now - stateStart) / def.ms)
-    const settled = clamp01(ta - 1)
-
-    // Plates: position, float, lit tint, the reader lift.
-    const top = ((layers.length - 1) * gapNow) / 2
-    const floatAmp = (1.5 / unitPx) * settled
-    const fade = clamp01(ta / 0.4)
     plates.forEach((p, i) => {
-      const litTarget = def.lit.includes(p.id) ? intensity : 0
-      p.lit += (litTarget - p.lit) * damp(0.02)
-      p.hover += ((hoverLayer === p.id ? 1 : 0) - p.hover) * damp(0.001)
-      const glow = Math.max(p.lit, p.hover)
-      p.face.color.copy(layer).lerp(accentWash, glow)
-      p.face.emissive.copy(p.face.color).multiplyScalar(0.55)
-      p.face.opacity = 0.93 * fade
-      p.edge.color.copy(ink).lerp(accent, glow)
-      p.edge.opacity = fade
       // Reader: the Mobile layer lifts forward, toward the viewer.
-      const lift = p.id === 'mobile' && state === 'reader' ? easeInOut(seg(tp, 0, 0.35)) * intensity : 0
-      p.extra.x += (-camDir.x * 1.6 * lift - p.extra.x) * damp(0.002)
-      p.extra.z += (-camDir.z * 1.6 * lift - p.extra.z) * damp(0.002)
-      p.extra.y += (0.45 * lift - p.extra.y) * damp(0.002)
-      p.g.position.set(p.extra.x, top - i * gapNow + Math.sin((now / 7000) * Math.PI * 2 + i * 0.7) * floatAmp + p.extra.y, p.extra.z)
+      const lift = p.id === 'mobile' && state === 'reader' ? easeInOut(seg(tp, 0, 0.35)) : 0
+      p.g.position.set(-camDir.x * 1.6 * lift, top - i * gap + 0.45 * lift, -camDir.z * 1.6 * lift)
     })
-    const leaderTarget = assembling ? clamp01((ta - 0.75) / 0.25) * 0.9 : def.labels ? 0.9 : 0
-    leaderMat.opacity += (leaderTarget - leaderMat.opacity) * damp(0.01)
-    alignMat.opacity = clamp01((ta - 0.6) / 0.4) * 0.55
-    shadowMat.opacity = fade * 0.18
-    const span = (layers.length - 1) * gapNow
+    const span = (layers.length - 1) * gap
     aligns.forEach((l) => {
       l.position.y = top - span
       const pos = l.geometry.attributes.position as THREE.BufferAttribute
@@ -378,8 +328,7 @@ export function createStack(
     // Rewrite: tiles flip left to right, old to new, each with a check.
     // Tokens: the swatch pulses, a dot rides the alignment line up, then every tile fills.
     const inRewrite = state === 'rewrite', inTokens = state === 'tokens'
-    const tileShow = inRewrite || inTokens ? intensity : 0
-    tileOld.opacity += (tileShow * 0.95 - tileOld.opacity) * damp(0.002)
+    tileOld.opacity = inRewrite || inTokens ? show * 0.95 : 0
     tileNew.opacity = tileOld.opacity
     tileEdgeMat.opacity = tileOld.opacity * 0.9
     checkMat.opacity = inRewrite ? tileOld.opacity : 0
@@ -396,24 +345,19 @@ export function createStack(
       t.mesh.material = filled ? tileNew : tileOld
       t.check.visible = inRewrite && flip >= 1
     })
-    swatchMat.opacity += ((inTokens ? intensity : 0) - swatchMat.opacity) * damp(0.002)
+    swatchMat.opacity = inTokens ? show : 0
     swatch.scale.setScalar(1 + (inTokens ? Math.sin(Math.PI * seg(tp, 0.05, 0.3)) : 0) * 0.35)
     const travel = inTokens ? easeInOut(seg(tp, 0.28, 0.62)) : 0
-    dotMat.opacity = inTokens && travel > 0 && travel < 1 ? intensity : 0
+    dotMat.opacity = inTokens && travel > 0 && travel < 1 ? 1 : 0
+    stack.updateMatrixWorld()
     const qY = plates[IDX.quality].g.position.y, iY = plates[IDX.interface].g.position.y
     dot.position.set(H, qY + PLATE + (iY - qY) * travel, -H)
-    if (badge) {
-      badge.style.opacity = String(inTokens && tp > 0.85 ? intensity : 0)
-      v.set(0, PLATE, -H - 0.2).applyMatrix4(plates[IDX.interface].g.matrixWorld).project(camera)
-      badge.style.transform = `translate3d(${((v.x + 1) / 2) * innerWidth}px, ${((1 - v.y) / 2) * innerHeight}px, 0) translate(-50%, -140%)`
-    }
 
     // Tenants: Data splits into three partitions, each locked; the API layer stays whole.
     const inTenants = state === 'tenants'
-    const split = inTenants ? easeInOut(seg(tp, 0, 0.55)) * intensity : 0
+    const split = inTenants ? easeInOut(seg(tp, 0, 0.55)) : 0
     dataPlate.mesh.visible = split < 0.02
     dataPlate.line.visible = split < 0.02
-    lockMat.opacity = inTenants ? intensity : 0
     parts.forEach((p) => {
       p.g.visible = split >= 0.02
       p.g.position.x = p.k * (SIZE / 3 + split * 0.7)
@@ -424,7 +368,7 @@ export function createStack(
 
     // Reader: a page curls once on the lifted Mobile layer, and a wrench snaps onto the library block.
     const inReader = state === 'reader'
-    pageMat.opacity += ((inReader ? intensity : 0) * 0.95 - pageMat.opacity) * damp(0.002)
+    pageMat.opacity = inReader ? show * 0.95 : 0
     pageEdgeMat.opacity = pageMat.opacity
     blockMat.opacity = pageMat.opacity
     const curl = inReader ? easeInOut(seg(tp, 0.3, 0.8)) : 0
@@ -442,7 +386,7 @@ export function createStack(
     for (let i = 0; i < 17; i++) ol.setXYZ(17 + i, pos.getX(16 - i), pos.getY(16 - i), pos.getZ(16 - i) + 0.001)
     ol.needsUpdate = true
     const snap = inReader ? seg(tp, 0.72, 0.88) : 0
-    wrenchMat.opacity = inReader && snap > 0 ? intensity : 0
+    wrenchMat.opacity = snap > 0 ? 1 : 0
     wrench.position.set(1.15, PLATE + 0.31 + (1 - easeOutQuint(snap)) * 1.2, -1.05)
 
     // A mesh at opacity 0 still writes depth and would cut a hole in the plate above, so faded effects switch off.
@@ -452,70 +396,73 @@ export function createStack(
     pageG.visible = block.visible = pageMat.opacity > 0.01
     wrench.visible = wrenchMat.opacity > 0.01
 
-    // Tilt: at most 3 degrees, mouse only, sprung.
-    tilt.lerp(tiltTarget, damp(0.02))
-    stack.rotation.x = tilt.x * TILT_MAX
-    stack.rotation.z = -tilt.y * TILT_MAX
-
-    layout(dt)
+    frameCamera(gap)
+    stack.updateMatrixWorld()
     renderer.render(scene, camera)
 
-    const labelsOpacity = assembling ? clamp01((ta - 0.75) / 0.25) : def.labels ? 1 : 0
+    if (badge) {
+      badge.style.opacity = inTokens && tp > 0.85 ? '1' : '0'
+      v.set(0, PLATE, -H - 0.2).applyMatrix4(plates[IDX.interface].g.matrixWorld).project(camera)
+      badge.style.transform = `translate3d(${((v.x + 1) / 2) * w}px, ${((1 - v.y) / 2) * hh}px, 0) translate(-50%, -140%)`
+    }
     plates.forEach((p, i) => {
       const el = labels[i]
       if (!el) return
       // Leader end and label start match the drawing's (its leader runs 64 px, its text starts 72 px past the corner).
       v.set(H + 0.96, PLATE / 2, -H - 0.96).applyMatrix4(p.g.matrixWorld).project(camera)
-      el.style.transform = `translate3d(${((v.x + 1) / 2) * innerWidth}px, ${((1 - v.y) / 2) * innerHeight}px, 0) translateY(-50%)`
-      el.style.opacity = String(labelsOpacity * (hoverLayer && hoverLayer !== p.id ? 0.45 : 1))
+      el.style.transform = `translate3d(${((v.x + 1) / 2) * w}px, ${((1 - v.y) / 2) * hh}px, 0) translateY(-50%)`
     })
   }
 
-  // ---------- Visibility and warm-up ----------
-  const onVis = () => sync()
-  document.addEventListener('visibilitychange', onVis)
-  let ready = false, disposed = false, active = true
-  function sync() {
-    const should = !document.hidden && ready && active
-    if (should && !running) { running = true; last = performance.now(); raf = requestAnimationFrame(frame) }
-    else if (!should && running) { running = false; cancelAnimationFrame(raf) }
+  // ---------- Playback: render only while the animation runs ----------
+  let tp = 0, start = -1, raf = 0, idle = 0
+  function frame(now: number) {
+    raf = 0
+    if (start < 0) start = now
+    tp = clamp01((now - start) / def.ms)
+    draw(tp)
+    if (tp < 1) raf = requestAnimationFrame(frame)
+    else performance.mark('xv:case:idle')
   }
-  layout(0)
-  ;(async () => {
-    // Every effect is drawn once while invisible, so its shaders compile before anyone sees it.
-    const effects = [tileOld, tileNew, swatchMat, dotMat, lockMat, pageMat, wrenchMat, blockMat, checkMat, pageEdgeMat, tileEdgeMat]
-    effects.forEach((m) => { m.opacity = 0.001 })
-    parts.forEach((p) => { p.g.visible = true })
-    try { await renderer.compileAsync(scene, camera) } catch { /* compiles on first render */ }
-    if (disposed) return
-    renderer.render(scene, camera)
-    effects.forEach((m) => { m.opacity = 0 })
-    parts.forEach((p) => { p.g.visible = false })
-    ready = true
-    performance.mark('eh:ready')
-    onReady()
-    sync()
-  })()
+  // A hidden tab stops rAF on its own; on return the clock has run on, so the animation lands on its last frame.
+
+  const ro = new ResizeObserver(() => { resize(); draw(tp) })
+  const scheme = matchMedia('(prefers-color-scheme: dark)')
+  const onScheme = () => { applyTheme(); draw(tp) }
+  scheme.addEventListener('change', onScheme)
+
+  // Warm every effect's shader with one hidden frame, then draw the drawing's pose before the canvas shows.
+  resize()
+  parts.forEach((p) => { p.g.visible = true })
+  renderer.compile(scene, camera)
+  draw(0)
+  ro.observe(host)
+  onReady()
 
   return {
-    setState(next, i = 1) {
-      if (next === state && i === intensity) return
-      // A preview at half strength of the state already playing keeps its timing.
-      if (next !== state) { stateStart = performance.now(); performance.mark(`xv:state:${next}`) }
-      state = next
-      intensity = i
+    play() {
+      if (raf || idle || tp >= 1) return
+      // Arriving by scroll decodes the screens around the figure; the animation starts once that work is done.
+      idle = requestIdleCallback(() => {
+        idle = 0
+        performance.mark(`xv:case:${state}:play`)
+        start = -1
+        raf = requestAnimationFrame(frame)
+      }, { timeout: 500 })
     },
-    setAnchor(el) { anchor = el },
-    setHoverLayer(id) { hoverLayer = id },
-    // A paused canvas keeps its last frame, so it hides too; otherwise a frozen stack would sit over the text.
-    setActive(a) { active = a; host.style.visibility = a ? '' : 'hidden'; sync() },
-    dispose() {
-      disposed = true
-      running = false
+    finish() {
+      cancelIdleCallback(idle)
+      idle = 0
       cancelAnimationFrame(raf)
-      removeEventListener('pointermove', onMove)
-      document.removeEventListener('visibilitychange', onVis)
-      scheme.removeEventListener('change', applyTheme)
+      raf = 0
+      tp = 1
+      draw(1)
+    },
+    dispose() {
+      cancelIdleCallback(idle)
+      cancelAnimationFrame(raf)
+      ro.disconnect()
+      scheme.removeEventListener('change', onScheme)
       disposables.forEach((d) => d.dispose())
       renderer.dispose()
       renderer.domElement.remove()

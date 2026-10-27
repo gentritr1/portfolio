@@ -1,25 +1,95 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { Link } from 'react-router'
-import { ArrowLeftIcon, ArrowRightIcon } from '@phosphor-icons/react'
-import { CaseDiagram } from './StackPoster'
+import { ArrowLeftIcon, ArrowRightIcon, CheckIcon } from '@phosphor-icons/react'
+import { CaseDiagram, StackPoster } from './StackPoster'
 import { caseDetails, caseOrder, questionOf } from './cases'
-import { caseNames, caseShots, type Shot } from './shots'
+import { layers } from './data'
+import { canUseWebGL, useReducedMotion } from './motion'
+import { CASE_STATES, createCaseScene, type CaseScene, type CaseState } from './scene'
+import { caseNames, caseShots, detailShots, fullSize, type Shot } from './shots'
 
-/** Real product screens, lazy, with their true size so nothing shifts as they load. */
+/** Owner rule (PRODUCT.md, 2026-10-06): every care-platform and design-system screen says it holds invented data. */
 const INVENTED = /^\/showcase\/(care|care-dashboard|design-system)\//
+export const INVENTED_CAPTION = 'Real product screens, invented data.'
+const captionOf = (s: Shot) => (INVENTED.test(s.src) ? (s.caption ? `${s.caption}. ${INVENTED_CAPTION}` : INVENTED_CAPTION) : s.caption ?? '')
 
-export function Shots({ shots }: { shots: Shot[] }) {
-  if (!shots.length) return null
+/** A real screen at its true size (nothing shifts as it loads), linked to its full-resolution original. */
+export function ShotImage({ shot, eager }: { shot: Shot; eager?: boolean }) {
   return (
-    <div className="xv-shots">
-      {shots.map((s) => (
-        <figure key={s.src} className={s.phone ? 'xv-shot xv-shot-phone' : 'xv-shot'}>
-          <img src={s.src} alt={s.alt} width={s.width} height={s.height} loading="lazy" decoding="async" />
-          {/* Owner rule (PRODUCT.md, 2026-10-06): every internal care / design-system screen says it holds invented data. */}
-          {INVENTED.test(s.src) && <figcaption>Real product screens · invented data</figcaption>}
-        </figure>
-      ))}
-    </div>
+    <a className="xv-full" href={fullSize(shot.src)} target="_blank" rel="noreferrer">
+      <img src={shot.src} alt={shot.alt} width={shot.width} height={shot.height} loading={eager ? 'eager' : 'lazy'} decoding="async" />
+      <span className="xv-sr"> (full size, opens in a new tab)</span>
+    </a>
+  )
+}
+
+/** The case each 3D explanation belongs to, and what it shows, in words for every reader. */
+const CASE_MOTION: Record<string, { state: CaseState; caption: string }> = {
+  'care-platform': { state: 'rewrite', caption: 'The rewrite in the stack: screens on the Interface layer turn from the old app to the new one, one at a time, each with a passed check.' },
+  'design-system-react': { state: 'tokens', caption: 'A token in the stack: a colour changes on the Quality layer and reaches every component on the Interface layer, and the rendered contrast check still passes.' },
+  'multi-tenant': { state: 'tenants', caption: 'Tenants in the stack: the API layer stays whole while the Data layer splits into one locked partition per organization.' },
+  'read-to-feed': { state: 'reader', caption: 'The reader in the stack: the Mobile layer lifts, a page turns, and a fix snaps onto a maintained library fork.' },
+}
+
+/**
+ * A bounded figure beside the story: the drawing first, then the 3D stack over it, which plays the case's one
+ * animation when the figure is in view and then rests. Reduced motion shows the last frame; without WebGL the
+ * drawing stays. `?xvPlay` plays it at once (QA).
+ */
+function CaseMotion({ state, caption }: { state: CaseState; caption: string }) {
+  const hostRef = useRef<HTMLDivElement>(null)
+  const labelRefs = useRef<(HTMLSpanElement | null)[]>([])
+  const badgeRef = useRef<HTMLSpanElement>(null)
+  const sceneRef = useRef<CaseScene | null>(null)
+  const [live, setLive] = useState(false)
+  const reduced = useReducedMotion()
+  const reducedRef = useRef(reduced)
+
+  useEffect(() => {
+    const host = hostRef.current, anchor = host?.querySelector<HTMLElement>('.xv-stack')
+    if (!host || !anchor || !canUseWebGL()) return
+    let scene: CaseScene
+    try {
+      scene = createCaseScene(host, { anchor, state, labels: labelRefs.current, badge: badgeRef.current, onReady: () => setLive(true) })
+    } catch {
+      return
+    }
+    sceneRef.current = scene
+    if (reducedRef.current) scene.finish()
+    const io = new IntersectionObserver(([e]) => {
+      if (!e.isIntersecting) return
+      if (reducedRef.current) scene.finish()
+      else scene.play()
+      io.disconnect()
+    }, { threshold: 0.6 })
+    if (new URLSearchParams(location.search).has('xvPlay')) scene.play()
+    else io.observe(host)
+    return () => {
+      io.disconnect()
+      scene.dispose()
+      sceneRef.current = null
+      setLive(false)
+    }
+  }, [state])
+
+  useEffect(() => {
+    reducedRef.current = reduced
+    if (reduced) sceneRef.current?.finish()
+  }, [reduced])
+
+  return (
+    <figure className="xv-case-motion">
+      <div className="xv-motion-box" ref={hostRef} data-live={live || undefined}>
+        <StackPoster lit={CASE_STATES[state].lit} title={caption} />
+        <div className="xv-3d-labels" aria-hidden="true">
+          {layers.map((l, i) => (
+            <span key={l.id} ref={(el) => { labelRefs.current[i] = el }} style={{ '--i': i } as CSSProperties}>{l.name}</span>
+          ))}
+          <span className="xv-badge" ref={badgeRef}>AA <CheckIcon size={13} weight="bold" /></span>
+        </div>
+      </div>
+      <figcaption className="xv-note">{caption}</figcaption>
+    </figure>
   )
 }
 
@@ -33,6 +103,8 @@ export function CasePage({ slug }: { slug: string }) {
   const c = caseDetails[slug]
   const question = questionOf(slug) ?? ''
   const shots = caseShots[slug] ?? []
+  const detail = detailShots[slug] ?? []
+  const motion = CASE_MOTION[slug]
   const at = caseOrder.indexOf(slug)
   const prev = caseOrder[(at - 1 + caseOrder.length) % caseOrder.length]
   const next = caseOrder[(at + 1) % caseOrder.length]
@@ -66,8 +138,18 @@ export function CasePage({ slug }: { slug: string }) {
         <section className="xv-case-shots" aria-label="Product screens" data-phone={shots[0].phone || undefined} data-count={shots.length}>
           {shots.map((s) => (
             <figure key={s.src} className="xv-shot">
-              <img src={s.src} alt={s.alt} width={s.width} height={s.height} loading="lazy" decoding="async" />
-              {(s.caption || INVENTED.test(s.src)) && <figcaption className="xv-note">{[s.caption, INVENTED.test(s.src) && 'Real product screens, invented data'].filter(Boolean).join('. ')}</figcaption>}
+              <ShotImage shot={s} />
+              {captionOf(s) && <figcaption className="xv-note">{captionOf(s)}</figcaption>}
+            </figure>
+          ))}
+        </section>
+      )}
+      {detail.length > 0 && (
+        <section className="xv-case-detail" aria-label="The same rows, before and after, at full size">
+          {detail.map((s) => (
+            <figure key={s.src} className="xv-shot">
+              <ShotImage shot={s} />
+              <figcaption className="xv-note">{captionOf(s)}</figcaption>
             </figure>
           ))}
         </section>
@@ -89,6 +171,7 @@ export function CasePage({ slug }: { slug: string }) {
             <h2 className="xv-case-h2">The decision that worked</h2>
             <ul className="xv-case-list">{c.decision.map((x) => <li key={x}>{x}</li>)}</ul>
           </section>
+          {motion && <CaseMotion key={slug} state={motion.state} caption={motion.caption} />}
           <section>
             <h2 className="xv-case-h2">Result</h2>
             <p className="xv-result xv-case-result">{c.result}</p>
