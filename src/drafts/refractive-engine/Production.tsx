@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect, useRef, useState, type CSSProperties, type MouseEvent, type ReactNode } from 'react'
 import { ArrowRightIcon, XIcon } from '@phosphor-icons/react'
 import { systems } from './data'
+import { cropVars, pct, shots, type Crop, type Shot } from './screens'
 
 /**
  * Production work: five chapters, each one composition of real screens standing on a lit table, from the selected-work
@@ -19,15 +20,8 @@ const BASE = '/drafts/refractive-engine'
 const plain = (e: MouseEvent) => !(e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0)
 const ReaderDemo = lazy(() => import('../../worlds/reading/Recreation').then((m) => ({ default: m.Recreation })))
 
-type Crop = [x: number, y: number, w: number, h: number]
-type Shot = { src: string; w: number; h: number; alt: string }
 type Vars = CSSProperties & Record<`--${string}`, string | number>
 
-const pct = (v: number) => `${+v.toFixed(3)}%`
-const cropVars = ({ w, h }: Shot, c: Crop | undefined, p = '') =>
-  c
-    ? { [`--${p}sw`]: pct((w / c[2]) * 100), [`--${p}sl`]: pct((-c[0] / c[2]) * 100), [`--${p}st`]: pct((-c[1] / c[3]) * 100), [`--${p}ar`]: `${c[2]} / ${c[3]}` }
-    : { [`--${p}sw`]: '100%', [`--${p}sl`]: '0%', [`--${p}st`]: '0%', [`--${p}ar`]: `${w} / ${h}` }
 /** A text block placed on the 1440 × 900 frame (wide screens only; phones keep it in the flow). */
 const at = (x: number, y: number, w?: number): Vars => ({ '--x': pct(x / 14.4), '--y': pct(y / 9), ...(w ? { '--w': pct(w / 14.4) } : {}) })
 
@@ -165,18 +159,6 @@ function useArrival(root: React.RefObject<HTMLElement | null>, reduced: boolean,
     }
   }, [root, reduced, onFocus])
 }
-
-const shots = {
-  landing: { src: '/showcase/bayyinah/web-01.webp', w: 2880, h: 1800, alt: 'Bayyinah TV landing page: Quran Studies Made Simple, with the app on a laptop, a monitor, a tablet and a phone' },
-  courses: { src: '/showcase/bayyinah/web-02.webp', w: 2880, h: 1800, alt: 'Bayyinah TV course row with the live Ramadan 2026 course' },
-  reader: { src: '/mobile/reading-3.webp', w: 780, h: 1689, alt: 'Read to Feed reader page, with its keep-reading prompt' },
-  achievements: { src: '/mobile/reading-2.webp', w: 780, h: 1689, alt: 'Read to Feed achievements: eggs collected, badges and quizzes' },
-  calendar: { src: '/showcase/care-dashboard/appointments-week.webp', w: 2880, h: 1800, alt: 'Care-team week calendar with appointments and filters' },
-  matrix: { src: '/showcase/design-system/boards/xv/board-03.webp', w: 3200, h: 1740, alt: 'Real button variants and states, with the measured contrast of each label' },
-  picker: { src: '/showcase/design-system/date-range-picker.webp', w: 1560, h: 976, alt: 'Date-range picker from the design system' },
-  catalog: { src: '/mobile/grocery-2.webp', w: 780, h: 1689, alt: 'Viva Fresh catalog with product prices and cart controls' },
-  cart: { src: '/mobile/grocery-3.webp', w: 780, h: 1689, alt: 'Viva Fresh cart with quantities and the checkout button' },
-} satisfies Record<string, Shot>
 
 export function Production({ onOpen, reduced, onFocus }: { onOpen(slug: string, trigger: HTMLAnchorElement, keyboard: boolean): void; reduced: boolean; onFocus?(x: number, y: number, r: number, w: number): void }) {
   const root = useRef<HTMLElement>(null)

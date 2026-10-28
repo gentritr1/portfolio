@@ -334,7 +334,12 @@ export default function Draft() {
     const hero = trigger?.closest('.re-sw')?.querySelector<HTMLElement>('.re-sw-lead > .re-sw-screen')
     if (hero && !keyboard && !reduced && typeof document.startViewTransition === 'function') {
       hero.style.setProperty('view-transition-name', 're-case-hero')
-      document.startViewTransition(() => flushSync(go))
+      // The case opens on the same screen; naming it too turns the change into one move from the chapter to the case's top.
+      const t = document.startViewTransition(() => {
+        flushSync(go)
+        document.querySelector<HTMLElement>('.re-cs-hero[data-hero] .re-sw-screen')?.style.setProperty('view-transition-name', 're-case-hero')
+      })
+      t.finished.finally(() => document.querySelector<HTMLElement>('.re-cs-hero[data-hero] .re-sw-screen')?.style.removeProperty('view-transition-name'))
     } else go()
   }
   const toHome = (top = false) => {

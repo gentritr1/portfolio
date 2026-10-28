@@ -646,36 +646,63 @@ html.re-html.lenis-stopped { overflow: clip; }
 
 /* ---------- Case page: read over the same field, dimmed to its quietest stage ---------- */
 .re-root[data-case] .re-shade { background: radial-gradient(120% 90% at 70% 30%, rgb(3 3 5 / 0.25) 0%, rgb(3 3 5 / 0.78) 100%); } /* taste-skill-ignore: a neutral scrim that dims the WebGL field under the case text */
-.re-casepage { position: relative; z-index: 2; max-width: 1240px; margin: 0 auto; padding: 96px var(--re-gutter) 120px; }
-.re-case-top { margin-bottom: clamp(32px, 6vh, 64px); }
-.re-case-head { display: grid; gap: 14px; max-width: 880px; }
-.re-case-meta { font-size: 13px; color: var(--re-accent); }
-.re-case-name { font: 300 clamp(34px, 7vw, 104px)/0.94 var(--re-sans); font-stretch: 106%; letter-spacing: -0.025em; margin-left: -0.03em; color: #f6f6f8; }
-.re-case-name:focus { outline: none; }
-.re-case-q { max-width: 34ch; font: 400 clamp(20px, 2.1vw, 28px)/1.3 var(--re-sans); letter-spacing: -0.01em; color: var(--re-fg-2); text-wrap: balance; }
-.re-case-readouts { max-width: 720px; margin-top: 10px; padding: 16px 18px; border-radius: 14px; background: var(--re-fill); }
-.re-case-readouts b { font-size: 20px; }
+.re-casepage { position: relative; z-index: 2; max-width: 1240px; margin: 0 auto; padding: 88px var(--re-gutter) 120px; }
+.re-case-top { margin-bottom: clamp(16px, 2.5vh, 28px); }
 
-.re-case-grid { display: grid; gap: 28px; margin-top: clamp(40px, 7vh, 72px); }
-@media (min-width: 1024px) { .re-case-grid { grid-template-columns: minmax(0, 1fr) minmax(300px, 400px); gap: 56px; align-items: start; } }
-.re-case-body {
-  min-width: 0; display: grid; gap: 34px; padding: clamp(22px, 3vw, 40px); border-radius: 16px; background: var(--re-glass-strong);
-  backdrop-filter: blur(18px) saturate(1.15); -webkit-backdrop-filter: blur(18px) saturate(1.15);
+/* ---- Landing: the screen the chapter showed, then the question and its answer ---- */
+.re-cs-landing { display: grid; grid-template-columns: minmax(0, 1fr); gap: clamp(24px, 3.5vh, 40px); }
+.re-cs-media, .re-cs-words { min-width: 0; }
+.re-casepage .re-cs-hero { position: relative; left: auto; top: auto; width: min(100%, calc(40svh * var(--a))); margin: 0; transform: none; z-index: auto; }
+.re-cs-hero .re-sw-screen img { pointer-events: none; }
+.re-cs-cap { margin-top: 14px; font-size: 14px; color: var(--re-fg-2); }
+.re-cs-words { display: grid; gap: 14px; max-width: 900px; }
+.re-cs-name { font-size: 16px; color: var(--re-fg); }
+.re-cs-meta { margin-top: -8px; font-size: 14px; color: var(--re-fg-2); }
+.re-cs-q { margin-top: 6px; max-width: 24ch; font: 300 clamp(32px, 4vw, 56px)/1.08 var(--re-sans); letter-spacing: -0.025em; color: var(--re-fg); text-wrap: balance; }
+.re-cs-q:focus { outline: none; }
+.re-cs-result { max-width: 60ch; font: 300 clamp(18px, 1.6vw, 23px)/1.45 var(--re-sans); color: var(--re-fg-2); text-wrap: pretty; }
+.re-cs-readouts { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px 28px; max-width: 760px; margin-top: 18px; padding: 0; list-style: none; }
+.re-cs-readouts li { display: grid; gap: 4px; }
+.re-cs-readouts b { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 8px; font: 500 23px/1.2 var(--re-sans); color: var(--re-fg); overflow-wrap: anywhere; }
+.re-cs-readouts span { font-size: 14px; line-height: 1.4; color: var(--re-fg-2); }
+@media (min-width: 1024px) {
+  .re-cs-landing[data-shape="phone"] { grid-template-columns: minmax(0, 1fr) auto; align-items: center; column-gap: clamp(48px, 6vw, 96px); }
+  .re-cs-landing[data-shape="phone"] .re-cs-media { order: 2; }
+  .re-cs-landing[data-shape="phone"] .re-cs-hero { width: min(340px, calc(70svh * var(--a))); }
 }
-.re-case-body p, .re-case-list li { max-width: 62ch; color: var(--re-fg-2); text-wrap: pretty; }
-.re-case-h2 { margin-bottom: 12px; font: 500 20px/1.3 var(--re-sans); color: var(--re-fg); }
-.re-case-list { display: grid; gap: 10px; }
-.re-case-list li { position: relative; padding-left: 18px; }
-.re-case-list li::before { content: ""; position: absolute; left: 0; top: 0.62em; width: 6px; height: 6px; border-radius: 50%; background: var(--re-accent); }
-.re-case-result { font: 400 20px/1.45 var(--re-sans); color: var(--re-fg) !important; }
+
+/* ---- The case, in one column on the field ---- */
+.re-cs-body { display: grid; grid-template-columns: minmax(0, 1fr); gap: clamp(56px, 9vh, 96px); margin-top: clamp(56px, 9vh, 96px); }
 .re-case-context { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 18px 28px; padding: 18px 20px; border-radius: 12px; background: var(--re-fill); }
 .re-case-context dt { font-size: 13px; color: var(--re-accent); }
 .re-case-context dd { margin: 4px 0 0; font-size: 16px; line-height: 1.5; color: var(--re-fg); }
-.re-case-layers { display: grid; gap: 8px; }
-.re-case-layers li { padding: 14px 16px; border-radius: 12px; background: var(--re-fill); transition: background-color 160ms ease; }
-.re-case-layers li[data-active] { background: var(--re-accent-soft); }
-.re-case-layers h3 { font: 500 16px/1.3 var(--re-sans); }
-
+.re-case-list { display: grid; gap: 10px; }
+.re-case-list li { position: relative; padding-left: 18px; }
+.re-case-list li::before { content: ""; position: absolute; left: 0; top: 0.62em; width: 6px; height: 6px; border-radius: 50%; background: var(--re-accent); }
+.re-cs-h2 { margin-bottom: 20px; font: 300 clamp(26px, 2.7vw, 39px)/1.15 var(--re-sans); letter-spacing: -0.02em; color: var(--re-fg); }
+.re-cs-list { display: grid; gap: 16px; margin: 0; padding: 0; list-style: none; }
+.re-cs-list li, .re-cs-text { max-width: 34em; font: 300 clamp(17px, 1.6vw, 23px)/1.5 var(--re-sans); color: var(--re-fg); text-wrap: pretty; }
+.re-cs-list li { position: relative; padding-left: 22px; }
+.re-cs-list li::before { content: ""; position: absolute; left: 2px; top: 0.66em; width: 5px; height: 5px; border-radius: 50%; background: var(--re-accent); }
+/* Problem beside decision, joined by one quiet line between the two headings. */
+.re-cs-pair { display: grid; grid-template-columns: minmax(0, 1fr); gap: 48px; }
+@media (min-width: 1024px) {
+  .re-cs-pair { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: clamp(64px, 8vw, 120px); }
+  .re-cs-decision { position: relative; }
+  .re-cs-decision::before {
+    content: ""; position: absolute; top: calc(clamp(26px, 2.7vw, 39px) * 0.62); right: calc(100% + 16px); width: calc(clamp(64px, 8vw, 120px) - 32px); height: 1px;
+    background: rgb(62 230 164 / 0.45);
+  }
+}
+/* The three layers side by side, every word readable; the one under the pointer lights. */
+.re-cs-layers { display: grid; gap: 14px; margin: 0; padding: 0; list-style: none; }
+@media (min-width: 760px) { .re-cs-layers { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.re-cs-layers li { display: grid; align-content: start; gap: 6px; padding: 22px 22px 24px; border: 1px solid rgb(255 255 255 / 0.08); border-radius: 14px; background: #1f272b; transition: background-color 150ms ease; }
+.re-cs-layers li > span { font-size: 13px; color: var(--re-dim); }
+.re-cs-layers h3 { font: 400 20px/1.3 var(--re-sans); color: var(--re-fg); transition: color 150ms ease; }
+.re-cs-stack { font-size: 14px; color: var(--re-dim); }
+.re-cs-layers p:last-child { margin-top: 6px; font-size: 16px; line-height: 1.5; color: var(--re-fg-2); }
+@media (hover: hover) and (pointer: fine) { .re-cs-layers li:hover { background: #262e33; } .re-cs-layers li:hover h3 { color: var(--re-accent); } }
 .re-eng { padding-top: 6px; }
 .re-eng summary {
   cursor: pointer; list-style: none; display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 48px; padding: 0 16px; border-radius: 12px;
@@ -695,94 +722,64 @@ html.re-html.lenis-stopped { overflow: clip; }
 .re-record pre { margin: 6px 0 0; padding: 10px 12px; border-radius: 10px; font: 13px/1.6 ui-monospace, Menlo, monospace; color: var(--re-fg-2); white-space: pre-wrap; overflow-wrap: anywhere; background: rgb(0 0 0 / 0.3); }
 .re-casepage .re-links { list-style: none; }
 
-/* The product's own screen, then the prism split. Sticky beside the reading column on wide screens. */
-.re-case-side { min-width: 0; display: grid; gap: 28px; }
-@media (min-width: 1024px) { .re-case-side { position: sticky; top: 104px; } }
-.re-case-shot { display: grid; place-items: center; max-width: 460px; border-radius: 14px; overflow: hidden; background: var(--re-fill); }
-.re-case-shot img { display: block; width: 100%; height: auto; }
-.re-case-shot[data-shape="phone"] { padding: 20px 0 0; }
-.re-case-shot[data-shape="phone"] img { width: auto; max-width: 56%; max-height: 420px; border-radius: 14px 14px 0 0; }
-.re-prism { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: stretch; max-width: 460px; margin: 0 auto; }
-.re-prism svg { display: block; width: 100%; height: auto; overflow: visible; }
-.re-plate-top { fill: rgb(255 255 255 / 0.035); stroke: var(--re-accent-mid); stroke-width: 1; transition: fill 200ms ease, stroke 200ms ease; }
-.re-plate-side { fill: color-mix(in srgb, var(--re-accent) 12%, rgb(5 5 8 / 0.9)); stroke: color-mix(in srgb, var(--re-accent) 30%, transparent); stroke-width: 1; }
-.re-plate[data-active] .re-plate-top { fill: var(--re-accent-soft); stroke: var(--re-accent); }
-.re-prism-labels { position: relative; }
-.re-prism-labels li {
-  position: absolute; left: 0; right: 0; top: calc(var(--y) * 100%); translate: 0 -50%; display: grid; gap: 3px; padding: 8px 10px; border-radius: 10px;
-  background: var(--re-fill); transition: background-color 200ms ease;
+/* ---- Screens: the real pictures; a loupe follows a fine pointer at twice the shown size ---- */
+.re-cs-screens { margin-top: clamp(64px, 10vh, 112px); }
+.re-cs-screens ul { display: grid; gap: 22px 18px; margin: 0; padding: 0; list-style: none; grid-template-columns: repeat(auto-fill, minmax(min(100%, 460px), 1fr)); }
+.re-cs-screens ul[data-shape="phone"] { grid-template-columns: repeat(auto-fill, minmax(min(46%, 200px), 1fr)); }
+.re-cs-shot { display: grid; gap: 10px; align-content: start; }
+.re-cs-shot > span { font-size: 14px; line-height: 1.45; color: var(--re-fg-2); }
+.re-cs-frame { position: relative; overflow: hidden; border-radius: 12px; background: var(--re-glass-strong); box-shadow: 0 0 0 1px rgb(255 255 255 / 0.08), 0 18px 40px -24px #000; }
+.re-cs-screens ul[data-shape="phone"] .re-cs-frame { border-radius: 18px; }
+.re-cs-frame img { display: block; width: 100%; height: auto; }
+.re-cs-loupe {
+  position: absolute; left: 0; top: 0; width: 180px; height: 180px; border-radius: 50%; pointer-events: none; background-repeat: no-repeat; opacity: 0; scale: 0.94;
+  box-shadow: 0 0 0 1px rgb(255 255 255 / 0.35), inset 0 0 0 1px rgb(255 255 255 / 0.12), 0 14px 34px rgb(0 0 0 / 0.5); transition: opacity 100ms ease, scale 100ms ease;
 }
-/* A short leader ties each title to its plate: part of the drawing, not a divider. */
-.re-prism-labels li::before { content: ""; position: absolute; right: 100%; top: 50%; width: 24px; height: 2px; background: var(--re-accent-mid); }
-.re-prism-labels strong { font: 500 16px/1.25 var(--re-sans); color: var(--re-fg); }
-.re-prism-labels span { font-size: 13px; line-height: 1.45; color: var(--re-dim); }
-.re-prism-labels li[data-active] { background: var(--re-accent-soft); }
-.re-prism-labels li[data-active] span { color: var(--re-accent); }
+.re-cs-screens ul[data-shape="phone"] .re-cs-loupe { display: none; }
+@media (hover: hover) and (pointer: fine) { .re-cs-frame:hover .re-cs-loupe { opacity: 1; scale: 1; transition: opacity 150ms var(--re-ease), scale 150ms var(--re-ease); } }
+@media (prefers-reduced-motion: reduce) { .re-cs-loupe { transition: none !important; scale: 1; } }
 
-.re-case-screens { margin-top: clamp(56px, 9vh, 96px); }
-.re-case-screens ul { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 460px), 1fr)); }
-.re-case-screens ul[data-shape="phone"] { grid-template-columns: repeat(auto-fill, minmax(min(46%, 200px), 1fr)); }
-.re-case-screens li { display: grid; gap: 8px; align-content: start; }
-.re-case-screens img { display: block; width: 100%; height: auto; border-radius: 12px; background: var(--re-glass-strong); }
-.re-case-screens ul[data-shape="phone"] img { border-radius: 18px; }
-.re-case-screens span { font-size: 13px; line-height: 1.45; color: var(--re-dim); }
+/* ---- Next case: its own screen, waiting; Previous stays a quiet link ---- */
+.re-cs-next { display: grid; gap: 14px; margin-top: clamp(72px, 12vh, 128px); }
+.re-cs-next-main {
+  display: grid; gap: 28px; align-items: center; padding: clamp(20px, 3vw, 36px); border-radius: 18px; background: var(--re-fill); color: inherit; text-decoration: none;
+  transition: background-color 160ms ease, transform 160ms var(--re-ease);
+}
+.re-cs-next-main:active { transform: scale(0.985); }
+.re-cs-next-words { display: grid; gap: 8px; }
+.re-cs-next-label { font-size: 14px; color: var(--re-accent); }
+.re-cs-next-main strong { font: 300 clamp(26px, 2.8vw, 40px)/1.1 var(--re-sans); letter-spacing: -0.02em; }
+.re-cs-next-q { max-width: 34ch; font-size: 18px; line-height: 1.45; color: var(--re-fg-2); text-wrap: pretty; }
+.re-cs-next-main .re-cs-hero { width: 100%; }
+.re-cs-next-main .re-cs-hero[data-shape="phone"] { width: min(100%, 240px); justify-self: center; }
+@media (min-width: 1024px) { .re-cs-next-main { grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); } }
+.re-cs-prev { display: inline-flex; align-items: center; gap: 8px; justify-self: start; min-height: 44px; font-size: 15px; color: var(--re-fg-2); text-decoration: none; }
+@media (hover: hover) and (pointer: fine) { .re-cs-next-main:hover { background: var(--re-fill-2); } .re-cs-prev:hover { color: var(--re-fg); } }
+:is(.re-cs-next-main, .re-cs-prev):focus-visible { outline: 2px solid var(--re-accent); outline-offset: 4px; }
+@media (max-width: 767px) { .re-casepage { padding-top: 84px; } }
 
-.re-case-more { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 14px; margin-top: clamp(56px, 9vh, 96px); }
-.re-case-next {
-  display: grid; gap: 6px; align-content: start; padding: 20px 22px; border-radius: 14px; background: var(--re-glass);
-  color: inherit; text-decoration: none; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); transition: transform 160ms var(--re-ease), background-color 160ms ease;
-}
-.re-case-next:last-child { text-align: right; }
-.re-case-next > span:first-child { font-size: 13px; color: var(--re-accent); }
-.re-case-next strong { font: 500 20px/1.25 var(--re-sans); }
-.re-case-next-q { font-size: 16px; line-height: 1.45; color: var(--re-fg-2); text-wrap: pretty; }
-.re-case-next:active { transform: scale(0.985); }
-@media (hover: hover) and (pointer: fine) {
-  .re-case-next:hover { background: var(--re-glass-strong); }
-  .re-case-next:hover strong { color: var(--re-accent); }
-}
-@media (max-width: 767px) {
-  .re-casepage { padding-top: 84px; }
-  .re-case-next:last-child { text-align: left; }
-  .re-prism { grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); }
-}
-
-/* Arrival: the name is there on the first frame; the rest settles once; the plates part from a stack. */
+/* Arrival: the screen is there first; the words and the case settle in after it. */
 @media (prefers-reduced-motion: no-preference) {
-  .re-casepage :is(.re-case-q, .re-case-meta, .re-case-readouts, .re-case-body, .re-case-side) { animation: re-settle 420ms var(--re-ease) both; }
-  .re-casepage .re-case-q { animation-delay: 40ms; }
-  .re-casepage .re-case-readouts { animation-delay: 80ms; }
-  .re-casepage .re-case-body { animation-delay: 120ms; }
-  .re-casepage .re-case-side { animation-delay: 160ms; }
-  .re-plate { transform-box: view-box; animation: re-part 700ms var(--re-drawer) calc(260ms + var(--i) * 40ms) both; }
+  .re-casepage :is(.re-cs-words, .re-cs-body, .re-cs-screens, .re-cs-next) { animation: re-settle 420ms var(--re-ease) both; }
+  .re-casepage .re-cs-words { animation-delay: 40ms; }
+  .re-casepage .re-cs-body { animation-delay: 100ms; }
+  .re-casepage :is(.re-cs-screens, .re-cs-next) { animation-delay: 140ms; }
 }
 @keyframes re-settle { from { opacity: 0; transform: translateY(8px); } }
-@keyframes re-part { from { transform: translateY(var(--from)); opacity: 0.4; } }
 
 html.re-html::view-transition-old(root), html.re-html::view-transition-new(root) { animation-duration: 320ms; animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1); }
-/* Read the case: the chapter's main screen grows past the viewport's edges as the case fades in under it (480 ms, the
-   storyboard's ease-in-out). Only the old screen exists, so its group animates from where it was to the full viewport. */
-html.re-html::view-transition-group(re-case-hero) { z-index: 2; animation: re-case-grow 480ms cubic-bezier(0.77, 0, 0.175, 1) both; }
-html.re-html::view-transition-old(re-case-hero) { animation: re-case-out 480ms var(--re-ease) both; }
-@keyframes re-case-grow { to { transform: none; width: 100vw; height: 100vh; } }
-@keyframes re-case-out { 0%, 60% { opacity: 1; filter: blur(0); } to { opacity: 0; filter: blur(6px); } }
-/* While the screen grows, the case's words hold back, then settle in their usual order: one motion, then the words. */
-html.re-html:active-view-transition .re-casepage .re-case-name { animation: re-settle 420ms var(--re-ease) 260ms both; }
-html.re-html:active-view-transition .re-casepage .re-case-q { animation-delay: 300ms; }
-html.re-html:active-view-transition .re-casepage .re-case-readouts { animation-delay: 340ms; }
-html.re-html:active-view-transition .re-casepage .re-case-body { animation-delay: 380ms; }
-html.re-html:active-view-transition .re-casepage .re-case-side { animation-delay: 420ms; }
-html.re-html:active-view-transition .re-casepage .re-case-meta { animation-delay: 300ms; }
+/* Read the case: the chapter's screen moves and resizes onto the same screen at the top of the case (both carry the name),
+   480 ms on the storyboard's ease-in-out; the case words wait for it. */
+html.re-html::view-transition-group(re-case-hero) { z-index: 2; animation-duration: 480ms; animation-timing-function: cubic-bezier(0.77, 0, 0.175, 1); }
+html.re-html::view-transition-old(re-case-hero), html.re-html::view-transition-new(re-case-hero) { animation-duration: 480ms; }
+html.re-html:active-view-transition .re-casepage .re-cs-words { animation-delay: 300ms; }
+html.re-html:active-view-transition .re-casepage .re-cs-body { animation-delay: 380ms; }
+html.re-html:active-view-transition .re-casepage :is(.re-cs-screens, .re-cs-next) { animation-delay: 420ms; }
 @media (prefers-reduced-motion: reduce) {
   html.re-html::view-transition-old(root), html.re-html::view-transition-new(root),
-  html.re-html::view-transition-group(re-case-hero), html.re-html::view-transition-old(re-case-hero) { animation: none; }
+  html.re-html::view-transition-group(re-case-hero), html.re-html::view-transition-old(re-case-hero), html.re-html::view-transition-new(re-case-hero) { animation: none; }
 }
 .re-case-note { margin: -4px 0 14px; font-size: 13px; color: var(--re-dim); }
 #re-lab-h:focus:not(:focus-visible) { outline: none; }
-.re-case-readouts { grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr)); gap: 16px 20px; }
-.re-case-readouts b { flex-wrap: wrap; overflow-wrap: anywhere; }
-@media (max-width: 767px) { .re-case-readouts b { font-size: 16px; } }
-@media (max-width: 1023px) { .re-case-side { order: -1; } .re-prism, .re-case-shot { max-width: 420px; margin: 0; } }
 /* Ledes that sit straight on the field (not in a card) take the full ink, so the dot grid behind them cannot thin them out. */
 :is(.re-lab-head, .re-ledger-head) > .re-lede { color: var(--re-fg); }
-.re-case-shot figcaption { justify-self: stretch; padding: 10px 14px; font-size: 13px; color: var(--re-dim); }
