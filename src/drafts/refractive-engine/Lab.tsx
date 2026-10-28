@@ -7,7 +7,7 @@ import { STAGE } from './scene'
 
 const BASE = '/drafts/refractive-engine'
 // Read to Feed, not a product the chapters above just showed: the chamber opens on something new, and on its demo.
-const FIRST = 'read-to-feed'
+const FIRST = 'incentiv'
 /**
  * Approved full-size originals of the landscape textures: the same framing as public/eh/ (mean pixel difference under
  * 1% when scaled down to it). The phone screens have no larger source than their 1,024 px crops.

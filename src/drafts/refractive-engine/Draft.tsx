@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react'
 import { useNavigate, useParams } from 'react-router'
 import Lenis from 'lenis'
+import { flushSync } from 'react-dom'
 import { ArrowCounterClockwiseIcon, ArrowUpRightIcon, GaugeIcon } from '@phosphor-icons/react'
 import { createScene, hasWebGL, STAGE, type RefractiveScene, type Stats } from './scene'
 import { ledger, links, systems, type Value } from './data'
@@ -301,6 +302,8 @@ export default function Draft() {
     const from = lastCase.current
     lastCase.current = caseSlug
     if (caseSlug) {
+      // The old page is already captured for the view transition; the name must not stay on a screen the case hides.
+      document.querySelectorAll<HTMLElement>('.re-sw-screen[style*="view-transition-name"]').forEach((el) => el.style.removeProperty('view-transition-name'))
       if (from !== caseSlug) jump(0)
       return
     }
@@ -321,10 +324,17 @@ export default function Draft() {
     })
   }, [caseSlug])
 
-  const toCase = (slug: string, trigger?: HTMLAnchorElement) => {
+  const toCase = (slug: string, trigger?: HTMLAnchorElement, keyboard = false) => {
     homeScroll.current = scrollY
     productionTrigger.current = trigger ?? null
-    navigate(`${BASE}/${slug}`, { viewTransition: true })
+    const go = () => navigate(`${BASE}/${slug}`, { viewTransition: true })
+    // A chapter's main screen grows into the case (it carries the transition's one named element). The router's own
+    // viewTransition flag does not start one here, so the page does, as the home page does. A key press opens at once.
+    const hero = trigger?.closest('.re-sw')?.querySelector<HTMLElement>('.re-sw-lead > .re-sw-screen')
+    if (hero && !keyboard && !reduced && typeof document.startViewTransition === 'function') {
+      hero.style.setProperty('view-transition-name', 're-case-hero')
+      document.startViewTransition(() => flushSync(go))
+    } else go()
   }
   const toHome = (top = false) => {
     if (top) homeScroll.current = 0
@@ -400,7 +410,7 @@ export default function Draft() {
           {!noGl && <p className="re-hint re-num">Move the cursor over the field. Inside the lens it snaps into a page layout.</p>}
         </header>
 
-        <Production onOpen={toCase} />
+        <Production onOpen={toCase} reduced={reduced} />
 
         <Lab mode={mode} reduced={reduced} noGl={noGl} onOpen={toCase} />
 
