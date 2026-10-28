@@ -26,6 +26,8 @@ export interface RefractiveScene {
   setStage(stage: number): void
   /** Mouse only. Client pixels; `inside` is false over UI. */
   setPointer(x: number, y: number, inside: boolean): void
+  /** A page-driven lens (client pixels, radius in px, weight 0–1): the production chapters snap the field around a screen as it settles. */
+  setFocus(x: number, y: number, r: number, w: number): void
   /** A mouse click: a ripple across the field. */
   ripple(x: number, y: number): void
   setMode(mode: 0 | 1): void
@@ -464,6 +466,7 @@ export function createScene(
   const lean = new THREE.Vector2(), leanTarget = new THREE.Vector2(), camRight = new THREE.Vector3(), camUp = new THREE.Vector3(), camDir = new THREE.Vector3()
   const lensPos = new THREE.Vector2(-9999, -9999), lensTarget = new THREE.Vector2(-9999, -9999)
   let stage = 0, stageTarget = 0, lens = 0, lensWanted = false, lensFresh = true
+  const focusPos = new THREE.Vector2(), focus = { r: LENS_R, w: 0 }
   let modeFrom = options.mode as number, modeTo = options.mode as number, modeT = 1
   let shockT = -1, introT = 0, disposed = false
   const stats: Stats = { fps: 0, frameMs: 0, worstMs: 0, calls: 0, drawn: count, history: new Float32Array(120), head: 0, frames: 0 }
@@ -514,10 +517,14 @@ export function createScene(
     if (lensFresh) { lensPos.copy(lensTarget); lensFresh = false }
     lensPos.lerp(lensTarget, damp(0.00005))
     const lensW = lens * lensStageW()
-    uniforms.uLens.value = lensW
-    uniforms.uPointer.value.set(lensPos.x * pixelRatio, (cssH - lensPos.y) * pixelRatio)
+    // A chapter's focus takes the lens while it is the stronger of the two; it has no colour ring, which belongs to the cursor.
+    const onFocus = focus.w > lensW
+    const at = onFocus ? focusPos : lensPos
+    uniforms.uLens.value = onFocus ? focus.w : lensW
+    uniforms.uLensR.value = (onFocus ? focus.r : LENS_R) * pixelRatio
+    uniforms.uPointer.value.set(at.x * pixelRatio, (cssH - at.y) * pixelRatio)
     aberration.uniforms.uPointer.value.copy(uniforms.uPointer.value)
-    aberration.uniforms.uAmt.value = lensW
+    aberration.uniforms.uAmt.value = onFocus ? 0 : lensW
     // The field steps back behind the ledger's rows and the contact card; the two cards about the field keep it bright.
     uniforms.uDim.value = 1 - 0.45 * Math.max(clamp01(1.5 - Math.abs(stage - STAGE.ledger) * 1.5), clamp01(stage - STAGE.sim - 0.3))
 
@@ -615,6 +622,11 @@ export function createScene(
       if (lens < 0.01) lensFresh = true
       lensWanted = want
       lensTarget.set(x, y)
+    },
+    setFocus(x, y, r, w) {
+      focusPos.set(x, y)
+      focus.r = r
+      focus.w = reduced ? 0 : Math.min(1, Math.max(0, w))
     },
     ripple(x, y) {
       if (reduced || !lensAllowed()) return

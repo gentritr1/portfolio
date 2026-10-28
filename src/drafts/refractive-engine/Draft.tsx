@@ -202,7 +202,7 @@ export default function Draft() {
       if (e.pointerType !== 'mouse') return
       px = e.clientX
       py = e.clientY
-      inside = !onCase.current && !(e.target as HTMLElement).closest('.re-solid, button, a, input')
+      inside = !onCase.current && !(e.target as HTMLElement).closest('.re-solid, .re-sw-at, .re-sw-slab, button, a, input')
       if (pending) return
       pending = true
       requestAnimationFrame(() => { pending = false; scene.setPointer(px, py, inside) })
@@ -211,7 +211,7 @@ export default function Draft() {
     // A mouse click ripples the field. It counts on release, and only if the pointer barely moved, so starting a scroll never fires it.
     let downX = 0, downY = 0, downOk = false
     const onDown = (e: PointerEvent) => {
-      downOk = e.pointerType === 'mouse' && !onCase.current && !(e.target as HTMLElement).closest('.re-solid, button, a, input')
+      downOk = e.pointerType === 'mouse' && !onCase.current && !(e.target as HTMLElement).closest('.re-solid, .re-sw-at, .re-sw-slab, button, a, input')
       downX = e.clientX
       downY = e.clientY
     }
@@ -324,6 +324,7 @@ export default function Draft() {
     })
   }, [caseSlug])
 
+  const focusField = useCallback((x: number, y: number, r: number, w: number) => sceneRef.current?.setFocus(x, y, r, w), [])
   const toCase = (slug: string, trigger?: HTMLAnchorElement, keyboard = false) => {
     homeScroll.current = scrollY
     productionTrigger.current = trigger ?? null
@@ -410,7 +411,7 @@ export default function Draft() {
           {!noGl && <p className="re-hint re-num">Move the cursor over the field. Inside the lens it snaps into a page layout.</p>}
         </header>
 
-        <Production onOpen={toCase} reduced={reduced} />
+        <Production onOpen={toCase} reduced={reduced} onFocus={focusField} />
 
         <Lab mode={mode} reduced={reduced} noGl={noGl} onOpen={toCase} />
 

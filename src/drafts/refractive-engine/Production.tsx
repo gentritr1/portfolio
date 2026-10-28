@@ -1,5 +1,6 @@
 import { lazy, Suspense, useEffect, useRef, useState, type CSSProperties, type MouseEvent, type ReactNode } from 'react'
 import { ArrowRightIcon, XIcon } from '@phosphor-icons/react'
+import { systems } from './data'
 
 /**
  * Production work: five chapters, each one composition of real screens standing on a lit table, from the selected-work
@@ -81,6 +82,22 @@ function Meta({ name, role, stack }: { name: string; role: ReactNode; stack?: bo
   return <p className="re-sw-meta" data-stack={stack || undefined}><span>{name}</span><span>{role}</span></p>
 }
 
+/** The product's layers, as the chamber names them (systems[].layers), quiet beside the screen until the chapter is hovered or focused. */
+function Layers({ slug, place, row }: { slug: string; place: Vars; row?: boolean }) {
+  const layers = systems.find((s) => s.slug === slug)?.layers ?? []
+  if (!layers.length) return null
+  return (
+    <ol className="re-sw-at re-sw-layers" style={place} data-row={row || undefined} aria-label={`Built in ${layers.length} layers`}>
+      {layers.map((l, i) => (
+        <li key={l.title}>
+          <span><span className="re-num">{String(i + 1).padStart(2, '0')}</span> {l.title}</span>
+          <span>{l.stack}</span>
+        </li>
+      ))}
+    </ol>
+  )
+}
+
 function Reach({ href }: { href: string }) {
   return (
     <a className="re-sw-proof" href={href} target="_blank" rel="noreferrer" data-numbers>
@@ -98,7 +115,7 @@ const clamp01 = (v: number) => Math.min(1, Math.max(0, v))
  * with no easing of its own. transform and opacity are written on the two moving layers themselves, not as variables on
  * the chapter, which would restyle every image and line of text in it on each scroll frame.
  */
-function useArrival(root: React.RefObject<HTMLElement | null>, reduced: boolean) {
+function useArrival(root: React.RefObject<HTMLElement | null>, reduced: boolean, onFocus?: (x: number, y: number, r: number, w: number) => void) {
   useEffect(() => {
     const host = root.current
     if (!host || reduced) return
@@ -118,15 +135,22 @@ function useArrival(root: React.RefObject<HTMLElement | null>, reduced: boolean)
       c.slabs.style.opacity = (0.55 + 0.45 * p).toFixed(3)
       c.floor.style.opacity = (0.4 + 0.6 * p).toFixed(3)
     }
-    let frame = 0
+    let frame = 0, focusW = 0
     const update = () => {
       frame = 0
+      // The field behind the settling screen snaps into the lens's page layout and lets go again by the time it rests.
+      let best = 0, fx = 0, fy = 0, fr = 0
       for (const c of all) {
-        const top = c.lead.getBoundingClientRect().top
-        if (top > innerHeight * 1.2 || top < -innerHeight) continue
-        const p = clamp01((innerHeight - top) / (innerHeight * 0.4))
+        const r = c.lead.getBoundingClientRect()
+        if (r.top > innerHeight * 1.2 || r.top < -innerHeight) continue
+        // At rest once the top reaches 60%: Lenis converges sub-pixel and fires no last scroll, so p alone never lands on 1.
+        const p = r.top <= innerHeight * 0.6 + 0.5 ? 1 : clamp01((innerHeight - r.top) / (innerHeight * 0.4))
         if (p !== c.p) { c.p = p; set(c, p) }
+        const w = Math.sin(Math.PI * p) * 0.55
+        if (w > best) { best = w; fx = r.left + r.width / 2; fy = r.top + r.height / 2; fr = Math.max(r.width, r.height) * 0.62 }
       }
+      if (best > 0.01 || focusW > 0.01) onFocus?.(fx, fy, fr, best)
+      focusW = best
     }
     const schedule = () => { if (!frame) frame = requestAnimationFrame(update) }
     update()
@@ -137,8 +161,9 @@ function useArrival(root: React.RefObject<HTMLElement | null>, reduced: boolean)
       removeEventListener('scroll', schedule)
       removeEventListener('resize', schedule)
       all.forEach((c) => set(c, 1))
+      onFocus?.(0, 0, 0, 0)
     }
-  }, [root, reduced])
+  }, [root, reduced, onFocus])
 }
 
 const shots = {
@@ -153,11 +178,11 @@ const shots = {
   cart: { src: '/mobile/grocery-3.webp', w: 780, h: 1689, alt: 'Viva Fresh cart with quantities and the checkout button' },
 } satisfies Record<string, Shot>
 
-export function Production({ onOpen, reduced }: { onOpen(slug: string, trigger: HTMLAnchorElement, keyboard: boolean): void; reduced: boolean }) {
+export function Production({ onOpen, reduced, onFocus }: { onOpen(slug: string, trigger: HTMLAnchorElement, keyboard: boolean): void; reduced: boolean; onFocus?(x: number, y: number, r: number, w: number): void }) {
   const root = useRef<HTMLElement>(null)
   const dialog = useRef<HTMLDialogElement>(null)
   const [reading, setReading] = useState(false)
-  useArrival(root, reduced)
+  useArrival(root, reduced, onFocus)
 
   const caseLink = (slug: string) => (
     <a className="re-prod-case" href={`${BASE}/${slug}`} onClick={(e) => { if (!plain(e)) return; e.preventDefault(); onOpen(slug, e.currentTarget, e.detail === 0) }}>
@@ -167,7 +192,7 @@ export function Production({ onOpen, reduced }: { onOpen(slug: string, trigger: 
   )
 
   return (
-    <section ref={root} className="re-prod re-solid" aria-labelledby="re-prod-h">
+    <section ref={root} className="re-prod" aria-labelledby="re-prod-h">
       <h2 id="re-prod-h" className="re-sr">Production work</h2>
 
       <Chapter
@@ -183,6 +208,7 @@ export function Production({ onOpen, reduced }: { onOpen(slug: string, trigger: 
           <h3>Rebuilt a live learning platform.</h3>
           <p className="re-sw-line">Live and on-demand video, subscriptions and English/Arabic support across web and mobile.</p>
         </div>
+        <Layers slug="bayyinah-tv" place={at(1110, 175, 290)} />
         <div className="re-sw-at re-sw-act" style={at(1040, 787, 310)}>
           <Reach href="https://play.google.com/store/apps/details?id=com.zombiesoup.bayyinah" />
           {caseLink('bayyinah-tv')}
@@ -199,7 +225,7 @@ export function Production({ onOpen, reduced }: { onOpen(slug: string, trigger: 
       >
         <p className="re-sw-at re-sw-cap" style={at(520, 838)}>Store listing images.</p>
         <div className="re-sw-at re-sw-copy" style={at(64, 196, 420)}>
-          <Meta name="Read to Feed" role="Mobile, iOS and Android · 2021–25" stack />
+          <Meta name="Read to Feed" role="Mobile, iOS and Android · 2022–25" stack />
           <h3>Kept a children's reading app shipping for four years.</h3>
           <p className="re-sw-line">EPUB and PDF reader, barcode scanning, quizzes, badges and streaks, in three languages.</p>
           <p className="re-sw-proof" data-numbers>About 14 store releases<small>React Native 0.63 → 0.81</small></p>
@@ -208,6 +234,7 @@ export function Production({ onOpen, reduced }: { onOpen(slug: string, trigger: 
             <button type="button" className="re-sw-try" onClick={() => { setReading(true); dialog.current?.showModal() }}>Try the reader</button>
           </div>
         </div>
+        <Layers slug="read-to-feed" place={at(64, 690, 420)} row />
       </Chapter>
 
       <Chapter
@@ -227,6 +254,7 @@ export function Production({ onOpen, reduced }: { onOpen(slug: string, trigger: 
           <li>Run the checks</li>
           <li>A person approves</li>
         </ol>
+        <Layers slug="care-platform" place={at(64, 440, 300)} />
         <div className="re-sw-at re-sw-act" style={at(64, 842)}>{caseLink('care-platform')}</div>
       </Chapter>
 
@@ -250,6 +278,7 @@ export function Production({ onOpen, reduced }: { onOpen(slug: string, trigger: 
           <Meta name="Design System v2" role="A team effort · 2026" />
           <h3>One shared library, checked before release.</h3>
         </div>
+        <Layers slug="design-system-react" place={at(852, 466, 516)} row />
         <div className="re-sw-at re-sw-act" style={at(962, 786, 350)}>
           <p className="re-sw-proof" data-numbers>41 components, 22 releases in 60 days.</p>
           {caseLink('design-system-react')}
@@ -270,6 +299,7 @@ export function Production({ onOpen, reduced }: { onOpen(slug: string, trigger: 
           <Reach href="https://play.google.com/store/apps/details?id=com.zs.vivafresh" />
           {caseLink('viva-fresh')}
         </div>
+        <Layers slug="viva-fresh" place={at(64, 170, 175)} />
       </Chapter>
 
       <dialog ref={dialog} className="re-sw-reader" aria-label="Read to Feed, interactive recreation" data-lenis-prevent onClose={() => setReading(false)}>
