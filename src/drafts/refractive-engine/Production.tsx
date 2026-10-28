@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect, useRef, useState, type CSSProperties, type MouseEvent, type ReactNode } from 'react'
 import { ArrowRightIcon, XIcon } from '@phosphor-icons/react'
 import { systems } from './data'
+import { tune } from './tune'
 import { cropVars, LEADS, pct, shots, type Crop, type Shot } from './screens'
 
 /**
@@ -109,8 +110,14 @@ const clamp01 = (v: number) => Math.min(1, Math.max(0, v))
  * slope reaches zero at rest, so the screen lands instead of stopping dead. ω = 7.5 leaves 0.13 px and 0.05° at p = 1,
  * under half a device pixel, so the cut to the resting styles cannot be seen.
  */
-const OMEGA = 7.5
-const deadbeat = (p: number) => 1 - (1 + OMEGA * p) * Math.exp(-OMEGA * p)
+
+/**
+ * The settle's shape: a critically damped ("deadbeat") response, 1 − (1 + ωp)·e^(−ωp). It moves fastest early and its
+ * slope reaches zero at rest, so the screen lands instead of stopping dead. ω = 7.5 leaves 0.13 px and 0.05° at p = 1,
+ * under half a device pixel, so the cut to the resting styles cannot be seen. (Chosen over a slower glide and a 0.46°
+ * overshoot, compared live on 2026-10-28.)
+ */
+const deadbeat = (p: number) => 1 - (1 + 7.5 * p) * Math.exp(-7.5 * p)
 
 /**
  * Scroll-driven arrival, kept small: the screens settle from 10° and 28 px lower to rest along the deadbeat curve, solid
@@ -174,7 +181,7 @@ function useArrival(root: React.RefObject<HTMLElement | null>, reduced: boolean,
         if (r.top > innerHeight * 1.2 || r.top < -innerHeight) continue
         // At rest once the top reaches 60%: Lenis converges sub-pixel and fires no last scroll, so p alone never lands on 1.
         const p = r.top <= innerHeight * 0.6 + 0.5 ? 1 : clamp01((innerHeight - r.top) / (innerHeight * 0.4))
-        if (p !== c.p) { c.p = p; set(c, p) }
+        if (p !== c.p) { c.p = p; set(c, p); if (tune.debug) c.lead.closest<HTMLElement>('.re-sw')!.dataset.p = p.toFixed(2) }
         const w = Math.sin(Math.PI * p) * 0.55
         if (w > best) { best = w; fx = r.left + r.width / 2; fy = r.top + r.height / 2; fr = Math.max(r.width, r.height) * 0.62 }
       }

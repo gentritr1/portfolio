@@ -648,7 +648,7 @@ html:has(.re-sw-reader[open]) { overflow: hidden; }
 /* ---- Landing: the screen the chapter showed, then the question and its answer ---- */
 .re-cs-landing { display: grid; grid-template-columns: minmax(0, 1fr); gap: clamp(24px, 3.5vh, 40px); }
 .re-cs-media, .re-cs-words { min-width: 0; }
-.re-casepage .re-cs-hero { position: relative; left: auto; top: auto; width: min(100%, calc(60svh * var(--a))); margin: 0; transform: none; z-index: auto; }
+.re-casepage .re-cs-hero { position: relative; left: auto; top: auto; width: min(100%, var(--re-land-w, calc(56svh * var(--a)))); margin: 0; transform: none; z-index: auto; }
 .re-cs-hero .re-sw-screen img { pointer-events: none; }
 .re-cs-cap { margin-top: 14px; font-size: 14px; color: var(--re-fg-2); }
 .re-cs-words { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; max-width: 900px; }
@@ -796,4 +796,25 @@ html.re-html:active-view-transition .re-casepage :is(.re-cs-screens, .re-cs-next
 @media (max-width: 1023px) {
   .re-sw-layers { font-size: 14px; opacity: 1; }
   .re-casepage .re-cs-hero { width: min(100%, calc(40svh * var(--na, var(--a)))); }
+}
+
+/* ---------- ?tune: the debug view that draws what is otherwise invisible (not part of the page) ---------- */
+.re-tune {
+  position: fixed; left: 16px; bottom: 16px; z-index: 30; display: grid; gap: 6px; max-width: min(560px, calc(100vw - 32px)); padding: 12px 14px;
+  border-radius: 14px; background: rgb(12 12 17 / 0.94); box-shadow: 0 0 0 1px rgb(255 255 255 / 0.1); font-size: 13px; color: var(--re-fg-2);
+}
+.re-tune-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.re-tune-row > span:first-child { width: 72px; color: var(--re-fg); }
+.re-tune button { all: unset; cursor: pointer; padding: 6px 10px; border-radius: 999px; background: var(--re-fill); color: var(--re-fg-2); }
+.re-tune button[aria-pressed="true"] { background: var(--re-accent); color: var(--re-ink); }
+.re-tune-log { margin: 0; color: var(--re-accent); }
+:root[data-tune-debug] .re-root [data-tap="ok"] { outline: 1px solid rgb(62 230 164 / 0.8); outline-offset: 0; }
+:root[data-tune-debug] .re-root [data-tap="small"] { outline: 2px solid #ff5a5a; outline-offset: 0; }
+:root[data-tune-debug] .re-sw::before {
+  content: "settle p " attr(data-p); position: absolute; top: 4px; right: 4px; z-index: 9; padding: 2px 6px; border-radius: 6px;
+  font: 12px/1.4 var(--re-sans); color: var(--re-ink); background: var(--re-accent);
+}
+:root[data-tune-debug] .re-root::after {
+  content: "rest line: main screen's top at 60%"; position: fixed; left: 0; right: 0; top: 60vh; z-index: 29; pointer-events: none;
+  border-top: 1px dashed rgb(62 230 164 / 0.7); font: 12px/1.6 var(--re-sans); color: var(--re-accent); padding-left: 8px;
 }

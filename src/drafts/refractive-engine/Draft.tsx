@@ -8,6 +8,7 @@ import { ledger, links, systems, type Value } from './data'
 import { CasePage } from './CasePage'
 import { Lab } from './Lab'
 import { Production } from './Production'
+import { TunePanel } from './TunePanel'
 import './refractive-engine.css'
 
 type Mode = 'lens' | 'tensor'
@@ -346,18 +347,26 @@ export default function Draft() {
   const toCase = (slug: string, trigger?: HTMLAnchorElement, keyboard = false) => {
     homeScroll.current = scrollY
     productionTrigger.current = trigger ?? null
-    const go = () => navigate(`${BASE}/${slug}`, { viewTransition: true })
-    // A chapter's main slab, frame and screen together, grows into the case (it carries the transition's one named element). The router's own
-    // viewTransition flag does not start one here, so the page does, as the home page does. A key press opens at once.
     const hero = trigger?.closest('.re-sw')?.querySelector<HTMLElement>('.re-sw-lead')
+    // The case opens on a screen the same width as the one clicked: no shrink, no growth. The width rides on that case's
+    // own slab, so the next case keeps its default size.
+    const width = hero?.getBoundingClientRect().width
+    const go = () => {
+      flushSync(() => navigate(`${BASE}/${slug}`))
+      const landing = document.querySelector<HTMLElement>('.re-cs-hero[data-hero]')
+      if (landing && width) landing.style.setProperty('--re-land-w', `${width}px`)
+      return landing
+    }
+    // A chapter's main slab, frame and screen together, grows into the case (it carries the transition's one named element).
+    // The router's own viewTransition flag does not start one here, so the page does, as the home page does. A key press
+    // opens at once.
     if (hero && !keyboard && !reduced && typeof document.startViewTransition === 'function') {
       hero.style.setProperty('view-transition-name', 're-case-hero')
-      // The case opens on the same screen; naming it too turns the change into one move from the chapter to the case's top.
       const t = document.startViewTransition(async () => {
-        flushSync(go)
-        document.querySelector<HTMLElement>('.re-cs-hero[data-hero]')?.style.setProperty('view-transition-name', 're-case-hero')
+        const landing = go()
+        landing?.style.setProperty('view-transition-name', 're-case-hero')
         // The new snapshot waits for the screen to decode, so it never lands as an empty slab.
-        await document.querySelector<HTMLImageElement>('.re-cs-hero[data-hero] img')?.decode().catch(() => {})
+        await landing?.querySelector('img')?.decode().catch(() => {})
       })
       t.finished.finally(() => document.querySelector<HTMLElement>('.re-cs-hero[data-hero]')?.style.removeProperty('view-transition-name'))
     } else go()
@@ -426,6 +435,7 @@ export default function Draft() {
         {coordTable}
       </section>
 
+      {new URLSearchParams(location.search).has('tune') && <TunePanel scene={sceneRef} />}
       {caseSlug && <CasePage slug={caseSlug} onBack={() => toHome()} />}
 
       <main hidden={caseSlug !== undefined}>

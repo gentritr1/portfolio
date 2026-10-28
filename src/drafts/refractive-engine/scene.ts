@@ -9,6 +9,8 @@ import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js'
 export const STAGE = { hero: 0, lab: 1, ledger: 2, modes: 3, sim: 4, contact: 5 } as const
 
 export interface Stats {
+  /** The field's energy, 0–1: it rings down after input. */
+  ring?: number
   fps: number
   frameMs: number
   worstMs: number
@@ -469,7 +471,7 @@ export function createScene(
   const lensPos = new THREE.Vector2(-9999, -9999), lensTarget = new THREE.Vector2(-9999, -9999)
   let stage = 0, stageTarget = 0, lens = 0, lensWanted = false, lensFresh = true
   const focusPos = new THREE.Vector2(), focus = { r: LENS_R, w: 0 }
-  // The field rings down like a room built for speech: RT60 = 0.8 s, a 60 dB fall (x 0.001) in 0.8 s. Input raises it.
+  // The field rings down like a room built for speech: RT60 = 0.8 s, a 60 dB fall (x 0.001). Input raises it.
   const RT60 = 0.8
   let ring = 1, stillFrames = 0
   let modeFrom = options.mode as number, modeTo = options.mode as number, modeT = 1
@@ -499,6 +501,7 @@ export function createScene(
     if (!reduced && introT < 1) { introT = Math.min(1, introT + dt / 2); uniforms.uIntro.value = easeOut(introT) }
     stage += (stageTarget - stage) * damp(0.02)
     ring *= Math.pow(10, (-3 * dt) / RT60)
+    stats.ring = ring
     if (!reduced) uniforms.uTime.value += dt * ring
     const t = uniforms.uTime.value
 
