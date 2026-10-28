@@ -167,7 +167,7 @@ function useArrival(root: React.RefObject<HTMLElement | null>, reduced: boolean,
 }
 
 const shots = {
-  stories: { src: '/showcase/bayyinah/web-04.webp', w: 2880, h: 1800, alt: 'Bayyinah TV Stories library with illustrated courses and topic filters' },
+  landing: { src: '/showcase/bayyinah/web-01.webp', w: 2880, h: 1800, alt: 'Bayyinah TV landing page: Quran Studies Made Simple, with the app on a laptop, a monitor, a tablet and a phone' },
   courses: { src: '/showcase/bayyinah/web-02.webp', w: 2880, h: 1800, alt: 'Bayyinah TV course row with the live Ramadan 2026 course' },
   reader: { src: '/mobile/reading-3.webp', w: 780, h: 1689, alt: 'Read to Feed reader page, with its keep-reading prompt' },
   achievements: { src: '/mobile/reading-2.webp', w: 780, h: 1689, alt: 'Read to Feed achievements: eggs collected, badges and quizzes' },
@@ -199,7 +199,8 @@ export function Production({ onOpen, reduced, onFocus }: { onOpen(slug: string, 
         id="bayyinah" nh={440} hs={50}
         table={floor(654, 820, [[570, 731, 515, 51], [1160, 724, 210, 45]])}
         slabs={<>
-          <Slab shot={shots.stories} place={[70, 86, 1008]} phoneCrop={[120, 860, 1040, 940]} phone={[16, 11, 358]} nh={440} transform="rotate(-0.55deg)" eager />
+          {/* The hero only: the row under it shows the site's own audience figures, which are not the sourced Play count beside it. */}
+          <Slab shot={shots.landing} crop={[0, 0, 2880, 1420]} phoneCrop={[40, 400, 1400, 1000]} place={[70, 110, 1008]} phone={[16, 11, 358]} nh={440} transform="rotate(-0.55deg)" eager />
           <Slab shot={shots.courses} kind="swap" crop={[1248, 1148, 960, 620]} place={[984, 461, 370]} phone={[20, 188, 350]} nh={440} transform="rotate(2deg)" z={4} eager />
         </>}
       >
