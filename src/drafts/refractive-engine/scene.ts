@@ -6,7 +6,7 @@ import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js'
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js'
 
 /** Scroll stages, one per section. */
-export const STAGE = { hero: 0, modes: 1, lab: 2, sim: 3, ledger: 4, contact: 5 } as const
+export const STAGE = { hero: 0, lab: 1, ledger: 2, modes: 3, sim: 4, contact: 5 } as const
 
 export interface Stats {
   fps: number
@@ -418,13 +418,15 @@ export function createScene(
     const wide = camera.aspect > 1
     const P: THREE.Vector3[] = [], L: THREE.Vector3[] = []
     // Hero: nearly straight on. No pose ever looks straight down, so the roll is always defined.
+    // One pose per stage, in page order: hero, lab, ledger, modes, sim, contact.
     P.push(new THREE.Vector3(0, 0.5, wide ? 18.5 : 19.5)); L.push(new THREE.Vector3(0, 0, 0))
-    P.push(wide ? new THREE.Vector3(8.5, 2.8, 14.5) : new THREE.Vector3(5, 3, 21)); L.push(wide ? new THREE.Vector3(1.8, 0, -2.5) : new THREE.Vector3(0.5, 0.4, -2.5))
     // Lab: the pose that used to frame the prism grid, so the field around the chamber moves as before.
     P.push(wide ? new THREE.Vector3(0, -3.8, 14.2) : new THREE.Vector3(0, -2.9, 22)); L.push(wide ? new THREE.Vector3(0, -4.7, 2.5) : new THREE.Vector3(0, -3.8, 2.5))
-    P.push(wide ? new THREE.Vector3(3, 1.5, 19) : new THREE.Vector3(0, -0.5, 25)); L.push(wide ? new THREE.Vector3(5.5, 0.4, 0) : new THREE.Vector3(0, -0.5, 0))
-    // Close enough that the dots stay about 5 px apart: further back, the grid beats against the pixels into moire.
+    // Ledger. Close enough that the dots stay about 5 px apart: further back, the grid beats against the pixels into moire.
     P.push(new THREE.Vector3(wide ? -5 : -3, -2.5, wide ? 25 : 30)); L.push(new THREE.Vector3(1, -1, -2))
+    // Modes: the field turned to show its depth, where the two lenses are explained.
+    P.push(wide ? new THREE.Vector3(8.5, 2.8, 14.5) : new THREE.Vector3(5, 3, 21)); L.push(wide ? new THREE.Vector3(1.8, 0, -2.5) : new THREE.Vector3(0.5, 0.4, -2.5))
+    P.push(wide ? new THREE.Vector3(3, 1.5, 19) : new THREE.Vector3(0, -0.5, 25)); L.push(wide ? new THREE.Vector3(5.5, 0.4, 0) : new THREE.Vector3(0, -0.5, 0))
     P.push(new THREE.Vector3(0, 1.5, wide ? 24 : 30)); L.push(new THREE.Vector3(0, 0.5, 0))
     path = { pos: new THREE.CatmullRomCurve3(P, false, 'centripetal'), look: new THREE.CatmullRomCurve3(L, false, 'centripetal') }
   }
@@ -516,7 +518,8 @@ export function createScene(
     uniforms.uPointer.value.set(lensPos.x * pixelRatio, (cssH - lensPos.y) * pixelRatio)
     aberration.uniforms.uPointer.value.copy(uniforms.uPointer.value)
     aberration.uniforms.uAmt.value = lensW
-    uniforms.uDim.value = 1 - 0.45 * clamp01(stage - 3.3)
+    // The field steps back behind the ledger's rows and the contact card; the two cards about the field keep it bright.
+    uniforms.uDim.value = 1 - 0.45 * Math.max(clamp01(1.5 - Math.abs(stage - STAGE.ledger) * 1.5), clamp01(stage - STAGE.sim - 0.3))
 
     if (shockT >= 0) {
       shockT += dt

@@ -140,7 +140,8 @@ html.re-html.lenis-stopped { overflow: clip; }
 }
 
 /* The sub-line sits on the dot grid, so the hero carries a soft neutral scrim behind its text. */
-.re-hero { position: relative; isolation: isolate; min-height: 100svh; display: flex; flex-direction: column; justify-content: flex-end; gap: 14px; padding: 0 var(--re-gutter) 11vh; max-width: 1440px; margin: 0 auto; }
+/* The hero ends above the fold so the first chapter, its headline and the top of its screen, starts in the opening view. */
+.re-hero { position: relative; isolation: isolate; min-height: min(56svh, 460px); display: flex; flex-direction: column; justify-content: flex-end; gap: 14px; padding: 104px var(--re-gutter) 32px; max-width: 1440px; margin: 0 auto; }
 .re-hero::before {
   content: ""; position: absolute; z-index: -1; left: 0; bottom: 0; width: min(100%, 980px); height: 70%; pointer-events: none;
   background: radial-gradient(70% 60% at 20% 78%, rgb(5 5 8 / 0.82) 0%, rgb(5 5 8 / 0.5) 45%, rgb(5 5 8 / 0) 100%); /* taste-skill-ignore: a neutral legibility scrim over the WebGL field behind the hero text */
@@ -180,7 +181,8 @@ html.re-html.lenis-stopped { overflow: clip; }
 
 /* ---------- Production work: four chapters, the delivered change in the largest type ----------
    From the seniority study (2026-10-27). The field quiets under the words and screens and stays alive in the margins. */
-.re-prod { position: relative; isolation: isolate; max-width: 1320px; margin: 0 auto; padding: 24px var(--re-gutter) 56px; }
+.re-prod { position: relative; isolation: isolate; max-width: 1320px; margin: 0 auto; padding: 0 var(--re-gutter) 56px; }
+.re-prod-chapter:first-of-type { padding-top: 12px; }
 .re-prod::before {
   content: ""; position: absolute; inset: 0 calc(var(--re-gutter) * 0.4); z-index: -1; pointer-events: none; border-radius: 40px;
   background: rgb(5 5 8 / 0.9); box-shadow: 0 0 80px 56px rgb(5 5 8 / 0.9); /* taste-skill-ignore: a neutral legibility scrim over the WebGL field behind the work */
@@ -581,7 +583,7 @@ html.re-html.lenis-stopped { overflow: clip; }
   .re-statbtn { padding: 0 10px; min-height: 38px; }
   .re-stats { left: 16px; right: 16px; width: auto; }
   .re-card { padding: 22px; }
-  .re-hero { padding-bottom: 14vh; }
+  .re-hero { min-height: 52svh; padding-top: 96px; padding-bottom: 32px; }
   .re-hero::before { width: 100%; height: 60%; }
   .re-modes, .re-sim { align-items: flex-end; padding-bottom: 48px; }
   .re-live { grid-template-columns: 1fr 1fr; }

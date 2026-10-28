@@ -402,6 +402,33 @@ export default function Draft() {
 
         <Production onOpen={toCase} />
 
+        <Lab mode={mode} reduced={reduced} noGl={noGl} onOpen={toCase} />
+
+        <section className="re-ledger" data-stage={STAGE.ledger} aria-labelledby="re-ledger-h">
+          <div className="re-ledger-head">
+            <h2 id="re-ledger-h" className="re-h2">Before and after</h2>
+            <p className="re-lede">Measured results, drawn to scale. Each row names its source.</p>
+          </div>
+          <ol className="re-rows">
+            {ledger.map((row) => (
+              <li key={row.id} className="re-row re-solid">
+                <h3>{row.name}</h3>
+                {row.bars.map((b) => (
+                  <div key={b.label} className="re-pair">
+                    <p className="re-pair-label">{b.label}</p>
+                    <div className="re-pair-bars">
+                      <Bar v={b.before} scale={b.scale} kind="before" />
+                      <Bar v={b.after} scale={b.scale} kind="after" />
+                    </div>
+                  </div>
+                ))}
+                <p className="re-row-note">{row.note}</p>
+                <p className="re-src re-num">Source: {row.source}</p>
+              </li>
+            ))}
+          </ol>
+        </section>
+
         <section className="re-modes" data-stage={STAGE.modes} aria-labelledby="re-modes-h">
           <div className="re-card re-solid">
             <h2 id="re-modes-h" className="re-h2">One field, two lenses</h2>
@@ -420,8 +447,6 @@ export default function Draft() {
             {!noGl && coordTable}
           </div>
         </section>
-
-        <Lab mode={mode} reduced={reduced} noGl={noGl} onOpen={toCase} />
 
         <section className="re-sim" data-stage={STAGE.sim} aria-labelledby="re-sim-h">
           <div className="re-card re-solid">
@@ -463,31 +488,6 @@ export default function Draft() {
               Reset
             </button>
           </div>
-        </section>
-
-        <section className="re-ledger" data-stage={STAGE.ledger} aria-labelledby="re-ledger-h">
-          <div className="re-ledger-head">
-            <h2 id="re-ledger-h" className="re-h2">Before and after</h2>
-            <p className="re-lede">Measured results from shipped work, drawn to scale. Each row names its source.</p>
-          </div>
-          <ol className="re-rows">
-            {ledger.map((row) => (
-              <li key={row.id} className="re-row re-solid">
-                <h3>{row.name}</h3>
-                {row.bars.map((b) => (
-                  <div key={b.label} className="re-pair">
-                    <p className="re-pair-label">{b.label}</p>
-                    <div className="re-pair-bars">
-                      <Bar v={b.before} scale={b.scale} kind="before" />
-                      <Bar v={b.after} scale={b.scale} kind="after" />
-                    </div>
-                  </div>
-                ))}
-                <p className="re-row-note">{row.note}</p>
-                <p className="re-src re-num">Source: {row.source}</p>
-              </li>
-            ))}
-          </ol>
         </section>
 
         <footer className="re-contact" data-stage={STAGE.contact}>
