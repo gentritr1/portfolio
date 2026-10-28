@@ -325,6 +325,13 @@ export default function Draft() {
   }, [caseSlug])
 
   const focusField = useCallback((x: number, y: number, r: number, w: number) => sceneRef.current?.setFocus(x, y, r, w), [])
+  // The browser bar takes the page's own ground, not the site's sky colour for the time of day.
+  useEffect(() => {
+    const m = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]')
+    const was = m?.content
+    m?.setAttribute('content', '#050508')
+    return () => { if (m && was) m.content = was }
+  }, [])
   const toCase = (slug: string, trigger?: HTMLAnchorElement, keyboard = false) => {
     homeScroll.current = scrollY
     productionTrigger.current = trigger ?? null
@@ -335,9 +342,11 @@ export default function Draft() {
     if (hero && !keyboard && !reduced && typeof document.startViewTransition === 'function') {
       hero.style.setProperty('view-transition-name', 're-case-hero')
       // The case opens on the same screen; naming it too turns the change into one move from the chapter to the case's top.
-      const t = document.startViewTransition(() => {
+      const t = document.startViewTransition(async () => {
         flushSync(go)
         document.querySelector<HTMLElement>('.re-cs-hero[data-hero] .re-sw-screen')?.style.setProperty('view-transition-name', 're-case-hero')
+        // The new snapshot waits for the screen to decode, so it never lands as an empty slab.
+        await document.querySelector<HTMLImageElement>('.re-cs-hero[data-hero] img')?.decode().catch(() => {})
       })
       t.finished.finally(() => document.querySelector<HTMLElement>('.re-cs-hero[data-hero] .re-sw-screen')?.style.removeProperty('view-transition-name'))
     } else go()

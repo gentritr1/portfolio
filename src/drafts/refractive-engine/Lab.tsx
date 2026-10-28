@@ -128,6 +128,12 @@ export function Lab({ mode, reduced, noGl, onOpen }: { mode: 'lens' | 'tensor'; 
     chamber.current?.setLayer(null, instant)
     chamber.current?.setAside(false, true)
     chamber.current?.select(i, instant)
+    // Single column: bring the preview back into view, so the choice is seen.
+    const viewer = stageRef.current?.closest<HTMLElement>('.re-ch-viewer')
+    if (viewer && matchMedia('(max-width: 899px)').matches) {
+      const r = viewer.getBoundingClientRect()
+      if (r.top < 64 || r.bottom > innerHeight) viewer.scrollIntoView({ block: 'start', behavior: reduced || instant ? 'instant' : 'smooth' })
+    }
   }
   const tryIt = (on: boolean, instant: boolean) => {
     finishArrival(instant)

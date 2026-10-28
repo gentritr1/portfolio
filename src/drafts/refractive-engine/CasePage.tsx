@@ -19,7 +19,8 @@ const isPhone = (slug: string, name: string) => {
 function Hero({ slug, name, named }: { slug: string; name: string; named?: boolean }) {
   const { shot, crop, phoneCrop } = leadOf(slug, name)
   const c = crop ?? [0, 0, shot.w, shot.h]
-  const style = { ...cropVars(shot, crop), ...cropVars(shot, phoneCrop ?? crop, 'n'), '--a': c[2] / c[3] } as Vars
+  const n = phoneCrop ?? c
+  const style = { ...cropVars(shot, crop), ...cropVars(shot, phoneCrop ?? crop, 'n'), '--a': c[2] / c[3], '--na': n[2] / n[3] } as Vars
   return (
     <figure className="re-sw-slab re-cs-hero" style={style} data-shape={isPhone(slug, name) ? 'phone' : 'wide'} data-hero={named || undefined}>
       <div className="re-sw-screen"><img src={shot.src} width={shot.w} height={shot.h} alt={shot.alt} decoding="async" /></div>
