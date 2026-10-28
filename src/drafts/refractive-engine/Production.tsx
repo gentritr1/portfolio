@@ -9,9 +9,9 @@ import { ArrowRightIcon, XIcon } from '@phosphor-icons/react'
  * 41 components and 22 releases in 60 days (§6b), about 14 releases and RN 0.63 → 0.81 (§4). The care rebuild keeps its
  * approved name and stays marked in progress (§2, not in production).
  *
- * Motion (bayyinah-motion storyboard): scrolled in, the screens rise from 70° about their lower edge to frontal as the
- * field's dots gather onto the main screen's bevel; pointers that hover bring Bayyinah's second screen forward; "Read the
- * case" grows the main screen into the case (Draft.tsx names it for the view transition).
+ * Motion: scrolled in, the screens settle a few degrees and pixels into place; pointers that hover bring Bayyinah's second
+ * screen forward a little; "Read the case" grows the main screen into the case (Draft.tsx names it for the view transition).
+ * The field behind the page stays visible around the work and quiets only behind the words.
  */
 
 const BASE = '/drafts/refractive-engine'
@@ -71,7 +71,6 @@ function Chapter({ id, nh, table, hs, slabs, children }: { id: string; nh: numbe
       <div className="re-sw-stage">
         <div className="re-sw-floor" style={table} aria-hidden="true" />
         <div className="re-sw-slabs">{slabs}</div>
-        <canvas className="re-sw-dots" aria-hidden="true" />
       </div>
       {children}
     </article>
@@ -91,124 +90,53 @@ function Reach({ href }: { href: string }) {
   )
 }
 
-// The storyboard's three scroll poses, mapped 1:1 to progress: 70° and 32% light, 30° and 70%, frontal and full.
-const tiltAt = (p: number) => (p < 0.5 ? 70 - 80 * p : 30 - 60 * (p - 0.5))
-const litAt = (p: number) => (p < 0.5 ? 0.32 + 0.76 * p : 0.7 + 0.6 * (p - 0.5))
-const glowAt = (p: number) => (p < 0.5 ? 0.9 * p : 0.45 + 1.1 * (p - 0.5))
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v))
-const DOTS = 150
 
-/** Scroll-driven arrival: tilt and light as CSS variables, and the dots on a small 2D canvas, only while a chapter is in view. */
+/**
+ * Scroll-driven arrival, kept small: the screens settle from 10° and 28 px lower at 55% opacity to rest, and the table's
+ * light comes up under them, by the time the main screen's top reaches 60% of the viewport. Progress maps 1:1 to scroll,
+ * with no easing of its own. transform and opacity are written on the two moving layers themselves, not as variables on
+ * the chapter, which would restyle every image and line of text in it on each scroll frame.
+ */
 function useArrival(root: React.RefObject<HTMLElement | null>, reduced: boolean) {
   useEffect(() => {
     const host = root.current
-    if (!host) return
-    const chapters = [...host.querySelectorAll<HTMLElement>('.re-sw')]
-    // transform and opacity are written on the two moving layers themselves, not as variables on the chapter, which
-    // would restyle every image and line of text in it on each scroll frame.
-    const layers = (el: HTMLElement) => [el.querySelector<HTMLElement>('.re-sw-slabs')!, el.querySelector<HTMLElement>('.re-sw-floor')!] as const
-    const rest = (el: HTMLElement) => {
-      el.removeAttribute('data-tilting')
-      for (const l of layers(el)) { l.style.removeProperty('transform'); l.style.removeProperty('opacity') }
-    }
-    if (reduced) { chapters.forEach(rest); return }
-
-    let seed = 42
-    const rand = () => ((seed = (seed * 1664525 + 1013904223) >>> 0) / 4294967296)
-    const all = chapters.map((el) => ({
-      el,
-      stage: el.querySelector<HTMLElement>('.re-sw-stage')!,
+    if (!host || reduced) return
+    const all = [...host.querySelectorAll<HTMLElement>('.re-sw')].map((el) => ({
       lead: el.querySelector<HTMLElement>('.re-sw-lead')!,
-      canvas: el.querySelector<HTMLCanvasElement>('.re-sw-dots')!,
-      layers: layers(el),
-      // Each dot has a home on the bevel and a start 20–160 px outside it, most of them close in.
-      dots: Array.from({ length: DOTS }, () => ({ t: rand(), d: 20 + 140 * rand() ** 1.6, r: 0.5 + rand() * 0.5 })),
-      geo: { w: 0, h: 0, x: 0, y: 0, lw: 0, lh: 0, persp: 2200 },
+      slabs: el.querySelector<HTMLElement>('.re-sw-slabs')!,
+      floor: el.querySelector<HTMLElement>('.re-sw-floor')!,
       p: -1,
-      still: false,
     }))
-    const visible = new Set<(typeof all)[number]>()
-    const dpr = Math.min(2, devicePixelRatio || 1)
-
-    const measure = () => {
-      for (const c of all) {
-        const w = c.stage.clientWidth, h = c.stage.clientHeight
-        c.geo = { w, h, x: c.lead.offsetLeft, y: c.lead.offsetTop, lw: c.lead.offsetWidth, lh: c.lead.offsetHeight, persp: (2200 * w) / 1440 }
-        c.canvas.width = Math.round(w * dpr)
-        c.canvas.height = Math.round(h * dpr)
-        c.layers[0].style.transformOrigin = `50% ${c.geo.y + c.geo.lh}px`
-        // A chapter already in the opening screen stays at rest: it was never scrolled in.
-        c.still = c.lead.getBoundingClientRect().top + scrollY < innerHeight
-        c.p = -1
+    const set = (c: (typeof all)[number], p: number) => {
+      if (p >= 1) {
+        for (const l of [c.slabs, c.floor]) { l.style.removeProperty('transform'); l.style.removeProperty('opacity') }
+        return
       }
+      const q = 1 - p
+      c.slabs.style.transform = `perspective(1600px) translateY(${(28 * q).toFixed(1)}px) rotateX(${(10 * q).toFixed(2)}deg)`
+      c.slabs.style.opacity = (0.55 + 0.45 * p).toFixed(3)
+      c.floor.style.opacity = (0.4 + 0.6 * p).toFixed(3)
     }
-
-    const draw = (c: (typeof all)[number], p: number) => {
-      const ctx = c.canvas.getContext('2d')
-      if (!ctx) return
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
-      ctx.clearRect(0, 0, c.geo.w, c.geo.h)
-      if (p <= 0 || p >= 1) return
-      const { x, y, lw, lh, persp, w } = c.geo
-      const th = (tiltAt(p) * Math.PI) / 180, cos = Math.cos(th), sin = Math.sin(th)
-      const ox = w / 2, oy = y + lh
-      const a = clamp01(p / 0.5), near = 1 - (1 - a) ** 3
-      ctx.fillStyle = `rgb(221 227 240 / ${p < 0.5 ? 0.3 + 0.55 * a : 0.85 * (1 - (p - 0.5) / 0.5)})`
-      const per = 2 * (lw + lh)
-      for (const d of c.dots) {
-        // A point on the screen's outline, pushed out along that edge's normal, then put through the same perspective.
-        let s = d.t * per, px: number, py: number, nx = 0, ny = 0
-        if (s < lw) { px = x + s; py = y; ny = -1 }
-        else if ((s -= lw) < lh) { px = x + lw; py = y + s; nx = 1 }
-        else if ((s -= lh) < lw) { px = x + lw - s; py = y + lh; ny = 1 }
-        else { s -= lw; px = x; py = y + lh - s; nx = -1 }
-        const off = d.d * (1 - near)
-        const X = px + nx * off - ox, Y = py + ny * off - oy
-        const k = persp / (persp - Y * sin)
-        ctx.beginPath()
-        ctx.arc(ox + X * k, oy + Y * cos * k, d.r, 0, Math.PI * 2)
-        ctx.fill()
-      }
-    }
-
     let frame = 0
     const update = () => {
       frame = 0
-      for (const c of visible) {
-        // Driven by the main screen itself: it starts rising as its top enters and is frontal once that top reaches 35%.
-        const p = c.still ? 1 : clamp01((innerHeight - c.lead.getBoundingClientRect().top) / (innerHeight * 0.65))
-        if (p === c.p) continue
-        c.p = p
-        if (p >= 1) rest(c.el)
-        else {
-          c.el.setAttribute('data-tilting', '')
-          c.layers[0].style.transform = `perspective(${c.geo.persp.toFixed(0)}px) rotateX(${tiltAt(p).toFixed(2)}deg)`
-          c.layers[0].style.opacity = litAt(p).toFixed(3)
-          c.layers[1].style.opacity = glowAt(p).toFixed(3)
-        }
-        draw(c, p)
+      for (const c of all) {
+        const top = c.lead.getBoundingClientRect().top
+        if (top > innerHeight * 1.2 || top < -innerHeight) continue
+        const p = clamp01((innerHeight - top) / (innerHeight * 0.4))
+        if (p !== c.p) { c.p = p; set(c, p) }
       }
     }
     const schedule = () => { if (!frame) frame = requestAnimationFrame(update) }
-    const io = new IntersectionObserver((entries) => {
-      for (const e of entries) {
-        const c = all.find((x) => x.el === e.target)
-        if (c && e.isIntersecting) visible.add(c)
-        else if (c) visible.delete(c)
-      }
-      schedule()
-    })
-    const onResize = () => { measure(); schedule() }
-    measure()
-    all.forEach((c) => io.observe(c.el))
+    update()
     addEventListener('scroll', schedule, { passive: true })
-    addEventListener('resize', onResize)
+    addEventListener('resize', schedule)
     return () => {
       cancelAnimationFrame(frame)
-      io.disconnect()
       removeEventListener('scroll', schedule)
-      removeEventListener('resize', onResize)
-      chapters.forEach(rest)
+      removeEventListener('resize', schedule)
+      all.forEach((c) => set(c, 1))
     }
   }, [root, reduced])
 }
@@ -250,7 +178,7 @@ export function Production({ onOpen, reduced }: { onOpen(slug: string, trigger: 
           <Slab shot={shots.courses} kind="swap" crop={[1248, 1148, 960, 620]} place={[984, 461, 370]} phone={[20, 188, 350]} nh={440} transform="rotate(2deg)" z={4} eager />
         </>}
       >
-        <div className="re-sw-at re-sw-copy re-sw-scrim" style={at(48, 742, 865)}>
+        <div className="re-sw-at re-sw-copy" style={at(48, 742, 865)}>
           <Meta name="Bayyinah TV" role="Frontend · 2023–2026" />
           <h3>Rebuilt a live learning platform.</h3>
           <p className="re-sw-line">Live and on-demand video, subscriptions and English/Arabic support across web and mobile.</p>
