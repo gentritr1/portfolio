@@ -183,8 +183,13 @@ export default function Draft() {
         })
         .sort((a, b) => a.y - b.y)
     }
-    let shownQ = -1
+    let shownQ = -1, lastY = scrollY, lastT = performance.now()
     const onScroll = () => {
+      // Scroll speed wakes the field: 1200 px/s is full energy; it rings down by itself once the page stops.
+      const now = performance.now()
+      if (now > lastT) scene.wake(Math.abs(scrollY - lastY) / (now - lastT) / 1.2)
+      lastY = scrollY
+      lastT = now
       const y = scrollY + innerHeight / 2
       let s = anchors[0]?.s ?? 0
       for (let i = 0; i < anchors.length - 1; i++) {
@@ -198,8 +203,13 @@ export default function Draft() {
     }
     let pending = false, px = 0, py = 0, inside = false
     // The lens and the lean follow a mouse only: on touch the same finger is scrolling.
+    let moveT = performance.now()
     const onMove = (e: PointerEvent) => {
       if (e.pointerType !== 'mouse') return
+      // Pointer speed wakes it too: 900 px/s is full energy.
+      const now = performance.now()
+      if (now > moveT) scene.wake(Math.hypot(e.clientX - px, e.clientY - py) / (now - moveT) / 0.9)
+      moveT = now
       px = e.clientX
       py = e.clientY
       inside = !onCase.current && !(e.target as HTMLElement).closest('.re-solid, .re-sw-at, .re-sw-slab, button, a, input')
@@ -302,8 +312,9 @@ export default function Draft() {
     const from = lastCase.current
     lastCase.current = caseSlug
     if (caseSlug) {
-      // The old page is already captured for the view transition; the name must not stay on a screen the case hides.
-      document.querySelectorAll<HTMLElement>('.re-sw-screen[style*="view-transition-name"]').forEach((el) => el.style.removeProperty('view-transition-name'))
+      // The old page is already captured for the view transition; the name must not stay on a slab the case hides.
+      document.querySelectorAll<HTMLElement>('.re-sw [style*="view-transition-name"]').forEach((el) => el.style.removeProperty('view-transition-name'))
+      document.querySelectorAll('.re-sw[data-lift]').forEach((el) => el.removeAttribute('data-lift'))
       if (from !== caseSlug) jump(0)
       return
     }
@@ -336,19 +347,19 @@ export default function Draft() {
     homeScroll.current = scrollY
     productionTrigger.current = trigger ?? null
     const go = () => navigate(`${BASE}/${slug}`, { viewTransition: true })
-    // A chapter's main screen grows into the case (it carries the transition's one named element). The router's own
+    // A chapter's main slab, frame and screen together, grows into the case (it carries the transition's one named element). The router's own
     // viewTransition flag does not start one here, so the page does, as the home page does. A key press opens at once.
-    const hero = trigger?.closest('.re-sw')?.querySelector<HTMLElement>('.re-sw-lead > .re-sw-screen')
+    const hero = trigger?.closest('.re-sw')?.querySelector<HTMLElement>('.re-sw-lead')
     if (hero && !keyboard && !reduced && typeof document.startViewTransition === 'function') {
       hero.style.setProperty('view-transition-name', 're-case-hero')
       // The case opens on the same screen; naming it too turns the change into one move from the chapter to the case's top.
       const t = document.startViewTransition(async () => {
         flushSync(go)
-        document.querySelector<HTMLElement>('.re-cs-hero[data-hero] .re-sw-screen')?.style.setProperty('view-transition-name', 're-case-hero')
+        document.querySelector<HTMLElement>('.re-cs-hero[data-hero]')?.style.setProperty('view-transition-name', 're-case-hero')
         // The new snapshot waits for the screen to decode, so it never lands as an empty slab.
         await document.querySelector<HTMLImageElement>('.re-cs-hero[data-hero] img')?.decode().catch(() => {})
       })
-      t.finished.finally(() => document.querySelector<HTMLElement>('.re-cs-hero[data-hero] .re-sw-screen')?.style.removeProperty('view-transition-name'))
+      t.finished.finally(() => document.querySelector<HTMLElement>('.re-cs-hero[data-hero]')?.style.removeProperty('view-transition-name'))
     } else go()
   }
   const toHome = (top = false) => {

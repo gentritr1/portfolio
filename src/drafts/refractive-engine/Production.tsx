@@ -1,7 +1,7 @@
 import { lazy, Suspense, useEffect, useRef, useState, type CSSProperties, type MouseEvent, type ReactNode } from 'react'
 import { ArrowRightIcon, XIcon } from '@phosphor-icons/react'
 import { systems } from './data'
-import { cropVars, pct, shots, type Crop, type Shot } from './screens'
+import { cropVars, LEADS, pct, shots, type Crop, type Shot } from './screens'
 
 /**
  * Production work: five chapters, each one composition of real screens standing on a lit table, from the selected-work
@@ -65,6 +65,7 @@ function Chapter({ id, nh, table, hs, slabs, children }: { id: string; nh: numbe
     <article className={`re-sw re-sw-${id}`} style={{ '--nh': nh, '--hs': hs } as Vars}>
       <div className="re-sw-stage">
         <div className="re-sw-floor" style={table} aria-hidden="true" />
+        <div className="re-sw-contact" aria-hidden="true"><span className="re-sw-contact-soft" /><span className="re-sw-contact-sharp" /></div>
         <div className="re-sw-slabs">{slabs}</div>
       </div>
       {children}
@@ -104,12 +105,40 @@ function Reach({ href }: { href: string }) {
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v))
 
 /**
- * Scroll-driven arrival, kept small: the screens settle from 10° and 28 px lower at 55% opacity to rest, and the table's
- * light comes up under them, by the time the main screen's top reaches 60% of the viewport. Progress maps 1:1 to scroll,
- * with no easing of its own. transform and opacity are written on the two moving layers themselves, not as variables on
- * the chapter, which would restyle every image and line of text in it on each scroll frame.
+ * The settle's shape: a critically damped ("deadbeat") response, 1 − (1 + ωp)·e^(−ωp). It moves fastest early and its
+ * slope reaches zero at rest, so the screen lands instead of stopping dead. ω = 7.5 leaves 0.13 px and 0.05° at p = 1,
+ * under half a device pixel, so the cut to the resting styles cannot be seen.
+ */
+const OMEGA = 7.5
+const deadbeat = (p: number) => 1 - (1 + OMEGA * p) * Math.exp(-OMEGA * p)
+
+/**
+ * Scroll-driven arrival, kept small: the screens settle from 10° and 28 px lower to rest along the deadbeat curve, solid
+ * the whole way, by the time the main screen's top reaches 60% of the viewport. The table's light comes up under them and
+ * a contact shadow tightens as the gap closes: its blur follows the penumbra law, 2 + 0.5 × gap px (16 px → 2 px), drawn
+ * as a soft and a sharp layer crossfaded by opacity, so nothing repaints. transform and opacity are written on the moving
+ * layers themselves, not as variables on the chapter, which would restyle every image and line of text in it each frame.
  */
 function useArrival(root: React.RefObject<HTMLElement | null>, reduced: boolean, onFocus?: (x: number, y: number, r: number, w: number) => void) {
+  // The contact shadow sits on the table under the main screen, whatever the layout; placed for reduced motion too.
+  useEffect(() => {
+    const host = root.current
+    if (!host) return
+    const place = () => {
+      for (const el of host.querySelectorAll<HTMLElement>('.re-sw')) {
+        const lead = el.querySelector<HTMLElement>('.re-sw-lead'), contact = el.querySelector<HTMLElement>('.re-sw-contact')
+        if (!lead || !contact) continue
+        contact.style.left = `${lead.offsetLeft + lead.offsetWidth * 0.06}px`
+        contact.style.width = `${lead.offsetWidth * 0.88}px`
+        contact.style.top = `${lead.offsetTop + lead.offsetHeight - 10}px`
+      }
+    }
+    place()
+    const ro = new ResizeObserver(place)
+    host.querySelectorAll('.re-sw-stage').forEach((s) => ro.observe(s))
+    return () => ro.disconnect()
+  }, [root])
+
   useEffect(() => {
     const host = root.current
     if (!host || reduced) return
@@ -117,17 +146,23 @@ function useArrival(root: React.RefObject<HTMLElement | null>, reduced: boolean,
       lead: el.querySelector<HTMLElement>('.re-sw-lead')!,
       slabs: el.querySelector<HTMLElement>('.re-sw-slabs')!,
       floor: el.querySelector<HTMLElement>('.re-sw-floor')!,
+      contact: el.querySelector<HTMLElement>('.re-sw-contact')!,
+      soft: el.querySelector<HTMLElement>('.re-sw-contact-soft')!,
+      sharp: el.querySelector<HTMLElement>('.re-sw-contact-sharp')!,
       p: -1,
     }))
     const set = (c: (typeof all)[number], p: number) => {
       if (p >= 1) {
-        for (const l of [c.slabs, c.floor]) { l.style.removeProperty('transform'); l.style.removeProperty('opacity') }
+        for (const l of [c.slabs, c.floor, c.contact, c.soft, c.sharp]) { l.style.removeProperty('transform'); l.style.removeProperty('opacity') }
         return
       }
-      const q = 1 - p
-      c.slabs.style.transform = `perspective(1600px) translateY(${(28 * q).toFixed(1)}px) rotateX(${(10 * q).toFixed(2)}deg)`
-      c.slabs.style.opacity = (0.55 + 0.45 * p).toFixed(3)
-      c.floor.style.opacity = (0.4 + 0.6 * p).toFixed(3)
+      const e = deadbeat(p), q = 1 - e, gap = 28 * q
+      c.slabs.style.transform = `perspective(1600px) translateY(${gap.toFixed(2)}px) rotateX(${(10 * q).toFixed(3)}deg)`
+      c.floor.style.opacity = (0.4 + 0.6 * e).toFixed(3)
+      // Penumbra: the soft layer is the 16 px shadow of the full gap, the sharp one the 2 px shadow at contact.
+      c.soft.style.opacity = q.toFixed(3)
+      c.sharp.style.opacity = e.toFixed(3)
+      c.contact.style.transform = `translateY(${(0.58 * gap).toFixed(2)}px)`
     }
     let frame = 0, focusW = 0
     const update = () => {
@@ -166,8 +201,15 @@ export function Production({ onOpen, reduced, onFocus }: { onOpen(slug: string, 
   const [reading, setReading] = useState(false)
   useArrival(root, reduced, onFocus)
 
+  // Pressing the link starts the move and warms the case's opening screen; the click then opens it.
+  const press = (slug: string) => (e: React.PointerEvent<HTMLAnchorElement>) => {
+    const lead = LEADS[slug]
+    if (lead) { const img = new Image(); img.src = lead.shot.src; img.decode().catch(() => {}) }
+    if (e.pointerType === 'mouse' && e.button === 0) e.currentTarget.closest('.re-sw')?.setAttribute('data-lift', '')
+  }
+  const release = (e: React.PointerEvent<HTMLAnchorElement>) => e.currentTarget.closest('.re-sw')?.removeAttribute('data-lift')
   const caseLink = (slug: string) => (
-    <a className="re-prod-case" href={`${BASE}/${slug}`} onClick={(e) => { if (!plain(e)) return; e.preventDefault(); onOpen(slug, e.currentTarget, e.detail === 0) }}>
+    <a className="re-prod-case" href={`${BASE}/${slug}`} onPointerDown={press(slug)} onPointerLeave={release} onPointerCancel={release} onClick={(e) => { if (!plain(e)) return; e.preventDefault(); onOpen(slug, e.currentTarget, e.detail === 0) }}>
       Read the case
       <ArrowRightIcon size={20} weight="light" aria-hidden="true" />
     </a>

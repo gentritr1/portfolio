@@ -28,6 +28,8 @@ export interface RefractiveScene {
   setPointer(x: number, y: number, inside: boolean): void
   /** A page-driven lens (client pixels, radius in px, weight 0–1): the production chapters snap the field around a screen as it settles. */
   setFocus(x: number, y: number, r: number, w: number): void
+  /** Input energy, 0–1 (scroll or pointer speed, already normalised). The field moves while it rings down, then rests. */
+  wake(energy: number): void
   /** A mouse click: a ripple across the field. */
   ripple(x: number, y: number): void
   setMode(mode: 0 | 1): void
@@ -467,6 +469,9 @@ export function createScene(
   const lensPos = new THREE.Vector2(-9999, -9999), lensTarget = new THREE.Vector2(-9999, -9999)
   let stage = 0, stageTarget = 0, lens = 0, lensWanted = false, lensFresh = true
   const focusPos = new THREE.Vector2(), focus = { r: LENS_R, w: 0 }
+  // The field rings down like a room built for speech: RT60 = 0.8 s, a 60 dB fall (x 0.001) in 0.8 s. Input raises it.
+  const RT60 = 0.8
+  let ring = 1, stillFrames = 0
   let modeFrom = options.mode as number, modeTo = options.mode as number, modeT = 1
   let shockT = -1, introT = 0, disposed = false
   const stats: Stats = { fps: 0, frameMs: 0, worstMs: 0, calls: 0, drawn: count, history: new Float32Array(120), head: 0, frames: 0 }
@@ -493,7 +498,8 @@ export function createScene(
 
     if (!reduced && introT < 1) { introT = Math.min(1, introT + dt / 2); uniforms.uIntro.value = easeOut(introT) }
     stage += (stageTarget - stage) * damp(0.02)
-    if (!reduced) uniforms.uTime.value += dt
+    ring *= Math.pow(10, (-3 * dt) / RT60)
+    if (!reduced) uniforms.uTime.value += dt * ring
     const t = uniforms.uTime.value
 
     // Mode: a 600 ms ease-out between the two arrangements.
@@ -550,7 +556,7 @@ export function createScene(
       lean.x += (leanTarget.x - lean.x) * (1 - Math.pow(0.3, dt))
       lean.y += (leanTarget.y - lean.y) * (1 - Math.pow(0.3, dt))
       camera.matrixWorld.extractBasis(camRight, camUp, camDir)
-      const s = now / 1000
+      const s = t
       want.addScaledVector(camRight, lean.x * 0.3 + Math.sin(s * 0.13) * 0.05)
       want.addScaledVector(camUp, lean.y * 0.18 + Math.sin(s * 0.11 + 1.3) * 0.03)
     }
@@ -560,9 +566,15 @@ export function createScene(
     camera.lookAt(lookCur)
     camera.updateMatrixWorld()
 
-    renderer.info.reset()
-    composer.render()
-    stats.calls = renderer.info.render.calls
+    // Render on demand: once nothing is moving (rung down, camera arrived, no lens, no tween), the last frame stays up.
+    const moving = ring > 0.001 || introT < 1 || modeT < 1 || shockT >= 0 || lens > 0.002 || focus.w > 0.001 ||
+      Math.abs(stageTarget - stage) > 1e-4 || camPos.distanceToSquared(want) > 1e-8 || Math.abs(leanTarget.x - lean.x) + Math.abs(leanTarget.y - lean.y) > 1e-4
+    stillFrames = moving ? 0 : stillFrames + 1
+    if (stillFrames < 3) {
+      renderer.info.reset()
+      composer.render()
+      stats.calls = renderer.info.render.calls
+    }
     fpsFrames++
     fpsT += rawDt
     if (fpsT >= 500) {
@@ -615,6 +627,7 @@ export function createScene(
     stats,
     grid: { columns: COLUMNS, pitch: PITCH, left: FRAME.l },
     setStage(v) { stageTarget = v },
+    wake(energy) { if (!reduced) ring = Math.max(ring, Math.min(1, energy)) },
     setPointer(x, y, inside) {
       leanTarget.set((x / cssW) * 2 - 1, -(y / cssH) * 2 + 1)
       const want = inside

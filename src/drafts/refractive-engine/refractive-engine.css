@@ -193,6 +193,12 @@ html.re-html.lenis-stopped { overflow: clip; }
   background: var(--fl), linear-gradient(rgb(29 32 38 / 0.18), rgb(32 36 42 / 0.46) 55%, rgb(9 11 16 / 0.05));
 }
 .re-sw-slabs { position: absolute; inset: 0; transform-origin: 50% 85%; }
+/* Contact shadow under the main screen: a sharp 2 px core at rest; while the screen is still above the table, a 16 px
+   penumbra (the penumbra law, 2 + 0.5 × gap). Static blurs, crossfaded by opacity from the settle. */
+.re-sw-contact { position: absolute; height: 22px; pointer-events: none; }
+.re-sw-contact > span { position: absolute; inset: 0; border-radius: 50%; }
+.re-sw-contact-soft { background: rgb(0 0 0 / 0.55); filter: blur(16px); opacity: 0; }
+.re-sw-contact > .re-sw-contact-sharp { inset: 6px 3%; background: rgb(0 0 0 / 0.7); filter: blur(2px); }
 /* A slab: polished bevel, thicker on the lower and right edges, a short contact shadow and a faint reflection. */
 .re-sw-slab {
   position: absolute; left: var(--x); top: var(--y); width: var(--w); z-index: var(--z, 2); margin: 0; transform: var(--t, none);
@@ -212,8 +218,12 @@ html.re-html.lenis-stopped { overflow: clip; }
 .re-sw-states { padding: 6px 7px 15px 6px; box-shadow: 6px 18px 0 -7px #11151d, 6px 24px 16px -9px #000, 0 47px 44px -13px #000; }
 .re-sw-states-row { display: flex; overflow: hidden; border-radius: 5px; background: #fff; }
 .re-sw-states-row img { display: block; width: 20%; height: auto; }
+/* Cut on action: pressing "Read the case" lifts the main slab 6 px over 240 ms, so the movement is already under way when
+   the page changes (the press-to-first-frame gap is about 220 ms). Mouse only; touch and keyboard open without it. */
+.re-sw-lead { transition: translate 240ms var(--re-ease), filter 200ms var(--re-ease); }
+.re-sw[data-lift] .re-sw-lead { translate: 0 -6px; }
+@media (prefers-reduced-motion: reduce) { .re-sw[data-lift] .re-sw-lead { translate: none; } }
 /* Hover, on pointers that have it: Bayyinah's second screen comes forward to a readable size and the main one steps back. */
-.re-sw-lead { transition: filter 200ms var(--re-ease); }
 @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
   .re-sw-swap { transform-origin: 84% 96%; transition: transform 160ms var(--re-ease); }
   .re-sw-swap:hover { transform: translateY(-8px) scale(1.12); transition-duration: 200ms; }
@@ -638,7 +648,7 @@ html:has(.re-sw-reader[open]) { overflow: hidden; }
 /* ---- Landing: the screen the chapter showed, then the question and its answer ---- */
 .re-cs-landing { display: grid; grid-template-columns: minmax(0, 1fr); gap: clamp(24px, 3.5vh, 40px); }
 .re-cs-media, .re-cs-words { min-width: 0; }
-.re-casepage .re-cs-hero { position: relative; left: auto; top: auto; width: min(100%, calc(40svh * var(--a))); margin: 0; transform: none; z-index: auto; }
+.re-casepage .re-cs-hero { position: relative; left: auto; top: auto; width: min(100%, calc(60svh * var(--a))); margin: 0; transform: none; z-index: auto; }
 .re-cs-hero .re-sw-screen img { pointer-events: none; }
 .re-cs-cap { margin-top: 14px; font-size: 14px; color: var(--re-fg-2); }
 .re-cs-words { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; max-width: 900px; }
@@ -754,13 +764,14 @@ html:has(.re-sw-reader[open]) { overflow: hidden; }
 @keyframes re-settle { from { opacity: 0; transform: translateY(8px); } }
 
 html.re-html::view-transition-old(root), html.re-html::view-transition-new(root) { animation-duration: 320ms; animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1); }
-/* Read the case: the chapter's screen moves and resizes onto the same screen at the top of the case (both carry the name),
-   480 ms on the storyboard's ease-in-out; the case words wait for it. */
+/* Read the case: the chapter's whole slab, frame and screen together, moves and grows onto the same slab at the top of the
+   case (both carry the name), 480 ms on the storyboard's ease-in-out; the case words wait for it. */
 html.re-html::view-transition-group(re-case-hero) { z-index: 2; animation-duration: 480ms; animation-timing-function: cubic-bezier(0.77, 0, 0.175, 1); }
 html.re-html::view-transition-old(re-case-hero), html.re-html::view-transition-new(re-case-hero) { animation-duration: 480ms; }
-html.re-html:active-view-transition .re-casepage .re-cs-words { animation-delay: 300ms; }
-html.re-html:active-view-transition .re-casepage .re-cs-body { animation-delay: 380ms; }
-html.re-html:active-view-transition .re-casepage :is(.re-cs-screens, .re-cs-next) { animation-delay: 420ms; }
+/* Words after the landing: the flight is 480 ms, a 100 ms hold, then the words settle in their order. */
+html.re-html:active-view-transition .re-casepage .re-cs-words { animation-delay: 580ms; }
+html.re-html:active-view-transition .re-casepage .re-cs-body { animation-delay: 640ms; }
+html.re-html:active-view-transition .re-casepage :is(.re-cs-screens, .re-cs-next) { animation-delay: 680ms; }
 @media (prefers-reduced-motion: reduce) {
   html.re-html::view-transition-old(root), html.re-html::view-transition-new(root),
   html.re-html::view-transition-group(re-case-hero), html.re-html::view-transition-old(re-case-hero), html.re-html::view-transition-new(re-case-hero) { animation: none; }
