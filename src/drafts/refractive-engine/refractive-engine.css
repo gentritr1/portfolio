@@ -888,7 +888,15 @@ html:has(.re-sw-reader[open]) { overflow: hidden; }
   .re-cs-board-text { margin-top: calc(var(--drop-n) + 46px); }
   .re-cs-board-on { margin-top: 20px; }
 }
-@media (prefers-reduced-motion: reduce) { .re-cs-board, .re-cs-board-text { animation: none; } }
+/* Phones: every other screen gets one part of itself under the stage, outlined on the screen, at 0.75 of real size or
+   more (CROPS in CasePage.tsx). A tap opens the full-size view on it. Desktop shows the screen alone. */
+.re-cs-crop-zoom {
+  all: unset; box-sizing: border-box; display: block; cursor: zoom-in; padding: 6px; border-radius: 10px; background: rgb(12 14 19 / 0.94);
+  box-shadow: 0 0 0 1px rgb(62 230 164 / 0.35), 0 18px 40px rgb(0 0 0 / 0.55); animation: re-mark-in 160ms var(--re-ease) 200ms both;
+}
+.re-cs-crop-zoom:focus-visible { outline: 2px solid var(--re-accent); outline-offset: 3px; }
+@media (min-width: 1024px) { .re-cs-crop, .re-cs-crop-zoom { display: none; } }
+@media (prefers-reduced-motion: reduce) { .re-cs-board, .re-cs-board-text, .re-cs-crop-zoom { animation: none; } }
 
 /* ---- Next case: its own screen, waiting; Previous stays a quiet link ---- */
 .re-cs-next { display: grid; gap: 14px; margin-top: clamp(72px, 12vh, 128px); }

@@ -68,20 +68,62 @@ const BOARDS: Record<string, { title: string; lead: string; items: string[]; zoo
 /** The callout shows its area at this many times the stage's scale. */
 const ZOOM = 1.75
 
+type Rect = [x: number, y: number, w: number, h: number]
+
+/**
+ * One part of every other screen, for phones, where a whole screen draws at about a quarter of real size: the stage
+ * outlines it and the same file shows it under the stage at 0.75 of real size or more. Rectangles are in each screen's
+ * CSS pixels (`size`), chosen by Codex and checked by design/selected-work-concepts/phone-crops/verify.mjs (no text or
+ * control cut by an edge, 0 changed pixels). `file` is the full-size board a small gallery copy stands for. Board
+ * screens keep their board callout; Bayyinah's first store image has none, its heading already reads large.
+ */
+const CROPS: Record<string, { d: Rect; size: [w: number, h: number]; file?: string }> = {
+  '/showcase/care-dashboard/overview.webp': { d: [870, 305, 210, 175], size: [1440, 900] },
+  '/showcase/care-dashboard/rpm-overview-cgm.webp': { d: [255, 156, 415, 68], size: [1440, 900] },
+  '/showcase/bayyinah/web-01.webp': { d: [36, 230, 453, 180], size: [1440, 900] },
+  '/showcase/bayyinah/web-02.webp': { d: [704, 559, 300, 274], size: [1440, 900] },
+  '/showcase/bayyinah/web-03.webp': { d: [444, 359, 246, 177], size: [1440, 900] },
+  '/showcase/bayyinah/web-04.webp': { d: [105, 570, 302, 275], size: [1440, 900] },
+  '/showcase/bayyinah/web-05.webp': { d: [352, 545, 320, 290], size: [1440, 900] },
+  '/showcase/bayyinah/web-06.webp': { d: [1055, 110, 250, 200], size: [1440, 900] },
+  '/showcase/bayyinah/store-02.webp': { d: [208, 275, 172, 56], size: [389, 845] },
+  '/mobile/reading-1.webp': { d: [64, 361, 261, 97], size: [390, 844.5] },
+  '/mobile/reading-2.webp': { d: [66, 374, 265, 119], size: [390, 844.5] },
+  '/mobile/reading-3.webp': { d: [52, 290, 286, 105], size: [390, 844.5] },
+  '/mobile/reading-4.webp': { d: [70, 640, 250, 118], size: [390, 844.5] },
+  '/mobile/grocery-1.webp': { d: [50, 413, 292, 212], size: [390, 844.5] },
+  '/mobile/grocery-2.webp': { d: [51, 564, 140, 96], size: [390, 844.5] },
+  '/mobile/grocery-3.webp': { d: [56, 699, 281, 27], size: [390, 844.5] },
+  '/showcase/incentiv/web-03.webp': { d: [220, 496, 453, 45], size: [1440, 900] },
+  '/mobile/bookstore-1.webp': { d: [74, 539, 242, 76], size: [390, 844.5] },
+  '/mobile/bookstore-2.webp': { d: [59, 494, 274, 121], size: [390, 844.5] },
+  '/mobile/bookstore-3.webp': { d: [58, 545, 275, 156], size: [390, 844.5] },
+  '/showcase/design-system/boards/board-02-1080.webp': { d: [1175, 485, 320, 190], size: [1600, 1000], file: '/showcase/design-system/boards/board-02.webp' },
+  '/showcase/design-system/boards/board-03-1080.webp': { d: [1010, 715, 310, 120], size: [1600, 1000], file: '/showcase/design-system/boards/board-03.webp' },
+  '/showcase/design-system/boards/board-04-1080.webp': { d: [740, 390, 400, 230], size: [1600, 1000], file: '/showcase/design-system/boards/board-04.webp' },
+  '/showcase/design-system/boards/board-05-1080.webp': { d: [925, 340, 280, 240], size: [1600, 1000], file: '/showcase/design-system/boards/board-05.webp' },
+  '/showcase/design-system/boards/board-06-1080.webp': { d: [600, 560, 400, 250], size: [1600, 1000], file: '/showcase/design-system/boards/board-06.webp' },
+  '/showcase/design-system/boards/board-07-1080.webp': { d: [1255, 427, 255, 210], size: [1600, 1000], file: '/showcase/design-system/boards/board-07.webp' },
+  '/personal/shots/futurisma-frostline-1.webp': { d: [1124, 770, 274, 94], size: [1440, 900] },
+  '/personal/shots/futurisma-frostline-2.webp': { d: [1124, 770, 277, 94], size: [1440, 900] },
+  '/personal/shots/futurisma-frostline-3.webp': { d: [1124, 770, 274, 94], size: [1440, 900] },
+  '/personal/shots/futurisma-garage.webp': { d: [1095, 293, 310, 287], size: [1440, 900] },
+}
+
 /**
  * A board's geometry as CSS variables, in % of the screen's width (`--b*` and `--c*`) or height (`--by`, `--bh`): the
  * marked area, the callout under it (centred on the area, kept on the screen), and `--drop`, how far the callout reaches
  * below the screen, so the board's words start under it. `-n` is the phone layout, where the callout sits under the
  * screen at full width.
  */
-function boardVars([x, y, w, h]: [number, number, number, number]) {
-  const cw = (w / 1440) * ZOOM * 100
-  const cx = ((x + w / 2) / 1440) * 100
+function boardVars([x, y, w, h]: Rect, [W, H]: [number, number] = [1440, 900]) {
+  const cw = (w / W) * ZOOM * 100
+  const cx = ((x + w / 2) / W) * 100
   return {
-    '--bx': `${(x / 1440) * 100}%`, '--by': `${(y / 900) * 100}%`, '--bw': `${(w / 1440) * 100}%`, '--bh': `${(h / 900) * 100}%`,
+    '--bx': `${(x / W) * 100}%`, '--by': `${(y / H) * 100}%`, '--bw': `${(w / W) * 100}%`, '--bh': `${(h / H) * 100}%`,
     '--cx': `${cx}%`, '--cw': `${cw}%`, '--cl': `${Math.min(Math.max(cx - cw / 2, 0), 102 - cw)}%`, '--ca': `${w} / ${h}`,
-    '--zx': `${(x / (1440 - w)) * 100}%`, '--zy': `${(y / (900 - h)) * 100}%`, '--zs': `${(1440 / w) * 100}%`,
-    '--drop': `${Math.max(((y + h) / 1440) * 100 + (cw * h) / w - 62.5, 0)}%`, '--drop-n': `${(100 * h) / w}%`,
+    '--zx': `${(x / (W - w)) * 100}%`, '--zy': `${(y / (H - h)) * 100}%`, '--zs': `${(W / w) * 100}%`,
+    '--drop': `${Math.max(((y + h) / W) * 100 + (cw * h) / w - (H / W) * 100, 0)}%`, '--drop-n': `${(100 * h) / w}%`,
   } as Vars
 }
 
@@ -119,6 +161,8 @@ function Gallery({ items, slug, at, setAt, mark, decisions }: {
   const open = !!m && (mark.lit === m.decision || mark.pinned === m.decision)
   const b = BOARDS[g.src]
   const bv = b && boardVars(b.detail)
+  const c = b ? undefined : CROPS[g.src]
+  const cv = c && boardVars(c.d, c.size)
   const phone = items[0].height > items[0].width
   const wrap = (i: number) => ((i % items.length) + items.length) % items.length
   // A new screen drops a pinned decision: the list must not light a line whose marker is no longer shown.
@@ -133,7 +177,7 @@ function Gallery({ items, slug, at, setAt, mark, decisions }: {
     row.current?.querySelectorAll('button')[i]?.focus()
   }
   // The callout's area, in the capture's own pixels (its detail is in the screen's 1440-wide CSS pixels).
-  const focusOf = ([x, y, w, h]: [number, number, number, number]): [number, number] => [(x + w / 2) * (g.width / 1440), (y + h / 2) * (g.width / 1440)]
+  const focusOf = ([x, y, w, h]: Rect, W = 1440): [number, number] => [(x + w / 2) * (g.width / W), (y + h / 2) * (g.width / W)]
 
   return (
     <div className="re-cs-gallery" data-shape={phone ? 'phone' : 'wide'}>
@@ -178,10 +222,21 @@ function Gallery({ items, slug, at, setAt, mark, decisions }: {
               </button>
             </div>
           )}
+          {c && (
+            <div key={g.src} className="re-cs-mark-layer re-cs-board re-cs-crop" style={{ ...cv, aspectRatio: `${c.size[0]} / ${c.size[1]}` }} aria-hidden="true">
+              <span className="re-cs-board-area" />
+            </div>
+          )}
         </div>
         <button type="button" className="re-sw-real" aria-label={`${g.alt}, at full size`} onClick={() => full.current?.open()} />
         <figcaption aria-live="polite" className={b ? 're-sr' : undefined}>{b ? b.title : g.caption || g.alt}</figcaption>
       </figure>
+      {c && (
+        <button key={g.src} type="button" className="re-cs-crop-zoom" style={cv} aria-label={`${g.caption || g.alt}, the outlined part at full size`}
+          onClick={() => full.current?.open(focusOf(c.d, c.size[0]))}>
+          <span className="re-cs-board-crop" style={{ backgroundImage: `url("${c.file ?? g.src}")` }} />
+        </button>
+      )}
       {m && <p id="re-cs-mark-text" className="re-cs-mark-text" hidden={!open}>{decisions[m.decision]}</p>}
       {b && (
         <div key={g.src} className="re-cs-board-text" style={bv}>
