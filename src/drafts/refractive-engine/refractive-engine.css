@@ -764,16 +764,19 @@ html:has(.re-sw-reader[open]) { overflow: hidden; }
   all: unset; box-sizing: border-box; cursor: pointer; display: grid; grid-template-columns: 56px minmax(0, 1fr); align-items: center; gap: 12px;
   width: 100%; min-height: 48px; padding: 6px 10px; border-radius: 10px; color: var(--re-fg-2); transition: background-color 150ms ease, color 150ms ease;
 }
-.re-cs-stage-list button img { width: 56px; height: 36px; object-fit: cover; object-position: top; border-radius: 4px; opacity: 0.6; transition: opacity 150ms ease; }
+.re-cs-stage-list button img { width: 56px; height: 36px; object-fit: cover; object-position: top; border-radius: 4px; filter: brightness(0.55); transition: filter 150ms ease; }
+/* Dimmed, not faded: a faded white screen lets the dot field through and reads as grain. */
 .re-cs-gallery[data-shape="phone"] .re-cs-stage-list button img { height: 56px; width: 28px; justify-self: center; }
 .re-cs-stage-list button span { font-size: 15px; line-height: 1.35; }
 .re-cs-stage-list button[aria-pressed="true"] { color: var(--re-fg); background: var(--re-fill); }
-.re-cs-stage-list button[aria-pressed="true"] img { opacity: 1; }
+.re-cs-stage-list button[aria-pressed="true"] img { filter: none; }
 @media (hover: hover) and (pointer: fine) { .re-cs-stage-list button[aria-pressed="false"]:hover { color: var(--re-fg); } }
 .re-cs-stage-list button:focus-visible { outline: 2px solid var(--re-accent); outline-offset: 2px; }
-/* Phones: the names become one swipeable row, the next one peeking in (NN/g: swipe works, the next item shows). */
+/* Phones: the names become one swipeable row, the next one peeking in (NN/g: swipe works, the next item shows). The row
+   sits above the stage like tabs: what is under the stage changes height with the screen (a board's callout and words),
+   so a row below it would move away from the finger that just tapped it. */
 @media (max-width: 1023px) {
-  .re-cs-stage-list { display: flex; gap: 8px; overflow-x: auto; scroll-snap-type: x mandatory; overscroll-behavior-x: contain; margin: 0 calc(-1 * var(--re-gutter)); padding: 2px var(--re-gutter) 8px; scrollbar-width: none; }
+  .re-cs-stage-list { order: -1; display: flex; gap: 8px; overflow-x: auto; scroll-snap-type: x mandatory; overscroll-behavior-x: contain; margin: 0 calc(-1 * var(--re-gutter)); padding: 2px var(--re-gutter) 8px; scrollbar-width: none; }
   .re-cs-stage-list li { flex: 0 0 auto; scroll-snap-align: start; }
   .re-cs-stage-list button { grid-template-columns: 1fr; justify-items: start; width: 132px; gap: 8px; padding: 8px; }
   .re-cs-stage-list button img { width: 116px; height: 72px; }

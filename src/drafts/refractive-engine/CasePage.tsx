@@ -103,6 +103,17 @@ function Gallery({ items, slug, at, setAt, mark, decisions }: {
   const [instant, setInstant] = useState(false)
   const full = useRef<FullSizeHandle>(null)
   const start = useRef<{ x: number; y: number } | null>(null)
+  const row = useRef<HTMLOListElement>(null)
+  // On phones the names are a sideways row: keep the shown screen's name in it, after a tap on a half-hidden name or a
+  // swipe on the slab. Sideways only, so the page itself never moves.
+  useEffect(() => {
+    const r = row.current, b = r?.children[at] as HTMLElement | undefined
+    if (!r || !b || r.scrollWidth <= r.clientWidth) return
+    const rr = r.getBoundingClientRect(), br = b.getBoundingClientRect()
+    if (br.left < rr.left || br.right > rr.right) {
+      r.scrollTo({ left: r.scrollLeft + br.left - rr.left - (rr.width - br.width) / 2, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' })
+    }
+  }, [at])
   const g = items[at]
   const m = MARKERS[g.src]?.slug === slug ? MARKERS[g.src] : undefined
   const open = !!m && (mark.lit === m.decision || mark.pinned === m.decision)
@@ -171,7 +182,7 @@ function Gallery({ items, slug, at, setAt, mark, decisions }: {
           </div>
         </div>
       )}
-      <ol className="re-cs-stage-list" aria-label="Screens" onPointerEnter={() => setArmed(true)} onFocus={() => setArmed(true)}>
+      <ol ref={row} className="re-cs-stage-list" aria-label="Screens" onPointerEnter={() => setArmed(true)} onFocus={() => setArmed(true)}>
         {items.map((it, i) => (
           <li key={it.src}>
             <button type="button" aria-pressed={i === at} onClick={(e) => pick(i, e.detail === 0)}>
