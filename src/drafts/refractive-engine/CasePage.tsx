@@ -1,13 +1,13 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { Link } from 'react-router'
 import { ArrowLeftIcon, ArrowRightIcon, ArrowUpRightIcon, CaretDownIcon } from '@phosphor-icons/react'
-import { caseDetails, questionOf } from '../exploded-view/cases'
+import { caseDetails } from '../exploded-view/cases'
 import { STAGE } from './scene'
 import { cropVars, LEADS } from './screens'
 import { FullSize, type FullSizeHandle } from './FullSize'
-import { INVENTED, systems } from './data'
+import { BASE, INVENTED } from './data'
+import { cases } from './products'
 
-const BASE = '/drafts/refractive-engine'
 type Vars = CSSProperties & Record<`--${string}`, string | number>
 
 const leadOf = (slug: string, name: string) => LEADS[slug] ?? { shot: { src: `/eh/${slug}.webp`, w: 1280, h: 800, alt: name } }
@@ -130,9 +130,24 @@ function boardVars([x, y, w, h]: Rect, [W, H]: [number, number] = [1440, 900]) {
 /** The decision a stage or a list item is pointing at: lit while hovered or focused, pinned by a click or tap. */
 type Mark = { lit: number | null; pinned: number | null; setLit(d: number | null): void; pin(d: number | null): void }
 
-/** A case heading the owner set in CONTENT.md wins over the case's question (care platform: §2, owner 2026-10-06). */
-const OWNER_H1: Record<string, string> = {
+/**
+ * Case headings are statements, not questions (owner, 2026-10-29), each an existing line: the care platform's is the
+ * owner's own H1 (CONTENT.md §2); Bayyinah leads with the rebuild and its live streams (§3 title, per the owner's
+ * 2026-10-27 emphasis); the rest are the chapter headlines or the cases' own lines. The own products use their own words:
+ * Offday's landing headline, and the first line of LeakScan's README. Alternatives:
+ * design/reviews/refractive-engine-hiring/CASE-H1-OPTIONS.md.
+ */
+const CASE_H1: Record<string, string> = {
   'care-platform': 'Rebuilding a live care platform, one tested screen at a time.',
+  'bayyinah-tv': 'A video-learning platform, rebuilt from scratch with live streams.',
+  'read-to-feed': "Kept a children's reading app shipping for four years.",
+  'design-system-react': 'One shared library, checked before release.',
+  'viva-fresh': 'A grocery shop, delivery slots and loyalty in one mobile app.',
+  incentiv: 'Signing in to a Web3 wallet as simply as to a normal app.',
+  'dukagjini-bookstore': 'Bringing readers back to a book they were looking at.',
+  futurisma: 'A 3D racing game built with an AI crew, quality kept in hand.',
+  offday: 'Time off, without the back-and-forth.',
+  leakscan: 'Security scans for AI-built apps.',
 }
 
 type Picture = { src: string; alt: string; caption: string; width: number; height: number }
@@ -285,12 +300,13 @@ function Road({ text }: { text: string }) {
  * question and its answer, the context, the problem beside the decision, the three layers, the details, the screens, and
  * the next case. The writing is the same sourced brief the Exploded View pages use.
  */
-export function CasePage({ slug, onBack }: { slug: string; onBack(): void }) {
-  const at = systems.findIndex((s) => s.slug === slug)
-  const s = systems[at]
+/** `rest` false renders the first screen only (the top bar and the landing), for the frame a view transition swaps in. */
+export function CasePage({ slug, rest = true, onBack }: { slug: string; rest?: boolean; onBack(): void }) {
+  const at = cases.findIndex((s) => s.slug === slug)
+  const s = cases[at]
   const c = caseDetails[slug]
-  const prev = systems[(at - 1 + systems.length) % systems.length]
-  const next = systems[(at + 1) % systems.length]
+  const prev = cases[(at - 1 + cases.length) % cases.length]
+  const next = cases[(at + 1) % cases.length]
   const heading = useRef<HTMLHeadingElement>(null)
   const stage = useRef<HTMLElement>(null)
   // The stage's screen and the lit or pinned decision belong to this case: another case starts from the first screen.
@@ -320,7 +336,7 @@ export function CasePage({ slug, onBack }: { slug: string; onBack(): void }) {
   const problem = c?.didntWork ? { title: c.didntWork.label, items: [c.didntWork.text] } : c && { title: 'Constraints', items: c.constraints }
 
   return (
-    <article className="re-casepage" data-stage={STAGE.ledger} aria-labelledby="re-case-h" key={slug}>
+    <article className="re-casepage" data-stage={STAGE.ledger} data-landing-only={!rest || undefined} aria-labelledby="re-case-h" key={slug}>
       <nav className="re-case-top">
         <button type="button" className="re-btn re-btn-quiet re-solid" onClick={onBack}>
           <ArrowLeftIcon size={14} weight="bold" aria-hidden="true" />
@@ -334,9 +350,10 @@ export function CasePage({ slug, onBack }: { slug: string; onBack(): void }) {
           {INVENTED.has(s.slug) && <p className="re-cs-cap">Real product screens, invented data.</p>}
         </div>
         <div className="re-cs-words">
-          <p className="re-cs-name">{s.name}</p>
-          <p className="re-cs-meta">{[s.kind, s.years].filter(Boolean).join(' · ')}</p>
-          <h1 id="re-case-h" ref={heading} tabIndex={-1} className="re-cs-q">{OWNER_H1[slug] ?? questionOf(slug) ?? s.line}</h1>
+          <h1 id="re-case-h" ref={heading} tabIndex={-1} className="re-cs-q">{CASE_H1[slug] ?? s.line}</h1>
+          <p className="re-cs-name">{[s.name, s.kind, s.years].filter(Boolean).join(' · ')}</p>
+          {/* A case without its context table (the own products) names the role on a line of its own. */}
+          {!c && <p className="re-cs-name">{s.role}</p>}
           {result && <p className="re-cs-result">{result}</p>}
           {s.readouts.length > 0 && (
             <ul className="re-cs-readouts">
@@ -354,140 +371,138 @@ export function CasePage({ slug, onBack }: { slug: string; onBack(): void }) {
         </div>
       </header>
 
-      <div className="re-cs-body re-solid">
-        {c && (
-          <dl className="re-case-context">
-            <div><dt className="re-num">Product</dt><dd>{c.context.product}</dd></div>
-            <div><dt className="re-num">Users</dt><dd>{c.context.users}</dd></div>
-            <div><dt className="re-num">My role</dt><dd>{c.context.role}</dd></div>
-            <div><dt className="re-num">Time</dt><dd>{c.context.time}</dd></div>
-          </dl>
-        )}
+      {rest && <>
+        <div className="re-cs-body re-solid">
+          {c && (
+            <dl className="re-case-context">
+              <div><dt className="re-num">Product</dt><dd>{c.context.product}</dd></div>
+              <div><dt className="re-num">Users</dt><dd>{c.context.users}</dd></div>
+              <div><dt className="re-num">My role</dt><dd>{c.context.role}</dd></div>
+              <div><dt className="re-num">Time</dt><dd>{c.context.time}</dd></div>
+            </dl>
+          )}
 
-        {c && problem ? (
-          <section aria-labelledby="re-road-h">
-            <h2 id="re-road-h" className="re-sr">How the decision was made</h2>
-            <ol className="re-cs-road">
-              <li>
-                <span className="re-num">01</span>
-                <h3 className="re-cs-h2">{problem.title}</h3>
-                <ul className="re-cs-list">{problem.items.map((x) => <li key={x}>{x}</li>)}</ul>
-              </li>
-              <li>
-                <span className="re-num">02</span>
-                <h3 className="re-cs-h2">The decision that worked</h3>
-                <ul className="re-cs-list">
-                  {c.decision.map((x, d) => (
-                    <li key={x} data-lit={(marked.has(d) && (lit === d || pinned === d)) || undefined}>
-                      <Road text={x} />
-                      {marked.has(d) && (
-                        <button type="button" className="re-cs-show" onClick={(e) => showOnScreen(d, e.detail === 0)}
-                          onPointerEnter={() => setLit(d)} onPointerLeave={() => setLit(null)}>
-                          Show on screen
-                        </button>
-                      )}
-                    </li>
-                  ))}
-                </ul>
-              </li>
-              {c.differently && (
+          {c && problem ? (
+            <section aria-labelledby="re-road-h">
+              <h2 id="re-road-h" className="re-sr">How the decision was made</h2>
+              <ol className="re-cs-road">
                 <li>
-                  <span className="re-num">03</span>
-                  <h3 className="re-cs-h2">What I'd do differently</h3>
-                  <p className="re-cs-text">{c.differently}</p>
+                  <h3 className="re-cs-h2">{problem.title}</h3>
+                  <ul className="re-cs-list">{problem.items.map((x) => <li key={x}>{x}</li>)}</ul>
                 </li>
-              )}
-            </ol>
-          </section>
-        ) : (
-          s.story && <section><h2 className="re-cs-h2">What was built</h2><p className="re-cs-text">{s.story.built}</p></section>
-        )}
-
-        {s.layers.length > 0 && (
-          <section aria-labelledby="re-layers-h">
-            <h2 id="re-layers-h" className="re-cs-h2">The three layers</h2>
-            <ol className="re-cs-layers">
-              {s.layers.map((l, i) => (
-                <li key={l.title}>
-                  <span className="re-num">{String(i + 1).padStart(2, '0')}</span>
-                  <h3>{l.title}</h3>
-                  <p className="re-cs-stack">{l.stack}</p>
-                  <p>{l.description}</p>
-                </li>
-              ))}
-            </ol>
-          </section>
-        )}
-        {c && (c.engineering.length > 0 || c.record) && (
-          <details className="re-eng">
-            <summary>
-              <span>Engineering details</span>
-              <CaretDownIcon className="re-eng-caret" size={14} weight="bold" aria-hidden="true" />
-            </summary>
-            <div className="re-eng-body">
-              {c.engineering.map((g) => (
-                <section key={g.title}>
-                  <h3 className="re-num">{g.title}</h3>
-                  <ul className="re-case-list">{g.items.map((x) => <li key={x}>{x}</li>)}</ul>
-                </section>
-              ))}
-              {c.record && (
-                <section>
-                  <h3 className="re-num">{c.record.title}</h3>
-                  <ol className="re-record">
-                    {c.record.rows.map((r) => (
-                      <li key={r.what}>
-                        <span className="re-num">{r.when}</span>
-                        <div>
-                          <strong>{r.what}</strong>
-                          <pre className="re-num">{r.lines.join('\n')}</pre>
-                        </div>
+                <li>
+                  <h3 className="re-cs-h2">The decision that worked</h3>
+                  <ul className="re-cs-list">
+                    {c.decision.map((x, d) => (
+                      <li key={x} data-lit={(marked.has(d) && (lit === d || pinned === d)) || undefined}>
+                        <Road text={x} />
+                        {marked.has(d) && (
+                          <button type="button" className="re-cs-show" onClick={(e) => showOnScreen(d, e.detail === 0)}
+                            onPointerEnter={() => setLit(d)} onPointerLeave={() => setLit(null)}>
+                            Show on screen
+                          </button>
+                        )}
                       </li>
                     ))}
-                  </ol>
-                </section>
-              )}
-            </div>
-          </details>
+                  </ul>
+                </li>
+                {c.differently && (
+                  <li>
+                    <h3 className="re-cs-h2">What I'd do differently</h3>
+                    <p className="re-cs-text">{c.differently}</p>
+                  </li>
+                )}
+              </ol>
+            </section>
+          ) : (
+            s.story && <section><h2 className="re-cs-h2">What was built</h2><p className="re-cs-text">{s.story.built}</p><p className="re-cs-stack">{s.stack.join(', ')}</p></section>
+          )}
+
+          {s.layers.length > 0 && (
+            <section aria-labelledby="re-layers-h">
+              <h2 id="re-layers-h" className="re-cs-h2">{s.layersTitle ?? 'The three layers'}</h2>
+              <ol className="re-cs-layers">
+                {s.layers.map((l) => (
+                  <li key={l.title}>
+                    <h3>{l.title}</h3>
+                    <p className="re-cs-stack">{l.stack}</p>
+                    <p>{l.description}</p>
+                  </li>
+                ))}
+              </ol>
+            </section>
+          )}
+          {c && (c.engineering.length > 0 || c.record) && (
+            <details className="re-eng">
+              <summary>
+                <span>Engineering details</span>
+                <CaretDownIcon className="re-eng-caret" size={14} weight="bold" aria-hidden="true" />
+              </summary>
+              <div className="re-eng-body">
+                {c.engineering.map((g) => (
+                  <section key={g.title}>
+                    <h3 className="re-num">{g.title}</h3>
+                    <ul className="re-case-list">{g.items.map((x) => <li key={x}>{x}</li>)}</ul>
+                  </section>
+                ))}
+                {c.record && (
+                  <section>
+                    <h3 className="re-num">{c.record.title}</h3>
+                    <ol className="re-record">
+                      {c.record.rows.map((r) => (
+                        <li key={r.what}>
+                          <span className="re-num">{r.when}</span>
+                          <div>
+                            <strong>{r.what}</strong>
+                            <pre className="re-num">{r.lines.join('\n')}</pre>
+                          </div>
+                        </li>
+                      ))}
+                    </ol>
+                  </section>
+                )}
+              </div>
+            </details>
+          )}
+
+          {links.length > 0 && (
+            <ul className="re-links">
+              {links.map((l) => (
+                <li key={l.href}>
+                  <a className="re-btn" href={l.href} target="_blank" rel="noreferrer">
+                    {l.label}
+                    <ArrowUpRightIcon size={14} weight="bold" aria-hidden="true" />
+                    <span className="re-sr"> (opens in a new tab)</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        {s.gallery.length > 0 && (
+          <section ref={stage} className="re-cs-screens" aria-labelledby="re-screens-h">
+            <h2 id="re-screens-h" className="re-cs-h2">Screens</h2>
+            {s.gallery.some((g) => g.alt.includes('Invented data')) && <p className="re-case-note re-num">Real product screens, invented data.</p>}
+            <Gallery items={s.gallery} slug={slug} at={Math.min(shown, s.gallery.length - 1)} setAt={setShown} mark={mark} decisions={c?.decision ?? []} />
+          </section>
         )}
 
-        {links.length > 0 && (
-          <ul className="re-links">
-            {links.map((l) => (
-              <li key={l.href}>
-                <a className="re-btn" href={l.href} target="_blank" rel="noreferrer">
-                  {l.label}
-                  <ArrowUpRightIcon size={14} weight="bold" aria-hidden="true" />
-                  <span className="re-sr"> (opens in a new tab)</span>
-                </a>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-
-      {s.gallery.length > 0 && (
-        <section ref={stage} className="re-cs-screens" aria-labelledby="re-screens-h">
-          <h2 id="re-screens-h" className="re-cs-h2">Screens</h2>
-          {s.gallery.some((g) => g.alt.includes('Invented data')) && <p className="re-case-note re-num">Real product screens, invented data.</p>}
-          <Gallery items={s.gallery} slug={slug} at={Math.min(shown, s.gallery.length - 1)} setAt={setShown} mark={mark} decisions={c?.decision ?? []} />
-        </section>
-      )}
-
-      <nav className="re-cs-next" aria-label="More cases">
-        <Link className="re-cs-next-main re-solid" to={`${BASE}/${next.slug}`}>
-          <span className="re-cs-next-words">
-            <span className="re-cs-next-label">Next</span>
-            <strong>{next.name}</strong>
-            <span className="re-cs-next-q">{questionOf(next.slug) ?? next.line}</span>
-          </span>
-          <Hero slug={next.slug} name={next.name} />
-        </Link>
-        <Link className="re-cs-prev re-solid" to={`${BASE}/${prev.slug}`}>
-          <ArrowLeftIcon size={14} weight="regular" aria-hidden="true" />
-          <span>Previous: {prev.name}</span>
-        </Link>
-      </nav>
+        <nav className="re-cs-next" aria-label="More cases">
+          <Link className="re-cs-next-main re-solid" to={`${BASE}/${next.slug}`}>
+            <span className="re-cs-next-words">
+              <span className="re-cs-next-label">Next</span>
+              <strong>{next.name}</strong>
+              <span className="re-cs-next-q">{CASE_H1[next.slug] ?? next.line}</span>
+            </span>
+            <Hero slug={next.slug} name={next.name} />
+          </Link>
+          <Link className="re-cs-prev re-solid" to={`${BASE}/${prev.slug}`}>
+            <ArrowLeftIcon size={14} weight="regular" aria-hidden="true" />
+            <span>Previous: {prev.name}</span>
+          </Link>
+        </nav>
+      </>}
     </article>
   )
 }

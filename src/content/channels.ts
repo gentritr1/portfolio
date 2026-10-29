@@ -1,4 +1,4 @@
-import { projects } from './projects'
+import { projects, type Project } from './projects'
 
 export type ChannelKey = 'healthcare' | 'streaming' | 'reading' | 'web3' | 'ai' | 'personal'
 export type ChannelNumber = 'CH01' | 'CH02' | 'CH03' | 'CH04' | 'CH05' | 'CH06'
@@ -27,8 +27,9 @@ function timecode(first: number, last: number): string {
   return first === last ? String(first) : `${first}–${String(last).slice(-2)}`
 }
 
-function periodOf(key: ChannelKey): string | null {
-  const spans = projects
+/** The channel's time code over a list of projects (the site's own list unless a draft passes a longer one). */
+export function periodOf(key: ChannelKey, list: readonly Pick<Project, 'channel' | 'years'>[] = projects): string | null {
+  const spans = list
     .filter((project) => project.channel === key && project.years)
     .map((project) => yearSpan(project.years ?? ''))
     .filter((span): span is [number, number] => span !== null)

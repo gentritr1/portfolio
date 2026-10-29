@@ -41,6 +41,10 @@ export interface RefractiveScene {
   setPixelRatio(r: number): void
   /** Live cluster centroids in world units. */
   centroids(): { x: number; y: number; z: number }[]
+  /** Each cluster centre on screen, in client pixels; `on` is false when it is behind the camera. */
+  project(): { x: number; y: number; on: boolean }[]
+  /** Light one cluster in the accent (the one being pointed at), or none with -1. */
+  highlight(k: number): void
   grid: { columns: number; pitch: number; left: number }
   dispose(): void
 }
@@ -101,14 +105,16 @@ const RECTS: [number, number, number, number][] = (() => {
   return r
 })()
 // ---------- The tensor field: clusters and the links between them ----------
-const K = 7
-// A hub and its neighbours at different depths, so no two links run parallel and the graph never reads as a flat frame.
+// Six clusters, one per area of the owner's work (CONTENT.md channels, in channelOrder): healthcare, streaming, mobile
+// apps, Web3, web apps & AI, games & personal. Spread left to right and up and down so their labels never meet, at
+// different depths so no two links run parallel.
+const K = 6
 const CENTROIDS: [number, number, number][] = [
-  [-9.5, 4.0, -4.0], [-3.0, 5.2, -7.5], [2.0, 2.2, -2.0], [7.6, 4.6, -5.0], [9.8, -1.8, -2.5], [4.0, -3.6, -6.5], [-4.5, -1.0, -3.5],
+  [-8.6, -0.6, -4.0], [-4.2, -3.4, -3.0], [-0.2, 3.2, -5.5], [4.4, -2.8, -2.5], [8.4, 3.0, -4.5], [10.4, -2.4, -6.0],
 ]
-const SIGMA = [1.1, 1.5, 0.95, 1.3, 1.0, 1.4, 1.2]
-const HUE = [0.1, 0.85, 0.3, 1, 0.55, 0.7, 0]
-const EDGES: [number, number][] = [[0, 1], [1, 2], [0, 6], [6, 2], [2, 3], [3, 4], [4, 5], [5, 2], [1, 3], [6, 5]]
+const SIGMA = [1.2, 1.0, 1.5, 0.9, 1.0, 1.6]
+const SHADE = [0.9, 0.8, 1, 0.75, 0.85, 0.95]
+const EDGES: [number, number][] = [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [0, 2], [2, 4], [1, 3]]
 
 // The sheet reaches a little past the hero view, so most of its particles are where the lens can use them.
 const FIELD_W = 40
@@ -304,7 +310,7 @@ const gauss = () => {
 
 export function createScene(
   host: HTMLElement,
-  options: { count: number; reduced: boolean; mode: 0 | 1; onReady(): void },
+  options: { count: number; reduced: boolean; mode: 0 | 1; onReady(): void; weights?: number[] },
 ): RefractiveScene {
   const { count, reduced, onReady } = options
   performance.mark('re:scene-start')
@@ -338,7 +344,9 @@ export function createScene(
   const slot = new Uint32Array(count)
   for (let i = 0; i < count; i++) slot[i] = i
   for (let i = count - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); const s = slot[i]; slot[i] = slot[j]; slot[j] = s }
-  const weights = SIGMA.map((s) => s * s)
+  // With weights (the number of projects in each area), a cloud's share of particles and its spread follow that count.
+  const sigma = options.weights ? options.weights.map((w) => 0.75 + 0.32 * Math.sqrt(w)) : SIGMA
+  const weights = options.weights ?? SIGMA.map((s) => s * s)
   const wsum = weights.reduce((a, b) => a + b, 0)
   for (let i = 0; i < count; i++) {
     const o = slot[i]
@@ -360,9 +368,9 @@ export function createScene(
       let pick = Math.random() * wsum, k = 0
       while (k < K - 1 && pick > weights[k]) { pick -= weights[k]; k++ }
       aC[o] = k
-      aT[o * 3] = gauss() * SIGMA[k]
-      aT[o * 3 + 1] = gauss() * SIGMA[k] * 0.8
-      aT[o * 3 + 2] = gauss() * SIGMA[k] * 1.1
+      aT[o * 3] = gauss() * sigma[k]
+      aT[o * 3 + 1] = gauss() * sigma[k] * 0.8
+      aT[o * 3 + 2] = gauss() * sigma[k] * 1.1
     } else if (r < 0.8) {
       const [a, b] = EDGES[Math.floor(Math.random() * EDGES.length)]
       aC[o] = 100 + a * 10 + b
@@ -383,8 +391,11 @@ export function createScene(
   g.boundingSphere = new THREE.Sphere(new THREE.Vector3(), 60)
 
   const centroids = CENTROIDS.map(([x, y, z]) => new THREE.Vector3(x, y, z))
-  const cyan = new THREE.Color('#5be7ff'), violet = new THREE.Color('#9d7bff'), emerald = new THREE.Color('#3ee6a4')
-  const ccol = HUE.map((h) => cyan.clone().lerp(violet, h).multiplyScalar(0.9))
+  const emerald = new THREE.Color('#3ee6a4')
+  // Clouds are neutral; the accent belongs to the one being pointed at (highlight()), its only job here.
+  const neutral = new THREE.Color('#c9ced8')
+  const cbase = SHADE.map((v) => neutral.clone().multiplyScalar(v))
+  const ccol = cbase.map((c) => c.clone())
   const accent = emerald.clone()
   const uniforms = {
     uTime: { value: 0 }, uMode: { value: options.mode as number }, uIntro: { value: reduced ? 1 : 0 }, uLens: { value: 0 }, uLensR: { value: LENS_R * pixelRatio },
@@ -404,7 +415,7 @@ export function createScene(
   const idx = new Float32Array(EDGES.flat())
   lg.setAttribute('position', new THREE.BufferAttribute(new Float32Array(idx.length * 3), 3))
   lg.setAttribute('aIdx', new THREE.BufferAttribute(idx, 1))
-  const lineU = { uC: uniforms.uC, uColor: { value: violet.clone() }, uAlpha: { value: 0 } }
+  const lineU = { uC: uniforms.uC, uColor: { value: neutral.clone() }, uAlpha: { value: 0 } }
   const lines = new THREE.LineSegments(lg, track(new THREE.ShaderMaterial({ uniforms: lineU, vertexShader: lineVertex, fragmentShader: lineFragment, transparent: true, depthWrite: false, depthTest: false, blending: THREE.AdditiveBlending })))
   lines.frustumCulled = false
   scene.add(lines)
@@ -521,7 +532,8 @@ export function createScene(
       uniforms.uMode.value = modeFrom + (modeTo - modeFrom) * easeOut(modeT)
     }
     const mode = uniforms.uMode.value
-    accent.copy(emerald).lerp(cyan, mode)
+    // The accent stays the owner's mint in both arrangements: in the map it marks the area being pointed at.
+    accent.copy(emerald)
     lineU.uAlpha.value = mode * uniforms.uIntro.value * 0.16 * uniforms.uDim.value
     lines.visible = mode > 0.01
 
@@ -580,7 +592,10 @@ export function createScene(
     camera.updateMatrixWorld()
 
     // Render on demand: once nothing is moving (rung down, camera arrived, no lens, no tween), the last frame stays up.
-    const moving = ring > 0.001 || introT < 1 || modeT < 1 || shockT >= 0 || lens > 0.002 || focus.w > 0.001 ||
+    // A lens or a chapter focus that has arrived is a still state, not movement: only one still easing counts (a focus
+    // change wakes the field through setFocus). Counting their presence kept the loop at 60 frames a second at rest.
+    const moving = ring > 0.001 || introT < 1 || modeT < 1 || shockT >= 0 ||
+      Math.abs((lensWanted ? 1 : 0) - lens) > 0.002 || (lens > 0.002 && lensPos.distanceToSquared(lensTarget) > 0.25) ||
       Math.abs(stageTarget - stage) > 1e-4 || camPos.distanceToSquared(want) > 1e-8 || Math.abs(leanTarget.x - lean.x) + Math.abs(leanTarget.y - lean.y) > 1e-4
     stillFrames = moving ? 0 : stillFrames + 1
     if (stillFrames < 3) {
@@ -691,6 +706,14 @@ export function createScene(
       kick()
     },
     centroids: () => centroids.map((c) => ({ x: c.x, y: c.y, z: c.z })),
+    project: () => centroids.map((c) => {
+      const v = c.clone().project(camera)
+      return { x: ((v.x + 1) / 2) * cssW, y: ((1 - v.y) / 2) * cssH, on: v.z < 1 }
+    }),
+    highlight(k) {
+      ccol.forEach((c, i) => c.copy(i === k ? accent : cbase[i]))
+      kick()
+    },
     dispose() {
       running = false
       disposed = true

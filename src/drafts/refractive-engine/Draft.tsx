@@ -1,14 +1,16 @@
-import { useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react'
+import { startTransition, useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react'
 import { useNavigate, useParams } from 'react-router'
-import Lenis from 'lenis'
 import { flushSync } from 'react-dom'
 import { ArrowCounterClockwiseIcon, ArrowUpRightIcon } from '@phosphor-icons/react'
 import { createScene, hasWebGL, STAGE, type RefractiveScene, type Stats } from './scene'
-import { ledger, links, systems, type Value } from './data'
+import { BASE, ledger, links, systems, type Value } from './data'
 import { AllWork } from './AllWork'
+import { AREAS, AreaMap } from './AreaMap'
 import { CasePage } from './CasePage'
 import { channels, type ChannelKey } from '../../content/channels'
 import { Lab } from './Lab'
+import { Own } from './Own'
+import { cases } from './products'
 import { Production } from './Production'
 import { TunePanel } from './TunePanel'
 import './refractive-engine.css'
@@ -36,14 +38,15 @@ const RATIOS = [1, 1.5, 2] as const
  * channel name (CONTENT.md, 2026-10-02) and the years of its projects. Each one jumps to its work on this page.
  * `?hero=bare` shows the hero without them, to compare.
  */
-const DOMAINS: { key: ChannelKey; slug: string; href: string }[] = [
-  { key: 'healthcare', slug: 'care-platform', href: '#work-care' },
-  { key: 'streaming', slug: 'bayyinah-tv', href: '#work-bayyinah' },
-  { key: 'reading', slug: 'read-to-feed', href: '#work-reading' },
-  { key: 'web3', slug: 'incentiv', href: '#re-lab' },
+const DOMAINS: { key: ChannelKey; slug: string; href: string; img: [src: string, w: number, h: number]; pos?: string }[] = [
+  { key: 'healthcare', slug: 'care-platform', href: '#work-care', img: ['/eh/care-platform.webp', 1280, 800] },
+  { key: 'streaming', slug: 'bayyinah-tv', href: '#work-bayyinah', img: ['/eh/bayyinah-tv.webp', 1280, 800] },
+  // The full 780 px phone capture, not the 523 px field texture: the tile draws about 315 px wide, so it needs 630+.
+  // The store image opens on a banner; 42% down is the app itself (logo, My Books, the reading cards).
+  { key: 'reading', slug: 'read-to-feed', href: '#work-reading', img: ['/mobile/reading-1.webp', 780, 1689], pos: '50% 42%' },
+  { key: 'web3', slug: 'incentiv', href: '#re-lab', img: ['/eh/incentiv.webp', 1280, 800] },
 ]
 const BARE = new URLSearchParams(location.search).get('hero') === 'bare'
-const BASE = '/drafts/refractive-engine'
 const fmt = (n: number) => n.toLocaleString('en-US')
 
 function useMedia(query: string) {
@@ -111,7 +114,6 @@ export default function Draft() {
   const rootRef = useRef<HTMLDivElement>(null)
   const hostRef = useRef<HTMLDivElement>(null)
   const sceneRef = useRef<RefractiveScene | null>(null)
-  const lenisRef = useRef<Lenis | null>(null)
   const reduced = useMedia('(prefers-reduced-motion: reduce)')
   const [count] = useState(() => (innerWidth < 768 || (navigator.hardwareConcurrency ?? 8) <= 4 ? 45_000 : 100_000))
   const [noGl, setNoGl] = useState(() => !hasWebGL())
@@ -121,6 +123,8 @@ export default function Draft() {
   const [stageQ, setStageQ] = useState(0)
   // The field's notes render only while open: closed, they cost nothing and their live readouts are not on the page.
   const [notesOpen, setNotesOpen] = useState(false)
+  // Opening a case from a chapter renders its first screen inside the view transition and the rest once the flight ends.
+  const [caseRest, setCaseRest] = useState(true)
   const [drawn, setDrawn] = useState(count)
   const [bloomOn, setBloomOn] = useState(true)
   const [caOn, setCaOn] = useState(true)
@@ -129,7 +133,7 @@ export default function Draft() {
   const modeRef = useRef(mode)
   // /drafts/refractive-engine/<slug> is that product's full case, read over the same field.
   const { '*': rest } = useParams()
-  const caseSlug = systems.some((s) => s.slug === rest) ? rest : undefined
+  const caseSlug = cases.some((s) => s.slug === rest) ? rest : undefined
   const navigate = useNavigate()
   const onCase = useRef(false)
   onCase.current = caseSlug !== undefined
@@ -143,29 +147,14 @@ export default function Draft() {
     sceneRef.current?.setMode(m === 'tensor' ? 1 : 0)
   }, [])
 
-  // Lenis smooth scroll, off under reduced motion. The page's own smooth scroll-behavior would fight it, so it is switched off here.
+  // Native scrolling (owner, 2026-10-29: the browser's own wheel settles a 500 px scroll in 0.28 s against Lenis's 1.2 s,
+  // frames equally clean, and keyboard and touch were native anyway). The class carries the draft's document styles: the
+  // masthead's scroll padding, no smooth scroll-behavior, the ground colour.
   useEffect(() => {
     const html = document.documentElement
     html.classList.add('re-html')
-    if (reduced) return () => html.classList.remove('re-html')
-    const lenis = new Lenis({ autoRaf: true, anchors: true, duration: 1.1 })
-    lenisRef.current = lenis
-    // While Lenis eases a wheel scroll it ignores native scroll events and keeps writing its own position, so a
-    // scroll it did not make (a key, focus moving into view, a script's scrollTo) within that second was undone.
-    // A position far from the one Lenis last wrote is someone else's: hand it to Lenis instead of fighting it.
-    const onForeign = () => {
-      if (lenis.isScrolling === 'smooth' && Math.abs(lenis.actualScroll - lenis.animatedScroll) > 8) {
-        lenis.scrollTo(lenis.actualScroll, { immediate: true, force: true })
-      }
-    }
-    addEventListener('scroll', onForeign, { passive: true })
-    return () => {
-      removeEventListener('scroll', onForeign)
-      lenis.destroy()
-      lenisRef.current = null
-      html.classList.remove('re-html')
-    }
-  }, [reduced])
+    return () => html.classList.remove('re-html')
+  }, [])
 
   // The scene, the scroll stages and the pointer.
   useEffect(() => {
@@ -178,6 +167,7 @@ export default function Draft() {
         reduced,
         mode: modeRef.current === 'tensor' ? 1 : 0,
         onReady: () => setReady(true),
+        weights: AREAS.map((a) => a.n),
       })
     } catch {
       queueMicrotask(() => setNoGl(true))
@@ -319,13 +309,7 @@ export default function Draft() {
 
   // Into a case: start at its top. Back out (the button, the mark or the browser): land where the reader left the lab.
   useLayoutEffect(() => {
-    const jump = (y: number) => {
-      const lenis = lenisRef.current
-      // A wheel scroll still easing when a link is clicked would write its old target back over the jump (the case then
-      // opened mid-page). Stopping Lenis drops that easing before the jump; starting it again keeps scrolling smooth.
-      if (lenis) { lenis.stop(); lenis.start(); lenis.resize(); lenis.scrollTo(y, { immediate: true, force: true }) }
-      window.scrollTo({ top: y, behavior: 'instant' })
-    }
+    const jump = (y: number) => window.scrollTo({ top: y, behavior: 'instant' })
     const from = lastCase.current
     lastCase.current = caseSlug
     if (caseSlug) {
@@ -363,28 +347,32 @@ export default function Draft() {
   const toCase = (slug: string, trigger?: HTMLAnchorElement, keyboard = false) => {
     homeScroll.current = scrollY
     productionTrigger.current = trigger ?? null
-    const hero = trigger?.closest('.re-sw')?.querySelector<HTMLElement>('.re-sw-lead')
+    const hero = trigger?.closest('.re-sw, .re-own-item')?.querySelector<HTMLElement>('.re-sw-lead')
     // The case opens on a screen the same width as the one clicked: no shrink, no growth. The width rides on that case's
     // own slab, so the next case keeps its default size.
     const width = hero?.getBoundingClientRect().width
-    const go = () => {
-      flushSync(() => navigate(`${BASE}/${slug}`))
+    const go = (lite = false) => {
+      flushSync(() => { setCaseRest(!lite); navigate(`${BASE}/${slug}`) })
       const landing = document.querySelector<HTMLElement>('.re-cs-hero[data-hero]')
       if (landing && width) landing.style.setProperty('--re-land-w', `${width}px`)
       return landing
     }
     // A chapter's main slab, frame and screen together, grows into the case (it carries the transition's one named element).
     // The router's own viewTransition flag does not start one here, so the page does, as the home page does. A key press
-    // opens at once.
+    // opens at once. Inside the transition only the case's first screen renders: the rest waits for the flight to end
+    // (it would not show before 640 ms anyway), so the frame that swaps the pages carries the landing alone.
     if (hero && !keyboard && !reduced && typeof document.startViewTransition === 'function') {
       hero.style.setProperty('view-transition-name', 're-case-hero')
       const t = document.startViewTransition(async () => {
-        const landing = go()
+        const landing = go(true)
         landing?.style.setProperty('view-transition-name', 're-case-hero')
         // The new snapshot waits for the screen to decode, so it never lands as an empty slab.
         await landing?.querySelector('img')?.decode().catch(() => {})
       })
-      t.finished.finally(() => document.querySelector<HTMLElement>('.re-cs-hero[data-hero]')?.style.removeProperty('view-transition-name'))
+      t.finished.finally(() => {
+        document.querySelector<HTMLElement>('.re-cs-hero[data-hero]')?.style.removeProperty('view-transition-name')
+        startTransition(() => setCaseRest(true))
+      })
     } else go()
   }
   const toHome = (top = false) => {
@@ -432,17 +420,15 @@ export default function Draft() {
 
 
       {new URLSearchParams(location.search).has('tune') && <TunePanel scene={sceneRef} />}
-      {caseSlug && <CasePage slug={caseSlug} onBack={() => toHome()} />}
+      {caseSlug && <CasePage slug={caseSlug} rest={caseRest} onBack={() => toHome()} />}
 
       <main hidden={caseSlug !== undefined}>
         <header id="re-top" className="re-hero" data-stage={STAGE.hero}>
-          <p className="re-who">Frontend &amp; Mobile Developer → Full Stack</p>
           <h1 className="re-title">Web and mobile products, from the first screen to release: healthcare, video streaming, e-reading and Web3.</h1>
+          <p className="re-who">Frontend &amp; Mobile Developer → Full Stack</p>
           <p className="re-sub">5+ years. Part of two platform rewrites. React, React Native, Vue, TypeScript, Laravel. Based in Kosovo, working remotely.</p>
-          <div className="re-cta">
-            <a className="re-btn re-btn-solid" href="#re-work">See the work</a>
-            <a className="re-btn" href={links.cv}>Download CV</a>
-          </div>
+          {/* One action: the CV is in the masthead. */}
+          <div className="re-cta"><a className="re-btn re-btn-solid" href="#re-work">See the work</a></div>
           {!BARE && (
             <ul className="re-domains" data-work="care-platform bayyinah-tv read-to-feed incentiv">
               {DOMAINS.map((d) => {
@@ -451,7 +437,7 @@ export default function Draft() {
                 return (
                   <li key={d.key}>
                     <a href={d.href}>
-                      <img src={`/eh/${d.slug}.webp`} width={1280} height={800} alt={sys ? `${sys.name}, a real screen` : ''} decoding="async" />
+                      <img src={d.img[0]} width={d.img[1]} height={d.img[2]} style={d.pos ? { objectPosition: d.pos } : undefined} alt={sys ? `${sys.name}, a real screen` : ''} decoding="async" />
                       <span className="re-domain-name">{area.label}</span>
                       {area.period && <span className="re-domain-years re-num">{area.period}</span>}
                     </a>
@@ -464,7 +450,11 @@ export default function Draft() {
 
         <Production onOpen={toCase} reduced={reduced} onFocus={focusField} />
 
+        <Own onOpen={toCase} />
+
         <Lab mode={mode} reduced={reduced} noGl={noGl} onOpen={toCase} />
+
+        {!noGl && <AreaMap scene={sceneRef.current} userMode={mode === 'tensor' ? 1 : 0} stage={STAGE.modes} />}
 
         <AllWork onOpen={(slug) => toCase(slug)} />
 

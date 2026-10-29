@@ -1,11 +1,9 @@
 import { ArrowRightIcon, ArrowUpRightIcon } from '@phosphor-icons/react'
-import { projects } from '../../content/projects'
 import { channelOrder, channels } from '../../content/channels'
-import { systems } from './data'
+import { plain, BASE } from './data'
+import { cases, period, work } from './products'
 
-const BASE = '/drafts/refractive-engine'
-const CASES = new Set(systems.map((s) => s.slug))
-const plain = (e: React.MouseEvent) => !(e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0)
+const CASES = new Set(cases.map((s) => s.slug))
 
 /** CONTENT.md §1, word for word. */
 const CAPABILITIES: [string, string][] = [
@@ -46,10 +44,10 @@ export function AllWork({ onOpen }: { onOpen(slug: string): void }) {
           <div key={key} className="re-all-group">
             <h3 className="re-all-area">
               {area.label}
-              {area.period && <span className="re-num">{area.period}</span>}
+              {period(key) && <span className="re-num">{period(key)}</span>}
             </h3>
             <ul className="re-all-rows">
-              {projects.filter((p) => p.channel === key).map((p) => {
+              {work.filter((p) => p.channel === key).map((p) => {
                 const link = p.links[0]
                 return (
                   <li key={p.slug}>

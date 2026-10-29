@@ -34,4 +34,8 @@ export const LEADS: Record<string, { shot: Shot; crop?: Crop; phoneCrop?: Crop }
   incentiv: { shot: { src: '/showcase/incentiv/web-03.webp', w: 2880, h: 1800, alt: 'Incentiv wallet dashboard' } },
   futurisma: { shot: { src: '/personal/shots/futurisma-frostline-1.webp', w: 2880, h: 1800, alt: 'Futurisma Frostline screen' } },
   'dukagjini-bookstore': { shot: { src: '/eh/dukagjini-bookstore.webp', w: 570, h: 1013, alt: 'Dukagjini Bookstore app screen' } },
+  // The own products: cut above Offday's floating help buttons and after LeakScan's "Start here". Phones get four weeks of
+  // the calendar and the score with its first fixes, near square, so the screen fills the first view and not the text.
+  offday: { shot: { src: '/showcase/offday/offday-desktop-calendar.webp', w: 2880, h: 1800, alt: 'Offday team calendar for October 2026 with leave bars and the approvals queue' }, crop: [0, 0, 2880, 1520], phoneCrop: [534, 40, 1300, 1300] },
+  leakscan: { shot: { src: '/showcase/leakscan/leakscan-desktop-report.webp', w: 2880, h: 1800, alt: 'LeakScan Full Scan report: health score 48 and the three critical fixes to start with' }, crop: [0, 0, 2880, 1520], phoneCrop: [640, 340, 1420, 1180] },
 }

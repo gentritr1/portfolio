@@ -30,7 +30,7 @@ export function FullSize({ src, w, h, alt, label, step, refocus, ref }: {
   useEffect(() => { view.current?.scrollTo({ left: 0, top: 0 }) }, [src])
   return (
     <dialog
-      ref={dialog} className="re-sw-sheet" aria-label={`${alt}, at full size`} data-lenis-prevent
+      ref={dialog} className="re-sw-sheet" aria-label={`${alt}, at full size`}
       onClose={() => { const a = document.activeElement; if (!a || a === document.body || dialog.current?.contains(a)) refocus?.() }}
       onClick={(e) => { if (e.target === e.currentTarget) dialog.current?.close() }}
       onKeyDown={(e) => {

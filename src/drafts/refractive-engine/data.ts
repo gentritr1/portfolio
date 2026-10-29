@@ -1,3 +1,8 @@
+/** The draft's own route; every link inside the draft starts here. */
+export const BASE = '/drafts/refractive-engine'
+/** A plain left click: modified clicks keep the browser's own behaviour (new tab, new window). */
+export const plain = (e: { metaKey: boolean; ctrlKey: boolean; shiftKey: boolean; altKey: boolean; button: number }) => !(e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0)
+
 /**
  * Content for The Refractive Engine. Projects come from Event Horizon's data (itself built from the site's
  * content files); every ledger number is copied from the source named on its row (repo locations:
@@ -46,4 +51,4 @@ export const ledger: LedgerRow[] = [
 ]
 
 /** Owner rule (PRODUCT.md, 2026-10-06): internal care / design-system screens are captioned as invented data. */
-export const INVENTED = new Set(['care-platform', 'design-system-react', 'multi-tenant'])
+export const INVENTED = new Set(['care-platform', 'design-system-react', 'multi-tenant', 'offday', 'leakscan'])

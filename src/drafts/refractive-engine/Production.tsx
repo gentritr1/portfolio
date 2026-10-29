@@ -1,6 +1,6 @@
-import { lazy, Suspense, useEffect, useRef, useState, type CSSProperties, type MouseEvent, type ReactNode } from 'react'
+import { lazy, Suspense, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { ArrowRightIcon, XIcon } from '@phosphor-icons/react'
-import { systems } from './data'
+import { plain, BASE, systems } from './data'
 import { FullSize, type FullSizeHandle } from './FullSize'
 import { tune } from './tune'
 import { cropVars, LEADS, pct, shots, type Crop, type Shot } from './screens'
@@ -18,8 +18,6 @@ import { cropVars, LEADS, pct, shots, type Crop, type Shot } from './screens'
  * The field behind the page stays visible around the work and quiets only behind the words.
  */
 
-const BASE = '/drafts/refractive-engine'
-const plain = (e: MouseEvent) => !(e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0)
 const ReaderDemo = lazy(() => import('../../worlds/reading/Recreation').then((m) => ({ default: m.Recreation })))
 
 type Vars = CSSProperties & Record<`--${string}`, string | number>
@@ -144,9 +142,9 @@ function Layers({ slug, place, row }: { slug: string; place: Vars; row?: boolean
   if (!layers.length) return null
   return (
     <ol className="re-sw-at re-sw-layers" style={place} data-row={row || undefined} aria-label={`Built in ${layers.length} layers`}>
-      {layers.map((l, i) => (
+      {layers.map((l) => (
         <li key={l.title}>
-          <span><span className="re-num">{String(i + 1).padStart(2, '0')}</span> {l.title}</span>
+          <span>{l.title}</span>
           <span>{l.stack}</span>
         </li>
       ))}
@@ -267,7 +265,7 @@ function useArrival(root: React.RefObject<HTMLElement | null>, reduced: boolean,
       for (const c of all) {
         const r = c.lead.getBoundingClientRect()
         if (r.top > innerHeight * 1.2 || r.top < -innerHeight) continue
-        // At rest once the top reaches 60%: Lenis converges sub-pixel and fires no last scroll, so p alone never lands on 1.
+        // At rest once the top reaches 60%: a scroll's last step can stop short of it, so p alone may never land on 1.
         const p = r.top <= innerHeight * 0.6 + 0.5 ? 1 : clamp01((innerHeight - r.top) / (innerHeight * 0.4))
         if (p !== c.p) { c.p = p; set(c, p); if (tune.debug) c.lead.closest<HTMLElement>('.re-sw')!.dataset.p = p.toFixed(2) }
         const w = Math.sin(Math.PI * p) * 0.55
@@ -318,7 +316,7 @@ export function Production({ onOpen, reduced, onFocus }: { onOpen(slug: string, 
 
   return (
     <section ref={root} id="re-work" className="re-prod" aria-labelledby="re-prod-h">
-      <h2 id="re-prod-h" className="re-sr">Production work</h2>
+      <h2 id="re-prod-h" className="re-h2 re-prod-h">Selected work</h2>
 
       <Chapter
         id="bayyinah" nh={440} hs={50}
@@ -331,8 +329,8 @@ export function Production({ onOpen, reduced, onFocus }: { onOpen(slug: string, 
       >
         <Thumbs swap={bayyinah} crop={[0, 0, 2880, 1420]} place={at(64, 636)} label="Bayyinah TV screens" thumbW={64} />
         <div className="re-sw-at re-sw-copy" style={at(48, 742, 865)}>
-          <Meta name="Bayyinah TV" role="Frontend · 2023–2026" />
           <h3>Rebuilt a live learning platform.</h3>
+          <Meta name="Bayyinah TV" role="Frontend · 2023–2026" />
           <p className="re-sw-line">Live and on-demand video, subscriptions and English/Arabic support across web and mobile.</p>
         </div>
         <Layers slug="bayyinah-tv" place={at(1110, 175, 290)} />
@@ -353,8 +351,8 @@ export function Production({ onOpen, reduced, onFocus }: { onOpen(slug: string, 
         <Thumbs swap={reader} crop={[82, 462, 616, 1227]} place={at(862, 838)} label="Read to Feed screens" thumbW={29} />
         <p className="re-sw-at re-sw-cap" style={at(520, 838)}>Store listing images.</p>
         <div className="re-sw-at re-sw-copy" style={at(64, 196, 420)}>
-          <Meta name="Read to Feed" role="Mobile, iOS and Android · 2022–25" stack />
           <h3>Kept a children's reading app shipping for four years.</h3>
+          <Meta name="Read to Feed" role="Mobile, iOS and Android · 2022–25" stack />
           <p className="re-sw-line">EPUB and PDF reader, barcode scanning, quizzes, badges and streaks, in three languages.</p>
           <p className="re-sw-proof" data-numbers>About 14 store releases<small>React Native 0.63 → 0.81</small></p>
           <div className="re-sw-actions">
@@ -372,8 +370,8 @@ export function Production({ onOpen, reduced, onFocus }: { onOpen(slug: string, 
       >
         <p className="re-sw-at re-sw-cap" style={at(430, 744)}>Real product screens, invented data.</p>
         <div className="re-sw-at re-sw-copy" style={at(64, 77, 305)}>
-          <Meta name="Care-management platform" role="A team effort" stack />
           <h3>Rebuilding the dashboard, one tested screen at a time.</h3>
+          <Meta name="Care-management platform" role="A team effort" stack />
           <p className="re-sw-status">In progress</p>
         </div>
         <ol className="re-sw-at re-sw-process" style={at(65, 790, 1310)} aria-label="How each screen moves over">
@@ -403,8 +401,8 @@ export function Production({ onOpen, reduced, onFocus }: { onOpen(slug: string, 
       >
         <p className="re-sw-at re-sw-cap" style={at(64, 669)}>Real product screens, invented data.</p>
         <div className="re-sw-at re-sw-copy" style={at(64, 749, 760)}>
-          <Meta name="Design System v2" role="A team effort · 2026" />
           <h3>One shared library, checked before release.</h3>
+          <Meta name="Design System v2" role="A team effort · 2026" />
         </div>
         <Layers slug="design-system-react" place={at(852, 466, 516)} row />
         <div className="re-sw-at re-sw-act" style={at(962, 786, 350)}>
@@ -422,8 +420,8 @@ export function Production({ onOpen, reduced, onFocus }: { onOpen(slug: string, 
         </>}
       >
         <div className="re-sw-at re-sw-copy re-sw-right" style={at(899, 281, 476)}>
-          <Meta name="Viva Fresh" role="Mobile · 2023" />
           <h3>Shipped grocery shopping on iOS and Android.</h3>
+          <Meta name="Viva Fresh" role="Mobile · 2023" />
           <Reach href="https://play.google.com/store/apps/details?id=com.zs.vivafresh" />
           {caseLink('viva-fresh')}
         </div>
@@ -432,7 +430,7 @@ export function Production({ onOpen, reduced, onFocus }: { onOpen(slug: string, 
 
       <FullSize ref={full} src={shots.courses.src} w={shots.courses.w} h={shots.courses.h} alt={shots.courses.alt} />
 
-      <dialog ref={dialog} className="re-sw-reader" aria-label="Read to Feed, interactive recreation" data-lenis-prevent onClose={() => setReading(false)}>
+      <dialog ref={dialog} className="re-sw-reader" aria-label="Read to Feed, interactive recreation" onClose={() => setReading(false)}>
         <div className="re-ch-demo-bar">
           <p>Interactive recreation</p>
           <button type="button" onClick={() => dialog.current?.close()}>

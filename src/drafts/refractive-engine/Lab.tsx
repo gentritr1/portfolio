@@ -1,11 +1,10 @@
-import { lazy, Suspense, useEffect, useRef, useState, type CSSProperties, type MouseEvent } from 'react'
+import { lazy, Suspense, useEffect, useRef, useState, type CSSProperties } from 'react'
 import { ArrowRightIcon, BookOpenTextIcon, XIcon } from '@phosphor-icons/react'
 import { createChamber, type Chamber } from './chamber'
-import { INVENTED, systems } from './data'
+import { plain, BASE, INVENTED, systems } from './data'
 import { plates, proofKind } from './plates'
 import { STAGE } from './scene'
 
-const BASE = '/drafts/refractive-engine'
 // Read to Feed, not a product the chapters above just showed: the chamber opens on something new, and on its demo.
 const FIRST = 'incentiv'
 /**
@@ -25,7 +24,6 @@ const SHARP: Record<string, { src: string; width: number }> = {
  */
 const DEMOS = new Set(['read-to-feed'])
 const ReaderDemo = lazy(() => import('../../worlds/reading/Recreation').then((m) => ({ default: m.Recreation })))
-const plain = (e: MouseEvent) => !(e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0)
 
 /** Eight products, one in focus: a text index beside one large screen whose glass splits into its three layers. */
 export function Lab({ mode, reduced, noGl, onOpen }: { mode: 'lens' | 'tensor'; reduced: boolean; noGl: boolean; onOpen(slug: string): void }) {
@@ -88,8 +86,8 @@ export function Lab({ mode, reduced, noGl, onOpen }: { mode: 'lens' | 'tensor'; 
 
   useEffect(() => { chamber.current?.setMode(mode === 'tensor' ? 1 : 0) }, [mode])
 
-  // The formation runs while the product comes into view: from the stage's top at 92% of the viewport to 30% (Lenis smooths
-  // the scroll it reads). Arriving by keyboard, or with reduced motion, it is already formed: nothing travels.
+  // The formation runs while the product comes into view: from the stage's top at 92% of the viewport to 30%.
+  // Arriving by keyboard, or with reduced motion, it is already formed: nothing travels.
   useEffect(() => {
     const stage = stageRef.current
     const root = stage?.parentElement
@@ -178,6 +176,21 @@ export function Lab({ mode, reduced, noGl, onOpen }: { mode: 'lens' | 'tensor'; 
         <p className="re-lede">Select a product to explore the three layers it is built from.</p>
       </div>
       <div className="re-ch re-solid">
+        {/* The list comes first in the markup, as it does on screen (left on desktop, above the stage on phones), so Tab reaches it first. */}
+        <ol className="re-ch-index" aria-label="Products">
+          {systems.map((s, i) => (
+            <li key={s.slug}>
+              <button type="button" data-slug={s.slug} aria-pressed={i === selected}
+                onPointerEnter={(e) => { if (e.pointerType === 'mouse') chamber.current?.prepare(i) }}
+                onFocus={() => chamber.current?.prepare(i)}
+                onClick={(e) => select(i, e.detail === 0)}>
+                <span className="re-ch-name">{s.name}</span>
+                <ArrowRightIcon className="re-ch-arrow" size={18} weight="regular" aria-hidden="true" />
+              </button>
+            </li>
+          ))}
+        </ol>
+
         <div className="re-ch-viewer">
           <div className="re-ch-toolbar">
             <div className="re-ch-view" role="group" aria-label="View">
@@ -189,7 +202,6 @@ export function Lab({ mode, reduced, noGl, onOpen }: { mode: 'lens' | 'tensor'; 
               {sys.layers.map((l, k) => (
                 <button key={k} type="button" aria-pressed={layersExpanded && activeLayer === k}
                   onClick={(e) => highlight(activeLayer === k && layersExpanded ? null : k, e.detail === 0)}>
-                  <span className="re-num" aria-hidden="true">{String(k + 1).padStart(2, '0')}</span>
                   <span>{l.title}</span>
                 </button>
               ))}
@@ -238,7 +250,6 @@ export function Lab({ mode, reduced, noGl, onOpen }: { mode: 'lens' | 'tensor'; 
             {/* Phones: the chosen layer's words as page text over its plate, at a size the 3D texture cannot give them. */}
             {layersExpanded && !tryOpen && activeLayer !== null && plates[sys.slug] && (
               <div className="re-ch-card" tabIndex={0} role="region" aria-label={`${sys.layers[activeLayer].title}, details`}>
-                <p className="re-ch-card-n re-num">{String(activeLayer + 1).padStart(2, '0')}</p>
                 <p className="re-ch-card-title">{sys.layers[activeLayer].title}</p>
                 <p className="re-num re-layer-stack">{sys.layers[activeLayer].stack}</p>
                 <LayerFacts plate={plates[sys.slug][activeLayer]} />
@@ -247,7 +258,7 @@ export function Lab({ mode, reduced, noGl, onOpen }: { mode: 'lens' | 'tensor'; 
             <div className="re-ch-labels" aria-hidden="true">
               {[0, 1, 2].map((k) => (
                 <span key={k} ref={(el) => { labelRefs.current[k] = el }} className="re-ch-label" data-active={activeLayer === k || undefined}>
-                  <span className="re-num">{String(k + 1).padStart(2, '0')}</span> {sys.layers[k]?.title}
+                  {sys.layers[k]?.title}
                 </span>
               ))}
             </div>
@@ -274,21 +285,6 @@ export function Lab({ mode, reduced, noGl, onOpen }: { mode: 'lens' | 'tensor'; 
           </div>
         </div>
 
-        <ol className="re-ch-index" aria-label="Products">
-          {systems.map((s, i) => (
-            <li key={s.slug}>
-              <button type="button" data-slug={s.slug} aria-pressed={i === selected}
-                onPointerEnter={(e) => { if (e.pointerType === 'mouse') chamber.current?.prepare(i) }}
-                onFocus={() => chamber.current?.prepare(i)}
-                onClick={(e) => select(i, e.detail === 0)}>
-                <span className="re-ch-n re-num" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
-                <span className="re-ch-name">{s.name}</span>
-                <ArrowRightIcon className="re-ch-arrow" size={18} weight="regular" aria-hidden="true" />
-              </button>
-            </li>
-          ))}
-        </ol>
-
         <ol className="re-ch-layers" aria-label={`${sys.name}, its three layers`}>
           {sys.layers.map((l, k) => (
             <li key={l.title} data-active={activeLayer === k || undefined}>
@@ -297,7 +293,6 @@ export function Lab({ mode, reduced, noGl, onOpen }: { mode: 'lens' | 'tensor'; 
                 aria-pressed={activeLayer === k}
                 onClick={(e) => highlight(activeLayer === k ? null : k, e.detail === 0)}
               >
-                <span className="re-num" aria-hidden="true">{String(k + 1).padStart(2, '0')}</span>
                 {l.title}
               </button>
               <p className="re-num re-layer-stack">{l.stack}</p>

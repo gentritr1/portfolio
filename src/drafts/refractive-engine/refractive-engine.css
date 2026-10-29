@@ -9,6 +9,9 @@
   --re-glass: rgb(14 14 19 / 0.8);
   --re-glass-strong: rgb(12 12 17 / 0.92);
   --re-fill: rgb(255 255 255 / 0.05);
+  /* Three white steps for every fill and line on the page (was twelve opacities): fill, line, strong line. */
+  --re-line: rgb(255 255 255 / 0.1);
+  --re-line-2: rgb(255 255 255 / 0.2);
   --re-fill-2: rgb(255 255 255 / 0.09);
   --re-fill-3: rgb(255 255 255 / 0.14);
   --re-accent: #3ee6a4;
@@ -42,9 +45,8 @@
   --re-accent-mid: rgb(91 231 255 / 0.5);
   --re-ink: #021318;
 }
-/* Lenis drives the scroll here, so the site's smooth scroll-behavior must not animate it a second time. */
+/* Native scrolling, and anchor links jump at once: the site's smooth scroll-behavior would carry the eye down the whole page. */
 html.re-html { scroll-behavior: auto; background: #050508; }
-html.re-html.lenis-stopped { overflow: clip; }
 .re-root *, .re-root *::before, .re-root *::after { box-sizing: border-box; }
 .re-root ::selection { background: var(--re-accent-soft); color: #fff; }
 .re-root :where(h1, h2, h3, p, ul, ol, dl, dd, figure, table) { margin: 0; }
@@ -70,7 +72,7 @@ html.re-html.lenis-stopped { overflow: clip; }
 }
 .re-btn:active { transform: scale(0.97); }
 .re-btn-solid { background: var(--re-fg); color: #0a0a0d; }
-.re-btn-quiet { min-height: 44px; padding: 0 16px; font-size: 14px; color: var(--re-fg-2); }
+.re-btn-quiet { min-height: 44px; padding: 0 16px; font-size: 13px; color: var(--re-fg-2); }
 @media (hover: hover) and (pointer: fine) {
   .re-btn:hover { background: var(--re-accent-soft); color: var(--re-fg); }
   .re-btn-solid:hover { background: #fff; color: #0a0a0d; }
@@ -85,13 +87,13 @@ html.re-html.lenis-stopped { overflow: clip; }
 }
 .re-nav { display: flex; gap: 4px; }
 .re-nav a {
-  display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px; border-radius: 8px; font: 500 15px/1 var(--re-sans);
+  display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px; border-radius: 8px; font: 500 16px/1 var(--re-sans);
   color: var(--re-fg-2); text-decoration: none; transition: color 150ms ease, background-color 150ms ease;
 }
 @media (hover: hover) and (pointer: fine) { .re-nav a:hover { color: var(--re-fg); background: var(--re-fill); } }
 .re-nav a:focus-visible { outline: 2px solid var(--re-accent); outline-offset: 2px; }
 @media (max-width: 420px) { .re-bar { padding-left: 14px; } .re-nav a { padding: 0 9px; } }
-.re-mark { flex: 1; display: inline-flex; align-items: center; min-height: 44px; font: 600 16px/1 var(--re-sans); color: var(--re-fg); text-decoration: none; white-space: nowrap; }
+.re-mark { flex: 1; display: inline-flex; align-items: center; min-height: 44px; font: 500 16px/1 var(--re-sans); color: var(--re-fg); text-decoration: none; white-space: nowrap; }
 .re-live dt { font-size: 13px; line-height: 1.3; color: var(--re-dim); }
 .re-spark { display: grid; gap: 6px; }
 .re-spark canvas { display: block; width: 100%; height: 44px; padding: 6px 0; border-radius: 8px; background: var(--re-fill); color: var(--re-accent); }
@@ -113,9 +115,9 @@ html.re-html.lenis-stopped { overflow: clip; }
 .re-root main { position: relative; z-index: 2; pointer-events: none; }
 /* The page passes the pointer through to the field, and a region opts back in with .re-solid. Links and controls always
    take it: one left outside such a region could only be reached by keyboard (the hero action, the area tiles and the
-   index were, 2026-10-29: a real click landed on the canvas). */
-.re-root main :is(a, button, summary, [role="tab"], input, select, textarea, label) { pointer-events: auto; }
-.re-h2 { font: 400 clamp(28px, 3.3vw, 44px)/1.08 var(--re-sans); letter-spacing: -0.018em; text-wrap: balance; }
+   index were, 2026-10-29: a real click landed on the canvas). The area map takes it too, to light the cloud pointed at. */
+.re-root main :is(a, button, summary, [role="tab"], input, select, textarea, label), .re-root main .re-map { pointer-events: auto; }
+.re-h2 { font: 300 clamp(28px, 3vw, 40px)/1.08 var(--re-sans); letter-spacing: 0; text-wrap: balance; }
 .re-lede { margin-top: 14px; max-width: 46ch; color: var(--re-fg-2); text-wrap: pretty; }
 .re-card {
   width: min(480px, 100%); padding: 28px; border-radius: 16px; background: rgb(14 15 20 / 0.94);
@@ -128,10 +130,10 @@ html.re-html.lenis-stopped { overflow: clip; }
   content: ""; position: absolute; z-index: -1; left: 0; bottom: 0; width: min(100%, 980px); height: 70%; pointer-events: none;
   background: radial-gradient(70% 60% at 20% 78%, rgb(5 5 8 / 0.82) 0%, rgb(5 5 8 / 0.5) 45%, rgb(5 5 8 / 0) 100%); /* taste-skill-ignore: a neutral legibility scrim over the WebGL field behind the hero text */
 }
-.re-who { font: 400 16px/1.4 var(--re-sans); color: var(--re-fg-2); }
+.re-who { margin-top: -2px; font: 500 20px/1.4 var(--re-sans); color: var(--re-fg); }
 /* The claim, not the name, is the largest text (portfolio-page rule 2): CONTENT.md's one-liner. */
-.re-title { max-width: 21em; font: 300 clamp(34px, 4.6vw, 70px)/1.04 var(--re-sans); letter-spacing: -0.022em; margin-left: -0.02em; color: #f6f6f8; text-wrap: balance; }
-.re-sub { max-width: 52ch; color: var(--re-fg); font-size: clamp(16px, 1.25vw, 19px); line-height: 1.55; text-wrap: pretty; }
+.re-title { max-width: 21em; font: 300 clamp(32px, 4vw, 56px)/1.06 var(--re-sans); letter-spacing: 0; margin-left: -0.02em; color: #f6f6f8; text-wrap: balance; }
+.re-sub { max-width: 52ch; color: var(--re-fg); font-size: clamp(16px, 1.25vw, 20px); line-height: 1.55; text-wrap: pretty; }
 .re-cta { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px; }
 /* Four areas, four real screens: the sentence's proof inside the first screen. */
 .re-domains { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 18px 0 0; padding: 0; list-style: none; }
@@ -140,9 +142,9 @@ html.re-html.lenis-stopped { overflow: clip; }
 }
 .re-domains img {
   grid-column: 1 / -1; width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: cover; object-position: top; border-radius: 8px; background: #0e1116;
-  box-shadow: 0 0 0 1px rgb(255 255 255 / 0.06), 0 14px 30px -12px #000;
+  box-shadow: 0 0 0 1px var(--re-fill);
 }
-.re-domain-name { font-size: 15px; font-weight: 500; }
+.re-domain-name { font-size: 16px; font-weight: 500; }
 .re-domain-years { font-size: 13px; color: var(--re-dim); }
 @media (hover: hover) and (pointer: fine) { .re-domains a:hover .re-domain-name { text-decoration: underline; text-underline-offset: 4px; } }
 .re-domains a:focus-visible { outline: 2px solid var(--re-accent); outline-offset: 4px; }
@@ -179,6 +181,8 @@ html.re-html.lenis-stopped { overflow: clip; }
    From the selected-work sequence (2026-10-28). Wide screens place everything on the study's 1440 × 900 frame and scale
    it with the page (sizes in cqw, with floors for reading); phones stack the stage, then the words. */
 .re-prod { position: relative; isolation: isolate; padding: 0 0 56px; }
+/* The chapters' own heading, visible: it is where Work in the masthead lands, and it keeps the outline h1 → h2 → h3. */
+.re-prod-h { max-width: 1440px; margin: 0 auto; padding: 88px var(--re-gutter) 8px; }
 .re-sw { --u: calc(100cqw / 1440); position: relative; max-width: 1600px; margin: 0 auto; aspect-ratio: 1440 / 900; container-type: inline-size; }
 .re-sw-stage { position: absolute; inset: 0; }
 /* main passes the pointer through to the field; only the words, the screens and the reader take it back, so the cursor lens works in the margins. */
@@ -239,13 +243,13 @@ html.re-html.lenis-stopped { overflow: clip; }
 .re-sw-thumbs button[aria-pressed="true"] { opacity: 1; }
 @media (hover: hover) and (pointer: fine) { .re-sw-thumbs button[aria-pressed="false"]:hover { opacity: 0.8; } }
 .re-sw-thumbs button:focus-visible { outline: 2px solid var(--re-accent); outline-offset: 2px; border-radius: 6px; }
-.re-sw-thumb { position: relative; display: block; overflow: hidden; border-radius: 3px; aspect-ratio: var(--ar); box-shadow: 0 0 0 1px rgb(255 255 255 / 0.14); }
+.re-sw-thumb { position: relative; display: block; overflow: hidden; border-radius: 3px; aspect-ratio: var(--ar); box-shadow: 0 0 0 1px var(--re-line); }
 .re-sw-thumb img { position: absolute; left: var(--sl); top: var(--st); width: var(--sw); height: auto; max-width: none; }
 /* The companion opens at full size on click, tap or Enter; the button covers it so the whole screen is the target. */
 .re-sw-real { all: unset; position: absolute; inset: 0; cursor: zoom-in; border-radius: 10px; }
 .re-sw-real:focus-visible { outline: 2px solid var(--re-accent); outline-offset: 4px; }
 .re-sw-sheet {
-  width: min(96vw, 1120px); height: min(90svh, 820px); padding: 0; margin: auto; border: 1px solid rgb(255 255 255 / 0.12); border-radius: 14px;
+  width: min(96vw, 1120px); height: min(90svh, 820px); padding: 0; margin: auto; border: 1px solid var(--re-line); border-radius: 14px;
   background: #0c0c11; color: var(--re-fg); overflow: hidden; overscroll-behavior: contain;
 }
 .re-sw-sheet[open] { display: flex; flex-direction: column; }
@@ -268,13 +272,13 @@ html:has(.re-sw-sheet[open]) { overflow: hidden; }
 .re-sw-meta[data-stack] { flex-direction: column; gap: 4px; }
 .re-sw h3 {
   margin-top: 0.3em; font: 300 max(30px, calc(var(--hs) * var(--u)))/1.055 var(--re-sans);
-  letter-spacing: -0.035em; color: var(--re-fg); text-wrap: balance;
+  letter-spacing: 0; color: var(--re-fg); text-wrap: balance;
 }
-.re-sw-line { max-width: 52ch; margin-top: 1em; font-size: max(15px, calc(16 * var(--u))); line-height: 1.5; color: var(--re-fg-2); text-wrap: pretty; }
+.re-sw-line { max-width: 52ch; margin-top: 1em; font-size: max(16px, calc(16 * var(--u))); line-height: 1.5; color: var(--re-fg-2); text-wrap: pretty; }
 .re-sw-cap { font-size: max(13px, calc(14 * var(--u))); color: var(--re-fg-2); }
 .re-sw-system .re-sw-cap { max-width: calc(262 * var(--u)); }
-.re-sw-status { margin-top: 1.4em; font-size: max(15px, calc(16 * var(--u))); color: var(--re-accent); }
-.re-sw-proof { display: block; margin-top: 1.4em; font-size: max(15px, calc(16 * var(--u))); line-height: 1.5; color: var(--re-fg); text-decoration: none; }
+.re-sw-status { margin-top: 1.4em; font-size: max(16px, calc(16 * var(--u))); color: var(--re-accent); }
+.re-sw-proof { display: block; margin-top: 1.4em; font-size: max(16px, calc(16 * var(--u))); line-height: 1.5; color: var(--re-fg); text-decoration: none; }
 .re-sw-act > .re-sw-proof:first-child { margin-top: 0; }
 .re-sw-proof small { display: block; margin-top: 2px; font-size: 13px; color: var(--re-dim); }
 @media (hover: hover) and (pointer: fine) { a.re-sw-proof:hover { color: var(--re-accent); } }
@@ -282,14 +286,14 @@ html:has(.re-sw-sheet[open]) { overflow: hidden; }
 .re-sw-at::before { content: ""; position: absolute; inset: -28px -36px; z-index: -1; pointer-events: none; background: radial-gradient(closest-side, rgb(5 5 8 / 0.9) 55%, rgb(5 5 8 / 0)); }
 .re-prod-case {
   display: inline-flex; align-items: center; gap: 14px; min-height: 44px; margin-top: 0.6em;
-  font-size: max(15px, calc(16 * var(--u))); color: var(--re-accent); text-decoration: none;
+  font-size: max(16px, calc(16 * var(--u))); color: var(--re-accent); text-decoration: none;
 }
 .re-prod-case svg { transition: translate 160ms var(--re-ease); }
 @media (hover: hover) and (pointer: fine) { .re-prod-case:hover { text-decoration: underline; text-underline-offset: 6px; } .re-prod-case:hover svg { translate: 3px 0; } }
 .re-sw-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 30px; margin-top: 0.8em; }
 .re-sw-actions .re-prod-case { margin-top: 0; }
 .re-sw-try {
-  all: unset; box-sizing: border-box; cursor: pointer; min-height: 44px; font-size: max(15px, calc(16 * var(--u))); color: var(--re-fg);
+  all: unset; box-sizing: border-box; cursor: pointer; min-height: 44px; font-size: max(16px, calc(16 * var(--u))); color: var(--re-fg);
 }
 @media (hover: hover) and (pointer: fine) { .re-sw-try:hover { text-decoration: underline; text-underline-offset: 6px; } }
 :is(.re-prod-case, .re-sw-try, .re-sw-proof):focus-visible { outline: 2px solid var(--re-accent); outline-offset: 4px; border-radius: 4px; }
@@ -298,7 +302,7 @@ html:has(.re-sw-sheet[open]) { overflow: hidden; }
 .re-sw-right h3 { margin-left: auto; }
 /* Layer whisper: the chamber's three layers, quiet beside the screen; they come up with the chapter on hover or focus. */
 .re-sw-layers {
-  display: grid; gap: calc(26 * var(--u)); margin: 0; padding: 0; list-style: none; font-size: max(12px, calc(13 * var(--u))); line-height: 1.45;
+  display: grid; gap: calc(26 * var(--u)); margin: 0; padding: 0; list-style: none; font-size: max(13px, calc(13 * var(--u))); line-height: 1.45;
   color: var(--re-dim); opacity: 0.78; transition: opacity 150ms ease;
 }
 .re-sw-layers[data-row] { grid-template-columns: repeat(3, minmax(0, 1fr)); column-gap: calc(22 * var(--u)); }
@@ -319,7 +323,7 @@ html:has(.re-sw-sheet[open]) { overflow: hidden; }
 .re-sw-process li::before { content: ""; position: absolute; left: 0; top: -3px; width: 1px; height: 7px; background: #c4d3e0; }
 /* Try the reader: the same recreation the chamber opens, in a modal dialog. */
 .re-sw-reader {
-  width: min(92vw, 880px); height: min(88svh, 760px); padding: 0; border: 1px solid rgb(255 255 255 / 0.12); border-radius: 14px;
+  width: min(92vw, 880px); height: min(88svh, 760px); padding: 0; border: 1px solid var(--re-line); border-radius: 14px;
   background: #0c0c11; color: var(--re-fg); overflow: hidden; margin: auto; overscroll-behavior: contain;
 }
 html:has(.re-sw-reader[open]) { overflow: hidden; }
@@ -366,13 +370,12 @@ html:has(.re-sw-reader[open]) { overflow: hidden; }
 }
 
 .re-ch-index { grid-area: index; align-self: start; }
-.re-ch-index li + li { border-top: 1px solid rgb(255 255 255 / 0.09); }
 .re-ch-index button {
-  all: unset; box-sizing: border-box; cursor: pointer; display: grid; grid-template-columns: 44px minmax(0, 1fr) 20px; align-items: center; gap: 4px;
+  all: unset; box-sizing: border-box; cursor: pointer; display: grid; grid-template-columns: minmax(0, 1fr) 20px; align-items: center; gap: 4px;
   width: 100%; min-height: 56px; padding: 8px 0; color: var(--re-fg-2); transition: color 160ms ease;
 }
 .re-ch-n { font-size: 13px; color: var(--re-dim); transition: color 160ms ease; }
-.re-ch-name { font: 400 18px/1.3 var(--re-sans); letter-spacing: -0.005em; text-wrap: pretty; }
+.re-ch-name { font: 400 20px/1.3 var(--re-sans); letter-spacing: 0; text-wrap: pretty; }
 .re-ch-arrow { color: var(--re-accent); opacity: 0; translate: -6px 0; transition: opacity 180ms var(--re-ease), translate 180ms var(--re-ease); }
 .re-ch-index button[aria-pressed="true"] { color: var(--re-accent); }
 .re-ch-index button[aria-pressed="true"] .re-ch-n { color: var(--re-accent); }
@@ -384,10 +387,10 @@ html:has(.re-sw-reader[open]) { overflow: hidden; }
 }
 
 .re-ch-viewer { grid-area: stage; min-width: 0; }
-.re-ch-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 20px; min-height: 52px; border-bottom: 1px solid rgb(255 255 255 / 0.12); margin-bottom: 14px; }
+.re-ch-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 20px; min-height: 52px; border-bottom: 1px solid var(--re-line); margin-bottom: 14px; }
 .re-ch-inspect { display: flex; gap: 18px; }
 .re-ch-inspect button { all: unset; box-sizing: border-box; cursor: pointer; display: flex; align-items: center; gap: 7px; min-height: 44px; color: var(--re-fg-2); font-size: 13px; line-height: 1.3; transition: color 150ms ease; }
-.re-ch-inspect .re-num { color: var(--re-dim); font-size: 12px; }
+.re-ch-inspect .re-num { color: var(--re-dim); font-size: 13px; }
 .re-ch-inspect button[aria-pressed="true"], .re-ch-inspect button[aria-pressed="true"] .re-num { color: var(--re-accent); }
 @media (hover: hover) and (pointer: fine) { .re-ch-inspect button:hover { color: var(--re-fg); } }
 .re-ch-stage { position: relative; height: clamp(370px, calc(100svh - 374px), 614px); container-type: size; }
@@ -397,8 +400,8 @@ html:has(.re-sw-reader[open]) { overflow: hidden; }
 .re-ch-still > * { grid-area: 1 / 1; }
 .re-ch-still img { display: block; width: min(94cqw, 95cqh * var(--a, 1.6)); height: auto; border-radius: 8px; background: var(--re-fill); }
 .re-ch-plate {
-  width: min(94cqw, 95cqh * var(--a, 1.6)); aspect-ratio: var(--a, 1.6); border-radius: 8px; background: rgb(255 255 255 / 0.03);
-  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.16); transition: transform 290ms var(--re-ease);
+  width: min(94cqw, 95cqh * var(--a, 1.6)); aspect-ratio: var(--a, 1.6); border-radius: 8px; background: var(--re-fill);
+  box-shadow: inset 0 0 0 1px var(--re-line-2); transition: transform 290ms var(--re-ease);
 }
 .re-ch-stage[data-expanded] .re-ch-plate:nth-child(1) { transform: translate(5%, -5%); }
 .re-ch-stage[data-expanded] .re-ch-plate:nth-child(2) { transform: translate(10%, -10%); }
@@ -415,7 +418,7 @@ html:has(.re-sw-reader[open]) { overflow: hidden; }
   white-space: nowrap; font-size: 13px; line-height: 1.3; color: var(--re-fg-2); border-radius: 6px; background: rgb(5 5 8 / 0.82);
   transition: color 160ms ease;
 }
-.re-ch-label::after { content: ""; position: absolute; left: 0; top: 100%; width: 1px; height: var(--lift); background: rgb(255 255 255 / 0.35); }
+.re-ch-label::after { content: ""; position: absolute; left: 0; top: 100%; width: 1px; height: var(--lift); background: var(--re-line-2); }
 .re-ch-label:nth-child(2) { --lift: 28px; }
 .re-ch-label:nth-child(3) { --lift: 44px; }
 .re-ch-label[data-active] { color: var(--re-accent); }
@@ -424,12 +427,12 @@ html:has(.re-sw-reader[open]) { overflow: hidden; }
 
 .re-ch-bar {
   grid-area: bar; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: 8px 32px;
-  padding-top: 12px; border-top: 1px solid rgb(255 255 255 / 0.09);
+  padding-top: 12px; border-top: 1px solid var(--re-line);
 }
 .re-ch-view { display: inline-flex; align-items: center; gap: 2px; color: var(--re-dim); font-size: 13px; }
 .re-ch-view button {
   all: unset; box-sizing: border-box; cursor: pointer; position: relative; display: inline-flex; align-items: center; min-height: 44px; padding: 0 10px;
-  font: 500 15px/1 var(--re-sans); color: var(--re-dim); transition: color 160ms ease;
+  font: 500 16px/1 var(--re-sans); color: var(--re-dim); transition: color 160ms ease;
 }
 .re-ch-view button:first-child { padding-left: 0; }
 .re-ch-view button::after {
@@ -441,12 +444,12 @@ html:has(.re-sw-reader[open]) { overflow: hidden; }
 .re-ch-view button[aria-pressed="true"]::after { transform: scaleX(1); }
 @media (hover: hover) and (pointer: fine) { .re-ch-view button[aria-pressed="false"]:hover { color: var(--re-fg-2); } }
 .re-ch-now { display: grid; gap: 4px; padding-top: 6px; }
-.re-ch-now h3 { font: 400 22px/1.15 var(--re-sans); letter-spacing: -0.012em; }
+.re-ch-now h3 { font: 400 24px/1.15 var(--re-sans); letter-spacing: 0; }
 .re-ch-now p { max-width: 62ch; line-height: 1.5; color: var(--re-fg-2); text-wrap: pretty; }
 .re-ch-now .re-ch-note { font-size: 13px; color: var(--re-dim); }
 .re-ch-open {
   display: inline-flex; align-items: center; gap: 12px; min-height: 44px; white-space: nowrap;
-  font: 500 17px/1 var(--re-sans); color: var(--re-fg); text-decoration: none; transition: color 160ms ease;
+  font: 500 16px/1 var(--re-sans); color: var(--re-fg); text-decoration: none; transition: color 160ms ease;
 }
 .re-ch-open svg { transition: translate 200ms var(--re-ease); }
 .re-ch-open:active svg { translate: 3px 0; }
@@ -454,7 +457,7 @@ html:has(.re-sw-reader[open]) { overflow: hidden; }
 .re-ch-actions { display: flex; align-items: center; gap: 28px; }
 .re-ch-try {
   all: unset; box-sizing: border-box; cursor: pointer; display: inline-flex; align-items: center; gap: 10px; min-height: 44px; white-space: nowrap;
-  font: 500 17px/1 var(--re-sans); color: var(--re-fg-2); transition: color 160ms ease;
+  font: 500 16px/1 var(--re-sans); color: var(--re-fg-2); transition: color 160ms ease;
 }
 .re-ch-try svg { color: var(--re-accent); }
 .re-ch-try[aria-expanded="true"] { color: var(--re-accent); }
@@ -472,7 +475,7 @@ html:has(.re-sw-reader[open]) { overflow: hidden; }
 .re-ch-demo-bar p { font-size: 13px; line-height: 1.3; color: var(--re-dim); }
 .re-ch-demo-bar button {
   all: unset; box-sizing: border-box; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 12px;
-  border-radius: 999px; font: 500 15px/1 var(--re-sans); color: var(--re-fg-2); transition: color 160ms ease, background-color 160ms ease;
+  border-radius: 999px; font: 500 16px/1 var(--re-sans); color: var(--re-fg-2); transition: color 160ms ease, background-color 160ms ease;
 }
 @media (hover: hover) and (pointer: fine) { .re-ch-demo-bar button:hover { color: var(--re-fg); background: var(--re-fill-2); } }
 .re-ch-demo-stage {
@@ -482,8 +485,8 @@ html:has(.re-sw-reader[open]) { overflow: hidden; }
   --accent: color-mix(in oklab, var(--re-accent) 55%, #0b2a20); --accent-ink: var(--accent); --on-accent: #fff;
 }
 .re-ch-demo-stage section[aria-label="Scan a book"] {
-  color-scheme: dark; --surface: rgb(12 12 17 / 0.9); --ink: var(--re-fg); --muted: var(--re-dim); --line: rgb(255 255 255 / 0.1);
-  --line-strong: rgb(255 255 255 / 0.22); --accent: var(--re-accent); --accent-soft: var(--re-accent-soft); --accent-ink: var(--re-accent); --on-accent: var(--re-ink);
+  color-scheme: dark; --surface: rgb(12 12 17 / 0.9); --ink: var(--re-fg); --muted: var(--re-dim); --line: var(--re-line);
+  --line-strong: var(--re-line-2); --accent: var(--re-accent); --accent-soft: var(--re-accent-soft); --accent-ink: var(--re-accent); --on-accent: var(--re-ink);
 }
 /* Without WebGL (or while the screen loads) the plain image takes the same left third. */
 .re-ch-stage[data-trying] .re-ch-still { inset: 0 auto 0 0; width: 34%; }
@@ -495,19 +498,19 @@ html:has(.re-sw-reader[open]) { overflow: hidden; }
 .re-ch-demo-loading { padding: 28px; color: var(--re-fg-2); }
 .re-ch-card {
   position: absolute; inset: 10px; z-index: 1; display: none; align-content: start; gap: 2px; padding: 18px 18px 20px; overflow: auto;
-  border-radius: 6px; background: #0c0e13; box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.3);
+  border-radius: 6px; background: #0c0e13; box-shadow: inset 0 1px 0 var(--re-line-2);
   scrollbar-width: thin; scrollbar-color: var(--re-dim) transparent;
 }
 .re-ch-stage:not([data-ready]) .re-ch-card { display: grid; }
-.re-ch-card :is(.re-layer-stack, .re-ch-scope, .re-ch-proof span) { font-size: 15px; }
+.re-ch-card :is(.re-layer-stack, .re-ch-scope, .re-ch-proof span) { font-size: 16px; }
 .re-ch-card-n { font-size: 13px; line-height: 1; color: var(--re-dim); }
-.re-ch-card-title { margin-top: 6px; font: 400 24px/1.15 var(--re-sans); letter-spacing: -0.012em; color: var(--re-fg); }
+.re-ch-card-title { margin-top: 6px; font: 400 24px/1.15 var(--re-sans); letter-spacing: 0; color: var(--re-fg); }
 .re-ch-card .re-layer-stack { margin: 6px 0 4px; color: var(--re-dim); }
 /* The phone form of a chosen layer's surface: concepts as one grouped list, the proof or note set apart at the foot. */
 .re-ch-card .re-ch-concepts { display: grid; margin-top: 10px; }
-.re-ch-card .re-ch-concepts li { padding: 8px 0; box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.1); }
+.re-ch-card .re-ch-concepts li { padding: 8px 0; box-shadow: inset 0 1px 0 var(--re-line); }
 .re-ch-card .re-ch-concepts li:not(:last-child)::after { content: none; }
-.re-ch-card .re-ch-proof, .re-ch-card .re-ch-scope { margin-top: 10px; padding-top: 10px; box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.14); }
+.re-ch-card .re-ch-proof, .re-ch-card .re-ch-scope { margin-top: 10px; padding-top: 10px; box-shadow: inset 0 1px 0 var(--re-line); }
 /* On phones the card is the chosen layer's words in view; its rail entry keeps the title and description only. */
 @media (max-width: 599px) {
   .re-ch-card { display: grid; position: relative; inset: auto; margin: 10px; overflow: visible; }
@@ -516,10 +519,10 @@ html:has(.re-sw-reader[open]) { overflow: hidden; }
 
 .re-ch-layers { grid-area: layers; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px; margin-top: 32px; }
 /* The layers read as a caption rail: three columns under a hairline that takes the accent when its plate is lit. */
-.re-ch-layers > li { position: relative; padding-top: 10px; border-radius: 2px; box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.12); transition: box-shadow 160ms ease; }
+.re-ch-layers > li { position: relative; padding-top: 10px; border-radius: 2px; box-shadow: inset 0 1px 0 var(--re-line); transition: box-shadow 160ms ease; }
 .re-ch-layers > li[data-active] { box-shadow: inset 0 2px 0 var(--re-accent); }
 .re-ch-layers button { all: unset; cursor: pointer; display: flex; gap: 10px; align-items: center; min-height: 44px; font: 500 16px/1.3 var(--re-sans); color: var(--re-fg); }
-.re-ch-layers button .re-num { font-size: 12px; color: var(--re-dim); }
+.re-ch-layers button .re-num { font-size: 13px; color: var(--re-dim); }
 .re-ch-layers button::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }
 .re-ch-layers > li[data-active] button { color: var(--re-accent); }
 .re-ch-layers > li:has(button:focus-visible) { outline: 2px solid var(--re-accent); outline-offset: 6px; }
@@ -537,16 +540,16 @@ html:has(.re-sw-reader[open]) { overflow: hidden; }
 /* Below 900 px: the screen first, then its controls, the index and the layers, in one column. */
 @media (max-width: 899px) {
   .re-lab { padding-top: 96px; }
-  .re-ch { grid-template-columns: minmax(0, 1fr); grid-template-areas: "stage" "bar" "index" "layers"; margin-top: 20px; }
+  .re-ch { grid-template-columns: minmax(0, 1fr); grid-template-areas: "index" "stage" "bar" "layers"; margin-top: 20px; }
   .re-ch::before { inset: -8px -4px; }
   .re-ch-stage { height: auto; aspect-ratio: 4 / 3; max-height: 72svh; }
   .re-ch-bar { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "now open"; align-items: center; margin-top: 12px; }
   .re-ch-now { grid-area: now; padding-top: 0; }
   .re-ch-actions { grid-area: open; }
-  .re-ch-index { display: grid; grid-template-columns: 1fr 1fr; column-gap: 24px; margin-top: 24px; border-top: 1px solid rgb(255 255 255 / 0.09); }
+  .re-ch-index { display: grid; grid-template-columns: 1fr 1fr; column-gap: 24px; margin-top: 24px; border-top: 1px solid var(--re-line); }
   .re-ch-index li + li { border-top: 0; }
-  .re-ch-index li { border-bottom: 1px solid rgb(255 255 255 / 0.09); }
-  .re-ch-index button { min-height: 52px; grid-template-columns: 36px minmax(0, 1fr) 20px; }
+  .re-ch-index li { border-bottom: 1px solid var(--re-line); }
+  .re-ch-index button { min-height: 52px; }
   .re-ch-name { font-size: 16px; }
   .re-ch-layers { grid-template-columns: minmax(0, 1fr); gap: 24px; margin-top: 28px; }
 }
@@ -562,9 +565,9 @@ html:has(.re-sw-reader[open]) { overflow: hidden; }
   .re-ch-stage { aspect-ratio: auto; height: min(calc(100vw - 2 * var(--re-gutter)), 40svh); }
   .re-ch-bar { grid-template-columns: minmax(0, 1fr); grid-template-areas: "now" "open"; }
   .re-ch-index { column-gap: 16px; margin-top: 16px; }
-  .re-ch-index button { grid-template-columns: 26px minmax(0, 1fr); min-height: 52px; }
+  .re-ch-index button { grid-template-columns: minmax(0, 1fr); min-height: 52px; }
   .re-ch-arrow { display: none; }
-  .re-ch-now h3 { font-size: 22px; }
+  .re-ch-now h3 { font-size: 20px; }
   /* The demo takes the whole stage, which grows to most of the screen so the page holds real paragraphs. */
   .re-ch-stage[data-trying] { aspect-ratio: auto; height: min(calc(100svh - 96px), 620px); max-height: none; }
   .re-ch-stage[data-trying] .re-ch-canvas { opacity: 0; }
@@ -678,17 +681,16 @@ html:has(.re-sw-reader[open]) { overflow: hidden; }
 .re-cs-media, .re-cs-words { min-width: 0; }
 .re-casepage .re-cs-hero { position: relative; left: auto; top: auto; width: min(100%, var(--re-land-w, calc(56svh * var(--a)))); margin: 0; transform: none; z-index: auto; }
 .re-cs-hero .re-sw-screen img { pointer-events: none; }
-.re-cs-cap { margin-top: 14px; font-size: 14px; color: var(--re-fg-2); }
+.re-cs-cap { margin-top: 14px; font-size: 13px; color: var(--re-fg-2); }
 .re-cs-words { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; max-width: 900px; }
-.re-cs-name { font-size: 16px; color: var(--re-fg); }
-.re-cs-meta { margin-top: -8px; font-size: 14px; color: var(--re-fg-2); }
-.re-cs-q { margin-top: 6px; max-width: 24ch; font: 300 clamp(32px, 4vw, 56px)/1.08 var(--re-sans); letter-spacing: -0.025em; color: var(--re-fg); text-wrap: balance; }
+.re-cs-name { font-size: 16px; color: var(--re-fg-2); } /* the product's name and kind, under the headline */
+.re-cs-q { margin-top: 6px; max-width: 24ch; font: 300 clamp(32px, 4vw, 56px)/1.08 var(--re-sans); letter-spacing: 0; color: var(--re-fg); text-wrap: balance; }
 .re-cs-q:focus { outline: none; }
-.re-cs-result { max-width: 60ch; font: 300 clamp(18px, 1.6vw, 23px)/1.45 var(--re-sans); color: var(--re-fg-2); text-wrap: pretty; }
+.re-cs-result { max-width: 60ch; font: 300 20px/1.45 var(--re-sans); color: var(--re-fg-2); text-wrap: pretty; }
 .re-cs-readouts { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr)); gap: 16px 28px; max-width: 760px; margin-top: 18px; padding: 0; list-style: none; }
 .re-cs-readouts li { display: grid; gap: 4px; }
-.re-cs-readouts b { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 8px; font: 500 23px/1.2 var(--re-sans); color: var(--re-fg); overflow-wrap: anywhere; }
-.re-cs-readouts span { font-size: 14px; line-height: 1.4; color: var(--re-fg-2); }
+.re-cs-readouts b { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 8px; font: 500 24px/1.2 var(--re-sans); color: var(--re-fg); overflow-wrap: anywhere; }
+.re-cs-readouts span { font-size: 13px; line-height: 1.4; color: var(--re-fg-2); }
 @media (min-width: 1024px) {
   .re-cs-landing[data-shape="phone"] { grid-template-columns: minmax(0, 1fr) auto; align-items: center; column-gap: clamp(48px, 6vw, 96px); }
   .re-cs-landing[data-shape="phone"] .re-cs-media { order: 2; }
@@ -703,27 +705,24 @@ html:has(.re-sw-reader[open]) { overflow: hidden; }
 .re-case-list { display: grid; gap: 10px; }
 .re-case-list li { position: relative; padding-left: 18px; }
 .re-case-list li::before { content: ""; position: absolute; left: 0; top: 0.62em; width: 6px; height: 6px; border-radius: 50%; background: var(--re-accent); }
-.re-cs-h2 { margin-bottom: 20px; font: 300 clamp(26px, 2.7vw, 39px)/1.15 var(--re-sans); letter-spacing: -0.02em; color: var(--re-fg); }
+.re-cs-h2 { margin-bottom: 20px; font: 300 clamp(28px, 3vw, 40px)/1.15 var(--re-sans); letter-spacing: 0; color: var(--re-fg); }
 .re-cs-list { display: grid; gap: 16px; margin: 0; padding: 0; list-style: none; }
-.re-cs-list li, .re-cs-text { max-width: 34em; font: 300 clamp(17px, 1.6vw, 23px)/1.5 var(--re-sans); color: var(--re-fg); text-wrap: pretty; }
+.re-cs-list li, .re-cs-text { max-width: 34em; font: 300 20px/1.5 var(--re-sans); color: var(--re-fg); text-wrap: pretty; }
 .re-cs-list li { position: relative; padding-left: 22px; }
 .re-cs-list li::before { content: ""; position: absolute; left: 2px; top: 0.66em; width: 5px; height: 5px; border-radius: 50%; background: var(--re-accent); }
 /* The decision in order: what was in the way, what was chosen (with the option turned down set apart), what changes next
    time. One column, numbered like the chamber's layers, so it reads top to bottom on any screen. */
 .re-cs-road { display: grid; gap: clamp(36px, 6vh, 56px); margin: 0; padding: 0; list-style: none; max-width: 820px; }
-.re-cs-road > li { display: grid; grid-template-columns: 44px minmax(0, 1fr); column-gap: 12px; }
-.re-cs-road > li > .re-num { padding-top: 0.55em; font-size: 14px; color: var(--re-dim); }
-.re-cs-road > li > :not(.re-num) { grid-column: 2; }
+.re-cs-road > li { display: grid; }
 .re-cs-road .re-cs-h2 { margin-bottom: 14px; }
 .re-cs-not { color: var(--re-fg-2); text-decoration: underline dashed rgb(156 157 167 / 0.7); text-decoration-thickness: 1px; text-underline-offset: 0.3em; }
-@media (max-width: 599px) { .re-cs-road > li { grid-template-columns: 32px minmax(0, 1fr); column-gap: 8px; } }
 /* The three layers side by side, every word readable; the one under the pointer lights. */
 .re-cs-layers { display: grid; gap: 14px; margin: 0; padding: 0; list-style: none; }
 @media (min-width: 760px) { .re-cs-layers { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 .re-cs-layers li { display: grid; align-content: start; gap: 6px; padding: 22px 22px 24px; border-radius: 14px; background: #1f272b; transition: background-color 150ms ease; }
 .re-cs-layers li > span { font-size: 13px; color: var(--re-dim); }
 .re-cs-layers h3 { font: 400 20px/1.3 var(--re-sans); color: var(--re-fg); transition: color 150ms ease; }
-.re-cs-stack { font-size: 14px; color: var(--re-dim); }
+.re-cs-stack { font-size: 13px; color: var(--re-dim); }
 .re-cs-layers p:last-child { margin-top: 6px; font-size: 16px; line-height: 1.5; color: var(--re-fg-2); }
 @media (hover: hover) and (pointer: fine) { .re-cs-layers li:hover { background: #262e33; } .re-cs-layers li:hover h3 { color: var(--re-accent); } }
 .re-eng { padding-top: 6px; }
@@ -756,7 +755,7 @@ html:has(.re-sw-reader[open]) { overflow: hidden; }
 .re-cs-stage-screen { aspect-ratio: var(--ga); background: #0e1116; }
 .re-cs-stage-screen img { inset: 0; left: 0; top: 0; width: 100%; height: 100%; object-fit: contain; }
 .re-cs-gallery[data-shape="phone"] .re-cs-stage-screen { max-height: 72svh; }
-.re-cs-stage figcaption { margin-top: 14px; font-size: 15px; color: var(--re-fg-2); }
+.re-cs-stage figcaption { margin-top: 14px; font-size: 16px; color: var(--re-fg-2); }
 .re-cs-stage-list { display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; }
 .re-cs-stage-list button {
   all: unset; box-sizing: border-box; cursor: pointer; display: grid; grid-template-columns: 56px minmax(0, 1fr); align-items: center; gap: 12px;
@@ -765,7 +764,7 @@ html:has(.re-sw-reader[open]) { overflow: hidden; }
 .re-cs-stage-list button img { width: 56px; height: 36px; object-fit: cover; object-position: top; border-radius: 4px; filter: brightness(0.55); transition: filter 150ms ease; }
 /* Dimmed, not faded: a faded white screen lets the dot field through and reads as grain. */
 .re-cs-gallery[data-shape="phone"] .re-cs-stage-list button img { height: 56px; width: 28px; justify-self: center; }
-.re-cs-stage-list button span { font-size: 15px; line-height: 1.35; }
+.re-cs-stage-list button span { font-size: 16px; line-height: 1.35; }
 .re-cs-stage-list button[aria-selected="true"] { color: var(--re-fg); background: var(--re-fill); }
 .re-cs-stage-list button[aria-selected="true"] img { filter: none; }
 @media (hover: hover) and (pointer: fine) { .re-cs-stage-list button[aria-selected="false"]:hover { color: var(--re-fg); } }
@@ -788,7 +787,7 @@ html:has(.re-sw-reader[open]) { overflow: hidden; }
   .re-cs-stage-list button { grid-template-columns: 1fr; justify-items: start; width: 132px; gap: 8px; padding: 8px; }
   .re-cs-stage-list button img { width: 116px; height: 72px; }
   .re-cs-gallery[data-shape="phone"] .re-cs-stage-list button img { width: 60px; height: 120px; }
-  .re-cs-stage-list button span { font-size: 14px; }
+  .re-cs-stage-list button span { font-size: 13px; }
 }
 /* The markers' layer is the picture's own box inside the stage (object-fit: contain may letterbox a tall screen), and the
    stage lets the decision's label reach past the picture's edge. */
@@ -830,7 +829,7 @@ html:has(.re-sw-reader[open]) { overflow: hidden; }
 .re-cs-list li::before { transition: scale 150ms var(--re-ease), box-shadow 150ms ease; }
 .re-cs-show {
   all: unset; box-sizing: border-box; cursor: pointer; display: inline-flex; align-items: center; min-height: 44px; margin-left: 10px; padding: 0 2px;
-  font-size: 15px; color: var(--re-accent); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 4px;
+  font-size: 16px; color: var(--re-accent); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 4px;
 }
 .re-cs-show:focus-visible { outline: 2px solid var(--re-accent); outline-offset: 2px; border-radius: 4px; }
 /* A narrow (phone-shaped) stage keeps the label inside the picture. */
@@ -851,22 +850,21 @@ html:has(.re-sw-reader[open]) { overflow: hidden; }
 .re-cs-board-zoom {
   all: unset; position: absolute; z-index: 3; pointer-events: auto; cursor: zoom-in; box-sizing: border-box;
   left: var(--cl); top: calc(var(--by) + var(--bh) + 18px); width: var(--cw); display: grid; gap: 6px; padding: 6px; border-radius: 10px;
-  background: rgb(12 14 19 / 0.94); box-shadow: 0 0 0 1px rgb(62 230 164 / 0.35), 0 18px 40px rgb(0 0 0 / 0.55); transition: box-shadow 150ms ease;
+  background: rgb(12 14 19 / 0.94); box-shadow: 0 0 0 1px rgb(62 230 164 / 0.35); transition: box-shadow 150ms ease;
 }
-@media (hover: hover) and (pointer: fine) { .re-cs-board-zoom:hover { box-shadow: 0 0 0 1px rgb(62 230 164 / 0.7), 0 18px 40px rgb(0 0 0 / 0.55); } }
+@media (hover: hover) and (pointer: fine) { .re-cs-board-zoom:hover { box-shadow: 0 0 0 1px rgb(62 230 164 / 0.7); } }
 .re-cs-board-zoom:focus-visible { outline: 2px solid var(--re-accent); outline-offset: 3px; }
-.re-cs-board-zoom-tag { display: flex; align-items: center; gap: 8px; padding: 0 4px; font: 500 11px/16px var(--re-sans); letter-spacing: 0.12em; text-transform: uppercase; color: var(--re-accent); }
+.re-cs-board-zoom-tag { display: flex; align-items: center; gap: 8px; padding: 0 4px; font: 500 13px/16px var(--re-sans); color: var(--re-accent); }
 .re-cs-board-zoom-tag::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
 .re-cs-board-crop { display: block; aspect-ratio: var(--ca); border-radius: 5px; background: #fff no-repeat var(--zx) var(--zy) / var(--zs) auto; }
 /* The words start under the callout: its reach below the screen, plus its frame (34 px) and lead (18 px), less the slab's
    own bottom edge and the grid's row gap. */
 .re-cs-board-text { margin-top: calc(var(--drop) + 49px); animation: re-mark-in 160ms var(--re-ease) both; }
-.re-cs-board-title { margin: 0 0 12px; font: 300 clamp(24px, 2.3vw, 32px)/1.15 var(--re-sans); letter-spacing: -0.02em; color: var(--re-fg); text-wrap: balance; }
+.re-cs-board-title { margin: 0 0 12px; font: 300 24px/1.15 var(--re-sans); letter-spacing: 0; color: var(--re-fg); text-wrap: balance; }
 .re-cs-board-line { margin: 0; max-width: 46ch; font-size: 16px; line-height: 1.55; color: var(--re-fg-2); }
-.re-cs-board-on h4 { margin: 0 0 10px; font-size: 13px; font-weight: 400; letter-spacing: 0.12em; text-transform: uppercase; color: var(--re-accent); }
-.re-cs-board-on ol { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; counter-reset: on; }
-.re-cs-board-on li { counter-increment: on; display: grid; grid-template-columns: 28px 1fr; font-size: 15px; line-height: 1.45; color: var(--re-fg-2); }
-.re-cs-board-on li::before { content: counter(on, decimal-leading-zero); font-variant-numeric: tabular-nums; color: rgb(237 237 240 / 0.45); }
+.re-cs-board-on h4 { margin: 0 0 10px; font-size: 16px; font-weight: 500; color: var(--re-fg); }
+.re-cs-board-on ol { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.re-cs-board-on li { font-size: 16px; line-height: 1.45; color: var(--re-fg-2); }
 @media (min-width: 1024px) {
   .re-cs-gallery > .re-cs-stage, .re-cs-board-text, .re-cs-mark-text { grid-column: 1; }
   .re-cs-stage-list { grid-column: 2; grid-row: 1 / span 3; }
@@ -884,7 +882,7 @@ html:has(.re-sw-reader[open]) { overflow: hidden; }
    more (CROPS in CasePage.tsx). A tap opens the full-size view on it. Desktop shows the screen alone. */
 .re-cs-crop-zoom {
   all: unset; box-sizing: border-box; display: block; cursor: zoom-in; padding: 6px; border-radius: 10px; background: rgb(12 14 19 / 0.94);
-  box-shadow: 0 0 0 1px rgb(62 230 164 / 0.35), 0 18px 40px rgb(0 0 0 / 0.55); animation: re-mark-in 160ms var(--re-ease) 200ms both;
+  box-shadow: 0 0 0 1px rgb(62 230 164 / 0.35); animation: re-mark-in 160ms var(--re-ease) 200ms both;
 }
 .re-cs-crop-zoom:focus-visible { outline: 2px solid var(--re-accent); outline-offset: 3px; }
 @media (min-width: 1024px) { .re-cs-crop, .re-cs-crop-zoom { display: none; } }
@@ -898,13 +896,13 @@ html:has(.re-sw-reader[open]) { overflow: hidden; }
 }
 .re-cs-next-main:active { transform: scale(0.985); }
 .re-cs-next-words { display: grid; gap: 8px; }
-.re-cs-next-label { font-size: 14px; color: var(--re-accent); }
-.re-cs-next-main strong { font: 300 clamp(26px, 2.8vw, 40px)/1.1 var(--re-sans); letter-spacing: -0.02em; }
-.re-cs-next-q { max-width: 34ch; font-size: 18px; line-height: 1.45; color: var(--re-fg-2); text-wrap: pretty; }
+.re-cs-next-label { font-size: 13px; color: var(--re-accent); }
+.re-cs-next-main strong { font: 300 clamp(28px, 3vw, 40px)/1.1 var(--re-sans); letter-spacing: 0; }
+.re-cs-next-q { max-width: 34ch; font-size: 20px; line-height: 1.45; color: var(--re-fg-2); text-wrap: pretty; }
 .re-cs-next-main .re-cs-hero { width: 100%; }
 .re-cs-next-main .re-cs-hero[data-shape="phone"] { width: min(100%, 240px); justify-self: center; }
 @media (min-width: 1024px) { .re-cs-next-main { grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); } }
-.re-cs-prev { display: inline-flex; align-items: center; gap: 8px; justify-self: start; min-height: 44px; font-size: 15px; color: var(--re-fg-2); text-decoration: none; }
+.re-cs-prev { display: inline-flex; align-items: center; gap: 8px; justify-self: start; min-height: 44px; font-size: 16px; color: var(--re-fg-2); text-decoration: none; }
 @media (hover: hover) and (pointer: fine) { .re-cs-next-main:hover { background: var(--re-fill-2); } .re-cs-prev:hover { color: var(--re-fg); } }
 :is(.re-cs-next-main, .re-cs-prev):focus-visible { outline: 2px solid var(--re-accent); outline-offset: 4px; }
 @media (max-width: 767px) { .re-casepage { padding-top: 84px; } }
@@ -923,10 +921,10 @@ html.re-html::view-transition-old(root), html.re-html::view-transition-new(root)
    case (both carry the name), 480 ms on the storyboard's ease-in-out; the case words wait for it. */
 html.re-html::view-transition-group(re-case-hero) { z-index: 2; animation-duration: 480ms; animation-timing-function: cubic-bezier(0.77, 0, 0.175, 1); }
 html.re-html::view-transition-old(re-case-hero), html.re-html::view-transition-new(re-case-hero) { animation-duration: 480ms; }
-/* Words after the landing: the flight is 480 ms, a 100 ms hold, then the words settle in their order. */
-html.re-html:active-view-transition .re-casepage .re-cs-words { animation-delay: 580ms; }
-html.re-html:active-view-transition .re-casepage .re-cs-body { animation-delay: 640ms; }
-html.re-html:active-view-transition .re-casepage :is(.re-cs-screens, .re-cs-next) { animation-delay: 680ms; }
+/* Words after the landing: while the screen flies in only the landing is rendered and its words wait unseen. When the
+   flight ends the rest mounts, and the words, the case and its screens settle in on their own delays (40, 100, 140 ms).
+   A delay tied to :active-view-transition cannot do this: the transition ends before it runs out, and the words popped. */
+.re-casepage[data-landing-only] .re-cs-words { animation: none; opacity: 0; }
 @media (prefers-reduced-motion: reduce) {
   html.re-html::view-transition-old(root), html.re-html::view-transition-new(root),
   html.re-html::view-transition-group(re-case-hero), html.re-html::view-transition-old(re-case-hero), html.re-html::view-transition-new(re-case-hero) { animation: none; }
@@ -948,14 +946,14 @@ html.re-html:active-view-transition .re-casepage :is(.re-cs-screens, .re-cs-next
 }
 /* Phones: the layer whisper is read, not hovered, so it is full size and full ink. */
 @media (max-width: 1023px) {
-  .re-sw-layers { font-size: 14px; opacity: 1; }
+  .re-sw-layers { font-size: 13px; opacity: 1; }
   .re-casepage .re-cs-hero { width: min(100%, calc(40svh * var(--na, var(--a)))); }
 }
 
 /* ---------- ?tune: the debug view that draws what is otherwise invisible (not part of the page) ---------- */
 .re-tune {
   position: fixed; left: 16px; bottom: 16px; z-index: 30; display: grid; gap: 6px; max-width: min(560px, calc(100vw - 32px)); padding: 12px 14px;
-  border-radius: 14px; background: rgb(12 12 17 / 0.94); box-shadow: 0 0 0 1px rgb(255 255 255 / 0.1); font-size: 13px; color: var(--re-fg-2);
+  border-radius: 14px; background: rgb(12 12 17 / 0.94); box-shadow: 0 0 0 1px var(--re-line); font-size: 13px; color: var(--re-fg-2);
 }
 .re-tune-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
 .re-tune-row > span:first-child { width: 72px; color: var(--re-fg); }
@@ -973,6 +971,19 @@ html.re-html:active-view-transition .re-casepage :is(.re-cs-screens, .re-cs-next
   border-top: 1px dashed rgb(62 230 164 / 0.7); font: 12px/1.6 var(--re-sans); color: var(--re-accent); padding-left: 8px;
 }
 
+/* ---------- Own products: the owner's two products side by side, each with its case. ---------- */
+.re-own {
+  position: relative; z-index: 1; margin-top: clamp(80px, 12vh, 140px); padding: clamp(56px, 8vh, 96px) max(var(--re-gutter), calc((100% - 1180px) / 2));
+  background: rgb(5 5 8 / 0.95);
+}
+.re-own-list { display: grid; gap: 64px; margin: 40px 0 0; padding: 0; list-style: none; }
+@media (min-width: 1024px) { .re-own-list { grid-template-columns: 1fr 1fr; column-gap: 48px; } }
+@media (max-width: 1023px) { .re-own-item { max-width: 600px; } }
+.re-own .re-sw-slab { position: relative; left: auto; top: auto; width: 100%; transform: none; }
+.re-own-name { margin-top: 32px; font: 500 24px/1.25 var(--re-sans); color: var(--re-fg); }
+.re-own-meta { margin-top: 8px; font-size: 13px; color: var(--re-dim); }
+.re-own-line { max-width: 34em; margin-top: 12px; font-size: 16px; line-height: 1.5; color: var(--re-fg-2); }
+
 /* ---------- All projects: every project by area, then capabilities and skills (CONTENT.md §7b, §1, §8). ---------- */
 .re-all {
   position: relative; z-index: 1; margin-top: clamp(80px, 12vh, 140px); padding: clamp(56px, 8vh, 96px) max(var(--re-gutter), calc((100% - 1180px) / 2)) 48px;
@@ -980,13 +991,12 @@ html.re-html:active-view-transition .re-casepage :is(.re-cs-screens, .re-cs-next
   background: rgb(5 5 8 / 0.95);
 }
 .re-all-head { margin-bottom: 36px; }
-.re-all-group { display: grid; gap: 4px; padding: 26px 0; border-top: 1px solid rgb(255 255 255 / 0.08); }
+.re-all-group { display: grid; gap: 4px; padding: 28px 0; }
 @media (min-width: 1024px) { .re-all-group { grid-template-columns: 240px minmax(0, 1fr); column-gap: 40px; } }
-.re-all-area { display: flex; align-items: baseline; gap: 10px; font: 500 17px/1.3 var(--re-sans); color: var(--re-fg); }
+.re-all-area { display: flex; align-items: baseline; gap: 10px; font: 500 16px/1.3 var(--re-sans); color: var(--re-fg); }
 .re-all-area span { font-size: 13px; font-weight: 400; color: var(--re-dim); }
 .re-all-rows { display: grid; margin: 0; padding: 0; list-style: none; }
-.re-all-rows li { display: grid; gap: 2px 18px; padding: 12px 0; border-bottom: 1px solid rgb(255 255 255 / 0.05); }
-.re-all-rows li:last-child { border-bottom: 0; }
+.re-all-rows li { display: grid; gap: 2px 18px; padding: 10px 0; }
 @media (min-width: 760px) {
   .re-all-rows li { grid-template-columns: minmax(0, 15em) minmax(0, 1fr) auto; align-items: baseline; }
   .re-all-meta { grid-column: 1; grid-row: 2; }
@@ -995,24 +1005,24 @@ html.re-html:active-view-transition .re-casepage :is(.re-cs-screens, .re-cs-next
 }
 .re-all-name { font-size: 16px; color: var(--re-fg); }
 .re-all-meta { font-size: 13px; color: var(--re-dim); }
-.re-all-line { font-size: 15px; line-height: 1.5; color: var(--re-fg-2); }
+.re-all-line { font-size: 16px; line-height: 1.5; color: var(--re-fg-2); }
 .re-all-go {
-  display: inline-flex; align-items: center; gap: 6px; min-height: 44px; font-size: 14px; color: var(--re-accent); text-decoration: none; white-space: nowrap;
+  display: inline-flex; align-items: center; gap: 6px; min-height: 44px; font-size: 13px; color: var(--re-accent); text-decoration: none; white-space: nowrap;
 }
 @media (hover: hover) and (pointer: fine) { .re-all-go:hover { text-decoration: underline; text-underline-offset: 4px; } }
 .re-all-go:focus-visible { outline: 2px solid var(--re-accent); outline-offset: 2px; border-radius: 4px; }
-.re-all-cols { display: grid; gap: 32px; padding-top: 26px; border-top: 1px solid rgb(255 255 255 / 0.08); }
+.re-all-cols { display: grid; gap: 32px; padding-top: 40px; }
 @media (min-width: 1024px) { .re-all-cols { grid-template-columns: 1fr 1fr; column-gap: 40px; } }
 .re-all-dl { display: grid; gap: 10px; margin: 14px 0 0; }
 .re-all-dl div { display: grid; gap: 2px; }
 @media (min-width: 760px) { .re-all-dl div { grid-template-columns: 11em minmax(0, 1fr); gap: 16px; } }
-.re-all-dl dt { font-size: 15px; color: var(--re-fg); }
-.re-all-dl dd { margin: 0; font-size: 15px; line-height: 1.5; color: var(--re-fg-2); }
+.re-all-dl dt { font-size: 16px; color: var(--re-fg); }
+.re-all-dl dd { margin: 0; font-size: 16px; line-height: 1.5; color: var(--re-fg-2); }
 
 /* ---------- The field's own notes, folded away: the page's ground, not its subject. ---------- */
 .re-field-notes { max-width: 1180px; margin: 40px auto 0; padding: 0 var(--re-gutter); }
 .re-field-notes > summary {
-  display: inline-flex; align-items: center; min-height: 44px; padding: 0 4px; cursor: pointer; font-size: 15px; color: var(--re-fg-2); list-style: none;
+  display: inline-flex; align-items: center; min-height: 44px; padding: 0 4px; cursor: pointer; font-size: 16px; color: var(--re-fg-2); list-style: none;
 }
 .re-field-notes > summary::-webkit-details-marker { display: none; }
 .re-field-notes > summary::before { content: "+"; margin-right: 10px; color: var(--re-accent); }
@@ -1020,3 +1030,33 @@ html.re-html:active-view-transition .re-casepage :is(.re-cs-screens, .re-cs-next
 .re-field-notes > summary:focus-visible { outline: 2px solid var(--re-accent); outline-offset: 2px; border-radius: 6px; }
 /* Inside the folded notes the panels are not boxes of their own, so their controls are the only boxes (no card in a card). */
 .re-field-notes .re-card { width: auto; padding: 0; background: none; }
+/* The fixed masthead covers the top 68 px (16 px + 52 px). The document keeps that clear for page keys, Space and
+   anchors alike (Chrome honours scroll-padding when paging; motion study 2026-10-29: PageDown lost 28 px before), and
+   jump targets add a 16 px gap so a heading never sits on the masthead's edge. */
+html.re-html { scroll-padding-top: 68px; }
+:where(#re-work, #re-lab, #re-all, #re-contact, #re-map, [id^="work-"]) { scroll-margin-top: 16px; }
+
+/* ---------- The field as a map of the six areas (AreaMap.tsx). The band is see-through: the clouds are the picture. ---------- */
+.re-map { position: relative; z-index: 1; min-height: 100svh; padding: 96px var(--re-gutter) 64px; max-width: 1440px; margin: 0 auto; }
+.re-map-head { position: relative; z-index: 1; max-width: 32em; }
+.re-map-labels { margin: 28px 0 0; padding: 0; list-style: none; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 16px; }
+.re-map-labels a {
+  display: grid; gap: 2px; min-height: 44px; padding: 8px 10px; border-radius: 8px; color: var(--re-fg); text-decoration: none;
+  background: rgb(5 5 8 / 0.72); transition: color 150ms ease;
+}
+.re-map-name { font-size: 16px; font-weight: 500; }
+.re-map-meta { font-size: 13px; color: var(--re-fg-2); }
+.re-map-labels li[data-hot] a { color: var(--re-accent); }
+.re-map-labels a:focus-visible { outline: 2px solid var(--re-accent); outline-offset: 2px; }
+/* On a large screen each label stands beside its cloud. The labels are out of the flow from the start (hidden until the
+   clouds have positions) and follow them with transform, so neither the switch nor the following is a layout shift. */
+@media (min-width: 1024px) {
+  .re-map { overflow: clip; } /* a label never leaves its band */
+  .re-map-labels { position: absolute; inset: 0; margin: 0; display: block; pointer-events: none; }
+  .re-map:not([data-live]) .re-map-labels { visibility: hidden; }
+  .re-map-labels li { position: absolute; left: 0; top: 0; transform: translate(calc(var(--x, -999px) + 18px), calc(var(--y, -999px) - 50%)); pointer-events: auto; }
+  .re-map-labels a { background: none; padding: 6px 8px; }
+}
+@media (prefers-reduced-motion: reduce) { .re-map-labels a { transition: none; } }
+/* The product's name and role now follow the chapter headline (no eyebrow above it), with a step of space between. */
+.re-sw h3 + .re-sw-meta { margin-top: 14px; }

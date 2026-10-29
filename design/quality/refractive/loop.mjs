@@ -12,7 +12,7 @@ const stamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19)
 const out = join(here, 'runs', stamp)
 mkdirSync(out, { recursive: true })
 
-const CASES = ['bayyinah-tv', 'read-to-feed', 'care-platform', 'design-system-react', 'viva-fresh', 'incentiv', 'dukagjini-bookstore', 'futurisma']
+const CASES = ['bayyinah-tv', 'read-to-feed', 'care-platform', 'design-system-react', 'viva-fresh', 'incentiv', 'dukagjini-bookstore', 'futurisma', 'offday', 'leakscan']
 const CHAPTERS = ['bayyinah', 'reading', 'care', 'system', 'viva']
 const go = (path) => `(async()=>{history.pushState(null,'','/drafts/refractive-engine${path}');dispatchEvent(new PopStateEvent('popstate'));for(let i=0;i<80&&!document.querySelector(${JSON.stringify(path ? '.re-cs-landing' : '.re-sw')});i++)await new Promise(r=>setTimeout(r,50));await new Promise(r=>setTimeout(r,500));scrollTo({top:0,behavior:'instant'});return 'at '+location.pathname})()`
 const tag = (name, js) => ({ eval: `(async()=>JSON.stringify({check:${JSON.stringify(name)},value:await (${js})}))()` })
@@ -30,6 +30,12 @@ const audit = `(()=>{const W=innerWidth;const vis=e=>{const r=e.getBoundingClien
 // two levels, for rows that draw the ring around their button).
 const focusNow = `(()=>{const e=document.activeElement;if(!e||e===document.body)return {stuck:'body'};const cs=getComputedStyle(e);const r=e.getBoundingClientRect();const has=x=>{const c=getComputedStyle(x);return (c.outlineStyle!=='none'&&parseFloat(c.outlineWidth)>0)||c.boxShadow!=='none'};const ring=has(e)||(!!e.parentElement&&has(e.parentElement))||(!!e.parentElement?.parentElement&&has(e.parentElement.parentElement));return {el:(e.className||e.tagName).toString().split(' ')[0]+':'+(e.textContent||'').trim().slice(0,24),visible:ring,onScreen:r.bottom>0&&r.top<innerHeight&&r.width>0}})()`
 
+// A real pointer reaches every link and control: the element at its centre is the control or inside it. Scripted clicks
+// skip hit-testing, so every other check passed while main's pointer-events let the canvas take 35 of 73 clicks
+// (2026-10-29). On wide screens the area map's labels sit on their clouds only while the band is live, so they are tested
+// there; on phones they are a plain list.
+const reach = `(async()=>{const frame=()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));const ok=(e)=>{const r=e.getBoundingClientRect();const h=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);return !!h&&(h===e||e.contains(h))};const name=(e)=>(e.className||e.tagName).toString().slice(0,24)+' '+e.textContent.trim().slice(0,24);const placed=[...document.querySelectorAll('.re-map-labels')].some((l)=>getComputedStyle(l).position==='absolute');const bad=[];let n=0;for(const e of document.querySelectorAll('main :is(a,button,summary,[role=tab])')){if(!e.getClientRects().length||(placed&&e.closest('.re-map-labels')))continue;e.scrollIntoView({block:'center',behavior:'instant'});await frame();n++;if(!ok(e))bad.push(name(e))}const m=document.querySelector('#re-map');if(placed&&m){m.scrollIntoView({block:'start',behavior:'instant'});for(let i=0;i<60&&!m.hasAttribute('data-live');i++)await new Promise(r=>setTimeout(r,100));await frame();for(const a of m.querySelectorAll('.re-map-labels a')){n++;if(!ok(a))bad.push(name(a))}}return {n,bad}})()`
+
 const desktop = [
   { eval: go('') }, { wait: 4000 }, { shot: 'idle-a' }, { wait: 1000 }, { shot: 'idle-b' },
   tag('settle', settle),
@@ -41,11 +47,12 @@ const desktop = [
   ...['bayyinah-tv', 'read-to-feed', 'care-platform'].flatMap((s) => [{ eval: go('/' + s) }, { shot: `d-case-${s}` }]),
   { eval: go('') }, { wait: 800 }, { eval: '(scrollTo({top:0,behavior:"instant"}),document.activeElement.blur(),1)' },
   ...Array.from({ length: 60 }, (_, i) => [{ key: 'Tab' }, tag(`tab${i}`, focusNow)]).flat(),
+  { eval: go('') }, { wait: 1500 }, tag('reach-desktop', reach),
 ]
 const phone = (w, h) => [
   { eval: go('') }, tag(`audit-home-${w}`, audit),
   ...CASES.flatMap((s) => [{ eval: go('/' + s) }, tag(`audit-${s}-${w}`, audit)]),
-  ...(w === 390 ? [{ eval: go('') }, ...CHAPTERS.flatMap((c) => [{ scrollTo: `.re-sw-${c}`, offset: -56 }, { wait: 400 }, { shot: `p-chapter-${c}` }]), { eval: go('/bayyinah-tv') }, { shot: 'p-case-bayyinah-tv' }] : []),
+  ...(w === 390 ? [{ eval: go('') }, { wait: 1500 }, tag('reach-390', reach), { eval: go('') }, ...CHAPTERS.flatMap((c) => [{ scrollTo: `.re-sw-${c}`, offset: -56 }, { wait: 400 }, { shot: `p-chapter-${c}` }]), { eval: go('/bayyinah-tv') }, { shot: 'p-case-bayyinah-tv' }] : []),
 ]
 const plans = [
   { name: 'desktop', w: 1440, h: 900, dpr: 1, steps: desktop },
@@ -88,6 +95,9 @@ const tabs = Object.entries(results).filter(([k]) => k.startsWith('tab')).map(([
 const stuck = tabs.filter((t) => t.stuck), hidden = tabs.filter((t) => !t.stuck && (!t.visible || !t.onScreen))
 checks.push(['keyboard: focus never lost to <body>', stuck.length === 0, `${stuck.length} of ${tabs.length} tabs`])
 checks.push(['keyboard: focus visible and on screen', hidden.length === 0, hidden.slice(0, 6).map((t) => t.el + (t.visible ? '' : ' (no ring)') + (t.onScreen ? '' : ' (off-screen)')).join('; ')])
+for (const [k, v] of Object.entries(results).filter(([k]) => k.startsWith('reach-'))) {
+  checks.push([`${k}: a real pointer reaches every link and control`, v.n > 0 && v.bad.length === 0, `${v.n - v.bad.length} of ${v.n}${v.bad.length ? '; ' + v.bad.slice(0, 4).join(', ') : ''}`])
+}
 checks.push(['no console errors', results.consoleErrors.length === 0, results.consoleErrors.slice(0, 3).join(' | ')])
 
 let fail = 0
