@@ -133,11 +133,11 @@ Owner confirmed (2026-10-02): built bayyinah.org, Next.js, 2024–25; repo acces
 
 ---
 
-## 5. World: WEB3 — Incentiv, 2024
+## 5. World: WEB3 — Incentiv, 2024, freelance
 
 **Eyebrow:** Web3 · Smart wallet · Web
 **Title:** The frontend of a smart-wallet dashboard
-**Role:** Frontend, UI layer
+**Role:** Frontend, UI layer, freelance (owner, 2026-10-29: Incentiv and AvahiTech were both freelance work)
 
 **Story (2 paragraphs):**
 1. A smart-wallet dashboard where people and businesses manage an on-chain wallet and incentive programs. Users sign in with a passkey or an external wallet, then see balances, assets, gas saved and transactions.
@@ -201,6 +201,8 @@ Owner confirmed (2026-10-02): built bayyinah.org, Next.js, 2024–25; repo acces
 
 **Readouts:** 41 Components · 868 Design values in three tiers · 22 Releases in 60 days · 96.6% Less JavaScript for a Button-only consumer.
 
+**Bytes behind the 96.6% (shown on the refractive-engine home page, "Before and after"):** 186,949 bytes before, 6,386 bytes after, for an app that imports only Button. Source: design-system-v2 CHANGELOG 0.6.0 and `docs/adr/0021-a-consumer-pays-for-what-it-uses.md`, as recorded in `src/drafts/the-loop/SPEC.md`.
+
 **Live recreation (invented data, own palette, no employer visuals):** "Component specimen" for an invented project-tracker kit. A bento board with a three-tier token strip whose Light/Dark switch re-points the semantic tier live (circular reveal from the switch), five alert tones, a Sonner-style toast stack, Steps, Select, chip Combobox, Input states, Button hierarchy and sizes, Tabs with Pagination, avatars and switches. A gentle demo loop runs until hover, focus, a hidden tab or the pause button stops it. Marked "Recreation · invented data".
 
 ---
@@ -245,7 +247,7 @@ Render as a compact, scannable index (not cards): grouped by employer, each row 
 | Grocery shopping and loyalty app | 2023 | Mobile | React Native, Redux Toolkit, Maps, Firebase | Online grocery orders with delivery slots, loyalty, wishlist and address search on a map | #reading |
 | Fuel-station loyalty app | 2026 | Mobile | React Native 0.78 | Loyalty app upkeep: arm64 simulator support, legacy architecture, shadow fixes | — |
 
-### Incentiv (2024)
+### Incentiv (2024, freelance)
 | Smart-wallet dashboard | 2024 | Frontend | Next.js 14, RTK Query, next-intl, Framer Motion | Wallet dashboard with passkey sign-in, balance and QR, onboarding, EN/FR | #web3 |
 
 ### AvahiTech (freelance)

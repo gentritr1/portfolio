@@ -43,37 +43,6 @@ export const ledger: LedgerRow[] = [
     note: '96.6% less, from per-component builds.',
     source: 'Design System v2, measured in its release pipeline',
   },
-  {
-    id: 'futurisma',
-    name: 'Futurisma, Frostline circuit',
-    bars: [{ label: 'Floating props', before: { low: 1397, text: '1,397' }, after: { low: 0, text: '0' }, scale: 1397 }],
-    note: 'A terrain fix, checked by the same audit before and after.',
-    source: 'Futurisma, the same terrain audit before and after',
-  },
-  {
-    id: 'snaxx',
-    name: 'Snaxx Tech site',
-    bars: [
-      { label: 'Images', before: { low: 972, text: '972 KB' }, after: { low: 337, text: '337 KB' }, scale: 972 },
-      { label: 'Deploy size', before: { low: 28, text: '28 MB' }, after: { low: 9.5, text: '9.5 MB' }, scale: 28 },
-    ],
-    note: 'The same site, with a smaller payload to ship.',
-    source: 'Snaxx Tech, the site files before and after',
-  },
-  {
-    id: 'eh-start',
-    name: 'Event Horizon draft, startup',
-    bars: [{ label: 'Longest frame in the opening, production build', before: { low: 100, high: 150, text: '100-150 ms' }, after: { low: 17, text: '17 ms' }, scale: 150 }],
-    note: 'On the dev server the stalls were 300-650 ms. Now 240 of 240 frames land in the 4 s after the reveal.',
-    source: 'Measured October 2026 in headless Chrome on the GPU',
-  },
-  {
-    id: 'eh-hover',
-    name: 'Event Horizon draft, hover',
-    bars: [{ label: 'View roll from a 0.02-0.17 unit camera shift', before: { low: 63, high: 87, text: '63-87°' }, after: { low: 0.4, high: 3, text: '0.4-3.0°' }, scale: 90 }],
-    note: 'The camera now sits 12° off vertical, so a small lean can no longer spin the view.',
-    source: 'Measured October 2026 with the scene\'s own camera',
-  },
 ]
 
 /** Owner rule (PRODUCT.md, 2026-10-06): internal care / design-system screens are captioned as invented data. */

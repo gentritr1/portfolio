@@ -172,7 +172,7 @@ export function Lab({ mode, reduced, noGl, onOpen }: { mode: 'lens' | 'tensor'; 
   const sharp = SHARP[sys.slug]
 
   return (
-    <section className="re-lab" data-stage={STAGE.lab} aria-labelledby="re-lab-h">
+    <section id="re-lab" className="re-lab" data-stage={STAGE.lab} aria-labelledby="re-lab-h">
       <div className="re-lab-head">
         <h2 id="re-lab-h" className="re-h2" tabIndex={-1}>Eight products, three layers each</h2>
         <p className="re-lede">Select a product to explore the three layers it is built from.</p>

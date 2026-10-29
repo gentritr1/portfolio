@@ -286,7 +286,7 @@ export const projects: Project[] = [
       readouts: [
         { value: '16', to: '2', label: 'Queries in one billing report' },
         { value: '4', label: 'Languages: EN, DE, ES, TR' },
-        { value: '36', label: 'Design-system components underneath' },
+        { value: '41', label: 'Design-system components underneath' },
       ],
       related: ['design-system-react', 'design-system-vue', 'design-dashboard'],
     },
@@ -315,18 +315,18 @@ export const projects: Project[] = [
     years: '2026',
     role: 'Design system',
     stack: ['React 19', 'TypeScript', 'CSS Modules', 'Storybook 10', 'DTCG tokens', 'Playwright', 'axe'],
-    line: '36 components, 805 design tokens and 20 releases in about six weeks',
+    line: '41 components, 868 design values and 22 releases in 60 days',
     summary:
-      "Design System v2 is a token-driven React component library for the new dashboard of a care-management platform. The team defined 805 design tokens in three tiers (core, semantic and component) in one source that generates CSS, TypeScript and a Figma bundle, and shipped 36 components in 20 releases in about six weeks. Each component is built to WCAG 2.1 AA floors with automated, rendered evidence, and per-component builds cut a Button-only consumer's JavaScript by 96.6%. Research into five leading design systems came first and became written guides for AI agents. The guides advise, automatic checks decide, and a person approves each change. The new React dashboard, not yet in production, uses the system across its screens through one adapter layer.",
+      "Design System v2 is a token-driven React component library for the new dashboard of a care-management platform. The team defined 868 design values in three tiers (core, semantic and component) in one source that generates CSS, TypeScript and a Figma bundle, and shipped 41 components in 22 releases in 60 days. Each component is built to WCAG 2.1 AA floors with automated, rendered evidence, and per-component builds cut a Button-only consumer's JavaScript by 96.6%. Research into five leading design systems came first and became written guides for AI agents. The guides advise, automatic checks decide, and a person approves each change. The new React dashboard, not yet in production, uses the system across its screens through one adapter layer.",
     links: [],
     media: { galleries: [designSystemGallery] },
     featured: {
       order: 7,
       monitor: 'gallery',
       readouts: [
-        { value: '36', label: 'Components' },
-        { value: '805', label: 'Design tokens in three tiers' },
-        { value: '20', label: 'Releases in about six weeks' },
+        { value: '41', label: 'Components' },
+        { value: '868', label: 'Design values in three tiers' },
+        { value: '22', label: 'Releases in 60 days' },
         { value: '96.6%', label: 'Less JavaScript for a Button-only consumer' },
       ],
     },

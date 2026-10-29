@@ -462,7 +462,7 @@ export function createScene(
     buildPath()
   }
   resize()
-  const ro = new ResizeObserver(resize)
+  const ro = new ResizeObserver(() => { resize(); kick() })
   ro.observe(host)
 
   // ---------- State ----------
@@ -475,7 +475,8 @@ export function createScene(
   const RT60 = 0.8
   let ring = 1, stillFrames = 0
   let modeFrom = options.mode as number, modeTo = options.mode as number, modeT = 1
-  let shockT = -1, introT = 0, disposed = false
+  // Under reduced motion the field starts settled: the intro never plays, so it must not count as movement.
+  let shockT = -1, introT = reduced ? 1 : 0, disposed = false
   const stats: Stats = { fps: 0, frameMs: 0, worstMs: 0, calls: 0, drawn: count, history: new Float32Array(120), head: 0, frames: 0 }
   const ray = new THREE.Raycaster(), ndc = new THREE.Vector2(), plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0), hitP = new THREE.Vector3()
 
@@ -485,6 +486,15 @@ export function createScene(
   const lensAllowed = () => lensStageW() > 0.5
 
   let last = performance.now(), raf = 0, running = true, fpsFrames = 0, fpsT = 0
+  // Idle: once the field is still, no frame is requested at all (not only none drawn); any input wakes it.
+  let idle = false
+  function kick() {
+    if (!idle || !running || !ready || disposed) return
+    idle = false
+    stillFrames = 0
+    last = performance.now()
+    raf = requestAnimationFrame(frame)
+  }
 
   function frame() {
     if (!running) return
@@ -577,6 +587,9 @@ export function createScene(
       renderer.info.reset()
       composer.render()
       stats.calls = renderer.info.render.calls
+    } else {
+      cancelAnimationFrame(raf)
+      idle = true
     }
     fpsFrames++
     fpsT += rawDt
@@ -629,8 +642,8 @@ export function createScene(
     count,
     stats,
     grid: { columns: COLUMNS, pitch: PITCH, left: FRAME.l },
-    setStage(v) { stageTarget = v },
-    wake(energy) { if (!reduced) ring = Math.max(ring, Math.min(1, energy)) },
+    setStage(v) { stageTarget = v; kick() },
+    wake(energy) { if (!reduced) ring = Math.max(ring, Math.min(1, energy)); kick() },
     setPointer(x, y, inside) {
       leanTarget.set((x / cssW) * 2 - 1, -(y / cssH) * 2 + 1)
       const want = inside
@@ -638,11 +651,13 @@ export function createScene(
       if (lens < 0.01) lensFresh = true
       lensWanted = want
       lensTarget.set(x, y)
+      kick()
     },
     setFocus(x, y, r, w) {
       focusPos.set(x, y)
       focus.r = r
       focus.w = reduced ? 0 : Math.min(1, Math.max(0, w))
+      kick()
     },
     ripple(x, y) {
       if (reduced || !lensAllowed()) return
@@ -651,6 +666,7 @@ export function createScene(
         uniforms.uShockC.value.copy(hitP)
         shockT = 0
         performance.mark('re:ripple')
+        kick()
       }
     },
     setMode(m) {
@@ -659,17 +675,20 @@ export function createScene(
       modeTo = m
       modeT = 0
       performance.mark('re:mode')
+      kick()
     },
     setDrawCount(n) {
       const c = Math.max(0, Math.min(count, Math.round(n)))
       g.setDrawRange(0, c)
       stats.drawn = c
+      kick()
     },
-    setBloom(on) { bloom.enabled = on },
-    setAberration(on) { aberration.enabled = on },
+    setBloom(on) { bloom.enabled = on; kick() },
+    setAberration(on) { aberration.enabled = on; kick() },
     setPixelRatio(r) {
       pixelRatio = Math.min(Math.max(r, 0.5), 2)
       applySize()
+      kick()
     },
     centroids: () => centroids.map((c) => ({ x: c.x, y: c.y, z: c.z })),
     dispose() {

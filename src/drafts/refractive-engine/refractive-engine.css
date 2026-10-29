@@ -55,7 +55,7 @@ html.re-html.lenis-stopped { overflow: clip; }
 .re-root :focus-visible { outline: 2px solid var(--re-accent); outline-offset: 3px; border-radius: 8px; }
 
 /* ---------- Field ---------- */
-.re-canvas { position: fixed; top: 0; left: 0; right: 0; height: 100lvh; z-index: 0; opacity: 0; transition: opacity 1.4s var(--re-ease); }
+.re-canvas { position: fixed; top: 0; left: 0; right: 0; height: 100lvh; z-index: 0; opacity: 0; transition: opacity 800ms var(--re-ease); }
 .re-root[data-ready] .re-canvas { opacity: 1; }
 .re-canvas canvas { display: block; width: 100% !important; height: 100% !important; }
 .re-shade { position: fixed; inset: 0; z-index: 1; pointer-events: none; background: radial-gradient(130% 95% at 55% 40%, transparent 50%, rgb(3 3 5 / 0.7) 100%); } /* taste-skill-ignore: a neutral vignette scrim over the WebGL field, not a decorative fill */
@@ -70,7 +70,7 @@ html.re-html.lenis-stopped { overflow: clip; }
 }
 .re-btn:active { transform: scale(0.97); }
 .re-btn-solid { background: var(--re-fg); color: #0a0a0d; }
-.re-btn-quiet { min-height: 44px; padding: 0 16px; font-size: 13px; color: var(--re-fg-2); }
+.re-btn-quiet { min-height: 44px; padding: 0 16px; font-size: 14px; color: var(--re-fg-2); }
 @media (hover: hover) and (pointer: fine) {
   .re-btn:hover { background: var(--re-accent-soft); color: var(--re-fg); }
   .re-btn-solid:hover { background: #fff; color: #0a0a0d; }
@@ -79,41 +79,20 @@ html.re-html.lenis-stopped { overflow: clip; }
 /* ---------- Top bar ---------- */
 .re-bar {
   position: fixed; top: 16px; left: 50%; z-index: 6; transform: translateX(-50%); display: flex; align-items: center; gap: 12px;
-  width: min(1180px, calc(100% - 32px)); min-height: 52px; padding: 6px 6px 6px 20px; border-radius: 999px;
-  background: var(--re-glass); backdrop-filter: blur(18px) saturate(1.2); -webkit-backdrop-filter: blur(18px) saturate(1.2);
+  width: min(1180px, calc(100% - 32px)); min-height: 52px; padding: 4px 8px 4px 20px; border-radius: 12px;
+  /* A plain masthead: the name and three links on an opaque ground, no glass (portfolio-page T26/T04). */
+  background: rgb(10 11 15 / 0.97);
 }
-.re-mark { flex: 1; font: 600 16px/1 var(--re-sans); color: var(--re-fg); text-decoration: none; white-space: nowrap; }
-.re-switch { display: inline-flex; padding: 3px; border-radius: 999px; background: var(--re-fill); }
-.re-switch button {
-  all: unset; position: relative; isolation: isolate; cursor: pointer; display: inline-flex; align-items: center; min-height: 36px; padding: 0 14px; border-radius: 999px;
-  font: 500 13px/1 var(--re-sans); color: var(--re-fg-2); white-space: nowrap; transition: transform 160ms var(--re-ease);
+.re-nav { display: flex; gap: 4px; }
+.re-nav a {
+  display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px; border-radius: 8px; font: 500 15px/1 var(--re-sans);
+  color: var(--re-fg-2); text-decoration: none; transition: color 150ms ease, background-color 150ms ease;
 }
-.re-switch button::before { content: ""; position: absolute; inset: 0; z-index: -1; border-radius: inherit; background: var(--re-accent); opacity: 0; transition: opacity 220ms var(--re-ease); }
-.re-switch button[aria-pressed="true"] { color: var(--re-ink); }
-.re-switch button[aria-pressed="true"]::before { opacity: 1; }
-.re-switch button:active { transform: scale(0.97); }
-@media (hover: hover) and (pointer: fine) { .re-switch button[aria-pressed="false"]:hover { color: var(--re-fg); } }
-.re-statbtn {
-  all: unset; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 14px; border-radius: 999px;
-  color: var(--re-fg-2); font-size: 13px; white-space: nowrap; transition: transform 160ms var(--re-ease);
-}
-.re-statbtn svg { color: var(--re-accent); }
-.re-statbtn[aria-expanded="true"] { background: var(--re-fill-2); color: var(--re-fg); }
-.re-statbtn:active { transform: scale(0.97); }
-@media (hover: hover) and (pointer: fine) { .re-statbtn:hover { background: var(--re-fill-2); color: var(--re-fg); } }
-
-/* ---------- Stats drawer ---------- */
-.re-stats {
-  position: fixed; top: 80px; right: max(16px, calc((100% - 1180px) / 2)); z-index: 6; width: 360px; max-height: calc(100svh - 96px); overflow: auto;
-  display: grid; gap: 16px; padding: 18px; border-radius: 16px; background: var(--re-glass-strong);
-  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-  opacity: 0; visibility: hidden; transform: translateY(-6px) scale(0.98); transform-origin: top right;
-  transition: opacity 150ms ease, transform 150ms ease, visibility 0s 150ms;
-}
-.re-stats[data-open] { opacity: 1; visibility: visible; transform: none; transition: opacity 220ms var(--re-ease), transform 220ms var(--re-ease), visibility 0s; }
-.re-readouts { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 16px; }
-.re-readouts dt, .re-live dt { font-size: 13px; line-height: 1.3; color: var(--re-dim); }
-.re-readouts dd { margin-top: 2px; font-size: 16px; color: var(--re-fg); }
+@media (hover: hover) and (pointer: fine) { .re-nav a:hover { color: var(--re-fg); background: var(--re-fill); } }
+.re-nav a:focus-visible { outline: 2px solid var(--re-accent); outline-offset: 2px; }
+@media (max-width: 420px) { .re-bar { padding-left: 14px; } .re-nav a { padding: 0 9px; } }
+.re-mark { flex: 1; display: inline-flex; align-items: center; min-height: 44px; font: 600 16px/1 var(--re-sans); color: var(--re-fg); text-decoration: none; white-space: nowrap; }
+.re-live dt { font-size: 13px; line-height: 1.3; color: var(--re-dim); }
 .re-spark { display: grid; gap: 6px; }
 .re-spark canvas { display: block; width: 100%; height: 44px; padding: 6px 0; border-radius: 8px; background: var(--re-fill); color: var(--re-accent); }
 .re-spark p { font-size: 13px; line-height: 1.4; color: var(--re-dim); }
@@ -135,22 +114,35 @@ html.re-html.lenis-stopped { overflow: clip; }
 .re-h2 { font: 400 clamp(28px, 3.3vw, 44px)/1.08 var(--re-sans); letter-spacing: -0.018em; text-wrap: balance; }
 .re-lede { margin-top: 14px; max-width: 46ch; color: var(--re-fg-2); text-wrap: pretty; }
 .re-card {
-  width: min(480px, 100%); padding: 28px; border-radius: 16px; background: var(--re-glass);
-  backdrop-filter: blur(16px) saturate(1.15); -webkit-backdrop-filter: blur(16px) saturate(1.15);
+  width: min(480px, 100%); padding: 28px; border-radius: 16px; background: rgb(14 15 20 / 0.94);
 }
 
 /* The sub-line sits on the dot grid, so the hero carries a soft neutral scrim behind its text. */
 /* The hero ends above the fold so the first chapter, its headline and the top of its screen, starts in the opening view. */
-.re-hero { position: relative; isolation: isolate; min-height: 100svh; display: flex; flex-direction: column; justify-content: flex-end; gap: 14px; padding: 0 var(--re-gutter) 11vh; max-width: 1440px; margin: 0 auto; }
+.re-hero { position: relative; isolation: isolate; min-height: 100svh; display: flex; flex-direction: column; justify-content: flex-end; gap: 14px; padding: 112px var(--re-gutter) 7vh; /* the top keeps clear of the fixed masthead when the content outgrows a short screen */ max-width: 1440px; margin: 0 auto; }
 .re-hero::before {
   content: ""; position: absolute; z-index: -1; left: 0; bottom: 0; width: min(100%, 980px); height: 70%; pointer-events: none;
   background: radial-gradient(70% 60% at 20% 78%, rgb(5 5 8 / 0.82) 0%, rgb(5 5 8 / 0.5) 45%, rgb(5 5 8 / 0) 100%); /* taste-skill-ignore: a neutral legibility scrim over the WebGL field behind the hero text */
 }
-.re-title { font: 300 clamp(46px, 8.6vw, 140px)/0.92 var(--re-sans); font-stretch: 106%; letter-spacing: -0.025em; margin-left: -0.03em; color: #f6f6f8; }
-.re-role { font: 500 20px/1.3 var(--re-sans); }
-.re-sub { max-width: 48ch; color: var(--re-fg); font-size: clamp(16px, 1.3vw, 20px); line-height: 1.55; text-wrap: pretty; }
-.re-hint { display: none; margin-top: 6px; font-size: 13px; color: var(--re-fg-2); }
-@media (hover: hover) and (pointer: fine) { .re-hint { display: block; } }
+.re-who { font: 400 16px/1.4 var(--re-sans); color: var(--re-fg-2); }
+/* The claim, not the name, is the largest text (portfolio-page rule 2): CONTENT.md's one-liner. */
+.re-title { max-width: 21em; font: 300 clamp(34px, 4.6vw, 70px)/1.04 var(--re-sans); letter-spacing: -0.022em; margin-left: -0.02em; color: #f6f6f8; text-wrap: balance; }
+.re-sub { max-width: 52ch; color: var(--re-fg); font-size: clamp(16px, 1.25vw, 19px); line-height: 1.55; text-wrap: pretty; }
+.re-cta { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px; }
+/* Four areas, four real screens: the sentence's proof inside the first screen. */
+.re-domains { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 18px 0 0; padding: 0; list-style: none; }
+.re-domains a {
+  display: grid; grid-template-columns: 1fr auto; row-gap: 10px; color: var(--re-fg); text-decoration: none; border-radius: 10px;
+}
+.re-domains img {
+  grid-column: 1 / -1; width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: cover; object-position: top; border-radius: 8px; background: #0e1116;
+  box-shadow: 0 0 0 1px rgb(255 255 255 / 0.06), 0 14px 30px -12px #000;
+}
+.re-domain-name { font-size: 15px; font-weight: 500; }
+.re-domain-years { font-size: 13px; color: var(--re-dim); }
+@media (hover: hover) and (pointer: fine) { .re-domains a:hover .re-domain-name { text-decoration: underline; text-underline-offset: 4px; } }
+.re-domains a:focus-visible { outline: 2px solid var(--re-accent); outline-offset: 4px; }
+@media (max-width: 760px) { .re-domains { grid-template-columns: 1fr 1fr; gap: 12px 10px; margin-top: 14px; } .re-domains a { row-gap: 6px; } }
 .re-root:not([data-ready]) :is(.re-title, .re-role, .re-sub, .re-hint) { opacity: 0; }
 @media (prefers-reduced-motion: no-preference) {
   .re-root[data-ready] :is(.re-title, .re-role, .re-sub, .re-hint) { animation: re-rise 900ms var(--re-ease) both; }
@@ -641,8 +633,9 @@ html:has(.re-sw-reader[open]) { overflow: hidden; }
 .re-row-note { font-size: 16px; color: var(--re-fg-2); text-wrap: pretty; }
 .re-src { font-size: 13px; line-height: 1.5; color: var(--re-dim); overflow-wrap: anywhere; }
 
-.re-contact { min-height: 90svh; display: flex; align-items: center; justify-content: center; padding: 96px var(--re-gutter); }
-.re-contact .re-card { width: min(620px, 100%); display: grid; gap: 22px; justify-items: start; }
+.re-contact { position: relative; z-index: 1; display: flex; justify-content: center; margin-top: 64px; padding: clamp(72px, 12vh, 128px) var(--re-gutter); background: rgb(5 5 8 / 0.95); }
+/* One ground for the whole footer, no box inside it: the email button is the only filled shape. */
+.re-contact .re-card { width: min(620px, 100%); display: grid; gap: 22px; justify-items: start; padding: 0; background: none; }
 .re-links { display: flex; flex-wrap: wrap; gap: 10px; }
 .re-foot { font-size: 13px; color: var(--re-dim); }
 
@@ -656,9 +649,6 @@ html:has(.re-sw-reader[open]) { overflow: hidden; }
 /* ---------- Phones ---------- */
 @media (max-width: 767px) {
   .re-bar { padding-left: 14px; gap: 6px; }
-  .re-switch button { padding: 0 10px; min-height: 34px; }
-  .re-statbtn { padding: 0 10px; min-height: 38px; }
-  .re-stats { left: 16px; right: 16px; width: auto; }
   .re-card { padding: 22px; }
   .re-hero { padding-bottom: 14vh; }
   .re-hero::before { width: 100%; height: 60%; }
@@ -668,12 +658,10 @@ html:has(.re-sw-reader[open]) { overflow: hidden; }
   .re-pair-bars { grid-template-columns: 1fr; gap: 10px; }
 }
 @media (max-width: 560px) {
-  .re-mark { display: none; }
   .re-bar { justify-content: space-between; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .re-stats, .re-stats[data-open] { transform: none; }
 }
 
 /* ---------- Case page: read over the same field, dimmed to its quietest stage ---------- */
@@ -728,7 +716,7 @@ html:has(.re-sw-reader[open]) { overflow: hidden; }
 /* The three layers side by side, every word readable; the one under the pointer lights. */
 .re-cs-layers { display: grid; gap: 14px; margin: 0; padding: 0; list-style: none; }
 @media (min-width: 760px) { .re-cs-layers { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-.re-cs-layers li { display: grid; align-content: start; gap: 6px; padding: 22px 22px 24px; border: 1px solid rgb(255 255 255 / 0.08); border-radius: 14px; background: #1f272b; transition: background-color 150ms ease; }
+.re-cs-layers li { display: grid; align-content: start; gap: 6px; padding: 22px 22px 24px; border-radius: 14px; background: #1f272b; transition: background-color 150ms ease; }
 .re-cs-layers li > span { font-size: 13px; color: var(--re-dim); }
 .re-cs-layers h3 { font: 400 20px/1.3 var(--re-sans); color: var(--re-fg); transition: color 150ms ease; }
 .re-cs-stack { font-size: 14px; color: var(--re-dim); }
@@ -791,7 +779,7 @@ html:has(.re-sw-reader[open]) { overflow: hidden; }
    sits above the stage like tabs: what is under the stage changes height with the screen (a board's callout and words),
    so a row below it would move away from the finger that just tapped it. */
 @media (max-width: 1023px) {
-  .re-cs-stage-list { order: -1; display: flex; gap: 8px; overflow-x: auto; scroll-snap-type: x mandatory; overscroll-behavior-x: contain; margin: 0 calc(-1 * var(--re-gutter)); padding: 2px var(--re-gutter) 8px; scrollbar-width: none; }
+  .re-cs-stage-list { order: -1; display: flex; gap: 8px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: var(--re-gutter); overscroll-behavior-x: contain; margin: 0 calc(-1 * var(--re-gutter)); padding: 2px var(--re-gutter) 8px; scrollbar-width: none; }
   .re-cs-stage-list li { flex: 0 0 auto; scroll-snap-align: start; }
   .re-cs-stage-list button { grid-template-columns: 1fr; justify-items: start; width: 132px; gap: 8px; padding: 8px; }
   .re-cs-stage-list button img { width: 116px; height: 72px; }
@@ -949,8 +937,7 @@ html.re-html:active-view-transition .re-casepage :is(.re-cs-screens, .re-cs-next
 .re-root :is(button, a) { touch-action: manipulation; }
 :is(.re-ch-index, .re-ch-layers, .re-ch-view, .re-ch-inspect) button:active { color: var(--re-fg); }
 @media (pointer: coarse) {
-  .re-switch button, .re-statbtn, .re-toggle { position: relative; }
-  :is(.re-switch button, .re-statbtn)::after { content: ""; position: absolute; inset: -5px 0; }
+  .re-toggle { position: relative; }
   .re-toggle::after { content: ""; position: absolute; inset: -9px 0; }
   .re-seg button { min-height: 44px; }
   .re-root input[type="range"] { height: 44px; }
@@ -981,3 +968,51 @@ html.re-html:active-view-transition .re-casepage :is(.re-cs-screens, .re-cs-next
   content: "rest line: main screen's top at 60%"; position: fixed; left: 0; right: 0; top: 60vh; z-index: 29; pointer-events: none;
   border-top: 1px dashed rgb(62 230 164 / 0.7); font: 12px/1.6 var(--re-sans); color: var(--re-accent); padding-left: 8px;
 }
+
+/* ---------- All projects: every project by area, then capabilities and skills (CONTENT.md §7b, §1, §8). ---------- */
+.re-all {
+  position: relative; z-index: 1; margin-top: clamp(80px, 12vh, 140px); padding: clamp(56px, 8vh, 96px) max(var(--re-gutter), calc((100% - 1180px) / 2)) 48px;
+  /* A ground of its own, as the chapters have their table: the field's dots must not run through rows of text. */
+  background: rgb(5 5 8 / 0.95);
+}
+.re-all-head { margin-bottom: 36px; }
+.re-all-group { display: grid; gap: 4px; padding: 26px 0; border-top: 1px solid rgb(255 255 255 / 0.08); }
+@media (min-width: 1024px) { .re-all-group { grid-template-columns: 240px minmax(0, 1fr); column-gap: 40px; } }
+.re-all-area { display: flex; align-items: baseline; gap: 10px; font: 500 17px/1.3 var(--re-sans); color: var(--re-fg); }
+.re-all-area span { font-size: 13px; font-weight: 400; color: var(--re-dim); }
+.re-all-rows { display: grid; margin: 0; padding: 0; list-style: none; }
+.re-all-rows li { display: grid; gap: 2px 18px; padding: 12px 0; border-bottom: 1px solid rgb(255 255 255 / 0.05); }
+.re-all-rows li:last-child { border-bottom: 0; }
+@media (min-width: 760px) {
+  .re-all-rows li { grid-template-columns: minmax(0, 15em) minmax(0, 1fr) auto; align-items: baseline; }
+  .re-all-meta { grid-column: 1; grid-row: 2; }
+  .re-all-line { grid-column: 2; grid-row: 1 / span 2; }
+  .re-all-go { grid-column: 3; grid-row: 1 / span 2; align-self: center; }
+}
+.re-all-name { font-size: 16px; color: var(--re-fg); }
+.re-all-meta { font-size: 13px; color: var(--re-dim); }
+.re-all-line { font-size: 15px; line-height: 1.5; color: var(--re-fg-2); }
+.re-all-go {
+  display: inline-flex; align-items: center; gap: 6px; min-height: 44px; font-size: 14px; color: var(--re-accent); text-decoration: none; white-space: nowrap;
+}
+@media (hover: hover) and (pointer: fine) { .re-all-go:hover { text-decoration: underline; text-underline-offset: 4px; } }
+.re-all-go:focus-visible { outline: 2px solid var(--re-accent); outline-offset: 2px; border-radius: 4px; }
+.re-all-cols { display: grid; gap: 32px; padding-top: 26px; border-top: 1px solid rgb(255 255 255 / 0.08); }
+@media (min-width: 1024px) { .re-all-cols { grid-template-columns: 1fr 1fr; column-gap: 40px; } }
+.re-all-dl { display: grid; gap: 10px; margin: 14px 0 0; }
+.re-all-dl div { display: grid; gap: 2px; }
+@media (min-width: 760px) { .re-all-dl div { grid-template-columns: 11em minmax(0, 1fr); gap: 16px; } }
+.re-all-dl dt { font-size: 15px; color: var(--re-fg); }
+.re-all-dl dd { margin: 0; font-size: 15px; line-height: 1.5; color: var(--re-fg-2); }
+
+/* ---------- The field's own notes, folded away: the page's ground, not its subject. ---------- */
+.re-field-notes { max-width: 1180px; margin: 40px auto 0; padding: 0 var(--re-gutter); }
+.re-field-notes > summary {
+  display: inline-flex; align-items: center; min-height: 44px; padding: 0 4px; cursor: pointer; font-size: 15px; color: var(--re-fg-2); list-style: none;
+}
+.re-field-notes > summary::-webkit-details-marker { display: none; }
+.re-field-notes > summary::before { content: "+"; margin-right: 10px; color: var(--re-accent); }
+.re-field-notes[open] > summary::before { content: "–"; }
+.re-field-notes > summary:focus-visible { outline: 2px solid var(--re-accent); outline-offset: 2px; border-radius: 6px; }
+/* Inside the folded notes the panels are not boxes of their own, so their controls are the only boxes (no card in a card). */
+.re-field-notes .re-card { width: auto; padding: 0; background: none; }

@@ -2,10 +2,12 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProp
 import { useNavigate, useParams } from 'react-router'
 import Lenis from 'lenis'
 import { flushSync } from 'react-dom'
-import { ArrowCounterClockwiseIcon, ArrowUpRightIcon, GaugeIcon } from '@phosphor-icons/react'
+import { ArrowCounterClockwiseIcon, ArrowUpRightIcon } from '@phosphor-icons/react'
 import { createScene, hasWebGL, STAGE, type RefractiveScene, type Stats } from './scene'
 import { ledger, links, systems, type Value } from './data'
+import { AllWork } from './AllWork'
 import { CasePage } from './CasePage'
+import { channels, type ChannelKey } from '../../content/channels'
 import { Lab } from './Lab'
 import { Production } from './Production'
 import { TunePanel } from './TunePanel'
@@ -28,6 +30,19 @@ const saveMode = (m: Mode) => {
   }
 }
 const RATIOS = [1, 1.5, 2] as const
+
+/**
+ * The four areas the hero's sentence names, each shown by a real screen of its lead product and labelled with the owner's
+ * channel name (CONTENT.md, 2026-10-02) and the years of its projects. Each one jumps to its work on this page.
+ * `?hero=bare` shows the hero without them, to compare.
+ */
+const DOMAINS: { key: ChannelKey; slug: string; href: string }[] = [
+  { key: 'healthcare', slug: 'care-platform', href: '#work-care' },
+  { key: 'streaming', slug: 'bayyinah-tv', href: '#work-bayyinah' },
+  { key: 'reading', slug: 'read-to-feed', href: '#work-reading' },
+  { key: 'web3', slug: 'incentiv', href: '#re-lab' },
+]
+const BARE = new URLSearchParams(location.search).get('hero') === 'bare'
 const BASE = '/drafts/refractive-engine'
 const fmt = (n: number) => n.toLocaleString('en-US')
 
@@ -103,8 +118,9 @@ export default function Draft() {
   const [ready, setReady] = useState(false)
   const [sceneKey, setSceneKey] = useState(0)
   const [mode, setModeState] = useState<Mode>(readMode)
-  const [statsOpen, setStatsOpen] = useState(false)
   const [stageQ, setStageQ] = useState(0)
+  // The field's notes render only while open: closed, they cost nothing and their live readouts are not on the page.
+  const [notesOpen, setNotesOpen] = useState(false)
   const [drawn, setDrawn] = useState(count)
   const [bloomOn, setBloomOn] = useState(true)
   const [caOn, setCaOn] = useState(true)
@@ -285,7 +301,7 @@ export default function Draft() {
   }, [])
 
   // Scene coordinates for the tensor field: the live cluster centres, twice a second.
-  const coordsOn = mode === 'tensor' && (statsOpen || Math.abs(stageQ - STAGE.modes) <= 0.75)
+  const coordsOn = mode === 'tensor' && Math.abs(stageQ - STAGE.modes) <= 0.75
   useEffect(() => {
     if (!coordsOn) return
     const read = () => { const c = sceneRef.current?.centroids(); if (c) setCoords(c) }
@@ -376,15 +392,6 @@ export default function Draft() {
     navigate(BASE, { viewTransition: true })
   }
 
-  const statsRows = (
-    <>
-      <div><dt>Frames / s</dt><dd data-stat="fps">...</dd></div>
-      <div><dt>Frame time</dt><dd><span data-stat="ms">...</span> ms</dd></div>
-      <div><dt>Draw calls</dt><dd data-stat="calls">...</dd></div>
-      <div><dt>Particles drawn</dt><dd data-stat="drawn">{fmt(drawn)}</dd></div>
-      <div><dt>DOM nodes</dt><dd data-stat="dom">...</dd></div>
-    </>
-  )
   const coordTable = mode === 'tensor' ? (
     <table className="re-coords re-num">
       <caption>Scene coordinates, cluster centres</caption>
@@ -414,41 +421,52 @@ export default function Draft() {
         ) : (
           <a className="re-mark" href="#re-top">Gentrit Rashiti</a>
         )}
-        <div className="re-switch" role="group" aria-label="Lens">
-          <button type="button" aria-pressed={mode === 'lens'} onClick={() => setMode('lens')}>Frontend Lens</button>
-          <button type="button" aria-pressed={mode === 'tensor'} onClick={() => setMode('tensor')}>AI Tensor Field</button>
-        </div>
-        <button type="button" className="re-statbtn" aria-expanded={statsOpen} aria-controls="re-stats" onClick={() => setStatsOpen((o) => !o)}>
-          <GaugeIcon size={16} weight="regular" aria-hidden="true" />
-          <span className="re-num"><span data-stat="fps">...</span> fps</span>
-          <span className="re-sr">, show live render stats</span>
-        </button>
+        {!caseSlug && (
+          <nav className="re-nav" aria-label="Sections">
+            <a href="#re-work">Work</a>
+            <a href="#re-contact">Contact</a>
+            <a href={links.cv}>CV</a>
+          </nav>
+        )}
       </header>
 
-      <section id="re-stats" className="re-stats re-solid" data-open={statsOpen || undefined} inert={!statsOpen} aria-label="Live render stats">
-        <dl className="re-readouts re-num">{statsRows}</dl>
-        <div className="re-spark">
-          <canvas data-spark aria-hidden="true" />
-          <p className="re-num">Last 120 frames, ms. Dashed line: 16.7 ms.</p>
-        </div>
-        {mode === 'tensor' && <p className="re-tag re-num">Simulation: the clusters are drawn by the shader, not taken from a model.</p>}
-        {coordTable}
-      </section>
 
       {new URLSearchParams(location.search).has('tune') && <TunePanel scene={sceneRef} />}
       {caseSlug && <CasePage slug={caseSlug} onBack={() => toHome()} />}
 
       <main hidden={caseSlug !== undefined}>
         <header id="re-top" className="re-hero" data-stage={STAGE.hero}>
-          <h1 className="re-title">Gentrit Rashiti</h1>
-          <p className="re-role">Senior Frontend, Mobile &amp; AI Engineer</p>
-          <p className="re-sub">A model gives you raw possibility. An interface gives it a shape people can use. I build that shape, on the web and on phones.</p>
-          {!noGl && <p className="re-hint re-num">Move the cursor over the field. Inside the lens it snaps into a page layout.</p>}
+          <p className="re-who">Frontend &amp; Mobile Developer → Full Stack</p>
+          <h1 className="re-title">Web and mobile products, from the first screen to release: healthcare, video streaming, e-reading and Web3.</h1>
+          <p className="re-sub">5+ years. Part of two platform rewrites. React, React Native, Vue, TypeScript, Laravel. Based in Kosovo, working remotely.</p>
+          <div className="re-cta">
+            <a className="re-btn re-btn-solid" href="#re-work">See the work</a>
+            <a className="re-btn" href={links.cv}>Download CV</a>
+          </div>
+          {!BARE && (
+            <ul className="re-domains" data-work="care-platform bayyinah-tv read-to-feed incentiv">
+              {DOMAINS.map((d) => {
+                const sys = systems.find((x) => x.slug === d.slug)
+                const area = channels[d.key]
+                return (
+                  <li key={d.key}>
+                    <a href={d.href}>
+                      <img src={`/eh/${d.slug}.webp`} width={1280} height={800} alt={sys ? `${sys.name}, a real screen` : ''} decoding="async" />
+                      <span className="re-domain-name">{area.label}</span>
+                      {area.period && <span className="re-domain-years re-num">{area.period}</span>}
+                    </a>
+                  </li>
+                )
+              })}
+            </ul>
+          )}
         </header>
 
         <Production onOpen={toCase} reduced={reduced} onFocus={focusField} />
 
         <Lab mode={mode} reduced={reduced} noGl={noGl} onOpen={toCase} />
+
+        <AllWork onOpen={(slug) => toCase(slug)} />
 
         <section className="re-ledger" data-stage={STAGE.ledger} aria-labelledby="re-ledger-h">
           <div className="re-ledger-head">
@@ -475,70 +493,77 @@ export default function Draft() {
           </ol>
         </section>
 
-        <section className="re-modes" data-stage={STAGE.modes} aria-labelledby="re-modes-h">
-          <div className="re-card re-solid">
-            <h2 id="re-modes-h" className="re-h2">One field, two lenses</h2>
-            <p className="re-lede">The same {fmt(count)} particles, arranged by two rules. The switch in the top bar works anywhere on the page.</p>
-            <div className="re-options">
-              <button type="button" className="re-option" aria-pressed={mode === 'lens'} onClick={() => setMode('lens')}>
-                <strong>Frontend Lens</strong>
-                <span>A dot grid in one plane. Under the cursor it becomes a page layout.</span>
-              </button>
-              <button type="button" className="re-option" aria-pressed={mode === 'tensor'} onClick={() => setMode('tensor')}>
-                <strong>AI Tensor Field</strong>
-                <span>Seven clusters and the links between them, the way related items group in an embedding.</span>
-              </button>
-            </div>
-            {mode === 'tensor' && <p className="re-tag re-num">Simulation: the clusters are drawn by the shader, not taken from a model.</p>}
-            {!noGl && coordTable}
-          </div>
-        </section>
-
-        <section className="re-sim" data-stage={STAGE.sim} aria-labelledby="re-sim-h">
-          <div className="re-card re-solid">
-            <h2 id="re-sim-h" className="re-h2">Frame budget</h2>
-            <p className="re-lede">These controls change the scene behind this page. The numbers are measured live in this tab. A 60 Hz screen caps the rate at 60 frames a second, so watch the frame time too.</p>
-            <div className="re-ctl">
-              <label htmlFor="re-count">Particles drawn</label>
-              <output htmlFor="re-count" className="re-num">{fmt(drawn)}</output>
-              <input id="re-count" type="range" min={5000} max={count} step={5000} value={drawn} onChange={(e) => setDrawn(Number(e.target.value))} style={{ '--p': (drawn - 5000) / (count - 5000) } as CSSProperties} />
-            </div>
-            <div className="re-ctl re-ctl-row">
-              <span id="re-bloom-l">Bloom</span>
-              <button type="button" className="re-toggle" role="switch" aria-checked={bloomOn} aria-labelledby="re-bloom-l" onClick={() => setBloomOn((b) => !b)}><i /></button>
-            </div>
-            <div className="re-ctl re-ctl-row">
-              <span id="re-ca-l">Chromatic aberration at the lens edge</span>
-              <button type="button" className="re-toggle" role="switch" aria-checked={caOn} aria-labelledby="re-ca-l" onClick={() => setCaOn((b) => !b)}><i /></button>
-            </div>
-            <div className="re-ctl re-ctl-row">
-              <span id="re-pr-l">Pixel ratio</span>
-              <div className="re-seg" role="group" aria-labelledby="re-pr-l">
-                {RATIOS.map((r) => (
-                  <button key={r} type="button" aria-pressed={ratio === r} onClick={() => setRatio(r)} className="re-num">{r}x</button>
-                ))}
+        {/* The field explains itself here, folded away: it is the page's ground, not its subject. */}
+        <details className="re-field-notes" onToggle={(e) => setNotesOpen(e.currentTarget.open)}>
+          <summary>The field behind this page</summary>
+          {notesOpen && (<>
+          <section className="re-modes" data-stage={STAGE.modes} aria-labelledby="re-modes-h">
+            <div className="re-card re-solid">
+              <h2 id="re-modes-h" className="re-h2">One field, two lenses</h2>
+              <p className="re-lede">The same {fmt(count)} particles, arranged by two rules.</p>
+              <div className="re-options">
+                <button type="button" className="re-option" aria-pressed={mode === 'lens'} onClick={() => setMode('lens')}>
+                  <strong>Frontend Lens</strong>
+                  <span>A dot grid in one plane. Under the cursor it becomes a page layout.</span>
+                </button>
+                <button type="button" className="re-option" aria-pressed={mode === 'tensor'} onClick={() => setMode('tensor')}>
+                  <strong>AI Tensor Field</strong>
+                  <span>Seven clusters and the links between them, the way related items group in an embedding.</span>
+                </button>
               </div>
+              {mode === 'tensor' && <p className="re-tag re-num">Simulation: the clusters are drawn by the shader, not taken from a model.</p>}
+              {!noGl && coordTable}
             </div>
-            <dl className="re-live re-num">
-              <div><dt>Frames / s</dt><dd data-stat="fps">...</dd></div>
-              <div><dt>Frame time</dt><dd><span data-stat="ms">...</span> ms</dd></div>
-              <div><dt>Worst of 120</dt><dd><span data-stat="worst">...</span> ms</dd></div>
-              <div><dt>Draw calls</dt><dd data-stat="calls">...</dd></div>
-            </dl>
-            <div className="re-spark re-spark-lg">
-              <canvas data-spark aria-hidden="true" />
-              <p className="re-num">Last 120 frames, ms. Dashed line: 16.7 ms.</p>
-            </div>
-            <button type="button" className="re-btn re-btn-quiet" onClick={() => { setDrawn(count); setBloomOn(true); setCaOn(true); setRatio(RATIOS.reduce((a, b) => (Math.abs(b - Math.min(devicePixelRatio || 1, 2)) < Math.abs(a - Math.min(devicePixelRatio || 1, 2)) ? b : a))) }}>
-              <ArrowCounterClockwiseIcon size={14} weight="bold" aria-hidden="true" />
-              Reset
-            </button>
-          </div>
-        </section>
+          </section>
 
-        <footer className="re-contact" data-stage={STAGE.contact}>
+          <section className="re-sim" data-stage={STAGE.sim} aria-labelledby="re-sim-h">
+            <div className="re-card re-solid">
+              <h2 id="re-sim-h" className="re-h2">Frame budget</h2>
+              <p className="re-lede">These controls change the scene behind this page. The numbers are measured live in this tab. A 60 Hz screen caps the rate at 60 frames a second, so watch the frame time too.</p>
+              <div className="re-ctl">
+                <label htmlFor="re-count">Particles drawn</label>
+                <output htmlFor="re-count" className="re-num">{fmt(drawn)}</output>
+                <input id="re-count" type="range" min={5000} max={count} step={5000} value={drawn} onChange={(e) => setDrawn(Number(e.target.value))} style={{ '--p': (drawn - 5000) / (count - 5000) } as CSSProperties} />
+              </div>
+              <div className="re-ctl re-ctl-row">
+                <span id="re-bloom-l">Bloom</span>
+                <button type="button" className="re-toggle" role="switch" aria-checked={bloomOn} aria-labelledby="re-bloom-l" onClick={() => setBloomOn((b) => !b)}><i /></button>
+              </div>
+              <div className="re-ctl re-ctl-row">
+                <span id="re-ca-l">Chromatic aberration at the lens edge</span>
+                <button type="button" className="re-toggle" role="switch" aria-checked={caOn} aria-labelledby="re-ca-l" onClick={() => setCaOn((b) => !b)}><i /></button>
+              </div>
+              <div className="re-ctl re-ctl-row">
+                <span id="re-pr-l">Pixel ratio</span>
+                <div className="re-seg" role="group" aria-labelledby="re-pr-l">
+                  {RATIOS.map((r) => (
+                    <button key={r} type="button" aria-pressed={ratio === r} onClick={() => setRatio(r)} className="re-num">{r}x</button>
+                  ))}
+                </div>
+              </div>
+              <dl className="re-live re-num">
+                <div><dt>Frames / s</dt><dd data-stat="fps">...</dd></div>
+                <div><dt>Frame time</dt><dd><span data-stat="ms">...</span> ms</dd></div>
+                <div><dt>Worst of 120</dt><dd><span data-stat="worst">...</span> ms</dd></div>
+                <div><dt>Draw calls</dt><dd data-stat="calls">...</dd></div>
+              </dl>
+              <div className="re-spark re-spark-lg">
+                <canvas data-spark aria-hidden="true" />
+                <p className="re-num">Last 120 frames, ms. Dashed line: 16.7 ms.</p>
+              </div>
+              <button type="button" className="re-btn re-btn-quiet" onClick={() => { setDrawn(count); setBloomOn(true); setCaOn(true); setRatio(RATIOS.reduce((a, b) => (Math.abs(b - Math.min(devicePixelRatio || 1, 2)) < Math.abs(a - Math.min(devicePixelRatio || 1, 2)) ? b : a))) }}>
+                <ArrowCounterClockwiseIcon size={14} weight="bold" aria-hidden="true" />
+                Reset
+              </button>
+            </div>
+          </section>
+          </>)}
+        </details>
+
+        <footer id="re-contact" className="re-contact" data-stage={STAGE.contact}>
           <div className="re-card re-solid">
-            <h2 className="re-h2">Let's build the next one.</h2>
+            <h2 className="re-h2">Contact</h2>
+            <p className="re-lede">Based in Kosovo, working remotely. Bachelor's degree, UBT.</p>
             <div className="re-links">
               <a className="re-btn re-btn-solid" href={`mailto:${links.email}`}>{links.email}</a>
               <a className="re-btn" href={links.github} target="_blank" rel="noreferrer">GitHub<ArrowUpRightIcon size={14} weight="bold" aria-hidden="true" /><span className="re-sr"> (opens in a new tab)</span></a>

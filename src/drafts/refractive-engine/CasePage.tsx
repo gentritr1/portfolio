@@ -130,6 +130,11 @@ function boardVars([x, y, w, h]: Rect, [W, H]: [number, number] = [1440, 900]) {
 /** The decision a stage or a list item is pointing at: lit while hovered or focused, pinned by a click or tap. */
 type Mark = { lit: number | null; pinned: number | null; setLit(d: number | null): void; pin(d: number | null): void }
 
+/** A case heading the owner set in CONTENT.md wins over the case's question (care platform: §2, owner 2026-10-06). */
+const OWNER_H1: Record<string, string> = {
+  'care-platform': 'Rebuilding a live care platform, one tested screen at a time.',
+}
+
 type Picture = { src: string; alt: string; caption: string; width: number; height: number }
 
 /**
@@ -331,7 +336,7 @@ export function CasePage({ slug, onBack }: { slug: string; onBack(): void }) {
         <div className="re-cs-words">
           <p className="re-cs-name">{s.name}</p>
           <p className="re-cs-meta">{[s.kind, s.years].filter(Boolean).join(' · ')}</p>
-          <h1 id="re-case-h" ref={heading} tabIndex={-1} className="re-cs-q">{questionOf(slug) ?? s.line}</h1>
+          <h1 id="re-case-h" ref={heading} tabIndex={-1} className="re-cs-q">{OWNER_H1[slug] ?? questionOf(slug) ?? s.line}</h1>
           {result && <p className="re-cs-result">{result}</p>}
           {s.readouts.length > 0 && (
             <ul className="re-cs-readouts">
@@ -464,7 +469,7 @@ export function CasePage({ slug, onBack }: { slug: string; onBack(): void }) {
       {s.gallery.length > 0 && (
         <section ref={stage} className="re-cs-screens" aria-labelledby="re-screens-h">
           <h2 id="re-screens-h" className="re-cs-h2">Screens</h2>
-          {s.gallery.some((g) => g.alt.includes('Invented data')) && <p className="re-case-note re-num">Recreated screens, with invented data.</p>}
+          {s.gallery.some((g) => g.alt.includes('Invented data')) && <p className="re-case-note re-num">Real product screens, invented data.</p>}
           <Gallery items={s.gallery} slug={slug} at={Math.min(shown, s.gallery.length - 1)} setAt={setShown} mark={mark} decisions={c?.decision ?? []} />
         </section>
       )}

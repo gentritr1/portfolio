@@ -72,7 +72,7 @@ function Thumbs({ swap, crop, place, label, thumbW }: { swap: Swap; crop: Crop; 
       {swap.shots.map((shot, i) => (
         <button key={shot.src} type="button" aria-pressed={i === swap.index} aria-label={shot.alt} onClick={(e) => swap.set(i, e.detail === 0)}>
           <span className="re-sw-thumb" style={{ ...cropVars(shot, crop), width: thumbW } as Vars}>
-            <img src={shot.src} alt="" loading="lazy" decoding="async" />
+            <img src={shot.src} width={shot.w} height={shot.h} alt="" loading="lazy" decoding="async" />
           </span>
         </button>
       ))}
@@ -123,7 +123,7 @@ function floor(top: number, bottom: number, lights: [number, number, number, num
 
 function Chapter({ id, nh, table, hs, slabs, children }: { id: string; nh: number; table: Vars; hs: number; slabs: ReactNode; children: ReactNode }) {
   return (
-    <article className={`re-sw re-sw-${id}`} style={{ '--nh': nh, '--hs': hs } as Vars}>
+    <article id={`work-${id}`} className={`re-sw re-sw-${id}`} style={{ '--nh': nh, '--hs': hs } as Vars}>
       <div className="re-sw-stage">
         <div className="re-sw-floor" style={table} aria-hidden="true" />
         <div className="re-sw-contact" aria-hidden="true"><span className="re-sw-contact-soft" /><span className="re-sw-contact-sharp" /></div>
@@ -317,7 +317,7 @@ export function Production({ onOpen, reduced, onFocus }: { onOpen(slug: string, 
   )
 
   return (
-    <section ref={root} className="re-prod" aria-labelledby="re-prod-h">
+    <section ref={root} id="re-work" className="re-prod" aria-labelledby="re-prod-h">
       <h2 id="re-prod-h" className="re-sr">Production work</h2>
 
       <Chapter
