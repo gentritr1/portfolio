@@ -111,6 +111,10 @@ html.re-html.lenis-stopped { overflow: clip; }
 
 /* ---------- Sections ---------- */
 .re-root main { position: relative; z-index: 2; pointer-events: none; }
+/* The page passes the pointer through to the field, and a region opts back in with .re-solid. Links and controls always
+   take it: one left outside such a region could only be reached by keyboard (the hero action, the area tiles and the
+   index were, 2026-10-29: a real click landed on the canvas). */
+.re-root main :is(a, button, summary, [role="tab"], input, select, textarea, label) { pointer-events: auto; }
 .re-h2 { font: 400 clamp(28px, 3.3vw, 44px)/1.08 var(--re-sans); letter-spacing: -0.018em; text-wrap: balance; }
 .re-lede { margin-top: 14px; max-width: 46ch; color: var(--re-fg-2); text-wrap: pretty; }
 .re-card {
