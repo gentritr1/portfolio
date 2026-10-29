@@ -100,8 +100,20 @@ export const own: Case[] = [
   },
 ]
 
+/**
+ * The care platform's second screen is Vitals and labs (board 02 of its case boards, the Loop's words for its alt) in place
+ * of the glucose overview, whose one-day chart read as empty (owner, 2026-10-30). The site's own gallery keeps both.
+ */
+const VITALS = {
+  src: '/showcase/care-dashboard/vitals-graph.webp', caption: 'Vitals and labs', width: 2880, height: 1800,
+  alt: 'The vitals and labs screen for one patient, with the glucose graph open: the latest reading of 146 mg/dL and a 7-day trend line from Sep 26 to Oct 2, with one high reading of 192 mg/dL marked in red. Invented data.',
+}
+
 /** Every case page: the eight featured products, then the two own products. */
-export const cases: Case[] = [...systems, ...own]
+export const cases: Case[] = [
+  ...systems.map((s) => (s.slug === 'care-platform' ? { ...s, gallery: s.gallery.map((g) => (g.src.endsWith('/rpm-overview-cgm.webp') ? VITALS : g)) } : s)),
+  ...own,
+]
 
 /** One row of the page's index of projects. */
 export type Row = Pick<Project, 'slug' | 'name' | 'channel' | 'years' | 'role' | 'line' | 'links'>

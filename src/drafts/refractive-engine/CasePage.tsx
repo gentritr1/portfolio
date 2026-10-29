@@ -48,8 +48,8 @@ const MARKERS: Record<string, { x: number; y: number; w: number; h: number; slug
 /**
  * The care platform's boards, live: the words of public/showcase/care-dashboard/boards/board-03 and board-04 (the Loop's
  * case boards, word for word) and their callout areas from boards.json `detail`, in the screen's 1440 × 900 CSS pixels.
- * The callout is the same file enlarged, so its pixels are real. Board 02 shows vitals-graph.webp, which this gallery
- * does not carry.
+ * The callout is the same file enlarged, so its pixels are real. Board 02 (vitals-graph.webp) has a title and no words, so
+ * it shows as a plain screen.
  */
 const BOARDS: Record<string, { title: string; lead: string; items: string[]; zoom: string; detail: [x: number, y: number, w: number, h: number] }> = {
   '/showcase/care-dashboard/claims.webp': {
@@ -79,7 +79,8 @@ type Rect = [x: number, y: number, w: number, h: number]
  */
 const CROPS: Record<string, { d: Rect; size: [w: number, h: number]; file?: string }> = {
   '/showcase/care-dashboard/overview.webp': { d: [870, 305, 210, 175], size: [1440, 900] },
-  '/showcase/care-dashboard/rpm-overview-cgm.webp': { d: [255, 156, 415, 68], size: [1440, 900] },
+  // Vitals and labs: the area its board calls out (boards.json `detail`), the 7-day glucose chart.
+  '/showcase/care-dashboard/vitals-graph.webp': { d: [822, 262, 570, 236], size: [1440, 900] },
   '/showcase/bayyinah/web-01.webp': { d: [36, 230, 453, 180], size: [1440, 900] },
   '/showcase/bayyinah/web-02.webp': { d: [704, 559, 300, 274], size: [1440, 900] },
   '/showcase/bayyinah/web-03.webp': { d: [444, 359, 246, 177], size: [1440, 900] },
