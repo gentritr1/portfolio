@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect, useRef, useState, type CSSProperties, type MouseEvent, type ReactNode } from 'react'
 import { ArrowRightIcon, XIcon } from '@phosphor-icons/react'
 import { systems } from './data'
+import { FullSize, type FullSizeHandle } from './FullSize'
 import { tune } from './tune'
 import { cropVars, LEADS, pct, shots, type Crop, type Shot } from './screens'
 
@@ -34,21 +35,80 @@ function Screen({ shot, eager }: { shot: Shot; eager?: boolean }) {
   )
 }
 
+/** Several real screens of one product, shown one at a time in the same slab. They share its crop, so the slab never moves. */
+type Swap = { shots: Shot[]; index: number; armed: boolean; instant: boolean; set(i: number, instant: boolean): void; arm(): void }
+
+function useSwap(shots: Shot[]): Swap {
+  const [index, setIndex] = useState(0)
+  const [armed, setArmed] = useState(false)
+  const [instant, setInstant] = useState(false)
+  return {
+    shots, index, armed, instant,
+    set: (i, inst) => { setArmed(true); setInstant(inst); setIndex(((i % shots.length) + shots.length) % shots.length) },
+    arm: () => setArmed(true),
+  }
+}
+
+/** The active screen is sharp; the others wait underneath and only load once the reader reaches for the controls. */
+function SwapScreen({ swap }: { swap: Swap }) {
+  return (
+    <div className="re-sw-screen" data-swap data-instant={swap.instant || undefined}>
+      {swap.shots.map((shot, i) => (i === swap.index || swap.armed) && (
+        <img key={shot.src} src={shot.src} width={shot.w} height={shot.h} alt={i === swap.index ? shot.alt : ''} aria-hidden={i !== swap.index || undefined}
+          data-on={i === swap.index || undefined} draggable={false} loading={i === 0 ? 'eager' : 'lazy'} decoding="async" />
+      ))}
+    </div>
+  )
+}
+
+/**
+ * The swap's controls: one 44 px target per screen, the active one at full ink. A tap or click crossfades the screen; the
+ * keyboard (Enter or Space, detail 0) swaps at once. On phones the row sits in the flow under the stage, and the slab
+ * itself also takes a sideways swipe.
+ */
+function Thumbs({ swap, crop, place, label, thumbW }: { swap: Swap; crop: Crop; place: Vars; label: string; thumbW: number }) {
+  return (
+    <div className="re-sw-at re-sw-thumbs" style={place} role="group" aria-label={label} onPointerEnter={swap.arm} onFocus={swap.arm}>
+      {swap.shots.map((shot, i) => (
+        <button key={shot.src} type="button" aria-pressed={i === swap.index} aria-label={shot.alt} onClick={(e) => swap.set(i, e.detail === 0)}>
+          <span className="re-sw-thumb" style={{ ...cropVars(shot, crop), width: thumbW } as Vars}>
+            <img src={shot.src} alt="" loading="lazy" decoding="async" />
+          </span>
+        </button>
+      ))}
+    </div>
+  )
+}
+
 /** One screen as a glass slab. `place` is [x, y, width] on the wide frame; `phone` on the 390-wide stage, or omitted to hide it there. */
-function Slab({ shot, crop, phoneCrop, place, phone, nh, transform, z, kind = 'lead', eager }: {
+function Slab({ shot, crop, phoneCrop, place, phone, nh, transform, z, kind = 'lead', eager, swap, onReal }: {
   shot: Shot; crop?: Crop; phoneCrop?: Crop; place: [number, number, number]; phone?: [number, number, number]; nh: number
-  transform?: string; z?: number; kind?: 'lead' | 'companion' | 'swap'; eager?: boolean
+  transform?: string; z?: number; kind?: 'lead' | 'companion' | 'swap'; eager?: boolean; swap?: Swap; onReal?(): void
 }) {
+  // Touch: a sideways swipe on a swapping slab moves to the next or previous screen; vertical moves stay page scrolls.
+  const start = useRef<{ x: number; y: number } | null>(null)
+  const touch = swap && {
+    onPointerDown: (e: React.PointerEvent) => { if (e.pointerType === 'touch') { start.current = { x: e.clientX, y: e.clientY }; swap.arm() } },
+    onPointerUp: (e: React.PointerEvent) => {
+      const s0 = start.current
+      start.current = null
+      if (!s0) return
+      const dx = e.clientX - s0.x, dy = e.clientY - s0.y
+      if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.5) swap.set(swap.index + (dx < 0 ? 1 : -1), false)
+    },
+  }
   const style: Vars = {
     ...cropVars(shot, crop), ...cropVars(shot, phoneCrop ?? crop, 'n'),
     '--x': pct(place[0] / 14.4), '--y': pct(place[1] / 9), '--w': pct(place[2] / 14.4),
     ...(phone ? { '--nx': pct(phone[0] / 3.9), '--ny': pct((phone[1] / nh) * 100), '--nw': pct(phone[2] / 3.9) } : {}),
     ...(transform ? { '--t': transform } : {}), ...(z ? { '--z': z } : {}),
   }
+  const shown = swap ? swap.shots[swap.index] : shot
   return (
-    <figure className={`re-sw-slab re-sw-${kind}`} style={style} data-wide-only={phone ? undefined : ''}>
-      <Screen shot={shot} eager={eager} />
-      <div className="re-sw-reflection" aria-hidden="true"><Screen shot={{ ...shot, alt: '' }} /></div>
+    <figure className={`re-sw-slab re-sw-${kind}`} style={style} data-wide-only={phone ? undefined : ''} data-swipe={swap ? '' : undefined} {...touch}>
+      {swap ? <SwapScreen swap={swap} /> : <Screen shot={shot} eager={eager} />}
+      <div className="re-sw-reflection" aria-hidden="true"><Screen shot={{ ...shown, alt: '' }} /></div>
+      {onReal && <button type="button" className="re-sw-real" aria-label={`${shot.alt}, at full size`} onClick={onReal} />}
     </figure>
   )
 }
@@ -105,11 +165,39 @@ function Reach({ href }: { href: string }) {
 
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v))
 
+/** The screens each swapping slab steps through, in the order a visitor meets them (NN/g: five or fewer per carousel). */
+const BAYYINAH: Shot[] = [
+  shots.landing,
+  { src: '/showcase/bayyinah/web-03.webp', w: 2880, h: 1800, alt: 'Bayyinah TV library, Arabic tab: beginner courses and the flagship Arabic program' },
+  { src: '/showcase/bayyinah/web-04.webp', w: 2880, h: 1800, alt: 'Bayyinah TV library, Stories tab: filters by prophet and a row of story courses' },
+  { src: '/showcase/bayyinah/web-05.webp', w: 2880, h: 1800, alt: 'Bayyinah TV series page: episode list in a side column, series summary and video cards' },
+  { src: '/showcase/bayyinah/web-06.webp', w: 2880, h: 1800, alt: 'Bayyinah TV pricing: Choose Your Plan with a monthly and annual switch and the Premium plan' },
+]
+// The achievements screen has its own slab and a different crop, so the reader's slab steps through the other three.
+const READER: Shot[] = [
+  shots.reader,
+  { src: '/mobile/reading-1.webp', w: 780, h: 1689, alt: 'Read to Feed My Books: reading progress for The Tale of Peter Rabbit and Anne of Green Gables' },
+  { src: '/mobile/reading-4.webp', w: 780, h: 1689, alt: 'Read to Feed New Badge pop-up for 50,000 eggs' },
+]
+
 /**
- * The settle's shape: a critically damped ("deadbeat") response, 1 − (1 + ωp)·e^(−ωp). It moves fastest early and its
- * slope reaches zero at rest, so the screen lands instead of stopping dead. ω = 7.5 leaves 0.13 px and 0.05° at p = 1,
- * under half a device pixel, so the cut to the resting styles cannot be seen.
+ * Real size on request: hovering or focusing the companion grows it to the size a visitor saw it, its crop width ÷ 2 for
+ * a 2× capture (960 ÷ 2 = 480 px), instead of a fixed zoom. The factor follows the page's width, so it is measured.
  */
+function useRealSize(root: React.RefObject<HTMLElement | null>) {
+  useEffect(() => {
+    const host = root.current
+    if (!host) return
+    const measure = () => host.querySelectorAll<HTMLElement>('.re-sw-swap').forEach((el) => {
+      const screen = el.querySelector<HTMLElement>('.re-sw-screen')
+      if (screen?.offsetWidth) el.style.setProperty('--real', (480 / screen.offsetWidth).toFixed(3))
+    })
+    measure()
+    const ro = new ResizeObserver(measure)
+    host.querySelectorAll('.re-sw-swap').forEach((el) => ro.observe(el))
+    return () => ro.disconnect()
+  }, [root])
+}
 
 /**
  * The settle's shape: a critically damped ("deadbeat") response, 1 − (1 + ωp)·e^(−ωp). It moves fastest early and its
@@ -206,7 +294,13 @@ export function Production({ onOpen, reduced, onFocus }: { onOpen(slug: string, 
   const root = useRef<HTMLElement>(null)
   const dialog = useRef<HTMLDialogElement>(null)
   const [reading, setReading] = useState(false)
+  const full = useRef<FullSizeHandle>(null)
   useArrival(root, reduced, onFocus)
+  const bayyinah = useSwap(BAYYINAH)
+  const reader = useSwap(READER)
+  useRealSize(root)
+  // Real size on request: the course row at the size a visitor saw it (the 2880 px capture at 2×), opened on the live course.
+  const openReal = () => full.current?.open([1248 + 960 / 2, 1148 + 620 / 2])
 
   // Pressing the link starts the move and warms the case's opening screen; the click then opens it.
   const press = (slug: string) => (e: React.PointerEvent<HTMLAnchorElement>) => {
@@ -231,10 +325,11 @@ export function Production({ onOpen, reduced, onFocus }: { onOpen(slug: string, 
         table={floor(654, 820, [[570, 731, 515, 51], [1160, 724, 210, 45]])}
         slabs={<>
           {/* The hero only: the row under it shows the site's own audience figures, which are not the sourced Play count beside it. */}
-          <Slab shot={shots.landing} crop={[0, 0, 2880, 1420]} phoneCrop={[40, 400, 1400, 1000]} place={[70, 110, 1008]} phone={[16, 11, 358]} nh={440} transform="rotate(-0.55deg)" eager />
-          <Slab shot={shots.courses} kind="swap" crop={[1248, 1148, 960, 620]} place={[984, 461, 370]} phone={[20, 188, 350]} nh={440} transform="rotate(2deg)" z={4} eager />
+          <Slab shot={shots.landing} swap={bayyinah} crop={[0, 0, 2880, 1420]} phoneCrop={[40, 400, 1400, 1000]} place={[70, 110, 1008]} phone={[16, 11, 358]} nh={440} transform="rotate(-0.55deg)" eager />
+          <Slab shot={shots.courses} kind="swap" onReal={openReal} crop={[1248, 1148, 960, 620]} place={[984, 461, 370]} phone={[20, 188, 350]} nh={440} transform="rotate(2deg)" z={4} eager />
         </>}
       >
+        <Thumbs swap={bayyinah} crop={[0, 0, 2880, 1420]} place={at(64, 636)} label="Bayyinah TV screens" thumbW={64} />
         <div className="re-sw-at re-sw-copy" style={at(48, 742, 865)}>
           <Meta name="Bayyinah TV" role="Frontend · 2023–2026" />
           <h3>Rebuilt a live learning platform.</h3>
@@ -251,10 +346,11 @@ export function Production({ onOpen, reduced, onFocus }: { onOpen(slug: string, 
         id="reading" nh={445} hs={46}
         table={floor(702, 865, [[1047, 805, 195, 46], [705, 809, 195, 46]])}
         slabs={<>
-          <Slab shot={shots.reader} crop={[82, 462, 616, 1227]} phoneCrop={[82, 462, 616, 566]} place={[867, 70, 370]} phone={[58, 20, 312]} nh={445} />
+          <Slab shot={shots.reader} swap={reader} crop={[82, 462, 616, 1227]} phoneCrop={[82, 462, 616, 566]} place={[867, 70, 370]} phone={[58, 20, 312]} nh={445} />
           <Slab shot={shots.achievements} kind="companion" crop={[82, 620, 616, 1069]} phoneCrop={[82, 620, 616, 405]} place={[520, 166, 370]} phone={[20, 222, 312]} nh={445} z={4} />
         </>}
       >
+        <Thumbs swap={reader} crop={[82, 462, 616, 1227]} place={at(862, 838)} label="Read to Feed screens" thumbW={29} />
         <p className="re-sw-at re-sw-cap" style={at(520, 838)}>Store listing images.</p>
         <div className="re-sw-at re-sw-copy" style={at(64, 196, 420)}>
           <Meta name="Read to Feed" role="Mobile, iOS and Android · 2022–25" stack />
@@ -333,6 +429,8 @@ export function Production({ onOpen, reduced, onFocus }: { onOpen(slug: string, 
         </div>
         <Layers slug="viva-fresh" place={at(64, 170, 175)} />
       </Chapter>
+
+      <FullSize ref={full} src={shots.courses.src} w={shots.courses.w} h={shots.courses.h} alt={shots.courses.alt} />
 
       <dialog ref={dialog} className="re-sw-reader" aria-label="Read to Feed, interactive recreation" data-lenis-prevent onClose={() => setReading(false)}>
         <div className="re-ch-demo-bar">

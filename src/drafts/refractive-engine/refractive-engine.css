@@ -186,7 +186,7 @@ html.re-html.lenis-stopped { overflow: clip; }
 .re-sw { --u: calc(100cqw / 1440); position: relative; max-width: 1600px; margin: 0 auto; aspect-ratio: 1440 / 900; container-type: inline-size; }
 .re-sw-stage { position: absolute; inset: 0; }
 /* main passes the pointer through to the field; only the words, the screens and the reader take it back, so the cursor lens works in the margins. */
-.re-sw-at, .re-sw-slab, .re-sw-reader { pointer-events: auto; }
+.re-sw-at, .re-sw-slab, .re-sw-reader, .re-sw-sheet { pointer-events: auto; }
 .re-sw-floor {
   position: absolute; left: 0; right: 0; top: var(--ft); height: var(--fh); pointer-events: none;
   clip-path: polygon(1.7% 15%, 98.3% 0, 100% 95%, 0 100%);
@@ -225,10 +225,39 @@ html.re-html.lenis-stopped { overflow: clip; }
 @media (prefers-reduced-motion: reduce) { .re-sw[data-lift] .re-sw-lead { translate: none; } }
 /* Hover, on pointers that have it: Bayyinah's second screen comes forward to a readable size and the main one steps back. */
 @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  /* Real size: the companion grows to the size a visitor saw it (--real, measured), the main screen steps back. */
   .re-sw-swap { transform-origin: 84% 96%; transition: transform 160ms var(--re-ease); }
-  .re-sw-swap:hover { transform: translateY(-8px) scale(1.12); transition-duration: 200ms; }
-  .re-sw-stage:has(.re-sw-swap:hover) .re-sw-lead { filter: brightness(0.8); }
+  .re-sw-swap:is(:hover, :has(.re-sw-real:focus-visible)) { transform: scale(var(--real, 1.12)); transition-duration: 200ms; }
+  .re-sw-stage:has(.re-sw-swap:is(:hover, :has(.re-sw-real:focus-visible))) .re-sw-lead { filter: brightness(0.8); }
 }
+
+/* One slab, several real screens: the active one is sharp; a change crossfades with a 2 px blur (exit 160 ms, entry
+   220 ms) and the slab never moves. A keyboard change is instant. */
+.re-sw-screen[data-swap] img { opacity: 0; filter: blur(2px); transition: opacity 160ms var(--re-ease), filter 160ms var(--re-ease); }
+.re-sw-screen[data-swap] img[data-on] { opacity: 1; filter: none; transition-duration: 220ms; }
+.re-sw-screen[data-swap][data-instant] img { transition: none; }
+@media (prefers-reduced-motion: reduce) { .re-sw-screen[data-swap] img, .re-sw-screen[data-swap] img[data-on] { filter: none; transition: opacity 120ms ease; } }
+.re-sw-slab[data-swipe] { touch-action: pan-y; }
+.re-sw-thumbs { display: flex; gap: 8px; }
+.re-sw-thumbs button { all: unset; box-sizing: border-box; cursor: pointer; display: grid; place-items: center; min-width: 44px; min-height: 44px; opacity: 0.55; transition: opacity 150ms ease; }
+.re-sw-thumbs button[aria-pressed="true"] { opacity: 1; }
+@media (hover: hover) and (pointer: fine) { .re-sw-thumbs button[aria-pressed="false"]:hover { opacity: 0.8; } }
+.re-sw-thumbs button:focus-visible { outline: 2px solid var(--re-accent); outline-offset: 2px; border-radius: 6px; }
+.re-sw-thumb { position: relative; display: block; overflow: hidden; border-radius: 3px; aspect-ratio: var(--ar); box-shadow: 0 0 0 1px rgb(255 255 255 / 0.14); }
+.re-sw-thumb img { position: absolute; left: var(--sl); top: var(--st); width: var(--sw); height: auto; max-width: none; }
+/* The companion opens at full size on click, tap or Enter; the button covers it so the whole screen is the target. */
+.re-sw-real { all: unset; position: absolute; inset: 0; cursor: zoom-in; border-radius: 10px; }
+.re-sw-real:focus-visible { outline: 2px solid var(--re-accent); outline-offset: 4px; }
+.re-sw-sheet {
+  width: min(96vw, 1120px); height: min(90svh, 820px); padding: 0; margin: auto; border: 1px solid rgb(255 255 255 / 0.12); border-radius: 14px;
+  background: #0c0c11; color: var(--re-fg); overflow: hidden; overscroll-behavior: contain;
+}
+.re-sw-sheet[open] { display: flex; flex-direction: column; }
+.re-sw-sheet::backdrop { background: rgb(5 5 8 / 0.82); }
+.re-sw-sheet-view { flex: 1; min-height: 0; overflow: auto; overscroll-behavior: contain; touch-action: pan-x pan-y pinch-zoom; }
+.re-sw-sheet-view img { display: block; max-width: none; }
+.re-sw-sheet-view:focus-visible { outline: 2px solid var(--re-accent); outline-offset: -2px; }
+html:has(.re-sw-sheet[open]) { overflow: hidden; }
 
 /* Words, placed on the frame. */
 .re-sw-at { position: absolute; left: var(--x); top: var(--y); width: var(--w, auto); z-index: 5; }
@@ -307,6 +336,7 @@ html:has(.re-sw-reader[open]) { overflow: hidden; }
   .re-sw-states-row img { width: 33.333%; }
   .re-sw-at { position: relative; inset: auto; width: auto; }
   .re-sw-cap { margin-top: 10px; }
+  .re-sw-thumbs { margin-top: 10px; }
   .re-sw-copy, .re-sw-process, .re-sw-act { margin-top: 20px; }
   .re-sw h3 { max-width: 20ch; font-size: clamp(30px, 8.6vw, 40px); }
   .re-sw-right { text-align: left; }
@@ -680,16 +710,15 @@ html:has(.re-sw-reader[open]) { overflow: hidden; }
 .re-cs-list li, .re-cs-text { max-width: 34em; font: 300 clamp(17px, 1.6vw, 23px)/1.5 var(--re-sans); color: var(--re-fg); text-wrap: pretty; }
 .re-cs-list li { position: relative; padding-left: 22px; }
 .re-cs-list li::before { content: ""; position: absolute; left: 2px; top: 0.66em; width: 5px; height: 5px; border-radius: 50%; background: var(--re-accent); }
-/* Problem beside decision, joined by one quiet line between the two headings. */
-.re-cs-pair { display: grid; grid-template-columns: minmax(0, 1fr); gap: 48px; }
-@media (min-width: 1024px) {
-  .re-cs-pair { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: clamp(64px, 8vw, 120px); }
-  .re-cs-decision { position: relative; }
-  .re-cs-decision::before {
-    content: ""; position: absolute; top: calc(clamp(26px, 2.7vw, 39px) * 0.62); right: calc(100% + 16px); width: calc(clamp(64px, 8vw, 120px) - 32px); height: 1px;
-    background: rgb(62 230 164 / 0.45);
-  }
-}
+/* The decision in order: what was in the way, what was chosen (with the option turned down set apart), what changes next
+   time. One column, numbered like the chamber's layers, so it reads top to bottom on any screen. */
+.re-cs-road { display: grid; gap: clamp(36px, 6vh, 56px); margin: 0; padding: 0; list-style: none; max-width: 820px; }
+.re-cs-road > li { display: grid; grid-template-columns: 44px minmax(0, 1fr); column-gap: 12px; }
+.re-cs-road > li > .re-num { padding-top: 0.55em; font-size: 14px; color: var(--re-dim); }
+.re-cs-road > li > :not(.re-num) { grid-column: 2; }
+.re-cs-road .re-cs-h2 { margin-bottom: 14px; }
+.re-cs-not { color: var(--re-fg-2); text-decoration: underline dashed rgb(156 157 167 / 0.7); text-decoration-thickness: 1px; text-underline-offset: 0.3em; }
+@media (max-width: 599px) { .re-cs-road > li { grid-template-columns: 32px minmax(0, 1fr); column-gap: 8px; } }
 /* The three layers side by side, every word readable; the one under the pointer lights. */
 .re-cs-layers { display: grid; gap: 14px; margin: 0; padding: 0; list-style: none; }
 @media (min-width: 760px) { .re-cs-layers { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
@@ -718,21 +747,46 @@ html:has(.re-sw-reader[open]) { overflow: hidden; }
 .re-record pre { margin: 6px 0 0; padding: 10px 12px; border-radius: 10px; font: 13px/1.6 ui-monospace, Menlo, monospace; color: var(--re-fg-2); white-space: pre-wrap; overflow-wrap: anywhere; background: rgb(0 0 0 / 0.3); }
 .re-casepage .re-links { list-style: none; }
 
-/* ---- Screens: the real pictures; a loupe follows a fine pointer at twice the shown size ---- */
+/* ---- Screens: one guided stage. A large glass slab and the screens by name; picking one crossfades the slab. ---- */
 .re-cs-screens { margin-top: clamp(64px, 10vh, 112px); }
-.re-cs-screens ul { display: grid; gap: 22px 18px; margin: 0; padding: 0; list-style: none; grid-template-columns: repeat(auto-fill, minmax(min(100%, 460px), 1fr)); }
-.re-cs-screens ul[data-shape="phone"] { grid-template-columns: repeat(auto-fill, minmax(min(46%, 200px), 1fr)); }
-.re-cs-shot { display: grid; gap: 10px; align-content: start; }
-.re-cs-shot > span { font-size: 14px; line-height: 1.45; color: var(--re-fg-2); }
-.re-cs-frame { position: relative; overflow: hidden; border-radius: 12px; background: var(--re-glass-strong); box-shadow: 0 0 0 1px rgb(255 255 255 / 0.08), 0 18px 40px -24px #000; }
-.re-cs-screens ul[data-shape="phone"] .re-cs-frame { border-radius: 18px; }
-.re-cs-frame img { display: block; width: 100%; height: auto; }
+.re-cs-gallery { display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; }
+@media (min-width: 1024px) {
+  .re-cs-gallery { grid-template-columns: minmax(0, 1fr) 260px; column-gap: 40px; align-items: start; }
+  .re-cs-gallery[data-shape="phone"] { grid-template-columns: minmax(0, 360px) minmax(0, 1fr); }
+}
+.re-casepage .re-cs-stage { position: relative; left: auto; top: auto; width: 100%; margin: 0; transform: none; z-index: auto; }
+.re-cs-stage-screen { aspect-ratio: var(--ga); background: #0e1116; }
+.re-cs-stage-screen img { inset: 0; left: 0; top: 0; width: 100%; height: 100%; object-fit: contain; }
+.re-cs-gallery[data-shape="phone"] .re-cs-stage-screen { max-height: 72svh; }
+.re-cs-stage figcaption { margin-top: 14px; font-size: 15px; color: var(--re-fg-2); }
+.re-cs-stage-list { display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; }
+.re-cs-stage-list button {
+  all: unset; box-sizing: border-box; cursor: pointer; display: grid; grid-template-columns: 56px minmax(0, 1fr); align-items: center; gap: 12px;
+  width: 100%; min-height: 48px; padding: 6px 10px; border-radius: 10px; color: var(--re-fg-2); transition: background-color 150ms ease, color 150ms ease;
+}
+.re-cs-stage-list button img { width: 56px; height: 36px; object-fit: cover; object-position: top; border-radius: 4px; opacity: 0.6; transition: opacity 150ms ease; }
+.re-cs-gallery[data-shape="phone"] .re-cs-stage-list button img { height: 56px; width: 28px; justify-self: center; }
+.re-cs-stage-list button span { font-size: 15px; line-height: 1.35; }
+.re-cs-stage-list button[aria-pressed="true"] { color: var(--re-fg); background: var(--re-fill); }
+.re-cs-stage-list button[aria-pressed="true"] img { opacity: 1; }
+@media (hover: hover) and (pointer: fine) { .re-cs-stage-list button[aria-pressed="false"]:hover { color: var(--re-fg); } }
+.re-cs-stage-list button:focus-visible { outline: 2px solid var(--re-accent); outline-offset: 2px; }
+/* Phones: the names become one swipeable row, the next one peeking in (NN/g: swipe works, the next item shows). */
+@media (max-width: 1023px) {
+  .re-cs-stage-list { display: flex; gap: 8px; overflow-x: auto; scroll-snap-type: x mandatory; overscroll-behavior-x: contain; margin: 0 calc(-1 * var(--re-gutter)); padding: 2px var(--re-gutter) 8px; scrollbar-width: none; }
+  .re-cs-stage-list li { flex: 0 0 auto; scroll-snap-align: start; }
+  .re-cs-stage-list button { grid-template-columns: 1fr; justify-items: start; width: 132px; gap: 8px; padding: 8px; }
+  .re-cs-stage-list button img { width: 116px; height: 72px; }
+  .re-cs-gallery[data-shape="phone"] .re-cs-stage-list button img { width: 60px; height: 120px; }
+  .re-cs-stage-list button span { font-size: 14px; }
+}
+/* The loupe: a fine pointer over the stage sees it at 2×; hidden at rest and on touch. */
 .re-cs-loupe {
-  position: absolute; left: 0; top: 0; width: 180px; height: 180px; border-radius: 50%; pointer-events: none; background-repeat: no-repeat; opacity: 0; scale: 0.94;
+  position: absolute; left: 0; top: 0; z-index: 2; width: 180px; height: 180px; border-radius: 50%; pointer-events: none; background-repeat: no-repeat; opacity: 0; scale: 0.94;
   box-shadow: 0 0 0 1px rgb(255 255 255 / 0.35), inset 0 0 0 1px rgb(255 255 255 / 0.12), 0 14px 34px rgb(0 0 0 / 0.5); transition: opacity 100ms ease, scale 100ms ease;
 }
-.re-cs-screens ul[data-shape="phone"] .re-cs-loupe { display: none; }
-@media (hover: hover) and (pointer: fine) { .re-cs-frame:hover .re-cs-loupe { opacity: 1; scale: 1; transition: opacity 150ms var(--re-ease), scale 150ms var(--re-ease); } }
+.re-cs-gallery[data-shape="phone"] .re-cs-loupe { display: none; }
+@media (hover: hover) and (pointer: fine) { .re-cs-stage:hover .re-cs-loupe { opacity: 1; scale: 1; transition: opacity 150ms var(--re-ease), scale 150ms var(--re-ease); } }
 @media (prefers-reduced-motion: reduce) { .re-cs-loupe { transition: none !important; scale: 1; } }
 
 /* ---- Next case: its own screen, waiting; Previous stays a quiet link ---- */
