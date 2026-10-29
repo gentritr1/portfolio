@@ -71,8 +71,8 @@ for (const run of plan) {
       }
     }
     if (s.key) {
-      const code = { Tab: 9, Enter: 13, ' ': 32, Escape: 27 }[s.key]
-      await send('Input.dispatchKeyEvent', { type: 'keyDown', key: s.key, windowsVirtualKeyCode: code, text: s.key === 'Tab' || s.key === 'Escape' ? undefined : s.key === 'Enter' ? '\r' : ' ', modifiers: s.shift ? 8 : 0 })
+      const code = { Tab: 9, Enter: 13, ' ': 32, Escape: 27, End: 35, Home: 36, ArrowLeft: 37, ArrowUp: 38, ArrowRight: 39, ArrowDown: 40 }[s.key]
+      await send('Input.dispatchKeyEvent', { type: 'keyDown', key: s.key, code: s.key.startsWith('Arrow') || s.key === 'Home' || s.key === 'End' ? s.key : undefined, windowsVirtualKeyCode: code, text: s.key === 'Enter' ? '\r' : s.key === ' ' ? ' ' : undefined, modifiers: s.shift ? 8 : 0 })
       await send('Input.dispatchKeyEvent', { type: 'keyUp', key: s.key, windowsVirtualKeyCode: code, modifiers: s.shift ? 8 : 0 })
     }
     if (s.scrollTo) await evaluate(`(() => { const el = document.querySelector(${JSON.stringify(s.scrollTo)}); window.scrollTo({ top: el.getBoundingClientRect().top + scrollY + ${s.offset ?? 0}, behavior: 'instant' }) })()`)

@@ -258,6 +258,12 @@ html.re-html.lenis-stopped { overflow: clip; }
 .re-sw-sheet-view img { display: block; max-width: none; }
 .re-sw-sheet-view:focus-visible { outline: 2px solid var(--re-accent); outline-offset: -2px; }
 html:has(.re-sw-sheet[open]) { overflow: hidden; }
+/* The bar names the screen; ‹ › sit beside Close. Phones drop the hint so the controls keep their 44 px. */
+.re-sw-sheet .re-ch-demo-bar { justify-content: flex-start; gap: 4px; }
+.re-sw-sheet .re-ch-demo-bar p { margin-right: auto; }
+.re-sw-sheet-name { margin-right: 10px; color: var(--re-fg); }
+.re-ch-demo-bar .re-sw-sheet-step { width: 44px; padding: 0; justify-content: center; }
+@media (max-width: 599px) { .re-sw-sheet-name + .re-sw-sheet-hint { display: none; } }
 
 /* Words, placed on the frame. */
 .re-sw-at { position: absolute; left: var(--x); top: var(--y); width: var(--w, auto); z-index: 5; }
@@ -768,10 +774,19 @@ html:has(.re-sw-reader[open]) { overflow: hidden; }
 /* Dimmed, not faded: a faded white screen lets the dot field through and reads as grain. */
 .re-cs-gallery[data-shape="phone"] .re-cs-stage-list button img { height: 56px; width: 28px; justify-self: center; }
 .re-cs-stage-list button span { font-size: 15px; line-height: 1.35; }
-.re-cs-stage-list button[aria-pressed="true"] { color: var(--re-fg); background: var(--re-fill); }
-.re-cs-stage-list button[aria-pressed="true"] img { filter: none; }
-@media (hover: hover) and (pointer: fine) { .re-cs-stage-list button[aria-pressed="false"]:hover { color: var(--re-fg); } }
+.re-cs-stage-list button[aria-selected="true"] { color: var(--re-fg); background: var(--re-fill); }
+.re-cs-stage-list button[aria-selected="true"] img { filter: none; }
+@media (hover: hover) and (pointer: fine) { .re-cs-stage-list button[aria-selected="false"]:hover { color: var(--re-fg); } }
 .re-cs-stage-list button:focus-visible { outline: 2px solid var(--re-accent); outline-offset: 2px; }
+/* Desktop: names only. At 56 px the thumbnails read as grey noise; the shown name carries the page's own mark, the
+   markers' mint point, never a side stripe (impeccable craft floor). Phones keep their larger thumbnails. */
+@media (min-width: 1024px) {
+  .re-cs-stage-list button { position: relative; grid-template-columns: 1fr; min-height: 44px; padding-left: 22px; }
+  .re-cs-stage-list button img { display: none; }
+  .re-cs-stage-list button[aria-selected="true"]::before {
+    content: ""; position: absolute; left: 9px; top: 50%; width: 5px; height: 5px; translate: 0 -50%; border-radius: 50%; background: var(--re-accent);
+  }
+}
 /* Phones: the names become one swipeable row, the next one peeking in (NN/g: swipe works, the next item shows). The row
    sits above the stage like tabs: what is under the stage changes height with the screen (a board's callout and words),
    so a row below it would move away from the finger that just tapped it. */
@@ -809,7 +824,12 @@ html:has(.re-sw-reader[open]) { overflow: hidden; }
 .re-cs-mark[data-up] .re-cs-mark-label { top: auto; bottom: calc(100% + 10px); translate: 0 0; transform-origin: left bottom; }
 .re-cs-mark[data-up][data-side="left"] .re-cs-mark-label { transform-origin: right bottom; }
 .re-cs-mark[data-open] .re-cs-mark-label { opacity: 1; scale: 1; transition: opacity 150ms var(--re-ease), scale 150ms var(--re-ease); }
-.re-cs-mark-text { margin: 0; padding: 12px 14px; border-radius: 10px; font-size: 16px; line-height: 1.5; color: var(--re-fg); background: var(--re-fill); box-shadow: inset 2px 0 0 var(--re-accent); }
+.re-cs-mark-text { margin: 0; padding: 12px 14px; border-radius: 10px; font-size: 16px; line-height: 1.5; color: var(--re-fg); background: var(--re-fill); }
+/* The line opens with the marker's own ring and core, so it reads as that marker's sentence. */
+.re-cs-mark-text::before {
+  content: ""; display: inline-block; width: 10px; height: 10px; margin-right: 10px; vertical-align: 1px; box-sizing: border-box; border-radius: 50%;
+  border: 2px solid var(--re-accent); background: radial-gradient(circle, var(--re-accent) 0 2px, transparent 2.5px);
+}
 @media (min-width: 1024px) { .re-cs-mark-text { display: none; } }
 @media (max-width: 1023px) { .re-cs-mark-label { display: none; } }
 /* The paired line in the decision list. */
@@ -835,18 +855,20 @@ html:has(.re-sw-reader[open]) { overflow: hidden; }
 .re-cs-board > * { position: absolute; }
 .re-cs-board-area { left: var(--bx); top: var(--by); width: var(--bw); height: var(--bh); border-radius: 4px; box-shadow: 0 0 0 1.5px var(--re-accent), 0 0 0 6px rgb(62 230 164 / 0.14); }
 .re-cs-board-lead { left: var(--cx); top: calc(var(--by) + var(--bh)); height: 18px; border-left: 1.5px dashed rgb(62 230 164 / 0.75); }
+/* The callout is a button: it opens the full-size view centred on its area. */
 .re-cs-board-zoom {
-  left: var(--cl); top: calc(var(--by) + var(--bh) + 18px); width: var(--cw); display: grid; gap: 6px; padding: 6px; border-radius: 10px; box-sizing: border-box;
-  background: rgb(12 14 19 / 0.94); box-shadow: 0 0 0 1px rgb(62 230 164 / 0.35), 0 18px 40px rgb(0 0 0 / 0.55);
+  all: unset; position: absolute; z-index: 3; pointer-events: auto; cursor: zoom-in; box-sizing: border-box;
+  left: var(--cl); top: calc(var(--by) + var(--bh) + 18px); width: var(--cw); display: grid; gap: 6px; padding: 6px; border-radius: 10px;
+  background: rgb(12 14 19 / 0.94); box-shadow: 0 0 0 1px rgb(62 230 164 / 0.35), 0 18px 40px rgb(0 0 0 / 0.55); transition: box-shadow 150ms ease;
 }
+@media (hover: hover) and (pointer: fine) { .re-cs-board-zoom:hover { box-shadow: 0 0 0 1px rgb(62 230 164 / 0.7), 0 18px 40px rgb(0 0 0 / 0.55); } }
+.re-cs-board-zoom:focus-visible { outline: 2px solid var(--re-accent); outline-offset: 3px; }
 .re-cs-board-zoom-tag { display: flex; align-items: center; gap: 8px; padding: 0 4px; font: 500 11px/16px var(--re-sans); letter-spacing: 0.12em; text-transform: uppercase; color: var(--re-accent); }
 .re-cs-board-zoom-tag::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
 .re-cs-board-crop { display: block; aspect-ratio: var(--ca); border-radius: 5px; background: #fff no-repeat var(--zx) var(--zy) / var(--zs) auto; }
 /* The words start under the callout: its reach below the screen, plus its frame (34 px) and lead (18 px), less the slab's
    own bottom edge and the grid's row gap. */
 .re-cs-board-text { margin-top: calc(var(--drop) + 49px); animation: re-mark-in 160ms var(--re-ease) both; }
-.re-cs-board-tag { display: flex; align-items: center; gap: 10px; margin: 0 0 12px; font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--re-accent); }
-.re-cs-board-tag::before { content: ""; width: 18px; height: 1px; background: currentColor; }
 .re-cs-board-title { margin: 0 0 12px; font: 300 clamp(24px, 2.3vw, 32px)/1.15 var(--re-sans); letter-spacing: -0.02em; color: var(--re-fg); text-wrap: balance; }
 .re-cs-board-line { margin: 0; max-width: 46ch; font-size: 16px; line-height: 1.55; color: var(--re-fg-2); }
 .re-cs-board-on h4 { margin: 0 0 10px; font-size: 13px; font-weight: 400; letter-spacing: 0.12em; text-transform: uppercase; color: var(--re-accent); }

@@ -51,15 +51,15 @@ const MARKERS: Record<string, { x: number; y: number; w: number; h: number; slug
  * The callout is the same file enlarged, so its pixels are real. Board 02 shows vitals-graph.webp, which this gallery
  * does not carry.
  */
-const BOARDS: Record<string, { tag: string; title: string; lead: string; items: string[]; zoom: string; detail: [x: number, y: number, w: number, h: number] }> = {
+const BOARDS: Record<string, { title: string; lead: string; items: string[]; zoom: string; detail: [x: number, y: number, w: number, h: number] }> = {
   '/showcase/care-dashboard/claims.webp': {
-    tag: 'Claims', title: 'Claims that need another look stand out.',
+    title: 'Claims that need another look stand out.',
     lead: "Each month's claims are counted by status. A claim that changed after approval gets a mark, so the team checks it again before billing.",
     items: ['Counts by status', 'Filters by month and program', 'Marks for updated claims', 'Retry when a transfer fails'],
     zoom: 'Needs attention · Retry', detail: [958, 700, 414, 116],
   },
   '/showcase/care-dashboard/appointments-week.webp': {
-    tag: 'Calendar', title: 'A care team’s week on one calendar.',
+    title: 'A care team’s week on one calendar.',
     lead: 'Visits, calls and tasks for every patient. Filters narrow the week to one person, one type or one priority.',
     items: ['Week, day and list views', 'Six filters', 'Visits and calls in two colours', 'A line for the current time'],
     zoom: 'Now · Tuesday', detail: [604, 538, 352, 168],
@@ -120,8 +120,20 @@ function Gallery({ items, slug, at, setAt, mark, decisions }: {
   const b = BOARDS[g.src]
   const bv = b && boardVars(b.detail)
   const phone = items[0].height > items[0].width
+  const wrap = (i: number) => ((i % items.length) + items.length) % items.length
   // A new screen drops a pinned decision: the list must not light a line whose marker is no longer shown.
-  const pick = (i: number, inst: boolean) => { setArmed(true); setInstant(inst); mark.pin(null); setAt(((i % items.length) + items.length) % items.length) }
+  const pick = (i: number, inst: boolean) => { setArmed(true); setInstant(inst); mark.pin(null); setAt(wrap(i)) }
+  // The names are tabs (WAI-ARIA): one tab stop, arrows and Home/End move between them and show the screen at once.
+  const keys = (e: React.KeyboardEvent) => {
+    const d = ({ ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 } as Record<string, number>)[e.key]
+    const i = e.key === 'Home' ? 0 : e.key === 'End' ? items.length - 1 : d === undefined ? null : wrap(at + d)
+    if (i === null) return
+    e.preventDefault()
+    pick(i, true)
+    row.current?.querySelectorAll('button')[i]?.focus()
+  }
+  // The callout's area, in the capture's own pixels (its detail is in the screen's 1440-wide CSS pixels).
+  const focusOf = ([x, y, w, h]: [number, number, number, number]): [number, number] => [(x + w / 2) * (g.width / 1440), (y + h / 2) * (g.width / 1440)]
 
   return (
     <div className="re-cs-gallery" data-shape={phone ? 'phone' : 'wide'}>
@@ -136,7 +148,7 @@ function Gallery({ items, slug, at, setAt, mark, decisions }: {
           if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.5) pick(at + (dx < 0 ? 1 : -1), false)
         }}
       >
-        <div className="re-sw-screen re-cs-stage-screen" data-swap data-instant={instant || undefined}>
+        <div className="re-sw-screen re-cs-stage-screen" id="re-cs-panel" role="tabpanel" aria-labelledby={`re-cs-tab-${at}`} data-swap data-instant={instant || undefined}>
           {items.map((it, i) => (i === at || armed) && (
             <img key={it.src} src={it.src} width={it.width} height={it.height} alt={i === at ? it.alt : ''} aria-hidden={i !== at || undefined}
               data-on={i === at || undefined} loading="lazy" decoding="async" />
@@ -157,23 +169,22 @@ function Gallery({ items, slug, at, setAt, mark, decisions }: {
             </div>
           )}
           {b && (
-            <div key={g.src} className="re-cs-mark-layer re-cs-board" style={bv} aria-hidden="true">
-              <span className="re-cs-board-area" />
-              <span className="re-cs-board-lead" />
-              <span className="re-cs-board-zoom">
-                <span className="re-cs-board-zoom-tag">{b.zoom}</span>
-                <span className="re-cs-board-crop" style={{ backgroundImage: `url("${g.src}")` }} />
-              </span>
+            <div key={g.src} className="re-cs-mark-layer re-cs-board" style={bv}>
+              <span className="re-cs-board-area" aria-hidden="true" />
+              <span className="re-cs-board-lead" aria-hidden="true" />
+              <button type="button" className="re-cs-board-zoom" aria-label={`${b.zoom}, at full size`} onClick={() => full.current?.open(focusOf(b.detail))}>
+                <span className="re-cs-board-zoom-tag" aria-hidden="true">{b.zoom}</span>
+                <span className="re-cs-board-crop" aria-hidden="true" style={{ backgroundImage: `url("${g.src}")` }} />
+              </button>
             </div>
           )}
         </div>
         <button type="button" className="re-sw-real" aria-label={`${g.alt}, at full size`} onClick={() => full.current?.open()} />
-        <figcaption aria-live="polite" className={b ? 're-sr' : undefined}>{b ? `${b.tag}: ${b.title}` : g.caption || g.alt}</figcaption>
+        <figcaption aria-live="polite" className={b ? 're-sr' : undefined}>{b ? b.title : g.caption || g.alt}</figcaption>
       </figure>
       {m && <p id="re-cs-mark-text" className="re-cs-mark-text" hidden={!open}>{decisions[m.decision]}</p>}
       {b && (
         <div key={g.src} className="re-cs-board-text" style={bv}>
-          <p className="re-cs-board-tag">{b.tag}</p>
           <h3 className="re-cs-board-title">{b.title}</h3>
           <p className="re-cs-board-line">{b.lead}</p>
           <div className="re-cs-board-on">
@@ -182,17 +193,19 @@ function Gallery({ items, slug, at, setAt, mark, decisions }: {
           </div>
         </div>
       )}
-      <ol ref={row} className="re-cs-stage-list" aria-label="Screens" onPointerEnter={() => setArmed(true)} onFocus={() => setArmed(true)}>
+      <ol ref={row} className="re-cs-stage-list" role="tablist" aria-label="Screens" onKeyDown={keys} onPointerEnter={() => setArmed(true)} onFocus={() => setArmed(true)}>
         {items.map((it, i) => (
-          <li key={it.src}>
-            <button type="button" aria-pressed={i === at} onClick={(e) => pick(i, e.detail === 0)}>
+          <li key={it.src} role="presentation">
+            <button type="button" role="tab" id={`re-cs-tab-${i}`} aria-selected={i === at} aria-controls="re-cs-panel" tabIndex={i === at ? 0 : -1}
+              onClick={(e) => pick(i, e.detail === 0)}>
               <img src={it.src} alt="" loading="lazy" decoding="async" />
               <span>{it.caption || it.alt}</span>
             </button>
           </li>
         ))}
       </ol>
-      <FullSize ref={full} src={g.src} w={g.width} h={g.height} alt={g.alt} />
+      <FullSize ref={full} src={g.src} w={g.width} h={g.height} alt={g.alt} label={g.caption || undefined} step={(d) => pick(at + d, true)}
+        refocus={() => row.current?.querySelector<HTMLElement>('[aria-selected="true"]')?.focus()} />
     </div>
   )
 }
