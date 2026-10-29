@@ -825,6 +825,46 @@ html:has(.re-sw-reader[open]) { overflow: hidden; }
   .re-cs-mark .re-cs-mark-label, .re-cs-mark[data-open] .re-cs-mark-label { transition: none; scale: 1; }
 }
 
+/* Boards: a screen with its claim. The marked area is outlined on the screen, a dashed lead drops to the callout (the
+   same file, enlarged), and the board's words read under the stage. Phones put the callout under the screen at full
+   width. Geometry comes from boardVars in CasePage.tsx. */
+.re-cs-board { animation: re-mark-in 160ms var(--re-ease) 200ms both; }
+.re-cs-board > * { position: absolute; }
+.re-cs-board-area { left: var(--bx); top: var(--by); width: var(--bw); height: var(--bh); border-radius: 4px; box-shadow: 0 0 0 1.5px var(--re-accent), 0 0 0 6px rgb(62 230 164 / 0.14); }
+.re-cs-board-lead { left: var(--cx); top: calc(var(--by) + var(--bh)); height: 18px; border-left: 1.5px dashed rgb(62 230 164 / 0.75); }
+.re-cs-board-zoom {
+  left: var(--cl); top: calc(var(--by) + var(--bh) + 18px); width: var(--cw); display: grid; gap: 6px; padding: 6px; border-radius: 10px; box-sizing: border-box;
+  background: rgb(12 14 19 / 0.94); box-shadow: 0 0 0 1px rgb(62 230 164 / 0.35), 0 18px 40px rgb(0 0 0 / 0.55);
+}
+.re-cs-board-zoom-tag { display: flex; align-items: center; gap: 8px; padding: 0 4px; font: 500 11px/16px var(--re-sans); letter-spacing: 0.12em; text-transform: uppercase; color: var(--re-accent); }
+.re-cs-board-zoom-tag::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+.re-cs-board-crop { display: block; aspect-ratio: var(--ca); border-radius: 5px; background: #fff no-repeat var(--zx) var(--zy) / var(--zs) auto; }
+/* The words start under the callout: its reach below the screen, plus its frame (34 px) and lead (18 px), less the slab's
+   own bottom edge and the grid's row gap. */
+.re-cs-board-text { margin-top: calc(var(--drop) + 49px); animation: re-mark-in 160ms var(--re-ease) both; }
+.re-cs-board-tag { display: flex; align-items: center; gap: 10px; margin: 0 0 12px; font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--re-accent); }
+.re-cs-board-tag::before { content: ""; width: 18px; height: 1px; background: currentColor; }
+.re-cs-board-title { margin: 0 0 12px; font: 300 clamp(24px, 2.3vw, 32px)/1.15 var(--re-sans); letter-spacing: -0.02em; color: var(--re-fg); text-wrap: balance; }
+.re-cs-board-line { margin: 0; max-width: 46ch; font-size: 16px; line-height: 1.55; color: var(--re-fg-2); }
+.re-cs-board-on h4 { margin: 0 0 10px; font-size: 13px; font-weight: 400; letter-spacing: 0.12em; text-transform: uppercase; color: var(--re-accent); }
+.re-cs-board-on ol { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; counter-reset: on; }
+.re-cs-board-on li { counter-increment: on; display: grid; grid-template-columns: 28px 1fr; font-size: 15px; line-height: 1.45; color: var(--re-fg-2); }
+.re-cs-board-on li::before { content: counter(on, decimal-leading-zero); font-variant-numeric: tabular-nums; color: rgb(237 237 240 / 0.45); }
+@media (min-width: 1024px) {
+  .re-cs-gallery > .re-cs-stage, .re-cs-board-text, .re-cs-mark-text { grid-column: 1; }
+  .re-cs-stage-list { grid-column: 2; grid-row: 1 / span 3; }
+  .re-cs-board-text { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); column-gap: 40px; align-items: start; }
+  .re-cs-board-text > :not(.re-cs-board-on) { grid-column: 1; }
+  .re-cs-board-on { grid-column: 2; grid-row: 1 / span 3; padding-top: 2px; }
+}
+@media (max-width: 1023px) {
+  .re-cs-board-lead { display: none; }
+  .re-cs-board-zoom { left: 0; top: calc(100% + 24px); width: 100%; }
+  .re-cs-board-text { margin-top: calc(var(--drop-n) + 46px); }
+  .re-cs-board-on { margin-top: 20px; }
+}
+@media (prefers-reduced-motion: reduce) { .re-cs-board, .re-cs-board-text { animation: none; } }
+
 /* ---- Next case: its own screen, waiting; Previous stays a quiet link ---- */
 .re-cs-next { display: grid; gap: 14px; margin-top: clamp(72px, 12vh, 128px); }
 .re-cs-next-main {

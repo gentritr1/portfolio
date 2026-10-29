@@ -45,6 +45,46 @@ const MARKERS: Record<string, { x: number; y: number; w: number; h: number; slug
   '/mobile/reading-3.webp': { x: 112, y: 604, w: 780, h: 1689, slug: 'read-to-feed', decision: 0, up: true },
 }
 
+/**
+ * The care platform's boards, live: the words of public/showcase/care-dashboard/boards/board-03 and board-04 (the Loop's
+ * case boards, word for word) and their callout areas from boards.json `detail`, in the screen's 1440 × 900 CSS pixels.
+ * The callout is the same file enlarged, so its pixels are real. Board 02 shows vitals-graph.webp, which this gallery
+ * does not carry.
+ */
+const BOARDS: Record<string, { tag: string; title: string; lead: string; items: string[]; zoom: string; detail: [x: number, y: number, w: number, h: number] }> = {
+  '/showcase/care-dashboard/claims.webp': {
+    tag: 'Claims', title: 'Claims that need another look stand out.',
+    lead: "Each month's claims are counted by status. A claim that changed after approval gets a mark, so the team checks it again before billing.",
+    items: ['Counts by status', 'Filters by month and program', 'Marks for updated claims', 'Retry when a transfer fails'],
+    zoom: 'Needs attention · Retry', detail: [958, 700, 414, 116],
+  },
+  '/showcase/care-dashboard/appointments-week.webp': {
+    tag: 'Calendar', title: 'A care team’s week on one calendar.',
+    lead: 'Visits, calls and tasks for every patient. Filters narrow the week to one person, one type or one priority.',
+    items: ['Week, day and list views', 'Six filters', 'Visits and calls in two colours', 'A line for the current time'],
+    zoom: 'Now · Tuesday', detail: [604, 538, 352, 168],
+  },
+}
+/** The callout shows its area at this many times the stage's scale. */
+const ZOOM = 1.75
+
+/**
+ * A board's geometry as CSS variables, in % of the screen's width (`--b*` and `--c*`) or height (`--by`, `--bh`): the
+ * marked area, the callout under it (centred on the area, kept on the screen), and `--drop`, how far the callout reaches
+ * below the screen, so the board's words start under it. `-n` is the phone layout, where the callout sits under the
+ * screen at full width.
+ */
+function boardVars([x, y, w, h]: [number, number, number, number]) {
+  const cw = (w / 1440) * ZOOM * 100
+  const cx = ((x + w / 2) / 1440) * 100
+  return {
+    '--bx': `${(x / 1440) * 100}%`, '--by': `${(y / 900) * 100}%`, '--bw': `${(w / 1440) * 100}%`, '--bh': `${(h / 900) * 100}%`,
+    '--cx': `${cx}%`, '--cw': `${cw}%`, '--cl': `${Math.min(Math.max(cx - cw / 2, 0), 102 - cw)}%`, '--ca': `${w} / ${h}`,
+    '--zx': `${(x / (1440 - w)) * 100}%`, '--zy': `${(y / (900 - h)) * 100}%`, '--zs': `${(1440 / w) * 100}%`,
+    '--drop': `${Math.max(((y + h) / 1440) * 100 + (cw * h) / w - 62.5, 0)}%`, '--drop-n': `${(100 * h) / w}%`,
+  } as Vars
+}
+
 /** The decision a stage or a list item is pointing at: lit while hovered or focused, pinned by a click or tap. */
 type Mark = { lit: number | null; pinned: number | null; setLit(d: number | null): void; pin(d: number | null): void }
 
@@ -66,6 +106,8 @@ function Gallery({ items, slug, at, setAt, mark, decisions }: {
   const g = items[at]
   const m = MARKERS[g.src]?.slug === slug ? MARKERS[g.src] : undefined
   const open = !!m && (mark.lit === m.decision || mark.pinned === m.decision)
+  const b = BOARDS[g.src]
+  const bv = b && boardVars(b.detail)
   const phone = items[0].height > items[0].width
   // A new screen drops a pinned decision: the list must not light a line whose marker is no longer shown.
   const pick = (i: number, inst: boolean) => { setArmed(true); setInstant(inst); mark.pin(null); setAt(((i % items.length) + items.length) % items.length) }
@@ -103,11 +145,32 @@ function Gallery({ items, slug, at, setAt, mark, decisions }: {
               </button>
             </div>
           )}
+          {b && (
+            <div key={g.src} className="re-cs-mark-layer re-cs-board" style={bv} aria-hidden="true">
+              <span className="re-cs-board-area" />
+              <span className="re-cs-board-lead" />
+              <span className="re-cs-board-zoom">
+                <span className="re-cs-board-zoom-tag">{b.zoom}</span>
+                <span className="re-cs-board-crop" style={{ backgroundImage: `url("${g.src}")` }} />
+              </span>
+            </div>
+          )}
         </div>
         <button type="button" className="re-sw-real" aria-label={`${g.alt}, at full size`} onClick={() => full.current?.open()} />
-        <figcaption aria-live="polite">{g.caption || g.alt}</figcaption>
+        <figcaption aria-live="polite" className={b ? 're-sr' : undefined}>{b ? `${b.tag}: ${b.title}` : g.caption || g.alt}</figcaption>
       </figure>
       {m && <p id="re-cs-mark-text" className="re-cs-mark-text" hidden={!open}>{decisions[m.decision]}</p>}
+      {b && (
+        <div key={g.src} className="re-cs-board-text" style={bv}>
+          <p className="re-cs-board-tag">{b.tag}</p>
+          <h3 className="re-cs-board-title">{b.title}</h3>
+          <p className="re-cs-board-line">{b.lead}</p>
+          <div className="re-cs-board-on">
+            <h4>On this screen</h4>
+            <ol>{b.items.map((t) => <li key={t}>{t}</li>)}</ol>
+          </div>
+        </div>
+      )}
       <ol className="re-cs-stage-list" aria-label="Screens" onPointerEnter={() => setArmed(true)} onFocus={() => setArmed(true)}>
         {items.map((it, i) => (
           <li key={it.src}>
