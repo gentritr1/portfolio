@@ -29,45 +29,51 @@ function Hero({ slug, name, named }: { slug: string; name: string; named?: boole
   )
 }
 
-/** A loupe that follows a fine pointer over a screen at twice its shown size. Touch and keyboard get the plain screen. */
-function useLoupe(src: string) {
-  const lens = useRef<HTMLDivElement>(null)
-  const move = (e: React.PointerEvent<HTMLElement>) => {
-    const l = lens.current
-    if (!l || e.pointerType !== 'mouse') return
-    // Measured on the screen itself: the slab's bevel and the full-size button around it are not part of the picture.
-    const r = (e.currentTarget.querySelector('.re-sw-screen') ?? e.currentTarget).getBoundingClientRect()
-    const x = e.clientX - r.left, y = e.clientY - r.top
-    l.style.transform = `translate(${x - 90}px, ${y - 90}px)`
-    l.style.backgroundSize = `${r.width * 2}px ${r.height * 2}px`
-    l.style.backgroundPosition = `${90 - x * 2}px ${90 - y * 2}px`
-  }
-  return { move, el: <div ref={lens} className="re-cs-loupe" style={{ backgroundImage: `url("${src}")` }} aria-hidden="true" /> }
+/**
+ * Decisions shown where they live on a real screen: the screenshot, a point in its own pixels, and the case's decision.
+ * Positions from design/selected-work-concepts/decision-markers (Codex, 2026-10-29, checked by its verify.mjs), cut to the
+ * three that carry a decision; the rest named a feature the picture already shows. Points are in the file's own pixels
+ * (w × h), not the gallery's display size; each product's screenshots share one aspect, so a point is a percentage of
+ * the stage.
+ */
+// `up`: the label opens above the point, so it never covers what is marked (the plan's price, the reader's text). The
+// pricing point moved from Codex's 2310 to 2218, into the gap before the "$", so the ring does not sit on the digits.
+// The live point sits just above the LIVE badge, not on it: at phone scale a ring on the badge hid its "L".
+const MARKERS: Record<string, { x: number; y: number; w: number; h: number; slug: string; decision: number; up?: boolean }> = {
+  '/showcase/bayyinah/web-02.webp': { x: 1480, y: 1132, w: 2880, h: 1800, slug: 'bayyinah-tv', decision: 1, up: true },
+  '/showcase/bayyinah/web-06.webp': { x: 2218, y: 452, w: 2880, h: 1800, slug: 'bayyinah-tv', decision: 2, up: true },
+  '/mobile/reading-3.webp': { x: 112, y: 604, w: 780, h: 1689, slug: 'read-to-feed', decision: 0, up: true },
 }
+
+/** The decision a stage or a list item is pointing at: lit while hovered or focused, pinned by a click or tap. */
+type Mark = { lit: number | null; pinned: number | null; setLit(d: number | null): void; pin(d: number | null): void }
 
 type Picture = { src: string; alt: string; caption: string; width: number; height: number }
 
 /**
  * The case's screens as one guided stage: a single large glass slab and, beside it, the screens by name. Picking a name
  * crossfades the slab (2 px blur, exit 160 ms, entry 220 ms; instant from the keyboard), so each screen is shown big
- * enough to read and they read in order. A click or tap opens the screen at full size; a fine pointer gets the 2×
- * loupe; on phones the names become a swipeable row and the slab takes a sideways swipe.
+ * enough to read and they read in order. A click or tap opens the screen at full size; a screen that carries a decision
+ * shows its marker; on phones the names become a swipeable row and the slab takes a sideways swipe.
  */
-function Gallery({ items }: { items: Picture[] }) {
-  const [at, setAt] = useState(0)
+function Gallery({ items, slug, at, setAt, mark, decisions }: {
+  items: Picture[]; slug: string; at: number; setAt(i: number): void; mark: Mark; decisions: string[]
+}) {
   const [armed, setArmed] = useState(false)
   const [instant, setInstant] = useState(false)
   const full = useRef<FullSizeHandle>(null)
   const start = useRef<{ x: number; y: number } | null>(null)
   const g = items[at]
-  const { move, el } = useLoupe(g.src)
+  const m = MARKERS[g.src]?.slug === slug ? MARKERS[g.src] : undefined
+  const open = !!m && (mark.lit === m.decision || mark.pinned === m.decision)
   const phone = items[0].height > items[0].width
-  const pick = (i: number, inst: boolean) => { setArmed(true); setInstant(inst); setAt(((i % items.length) + items.length) % items.length) }
+  // A new screen drops a pinned decision: the list must not light a line whose marker is no longer shown.
+  const pick = (i: number, inst: boolean) => { setArmed(true); setInstant(inst); mark.pin(null); setAt(((i % items.length) + items.length) % items.length) }
+
   return (
     <div className="re-cs-gallery" data-shape={phone ? 'phone' : 'wide'}>
       <figure
         className="re-sw-slab re-cs-stage" style={{ '--ga': `${items[0].width} / ${items[0].height}` } as Vars} data-swipe=""
-        onPointerMove={move}
         onPointerDown={(e) => { if (e.pointerType === 'touch') { start.current = { x: e.clientX, y: e.clientY }; setArmed(true) } }}
         onPointerUp={(e) => {
           const s0 = start.current
@@ -82,11 +88,26 @@ function Gallery({ items }: { items: Picture[] }) {
             <img key={it.src} src={it.src} width={it.width} height={it.height} alt={i === at ? it.alt : ''} aria-hidden={i !== at || undefined}
               data-on={i === at || undefined} loading="lazy" decoding="async" />
           ))}
-          {el}
+          {m && (
+            <div className="re-cs-mark-layer">
+              <button
+                key={g.src} type="button" className="re-cs-mark" aria-expanded={open} aria-controls="re-cs-mark-text"
+                aria-label="The decision on this screen" data-open={open || undefined}
+                data-side={m.x / m.w > 0.6 ? 'left' : 'right'} data-up={m.up || undefined}
+                style={{ left: `${(m.x / m.w) * 100}%`, top: `${(m.y / m.h) * 100}%` }}
+                onPointerEnter={(e) => { if (e.pointerType === 'mouse') mark.setLit(m.decision) }} onPointerLeave={() => mark.setLit(null)}
+                onFocus={() => mark.setLit(m.decision)} onBlur={() => mark.setLit(null)}
+                onClick={() => mark.pin(mark.pinned === m.decision ? null : m.decision)}
+              >
+                <span className="re-cs-mark-label" aria-hidden="true">{decisions[m.decision]}</span>
+              </button>
+            </div>
+          )}
         </div>
         <button type="button" className="re-sw-real" aria-label={`${g.alt}, at full size`} onClick={() => full.current?.open()} />
         <figcaption aria-live="polite">{g.caption || g.alt}</figcaption>
       </figure>
+      {m && <p id="re-cs-mark-text" className="re-cs-mark-text" hidden={!open}>{decisions[m.decision]}</p>}
       <ol className="re-cs-stage-list" aria-label="Screens" onPointerEnter={() => setArmed(true)} onFocus={() => setArmed(true)}>
         {items.map((it, i) => (
           <li key={it.src}>
@@ -124,10 +145,28 @@ export function CasePage({ slug, onBack }: { slug: string; onBack(): void }) {
   const prev = systems[(at - 1 + systems.length) % systems.length]
   const next = systems[(at + 1) % systems.length]
   const heading = useRef<HTMLHeadingElement>(null)
+  const stage = useRef<HTMLElement>(null)
+  // The stage's screen and the lit or pinned decision belong to this case: another case starts from the first screen.
+  const [view, setView] = useState({ slug, shown: 0, lit: null as number | null, pinned: null as number | null })
+  const v = view.slug === slug ? view : { slug, shown: 0, lit: null, pinned: null }
+  const { shown, lit, pinned } = v
+  const setShown = (i: number) => setView((o) => ({ ...(o.slug === slug ? o : v), shown: i }))
+  const setLit = (d: number | null) => setView((o) => ({ ...(o.slug === slug ? o : v), lit: d }))
+  const setPinned = (d: number | null) => setView((o) => ({ ...(o.slug === slug ? o : v), pinned: d }))
+  const mark: Mark = { lit, pinned, setLit, pin: setPinned }
 
   useEffect(() => {
     heading.current?.focus({ preventScroll: true })
   }, [slug])
+
+  // From the decision list to the screen: show the screen that carries this decision, mark it, and bring the stage into view.
+  const showOnScreen = (d: number, keyboard: boolean) => {
+    const i = s.gallery.findIndex((g) => MARKERS[g.src]?.slug === slug && MARKERS[g.src].decision === d)
+    if (i < 0) return
+    setView({ ...v, shown: i, pinned: d })
+    stage.current?.scrollIntoView({ block: 'center', behavior: keyboard || matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' })
+  }
+  const marked = new Set(Object.values(MARKERS).filter((x) => x.slug === slug).map((x) => x.decision))
 
   const links = [...s.links, ...(c?.links ?? [])].filter((l, i, all) => !l.href.startsWith('/') && all.findIndex((x) => x.href === l.href) === i)
   const result = c?.result ?? s.story?.result
@@ -190,7 +229,19 @@ export function CasePage({ slug, onBack }: { slug: string; onBack(): void }) {
               <li>
                 <span className="re-num">02</span>
                 <h3 className="re-cs-h2">The decision that worked</h3>
-                <ul className="re-cs-list">{c.decision.map((x) => <li key={x}><Road text={x} /></li>)}</ul>
+                <ul className="re-cs-list">
+                  {c.decision.map((x, d) => (
+                    <li key={x} data-lit={(marked.has(d) && (lit === d || pinned === d)) || undefined}>
+                      <Road text={x} />
+                      {marked.has(d) && (
+                        <button type="button" className="re-cs-show" onClick={(e) => showOnScreen(d, e.detail === 0)}
+                          onPointerEnter={() => setLit(d)} onPointerLeave={() => setLit(null)}>
+                          Show on screen
+                        </button>
+                      )}
+                    </li>
+                  ))}
+                </ul>
               </li>
               {c.differently && (
                 <li>
@@ -269,10 +320,10 @@ export function CasePage({ slug, onBack }: { slug: string; onBack(): void }) {
       </div>
 
       {s.gallery.length > 0 && (
-        <section className="re-cs-screens" aria-labelledby="re-screens-h">
+        <section ref={stage} className="re-cs-screens" aria-labelledby="re-screens-h">
           <h2 id="re-screens-h" className="re-cs-h2">Screens</h2>
           {s.gallery.some((g) => g.alt.includes('Invented data')) && <p className="re-case-note re-num">Recreated screens, with invented data.</p>}
-          <Gallery items={s.gallery} />
+          <Gallery items={s.gallery} slug={slug} at={Math.min(shown, s.gallery.length - 1)} setAt={setShown} mark={mark} decisions={c?.decision ?? []} />
         </section>
       )}
 
