@@ -109,7 +109,7 @@ const VITALS = {
   alt: 'The vitals and labs screen for one patient, with the glucose graph open: the latest reading of 146 mg/dL and a 7-day trend line from Sep 26 to Oct 2, with one high reading of 192 mg/dL marked in red. Invented data.',
 }
 
-/** Every case page: the eight featured products, then the two own products. */
+/** Every case page: the eight featured products, then the two own products (their slugs also in home.ts). */
 export const cases: Case[] = [
   ...systems.map((s) => (s.slug === 'care-platform' ? { ...s, gallery: s.gallery.map((g) => (g.src.endsWith('/rpm-overview-cgm.webp') ? VITALS : g)) } : s)),
   ...own,

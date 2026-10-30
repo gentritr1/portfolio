@@ -1,5 +1,6 @@
-/** The draft's own route; every link inside the draft starts here. */
-export const BASE = '/drafts/refractive-engine'
+/** The page is the site's home: a case is BASE + '/' + slug (so `/care-platform`), and HOME is the page itself. */
+export const BASE = ''
+export const HOME = '/'
 /** A plain left click: modified clicks keep the browser's own behaviour (new tab, new window). */
 export const plain = (e: { metaKey: boolean; ctrlKey: boolean; shiftKey: boolean; altKey: boolean; button: number }) => !(e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0)
 

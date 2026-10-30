@@ -1,4 +1,4 @@
-// Quality loop for /drafts/refractive-engine: motion probes, frame timing, mobile audit, keyboard pass and screenshots.
+// Quality loop for the refractive engine (the home, /): motion probes, frame timing, mobile audit, keyboard pass and screenshots.
 // Usage (dev server on :5175): node design/quality/refractive/loop.mjs
 // Each run writes runs/<stamp>/ (screenshots, results.json) and prints PASS/FAIL per check; it exits 1 on any FAIL.
 // report.py then measures idle pixel change and builds a strip against the previous run.
@@ -14,7 +14,7 @@ mkdirSync(out, { recursive: true })
 
 const CASES = ['bayyinah-tv', 'read-to-feed', 'care-platform', 'design-system-react', 'viva-fresh', 'incentiv', 'dukagjini-bookstore', 'futurisma', 'offday', 'leakscan']
 const CHAPTERS = ['bayyinah', 'reading', 'care', 'system', 'viva']
-const go = (path) => `(async()=>{history.pushState(null,'','/drafts/refractive-engine${path}');dispatchEvent(new PopStateEvent('popstate'));for(let i=0;i<80&&!document.querySelector(${JSON.stringify(path ? '.re-cs-landing' : '.re-sw')});i++)await new Promise(r=>setTimeout(r,50));await new Promise(r=>setTimeout(r,500));scrollTo({top:0,behavior:'instant'});return 'at '+location.pathname})()`
+const go = (path) => `(async()=>{history.pushState(null,'','${path || '/'}');dispatchEvent(new PopStateEvent('popstate'));for(let i=0;i<80&&!document.querySelector(${JSON.stringify(path ? '.re-cs-landing' : '.re-sw')});i++)await new Promise(r=>setTimeout(r,50));await new Promise(r=>setTimeout(r,500));scrollTo({top:0,behavior:'instant'});return 'at '+location.pathname})()`
 const tag = (name, js) => ({ eval: `(async()=>JSON.stringify({check:${JSON.stringify(name)},value:await (${js})}))()` })
 
 // Settle: sample the main screen's transform as its top moves from 100% to 55% of the viewport.

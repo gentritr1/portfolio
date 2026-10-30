@@ -1,4 +1,4 @@
-// Captures the refractive-engine chamber through CDP. Usage: node cap.mjs <outDir> <plan.json>
+// Captures the refractive engine (the site's home) through CDP. Usage: node cap.mjs <outDir> <plan.json>
 // plan: [{ name, w, h, mobile?, reduced?, nogl?, tensor?, steps: [ {click: selector} | {tap: selector} | {key: "Tab"} | {wait: ms} | {eval: js} | {shot: name} ] }]
 import { spawn } from 'node:child_process'
 import { writeFileSync, mkdirSync, readFileSync } from 'node:fs'
@@ -6,7 +6,7 @@ import { setTimeout as sleep } from 'node:timers/promises'
 
 const [out, planFile] = process.argv.slice(2)
 const plan = JSON.parse(readFileSync(planFile, 'utf8'))
-const base = process.env.BASE ?? 'http://localhost:5175/drafts/refractive-engine'
+const base = process.env.BASE ?? 'http://localhost:5175'
 mkdirSync(out, { recursive: true })
 const port = 9341
 const chrome = spawn('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', [

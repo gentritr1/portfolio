@@ -1,14 +1,17 @@
 import { lazy, Suspense } from "react";
-import { Route, Routes, useLocation, useParams } from "react-router";
+import { Navigate, Route, Routes, useLocation, useParams } from "react-router";
 import { ScrollToTop } from "./components/ScrollToTop";
 import { featuredProjects } from "./content/projects";
 import { caseStudyPage } from "./lib/routes";
 import { fontsReady, preloadCaseFonts } from "./pages/caseFonts";
 import { groundNow } from "./pages/caseLight";
-import { firstView, isLiveLoopPath, isLoopPath } from "./lib/firstView";
+import { firstView, isHomePath, isLoopPath } from "./lib/firstView";
 const NotFoundPage = lazy(() => import("./pages/NotFoundPage").then((m) => fontsReady().then(() => m)));
 const DraftApp = lazy(() => import("./drafts/DraftApp"));
-const LoopHome = lazy(() => import("./drafts/the-loop/Draft"));
+const Home = lazy(() => import("./drafts/refractive-engine/Draft"));
+
+/** Addresses from before the refractive engine became the home (2026-10-30), sent to their closest page. */
+const MOVED: Record<string, string> = { "/workflow": "/", "/civiclee": "/", "/design-system": "/design-system-react" };
 
 const CaseStudyPage = caseStudyPage.Component;
 
@@ -23,19 +26,20 @@ function CaseStudyRoute() {
 }
 
 export default function App() {
-  const { pathname } = useLocation();
-  if (isLiveLoopPath(pathname)) {
-    const Loop = firstView.loop;
+  const { pathname, search, hash } = useLocation();
+  const legacyHome = pathname === "/drafts/refractive-engine" || pathname.startsWith("/drafts/refractive-engine/");
+  const moved = MOVED[pathname.replace(/\/$/, "")] ?? (legacyHome ? pathname.slice("/drafts/refractive-engine".length) || "/" : null);
+  if (moved) return <Navigate to={{ pathname: moved, search, hash }} replace />;
+  if (isHomePath(pathname)) {
+    const Page = firstView.home ?? Home;
     return (
       <>
         <ScrollToTop />
-        {Loop ? (
-          <Loop />
-        ) : (
-          <Suspense fallback={<div className="min-h-[100svh]" style={{ background: "#0b0c0f" }} />}>
-            <LoopHome />
-          </Suspense>
-        )}
+        <Suspense fallback={<div className="min-h-[100svh]" style={{ background: "#050508" }} />}>
+          <Routes>
+            <Route path="/*" element={<Page />} />
+          </Routes>
+        </Suspense>
       </>
     );
   }

@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router'
 import { flushSync } from 'react-dom'
 import { ArrowCounterClockwiseIcon, ArrowUpRightIcon } from '@phosphor-icons/react'
 import { createScene, hasWebGL, STAGE, type RefractiveScene, type Stats } from './scene'
-import { BASE, ledger, links, systems, type Value } from './data'
+import { BASE, HOME, ledger, links, systems, type Value } from './data'
 import { AllWork } from './AllWork'
 import { AREAS, AreaMap } from './AreaMap'
 import { CasePage } from './CasePage'
@@ -131,8 +131,8 @@ export default function Draft() {
   const [ratio, setRatio] = useState(() => RATIOS.reduce((a, b) => (Math.abs(b - Math.min(devicePixelRatio || 1, 2)) < Math.abs(a - Math.min(devicePixelRatio || 1, 2)) ? b : a)))
   const [coords, setCoords] = useState<{ x: number; y: number; z: number }[]>([])
   const modeRef = useRef(mode)
-  // /drafts/refractive-engine/<slug> is that product's full case, read over the same field.
-  const { '*': rest } = useParams()
+  // /<slug> is that product's full case, read over the same field.
+  const rest = useParams()['*']?.replace(/\/$/, '')
   const caseSlug = cases.some((s) => s.slug === rest) ? rest : undefined
   const navigate = useNavigate()
   const onCase = useRef(false)
@@ -377,7 +377,7 @@ export default function Draft() {
   }
   const toHome = (top = false) => {
     if (top) homeScroll.current = 0
-    navigate(BASE, { viewTransition: true })
+    navigate(HOME, { viewTransition: true })
   }
 
   const coordTable = mode === 'tensor' ? (
@@ -405,7 +405,7 @@ export default function Draft() {
 
       <header className="re-bar re-solid">
         {caseSlug ? (
-          <a className="re-mark" href={BASE} onClick={(e) => { e.preventDefault(); toHome(true) }}>Gentrit Rashiti</a>
+          <a className="re-mark" href={HOME} onClick={(e) => { e.preventDefault(); toHome(true) }}>Gentrit Rashiti</a>
         ) : (
           <a className="re-mark" href="#re-top">Gentrit Rashiti</a>
         )}
