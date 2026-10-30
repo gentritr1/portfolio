@@ -21,9 +21,10 @@
   --re-ease: cubic-bezier(0.23, 1, 0.32, 1);
   --re-drawer: cubic-bezier(0.32, 0.72, 0, 1);
   --re-sans: Archivo, ui-sans-serif, system-ui, sans-serif;
-  --re-gutter: clamp(16px, 5vw, 72px);
+  --re-gutter: max(clamp(16px, 5vw, 72px), env(safe-area-inset-left, 0px), env(safe-area-inset-right, 0px));
   position: relative;
-  min-height: 100vh;
+  min-height: 100dvh;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
   background: var(--re-bg);
   color: var(--re-fg);
   font: 400 16px/1.6 var(--re-sans);
@@ -46,7 +47,7 @@
   --re-ink: #021318;
 }
 /* Native scrolling, and anchor links jump at once: the site's smooth scroll-behavior would carry the eye down the whole page. */
-html.re-html { scroll-behavior: auto; background: #050508; }
+html.re-html { scroll-behavior: auto; scroll-padding-top: calc(5rem + env(safe-area-inset-top, 0px)); background: #050508; color-scheme: dark; }
 .re-root *, .re-root *::before, .re-root *::after { box-sizing: border-box; }
 .re-root ::selection { background: var(--re-accent-soft); color: #fff; }
 .re-root :where(h1, h2, h3, p, ul, ol, dl, dd, figure, table) { margin: 0; }
@@ -197,7 +198,8 @@ html.re-html { scroll-behavior: auto; background: #050508; }
 .re-sw-screen[data-swap] img[data-on] { opacity: 1; filter: none; transition-duration: 220ms; }
 .re-sw-screen[data-swap][data-instant] img { transition: none; }
 @media (prefers-reduced-motion: reduce) { .re-sw-screen[data-swap] img, .re-sw-screen[data-swap] img[data-on] { filter: none; transition: opacity 120ms ease; } }
-.re-sw-slab[data-swipe] { touch-action: pan-y; }
+.re-sw-slab[data-swipe] { touch-action: pan-y pinch-zoom; }
+.re-sw-slab[data-swipe] .re-sw-screen img { -webkit-user-select: none; -webkit-touch-callout: none; }
 .re-sw-thumbs { display: flex; gap: 8px; }
 .re-sw-thumbs button { all: unset; box-sizing: border-box; cursor: pointer; display: grid; place-items: center; min-width: 44px; min-height: 44px; opacity: 0.55; transition: opacity 150ms ease; }
 .re-sw-thumbs button[aria-pressed="true"] { opacity: 1; }
@@ -209,7 +211,9 @@ html.re-html { scroll-behavior: auto; background: #050508; }
 .re-sw-real { all: unset; position: absolute; inset: 0; cursor: zoom-in; border-radius: 10px; }
 .re-sw-real:focus-visible { outline: 2px solid var(--re-accent); outline-offset: 4px; }
 .re-sw-sheet {
-  width: min(96vw, 1120px); height: min(90svh, 820px); padding: 0; margin: auto; border: 1px solid var(--re-line); border-radius: 14px;
+  width: min(96vw, calc(100vw - 2 * max(8px, env(safe-area-inset-left, 0px), env(safe-area-inset-right, 0px))), 1120px);
+  height: min(90dvh, calc(100dvh - 2 * max(12px, env(safe-area-inset-top, 0px), env(safe-area-inset-bottom, 0px))), 820px);
+  padding: 0; margin: auto; border: 1px solid var(--re-line); border-radius: 14px;
   background: #0c0c11; color: var(--re-fg); overflow: hidden; overscroll-behavior: contain;
 }
 .re-sw-sheet[open] { display: flex; flex-direction: column; }
@@ -217,7 +221,7 @@ html.re-html { scroll-behavior: auto; background: #050508; }
 .re-sw-sheet-view { flex: 1; min-height: 0; overflow: auto; overscroll-behavior: contain; touch-action: pan-x pan-y pinch-zoom; }
 .re-sw-sheet-view img { display: block; max-width: none; }
 .re-sw-sheet-view:focus-visible { outline: 2px solid var(--re-accent); outline-offset: -2px; }
-html:has(.re-sw-sheet[open]) { overflow: hidden; }
+html:has(.re-sw-sheet[open]) { overflow: hidden; overscroll-behavior: none; }
 /* The bar names the screen; ‹ › sit beside Close. Phones drop the hint so the controls keep their 44 px. */
 .re-sw-sheet .re-ch-demo-bar { justify-content: flex-start; gap: 4px; }
 .re-sw-sheet .re-ch-demo-bar p { margin-right: auto; }
@@ -269,7 +273,8 @@ html:has(.re-sw-sheet[open]) { overflow: hidden; }
 .re-sw-layers li { display: grid; gap: 2px; }
 .re-sw-layers li > span:first-child { color: var(--re-fg-2); }
 /* At rest 0.78 keeps the dimmest line at 4.9:1 on the ground; hover or focus brings the list to full. */
-.re-sw:is(:hover, :focus-within) .re-sw-layers { opacity: 1; }
+.re-sw:focus-within .re-sw-layers { opacity: 1; }
+@media (hover: hover) and (pointer: fine) { .re-sw:hover .re-sw-layers { opacity: 1; } }
 /* Between 1024 and 1279 px the Design System row has no room above the states strip; phones list it in the flow. */
 @media (min-width: 1024px) and (max-width: 1279px) { .re-sw-system .re-sw-layers { display: none; } }
 /* Care: the four steps sit along the table's lit edge. */
@@ -283,10 +288,12 @@ html:has(.re-sw-sheet[open]) { overflow: hidden; }
 .re-sw-process li::before { content: ""; position: absolute; left: 0; top: -3px; width: 1px; height: 7px; background: #c4d3e0; }
 /* Try the reader: the same recreation the chamber opens, in a modal dialog. */
 .re-sw-reader {
-  width: min(92vw, 880px); height: min(88svh, 760px); padding: 0; border: 1px solid var(--re-line); border-radius: 14px;
+  width: min(92vw, calc(100vw - 2 * max(12px, env(safe-area-inset-left, 0px), env(safe-area-inset-right, 0px))), 880px);
+  height: min(88dvh, calc(100dvh - 2 * max(12px, env(safe-area-inset-top, 0px), env(safe-area-inset-bottom, 0px))), 760px);
+  padding: 0; border: 1px solid var(--re-line); border-radius: 14px;
   background: #0c0c11; color: var(--re-fg); overflow: hidden; margin: auto; overscroll-behavior: contain;
 }
-html:has(.re-sw-reader[open]) { overflow: hidden; }
+html:has(.re-sw-reader[open]) { overflow: hidden; overscroll-behavior: none; }
 .re-sw-reader[open] { display: flex; flex-direction: column; }
 .re-sw-reader::backdrop { background: rgb(5 5 8 / 0.78); }
 
@@ -896,13 +903,23 @@ html.re-html::view-transition-old(re-case-hero), html.re-html::view-transition-n
 
 /* ---------- Touch: 44 px hit areas without changing how the bar looks, press feedback on press, no grey flash ---------- */
 .re-root { -webkit-tap-highlight-color: transparent; }
-.re-root :is(button, a) { touch-action: manipulation; }
+.re-root :is(button, a, summary, [role="button"]) { touch-action: manipulation; }
+/* Only controls opt out of selection/callouts; case text, email addresses and ordinary links stay copyable. */
+.re-root :is(button, summary, [role="button"]) {
+  user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
+}
+.re-root button img { -webkit-user-drag: none; }
+.re-root :is(button, summary):active { opacity: 0.75; }
+:is(.re-nav a, .re-mark, .re-text-link, .re-evidence a, .re-all-go):active { color: var(--re-accent); }
+/* The overlay button must inherit the gesture surface's axes, including pinch zoom. */
+.re-root [data-swipe] .re-sw-real { touch-action: pan-y pinch-zoom; }
 :is(.re-ch-index, .re-ch-layers, .re-ch-view, .re-ch-inspect) button:active { color: var(--re-fg); }
 @media (pointer: coarse) {
   .re-toggle { position: relative; }
   .re-toggle::after { content: ""; position: absolute; inset: -9px 0; }
   .re-seg button { min-height: 44px; }
   .re-root input[type="range"] { height: 44px; }
+  .re-root :is(input, select, textarea) { font-size: 16px; }
 }
 /* Phones: the layer whisper is read, not hovered, so it is full size and full ink. */
 @media (max-width: 1023px) {
@@ -912,7 +929,7 @@ html.re-html::view-transition-old(re-case-hero), html.re-html::view-transition-n
 
 /* ---------- ?tune: the debug view that draws what is otherwise invisible (not part of the page) ---------- */
 .re-tune {
-  position: fixed; left: 16px; bottom: 16px; z-index: 30; display: grid; gap: 6px; max-width: min(560px, calc(100vw - 32px)); padding: 12px 14px;
+  position: fixed; left: max(16px, env(safe-area-inset-left, 0px)); bottom: calc(16px + env(safe-area-inset-bottom, 0px)); z-index: 30; display: grid; gap: 6px; max-width: min(560px, calc(100vw - 2 * var(--re-gutter))); padding: 12px 14px;
   border-radius: 14px; background: rgb(12 12 17 / 0.94); box-shadow: 0 0 0 1px var(--re-line); font-size: 13px; color: var(--re-fg-2);
 }
 .re-tune-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }

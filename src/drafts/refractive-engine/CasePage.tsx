@@ -9,6 +9,7 @@ import { cropVars, LEADS } from './screens'
 import { FullSize, type FullSizeHandle } from './FullSize'
 import { BASE, INVENTED } from './data'
 import { cases } from './products'
+import { useScreenSwipe } from './useScreenSwipe'
 
 type Vars = CSSProperties & Record<`--${string}`, string | number>
 
@@ -167,7 +168,6 @@ function Gallery({ items, slug, at, setAt, mark, decisions }: {
   const [armed, setArmed] = useState(false)
   const [instant, setInstant] = useState(false)
   const full = useRef<FullSizeHandle>(null)
-  const start = useRef<{ x: number; y: number } | null>(null)
   const row = useRef<HTMLOListElement>(null)
   // On phones the names are a sideways row: keep the shown screen's name in it, after a tap on a half-hidden name or a
   // swipe on the slab. Sideways only, so the page itself never moves.
@@ -190,6 +190,7 @@ function Gallery({ items, slug, at, setAt, mark, decisions }: {
   const wrap = (i: number) => ((i % items.length) + items.length) % items.length
   // A new screen drops a pinned decision: the list must not light a line whose marker is no longer shown.
   const pick = (i: number, inst: boolean) => { setArmed(true); setInstant(inst); mark.pin(null); setAt(wrap(i)) }
+  const swipe = useScreenSwipe((direction) => pick(at + direction, false), () => setArmed(true))
   // The names are tabs (WAI-ARIA): one tab stop, arrows and Home/End move between them and show the screen at once.
   const keys = (e: React.KeyboardEvent) => {
     const d = ({ ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 } as Record<string, number>)[e.key]
@@ -206,19 +207,12 @@ function Gallery({ items, slug, at, setAt, mark, decisions }: {
     <div className="re-cs-gallery" data-shape={phone ? 'phone' : 'wide'}>
       <figure
         className="re-sw-slab re-cs-stage" style={{ '--ga': `${items[0].width} / ${items[0].height}` } as Vars} data-swipe=""
-        onPointerDown={(e) => { if (e.pointerType === 'touch') { start.current = { x: e.clientX, y: e.clientY }; setArmed(true) } }}
-        onPointerUp={(e) => {
-          const s0 = start.current
-          start.current = null
-          if (!s0) return
-          const dx = e.clientX - s0.x, dy = e.clientY - s0.y
-          if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.5) pick(at + (dx < 0 ? 1 : -1), false)
-        }}
+        {...swipe}
       >
         <div className="re-sw-screen re-cs-stage-screen" id="re-cs-panel" role="tabpanel" aria-labelledby={`re-cs-tab-${at}`} data-swap data-instant={instant || undefined}>
           {items.map((it, i) => (i === at || armed) && (
             <img key={it.src} src={it.src} width={it.width} height={it.height} alt={i === at ? it.alt : ''} aria-hidden={i !== at || undefined}
-              data-on={i === at || undefined} loading="lazy" decoding="async" />
+              data-on={i === at || undefined} draggable={false} loading="lazy" decoding="async" />
           ))}
           {m && (
             <div className="re-cs-mark-layer">

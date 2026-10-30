@@ -3,6 +3,7 @@ import { ArrowRightIcon, XIcon } from '@phosphor-icons/react'
 import { plain, BASE, systems } from './data'
 import { FullSize, type FullSizeHandle } from './FullSize'
 import { tune } from './tune'
+import { useScreenSwipe } from './useScreenSwipe'
 import { cropVars, LEADS, pct, shots, type Crop, type Shot } from './screens'
 
 /**
@@ -83,18 +84,7 @@ function Slab({ shot, crop, phoneCrop, place, phone, nh, transform, z, kind = 'l
   shot: Shot; crop?: Crop; phoneCrop?: Crop; place: [number, number, number]; phone?: [number, number, number]; nh: number
   transform?: string; z?: number; kind?: 'lead' | 'companion' | 'swap'; eager?: boolean; swap?: Swap; onReal?(): void
 }) {
-  // Touch: a sideways swipe on a swapping slab moves to the next or previous screen; vertical moves stay page scrolls.
-  const start = useRef<{ x: number; y: number } | null>(null)
-  const touch = swap && {
-    onPointerDown: (e: React.PointerEvent) => { if (e.pointerType === 'touch') { start.current = { x: e.clientX, y: e.clientY }; swap.arm() } },
-    onPointerUp: (e: React.PointerEvent) => {
-      const s0 = start.current
-      start.current = null
-      if (!s0) return
-      const dx = e.clientX - s0.x, dy = e.clientY - s0.y
-      if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.5) swap.set(swap.index + (dx < 0 ? 1 : -1), false)
-    },
-  }
+  const swipe = useScreenSwipe((direction) => { if (swap) swap.set(swap.index + direction, false) }, () => swap?.arm())
   const style: Vars = {
     ...cropVars(shot, crop), ...cropVars(shot, phoneCrop ?? crop, 'n'),
     '--x': pct(place[0] / 14.4), '--y': pct(place[1] / 9), '--w': pct(place[2] / 14.4),
@@ -103,7 +93,7 @@ function Slab({ shot, crop, phoneCrop, place, phone, nh, transform, z, kind = 'l
   }
   const shown = swap ? swap.shots[swap.index] : shot
   return (
-    <figure className={`re-sw-slab re-sw-${kind}`} style={style} data-wide-only={phone ? undefined : ''} data-swipe={swap ? '' : undefined} {...touch}>
+    <figure className={`re-sw-slab re-sw-${kind}`} style={style} data-wide-only={phone ? undefined : ''} data-swipe={swap ? '' : undefined} {...(swap ? swipe : {})}>
       {swap ? <SwapScreen swap={swap} /> : <Screen shot={shot} eager={eager} />}
       <div className="re-sw-reflection" aria-hidden="true"><Screen shot={{ ...shown, alt: '' }} /></div>
       {onReal && <button type="button" className="re-sw-real" aria-label={`${shot.alt}, at full size`} onClick={onReal} />}

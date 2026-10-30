@@ -6,8 +6,8 @@
   --re-ink: #08161a;
 }
 .re-root .re-bar {
-  top: 0; width: min(1296px, calc(100% - 2 * var(--re-gutter))); min-height: 76px;
-  padding: 0; border-radius: 0;
+  top: 0; width: min(1296px, calc(100% - 2 * var(--re-gutter))); min-height: calc(76px + env(safe-area-inset-top, 0px));
+  padding: env(safe-area-inset-top, 0px) 0 0; border-radius: 0;
   background: #080a0df5;
 }
 .re-nav { gap: 18px; }
@@ -28,7 +28,7 @@
 /* The screen, copy and project caption share one composition. Nothing waits for WebGL to become readable. */
 .re-intro {
   position: relative; isolation: isolate; min-height: 760px;
-  width: 100%; max-width: 1440px; margin: 0 auto; padding: 120px var(--re-gutter) 24px;
+  width: 100%; max-width: 1440px; margin: 0 auto; padding: calc(120px + env(safe-area-inset-top, 0px)) var(--re-gutter) 24px;
 }
 .re-intro-copy { grid-area: copy; position: relative; z-index: 2; }
 .re-intro-copy h1 {
@@ -118,11 +118,11 @@ html.re-html { scroll-padding-top: 80px; scrollbar-color: #59616b #080a0d; }
   .re-evidence a { font-size: 20px; }
 }
 @media (max-width: 1100px) {
-  .re-root .re-bar { min-height: 68px; }
+  .re-root .re-bar { min-height: calc(68px + env(safe-area-inset-top, 0px)); }
   .re-nav { gap: 8px; }
   .re-nav a { padding-inline: 6px; }
   .re-nav .re-nav-about { display: none; }
-  .re-intro { display: grid; min-height: auto; max-width: none; padding-top: 100px; grid-template-columns: minmax(0, 1fr); grid-template-areas: 'copy' 'art' 'product'; gap: 20px; }
+  .re-intro { display: grid; min-height: auto; max-width: none; padding-top: calc(100px + env(safe-area-inset-top, 0px)); grid-template-columns: minmax(0, 1fr); grid-template-areas: 'copy' 'art' 'product'; gap: 20px; }
   .re-intro-copy { grid-area: copy; }
   .re-intro-copy h1 span { display: inline; }
   .re-intro-copy h1 { max-width: none; font-size: 32px; line-height: 1.1; text-wrap: pretty; }
@@ -174,6 +174,9 @@ html.re-html { scroll-padding-top: 80px; scrollbar-color: #59616b #080a0d; }
 /* The headline's empty box must not intercept the product's layer controls. */
 .re-intro-copy { pointer-events: none; }
 .re-intro-copy a { pointer-events: auto; }
+.re-intro-copy :is(h1, p) { pointer-events: auto; width: fit-content; max-width: 100%; }
+.re-root .re-casepage { padding-top: calc(88px + env(safe-area-inset-top, 0px)); }
+@media (max-width: 767px) { .re-root .re-casepage { padding-top: calc(84px + env(safe-area-inset-top, 0px)); } }
 .re-decision-story { margin-block: 32px; }
 .re-decision-story dl { display: grid; gap: 22px; margin-top: 24px; }
 .re-decision-story dt { color: var(--re-accent); font-size: 13px; margin-bottom: 6px; }
