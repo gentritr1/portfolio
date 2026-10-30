@@ -89,7 +89,7 @@ export const own: Case[] = [
       shot('leakscan', 'leakscan-desktop-report', 'Full Scan report', 'The Full Scan report for an invented app: health score 48 from 7 of 7 checks, seven serious leaks to fix first, and the three critical fixes to start with'),
       shot('leakscan', 'leakscan-desktop-report-finding', 'Finding and fix prompt', 'A critical finding, an OpenAI-shaped key shipped in the browser bundle, in plain English, with the prompt to paste into the builder and the steps to do by hand'),
       shot('leakscan', 'leakscan-desktop-report-access', 'Who can reach each table', 'The access map for the invented database: visitors can read and write bookings and update gift cards, classes are public, profiles are own-rows only'),
-      shot('leakscan', 'leakscan-desktop-free-check', 'Free check', 'The free check of the same app before paying: two serious leaks to fix first and what a stranger can see from the outside'),
+      shot('leakscan', 'leakscan-desktop-free-check', 'Free check', 'The free check for an invented app: two serious leaks to fix first, followed by one result row per free check in the What a stranger can see card'),
       shot('leakscan', 'leakscan-desktop-app-scanned', 'After the scan', 'The app page after the Full Scan: the report is ready with 15 things to fix, then Fix, Rescan and Clean up'),
       shot('leakscan', 'leakscan-desktop-checks', 'Seven checks', 'The landing page\'s seven checks, each tagged Free check or Full Scan, with what it finds and how it works'),
       shot('leakscan', 'leakscan-desktop-inside', 'Inside the report', 'The landing page\'s report carousel: the health score, Start here, and one question only the app\'s owner can answer'),

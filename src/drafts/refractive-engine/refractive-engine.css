@@ -123,46 +123,6 @@ html.re-html { scroll-behavior: auto; background: #050508; }
   width: min(480px, 100%); padding: 28px; border-radius: 16px; background: rgb(14 15 20 / 0.94);
 }
 
-/* The sub-line sits on the dot grid, so the hero carries a soft neutral scrim behind its text. */
-/* The hero ends above the fold so the first chapter, its headline and the top of its screen, starts in the opening view. */
-.re-hero { position: relative; isolation: isolate; min-height: 100svh; display: flex; flex-direction: column; justify-content: flex-end; gap: 14px; padding: 112px var(--re-gutter) 7vh; /* the top keeps clear of the fixed masthead when the content outgrows a short screen */ max-width: 1440px; margin: 0 auto; }
-.re-hero::before {
-  content: ""; position: absolute; z-index: -1; left: 0; bottom: 0; width: min(100%, 980px); height: 70%; pointer-events: none;
-  background: radial-gradient(70% 60% at 20% 78%, rgb(5 5 8 / 0.82) 0%, rgb(5 5 8 / 0.5) 45%, rgb(5 5 8 / 0) 100%); /* taste-skill-ignore: a neutral legibility scrim over the WebGL field behind the hero text */
-}
-.re-who { margin-top: -2px; font: 500 20px/1.4 var(--re-sans); color: var(--re-fg); }
-/* The claim, not the name, is the largest text (portfolio-page rule 2): CONTENT.md's one-liner. */
-.re-title { max-width: 21em; font: 300 clamp(32px, 4vw, 56px)/1.06 var(--re-sans); letter-spacing: 0; margin-left: -0.02em; color: #f6f6f8; text-wrap: balance; }
-.re-sub { max-width: 52ch; color: var(--re-fg); font-size: clamp(16px, 1.25vw, 20px); line-height: 1.55; text-wrap: pretty; }
-.re-cta { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px; }
-/* Four areas, four real screens: the sentence's proof inside the first screen. */
-.re-domains { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 18px 0 0; padding: 0; list-style: none; }
-.re-domains a {
-  display: grid; grid-template-columns: 1fr auto; row-gap: 10px; color: var(--re-fg); text-decoration: none; border-radius: 10px;
-}
-.re-domains img {
-  grid-column: 1 / -1; width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: cover; object-position: top; border-radius: 8px; background: #0e1116;
-  box-shadow: 0 0 0 1px var(--re-fill);
-}
-.re-domain-name { font-size: 16px; font-weight: 500; }
-.re-domain-years { font-size: 13px; color: var(--re-dim); }
-@media (hover: hover) and (pointer: fine) { .re-domains a:hover .re-domain-name { text-decoration: underline; text-underline-offset: 4px; } }
-.re-domains a:focus-visible { outline: 2px solid var(--re-accent); outline-offset: 4px; }
-@media (max-width: 760px) { .re-domains { grid-template-columns: 1fr 1fr; gap: 12px 10px; margin-top: 14px; } .re-domains a { row-gap: 6px; } }
-.re-root:not([data-ready]) :is(.re-title, .re-role, .re-sub, .re-hint) { opacity: 0; }
-@media (prefers-reduced-motion: no-preference) {
-  .re-root[data-ready] :is(.re-title, .re-role, .re-sub, .re-hint) { animation: re-rise 900ms var(--re-ease) both; }
-  .re-root[data-ready] .re-title { animation-delay: 200ms; }
-  .re-root[data-ready] .re-role { animation-delay: 420ms; }
-  .re-root[data-ready] .re-sub { animation-delay: 520ms; }
-  .re-root[data-ready] .re-hint { animation-delay: 900ms; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .re-root[data-ready] :is(.re-title, .re-role, .re-sub, .re-hint) { animation: re-fade 300ms ease both; }
-}
-@keyframes re-rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
-@keyframes re-fade { from { opacity: 0; } to { opacity: 1; } }
-
 .re-modes { min-height: 120svh; display: flex; align-items: center; padding: 96px var(--re-gutter); max-width: 1440px; margin: 0 auto; }
 .re-options { display: grid; gap: 8px; margin: 22px 0 18px; }
 .re-option {

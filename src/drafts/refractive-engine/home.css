@@ -1,0 +1,188 @@
+/* Approved Refractive Engine refinement: real work leads; the field frames its edges. */
+.re-root {
+  --re-accent: #9bd9e7;
+  --re-accent-soft: rgb(155 217 231 / 0.12);
+  --re-accent-mid: rgb(155 217 231 / 0.4);
+  --re-ink: #08161a;
+}
+.re-root .re-bar {
+  top: 0; width: min(1296px, calc(100% - 2 * var(--re-gutter))); min-height: 76px;
+  padding: 0; border-radius: 0;
+  background: #080a0df5;
+}
+.re-nav { gap: 18px; }
+.re-nav a { padding-inline: 8px; font-size: 16px; }
+.re-root .re-canvas { transition: opacity 600ms var(--re-ease); }
+.re-root[data-ready] .re-canvas { opacity: 0.62; }
+.re-root .re-shade {
+  background: linear-gradient(90deg, rgb(5 5 8 / 0.92), rgb(5 5 8 / 0.6) 38%, transparent 78%);
+}
+.re-text-link {
+  display: inline-flex; align-items: center; gap: 10px; min-height: 44px; width: fit-content;
+  color: var(--re-fg); font-size: 16px; line-height: 1.4;
+  text-decoration: underline; text-decoration-color: var(--re-accent); text-underline-offset: 9px;
+  text-decoration-thickness: 1px; transition: color 150ms ease;
+}
+@media (hover: hover) and (pointer: fine) { .re-text-link:hover { color: var(--re-accent); } }
+
+/* The screen, copy and project caption share one composition. Nothing waits for WebGL to become readable. */
+.re-intro {
+  position: relative; isolation: isolate; min-height: 760px;
+  width: 100%; max-width: 1440px; margin: 0 auto; padding: 120px var(--re-gutter) 24px;
+}
+.re-intro-copy { grid-area: copy; position: relative; z-index: 2; }
+.re-intro-copy h1 {
+  max-width: none; color: #f4f4f6; font: 400 clamp(32px, 4vw, 56px)/1.06 var(--re-sans);
+  letter-spacing: -0.035em;
+}
+.re-intro-copy h1 span { display: block; }
+.re-intro-role { margin-top: 22px !important; font-size: 20px; line-height: 1.35; }
+.re-intro-bio { margin-top: 14px !important; color: var(--re-fg-2); font-size: 16px; line-height: 1.5; }
+.re-intro-copy > a { margin-top: 10px; color: var(--re-accent); }
+.re-intro-product { position: absolute; z-index: 2; bottom: 16px; left: var(--re-gutter); width: 27%; }
+.re-intro-label { color: var(--re-dim); font-size: 13px; }
+.re-intro-product h2 { margin-top: 10px; font: 400 40px/1.12 var(--re-sans); letter-spacing: -0.025em; }
+.re-intro-detail { margin-top: 14px !important; min-height: 4.5em; max-width: 27ch; font-size: 16px; line-height: 1.5; color: var(--re-fg-2); }
+.re-intro-credit { color: var(--re-dim); font-size: 16px; line-height: 1.5; }
+.re-intro-product > a { margin-top: 10px; }
+.re-intro-art { position: absolute; right: var(--re-gutter); bottom: 20px; width: calc((100% - 2 * var(--re-gutter)) * 0.64); min-width: 0; z-index: 1; }
+.re-intro-stack { position: relative; padding-top: 62px; }
+.re-intro-screen {
+  position: relative; overflow: hidden; border-radius: 9px; transform: perspective(1600px) rotateY(-4deg) rotateX(2deg);
+  box-shadow: 18px 26px 54px -24px rgb(0 0 0 / 0.8); background: #f7f5f5;
+  aspect-ratio: 2.05;
+}
+.re-intro-screen img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: top; }
+.re-intro-plate {
+  position: absolute; inset: 50px 5% 10px 0; border: 1px solid #4b555e; border-radius: 8px;
+  background: #161c23; transform: perspective(1600px) rotateY(-4deg);
+  transition: transform 220ms var(--re-ease), border-color 150ms ease;
+}
+.re-intro-server { translate: 20px -20px; }
+.re-intro-data { translate: 38px -40px; }
+.re-intro-art[data-layer='1'] .re-intro-server,
+.re-intro-art[data-layer='2'] .re-intro-data { transform: perspective(1600px) rotateY(-4deg) translateY(-10px); border-color: var(--re-accent); }
+.re-intro-layer-controls { position: absolute; right: -12px; top: -2px; z-index: 3; display: flex; flex-direction: row-reverse; gap: 12px; }
+.re-intro-layer-controls button {
+  appearance: none; border: 0; border-bottom: 1px solid transparent; padding: 0 3px; min-height: 44px;
+  background: #080a0d; color: var(--re-dim); cursor: pointer; font: 400 13px/1.4 var(--re-sans);
+}
+.re-intro-layer-controls button[aria-pressed='true'] { color: var(--re-accent); border-bottom-color: var(--re-accent); }
+.re-intro-art figcaption { margin-top: 18px; text-align: right; font-size: 13px; line-height: 1.5; color: var(--re-dim); }
+.re-intro[data-instant] .re-intro-plate { transition: none; }
+
+.re-evidence { position: relative; max-width: 1440px; margin: 0 auto; padding: 0 var(--re-gutter) 32px; }
+.re-evidence > p { padding-top: 16px; color: var(--re-fg-2); font-size: 13px; }
+.re-evidence ul { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin-top: 18px; }
+.re-evidence li { padding-inline: 28px; }
+.re-evidence li:first-child { padding-left: 0; border-left: 0; }
+.re-evidence li:last-child { padding-right: 0; }
+.re-evidence li > span { display: block; color: var(--re-dim); font-size: 13px; }
+.re-evidence a { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; color: var(--re-fg); font-size: 20px; line-height: 1.3; text-decoration: none; }
+.re-evidence li p { color: var(--re-fg-2); font-size: 13px; line-height: 1.5; }
+@media (hover: hover) and (pointer: fine) { .re-evidence a:hover { color: var(--re-accent); } }
+
+.re-engineering, .re-workflow, .re-about { max-width: 1440px; margin: 0 auto; padding: 88px var(--re-gutter); }
+.re-engineering-head { max-width: 760px; }
+.re-engineering-head > p { margin-top: 18px; max-width: 58ch; color: var(--re-fg-2); }
+.re-engineering-rows { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; margin-top: 44px; }
+.re-engineering-rows article { min-width: 0; }
+.re-engineering-rows h3 { font: 500 20px/1.3 var(--re-sans); }
+.re-engineering-decision { margin-top: 14px !important; font: 400 24px/1.25 var(--re-sans); letter-spacing: -0.02em; max-width: 28ch; }
+.re-engineering-rows p:not(.re-engineering-decision) { max-width: 58ch; margin-top: 16px; color: var(--re-fg-2); }
+.re-engineering-meta { font-size: 13px; color: var(--re-dim) !important; }
+.re-engineering-rows a { margin-top: 14px; }
+.re-backend-shot { display: block; width: 100%; aspect-ratio: 16 / 10; object-fit: cover; border-radius: 8px; margin-bottom: 24px; }
+.re-workflow { display: grid; grid-template-columns: 0.9fr 1.4fr; gap: 64px; }
+.re-workflow-body > p:first-child { font-size: 20px; line-height: 1.45; max-width: 42ch; }
+.re-workflow ol { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; margin-top: 32px; }
+.re-workflow li { font-size: 16px; line-height: 1.5; }
+.re-workflow-note, .re-workflow-products { margin-top: 24px !important; color: var(--re-fg-2); max-width: 60ch; }
+.re-workflow-body > a { margin-top: 16px; }
+.re-about { display: grid; grid-template-columns: 0.9fr 1.4fr; gap: 64px; }
+.re-about p { max-width: 60ch; color: var(--re-fg-2); }
+.re-about p + p { margin-top: 18px; }
+.re-disclosure { width: min(1296px, calc(100% - 2 * var(--re-gutter))); margin: 24px auto; }
+.re-disclosure > summary { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 24px; padding: 24px 0; cursor: pointer; font-size: 20px; line-height: 1.4; }
+.re-disclosure > summary span { font-size: 13px; color: var(--re-dim); align-self: center; }
+.re-disclosure > .re-lab, .re-disclosure > .re-all, .re-disclosure > .re-map { padding-inline: 0; }
+.re-disclosure-loading { padding: 40px 0; color: var(--re-fg-2); }
+.re-root .re-contact .re-card { background: transparent; padding: 0; width: auto; }
+.re-root .re-contact { min-height: auto; padding-block: 80px; }
+.re-engineering, .re-workflow, .re-about, .re-evidence { background: rgb(5 5 8 / 0.82); }
+:where(#re-backend, #re-workflow, #re-about, #re-explore) { scroll-margin-top: 16px; }
+html.re-html { scroll-padding-top: 80px; scrollbar-color: #59616b #080a0d; }
+
+@media (max-width: 1100px) {
+  .re-evidence li { padding-inline: 18px; }
+  .re-evidence a { font-size: 20px; }
+}
+@media (max-width: 1100px) {
+  .re-root .re-bar { min-height: 68px; }
+  .re-nav { gap: 8px; }
+  .re-nav a { padding-inline: 6px; }
+  .re-nav .re-nav-about { display: none; }
+  .re-intro { display: grid; min-height: auto; max-width: none; padding-top: 100px; grid-template-columns: minmax(0, 1fr); grid-template-areas: 'copy' 'art' 'product'; gap: 20px; }
+  .re-intro-copy { grid-area: copy; }
+  .re-intro-copy h1 span { display: inline; }
+  .re-intro-copy h1 { max-width: none; font-size: 32px; line-height: 1.1; text-wrap: pretty; }
+  .re-intro-role { margin-top: 20px !important; font-size: 20px; }
+  .re-intro-bio { max-width: 40ch; font-size: 16px; }
+  .re-intro-art { grid-area: art; position: relative; right: auto; bottom: auto; width: 100%; }
+  .re-intro-stack { padding-top: 40px; }
+  .re-intro-screen { transform: none; aspect-ratio: 1.55; }
+  .re-intro-screen img { position: absolute; width: 157%; height: auto; max-width: none; top: -5%; left: -23%; }
+  .re-intro-plate { inset: 40px 6% 4px 0; transform: none; }
+  .re-intro-server { translate: 8px -8px; }
+  .re-intro-data { translate: 16px -16px; }
+  .re-intro-layer-controls { top: -8px; right: 0; gap: 14px; }
+  .re-intro-art figcaption { margin-top: 12px; text-align: left; }
+  .re-intro-product { grid-area: product; position: relative; left: auto; bottom: auto; width: auto; padding-bottom: 16px; }
+  .re-intro-product h2 { font-size: 28px; }
+  .re-intro-detail { min-height: 4.5em; max-width: 38ch; font-size: 16px; margin-top: 10px !important; }
+  .re-evidence { padding-bottom: 32px; }
+  .re-evidence ul { grid-template-columns: 1fr 1fr; gap: 28px 20px; }
+  .re-evidence li { border: 0; padding: 0; }
+  .re-evidence a { font-size: 20px; }
+  .re-root .re-shade { background: linear-gradient(180deg, rgb(5 5 8 / 0.88), rgb(5 5 8 / 0.55) 50%, rgb(5 5 8 / 0.3)); }
+  .re-root[data-ready] .re-canvas { opacity: 0.42; }
+  .re-engineering, .re-workflow, .re-about { padding-block: 56px; }
+  .re-engineering-rows, .re-workflow, .re-about { grid-template-columns: 1fr; gap: 32px; }
+  .re-engineering-rows { margin-top: 32px; }
+  .re-workflow-body > p:first-child { font-size: 20px; }
+  .re-workflow ol { grid-template-columns: 1fr 1fr; gap: 24px; }
+  .re-disclosure > summary { font-size: 20px; }
+  .re-disclosure > summary span { display: block; width: 100%; }
+}
+@media (min-width: 761px) and (max-width: 1100px) {
+  .re-intro { grid-template-columns: 0.7fr 1.3fr; grid-template-areas: 'copy copy' 'product art'; gap: 28px; }
+  .re-intro-copy h1 { max-width: 18em; }
+  .re-intro-art { align-self: start; }
+  .re-intro-screen { aspect-ratio: 1.6; }
+  .re-intro-screen img { position: relative; width: 100%; height: auto; left: 0; top: 0; }
+}
+@media (max-width: 360px) {
+  .re-nav { gap: 0; }
+  .re-mark { font-size: 16px; }
+  .re-evidence ul { grid-template-columns: 1fr; gap: 22px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .re-root .re-canvas, .re-intro-plate, .re-intro-screen { transition: none; }
+  .re-intro-screen, .re-intro-plate, .re-intro-art[data-layer] .re-intro-plate { transform: none; }
+}
+
+/* The headline's empty box must not intercept the product's layer controls. */
+.re-intro-copy { pointer-events: none; }
+.re-intro-copy a { pointer-events: auto; }
+.re-decision-story { margin-block: 32px; }
+.re-decision-story dl { display: grid; gap: 22px; margin-top: 24px; }
+.re-decision-story dt { color: var(--re-accent); font-size: 13px; margin-bottom: 6px; }
+.re-decision-story dd { max-width: 65ch; color: var(--re-fg-2); line-height: 1.65; }
+
+/* One left edge for every text section, the intro's (at 1440 the 72 px gutter). The index, the ledger, the notes and the
+   contact each centred on a width of their own (1180, 1240, 620), so the page had five left edges; the bands stay
+   full-bleed. The chapters keep their own stage geometry. */
+.re-root :is(.re-all, .re-ledger, .re-field-notes, .re-contact) {
+  max-width: none; margin-inline: 0; padding-inline: max(var(--re-gutter), calc((100% - 1440px) / 2 + var(--re-gutter)));
+}
+.re-root .re-contact { justify-content: flex-start; }

@@ -1,19 +1,22 @@
-import { startTransition, useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react'
+import { lazy, Suspense, startTransition, useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react'
 import { useNavigate, useParams } from 'react-router'
 import { flushSync } from 'react-dom'
 import { ArrowCounterClockwiseIcon, ArrowUpRightIcon } from '@phosphor-icons/react'
-import { createScene, hasWebGL, STAGE, type RefractiveScene, type Stats } from './scene'
-import { BASE, HOME, ledger, links, systems, type Value } from './data'
+import type { RefractiveScene, Stats } from './scene'
+import { hasWebGL, STAGE } from './sceneSupport'
+import { BASE, HOME, ledger, links, plain, type Value } from './data'
 import { AllWork } from './AllWork'
 import { AREAS, AreaMap } from './AreaMap'
 import { CasePage } from './CasePage'
-import { channels, type ChannelKey } from '../../content/channels'
-import { Lab } from './Lab'
-import { Own } from './Own'
+import { HomeIntro } from './HomeIntro'
+import { Evidence } from './Evidence'
 import { cases } from './products'
 import { Production } from './Production'
 import { TunePanel } from './TunePanel'
 import './refractive-engine.css'
+import './home.css'
+
+const Lab = lazy(() => import('./Lab').then((m) => ({ default: m.Lab })))
 
 type Mode = 'lens' | 'tensor'
 const MODE_KEY = 're:mode'
@@ -33,20 +36,6 @@ const saveMode = (m: Mode) => {
 }
 const RATIOS = [1, 1.5, 2] as const
 
-/**
- * The four areas the hero's sentence names, each shown by a real screen of its lead product and labelled with the owner's
- * channel name (CONTENT.md, 2026-10-02) and the years of its projects. Each one jumps to its work on this page.
- * `?hero=bare` shows the hero without them, to compare.
- */
-const DOMAINS: { key: ChannelKey; slug: string; href: string; img: [src: string, w: number, h: number]; pos?: string }[] = [
-  { key: 'healthcare', slug: 'care-platform', href: '#work-care', img: ['/eh/care-platform.webp', 1280, 800] },
-  { key: 'streaming', slug: 'bayyinah-tv', href: '#work-bayyinah', img: ['/eh/bayyinah-tv.webp', 1280, 800] },
-  // The full 780 px phone capture, not the 523 px field texture: the tile draws about 315 px wide, so it needs 630+.
-  // The store image opens on a banner; 42% down is the app itself (logo, My Books, the reading cards).
-  { key: 'reading', slug: 'read-to-feed', href: '#work-reading', img: ['/mobile/reading-1.webp', 780, 1689], pos: '50% 42%' },
-  { key: 'web3', slug: 'incentiv', href: '#re-lab', img: ['/eh/incentiv.webp', 1280, 800] },
-]
-const BARE = new URLSearchParams(location.search).get('hero') === 'bare'
 const fmt = (n: number) => n.toLocaleString('en-US')
 
 function useMedia(query: string) {
@@ -123,6 +112,7 @@ export default function Draft() {
   const [stageQ, setStageQ] = useState(0)
   // The field's notes render only while open: closed, they cost nothing and their live readouts are not on the page.
   const [notesOpen, setNotesOpen] = useState(false)
+  const [exploreOpen, setExploreOpen] = useState(false)
   // Opening a case from a chapter renders its first screen inside the view transition and the rest once the flight ends.
   const [caseRest, setCaseRest] = useState(true)
   const [drawn, setDrawn] = useState(count)
@@ -160,101 +150,110 @@ export default function Draft() {
   useEffect(() => {
     const host = hostRef.current
     if (!host || noGl) return
-    let scene: RefractiveScene
-    try {
-      scene = createScene(host, {
-        count,
-        reduced,
-        mode: modeRef.current === 'tensor' ? 1 : 0,
-        onReady: () => setReady(true),
-        weights: AREAS.map((a) => a.n),
-      })
-    } catch {
-      queueMicrotask(() => setNoGl(true))
-      return
-    }
-    sceneRef.current = scene
-    queueMicrotask(() => setSceneKey((k) => k + 1))
-
-    // Each section's centre maps to its stage. A section taller than the screen holds its stage while it fills the view.
-    let anchors: { y: number; s: number }[] = []
-    const measure = () => {
-      anchors = [...document.querySelectorAll<HTMLElement>('[data-stage]')]
-        .flatMap((el) => {
-          const r = el.getBoundingClientRect()
-          if (!r.height) return []
-          const c = r.top + scrollY + r.height / 2
-          const hold = Math.max(0, (r.height - innerHeight) / 2)
-          const s = Number(el.dataset.stage)
-          return hold > 0 ? [{ y: c - hold, s }, { y: c + hold, s }] : [{ y: c, s }]
+    let cancelled = false
+    let cleanup = () => {}
+    const mount = async () => {
+      const { createScene } = await import('./scene')
+      if (cancelled) return
+      let scene: RefractiveScene
+      try {
+        scene = createScene(host, {
+          count,
+          reduced,
+          mode: modeRef.current === 'tensor' ? 1 : 0,
+          onReady: () => setReady(true),
+          weights: AREAS.map((a) => a.n),
         })
-        .sort((a, b) => a.y - b.y)
-    }
-    let shownQ = -1, lastY = scrollY, lastT = performance.now()
-    const onScroll = () => {
-      // Scroll speed wakes the field: 1200 px/s is full energy; it rings down by itself once the page stops.
-      const now = performance.now()
-      if (now > lastT) scene.wake(Math.abs(scrollY - lastY) / (now - lastT) / 1.2)
-      lastY = scrollY
-      lastT = now
-      const y = scrollY + innerHeight / 2
-      let s = anchors[0]?.s ?? 0
-      for (let i = 0; i < anchors.length - 1; i++) {
-        const a = anchors[i], b = anchors[i + 1]
-        if (y >= a.y && y <= b.y) s = b.y > a.y ? a.s + ((y - a.y) / (b.y - a.y)) * (b.s - a.s) : b.s
-        else if (y > b.y) s = b.s
+      } catch {
+        queueMicrotask(() => setNoGl(true))
+        return
       }
-      scene.setStage(s)
-      const q = Math.round(s * 4) / 4
-      if (q !== shownQ) { shownQ = q; setStageQ(q) }
+      sceneRef.current = scene
+      queueMicrotask(() => setSceneKey((k) => k + 1))
+
+      // Each section's centre maps to its stage. A section taller than the screen holds its stage while it fills the view.
+      let anchors: { y: number; s: number }[] = []
+      const measure = () => {
+        anchors = [...document.querySelectorAll<HTMLElement>('[data-stage]')]
+          .flatMap((el) => {
+            const r = el.getBoundingClientRect()
+            if (!r.height) return []
+            const c = r.top + scrollY + r.height / 2
+            const hold = Math.max(0, (r.height - innerHeight) / 2)
+            const s = Number(el.dataset.stage)
+            return hold > 0 ? [{ y: c - hold, s }, { y: c + hold, s }] : [{ y: c, s }]
+          })
+          .sort((a, b) => a.y - b.y)
+      }
+      let shownQ = -1, lastY = scrollY, lastT = performance.now()
+      const onScroll = () => {
+        // Scroll speed wakes the field: 1200 px/s is full energy; it rings down by itself once the page stops.
+        const now = performance.now()
+        if (now > lastT) scene.wake(Math.abs(scrollY - lastY) / (now - lastT) / 1.2)
+        lastY = scrollY
+        lastT = now
+        const y = scrollY + innerHeight / 2
+        let s = anchors[0]?.s ?? 0
+        for (let i = 0; i < anchors.length - 1; i++) {
+          const a = anchors[i], b = anchors[i + 1]
+          if (y >= a.y && y <= b.y) s = b.y > a.y ? a.s + ((y - a.y) / (b.y - a.y)) * (b.s - a.s) : b.s
+          else if (y > b.y) s = b.s
+        }
+        scene.setStage(s)
+        const q = Math.round(s * 4) / 4
+        if (q !== shownQ) { shownQ = q; setStageQ(q) }
+      }
+      let pending = false, px = 0, py = 0, inside = false
+      // The lens and the lean follow a mouse only: on touch the same finger is scrolling.
+      let moveT = performance.now()
+      const onMove = (e: PointerEvent) => {
+        if (e.pointerType !== 'mouse') return
+        // Pointer speed wakes it too: 900 px/s is full energy.
+        const now = performance.now()
+        const background = !onCase.current && !(e.target as HTMLElement).closest('.re-solid, .re-sw-at, .re-sw-slab, button, a, input')
+        if (background && now > moveT) scene.wake(Math.hypot(e.clientX - px, e.clientY - py) / (now - moveT) / 0.9)
+        moveT = now
+        px = e.clientX
+        py = e.clientY
+        inside = background
+        if (pending) return
+        pending = true
+        requestAnimationFrame(() => { pending = false; scene.setPointer(px, py, inside) })
+      }
+      const onLeave = () => { inside = false; scene.setPointer(px, py, false) }
+      // A mouse click ripples the field. It counts on release, and only if the pointer barely moved, so starting a scroll never fires it.
+      let downX = 0, downY = 0, downOk = false
+      const onDown = (e: PointerEvent) => {
+        downOk = e.pointerType === 'mouse' && !onCase.current && !(e.target as HTMLElement).closest('.re-solid, .re-sw-at, .re-sw-slab, button, a, input')
+        downX = e.clientX
+        downY = e.clientY
+      }
+      const onUp = (e: PointerEvent) => {
+        if (!downOk || Math.hypot(e.clientX - downX, e.clientY - downY) > 6) return
+        scene.ripple(e.clientX, e.clientY)
+      }
+      measure()
+      onScroll()
+      const ro = new ResizeObserver(() => { measure(); onScroll() })
+      ro.observe(document.body)
+      addEventListener('scroll', onScroll, { passive: true })
+      addEventListener('pointermove', onMove, { passive: true })
+      document.documentElement.addEventListener('pointerleave', onLeave)
+      addEventListener('pointerdown', onDown)
+      addEventListener('pointerup', onUp)
+      cleanup = () => {
+        ro.disconnect()
+        removeEventListener('scroll', onScroll)
+        removeEventListener('pointermove', onMove)
+        document.documentElement.removeEventListener('pointerleave', onLeave)
+        removeEventListener('pointerdown', onDown)
+        removeEventListener('pointerup', onUp)
+        scene.dispose()
+        sceneRef.current = null
+      }
     }
-    let pending = false, px = 0, py = 0, inside = false
-    // The lens and the lean follow a mouse only: on touch the same finger is scrolling.
-    let moveT = performance.now()
-    const onMove = (e: PointerEvent) => {
-      if (e.pointerType !== 'mouse') return
-      // Pointer speed wakes it too: 900 px/s is full energy.
-      const now = performance.now()
-      if (now > moveT) scene.wake(Math.hypot(e.clientX - px, e.clientY - py) / (now - moveT) / 0.9)
-      moveT = now
-      px = e.clientX
-      py = e.clientY
-      inside = !onCase.current && !(e.target as HTMLElement).closest('.re-solid, .re-sw-at, .re-sw-slab, button, a, input')
-      if (pending) return
-      pending = true
-      requestAnimationFrame(() => { pending = false; scene.setPointer(px, py, inside) })
-    }
-    const onLeave = () => { inside = false; scene.setPointer(px, py, false) }
-    // A mouse click ripples the field. It counts on release, and only if the pointer barely moved, so starting a scroll never fires it.
-    let downX = 0, downY = 0, downOk = false
-    const onDown = (e: PointerEvent) => {
-      downOk = e.pointerType === 'mouse' && !onCase.current && !(e.target as HTMLElement).closest('.re-solid, .re-sw-at, .re-sw-slab, button, a, input')
-      downX = e.clientX
-      downY = e.clientY
-    }
-    const onUp = (e: PointerEvent) => {
-      if (!downOk || Math.hypot(e.clientX - downX, e.clientY - downY) > 6) return
-      scene.ripple(e.clientX, e.clientY)
-    }
-    measure()
-    onScroll()
-    const ro = new ResizeObserver(() => { measure(); onScroll() })
-    ro.observe(document.body)
-    addEventListener('scroll', onScroll, { passive: true })
-    addEventListener('pointermove', onMove, { passive: true })
-    document.documentElement.addEventListener('pointerleave', onLeave)
-    addEventListener('pointerdown', onDown)
-    addEventListener('pointerup', onUp)
-    return () => {
-      ro.disconnect()
-      removeEventListener('scroll', onScroll)
-      removeEventListener('pointermove', onMove)
-      document.documentElement.removeEventListener('pointerleave', onLeave)
-      removeEventListener('pointerdown', onDown)
-      removeEventListener('pointerup', onUp)
-      scene.dispose()
-      sceneRef.current = null
-    }
+    void mount().catch(() => { if (!cancelled) setNoGl(true) })
+    return () => { cancelled = true; cleanup() }
   }, [reduced, count, noGl])
 
   useEffect(() => { modeRef.current = mode }, [mode])
@@ -267,6 +266,7 @@ export default function Draft() {
 
   // Readouts: every number is read from the renderer or the page, four times a second.
   useEffect(() => {
+    if (!notesOpen) return
     const tick = () => {
       const root = rootRef.current
       if (!root || document.hidden) return
@@ -288,10 +288,10 @@ export default function Draft() {
     const id = setInterval(tick, 250)
     tick()
     return () => clearInterval(id)
-  }, [])
+  }, [notesOpen])
 
   // Scene coordinates for the tensor field: the live cluster centres, twice a second.
-  const coordsOn = mode === 'tensor' && Math.abs(stageQ - STAGE.modes) <= 0.75
+  const coordsOn = notesOpen && mode === 'tensor' && Math.abs(stageQ - STAGE.modes) <= 0.75
   useEffect(() => {
     if (!coordsOn) return
     const read = () => { const c = sceneRef.current?.centroids(); if (c) setCoords(c) }
@@ -332,7 +332,7 @@ export default function Draft() {
         inView(document.querySelector<HTMLElement>(`.re-prod-name a[href="${BASE}/${from}"]`)) ??
         inView(document.querySelector<HTMLElement>(`.re-ch-open[href="${BASE}/${from}"]`)) ??
         inView(document.querySelector<HTMLElement>(`.re-ch-index button[data-slug="${from}"]`))
-      ;(back ?? document.getElementById('re-lab-h'))?.focus({ preventScroll: true })
+      ;(back ?? document.querySelector<HTMLElement>('.re-intro h1'))?.focus({ preventScroll: true })
     })
   }, [caseSlug])
 
@@ -401,19 +401,19 @@ export default function Draft() {
     <div ref={rootRef} className="re-root" data-mode={mode} data-reduced={reduced || undefined} data-ready={ready || noGl || undefined} data-case={caseSlug !== undefined || undefined}>
       <div className="re-canvas" ref={hostRef} aria-hidden="true" />
       <div className="re-shade" aria-hidden="true" />
-      {noGl && <p className="re-nogl re-num">WebGL 2 is off in this browser, so the field is hidden. Every project still opens.</p>}
 
       <header className="re-bar re-solid">
         {caseSlug ? (
-          <a className="re-mark" href={HOME} onClick={(e) => { e.preventDefault(); toHome(true) }}>Gentrit Rashiti</a>
+          <a className="re-mark" href={HOME} onClick={(e) => { if (!plain(e)) return; e.preventDefault(); toHome(true) }}>Gentrit Rashiti</a>
         ) : (
           <a className="re-mark" href="#re-top">Gentrit Rashiti</a>
         )}
         {!caseSlug && (
           <nav className="re-nav" aria-label="Sections">
             <a href="#re-work">Work</a>
-            <a href="#re-contact">Contact</a>
+            <a className="re-nav-about" href="#re-about">About</a>
             <a href={links.cv}>CV</a>
+            <a href={`mailto:${links.email}`}>Email</a>
           </nav>
         )}
       </header>
@@ -423,38 +423,17 @@ export default function Draft() {
       {caseSlug && <CasePage slug={caseSlug} rest={caseRest} onBack={() => toHome()} />}
 
       <main hidden={caseSlug !== undefined}>
-        <header id="re-top" className="re-hero" data-stage={STAGE.hero}>
-          <h1 className="re-title">Web and mobile products, from the first screen to release: healthcare, video streaming, e-reading and Web3.</h1>
-          <p className="re-who">Frontend &amp; Mobile Developer → Full Stack</p>
-          <p className="re-sub">5+ years. Part of two platform rewrites. React, React Native, Vue, TypeScript, Laravel. Based in Kosovo, working remotely.</p>
-          {/* One action: the CV is in the masthead. */}
-          <div className="re-cta"><a className="re-btn re-btn-solid" href="#re-work">See the work</a></div>
-          {!BARE && (
-            <ul className="re-domains" data-work="care-platform bayyinah-tv read-to-feed incentiv">
-              {DOMAINS.map((d) => {
-                const sys = systems.find((x) => x.slug === d.slug)
-                const area = channels[d.key]
-                return (
-                  <li key={d.key}>
-                    <a href={d.href}>
-                      <img src={d.img[0]} width={d.img[1]} height={d.img[2]} style={d.pos ? { objectPosition: d.pos } : undefined} alt={sys ? `${sys.name}, a real screen` : ''} decoding="async" />
-                      <span className="re-domain-name">{area.label}</span>
-                      {area.period && <span className="re-domain-years re-num">{area.period}</span>}
-                    </a>
-                  </li>
-                )
-              })}
-            </ul>
-          )}
-        </header>
+        <HomeIntro onOpen={toCase} />
 
         <Production onOpen={toCase} reduced={reduced} onFocus={focusField} />
 
-        <Own onOpen={toCase} />
+        <Evidence onOpen={toCase} />
 
-        <Lab mode={mode} reduced={reduced} noGl={noGl} onOpen={toCase} />
-
-        {!noGl && <AreaMap scene={sceneRef.current} userMode={mode === 'tensor' ? 1 : 0} stage={STAGE.modes} />}
+        <details id="re-explore" className="re-disclosure re-solid" onToggle={(e) => setExploreOpen(e.currentTarget.open)}>
+          <summary>Explore the product layers <span>Eight products, from interface to infrastructure</span></summary>
+          {exploreOpen && <Suspense fallback={<p className="re-disclosure-loading" role="status">Opening the product layers…</p>}><Lab mode={mode} reduced={reduced} noGl={noGl} onOpen={toCase} /></Suspense>}
+          {exploreOpen && !noGl && <AreaMap scene={sceneRef.current} userMode={mode === 'tensor' ? 1 : 0} stage={STAGE.modes} />}
+        </details>
 
         <AllWork onOpen={(slug) => toCase(slug)} />
 
@@ -560,7 +539,7 @@ export default function Draft() {
               <a className="re-btn" href={links.linkedin} target="_blank" rel="noreferrer">LinkedIn<ArrowUpRightIcon size={14} weight="bold" aria-hidden="true" /><span className="re-sr"> (opens in a new tab)</span></a>
               <a className="re-btn" href={links.cv}>CV (PDF)</a>
             </div>
-            <p className="re-foot re-num">Draft · The Refractive Engine · {fmt(count)} particles positioned on the GPU</p>
+            <p className="re-foot">Gentrit Rashiti · Web, backend and mobile</p>
           </div>
         </footer>
       </main>

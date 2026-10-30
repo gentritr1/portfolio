@@ -8,7 +8,7 @@ export const AREAS = channelOrder.map((key) => ({ key, n: work.filter((p) => p.c
 
 /** Where each area's work is on this page. */
 const HREF: Record<ChannelKey, string> = {
-  healthcare: '#work-care', streaming: '#work-bayyinah', reading: '#work-reading', web3: '#re-lab', ai: '#re-all', personal: '#re-all',
+  healthcare: '#work-care', streaming: '#work-bayyinah', reading: '#work-reading', web3: '#re-explore', ai: '#re-backend', personal: '#re-backend',
 }
 
 /**

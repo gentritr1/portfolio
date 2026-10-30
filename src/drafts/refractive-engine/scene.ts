@@ -5,8 +5,8 @@ import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPa
 import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js'
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js'
 
-/** Scroll stages, one per section. */
-export const STAGE = { hero: 0, lab: 1, ledger: 2, modes: 3, sim: 4, contact: 5 } as const
+import { STAGE } from './sceneSupport'
+export { STAGE, hasWebGL } from './sceneSupport'
 
 export interface Stats {
   /** The field's energy, 0–1: it rings down after input. */
@@ -47,15 +47,6 @@ export interface RefractiveScene {
   highlight(k: number): void
   grid: { columns: number; pitch: number; left: number }
   dispose(): void
-}
-
-export function hasWebGL() {
-  try {
-    const c = document.createElement('canvas')
-    return !!c.getContext('webgl2')
-  } catch {
-    return false
-  }
 }
 
 // ---------- The UI skeleton the lens snaps to (world units, on the z = 0 plane) ----------
@@ -124,7 +115,7 @@ const LENS_R = 150
 const particleVertex = /* glsl */ `
 #define NR ${RECTS.length}
 #define K ${K}
-uniform float uTime, uMode, uIntro, uLens, uLensR, uPx, uShockR, uShockA, uDim, uJit;
+uniform float uTime, uMode, uIntro, uLens, uLensR, uPx, uShockR, uShockA, uDim, uJit, uQuiet;
 uniform vec2 uPointer, uViewport;
 uniform vec3 uC[K];
 uniform vec3 uCCol[K];
@@ -243,6 +234,9 @@ void main() {
   float depth = clip.w;
   gl_PointSize = clamp(uPx * (0.7 + 0.6 * fract(seed * 3.7)) * (18.0 / depth) * (1.0 + wire * 0.7), 0.5, uPx * 3.0);
   vAlpha = alpha * uIntro * uDim * smoothstep(72.0, 30.0, depth) * smoothstep(0.8, 3.0, depth);
+  // Keep the opening copy calm; the brighter field lives beside the product. Exploration keeps the full field.
+  float screenX = clip.x / max(clip.w, 0.001) * 0.5 + 0.5;
+  vAlpha *= mix(1.0, mix(0.12, 0.65, smoothstep(0.3, 0.85, screenX)), uQuiet);
   vColor = col;
 }`
 
@@ -391,7 +385,7 @@ export function createScene(
   g.boundingSphere = new THREE.Sphere(new THREE.Vector3(), 60)
 
   const centroids = CENTROIDS.map(([x, y, z]) => new THREE.Vector3(x, y, z))
-  const emerald = new THREE.Color('#3ee6a4')
+  const emerald = new THREE.Color('#9bd9e7')
   // Clouds are neutral; the accent belongs to the one being pointed at (highlight()), its only job here.
   const neutral = new THREE.Color('#c9ced8')
   const cbase = SHADE.map((v) => neutral.clone().multiplyScalar(v))
@@ -399,7 +393,7 @@ export function createScene(
   const accent = emerald.clone()
   const uniforms = {
     uTime: { value: 0 }, uMode: { value: options.mode as number }, uIntro: { value: reduced ? 1 : 0 }, uLens: { value: 0 }, uLensR: { value: LENS_R * pixelRatio },
-    uPx: { value: dot * pixelRatio }, uShockR: { value: 0 }, uShockA: { value: 0 }, uDim: { value: 1 }, uJit: { value: spacing },
+    uPx: { value: dot * pixelRatio }, uShockR: { value: 0 }, uShockA: { value: 0 }, uDim: { value: 1 }, uJit: { value: spacing }, uQuiet: { value: 1 },
     uPointer: { value: new THREE.Vector2(-9999, -9999) }, uViewport: { value: new THREE.Vector2(1, 1) },
     uC: { value: centroids }, uCCol: { value: ccol }, uShockC: { value: new THREE.Vector3() }, uAccent: { value: accent },
     uRects: { value: RECTS.map(([a, b, c, d]) => new THREE.Vector4(a, b, c, d)) },
@@ -558,6 +552,7 @@ export function createScene(
     aberration.uniforms.uAmt.value = onFocus ? 0 : lensW
     // The field steps back behind the ledger's rows and the contact card; the two cards about the field keep it bright.
     uniforms.uDim.value = 1 - 0.45 * Math.max(clamp01(1.5 - Math.abs(stage - STAGE.ledger) * 1.5), clamp01(stage - STAGE.sim - 0.3))
+    uniforms.uQuiet.value = 1 - clamp01(stage / STAGE.lab)
 
     if (shockT >= 0) {
       shockT += dt
@@ -660,7 +655,7 @@ export function createScene(
     setStage(v) { stageTarget = v; kick() },
     wake(energy) { if (!reduced) ring = Math.max(ring, Math.min(1, energy)); kick() },
     setPointer(x, y, inside) {
-      leanTarget.set((x / cssW) * 2 - 1, -(y / cssH) * 2 + 1)
+      if (inside) leanTarget.set((x / cssW) * 2 - 1, -(y / cssH) * 2 + 1)
       const want = inside
       if (want && !lensWanted && lensAllowed()) performance.mark('re:lens')
       if (lens < 0.01) lensFresh = true

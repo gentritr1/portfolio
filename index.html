@@ -3,16 +3,16 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Gentrit Rashiti</title>
+    <title>Gentrit Rashiti — Web, backend &amp; mobile</title>
     <meta
       name="description"
-      content="Gentrit Rashiti builds web, mobile and server apps, from Kosovo. AI agents build inside tested rules, and a person approves every change."
+      content="Web and mobile products, from interface to backend. Gentrit Rashiti’s work across frontend, realtime servers, mobile apps and AI-assisted delivery. Based in Kosovo, working remotely."
     />
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="Gentrit Rashiti" />
+    <meta property="og:title" content="Gentrit Rashiti — Web, backend &amp; mobile" />
     <meta
       property="og:description"
-      content="Gentrit Rashiti builds web, mobile and server apps, from Kosovo. AI agents build inside tested rules, and a person approves every change."
+      content="Web and mobile products, from interface to backend. Explore the work across frontend, backend, mobile and AI-assisted delivery."
     />
     <meta property="og:image" content="/og-image.png" />
     <meta property="og:image:type" content="image/png" />
@@ -20,8 +20,8 @@
     <meta property="og:image:height" content="630" />
     <meta property="og:image:alt" content="Gentrit Rashiti: AI agents build inside tested rules, and a person approves every change. A real care platform calendar screen with invented data and an amber approval seal, on a dark ground." />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Gentrit Rashiti" />
-    <meta name="twitter:description" content="Web, mobile and server apps. AI agents build inside tested rules, and a person approves every change." />
+    <meta name="twitter:title" content="Gentrit Rashiti — Web, backend &amp; mobile" />
+    <meta name="twitter:description" content="Web and mobile products, from interface to backend. Explore frontend, backend, mobile and AI-assisted delivery." />
     <meta name="twitter:image" content="/og-image.png" />
     <meta name="twitter:image:alt" content="Gentrit Rashiti: AI agents build inside tested rules, and a person approves every change. A real care platform calendar screen with invented data and an amber approval seal, on a dark ground." />
     <meta name="color-scheme" content="dark light" />
@@ -37,7 +37,8 @@
         link.as = 'font';
         link.type = 'font/woff2';
         link.crossOrigin = 'anonymous';
-        link.href = loop ? '/fonts/creative/GentritTechnicalMono-Latin.woff2' : '/fonts/creative/Fraunces-Latin.woff2';
+        var home = /^\/(?:(?:care-platform|design-system-react|bayyinah-tv|read-to-feed|viva-fresh|dukagjini-bookstore|incentiv|futurisma|offday|leakscan)\/?)?$/.test(p) || p.indexOf('/drafts/refractive-engine') === 0;
+        link.href = home ? '/fonts/Archivo.woff2' : loop ? '/fonts/creative/GentritTechnicalMono-Latin.woff2' : '/fonts/creative/Fraunces-Latin.woff2';
         document.head.appendChild(link);
       })();
     </script>

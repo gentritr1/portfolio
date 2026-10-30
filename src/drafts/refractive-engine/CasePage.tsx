@@ -1,8 +1,10 @@
+import { DecisionStories } from './DecisionStories'
+import { decisionStories } from './decisionStoryData'
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { Link } from 'react-router'
 import { ArrowLeftIcon, ArrowRightIcon, ArrowUpRightIcon, CaretDownIcon } from '@phosphor-icons/react'
 import { caseDetails } from '../exploded-view/cases'
-import { STAGE } from './scene'
+import { STAGE } from './sceneSupport'
 import { cropVars, LEADS } from './screens'
 import { FullSize, type FullSizeHandle } from './FullSize'
 import { BASE, INVENTED } from './data'
@@ -416,8 +418,10 @@ export function CasePage({ slug, rest = true, onBack }: { slug: string; rest?: b
               </ol>
             </section>
           ) : (
-            s.story && <section><h2 className="re-cs-h2">What was built</h2><p className="re-cs-text">{s.story.built}</p><p className="re-cs-stack">{s.stack.join(', ')}</p></section>
+            !decisionStories[slug] && s.story && <section><h2 className="re-cs-h2">What was built</h2><p className="re-cs-text">{s.story.built}</p><p className="re-cs-stack">{s.stack.join(', ')}</p></section>
           )}
+
+          <DecisionStories slug={slug} />
 
           {s.layers.length > 0 && (
             <section aria-labelledby="re-layers-h">

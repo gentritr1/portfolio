@@ -1,0 +1,456 @@
+{
+  "url": "http://localhost:5178/",
+  "name": "home",
+  "at": "2026-10-30T11:41:45.365Z",
+  "mode": "experience",
+  "scheme": "dark",
+  "owner": "Gentrit Rashiti",
+  "facts": [
+    "CONTENT.md"
+  ],
+  "viewports": [
+    {
+      "size": "1440x900",
+      "phone": false,
+      "findings": [
+        {
+          "id": "T10b",
+          "severity": "allowed",
+          "title": "Template phrases or microcopy in the page (2)",
+          "detail": "Allowed: Familiar hiring labels keep the requested visible index scannable",
+          "where": [
+            "Selected work (flag)",
+            "Skills (flag)"
+          ]
+        },
+        {
+          "id": "T10f",
+          "severity": "allowed",
+          "title": "Technical words on the home page (11)",
+          "detail": "Allowed: Engineering terms identify the work and tools for the intended reader",
+          "where": [
+            "token",
+            "parity",
+            "tenant",
+            "API",
+            "route",
+            "component",
+            "HLS / IVS / CSP / ADR / RN / SSR",
+            "deep link"
+          ]
+        },
+        {
+          "id": "T30",
+          "severity": "allowed",
+          "title": "Middot chains in 2 line(s)",
+          "detail": "Allowed: Metadata states ownership release status and technology",
+          "where": [
+            "p.re-engineering-meta \"Own products · Node · WebSocket · PostgreSQL\"",
+            "p.re-engineering-meta \"Built alone · Pre-launch · Next.js · Postgres\""
+          ]
+        },
+        {
+          "id": "C08c",
+          "severity": "allowed",
+          "title": "2 image(s) below 2× density",
+          "detail": "Allowed: Approved original store images shown at readable phone scale are the highest resolution available",
+          "where": [
+            "reading-3.webp",
+            "reading-2.webp"
+          ]
+        }
+      ],
+      "motion": {
+        "atLoad": 0,
+        "duringScroll": 0,
+        "events": 42,
+        "scrollLinked": 0,
+        "loops": 0,
+        "firstScreenAtLoad": 1,
+        "durations": [
+          150,
+          160,
+          220,
+          600
+        ],
+        "easings": [
+          "cubic-bezier(0.23, 1, 0.32, 1)",
+          "ease"
+        ],
+        "sample": [
+          "CSSTransition div.re-canvas opacity 600ms cubic-bezier(0.23, 1, 0.32, 1)",
+          "CSSTransition ol.re-sw-at opacity 150ms ease",
+          "CSSTransition div.re-intro-plate transform 220ms cubic-bezier(0.23, 1, 0.32, 1)",
+          "CSSTransition figure.re-sw-slab transform 160ms cubic-bezier(0.23, 1, 0.32, 1)"
+        ]
+      },
+      "metrics": {
+        "cls": 0,
+        "shifts": [],
+        "lcp": {
+          "t": 244,
+          "node": "IMG",
+          "size": 342153
+        },
+        "longFrames": 7,
+        "longFrameMax": 298,
+        "introFrames": {
+          "frames": 88,
+          "p50": 16.7,
+          "p95": 16.8,
+          "max": 33.4,
+          "over25": 4
+        },
+        "scrollFrames": {
+          "frames": 155,
+          "p50": 16.7,
+          "p95": 16.8,
+          "max": 33.4,
+          "over25": 2,
+          "controlP95": 16.7
+        },
+        "wheel": {
+          "first": 4860,
+          "want": 4860,
+          "skipped": null
+        },
+        "errors": [],
+        "reducedMotionAnimations": 0,
+        "reducedMotionRafPerSecond": 0
+      },
+      "allow": {
+        "T10b": "Familiar hiring labels keep the requested visible index scannable",
+        "T10f": "Engineering terms identify the work and tools for the intended reader",
+        "T30": "Metadata states ownership release status and technology",
+        "C08c": "Approved original store images shown at readable phone scale are the highest resolution available"
+      },
+      "facts": {
+        "contrastGround": {
+          "painted": 4,
+          "ancestorChain": 0,
+          "covered": 0,
+          "sampled": 40,
+          "ariaCopies": 0,
+          "copies": [],
+          "chainWhy": {},
+          "differs": []
+        },
+        "title": "Gentrit Rashiti — Web, backend & mobile",
+        "owner": "Gentrit Rashiti",
+        "hero": {
+          "text": "I build web and mobile products, from interface to backend.",
+          "font": "Archivo",
+          "size": 56
+        },
+        "largest": {
+          "text": "I build web and mobile products,",
+          "font": "Archivo",
+          "size": 56
+        },
+        "devServer": null,
+        "ground": {
+          "rgb": "rgb(5 5 8)",
+          "from": "behind the hero: div.re-root"
+        },
+        "displayFace": {
+          "declared": "Archivo",
+          "rendered": "Archivo",
+          "web": true,
+          "localAlias": false,
+          "status": "loaded",
+          "notLoaded": false
+        },
+        "families": [
+          "Archivo"
+        ],
+        "fontAliases": {},
+        "firstScreenWords": 50,
+        "firstScreenSizes": [
+          13,
+          16,
+          20,
+          40,
+          56
+        ],
+        "mediaShareFirstScreen": 0.327,
+        "mediaShareWithCanvas": 1,
+        "workItems": [
+          "figure.re-intro-art \"Interface Server rules Data Real product screens\" 32%"
+        ],
+        "pageHeight": 12147,
+        "hiddenBelowFold": 0,
+        "hiddenSections": 0,
+        "hiddenSectionSample": [],
+        "busyFigures": [],
+        "unknownNumbers": [],
+        "sampledContrast": [
+          "a.re-mark \"Gentrit Rashiti\" 16.97:1",
+          "a \"Work\" 11.53:1",
+          "a.re-nav-about \"About\" 11.53:1",
+          "a \"CV\" 11.53:1",
+          "a \"Email\" 11.53:1",
+          "span \"I build web and mobile products,\" 18.48:1",
+          "span \"from interface to backend.\" 18.51:1",
+          "p.re-intro-role \"Frontend · Backend · Mobile\" 17.40:1",
+          "p.re-intro-bio \"5+ years shipping web and mobile p 11.83:1",
+          "a.re-text-link \"AI in the workflow\" 13.04:1",
+          "h2 \"Offday\" 17.39:1",
+          "p.re-intro-detail \"Team requests, approvals and a  11.83:1"
+        ]
+      },
+      "signals": {
+        "H01_displayFace": true,
+        "H02_typeDecision": true,
+        "H03_asymmetry": false,
+        "H04_workLarge": true,
+        "H09_themedSurfaces": true,
+        "H11_nameSmall": true,
+        "H12_tintedGround": true,
+        "H15_selfHostedFonts": true
+      },
+      "round": {
+        "h1": "I build web and mobile products, from interface to backend.",
+        "owner": "Gentrit Rashiti",
+        "nav": [
+          "Work",
+          "About",
+          "CV",
+          "Email"
+        ],
+        "display": {
+          "family": "Archivo",
+          "file": "Archivo",
+          "declared": "Archivo",
+          "size": 56,
+          "text": "I build web and mobile products,"
+        },
+        "ground": {
+          "rgb": "rgb(5 5 8)",
+          "hex": "#050508",
+          "oklch": [
+            0.117,
+            0.009,
+            284.9
+          ],
+          "from": "behind the hero: div.re-root"
+        },
+        "accent": {
+          "rgb": "rgb(155 217 231)",
+          "hex": "#9bd9e7",
+          "oklch": [
+            0.848,
+            0.066,
+            213.3
+          ],
+          "share": 1
+        },
+        "colours": [
+          "#9bd9e7 h213 100%"
+        ],
+        "sections": {
+          "from": "sections",
+          "list": [
+            "Selected work",
+            "The servers behind the screens.",
+            "AI in the workflow.",
+            "From the interface to the whole product.",
+            "All projects",
+            "Before and after",
+            "Contact"
+          ],
+          "hints": [
+            "media",
+            "media",
+            "",
+            "",
+            "",
+            "",
+            "mail"
+          ]
+        }
+      }
+    },
+    {
+      "size": "390x844",
+      "phone": true,
+      "findings": [
+        {
+          "id": "T10b",
+          "severity": "allowed",
+          "title": "Template phrases or microcopy in the page (2)",
+          "detail": "Allowed: Familiar hiring labels keep the requested visible index scannable",
+          "where": [
+            "Selected work (flag)",
+            "Skills (flag)"
+          ]
+        },
+        {
+          "id": "T10f",
+          "severity": "allowed",
+          "title": "Technical words on the home page (11)",
+          "detail": "Allowed: Engineering terms identify the work and tools for the intended reader",
+          "where": [
+            "token",
+            "parity",
+            "tenant",
+            "API",
+            "route",
+            "component",
+            "HLS / IVS / CSP / ADR / RN / SSR",
+            "deep link"
+          ]
+        },
+        {
+          "id": "T30",
+          "severity": "allowed",
+          "title": "Middot chains in 2 line(s)",
+          "detail": "Allowed: Metadata states ownership release status and technology",
+          "where": [
+            "p.re-engineering-meta \"Own products · Node · WebSocket · PostgreSQL\"",
+            "p.re-engineering-meta \"Built alone · Pre-launch · Next.js · Postgres\""
+          ]
+        }
+      ],
+      "motion": {
+        "atLoad": 0,
+        "duringScroll": 0,
+        "events": 6,
+        "scrollLinked": 0,
+        "loops": 0,
+        "firstScreenAtLoad": 1,
+        "durations": [
+          600
+        ],
+        "easings": [
+          "cubic-bezier(0.23, 1, 0.32, 1)"
+        ],
+        "sample": [
+          "CSSTransition div.re-canvas opacity 600ms cubic-bezier(0.23, 1, 0.32, 1)"
+        ]
+      },
+      "metrics": {
+        "cls": 0,
+        "shifts": [],
+        "lcp": {
+          "t": 212,
+          "node": "IMG",
+          "size": 79479
+        },
+        "longFrames": 5,
+        "longFrameMax": 214,
+        "introFrames": {
+          "frames": 90,
+          "p50": 16.7,
+          "p95": 16.8,
+          "max": 33.4,
+          "over25": 2
+        },
+        "scrollFrames": {
+          "frames": 156,
+          "p50": 16.7,
+          "p95": 16.8,
+          "max": 33.3,
+          "over25": 1,
+          "controlP95": 16.7
+        },
+        "wheel": {
+          "first": 4560,
+          "want": 4560,
+          "skipped": null
+        },
+        "errors": [],
+        "reducedMotionAnimations": 0,
+        "reducedMotionRafPerSecond": 0
+      },
+      "allow": {
+        "T10b": "Familiar hiring labels keep the requested visible index scannable",
+        "T10f": "Engineering terms identify the work and tools for the intended reader",
+        "T30": "Metadata states ownership release status and technology",
+        "C08c": "Approved original store images shown at readable phone scale are the highest resolution available"
+      },
+      "facts": {
+        "contrastGround": {
+          "painted": 4,
+          "ancestorChain": 0,
+          "covered": 0,
+          "sampled": 40,
+          "ariaCopies": 0,
+          "copies": [],
+          "chainWhy": {},
+          "differs": []
+        },
+        "title": "Gentrit Rashiti — Web, backend & mobile",
+        "owner": "Gentrit Rashiti",
+        "hero": {
+          "text": "I build web and mobile products, from interface to backend.",
+          "font": "Archivo",
+          "size": 32
+        },
+        "largest": {
+          "text": "I build web and mobile products,",
+          "font": "Archivo",
+          "size": 32
+        },
+        "devServer": null,
+        "ground": {
+          "rgb": "rgb(5 5 8)",
+          "from": "behind the hero: div.re-root"
+        },
+        "displayFace": {
+          "declared": "Archivo",
+          "rendered": "Archivo",
+          "web": true,
+          "localAlias": false,
+          "status": "loaded",
+          "notLoaded": false
+        },
+        "families": [
+          "Archivo"
+        ],
+        "fontAliases": {},
+        "firstScreenWords": 45,
+        "firstScreenSizes": [
+          16,
+          20,
+          28,
+          32
+        ],
+        "mediaShareFirstScreen": 0.329,
+        "mediaShareWithCanvas": 1,
+        "workItems": [
+          "figure.re-intro-art \"Interface Server rules Data Real product screens\" 32%"
+        ],
+        "pageHeight": 17480,
+        "hiddenBelowFold": 0,
+        "hiddenSections": 0,
+        "hiddenSectionSample": [],
+        "busyFigures": [],
+        "unknownNumbers": [],
+        "sampledContrast": [
+          "a.re-mark \"Gentrit Rashiti\" 16.97:1",
+          "a \"Work\" 11.53:1",
+          "a \"CV\" 11.53:1",
+          "a \"Email\" 11.53:1",
+          "span \"I build web and mobile products,\" 18.51:1",
+          "span \"from interface to backend.\" 18.51:1",
+          "p.re-intro-role \"Frontend · Backend · Mobile\" 17.36:1",
+          "p.re-intro-bio \"5+ years shipping web and mobile p 11.80:1",
+          "a.re-text-link \"AI in the workflow\" 13.04:1",
+          "h2 \"Offday\" 17.40:1",
+          "p.re-intro-detail \"Team requests, approvals and a  11.80:1",
+          "p.re-intro-credit \"Own product, built with one oth 7.55:1"
+        ]
+      },
+      "signals": {
+        "H01_displayFace": true,
+        "H02_typeDecision": true,
+        "H03_asymmetry": true,
+        "H04_workLarge": true,
+        "H09_themedSurfaces": true,
+        "H11_nameSmall": true,
+        "H12_tintedGround": true,
+        "H15_selfHostedFonts": true
+      }
+    }
+  ]
+}

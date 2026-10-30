@@ -11,9 +11,9 @@ Project facts below come from git history; contact and education details were co
 ## 0. Hero
 
 **Name:** Gentrit Rashiti
-**Role line:** Frontend & Mobile Developer → Full Stack
-**One-liner:** Web and mobile products, from the first screen to release: healthcare, video streaming, e-reading and Web3.
-**Secondary:** 5+ years. Part of two platform rewrites. React, React Native, Vue, TypeScript, Laravel. Based in Kosovo, working remotely.
+**Role line (approved design, 2026-10-30):** Frontend · Backend · Mobile
+**One-liner (approved design, 2026-10-30):** I build web and mobile products, from interface to backend.
+**Secondary (approved design, 2026-10-30):** 5+ years shipping web and mobile products. Based in Kosovo, working remotely.
 **CTAs:** "See the work" (scroll), "Download CV" (link to `/Gentrit-Rashiti-CV.pdf`; the editable source is `cv/Gentrit-Rashiti-CV.html`).
 
 ## 1. Capabilities (strip, short)
@@ -290,3 +290,46 @@ Localization: multi-language, Arabic RTL
 ## 10. Education
 
 Bachelor's degree, UBT (owner, 2026-10-03). No field of study, dates or further qualifications supplied; do not add them.
+
+## 11. Refractive Engine decision stories (2026-10-30)
+
+These facts and proposed copy support the approved interface/backend positioning. LeakScan remains the product name. The project index remains visible. Source checkpoints below are evidence for copy, not claims that this portfolio review ran or passed the products' test suites.
+
+### Offday: enforce the boundary on the server
+
+- Scope: co-built with one other developer; a working MVP, not a complete commercial HR platform.
+- Constraint: employees and managers share a calendar but have different permissions. Multiple organizations use separate workspaces.
+- Decision: mutations check organization membership and role on the server. Private request notes are returned only to the requester and managers. The assistant summary omits request notes.
+- Evidence: security/workspace test definitions cover anonymous and cross-origin mutations, organization separation, private coworker notes, and session revocation. The assistant has a local provider and a configured streaming provider; the portfolio's captured assistant used the local provider.
+- Tradeoff: the shared calendar is visible to the team while private details stay restricted; deployment and commercial features remain MVP limitations.
+- Sources: offday HEAD `dacf3ab`, `README.md` Architecture and tradeoffs / Limitations; `lib/assistant.ts` workspaceSummary; `tests/workspace.spec.ts` organization/permissions flow and coworker-note test; `tests/security.spec.ts` assistant and origin tests. Local source root: `/Users/gentlegen/Desktop/Projects/offday`.
+- Approved concise story copy: "A shared calendar does not mean shared access." / "Organization membership and roles are checked on the server. Private notes stay with the requester and managers, and are omitted from the assistant's context." / "Tests cover organization separation, permissions and private notes." / "Built with one other developer. A working MVP."
+
+### LeakScan: verify ownership before running a scan
+
+- Scope: built alone; pre-launch according to the existing product record. No adoption or launch-success claim.
+- Constraint: the scanner can receive access to a repository and database, so the workflow checks domain ownership before scanning.
+- Decision: domain ownership is verified using DNS or a verification file before a scan runs. Optional repository and database connections use read-only access. Stored credentials are encrypted, deletable by the app's owner, and expire after 14 days.
+- Evidence: README documents domain proof, the scan lifecycle, embedded or server Postgres, scan checks, rescans, and credential handling. It describes Vercel after() execution with cron retry/housekeeping, plus local worker alternatives. Do not imply a permanently running production worker service.
+- AI boundary: the optional AI pass rewrites explanations and fix prompts. Templated explanations are available without a key. The scan checks are code-based; do not claim the AI itself verifies security or guarantees a secure app.
+- Tradeoff: explanation generation is separate from checking; the product can produce templated findings without the optional AI provider.
+- Sources: SlopRemover `origin/main` `fb78c2c`, `README.md` product/configuration/seven-checks sections, `src/worker/` and its check test inventory. Local source root: `/Users/gentlegen/Desktop/SlopRemover`. The checked-out landing branch differs from main, so use git show against the pinned ref. Screenshots are real product captures on invented fixtures; the manifest records some stand-in scan checks and no live paid-provider call.
+- Free-check screenshot refresh (2026-10-30): `origin/main` `fb78c2c` changes `StrangerCard` in `src/app/app/apps/[id]/scans/[scanId]/page.tsx` and `strangerRows` in `src/lib/stranger-summary.ts`. The “What a stranger can see” card now lists one row per free check, with its result and found/clean/not-checked icon, instead of the layer diagram. Recaptured the same invented Kiln & Co fixture; this is a layout refresh, not a new live scan. Capture provenance: `design/reviews/refractive-send-ready/leakscan-free-check-refresh.json`.
+- Approved concise story copy: "Prove ownership before a scan starts." / "Domain verification comes before scanning. Optional repository and database access is read-only, and stored credentials have an explicit expiry." / "The checks produce findings; an optional AI pass rewrites their explanations and fix prompts." / "Without the optional provider, the report uses templated explanations."
+
+### Care API: keep organizations separate and the report usable
+
+- Scope: existing team work; generic product name and high-level description only.
+- Constraint: many organizations share one platform; records must remain separated by organization and role. One billing report previously used 16 queries and timed out.
+- Decision: tenant-security work belongs in the Laravel backend alongside enrollment drafts, the lab catalog and reporting. Do not present frontend filtering as the tenant boundary.
+- Evidence/result: the existing owner-approved record says one billing report went from 16 database queries to 2 and no longer times out. The result applies to that report only.
+- Tradeoff/limit of evidence: the approved record establishes the result, but does not establish a public latency figure, dataset size, load test or the exact SQL change. Do not invent any of those or claim API-wide speedup.
+- Sources: existing CONTENT.md section 2, facts and stack; src/content/projects.ts care-api summary; src/content/caseNarratives.ts care story. The original Laravel repository was not available among the checked local projects, so no new query-mechanism claim is authorized.
+- Approved concise story copy: "Keep each organization's records in its own lane." / "Many organizations share the platform. The Laravel API handles tenant boundaries, enrollment drafts and the lab catalog." / "One billing report went from 16 queries to 2 and no longer times out." / "That result describes one report, not the entire API."
+
+### Homepage evidence and career frame
+
+- Offday's layers are Interface, Server rules and Data: requests/approvals/calendar; server role and organization checks; SQLite persistence of workspaces, requests and balances. Sources: Offday's README and lib/types.ts / lib/db.ts.
+- Tondo and Za! use authoritative Node/WebSocket servers. Players send intended moves; servers validate game rules and send state. Tondo persists saved crews in PostgreSQL. Sources: existing CONTENT.md section 7b; Tondo HEAD `dcaff64`, README.md, server/crew-actions.js, server/clientip.js and test inventory. Do not repeat the README's stale one-dependency count; package.json also lists pg.
+- The career frame "My background is frontend and mobile" with recent work extending to APIs, databases, realtime game servers and AI-enabled products summarizes the dated project record in sections 2–8. It does not claim equal tenure in each discipline or introduce a new employment title.
+- The AI workflow retains this exact team statement: "The team wrote the rules and the checks. AI agents build inside them, and a person on the team approves each change." Sources: existing sections 2 and 6b. A check failure returns to agent work, and a check is trusted only after it is shown to fail.

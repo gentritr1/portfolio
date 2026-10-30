@@ -3,7 +3,7 @@ import { ArrowRightIcon, BookOpenTextIcon, XIcon } from '@phosphor-icons/react'
 import { createChamber, type Chamber } from './chamber'
 import { plain, BASE, INVENTED, systems } from './data'
 import { plates, proofKind } from './plates'
-import { STAGE } from './scene'
+import { STAGE } from './sceneSupport'
 
 // Read to Feed, not a product the chapters above just showed: the chamber opens on something new, and on its demo.
 const FIRST = 'incentiv'
