@@ -118,8 +118,21 @@ export const cases: Case[] = [
 /** One row of the page's index of projects. */
 export type Row = Pick<Project, 'slug' | 'name' | 'channel' | 'years' | 'role' | 'line' | 'links'>
 
-/** All projects on this page: the site's list, and LeakScan under Web apps & AI (it is not in the site's list yet). */
-export const work: Row[] = [...projects, { slug: 'leakscan', name: 'LeakScan', channel: 'ai', years: '2026', role: own[1].role, line: own[1].line, links: [] }]
+/**
+ * Arrows (owner, 2026-11-01): co-built, public on Google Play. The line names the technique, not a speed-up: its frame
+ * numbers are emulator runs whose absolute level moved 3× with host load (CONTENT.md §7b).
+ */
+const ARROWS: Row = {
+  slug: 'arrows', name: 'Arrows', channel: 'personal', years: '2026', role: 'Mobile, co-built',
+  line: 'Logic puzzle; dense boards drawn by a native view, not hundreds of SVG shapes',
+  links: [{ label: 'Google Play', href: 'https://play.google.com/store/apps/details?id=com.danteb.arrows' }],
+}
+
+/** All projects on this page: the site's list with Arrows beside Geo Guesser, and LeakScan under Web apps & AI (neither is in the site's list yet). */
+export const work: Row[] = [
+  ...projects.flatMap((p): Row[] => (p.slug === 'geo-guesser' ? [p, ARROWS] : [p])),
+  { slug: 'leakscan', name: 'LeakScan', channel: 'ai', years: '2026', role: own[1].role, line: own[1].line, links: [] },
+]
 
 /** An area's years over this page's list (LeakScan adds 2026 to Web apps & AI). */
 export const period = (key: ChannelKey) => periodOf(key, work)

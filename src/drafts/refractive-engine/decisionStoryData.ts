@@ -22,6 +22,14 @@ export const decisionStories: Record<string, DecisionStory> = {
     evidence: 'The checks produce findings; an optional AI pass rewrites their explanations and fix prompts.',
     tradeoff: 'Without the optional provider, the report uses templated explanations. Built alone; pre-launch.',
   },
+  // The owner's reason for the rebuild (2026-11-01); the scope figures are CONTENT.md §3. No switchover figures exist.
+  'bayyinah-tv': {
+    heading: 'Rebuilt from an empty template, organized by feature.',
+    context: 'Version two moved to Vue 3 and Nuxt 3, and had to carry much more: live streams, subscriptions, gifting and an Arabic, right-to-left interface. The first version’s template was hard to extend that far.',
+    decision: 'Instead of upgrading the old template in place, the team started from an empty Nuxt 3 project with a cleaner, feature-based structure built for the larger product.',
+    evidence: 'The rebuild covers 34 routes, 270+ components and 25 stores, and the same web app runs in the browser and inside both store apps.',
+    tradeoff: 'Starting empty meant rebuilding every screen rather than carrying any over. There are no downtime or retention figures for the switch, so none are claimed.',
+  },
   'care-platform': {
     heading: 'Keep each organization’s records in its own lane.',
     context: 'Many organizations share the care platform. Their records and roles need to stay separate.',
