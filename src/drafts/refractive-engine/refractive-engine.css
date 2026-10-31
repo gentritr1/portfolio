@@ -900,15 +900,14 @@ html:has(.re-sw-reader[open]) { overflow: hidden; overscroll-behavior: none; }
 :is(.re-cs-next-main, .re-cs-prev):focus-visible { outline: 2px solid var(--re-accent); outline-offset: 4px; }
 @media (max-width: 767px) { .re-casepage { padding-top: 84px; } }
 
-/* Arrival: the screen is there first; the words and the case settle in after it. */
+/* Arrival: the screen is there first; the words and the case fade in after it, 200 ms with no travel and no stagger. The
+   flight has already carried the eye, so a second move only added a beat (review 2026-10-31). A case opened from the
+   keyboard arrives with nothing animating. */
 @media (prefers-reduced-motion: no-preference) {
-  /* 300 ms, the ceiling for interface motion: after the 480 ms flight the words are read about 780 ms after the click. */
-  .re-casepage :is(.re-cs-words, .re-cs-body, .re-cs-screens, .re-cs-next) { animation: re-settle 300ms var(--re-ease) both; }
-  .re-casepage .re-cs-words { animation-delay: 40ms; }
-  .re-casepage .re-cs-body { animation-delay: 100ms; }
-  .re-casepage :is(.re-cs-screens, .re-cs-next) { animation-delay: 140ms; }
+  .re-casepage :is(.re-cs-words, .re-cs-body, .re-cs-screens, .re-cs-next) { animation: re-arrive 200ms var(--re-ease) both; }
+  .re-root[data-input="key"] .re-casepage :is(.re-cs-words, .re-cs-body, .re-cs-screens, .re-cs-next) { animation: none; }
 }
-@keyframes re-settle { from { opacity: 0; transform: translateY(8px); } }
+@keyframes re-arrive { from { opacity: 0; } }
 
 html.re-html::view-transition-old(root), html.re-html::view-transition-new(root) { animation-duration: 320ms; animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1); }
 /* Read the case: the chapter's whole slab, frame and screen together, moves and grows onto the same slab at the top of the
@@ -916,8 +915,8 @@ html.re-html::view-transition-old(root), html.re-html::view-transition-new(root)
 html.re-html::view-transition-group(re-case-hero) { z-index: 2; animation-duration: 480ms; animation-timing-function: cubic-bezier(0.77, 0, 0.175, 1); }
 html.re-html::view-transition-old(re-case-hero), html.re-html::view-transition-new(re-case-hero) { animation-duration: 480ms; }
 /* Words after the landing: while the screen flies in only the landing is rendered and its words wait unseen. When the
-   flight ends the rest mounts, and the words, the case and its screens settle in on their own delays (40, 100, 140 ms).
-   A delay tied to :active-view-transition cannot do this: the transition ends before it runs out, and the words popped. */
+   flight ends the rest mounts and fades in. A delay tied to :active-view-transition cannot do this: the transition ends
+   before it runs out, and the words popped. */
 .re-casepage[data-landing-only] .re-cs-words { animation: none; opacity: 0; }
 @media (prefers-reduced-motion: reduce) {
   html.re-html::view-transition-old(root), html.re-html::view-transition-new(root),

@@ -51,7 +51,18 @@ export function Evidence({ onOpen }: { onOpen: OpenCase }) {
 
       <section id="re-about" className="re-about re-solid" aria-labelledby="re-about-h">
         <h2 id="re-about-h" className="re-h2">From the interface to the whole product.</h2>
-        <div><p>My background is frontend and mobile: web platforms, iOS and Android apps, store releases and framework upgrades.</p><p>Recent work extends across APIs, databases, realtime game servers and AI-enabled products. The same care goes into what a person sees and the systems behind it.</p><p className="re-engineering-meta">Based in Kosovo · Working remotely · Bachelor’s degree, UBT</p></div>
+        <div>
+          <p>My background is frontend and mobile: web platforms, iOS and Android apps, store releases and framework upgrades.</p>
+          <p>Recent work extends across APIs, databases, realtime game servers and AI-enabled products. The same care goes into what a person sees and the systems behind it.</p>
+          {/* Sources: the Futurisma case (role, method, "What I'd do differently"); CONTENT.md §11. */}
+          <p>On Futurisma, my 3D racing game, I direct a crew of AI agents: I write the briefs and the checks, they build, and each phase is accepted only after its tests run again. The lesson I kept: measure before setting a target. One target there, written without measuring, had to be withdrawn.</p>
+          <a className="re-text-link" href={`${BASE}/futurisma`} onClick={(e) => {
+            if (!plain(e)) return
+            e.preventDefault()
+            onOpen('futurisma', e.currentTarget, e.detail === 0)
+          }}>Read the Futurisma case <ArrowUpRightIcon aria-hidden="true" size={17} /></a>
+          <p className="re-engineering-meta">Based in Kosovo · Working remotely · Bachelor’s degree, UBT</p>
+        </div>
       </section>
     </>
   )

@@ -63,7 +63,7 @@ export function HomeIntro({ onOpen }: { onOpen(slug: string, trigger: HTMLAnchor
           <h2>Offday</h2>
           {/* The live region stays; the line inside it is replaced, so it is announced and can arrive with the plate. */}
           <p className="re-intro-detail" aria-live="polite"><span key={layer}>{LAYERS[layer].text}</span></p>
-          <p className="re-intro-credit">Own product, built with one other developer</p>
+          <p className="re-intro-credit">Own product, a working MVP built with one other developer</p>
           <a className="re-text-link" href={`${BASE}/offday`} onClick={(e) => {
             if (!plain(e)) return
             e.preventDefault()
@@ -72,6 +72,8 @@ export function HomeIntro({ onOpen }: { onOpen(slug: string, trigger: HTMLAnchor
         </div>
 
         <figure className="re-intro-art" data-work="offday">
+          {/* Phones only: the product's name and status inside the first screen; its description and case link follow the stack. */}
+          <p className="re-stk-status">Offday, a working MVP built with one other developer.</p>
           {/* Offday's layers as a stack of plates, Interface in front. data-d is each plate's depth from the chosen one. */}
           <div className="re-stk re-sw-lead">
             {LAYERS.map((item, i) => (
