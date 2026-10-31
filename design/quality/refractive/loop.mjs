@@ -71,6 +71,11 @@ const desktop = [
   { eval: go('') }, { eval: '(scrollTo({top:0,behavior:"instant"}),1)' }, { wait: 500 }, { tap: '.re-intro-product a.re-text-link' }, { wait: 1500 },
   { tap: '.re-case-top button' }, { wait: 1500 }, { scrollTo: '.re-sw-bayyinah', offset: 120 }, { wait: 700 },
   { eval: vtWatch }, { tap: '.re-sw-bayyinah .re-prod-case' }, { wait: 1500 }, tag('roundTrip', '({path:location.pathname,vt:window.__vt})'),
+  // A case opened with Enter arrives with no entrance animation (review 2026-10-31: four ran). Only CSSAnimations count: the
+  // mouse left resting where "All work" was tapped hovers the next case's button, and that colour transition is pointer feedback.
+  { tap: '.re-case-top button' }, { wait: 1200 }, { scrollTo: '.re-sw-reading', offset: 120 }, { wait: 400 },
+  { eval: `(document.querySelector('.re-sw-reading .re-prod-case').focus(),1)` }, { key: 'Enter' }, { wait: 60 },
+  tag('keyCase', `({path:location.pathname,running:document.getAnimations().filter((a)=>a instanceof CSSAnimation&&a.effect?.target?.closest?.('.re-casepage')).length})`),
 ]
 const phone = (w, h) => [
   { eval: go('') }, tag(`audit-home-${w}`, audit),
@@ -112,6 +117,8 @@ for (const k of ['stackFrames', 'stackBackFrames']) {
   const f = results[k]
   checks.push([`hero stack move frames (${k === 'stackFrames' ? 'to Data' : 'back'}; none dropped beyond 5%, worst ≤ 34 ms)`, !!f && f.worst <= 34 && f.frames >= f.expected * 0.95, f && `${f.frames}/${f.expected}, p95 ${f.p95}, worst ${f.worst}`])
 }
+const kc = results.keyCase
+checks.push(['a case opened with Enter arrives without animation', !!kc && kc.path === '/read-to-feed' && kc.running === 0, kc && `${kc.path}, ${kc.running} running`])
 const rt = results.roundTrip
 checks.push(['hero case, back, chapter case: the second flight runs', !!rt && rt.path === '/bayyinah-tv' && rt.vt[0] === 'ran', rt && `${rt.path} ${rt.vt.join(', ')}`])
 const cf = results.caseFrames
