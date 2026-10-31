@@ -313,8 +313,9 @@ export default function Draft() {
     const from = lastCase.current
     lastCase.current = caseSlug
     if (caseSlug) {
-      // The old page is already captured for the view transition; the name must not stay on a slab the case hides.
-      document.querySelectorAll<HTMLElement>('.re-sw [style*="view-transition-name"]').forEach((el) => el.style.removeProperty('view-transition-name'))
+      // The old page is already captured for the view transition; the name must not stay on a slab the case hides. Anywhere
+      // in main, the hero's stack included: a name left there made the next case's flight fail on a duplicate name.
+      document.querySelectorAll<HTMLElement>('main [style*="view-transition-name"]').forEach((el) => el.style.removeProperty('view-transition-name'))
       document.querySelectorAll('.re-sw[data-lift]').forEach((el) => el.removeAttribute('data-lift'))
       if (from !== caseSlug) jump(0)
       return

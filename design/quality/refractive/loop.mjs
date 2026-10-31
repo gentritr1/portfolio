@@ -45,6 +45,10 @@ const fillCase = `(()=>{const l=document.querySelector('.re-cs-landing').getBoun
 // The Lab and the area map sit behind "Explore the product layers"; open it so reach covers their controls too.
 const explore = `(async()=>{const d=document.querySelector('#re-explore');d.open=true;for(let i=0;i<100&&!document.querySelector('.re-ch');i++)await new Promise(r=>setTimeout(r,100));return !!document.querySelector('.re-ch')})()`
 
+// Hero → Offday → back, then a chapter's case: that second flight must run. The hero's stack kept its transition name, so
+// the next flight failed on a duplicate name and the case cut in (2026-10-31).
+const vtWatch = `(window.__vt=[],(()=>{const o=document.startViewTransition.bind(document);document.startViewTransition=(cb)=>{const t=o(cb);t.ready.then(()=>window.__vt.push('ran'),(e)=>window.__vt.push('skipped: '+e.message));return t}})(),1)`
+
 const desktop = [
   { eval: go('') }, { wait: 4000 }, { shot: 'idle-a' }, { wait: 1000 }, { shot: 'idle-b' },
   tag('settle', settle),
@@ -64,6 +68,9 @@ const desktop = [
   ...Array.from({ length: 60 }, (_, i) => [{ key: 'Tab' }, tag(`tab${i}`, focusNow)]).flat(),
   { eval: go('') }, { wait: 1500 }, tag('reach-desktop', reach),
   tag('explore-desktop', explore), { wait: 1500 }, tag('reach-desktop-explore', reach),
+  { eval: go('') }, { eval: '(scrollTo({top:0,behavior:"instant"}),1)' }, { wait: 500 }, { tap: '.re-intro-product a.re-text-link' }, { wait: 1500 },
+  { tap: '.re-case-top button' }, { wait: 1500 }, { scrollTo: '.re-sw-bayyinah', offset: 120 }, { wait: 700 },
+  { eval: vtWatch }, { tap: '.re-sw-bayyinah .re-prod-case' }, { wait: 1500 }, tag('roundTrip', '({path:location.pathname,vt:window.__vt})'),
 ]
 const phone = (w, h) => [
   { eval: go('') }, tag(`audit-home-${w}`, audit),
@@ -105,6 +112,8 @@ for (const k of ['stackFrames', 'stackBackFrames']) {
   const f = results[k]
   checks.push([`hero stack move frames (${k === 'stackFrames' ? 'to Data' : 'back'}; none dropped beyond 5%, worst ≤ 34 ms)`, !!f && f.worst <= 34 && f.frames >= f.expected * 0.95, f && `${f.frames}/${f.expected}, p95 ${f.p95}, worst ${f.worst}`])
 }
+const rt = results.roundTrip
+checks.push(['hero case, back, chapter case: the second flight runs', !!rt && rt.path === '/bayyinah-tv' && rt.vt[0] === 'ran', rt && `${rt.path} ${rt.vt.join(', ')}`])
 const cf = results.caseFrames
 checks.push(['Read the case worst frame ≤ 100 ms (target 50)', !!cf && cf.worst <= 100, cf && `${cf.frames}/${cf.expected}, worst ${cf.worst} ms`])
 const cl = results.caseLanded
