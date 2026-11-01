@@ -393,7 +393,7 @@ export default function Draft() {
   }
   const toHome = (top = false) => {
     if (top) homeScroll.current = 0
-    navigate(HOME, { viewTransition: true })
+    navigate(HOME)
   }
 
   const coordTable = mode === 'tensor' ? (

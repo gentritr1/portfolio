@@ -39,6 +39,7 @@ export function Lab({ mode, reduced, noGl, onOpen }: { mode: 'lens' | 'tensor'; 
   const [trying, setTrying] = useState(false)
   const tryRef = useRef<HTMLButtonElement>(null)
   const demoRef = useRef<HTMLDivElement>(null)
+  const tryKey = useRef(false)
   const selected = Math.max(0, systems.findIndex((s) => s.slug === selectedSlug))
   const sys = systems[selected]
   const tryOpen = trying && DEMOS.has(sys.slug)
@@ -135,16 +136,18 @@ export function Lab({ mode, reduced, noGl, onOpen }: { mode: 'lens' | 'tensor'; 
   }
   const tryIt = (on: boolean, instant: boolean) => {
     finishArrival(instant)
+    tryKey.current = instant
     setTrying(on)
     chamber.current?.setAside(on, instant)
     if (!on) tryRef.current?.focus({ preventScroll: true })
   }
-  // Opening the demo brings its whole frame into view under the bar and moves focus into it; Escape or Close hands it back.
+  // Opening the demo brings its whole frame into view under the bar (at once from the keyboard) and moves focus into it;
+  // Escape or Close hands it back.
   useEffect(() => {
     const demo = demoRef.current
     if (!tryOpen || !demo) return
     const r = demo.getBoundingClientRect()
-    if (r.top < 76 || r.bottom > innerHeight) demo.scrollIntoView({ block: 'start', behavior: reduced ? 'auto' : 'smooth' })
+    if (r.top < 76 || r.bottom > innerHeight) demo.scrollIntoView({ block: 'start', behavior: reduced || tryKey.current ? 'auto' : 'smooth' })
     demo.focus({ preventScroll: true })
   }, [tryOpen, reduced])
   const expand = (on: boolean, instant: boolean) => {
