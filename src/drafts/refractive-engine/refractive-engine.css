@@ -894,6 +894,7 @@ html:has(.re-sw-reader[open]) { overflow: hidden; overscroll-behavior: none; }
 /* A screen shown from the keyboard (arrows, Home/End, Show on screen) arrives whole: its marks and the tab with it. */
 .re-cs-gallery[data-instant] :is(.re-cs-mark, .re-cs-board, .re-cs-board-text, .re-cs-crop-zoom) { animation: none; }
 .re-cs-gallery[data-instant] :is(.re-cs-stage-list button, .re-cs-stage-list button img) { transition: none; }
+.re-cs-gallery[data-instant] .re-cs-mark::before, .re-cs-gallery[data-instant] .re-cs-mark .re-cs-mark-label { transition: none; }
 
 /* ---- Next case: its own screen, waiting; Previous stays a quiet link ---- */
 .re-cs-next { display: grid; gap: 14px; margin-top: clamp(72px, 12vh, 128px); }

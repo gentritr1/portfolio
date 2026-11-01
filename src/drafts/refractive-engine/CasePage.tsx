@@ -171,15 +171,15 @@ function Gallery({ items, slug, at, instant, setAt, mark, decisions }: {
   const full = useRef<FullSizeHandle>(null)
   const row = useRef<HTMLOListElement>(null)
   // On phones the names are a sideways row: keep the shown screen's name in it, after a tap on a half-hidden name or a
-  // swipe on the slab. Sideways only, so the page itself never moves.
+  // swipe on the slab (at once after a key). Sideways only, so the page itself never moves.
   useEffect(() => {
     const r = row.current, b = r?.children[at] as HTMLElement | undefined
     if (!r || !b || r.scrollWidth <= r.clientWidth) return
     const rr = r.getBoundingClientRect(), br = b.getBoundingClientRect()
     if (br.left < rr.left || br.right > rr.right) {
-      r.scrollTo({ left: r.scrollLeft + br.left - rr.left - (rr.width - br.width) / 2, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' })
+      r.scrollTo({ left: r.scrollLeft + br.left - rr.left - (rr.width - br.width) / 2, behavior: instant || matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' })
     }
-  }, [at])
+  }, [at, instant])
   const g = items[at]
   const m = MARKERS[g.src]?.slug === slug ? MARKERS[g.src] : undefined
   const open = !!m && (mark.lit === m.decision || mark.pinned === m.decision)
