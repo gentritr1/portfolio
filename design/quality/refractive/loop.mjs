@@ -49,6 +49,10 @@ const explore = `(async()=>{const d=document.querySelector('#re-explore');d.open
 // the next flight failed on a duplicate name and the case cut in (2026-10-31).
 const vtWatch = `(window.__vt=[],(()=>{const o=document.startViewTransition.bind(document);document.startViewTransition=(cb)=>{const t=o(cb);t.ready.then(()=>window.__vt.push('ran'),(e)=>window.__vt.push('skipped: '+e.message));return t}})(),1)`
 
+const plate = (l) => `document.querySelector('.re-stk-plate[data-l="${l}"]')`
+const plateT = (l) => `getComputedStyle(${plate(l)}).transform`
+const plateState = (l) => `({pressed:document.querySelector('.re-stk-control button[data-l="${l}"]').getAttribute('aria-pressed'),d:${plate(l)}.dataset.d,t:getComputedStyle(${plate(l)}).transform})`
+
 const desktop = [
   { eval: go('') }, { wait: 4000 }, { shot: 'idle-a' }, { wait: 1000 }, { shot: 'idle-b' },
   tag('settle', settle),
@@ -56,8 +60,11 @@ const desktop = [
   { eval: '(scrollTo({top:0,behavior:"instant"}),1)' }, { wait: 400 },
   // framesStart records for 1.5 s; read at 1.3 s, then wait past 1.5 s so the next run does not share the buffer (a 1.3 s
   // gap counted 92 frames where 80 fit, 2026-10-31).
-  { eval: framesStart }, { tap: '.re-stk-control button[data-l="2"]' }, { wait: 1300 }, tag('stackFrames', framesEnd), { wait: 400 },
-  { eval: framesStart }, { tap: '.re-stk-control button[data-l="0"]' }, { wait: 1300 }, tag('stackBackFrames', framesEnd), { wait: 400 },
+  // The plate's transform 120 ms in and at rest, so a click that does nothing, or switches without moving, fails too.
+  { eval: framesStart }, { tap: '.re-stk-control button[data-l="2"]' }, { wait: 120 }, tag('stackMid', plateT(2)), { wait: 1180 },
+  tag('stackFrames', framesEnd), tag('stackEnd', plateState(2)), { wait: 400 },
+  { eval: framesStart }, { tap: '.re-stk-control button[data-l="0"]' }, { wait: 120 }, tag('stackBackMid', plateT(0)), { wait: 1180 },
+  tag('stackBackFrames', framesEnd), tag('stackBackEnd', plateState(0)), { wait: 400 },
   { scrollTo: '.re-sw-bayyinah', offset: -400 }, { wait: 300 }, { eval: framesStart }, { wheel: 220, ticks: 30 }, { wait: 1200 }, tag('scrollFrames', framesEnd),
   ...CHAPTERS.flatMap((c) => [{ scrollTo: `.re-sw-${c}` }, { wait: 500 }, { shot: `d-chapter-${c}` }]),
   { scrollTo: '.re-sw-bayyinah', offset: 120 }, { wait: 700 },
@@ -113,9 +120,10 @@ const sf = results.scrollFrames
 // Jank is a dropped frame or one longer than two refreshes. p95 of the frame interval is reported, not gated: with every
 // frame delivered it moved 20.1 → 21.3 ms between runs as host load rose 7 → 12, i.e. timer jitter (2026-10-28).
 checks.push(['wheel scroll frames (none dropped beyond 5%, worst ≤ 34 ms)', !!sf && sf.worst <= 34 && sf.frames >= sf.expected * 0.95, sf && `${sf.frames}/${sf.expected}, p95 ${sf.p95}, worst ${sf.worst}`])
-for (const k of ['stackFrames', 'stackBackFrames']) {
-  const f = results[k]
-  checks.push([`hero stack move frames (${k === 'stackFrames' ? 'to Data' : 'back'}; none dropped beyond 5%, worst ≤ 34 ms)`, !!f && f.worst <= 34 && f.frames >= f.expected * 0.95, f && `${f.frames}/${f.expected}, p95 ${f.p95}, worst ${f.worst}`])
+for (const [k, mid, end, name] of [['stackFrames', 'stackMid', 'stackEnd', 'to Data'], ['stackBackFrames', 'stackBackMid', 'stackBackEnd', 'back']]) {
+  const f = results[k], m = results[mid], e = results[end]
+  checks.push([`hero stack move frames (${name}; none dropped beyond 5%, worst ≤ 34 ms)`, !!f && f.worst <= 34 && f.frames >= f.expected * 0.95, f && `${f.frames}/${f.expected}, p95 ${f.p95}, worst ${f.worst}`])
+  checks.push([`hero stack move happens (${name}: button pressed, plate in front, moved through 120 ms)`, !!e && e.pressed === 'true' && e.d === '0' && m !== e.t, e && `pressed ${e.pressed}, depth ${e.d}, ${m === e.t ? 'no movement at 120 ms' : 'moving at 120 ms'}`])
 }
 const kc = results.keyCase
 checks.push(['a case opened with Enter arrives without animation', !!kc && kc.path === '/read-to-feed' && kc.running === 0, kc && `${kc.path}, ${kc.running} running`])
