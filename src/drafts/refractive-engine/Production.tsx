@@ -109,15 +109,23 @@ function floor(top: number, bottom: number, lights: [number, number, number, num
   return { '--ft': pct(top / 9), '--fh': pct(h / 9), '--fl': fl.join(', ') }
 }
 
-function Chapter({ id, nh, table, hs, slabs, children }: { id: string; nh: number; table: Vars; hs: number; slabs: ReactNode; children: ReactNode }) {
+/**
+ * `media` (the screens' controls and caption) and the words get a wrapper each. The wrappers have no box on wide screens,
+ * where everything is placed on the frame, or on phones, where everything flows in one column; on landscape tablets they
+ * are the two columns that put the stage beside its words.
+ */
+function Chapter({ id, nh, table, hs, slabs, media, children }: { id: string; nh: number; table: Vars; hs: number; slabs: ReactNode; media?: ReactNode; children: ReactNode }) {
   return (
     <article id={`work-${id}`} className={`re-sw re-sw-${id}`} style={{ '--nh': nh, '--hs': hs } as Vars}>
-      <div className="re-sw-stage">
-        <div className="re-sw-floor" style={table} aria-hidden="true" />
-        <div className="re-sw-contact" aria-hidden="true"><span className="re-sw-contact-soft" /><span className="re-sw-contact-sharp" /></div>
-        <div className="re-sw-slabs">{slabs}</div>
+      <div className="re-sw-media">
+        <div className="re-sw-stage">
+          <div className="re-sw-floor" style={table} aria-hidden="true" />
+          <div className="re-sw-contact" aria-hidden="true"><span className="re-sw-contact-soft" /><span className="re-sw-contact-sharp" /></div>
+          <div className="re-sw-slabs">{slabs}</div>
+        </div>
+        {media}
       </div>
-      {children}
+      <div className="re-sw-words">{children}</div>
     </article>
   )
 }
@@ -316,8 +324,8 @@ export function Production({ onOpen, reduced, onFocus }: { onOpen(slug: string, 
           <Slab shot={shots.landing} swap={bayyinah} crop={[0, 0, 2880, 1420]} phoneCrop={[40, 400, 1400, 1000]} place={[70, 110, 1008]} phone={[16, 11, 358]} nh={440} transform="rotate(-0.55deg)" eager />
           <Slab shot={shots.courses} kind="swap" onReal={openReal} crop={[1248, 1148, 960, 620]} place={[984, 461, 370]} phone={[20, 188, 350]} nh={440} transform="rotate(2deg)" z={4} eager />
         </>}
+        media={<Thumbs swap={bayyinah} crop={[0, 0, 2880, 1420]} place={at(64, 636)} label="Bayyinah TV screens" thumbW={64} />}
       >
-        <Thumbs swap={bayyinah} crop={[0, 0, 2880, 1420]} place={at(64, 636)} label="Bayyinah TV screens" thumbW={64} />
         <div className="re-sw-at re-sw-copy" style={at(48, 742, 865)}>
           <h3>Rebuilt a live learning platform.</h3>
           <Meta name="Bayyinah TV" role="Frontend · 2023–2026" />
@@ -337,9 +345,11 @@ export function Production({ onOpen, reduced, onFocus }: { onOpen(slug: string, 
           <Slab shot={shots.reader} swap={reader} crop={[82, 462, 616, 1227]} phoneCrop={[82, 462, 616, 566]} place={[867, 70, 370]} phone={[58, 20, 312]} nh={445} />
           <Slab shot={shots.achievements} kind="companion" crop={[82, 620, 616, 1069]} phoneCrop={[82, 620, 616, 405]} place={[520, 166, 370]} phone={[20, 222, 312]} nh={445} z={4} />
         </>}
+        media={<>
+          <Thumbs swap={reader} crop={[82, 462, 616, 1227]} place={at(862, 838)} label="Read to Feed screens" thumbW={29} />
+          <p className="re-sw-at re-sw-cap" style={at(520, 838)}>Store listing images.</p>
+        </>}
       >
-        <Thumbs swap={reader} crop={[82, 462, 616, 1227]} place={at(862, 838)} label="Read to Feed screens" thumbW={29} />
-        <p className="re-sw-at re-sw-cap" style={at(520, 838)}>Store listing images.</p>
         <div className="re-sw-at re-sw-copy" style={at(64, 196, 420)}>
           <h3>Kept a children's reading app shipping for four years.</h3>
           <Meta name="Read to Feed" role="Mobile, iOS and Android · 2022–25" stack />
@@ -357,8 +367,8 @@ export function Production({ onOpen, reduced, onFocus }: { onOpen(slug: string, 
         id="care" nh={345} hs={42}
         table={floor(639, 802, [[880, 711, 515, 48]])}
         slabs={<Slab shot={shots.calendar} place={[412, 96, 970]} phoneCrop={[440, 380, 1100, 960]} phone={[16, 10, 358]} nh={345} transform="rotate(-2deg)" />}
+        media={<p className="re-sw-at re-sw-cap" style={at(430, 744)}>Real product screens, invented data.</p>}
       >
-        <p className="re-sw-at re-sw-cap" style={at(430, 744)}>Real product screens, invented data.</p>
         <div className="re-sw-at re-sw-copy" style={at(64, 77, 305)}>
           <h3>Rebuilding the dashboard, one tested screen at a time.</h3>
           <Meta name="Care-management platform" role="A team effort" stack />
@@ -388,8 +398,8 @@ export function Production({ onOpen, reduced, onFocus }: { onOpen(slug: string, 
             </div>
           </figure>
         </>}
+        media={<p className="re-sw-at re-sw-cap" style={at(64, 669)}>Real product screens, invented data.</p>}
       >
-        <p className="re-sw-at re-sw-cap" style={at(64, 669)}>Real product screens, invented data.</p>
         <div className="re-sw-at re-sw-copy" style={at(64, 749, 760)}>
           <h3>One shared library, checked before release.</h3>
           <Meta name="Design System v2" role="A team effort · 2026" />

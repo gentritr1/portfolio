@@ -258,6 +258,21 @@ export default function Draft() {
 
   useEffect(() => { modeRef.current = mode }, [mode])
 
+  // How the last activation came, a key (Enter or Space) or a pointer. A case opened from the keyboard arrives without its
+  // entrance, whichever link opened it (a chapter, the index, Next, Previous): keyboard actions do not animate.
+  useEffect(() => {
+    const root = rootRef.current
+    if (!root) return
+    const key = (e: KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') root.dataset.input = 'key' }
+    const pointer = () => { root.dataset.input = 'pointer' }
+    addEventListener('keydown', key, true)
+    addEventListener('pointerdown', pointer, true)
+    return () => {
+      removeEventListener('keydown', key, true)
+      removeEventListener('pointerdown', pointer, true)
+    }
+  }, [])
+
   // Frame budget controls act on the live scene.
   useEffect(() => { sceneRef.current?.setDrawCount(drawn) }, [drawn, sceneKey])
   useEffect(() => { sceneRef.current?.setBloom(bloomOn) }, [bloomOn, sceneKey])
@@ -313,8 +328,9 @@ export default function Draft() {
     const from = lastCase.current
     lastCase.current = caseSlug
     if (caseSlug) {
-      // The old page is already captured for the view transition; the name must not stay on a slab the case hides.
-      document.querySelectorAll<HTMLElement>('.re-sw [style*="view-transition-name"]').forEach((el) => el.style.removeProperty('view-transition-name'))
+      // The old page is already captured for the view transition; the name must not stay on a slab the case hides. Anywhere
+      // in main, the hero's stack included: a name left there made the next case's flight fail on a duplicate name.
+      document.querySelectorAll<HTMLElement>('main [style*="view-transition-name"]').forEach((el) => el.style.removeProperty('view-transition-name'))
       document.querySelectorAll('.re-sw[data-lift]').forEach((el) => el.removeAttribute('data-lift'))
       if (from !== caseSlug) jump(0)
       return
@@ -408,14 +424,13 @@ export default function Draft() {
         ) : (
           <a className="re-mark" href="#re-top">Gentrit Rashiti</a>
         )}
-        {!caseSlug && (
-          <nav className="re-nav" aria-label="Sections">
-            <a href="#re-work">Work</a>
-            <a className="re-nav-about" href="#re-about">About</a>
-            <a href={links.cv}>CV</a>
-            <a href={`mailto:${links.email}`}>Email</a>
-          </nav>
-        )}
+        {/* CV and Email stay on case pages too: a case opened from a shared link should not need the home to reach them. */}
+        <nav className="re-nav" aria-label="Site">
+          {!caseSlug && <a href="#re-work">Work</a>}
+          {!caseSlug && <a className="re-nav-about" href="#re-about">About</a>}
+          <a href={links.cv}>CV</a>
+          <a href={`mailto:${links.email}`}>Email</a>
+        </nav>
       </header>
 
 
@@ -435,8 +450,7 @@ export default function Draft() {
           {exploreOpen && !noGl && <AreaMap scene={sceneRef.current} userMode={mode === 'tensor' ? 1 : 0} stage={STAGE.modes} />}
         </details>
 
-        <AllWork onOpen={(slug) => toCase(slug)} />
-
+        {/* Results before the full index (review 2026-10-31: on phones they sat 15,800 px down, after every project). */}
         <section className="re-ledger" data-stage={STAGE.ledger} aria-labelledby="re-ledger-h">
           <div className="re-ledger-head">
             <h2 id="re-ledger-h" className="re-h2">Before and after</h2>
@@ -461,6 +475,8 @@ export default function Draft() {
             ))}
           </ol>
         </section>
+
+        <AllWork onOpen={(slug) => toCase(slug)} />
 
         {/* The field explains itself here, folded away: it is the page's ground, not its subject. */}
         <details className="re-field-notes" onToggle={(e) => setNotesOpen(e.currentTarget.open)}>

@@ -43,7 +43,12 @@ const waitFor = async (expr, ms = 15000) => {
 }
 await send('Runtime.enable')
 await send('Page.enable')
+// The DevTools playback rate outlives a navigation, and every run reuses this tab: a run after one that slowed motion with
+// `rate` would still run at 10% (13 stack animations alive 800 ms after a click, 2026-11-01). Reset it before each run,
+// only once a rate was set, so runs that never touch it keep the Animation domain off.
+let rated = false
 for (const run of plan) {
+  if (rated) await send('Animation.setPlaybackRate', { playbackRate: 1 })
   await send('Emulation.setDeviceMetricsOverride', { width: run.w, height: run.h, deviceScaleFactor: run.dpr ?? (run.mobile ? 3 : 2), mobile: !!run.mobile })
   await send('Emulation.setTouchEmulationEnabled', { enabled: !!run.mobile })
   await send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: run.reduced ? 'reduce' : 'no-preference' }] })
@@ -52,10 +57,9 @@ for (const run of plan) {
       (run.init ?? '') + (run.nogl ? `const g = HTMLCanvasElement.prototype.getContext; HTMLCanvasElement.prototype.getContext = function (t, ...a) { return /webgl/.test(t) ? null : g.call(this, t, ...a) };` : ''),
   })
   await send('Page.navigate', { url: base })
-  await waitFor(`!!document.querySelector('.re-root[data-ready]') && !!document.querySelector('.re-ch')`)
-  await evaluate(`(() => { const y = document.querySelector('.re-lab').getBoundingClientRect().top + scrollY; window.scrollTo({ top: y, behavior: 'instant' }) })()`)
-  await sleep(300)
-  if (!run.nogl) await waitFor(`!!document.querySelector('.re-ch-stage[data-ready]')`)
+  // The home opens on the intro and the five chapters; the Lab renders only once "Explore the product layers" is opened
+  // (071ab44), so plans that need it open it themselves.
+  await waitFor(`!!document.querySelector('.re-root[data-ready]') && !!document.querySelector('.re-sw')`)
   await sleep(900)
   for (const s of run.steps) {
     if (s.click) await evaluate(`document.querySelector(${JSON.stringify(s.click)}).click()`)
@@ -77,6 +81,8 @@ for (const run of plan) {
     }
     if (s.scrollTo) await evaluate(`(() => { const el = document.querySelector(${JSON.stringify(s.scrollTo)}); window.scrollTo({ top: el.getBoundingClientRect().top + scrollY + ${s.offset ?? 0}, behavior: 'instant' }) })()`)
     if (s.media) await send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: s.media }] })
+    // Slow every CSS animation and transition (rate 0.1 = 10× slower) to capture a move mid-flight at a known time.
+    if (s.rate) { rated = true; await send('Animation.enable'); await send('Animation.setPlaybackRate', { playbackRate: s.rate }) }
     if (s.scrollBy) await evaluate(`window.scrollBy({ top: ${s.scrollBy}, behavior: 'instant' })`)
     if (s.resize) await send('Emulation.setDeviceMetricsOverride', { width: s.resize[0], height: s.resize[1], deviceScaleFactor: s.resize[2] ?? 2, mobile: s.resize[0] < 600 })
     if (s.wheel) {

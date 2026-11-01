@@ -25,7 +25,7 @@ const framesEnd = `(()=>{const d=window.__f,g=[];for(let i=1;i<d.length;i++)g.pu
 const caseLanded = `(()=>{const h=document.querySelector('.re-cs-hero').getBoundingClientRect();return {landedW:Math.round(h.width),originW:window.__originW,names:document.querySelectorAll('[style*=view-transition-name]').length}})()`
 // Mobile audit: horizontal overflow (outside screenshots and outside deliberate sideways scrollers, which hold their
 // overflow), small tap targets, small text.
-const audit = `(()=>{const W=innerWidth;const vis=e=>{const r=e.getBoundingClientRect();return r.width>0&&r.height>0};const inScroller=e=>{for(let p=e.parentElement;p&&p!==document.body;p=p.parentElement){const o=getComputedStyle(p).overflowX;if(o==='auto'||o==='scroll')return true}return false};const over=[...document.querySelectorAll('.re-root *')].filter(e=>vis(e)&&e.getBoundingClientRect().right>W+1&&!e.closest('.re-sw-screen,.re-canvas,.re-sw-stage')&&!inScroller(e)).length;const small=[...document.querySelectorAll('.re-root :is(a,button,summary)')].filter(e=>{const r=e.getBoundingClientRect();return vis(e)&&(r.height<44||r.width<44)}).map(e=>e.className||e.tagName).slice(0,12);const tiny=[...document.querySelectorAll('.re-root :is(p,span,li,a,button,dd,dt,small,strong,b)')].filter(e=>vis(e)&&e.childNodes.length&&[...e.childNodes].some(n=>n.nodeType===3&&n.textContent.trim())&&!e.closest('.re-sw-screen,.re-tune')&&parseFloat(getComputedStyle(e).fontSize)<14).length;return {scrollW:document.documentElement.scrollWidth,W,overflowing:over,smallTargets:small.length,smallTargetSample:small,textUnder14:tiny}})()`
+const audit = `(()=>{const W=innerWidth;const vis=e=>{const r=e.getBoundingClientRect();return r.width>0&&r.height>0};const inScroller=e=>{for(let p=e.parentElement;p&&p!==document.body;p=p.parentElement){const o=getComputedStyle(p).overflowX;if(o==='auto'||o==='scroll')return true}return false};const over=[...document.querySelectorAll('.re-root *')].filter(e=>vis(e)&&e.getBoundingClientRect().right>W+1&&!e.closest('.re-sw-screen,.re-stk,.re-canvas,.re-sw-stage')&&!inScroller(e)).length;const small=[...document.querySelectorAll('.re-root :is(a,button,summary)')].filter(e=>{const r=e.getBoundingClientRect();return vis(e)&&(r.height<44||r.width<44)}).map(e=>e.className||e.tagName).slice(0,12);const tiny=[...document.querySelectorAll('.re-root :is(p,span,li,a,button,dd,dt,small,strong,b)')].filter(e=>vis(e)&&e.childNodes.length&&[...e.childNodes].some(n=>n.nodeType===3&&n.textContent.trim())&&!e.closest('.re-sw-screen,.re-tune')&&parseFloat(getComputedStyle(e).fontSize)<14).length;return {scrollW:document.documentElement.scrollWidth,W,overflowing:over,smallTargets:small.length,smallTargetSample:small,textUnder14:tiny}})()`
 // Keyboard pass: one Tab at a time; record what has focus and whether its focus is visible (on it, or on a parent up to
 // two levels, for rows that draw the ring around their button).
 const focusNow = `(()=>{const e=document.activeElement;if(!e||e===document.body)return {stuck:'body'};const cs=getComputedStyle(e);const r=e.getBoundingClientRect();const has=x=>{const c=getComputedStyle(x);return (c.outlineStyle!=='none'&&parseFloat(c.outlineWidth)>0)||c.boxShadow!=='none'};const ring=has(e)||(!!e.parentElement&&has(e.parentElement))||(!!e.parentElement?.parentElement&&has(e.parentElement.parentElement));return {el:(e.className||e.tagName).toString().split(' ')[0]+':'+(e.textContent||'').trim().slice(0,24),visible:ring,onScreen:r.bottom>0&&r.top<innerHeight&&r.width>0}})()`
@@ -36,9 +36,35 @@ const focusNow = `(()=>{const e=document.activeElement;if(!e||e===document.body)
 // there; on phones they are a plain list.
 const reach = `(async()=>{const frame=()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));const ok=(e)=>{const r=e.getBoundingClientRect();const h=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);return !!h&&(h===e||e.contains(h))};const name=(e)=>(e.className||e.tagName).toString().slice(0,24)+' '+e.textContent.trim().slice(0,24);const placed=[...document.querySelectorAll('.re-map-labels')].some((l)=>getComputedStyle(l).position==='absolute');const bad=[];let n=0;for(const e of document.querySelectorAll('main :is(a,button,summary,[role=tab])')){if(!e.getClientRects().length||(placed&&e.closest('.re-map-labels')))continue;e.scrollIntoView({block:'center',behavior:'instant'});await frame();n++;if(!ok(e))bad.push(name(e))}const m=document.querySelector('#re-map');if(placed&&m){m.scrollIntoView({block:'start',behavior:'instant'});for(let i=0;i<60&&!m.hasAttribute('data-live');i++)await new Promise(r=>setTimeout(r,100));await frame();for(const a of m.querySelectorAll('.re-map-labels a')){n++;if(!ok(a))bad.push(name(a))}}return {n,bad}})()`
 
+// Mid widths (tablets, narrow windows) fill the column between the gutters. On 2026-10-31 the phone layout ran up to 1023 px:
+// at 889 px the chapters were a centred 600 px column (18% empty on the right) and the Offday case hero was 333 of 604 px.
+// Home: the empty share right of each chapter's stage and copy. Case: the empty share right of the hero in its row.
+const fillHome = `(()=>{const left=document.querySelector('.re-prod-h').getBoundingClientRect().left+parseFloat(getComputedStyle(document.querySelector('.re-prod-h')).paddingLeft);const col=innerWidth-2*left;let worst=0,at='';for(const c of document.querySelectorAll('.re-sw')){const right=Math.max(...[c.querySelector('.re-sw-stage'),c.querySelector('.re-sw-copy')].map(e=>e.getBoundingClientRect().right));const gap=(innerWidth-left-right)/col;if(gap>worst){worst=gap;at=c.id}}return {gapPct:Math.round(worst*100),at}})()`
+const fillCase = `(()=>{const l=document.querySelector('.re-cs-landing').getBoundingClientRect();const h=document.querySelector('.re-cs-landing .re-cs-hero').getBoundingClientRect();return {gapPct:Math.round((l.right-h.right)/l.width*100)}})()`
+
+// The Lab and the area map sit behind "Explore the product layers"; open it so reach covers their controls too.
+const explore = `(async()=>{const d=document.querySelector('#re-explore');d.open=true;for(let i=0;i<100&&!document.querySelector('.re-ch');i++)await new Promise(r=>setTimeout(r,100));return !!document.querySelector('.re-ch')})()`
+
+// Hero → Offday → back, then a chapter's case: that second flight must run. The hero's stack kept its transition name, so
+// the next flight failed on a duplicate name and the case cut in (2026-10-31).
+const vtWatch = `(window.__vt=[],(()=>{const o=document.startViewTransition.bind(document);document.startViewTransition=(cb)=>{const t=o(cb);t.ready.then(()=>window.__vt.push('ran'),(e)=>window.__vt.push('skipped: '+e.message));return t}})(),1)`
+
+const plate = (l) => `document.querySelector('.re-stk-plate[data-l="${l}"]')`
+const plateT = (l) => `getComputedStyle(${plate(l)}).transform`
+const plateState = (l) => `({pressed:document.querySelector('.re-stk-control button[data-l="${l}"]').getAttribute('aria-pressed'),d:${plate(l)}.dataset.d,t:getComputedStyle(${plate(l)}).transform})`
+
 const desktop = [
   { eval: go('') }, { wait: 4000 }, { shot: 'idle-a' }, { wait: 1000 }, { shot: 'idle-b' },
   tag('settle', settle),
+  // The hero stack's move, from a real click to Data and back: frames delivered and the worst one.
+  { eval: '(scrollTo({top:0,behavior:"instant"}),1)' }, { wait: 400 },
+  // framesStart records for 1.5 s; read at 1.3 s, then wait past 1.5 s so the next run does not share the buffer (a 1.3 s
+  // gap counted 92 frames where 80 fit, 2026-10-31).
+  // The plate's transform 120 ms in and at rest, so a click that does nothing, or switches without moving, fails too.
+  { eval: framesStart }, { tap: '.re-stk-control button[data-l="2"]' }, { wait: 120 }, tag('stackMid', plateT(2)), { wait: 1180 },
+  tag('stackFrames', framesEnd), tag('stackEnd', plateState(2)), { wait: 400 },
+  { eval: framesStart }, { tap: '.re-stk-control button[data-l="0"]' }, { wait: 120 }, tag('stackBackMid', plateT(0)), { wait: 1180 },
+  tag('stackBackFrames', framesEnd), tag('stackBackEnd', plateState(0)), { wait: 400 },
   { scrollTo: '.re-sw-bayyinah', offset: -400 }, { wait: 300 }, { eval: framesStart }, { wheel: 220, ticks: 30 }, { wait: 1200 }, tag('scrollFrames', framesEnd),
   ...CHAPTERS.flatMap((c) => [{ scrollTo: `.re-sw-${c}` }, { wait: 500 }, { shot: `d-chapter-${c}` }]),
   { scrollTo: '.re-sw-bayyinah', offset: 120 }, { wait: 700 },
@@ -48,16 +74,29 @@ const desktop = [
   { eval: go('') }, { wait: 800 }, { eval: '(scrollTo({top:0,behavior:"instant"}),document.activeElement.blur(),1)' },
   ...Array.from({ length: 60 }, (_, i) => [{ key: 'Tab' }, tag(`tab${i}`, focusNow)]).flat(),
   { eval: go('') }, { wait: 1500 }, tag('reach-desktop', reach),
+  tag('explore-desktop', explore), { wait: 1500 }, tag('reach-desktop-explore', reach),
+  { eval: go('') }, { eval: '(scrollTo({top:0,behavior:"instant"}),1)' }, { wait: 500 }, { tap: '.re-intro-product a.re-text-link' }, { wait: 1500 },
+  { tap: '.re-case-top button' }, { wait: 1500 }, { scrollTo: '.re-sw-bayyinah', offset: 120 }, { wait: 700 },
+  { eval: vtWatch }, { tap: '.re-sw-bayyinah .re-prod-case' }, { wait: 1500 }, tag('roundTrip', '({path:location.pathname,vt:window.__vt})'),
+  // A case opened with Enter arrives with no entrance animation (review 2026-10-31: four ran). Only CSSAnimations count: the
+  // mouse left resting where "All work" was tapped hovers the next case's button, and that colour transition is pointer feedback.
+  { tap: '.re-case-top button' }, { wait: 1200 }, { scrollTo: '.re-sw-reading', offset: 120 }, { wait: 400 },
+  { eval: `(document.querySelector('.re-sw-reading .re-prod-case').focus(),1)` }, { key: 'Enter' }, { wait: 60 },
+  tag('keyCase', `({path:location.pathname,running:document.getAnimations().filter((a)=>a instanceof CSSAnimation&&a.effect?.target?.closest?.('.re-casepage')).length})`),
 ]
 const phone = (w, h) => [
   { eval: go('') }, tag(`audit-home-${w}`, audit),
   ...CASES.flatMap((s) => [{ eval: go('/' + s) }, tag(`audit-${s}-${w}`, audit)]),
-  ...(w === 390 ? [{ eval: go('') }, { wait: 1500 }, tag('reach-390', reach), { eval: go('') }, ...CHAPTERS.flatMap((c) => [{ scrollTo: `.re-sw-${c}`, offset: -56 }, { wait: 400 }, { shot: `p-chapter-${c}` }]), { eval: go('/bayyinah-tv') }, { shot: 'p-case-bayyinah-tv' }] : []),
+  ...(w === 390 ? [{ eval: go('') }, { wait: 1500 }, tag('reach-390', reach), tag('explore-390', explore), { wait: 1500 }, tag('reach-390-explore', reach), { eval: go('') }, ...CHAPTERS.flatMap((c) => [{ scrollTo: `.re-sw-${c}`, offset: -56 }, { wait: 400 }, { shot: `p-chapter-${c}` }]), { eval: go('/bayyinah-tv') }, { shot: 'p-case-bayyinah-tv' }] : []),
 ]
 const plans = [
   { name: 'desktop', w: 1440, h: 900, dpr: 1, steps: desktop },
   { name: 'reduced', w: 1440, h: 900, dpr: 1, reduced: true, steps: [tag('reducedSettle', settle)] },
   ...[[360, 800], [375, 667], [390, 844]].map(([w, h]) => ({ name: `phone${w}`, w, h, mobile: true, steps: phone(w, h) })),
+  ...[[889, 832], [768, 1024]].map(([w, h]) => ({
+    name: `mid${w}`, w, h,
+    steps: [{ eval: go('') }, tag(`fill-home-${w}`, fillHome), ...['offday', 'read-to-feed'].flatMap((s) => [{ eval: go('/' + s) }, tag(`fill-${s}-${w}`, fillCase)])],
+  })),
 ]
 writeFileSync(join(out, 'plan.json'), JSON.stringify(plans))
 const log = execFileSync('node', [join(here, 'cap.mjs'), out, join(out, 'plan.json')], { encoding: 'utf8', maxBuffer: 1 << 26 })
@@ -81,6 +120,15 @@ const sf = results.scrollFrames
 // Jank is a dropped frame or one longer than two refreshes. p95 of the frame interval is reported, not gated: with every
 // frame delivered it moved 20.1 → 21.3 ms between runs as host load rose 7 → 12, i.e. timer jitter (2026-10-28).
 checks.push(['wheel scroll frames (none dropped beyond 5%, worst ≤ 34 ms)', !!sf && sf.worst <= 34 && sf.frames >= sf.expected * 0.95, sf && `${sf.frames}/${sf.expected}, p95 ${sf.p95}, worst ${sf.worst}`])
+for (const [k, mid, end, name] of [['stackFrames', 'stackMid', 'stackEnd', 'to Data'], ['stackBackFrames', 'stackBackMid', 'stackBackEnd', 'back']]) {
+  const f = results[k], m = results[mid], e = results[end]
+  checks.push([`hero stack move frames (${name}; none dropped beyond 5%, worst ≤ 34 ms)`, !!f && f.worst <= 34 && f.frames >= f.expected * 0.95, f && `${f.frames}/${f.expected}, p95 ${f.p95}, worst ${f.worst}`])
+  checks.push([`hero stack move happens (${name}: button pressed, plate in front, moved through 120 ms)`, !!e && e.pressed === 'true' && e.d === '0' && m !== e.t, e && `pressed ${e.pressed}, depth ${e.d}, ${m === e.t ? 'no movement at 120 ms' : 'moving at 120 ms'}`])
+}
+const kc = results.keyCase
+checks.push(['a case opened with Enter arrives without animation', !!kc && kc.path === '/read-to-feed' && kc.running === 0, kc && `${kc.path}, ${kc.running} running`])
+const rt = results.roundTrip
+checks.push(['hero case, back, chapter case: the second flight runs', !!rt && rt.path === '/bayyinah-tv' && rt.vt[0] === 'ran', rt && `${rt.path} ${rt.vt.join(', ')}`])
 const cf = results.caseFrames
 checks.push(['Read the case worst frame ≤ 100 ms (target 50)', !!cf && cf.worst <= 100, cf && `${cf.frames}/${cf.expected}, worst ${cf.worst} ms`])
 const cl = results.caseLanded
@@ -95,6 +143,8 @@ const tabs = Object.entries(results).filter(([k]) => k.startsWith('tab')).map(([
 const stuck = tabs.filter((t) => t.stuck), hidden = tabs.filter((t) => !t.stuck && (!t.visible || !t.onScreen))
 checks.push(['keyboard: focus never lost to <body>', stuck.length === 0, `${stuck.length} of ${tabs.length} tabs`])
 checks.push(['keyboard: focus visible and on screen', hidden.length === 0, hidden.slice(0, 6).map((t) => t.el + (t.visible ? '' : ' (no ring)') + (t.onScreen ? '' : ' (off-screen)')).join('; ')])
+for (const [k, v] of Object.entries(results).filter(([k]) => k.startsWith('explore-'))) checks.push([`${k}: the Lab opens`, v === true, ''])
+for (const [k, v] of Object.entries(results).filter(([k]) => k.startsWith('fill-'))) checks.push([`${k}: fills the column (≤ 12% empty on the right)`, !!v && v.gapPct <= 12, v && `${v.gapPct}%${v.at ? ' at ' + v.at : ''}`])
 for (const [k, v] of Object.entries(results).filter(([k]) => k.startsWith('reach-'))) {
   checks.push([`${k}: a real pointer reaches every link and control`, v.n > 0 && v.bad.length === 0, `${v.n - v.bad.length} of ${v.n}${v.bad.length ? '; ' + v.bad.slice(0, 4).join(', ') : ''}`])
 }
