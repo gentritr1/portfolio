@@ -164,23 +164,22 @@ type Picture = { src: string; alt: string; caption: string; width: number; heigh
  * enough to read and they read in order. A click or tap opens the screen at full size; a screen that carries a decision
  * shows its marker; on phones the names become a swipeable row and the slab takes a sideways swipe.
  */
-function Gallery({ items, slug, at, setAt, mark, decisions }: {
-  items: Picture[]; slug: string; at: number; setAt(i: number): void; mark: Mark; decisions: string[]
+function Gallery({ items, slug, at, instant, setAt, mark, decisions }: {
+  items: Picture[]; slug: string; at: number; instant: boolean; setAt(i: number, instant: boolean): void; mark: Mark; decisions: string[]
 }) {
   const [armed, setArmed] = useState(false)
-  const [instant, setInstant] = useState(false)
   const full = useRef<FullSizeHandle>(null)
   const row = useRef<HTMLOListElement>(null)
   // On phones the names are a sideways row: keep the shown screen's name in it, after a tap on a half-hidden name or a
-  // swipe on the slab. Sideways only, so the page itself never moves.
+  // swipe on the slab (at once after a key). Sideways only, so the page itself never moves.
   useEffect(() => {
     const r = row.current, b = r?.children[at] as HTMLElement | undefined
     if (!r || !b || r.scrollWidth <= r.clientWidth) return
     const rr = r.getBoundingClientRect(), br = b.getBoundingClientRect()
     if (br.left < rr.left || br.right > rr.right) {
-      r.scrollTo({ left: r.scrollLeft + br.left - rr.left - (rr.width - br.width) / 2, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' })
+      r.scrollTo({ left: r.scrollLeft + br.left - rr.left - (rr.width - br.width) / 2, behavior: instant || matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' })
     }
-  }, [at])
+  }, [at, instant])
   const g = items[at]
   const m = MARKERS[g.src]?.slug === slug ? MARKERS[g.src] : undefined
   const open = !!m && (mark.lit === m.decision || mark.pinned === m.decision)
@@ -191,7 +190,7 @@ function Gallery({ items, slug, at, setAt, mark, decisions }: {
   const phone = items[0].height > items[0].width
   const wrap = (i: number) => ((i % items.length) + items.length) % items.length
   // A new screen drops a pinned decision: the list must not light a line whose marker is no longer shown.
-  const pick = (i: number, inst: boolean) => { setArmed(true); setInstant(inst); mark.pin(null); setAt(wrap(i)) }
+  const pick = (i: number, inst: boolean) => { setArmed(true); mark.pin(null); setAt(wrap(i), inst) }
   const swipe = useScreenSwipe((direction) => pick(at + direction, false), () => setArmed(true))
   // The names are tabs (WAI-ARIA): one tab stop, arrows and Home/End move between them and show the screen at once.
   const keys = (e: React.KeyboardEvent) => {
@@ -206,7 +205,7 @@ function Gallery({ items, slug, at, setAt, mark, decisions }: {
   const focusOf = ([x, y, w, h]: Rect, W = 1440): [number, number] => [(x + w / 2) * (g.width / W), (y + h / 2) * (g.width / W)]
 
   return (
-    <div className="re-cs-gallery" data-shape={phone ? 'phone' : 'wide'}>
+    <div className="re-cs-gallery" data-shape={phone ? 'phone' : 'wide'} data-instant={instant || undefined}>
       <figure
         className="re-sw-slab re-cs-stage" style={{ '--ga': `${items[0].width} / ${items[0].height}` } as Vars} data-swipe=""
         {...swipe}
@@ -309,10 +308,11 @@ export function CasePage({ slug, rest = true, onBack }: { slug: string; rest?: b
   const heading = useRef<HTMLHeadingElement>(null)
   const stage = useRef<HTMLElement>(null)
   // The stage's screen and the lit or pinned decision belong to this case: another case starts from the first screen.
-  const [view, setView] = useState({ slug, shown: 0, lit: null as number | null, pinned: null as number | null })
-  const v = view.slug === slug ? view : { slug, shown: 0, lit: null, pinned: null }
-  const { shown, lit, pinned } = v
-  const setShown = (i: number) => setView((o) => ({ ...(o.slug === slug ? o : v), shown: i }))
+  // `instant`: the shown screen came from a key, so it and its marks arrive without motion.
+  const [view, setView] = useState({ slug, shown: 0, instant: false, lit: null as number | null, pinned: null as number | null })
+  const v = view.slug === slug ? view : { slug, shown: 0, instant: false, lit: null, pinned: null }
+  const { shown, instant, lit, pinned } = v
+  const setShown = (i: number, instant: boolean) => setView((o) => ({ ...(o.slug === slug ? o : v), shown: i, instant }))
   const setLit = (d: number | null) => setView((o) => ({ ...(o.slug === slug ? o : v), lit: d }))
   const setPinned = (d: number | null) => setView((o) => ({ ...(o.slug === slug ? o : v), pinned: d }))
   const mark: Mark = { lit, pinned, setLit, pin: setPinned }
@@ -325,7 +325,7 @@ export function CasePage({ slug, rest = true, onBack }: { slug: string; rest?: b
   const showOnScreen = (d: number, keyboard: boolean) => {
     const i = s.gallery.findIndex((g) => MARKERS[g.src]?.slug === slug && MARKERS[g.src].decision === d)
     if (i < 0) return
-    setView({ ...v, shown: i, pinned: d })
+    setView({ ...v, shown: i, instant: keyboard, pinned: d })
     stage.current?.scrollIntoView({ block: 'center', behavior: keyboard || matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' })
   }
   const marked = new Set(Object.values(MARKERS).filter((x) => x.slug === slug).map((x) => x.decision))
@@ -485,7 +485,7 @@ export function CasePage({ slug, rest = true, onBack }: { slug: string; rest?: b
           <section ref={stage} className="re-cs-screens" aria-labelledby="re-screens-h">
             <h2 id="re-screens-h" className="re-cs-h2">Screens</h2>
             {s.gallery.some((g) => g.alt.includes('Invented data')) && <p className="re-case-note re-num">Real product screens, invented data.</p>}
-            <Gallery items={s.gallery} slug={slug} at={Math.min(shown, s.gallery.length - 1)} setAt={setShown} mark={mark} decisions={c?.decision ?? []} />
+            <Gallery items={s.gallery} slug={slug} at={Math.min(shown, s.gallery.length - 1)} instant={instant} setAt={setShown} mark={mark} decisions={c?.decision ?? []} />
           </section>
         )}
 

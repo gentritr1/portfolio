@@ -83,6 +83,11 @@ const desktop = [
   { tap: '.re-case-top button' }, { wait: 1200 }, { scrollTo: '.re-sw-reading', offset: 120 }, { wait: 400 },
   { eval: `(document.querySelector('.re-sw-reading .re-prod-case').focus(),1)` }, { key: 'Enter' }, { wait: 60 },
   tag('keyCase', `({path:location.pathname,running:document.getAnimations().filter((a)=>a instanceof CSSAnimation&&a.effect?.target?.closest?.('.re-casepage')).length})`),
+  // Arrow keys in the case's screens show the next screen whole: its outline and callout too, not only the screen (review
+  // 2026-11-01: on Claims the board and its text still faded in, 200 ms late). Transitions count here: the mouse is parked.
+  { eval: go('/care-platform') }, { hover: '.re-mark' }, { scrollTo: '.re-cs-gallery', offset: -80 }, { wait: 400 },
+  { eval: `(document.querySelector('.re-cs-stage-list [aria-selected="true"]').focus(),1)` }, { key: 'ArrowRight' }, { wait: 300 }, { key: 'ArrowRight' }, { wait: 40 },
+  tag('keyGallery', `(()=>{const g=document.querySelector('.re-cs-gallery');return {sel:g.querySelector('[aria-selected="true"] span')?.textContent,running:document.getAnimations().filter((a)=>g.contains(a.effect?.target)).length}})()`),
 ]
 const phone = (w, h) => [
   { eval: go('') }, tag(`audit-home-${w}`, audit),
@@ -127,6 +132,8 @@ for (const [k, mid, end, name] of [['stackFrames', 'stackMid', 'stackEnd', 'to D
 }
 const kc = results.keyCase
 checks.push(['a case opened with Enter arrives without animation', !!kc && kc.path === '/read-to-feed' && kc.running === 0, kc && `${kc.path}, ${kc.running} running`])
+const kg = results.keyGallery
+checks.push(['a screen shown with the arrow keys arrives without animation', !!kg && kg.sel === 'Claims' && kg.running === 0, kg && `${kg.sel}, ${kg.running} running`])
 const rt = results.roundTrip
 checks.push(['hero case, back, chapter case: the second flight runs', !!rt && rt.path === '/bayyinah-tv' && rt.vt[0] === 'ran', rt && `${rt.path} ${rt.vt.join(', ')}`])
 const cf = results.caseFrames
