@@ -128,6 +128,8 @@ function boardVars([x, y, w, h]: Rect, [W, H]: [number, number] = [1440, 900]) {
     '--cx': `${cx}%`, '--cw': `${cw}%`, '--cl': `${Math.min(Math.max(cx - cw / 2, 0), 102 - cw)}%`, '--ca': `${w} / ${h}`,
     '--zx': `${(x / (W - w)) * 100}%`, '--zy': `${(y / (H - h)) * 100}%`, '--zs': `${(W / w) * 100}%`,
     '--drop': `${Math.max(((y + h) / W) * 100 + (cw * h) / w - (H / W) * 100, 0)}%`, '--drop-n': `${(100 * h) / w}%`,
+    // The area's width at the screen's real size (its CSS pixels): the phone zoom box stops at 1.25 of it.
+    '--rw': `${w}px`,
   } as Vars
 }
 

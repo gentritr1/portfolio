@@ -682,12 +682,15 @@ html:has(.re-sw-reader[open]) { overflow: hidden; overscroll-behavior: none; }
   .re-cs-landing[data-shape="wide"] .re-cs-hero .re-sw-screen { aspect-ratio: var(--ar); }
   .re-cs-landing[data-shape="wide"] .re-cs-hero .re-sw-screen img { left: var(--sl); top: var(--st); width: var(--sw); }
 }
-@media (min-width: 600px) and (max-width: 699px) {
-  .re-casepage .re-cs-landing[data-shape="phone"] .re-cs-hero { width: min(100%, calc(56svh * var(--na, var(--a)))); }
-}
-@media (min-width: 700px) and (max-width: 1023px) {
+/* A phone app's landing always shows the whole screen (the desktop crop), never a zoomed part of it. Below 700 px it stands
+   centred above the headline at 60% of the height, the way a store page shows screenshots; from 700 px it stands beside
+   the headline. A zoomed reader crop next to two small left-pinned phones read as three different layouts (2026-11-01). */
+@media (max-width: 1023px) {
   .re-cs-landing[data-shape="phone"] .re-cs-hero .re-sw-screen { aspect-ratio: var(--ar); }
   .re-cs-landing[data-shape="phone"] .re-cs-hero .re-sw-screen img { left: var(--sl); top: var(--st); width: var(--sw); }
+}
+@media (max-width: 699px) {
+  .re-casepage .re-cs-landing[data-shape="phone"] .re-cs-hero { width: min(100%, calc(60svh * var(--a))); margin-inline: auto; }
 }
 
 /* ---- The case, in one column on the field ---- */
@@ -876,6 +879,14 @@ html:has(.re-sw-reader[open]) { overflow: hidden; overscroll-behavior: none; }
 .re-cs-crop-zoom {
   all: unset; box-sizing: border-box; display: block; cursor: zoom-in; padding: 6px; border-radius: 10px; background: rgb(12 14 19 / 0.94);
   box-shadow: 0 0 0 1px rgb(62 230 164 / 0.35); animation: re-mark-in 160ms var(--re-ease) 200ms both;
+  /* At most 1.25 of the area's real size, centred under the stage: as wide as the column, a 210 px area showed at 2.8×
+     on a 671 px window, from a capture with too few pixels for it (2026-11-01). */
+  width: min(100%, calc(var(--rw) * 1.25 + 12px)); margin-inline: auto;
+}
+/* Below 1024 px the selected tab right above the stage already names the screen; the caption stays for screen readers
+   (it announces the change) but no longer repeats the name under the picture. */
+@media (max-width: 1023px) {
+  .re-cs-stage figcaption { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; margin: 0; }
 }
 .re-cs-crop-zoom:focus-visible { outline: 2px solid var(--re-accent); outline-offset: 3px; }
 @media (min-width: 1024px) { .re-cs-crop, .re-cs-crop-zoom { display: none; } }
