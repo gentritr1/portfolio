@@ -5,9 +5,12 @@
   --re-accent-mid: rgb(155 217 231 / 0.4);
   --re-ink: #08161a;
 }
+/* The masthead spans the window, so a page scrolling under it is hidden edge to edge (inset by the gutters, it left two
+   strips where screenshots slid past beside it). Its name and links keep the content's edges: the gutter, or the centred
+   1296 px column on wide screens. */
 .re-root .re-bar {
-  top: 0; width: min(1296px, calc(100% - 2 * var(--re-gutter))); min-height: calc(76px + env(safe-area-inset-top, 0px));
-  padding: env(safe-area-inset-top, 0px) 0 0; border-radius: 0;
+  top: 0; left: 0; transform: none; width: 100%; min-height: calc(76px + env(safe-area-inset-top, 0px));
+  padding: env(safe-area-inset-top, 0px) max(var(--re-gutter), calc((100% - 1296px) / 2)) 0; border-radius: 0;
   background: #080a0d;
 }
 .re-nav { gap: 18px; }
