@@ -3,87 +3,31 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content" />
-    <title>Gentrit Rashiti — Web, backend &amp; mobile</title>
+    <title>Gentrit Rashiti — Software Engineer</title>
     <meta
       name="description"
-      content="Web and mobile products, from interface to backend. Gentrit Rashiti’s work across frontend, realtime servers, mobile apps and AI-assisted delivery. Based in Kosovo, working remotely."
+      content="Software engineer with 5+ years shipping web and mobile products. Healthcare platforms, Laravel APIs, realtime servers and maintained mobile apps. Based in Kosovo, working remotely."
     />
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="Gentrit Rashiti — Web, backend &amp; mobile" />
+    <meta property="og:title" content="Gentrit Rashiti — Software Engineer" />
     <meta
       property="og:description"
-      content="Web and mobile products, from interface to backend. Explore the work across frontend, backend, mobile and AI-assisted delivery."
+      content="Web and mobile products, from interface to backend. Explore healthcare platforms, realtime servers, maintained mobile apps and the decisions behind them."
     />
-    <meta property="og:image" content="/og-image.png" />
-    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image" content="/og-image.jpg" />
+    <meta property="og:image:type" content="image/jpeg" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="Gentrit Rashiti: AI agents build inside tested rules, and a person approves every change. A real care platform calendar screen with invented data and an amber approval seal, on a dark ground." />
+    <meta property="og:image:alt" content="Gentrit Rashiti, Software Engineer. Web and mobile products, from interface to backend. A real care-platform calendar with invented data." />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Gentrit Rashiti — Web, backend &amp; mobile" />
-    <meta name="twitter:description" content="Web and mobile products, from interface to backend. Explore frontend, backend, mobile and AI-assisted delivery." />
-    <meta name="twitter:image" content="/og-image.png" />
-    <meta name="twitter:image:alt" content="Gentrit Rashiti: AI agents build inside tested rules, and a person approves every change. A real care platform calendar screen with invented data and an amber approval seal, on a dark ground." />
+    <meta name="twitter:title" content="Gentrit Rashiti — Software Engineer" />
+    <meta name="twitter:description" content="Web and mobile products, from interface to backend. Healthcare platforms, realtime servers, maintained mobile apps and the decisions behind them." />
+    <meta name="twitter:image" content="/og-image.jpg" />
+    <meta name="twitter:image:alt" content="Gentrit Rashiti, Software Engineer. Web and mobile products, from interface to backend. A real care-platform calendar with invented data." />
     <meta name="color-scheme" content="dark light" />
     <meta name="theme-color" content="#0b0c0f" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="preload" href="/fonts/creative/PublicSans-Latin.woff2" as="font" type="font/woff2" crossorigin />
-    <script>
-      (function () {
-        var p = location.pathname;
-        var loop = p.indexOf('/drafts/the-loop') === 0 || /^\/(?:(?:workflow|care-platform|design-system|bayyinah-tv)\/?)?$/.test(p);
-        var link = document.createElement('link');
-        link.rel = 'preload';
-        link.as = 'font';
-        link.type = 'font/woff2';
-        link.crossOrigin = 'anonymous';
-        var home = /^\/(?:(?:care-platform|design-system-react|bayyinah-tv|read-to-feed|viva-fresh|dukagjini-bookstore|incentiv|futurisma|offday|leakscan)\/?)?$/.test(p) || p.indexOf('/drafts/refractive-engine') === 0;
-        link.href = home ? '/fonts/Archivo.woff2' : loop ? '/fonts/creative/GentritTechnicalMono-Latin.woff2' : '/fonts/creative/Fraunces-Latin.woff2';
-        document.head.appendChild(link);
-      })();
-    </script>
-    <script>
-      (function () {
-        try {
-          var hour = /[?&]at=(\d{1,2}):(\d{2})/.exec(location.search);
-          var chosen = null;
-          try {
-            chosen = /^(\d{1,2}):(\d{2})$/.exec(sessionStorage.getItem('kt-at') || '');
-          } catch (e) {}
-          var pick = hour || chosen;
-          var now = Date.now();
-          var wall = new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Belgrade', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' })
-            .format(now)
-            .split(':');
-          var ms = pick ? now + ((+pick[1] * 60 + +pick[2]) - (+wall[0] * 60 + +wall[1])) * 60000 : now;
-          var rad = Math.PI / 180, d = ms / 86400000 - 10957.5, lat = 42.6 * rad;
-          var m = rad * (357.5291 + 0.98560028 * d);
-          var l = m + rad * (1.9148 * Math.sin(m) + 0.02 * Math.sin(2 * m) + 0.0003 * Math.sin(3 * m)) + rad * 102.9372 + Math.PI;
-          var e = rad * 23.4397;
-          var dec = Math.asin(Math.sin(l) * Math.sin(e));
-          var ra = Math.atan2(Math.sin(l) * Math.cos(e), Math.cos(l));
-          var h = rad * (280.16 + 360.9856235 * d) + rad * 20.9 - ra;
-          var alt = Math.asin(Math.sin(lat) * Math.sin(dec) + Math.cos(lat) * Math.cos(dec) * Math.cos(h)) / rad;
-          var evening = Math.sin(h) > 0;
-          var sky = alt < -6 ? '#07060f' : alt < -0.833 ? '#110d2a' : alt > 12 ? '#68a6dc' : evening ? '#b3abdc' : '#b6bce0';
-          document.querySelector('meta[name="theme-color"]').setAttribute('content', sky);
-        } catch (e) {}
-      })();
-    </script>
-    <script>
-      (function () {
-        var theme = null;
-        try {
-          theme = localStorage.getItem('theme');
-        } catch (e) {}
-        if (theme === 'light' || theme === 'dark') {
-          document.documentElement.setAttribute('data-theme', theme);
-          if (theme === 'light' && location.pathname.indexOf('/drafts') === 0) {
-            document.querySelector('meta[name="theme-color"]').setAttribute('content', '#f0efe9');
-          }
-        }
-      })();
-    </script>
+    <link rel="preload" href="/fonts/Archivo.woff2" as="font" type="font/woff2" crossorigin />
   </head>
   <body>
     <div id="root"></div>

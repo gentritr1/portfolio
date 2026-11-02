@@ -11,13 +11,13 @@ export default defineConfig(({ mode }) => {
   const productionHost =
     env.VERCEL_PROJECT_PRODUCTION_URL || env.VITE_VERCEL_PROJECT_PRODUCTION_URL;
   const site =
-    env.VITE_SITE_URL || (productionHost ? `https://${productionHost}` : "");
-  let imageUrl = "/og-image.png";
+    env.VITE_SITE_URL || (productionHost ? `https://${productionHost}` : "https://www.gentrit.tech");
+  let imageUrl = "/og-image.jpg";
   if (site) {
     const url = new URL(site);
     if (url.protocol !== "https:" && url.protocol !== "http:")
       throw new Error("VITE_SITE_URL must be an HTTP(S) URL.");
-    imageUrl = new URL("/og-image.png", url.origin).href;
+    imageUrl = new URL("/og-image.jpg", url.origin).href;
   }
 
   return {
@@ -44,7 +44,7 @@ export default defineConfig(({ mode }) => {
         name: "portfolio-social-image",
         transformIndexHtml(html) {
           return html.replaceAll(
-            'content="/og-image.png"',
+            'content="/og-image.jpg"',
             `content="${imageUrl}"`,
           );
         },

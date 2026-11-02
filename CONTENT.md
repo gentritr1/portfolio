@@ -10,6 +10,14 @@ Project facts below come from git history; contact and education details were co
 
 ## 0. Hero
 
+**General hiring positioning (owner, 2026-11-02):** Present the portfolio and CV as a software engineer with web, mobile and growing backend experience, for Tive and other employers. Lead with product responsibility, maintenance, clear decisions and verified outcomes. AI is part of the workflow. Do not add C#, Angular, infrastructure ownership or large-scale data processing as experience.
+
+**Mentoring (owner, 2026-11-02):** Onboarded developers to the care platform after laying the AI foundations for its slice-by-slice rewrite. Team meetings discussed existing behavior, bugs, the new process, using agents, choosing models and orchestrating agents. No measured onboarding or productivity improvement is claimed. About may describe this personal contribution; project copy keeps the approved team voice.
+
+**AWS scope (owner, 2026-11-02):** Mostly uploaded files and troubleshot problems; observed how deployment worked on EC2 instances, with little direct deployment work. The upload service is not confirmed. AWS IVS integration remains separately supported by the streaming work. Do not imply AWS infrastructure ownership.
+
+**CV (owner, 2026-11-02):** Use the general positioning "Software Engineer | Web, Mobile & Backend". Keep the frontend/mobile background and backend work since 2026 explicit. Remove the degree from the CV as well as the portfolio. Prioritize care-platform responsibilities, mentoring, maintained products and inspectable backend projects. The CV source and downloadable PDF must agree.
+
 **Name:** Gentrit Rashiti
 **Role line (approved design, 2026-10-30):** Frontend · Backend · Mobile
 **One-liner (approved design, 2026-10-30):** I build web and mobile products, from interface to backend.
@@ -296,6 +304,8 @@ Localization: multi-language, Arabic RTL
 
 Bachelor's degree, UBT (owner, 2026-10-03). No field of study, dates or further qualifications supplied; do not add them.
 
+**Display preference (owner, 2026-11-01):** omit the degree from the Refractive Engine portfolio. Experience speaks for itself. The footer sign-off is simply "Gentrit Rashiti"; location and remote-work information may stay. The CV is outside this change.
+
 ## 11. Refractive Engine decision stories (2026-10-30)
 
 These facts and proposed copy support the approved interface/backend positioning. LeakScan remains the product name. The project index remains visible. Source checkpoints below are evidence for copy, not claims that this portfolio review ran or passed the products' test suites.
@@ -337,8 +347,12 @@ These facts and proposed copy support the approved interface/backend positioning
 - Offday's layers are Interface, Server rules and Data: requests/approvals/calendar; server role and organization checks; SQLite persistence of workspaces, requests and balances. Sources: Offday's README and lib/types.ts / lib/db.ts.
 - Hero layer screens (2026-10-31): Server rules shows a crop of `offday-landing-security.webp`, Offday's own privacy section in its Teammate view ("Teammates see the dates on the calendar, not the note."), captured from offday main bb58697 (manifest `design/selected-work-concepts/offday-shots/manifest.json`). Data shows five tables as declared in Offday dacf3ab `lib/store.ts`: organizations (id, name, allowance); employees, users, requests and shifts, each with `org_id REFERENCES organizations(id)`; users.role is `manager` or `employee`; requests has start, end, status and note. "Company records carry an org_id" covers the company tables only: sessions, attempts, signup codes and password links have no org_id.
 - Hero credit and phone status line (2026-11-01): "Own product, a working MVP built with one other developer" and "Offday, a working MVP built with one other developer." Source: the Offday story above ("Built with one other developer. A working MVP.").
-- About, learning paragraph (approved by the owner, 2026-11-01): "On Futurisma, my 3D racing game, I direct a crew of AI agents: I write the briefs and the checks, they build, and each phase is accepted only after its tests run again. The lesson I kept: measure before setting a target. One target there, written without measuring, had to be withdrawn." Sources: the Futurisma case in `src/drafts/exploded-view/cases.ts` and `src/content/caseNarratives.ts` (role "Owner; directs an AI crew"; method "Written briefs, every phase checked by re-running its tests"; "Measure before writing a target … had to be withdrawn").
+- About, learning paragraph (facts approved by the owner, 2026-11-01; simplified in the owner's requested plain-language pass): "For Futurisma, my 3D racing game, I write the briefs and checks for a crew of AI agents. They build, and I accept each phase only after its tests run again. I learned to measure before setting a target: I had to withdraw one because I hadn’t measured first." Sources: the Futurisma case in `src/drafts/exploded-view/cases.ts` and `src/content/caseNarratives.ts` (role "Owner; directs an AI crew"; method "Written briefs, every phase checked by re-running its tests"; "Measure before writing a target … had to be withdrawn").
 - What the Data plate may show (2026-10-31): table names, tenant keys and business columns only. Never anything that carries a credential or a security control: `users.password`, `sessions`, `invitations`, `attempts` (rate limits), `signup_codes`, `password_links`, `releases`, token formats, hostnames, file paths outside the repo, or query code. The Offday repo is private (SnaxxTech/offday) and co-built; the other developer agreed to showing these table names (owner, 2026-10-31). Ask again before showing more of its internals.
 - Tondo and Za! use authoritative Node/WebSocket servers. Players send intended moves; servers validate game rules and send state. Tondo persists saved crews in PostgreSQL. Sources: existing CONTENT.md section 7b; Tondo HEAD `dcaff64`, README.md, server/crew-actions.js, server/clientip.js and test inventory. Do not repeat the README's stale one-dependency count; package.json also lists pg.
 - The career frame "My background is frontend and mobile" with recent work extending to APIs, databases, realtime game servers and AI-enabled products summarizes the dated project record in sections 2–8. It does not claim equal tenure in each discipline or introduce a new employment title.
 - The AI workflow retains this exact team statement: "The team wrote the rules and the checks. AI agents build inside them, and a person on the team approves each change." Sources: existing sections 2 and 6b. A check failure returns to agent work, and a check is trusted only after it is shown to fail.
+
+**Skills and host (owner, 2026-11-02):** Redux / Redux Toolkit, Pinia, TanStack Query, Vuex; Tailwind CSS and Bootstrap. Public portfolio: https://www.gentrit.tech. Ship only Refractive Engine and its case pages. Other drafts are preserved in a separate private local Git repository before extraction.
+
+**Skills clarification (owner, 2026-11-02):** Zustand belongs with state management. Zod belongs with validation. Both must appear in the CV and portfolio skills.
