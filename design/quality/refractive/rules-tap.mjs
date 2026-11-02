@@ -8,6 +8,8 @@
 import { chromium } from 'playwright-core'
 const [url, out] = process.argv.slice(2)
 const SCREEN = '**/offday-landing-security.webp'
+// SCOPE narrows every selector to one stack on a page with several (the /switch prototype: SCOPE='#sh-offday').
+const S = process.env.SCOPE ? `${process.env.SCOPE} ` : ''
 let failed = 0
 const browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH ?? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' })
 
@@ -20,17 +22,17 @@ async function open(route) {
   await cdp.send('Network.setCacheDisabled', { cacheDisabled: true })
   await cdp.send('Network.emulateNetworkConditions', { offline: false, latency: 150, downloadThroughput: 1.6e6 / 8, uploadThroughput: 750e3 / 8 })
   // Per frame after a tap: when the tapped button shows pressed, when the Server rules plate comes to the front, when its screen is in.
-  await page.addInitScript(() => {
+  await page.addInitScript((S) => {
     addEventListener('touchstart', (e) => {
-      if (!e.target.closest?.('.re-stk-control button, .re-stk-retry')) return
+      if (!e.target.closest?.(`${S}.re-stk-control button, ${S}.re-stk-retry`)) return
       // The button whose pressed state answers this tap: itself, or Server rules for Try again.
-      const btn = e.target.closest('.re-stk-control button') ?? document.querySelector('.re-stk-control button[data-l="1"]')
+      const btn = e.target.closest('.re-stk-control button') ?? document.querySelector(`${S}.re-stk-control button[data-l="1"]`)
       Object.assign(window, { __tap: performance.now(), __btn: btn, __pressed: null, __front: null, __shown: null })
     }, { capture: true })
     const tick = () => {
       const t = performance.now()
       if (window.__tap != null) {
-        const plate = document.querySelector('.re-stk-plate[data-l="1"]'), img = plate?.querySelector('img')
+        const plate = document.querySelector(`${S}.re-stk-plate[data-l="1"]`), img = plate?.querySelector('img')
         if (window.__pressed == null && window.__btn?.getAttribute('aria-pressed') === 'true') window.__pressed = t
         if (window.__front == null && plate?.dataset.d === '0') window.__front = t
         if (window.__shown == null && plate?.dataset.d === '0' && img?.complete && img.naturalWidth) window.__shown = t
@@ -38,7 +40,7 @@ async function open(route) {
       requestAnimationFrame(tick)
     }
     requestAnimationFrame(tick)
-  })
+  }, S)
   await page.goto(url, { waitUntil: 'load', timeout: 90000 })
   return { ctx, page, loadAt: await page.evaluate(() => performance.now()) }
 }
@@ -51,8 +53,8 @@ async function tap(page, target, frames, name) {
   const lines = [], empty = [], errors = [], loading = [], fronts = []
   for (const ms of frames) {
     await page.waitForFunction((at) => performance.now() >= at, tapAt + ms, { polling: 'raf' })
-    if (out) await page.locator('.re-intro-art').screenshot({ path: `${out}-${name}-${ms}ms.png` })
-    const front = page.locator('.re-stk-plate[data-d="0"]')
+    if (out) await page.locator(`${S}.re-intro-art`).screenshot({ path: `${out}-${name}-${ms}ms.png` })
+    const front = page.locator(`${S}.re-stk-plate[data-d="0"]`)
     const box = await front.boundingBox()
     const b64 = (await page.screenshot({ clip: { x: box.x + box.width * 0.15, y: box.y + box.height * 0.15, width: box.width * 0.7, height: box.height * 0.7 } })).toString('base64')
     const ink = await page.evaluate(async (b64) => {
@@ -64,7 +66,7 @@ async function tap(page, target, frames, name) {
       return n / (d.length / 4)
     }, b64)
     const layer = await front.getAttribute('data-l')
-    const caption = (await page.locator('.re-intro-art figcaption').textContent()).trim()
+    const caption = (await page.locator(`${S}.re-intro-art figcaption`).textContent()).trim()
     if (ink < 0.01) empty.push(`${ms}ms`)
     if (caption.startsWith("Couldn't")) errors.push(`${ms}ms`)
     if (caption.startsWith('Loading')) loading.push(`${ms}ms`)
@@ -76,7 +78,7 @@ async function tap(page, target, frames, name) {
 
 async function report(page, label, t, { needShown = true, needMessage = false, needLoading = false, frontAtEnd } = {}) {
   if (needShown) await page.waitForFunction(() => window.__shown != null, null, { timeout: 30000, polling: 'raf' }).catch(() => {})
-  const m = await page.evaluate(() => ({ pressed: window.__pressed, front: window.__front, shown: window.__shown, alert: document.querySelector('.re-intro-art [role="alert"]')?.textContent ?? null }))
+  const m = await page.evaluate((S) => ({ pressed: window.__pressed, front: window.__front, shown: window.__shown, alert: document.querySelector(`${S}.re-intro-art [role="alert"]`)?.textContent ?? null }), S)
   const ms = (v) => (v == null ? 'never' : `${Math.round(v - t.tapAt)} ms`)
   const bad = t.empty.length > 0 || m.pressed == null || m.pressed - t.tapAt > 100 || (needShown && m.shown == null) || (needMessage && !m.alert)
     || (!needMessage && t.errors.length > 0) || (needLoading && !t.loading.length) || (frontAtEnd != null && t.fronts.at(-1) !== frontAtEnd)
@@ -89,21 +91,21 @@ async function report(page, label, t, { needShown = true, needMessage = false, n
 for (const delay of [1500, 4000, 8000]) for (const run of [1, 2]) {
   const { ctx, page, loadAt } = await open()
   await page.waitForTimeout(delay) // the condition under test: a reader tapping this long after load
-  const t = await tap(page, '.re-stk-control button[data-l="1"]', [100, 300, 600, 1200], `${delay}-r${run}`)
+  const t = await tap(page, `${S}.re-stk-control button[data-l="1"]`, [100, 300, 600, 1200], `${delay}-r${run}`)
   await report(page, `tap ${delay} ms after load (load at ${Math.round(loadAt)} ms) run ${run}`, t)
   await ctx.close()
 }
 
 // 2. The screen's request aborted: the plate in front stays, the caption says so; unblocked, a retry brings the screen.
-for (const [run, retry] of [[1, '.re-stk-control button[data-l="1"]'], [2, '.re-stk-retry']]) {
+for (const [run, retry] of [[1, `${S}.re-stk-control button[data-l="1"]`], [2, `${S}.re-stk-retry`]]) {
   let block = true
   const { ctx, page } = await open((r) => (block ? r.abort() : r.continue()))
   await page.waitForTimeout(1500)
-  const t = await tap(page, '.re-stk-control button[data-l="1"]', [100, 300, 600, 1200], `aborted-r${run}`)
+  const t = await tap(page, `${S}.re-stk-control button[data-l="1"]`, [100, 300, 600, 1200], `aborted-r${run}`)
   await report(page, `aborted, run ${run}`, t, { needShown: false, needMessage: true })
   block = false
   const again = await tap(page, retry, [100, 300, 600, 1200, 2400], `aborted-r${run}-retry`)
-  await report(page, `  unblocked, retried with ${retry === '.re-stk-retry' ? 'Try again' : 'a second tap on the switch'}`, again)
+  await report(page, `  unblocked, retried with ${retry.endsWith('.re-stk-retry') ? 'Try again' : 'a second tap on the switch'}`, again)
   await ctx.close()
 }
 
@@ -111,7 +113,7 @@ for (const [run, retry] of [[1, '.re-stk-control button[data-l="1"]'], [2, '.re-
 {
   const { ctx, page } = await open(async (r) => { await new Promise((ok) => setTimeout(ok, 10000)); await r.continue().catch(() => {}) })
   await page.waitForTimeout(1500)
-  const t = await tap(page, '.re-stk-control button[data-l="1"]', [100, 300, 600, 1200, 2400, 3200, 4500, 7000, 10000, 12000], 'delayed')
+  const t = await tap(page, `${S}.re-stk-control button[data-l="1"]`, [100, 300, 600, 1200, 2400, 3200, 4500, 7000, 10000, 12000], 'delayed')
   await report(page, 'delayed 10 s', t, { needLoading: true })
   await ctx.close()
 }
@@ -120,9 +122,9 @@ for (const [run, retry] of [[1, '.re-stk-control button[data-l="1"]'], [2, '.re-
 {
   const { ctx, page } = await open(async (r) => { await new Promise((ok) => setTimeout(ok, 10000)); await r.continue().catch(() => {}) })
   await page.waitForTimeout(1500)
-  await page.locator('.re-stk-control button[data-l="1"]').tap()
+  await page.locator(`${S}.re-stk-control button[data-l="1"]`).tap()
   await page.waitForTimeout(1500)
-  const t = await tap(page, '.re-stk-control button[data-l="2"]', [100, 600, 4000, 10000], 'cancelled')
+  const t = await tap(page, `${S}.re-stk-control button[data-l="2"]`, [100, 600, 4000, 10000], 'cancelled')
   await report(page, 'delayed 10 s, Data tapped 1.5 s into the wait', t, { needShown: false, frontAtEnd: '2' })
   await ctx.close()
 }
