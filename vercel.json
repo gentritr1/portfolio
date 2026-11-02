@@ -12,6 +12,7 @@
   ],
   "rewrites": [
     { "source": "/", "destination": "/index.html" },
+    { "source": "/switch", "destination": "/index.html" },
     { "source": "/:slug(care-platform|design-system-react|bayyinah-tv|read-to-feed|viva-fresh|dukagjini-bookstore|incentiv|futurisma|offday|leakscan)", "destination": "/index.html" }
   ],
   "redirects": [

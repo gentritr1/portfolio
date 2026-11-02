@@ -1,0 +1,80 @@
+/* PROTOTYPE (proto/switch-home, never merged): the layer-switch home at /switch. It reuses the current home's stack
+   (home.css .re-stk*) and type scale; what is new is the ledger beside each stack and one lit table under it. */
+
+.sh-hero { max-width: 1440px; margin: 0 auto; padding: calc(128px + env(safe-area-inset-top, 0px)) var(--re-gutter) 48px; }
+.sh-hero h1 { color: #f4f4f6; font: 400 var(--re-t5)/1.06 var(--re-sans); letter-spacing: 0; text-wrap: balance; }
+.sh-hero h1:focus { outline: none; }
+.sh-role { margin-top: 24px; font-size: var(--re-t2); line-height: 1.35; }
+.sh-bio { margin-top: 12px; max-width: 64ch; color: var(--re-fg-2); line-height: 1.5; }
+.sh-hero-name { font: 400 var(--re-t4)/1.12 var(--re-sans); letter-spacing: 0; }
+
+.sh-work { max-width: 1440px; margin: 0 auto; padding: 64px var(--re-gutter) 48px; }
+.sh-work-head { margin-bottom: 16px; }
+
+/* A project: its words, its ledger and its link on the left; its stack on the right. */
+.sh-row { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); grid-template-rows: auto auto 1fr; grid-template-areas: 'words art' 'ledger art' 'act art'; column-gap: 64px; padding-block: 64px; border-top: 1px solid var(--re-line); }
+.sh-row-hero { padding-block: 32px 0; border-top: 0; }
+.sh-layered { display: contents; }
+.sh-words { grid-area: words; min-width: 0; }
+.sh-name { color: var(--re-dim); }
+.sh-row h3 { margin-top: 8px; max-width: 24ch; font: 400 var(--re-t3)/1.2 var(--re-sans); letter-spacing: 0; text-wrap: balance; }
+.sh-meta { margin-top: 8px; max-width: 56ch; color: var(--re-fg-2); line-height: 1.5; }
+.sh-meta + .sh-meta { margin-top: 4px; color: var(--re-dim); }
+.sh-proof { display: grid; gap: 4px; width: fit-content; margin-top: 16px; color: var(--re-fg); font-size: var(--re-t2); line-height: 1.35; }
+.sh-proof small { color: var(--re-dim); font-size: var(--re-t1); line-height: 1.5; }
+.sh-proof-link { min-height: 44px; text-decoration: underline; text-decoration-color: var(--re-accent-mid); text-underline-offset: 6px; text-decoration-thickness: 1px; }
+@media (hover: hover) and (pointer: fine) { .sh-proof-link:hover { color: var(--re-accent); } }
+.sh-process { margin-top: 16px; padding-left: 1.4em; color: var(--re-fg-2); list-style: decimal; }
+.sh-process li { line-height: 1.6; }
+.sh-act { grid-area: act; margin-top: 12px; }
+
+/* The ledger: every layer named, readable at rest. A swatch per row: filled for the layer in front, outlined for another
+   layer I built, a dash for one I did not. Where two or more are built, the rows are the switch. */
+.sh-ledger { grid-area: ledger; display: grid; margin: 24px 0 0; padding: 0; list-style: none; border-top: 1px solid var(--re-line); }
+.sh .sh-ledger.re-stk-control { grid-template-columns: minmax(0, 1fr); margin-top: 24px; padding: 0; border-radius: 0; background: none; box-shadow: inset 0 1px 0 var(--re-line); border-top: 0; }
+.sh-ledger li { border-bottom: 1px solid var(--re-line); }
+.sh-ledger li > :is(button, .sh-lrow), .sh-ledger li[data-absent] {
+  display: grid; grid-template-columns: 8.5em minmax(0, 1fr); gap: 2px 16px; align-items: baseline; width: 100%; min-height: 44px; padding: 12px 0;
+  color: var(--re-fg-2); font: 400 var(--re-t1)/1.5 var(--re-sans); text-align: left;
+}
+.sh .sh-ledger button { appearance: none; border: 0; border-radius: 0; background: none; cursor: pointer; white-space: normal; padding: 12px 12px 12px 0; transition: color 150ms ease, background-color 150ms ease; }
+.sh .sh-ledger button:focus-visible { outline: 2px solid var(--re-accent); outline-offset: -2px; border-radius: 6px; }
+.sh-lname { display: inline-flex; align-items: center; gap: 10px; color: var(--re-fg); white-space: nowrap; }
+.sh-lname::before { content: ""; flex: none; width: 10px; height: 10px; border-radius: 2px; box-shadow: inset 0 0 0 1.5px var(--re-accent); }
+.sh-ledger :is(button[aria-pressed="true"], .sh-lrow) .sh-lname::before { background: var(--re-accent); }
+.sh-ledger button[aria-pressed="true"] { color: var(--re-fg); }
+.sh-ledger li[data-absent] { color: var(--re-dim); }
+.sh-ledger li[data-absent] .sh-lname { color: var(--re-dim); }
+.sh-ledger li[data-absent] .sh-lname::before { height: 2px; border-radius: 1px; background: var(--re-dim); box-shadow: none; }
+@media (hover: hover) and (pointer: fine) {
+  .sh .sh-ledger button[aria-pressed="false"]:hover { color: var(--re-fg); background: var(--re-fill); }
+  .sh-row:has(.sh-ledger button[data-l="0"]:hover) .re-stk-plate[data-l="0"]:is([data-d="1"], [data-d="2"]),
+  .sh-row:has(.sh-ledger button[data-l="1"]:hover) .re-stk-plate[data-l="1"]:is([data-d="1"], [data-d="2"]),
+  .sh-row:has(.sh-ledger button[data-l="2"]:hover) .re-stk-plate[data-l="2"]:is([data-d="1"], [data-d="2"]) { --hy: -8px; }
+}
+
+/* The stack: home.css's plates at the row's own proportions, on one lit table. */
+.sh .sh-art { grid-area: art; position: relative; inset: auto; display: block; width: auto; min-width: 0; margin: 0; }
+.sh .sh-art .re-stk { width: min(var(--stack-w, 100%), 100%); margin-top: 24px; aspect-ratio: var(--ar); }
+.sh .sh-art .re-stk::before {
+  content: ""; position: absolute; left: -2%; right: -2%; bottom: -40px; height: 80px; z-index: 0; pointer-events: none;
+  background: radial-gradient(closest-side, rgb(226 236 248 / 0.2), rgb(183 200 220 / 0.07) 55%, transparent);
+}
+.sh-shot { position: absolute; left: var(--sl); top: var(--st); width: var(--sw); height: auto; max-width: none; }
+.sh .sh-art figcaption { margin-top: 32px; color: var(--re-dim); font-size: var(--re-t1); line-height: 1.5; text-align: left; }
+.sh .sh-art figcaption:empty { display: none; }
+.sh-text dd { color: var(--re-fg-2); }
+.sh-layered[data-instant] :is(.re-stk-plate, .re-stk-name, .sh-ledger button), .sh-layered[data-instant] .re-stk-plate::after { transition: none; }
+
+@media (max-width: 1100px) {
+  .sh-hero { padding-top: calc(96px + env(safe-area-inset-top, 0px)); }
+  .sh-row { grid-template-columns: minmax(0, 1fr); grid-template-rows: none; grid-template-areas: 'words' 'art' 'ledger' 'act'; padding-block: 48px; }
+  .sh-row-hero { padding-block: 32px 0; }
+}
+@media (max-width: 760px) {
+  .sh .sh-art .re-stk { aspect-ratio: auto; min-height: calc(min(var(--stack-w, 100vw), 100vw - 2 * var(--re-gutter)) / var(--nar)); }
+  .sh .sh-art .re-stk-visual { aspect-ratio: var(--nar); }
+  .sh-shot { left: var(--nsl); top: var(--nst); width: var(--nsw); }
+  .sh-ledger li > :is(button, .sh-lrow), .sh-ledger li[data-absent] { grid-template-columns: minmax(0, 1fr); }
+  .sh .sh-art figcaption { margin-top: 24px; }
+}

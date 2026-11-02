@@ -1,5 +1,5 @@
 import { lazy, Suspense, startTransition, useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react'
-import { useNavigate, useParams } from 'react-router'
+import { useLocation, useNavigate, useParams } from 'react-router'
 import { flushSync } from 'react-dom'
 import { ArrowCounterClockwiseIcon, ArrowUpRightIcon, CaretDownIcon } from '@phosphor-icons/react'
 import type { RefractiveScene, Stats } from "./scene"
@@ -130,6 +130,8 @@ export default function Draft() {
   // A direct case visit should not mount and fetch an unseen homepage. Preserve it after an actual home visit.
   const [hasVisitedHome, setHasVisitedHome] = useState(caseSlug === undefined)
   const navigate = useNavigate()
+  // PROTOTYPE: a case opened from /switch returns there.
+  const from = (useLocation().state as { from?: string } | null)?.from
   const onCase = useRef(false)
   useLayoutEffect(() => { onCase.current = caseSlug !== undefined }, [caseSlug])
   const homeScroll = useRef<number | null>(null)
@@ -418,7 +420,7 @@ export default function Draft() {
   const toHome = (top = false) => {
     setHasVisitedHome(true)
     if (top) homeScroll.current = 0
-    navigate(HOME)
+    navigate(from ?? HOME)
   }
 
   const coordTable = mode === 'tensor' ? (
