@@ -45,26 +45,31 @@ export function HomeIntro({ onOpen, active }: { active: boolean; onOpen(slug: st
   // broken: the screen's request failed; a reader's next pick of the layer mounts a fresh image (a new request).
   const [broken, setBroken] = useState(false)
   const [failed, setFailed] = useState(false)
+  // slow: the screen is still on its way a second after the pick, so the caption says it is loading.
+  const [slow, setSlow] = useState(false)
   // The description animates only once a reader has changed the layer, never on the first paint.
   const [moved, setMoved] = useState(false)
   const choose = (i: number, keyboard: boolean) => {
     setMoved(true)
     setInstant(keyboard)
     setFailed(false)
+    setSlow(false)
     setLayer(i)
     if (i !== 1) setShown(i)
     else if (broken) setBroken(false)
   }
-  // Server rules comes to the front only once its screen is decoded; until then the current plate stays. If the screen
-  // fails, or is still not decoded after 3 s, the selection goes back to the plate in front and the caption says so.
+  // Server rules comes to the front the moment its screen is decoded; until then the current plate stays, however long
+  // the download takes. Only a failed request goes back to the plate in front, and the caption says so. Picking another
+  // layer meanwhile cancels the wait.
   const fail = () => { setLayer(shown); setFailed(true) }
   useEffect(() => {
-    if (layer !== 1 || broken || !rules.current) return
+    if (layer !== 1 || shown === 1 || broken || !rules.current) return
     let live = true
-    const late = setTimeout(() => { if (live) { setLayer(shown); setFailed(true) } }, 3000)
-    rules.current.decode().then(() => { if (live) { clearTimeout(late); setShown(1) } }, () => {})
+    const late = setTimeout(() => { if (live) setSlow(true) }, 1000)
+    rules.current.decode().then(() => { if (live) setShown(1) }, () => { if (live) { setLayer(shown); setFailed(true) } })
     return () => { live = false; clearTimeout(late) }
   }, [layer, broken, shown])
+  const loading = slow && layer === 1 && shown !== 1
   return (
     <>
       <header id="re-top" className="re-intro re-own-item" data-stage={STAGE.hero} data-instant={instant || undefined} data-moved={moved || undefined}>
@@ -139,6 +144,7 @@ export function HomeIntro({ onOpen, active }: { active: boolean; onOpen(slug: st
                 control.current?.querySelector<HTMLButtonElement>('[data-l="1"]')?.focus()
                 choose(1, e.detail === 0)
               }}>Try again</button></span>
+            : loading ? <span role="status">Loading the server rules screen…</span>
             : 'Real product screens, invented data.'}</figcaption>
         </figure>
       </header>
