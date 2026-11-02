@@ -1,0 +1,11 @@
+design
+.agents
+.claude
+.codex
+.aws
+.git
+node_modules
+output
+cv
+scripts/og-fonts
+*.log

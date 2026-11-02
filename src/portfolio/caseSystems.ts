@@ -1,0 +1,44 @@
+// The layers each case shows under "The system behind the screen".
+interface Layer { title: string; stack: string; description: string }
+export const systems: Record<string, { title: string; layers: Layer[] }> = {
+  'care-platform': { title: 'One platform.\nSeparate organizations.', layers: [
+    { title: 'The interface', stack: 'React 19 · TypeScript', description: 'Patient profiles, care plans, labs and vitals. A route-by-route move from Vue to React.' },
+    { title: 'The boundaries', stack: 'TanStack Query · Zustand · Zod', description: 'Separate tenant data, roles and timezones, with parity tests across both frontends.' },
+    { title: 'The backend', stack: 'Laravel · MySQL · Redis', description: 'Enrollment drafts, a lab catalog and multi-tenant security. One billing report reduced from 16 queries to 2.' },
+  ] },
+  'bayyinah-tv': { title: 'A live room,\nfrom screen to stream.', layers: [
+    { title: 'The experience', stack: 'Nuxt 3 · Vue 3 · Pinia', description: 'A full rebuild in English and Arabic. The same web app runs inside the native mobile apps.' },
+    { title: 'The live layer', stack: 'AWS IVS · HLS · Pusher', description: 'Adaptive video playback, realtime chat and moderation connect the player to the live room.' },
+    { title: 'The membership', stack: 'Stripe · Apple · Google', description: 'Subscriptions, gifting and promo codes, with a paywall for premium content.' },
+  ] },
+  'read-to-feed': { title: 'More than\na page turn.', layers: [
+    { title: 'The application', stack: 'React Native · Redux Toolkit', description: 'Reading progress, quizzes, badges and streaks across iOS and Android, in three languages.' },
+    { title: 'The reader', stack: 'PDF · EPUB · epub.js', description: 'Two reading formats, with maintained reader forks and three major React Native upgrades.' },
+    { title: 'The device', stack: 'Vision Camera · Firebase', description: 'ISBN barcode scanning, push notifications and deep links connect books with the reading app.' },
+  ] },
+  'viva-fresh': { title: 'The everyday shop,\nconnected.', layers: [
+    { title: 'The shop', stack: 'React Native', description: 'Grocery shopping, loyalty and a wishlist in one mobile application.' },
+    { title: 'The order', stack: 'Redux Toolkit', description: 'Online grocery orders with delivery slots, from product selection to checkout.' },
+    { title: 'The delivery', stack: 'Maps · Firebase', description: 'Address search on a map connects an order to its delivery location.' },
+  ] },
+  'dukagjini-bookstore': { title: 'A bookshop\nin the pocket.', layers: [
+    { title: 'The shop', stack: 'React Native · Redux', description: 'Search, top categories, books on sale and favourite lists, on iOS and Android.' },
+    { title: 'The order', stack: 'Checkout · Promo codes', description: 'A checkout with promo codes completes the shopping flow on both platforms.' },
+    { title: 'The return', stack: 'Firebase Messaging · Deep links', description: 'Push notifications open the right screen. An animated book header and swipe-to-close modals finish the details.' },
+  ] },
+  'design-system-react': { title: 'One source.\nEvery screen.', layers: [
+    { title: 'Research and agents', stack: 'Research corpus · Agent skills · Fresh reviewers', description: 'Studies and a large multi-agent audit of the old frontend became one best-practices guide. Agents work under written rules, and independent reviewers check each change.' },
+    { title: 'Tokens and components', stack: 'DTCG tokens · React 19 · CSS Modules', description: '805 tokens in three tiers generate CSS, TypeScript and a Figma bundle. 36 components ship as a typed, versioned package.' },
+    { title: 'Evidence and adoption', stack: 'Playwright · axe · Executable gates', description: 'Rendered contrast checks and axe tests against WCAG 2.1 AA floors. The new dashboard adopts the system through one adapter layer.' },
+  ] },
+  incentiv: { title: 'A clear view\nof a smart wallet.', layers: [
+    { title: 'The interface', stack: 'Next.js 14 · TypeScript', description: 'Dashboard cards, assets and a balance popup with a QR address.' },
+    { title: 'The data', stack: 'RTK Query · next-intl', description: 'A typed frontend with English and French translations. The wallet and blockchain layer was built by teammates.' },
+    { title: 'The access', stack: 'Passkeys · Route middleware', description: 'Passkey and external-wallet sign-in, animated onboarding and protected routes.' },
+  ] },
+  futurisma: { title: 'Nine circuits,\nbuilt by a crew.', layers: [
+    { title: 'The game', stack: 'Three.js · TypeScript · Vite', description: 'Nine circuits that change during the race, rivals, ghosts, a garage and an autopilot demo.' },
+    { title: 'The art', stack: 'Blender · Python · Higgsfield', description: 'Scenery and craft from Blender build scripts and painted atlases; reference pictures and sound from Higgsfield.' },
+    { title: 'The crew', stack: 'Claude · Codex · Validators', description: 'A planning Claude writes briefs, a building Claude and Codex build, and every phase is checked by re-running its tests.' },
+  ] },
+}

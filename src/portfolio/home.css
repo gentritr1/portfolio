@@ -1,0 +1,311 @@
+/* Approved Refractive Engine refinement: real work leads; the field frames its edges. */
+.re-root {
+  --re-accent: #9bd9e7;
+  --re-accent-soft: rgb(155 217 231 / 0.12);
+  --re-accent-mid: rgb(155 217 231 / 0.4);
+  --re-ink: #08161a;
+}
+/* The masthead spans the window, so a page scrolling under it is hidden edge to edge (inset by the gutters, it left two
+   strips where screenshots slid past beside it). Its name and links keep the content's edges: the gutter, or the centred
+   1296 px column on wide screens. */
+.re-root .re-bar {
+  top: 0; left: 0; transform: none; width: 100%; min-height: calc(76px + env(safe-area-inset-top, 0px));
+  padding: env(safe-area-inset-top, 0px) max(var(--re-gutter), calc((100% - 1296px) / 2)) 0; border-radius: 0;
+  background: #080a0d;
+}
+.re-nav { gap: 18px; }
+.re-nav a { padding-inline: 8px; font-size: 16px; }
+.re-root .re-canvas { transition: opacity 600ms var(--re-ease); }
+.re-root[data-input="key"] .re-canvas { transition: none; }
+.re-root[data-ready] .re-canvas { opacity: 0.62; }
+.re-root .re-shade {
+  background: linear-gradient(90deg, rgb(5 5 8 / 0.92), rgb(5 5 8 / 0.6) 38%, transparent 78%);
+}
+.re-text-link {
+  display: inline-flex; align-items: center; gap: 10px; min-height: 44px; width: fit-content;
+  color: var(--re-fg); font-size: 16px; line-height: 1.4;
+  text-decoration: underline; text-decoration-color: var(--re-accent); text-underline-offset: 9px;
+  text-decoration-thickness: 1px; transition: color 150ms ease;
+}
+@media (hover: hover) and (pointer: fine) { .re-text-link:hover { color: var(--re-accent); } }
+
+/* The screen, copy and project caption share one composition. Nothing waits for WebGL to become readable. */
+.re-intro {
+  position: relative; isolation: isolate; min-height: 760px;
+  width: 100%; max-width: 1440px; margin: 0 auto; padding: calc(128px + env(safe-area-inset-top, 0px)) var(--re-gutter) 24px;
+}
+.re-intro-copy { grid-area: copy; position: relative; z-index: 2; }
+.re-intro-copy h1 {
+  max-width: none; color: #f4f4f6; font: 400 var(--re-t5)/1.06 var(--re-sans);
+  letter-spacing: 0;
+}
+.re-intro-copy h1 span { display: block; }
+.re-intro-role { margin-top: 22px !important; font-size: var(--re-t2); line-height: 1.35; }
+.re-intro-bio { margin-top: 14px !important; color: var(--re-fg-2); font-size: 16px; line-height: 1.5; }
+.re-intro-links { display: flex; flex-wrap: wrap; gap: 0 24px; margin-top: 10px; }
+.re-intro-links a { color: var(--re-accent); }
+.re-intro-product { position: absolute; z-index: 2; bottom: 16px; left: var(--re-gutter); width: 27%; }
+.re-intro-product h2 { margin-top: 10px; font: 400 var(--re-t4)/1.12 var(--re-sans); letter-spacing: 0; }
+.re-intro-detail { margin-top: 14px !important; min-height: 4.5em; max-width: 27ch; font-size: 16px; line-height: 1.5; color: var(--re-fg-2); }
+.re-intro-credit { color: var(--re-dim); font-size: 16px; line-height: 1.5; }
+.re-intro-product > a { margin-top: 10px; }
+.re-intro-art {
+  position: absolute; right: var(--re-gutter); bottom: 20px; width: calc((100% - 2 * var(--re-gutter)) * 0.64); min-width: 0; z-index: 1;
+  display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; column-gap: 24px;
+}
+
+/* Offday's three layers as a stack of real plates, Interface in front and Data at the back. Choosing a layer moves the
+   whole stack along its diagonal, a dolly through the layers: the chosen plate comes forward from where it sat, the plates
+   behind it stay in view and dimmed, the ones in front fly past the viewer and go. Transitions, so a second click retargets
+   mid-move. */
+.re-stk {
+  --sx: 22px; --sy: 22px; --tilt: perspective(1600px) rotateY(-4deg) rotateX(2deg);
+  /* The move's curve: critically damped, the chapters' settle shape (owner's pick over a 1.5% overshoot spring,
+     2026-10-31). It leaves at full speed, so the plate answers the click on the first frame (an ease-in-out waits), and
+     lands at zero velocity. Sampled into linear(); 94% of the way at 60% of the time. Browsers without linear() get the
+     strong ease-out. */
+  --move-curve: cubic-bezier(0.23, 1, 0.32, 1); --move-time: 480ms;
+  grid-column: 1 / -1; position: relative; margin-top: 52px; aspect-ratio: 2.05;
+}
+@supports (transition-timing-function: linear(0, 1)) {
+  .re-stk { --move-curve: linear(0, 0.0293, 0.099, 0.1886, 0.2853, 0.3807, 0.4704, 0.5519, 0.624, 0.6869, 0.7408, 0.7865, 0.825, 0.8572, 0.8838, 0.9058, 0.9238, 0.9385, 0.9505, 0.9603, 0.9682, 0.9745, 0.9797, 0.9838, 0.9871, 0.9897, 0.9918, 0.9935, 1); }
+}
+.re-stk-plate {
+  --tx: 0px; --ty: 0px; --ts: 1; --hy: 0px;
+  position: absolute; inset: 0; z-index: 3; overflow: hidden; border-radius: 9px; background: #f7f5f5;
+  box-shadow: 18px 26px 54px -24px rgb(0 0 0 / 0.8), 0 0 0 1px rgb(255 255 255 / 0.07);
+  transform: var(--tilt) translate(var(--tx), var(--ty)) scale(var(--ts));
+  /* The hover lift is a property of its own, so a preview answers in 150 ms while a move takes 480 ms. */
+  translate: 0 var(--hy);
+  /* An arriving plate clears its blur and comes to full ink fast (ease-out), while the move itself takes the curve. */
+  transition: transform var(--move-time) var(--move-curve), translate 150ms var(--re-ease), opacity 220ms var(--re-ease), filter 220ms var(--re-ease);
+  /* Three compositor layers from the start, so the first frame of a move is not spent promoting them. */
+  will-change: transform, opacity;
+}
+/* Behind the chosen plate: dimmed, so its edge reads as depth and the front stays the subject. */
+.re-stk-plate::after { content: ""; position: absolute; inset: 0; z-index: 1; background: #050508; opacity: 0; pointer-events: none; transition: opacity 300ms var(--re-ease); }
+.re-stk-plate[data-d="1"] { --tx: var(--sx); --ty: calc(-1 * var(--sy)); --ts: 0.985; z-index: 2; }
+.re-stk-plate[data-d="2"] { --tx: calc(2 * var(--sx)); --ty: calc(-2 * var(--sy)); --ts: 0.97; z-index: 1; }
+.re-stk-plate[data-d="1"]::after { opacity: 0.5; }
+.re-stk-plate[data-d="2"]::after { opacity: 0.66; }
+/* In front of the chosen plate: flying past the viewer, out of focus, gone in 160 ms (an exit is quicker than an entrance),
+   so a screen never dissolves in place over the next one. Hidden once gone, so it costs nothing at rest. */
+.re-stk-plate[data-d="-1"] { --tx: calc(-1.6 * var(--sx)); --ty: calc(1.8 * var(--sy)); --ts: 1.06; z-index: 4; }
+.re-stk-plate[data-d="-2"] { --tx: calc(-3.2 * var(--sx)); --ty: calc(3.6 * var(--sy)); --ts: 1.12; z-index: 5; }
+.re-stk-plate[data-d^="-"] {
+  opacity: 0; filter: blur(6px); visibility: hidden; pointer-events: none;
+  transition: transform var(--move-time) var(--move-curve), translate 150ms var(--re-ease), opacity 160ms var(--re-ease), filter 160ms var(--re-ease), visibility 0s 160ms;
+}
+/* A plate behind takes a click on its edge; a pointer over it, or over its button, lifts it as a preview. */
+@media (hover: hover) and (pointer: fine) {
+  .re-stk-plate:is([data-d="1"], [data-d="2"]) { cursor: pointer; }
+  .re-stk-plate:is([data-d="1"], [data-d="2"]):hover,
+  .re-intro-art:has(.re-stk-control button[data-l="1"]:hover) .re-stk-plate[data-l="1"]:is([data-d="1"], [data-d="2"]),
+  .re-intro-art:has(.re-stk-control button[data-l="2"]:hover) .re-stk-plate[data-l="2"]:is([data-d="1"], [data-d="2"]) { --hy: -8px; }
+  .re-stk-plate:is([data-d="1"], [data-d="2"]):hover::after,
+  .re-intro-art:has(.re-stk-control button[data-l="1"]:hover) .re-stk-plate[data-l="1"]:is([data-d="1"], [data-d="2"])::after,
+  .re-intro-art:has(.re-stk-control button[data-l="2"]:hover) .re-stk-plate[data-l="2"]:is([data-d="1"], [data-d="2"])::after { opacity: 0.3; }
+}
+/* The description changes with its plate, once a reader has moved the stack: a short fade that never blanks the line, so
+   rapid clicks restart nothing a reader can see jump. */
+.re-intro-detail > span { display: block; }
+.re-intro[data-moved]:not([data-instant]) .re-intro-detail > span { animation: re-detail-in 160ms var(--re-ease) both; }
+@keyframes re-detail-in { from { opacity: 0.35; } }
+/* A plate behind the chosen one names itself on the corner that peeks out; elsewhere the name would cover a screen. */
+.re-stk-name {
+  position: absolute; top: 0; right: 0; z-index: 2; padding: 2px 10px 3px; border-bottom-left-radius: 7px;
+  background: #11151b; color: var(--re-fg-2); font-size: 13px; line-height: 17px; white-space: nowrap;
+  transition: opacity 200ms ease;
+}
+.re-stk-plate:not([data-d="1"], [data-d="2"]) .re-stk-name { opacity: 0; }
+.re-intro-ui { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: top; }
+.re-stk-visual { position: absolute; inset: 0; overflow: hidden; }
+.re-stk-status { display: none; }
+
+/* The layer control: one segmented row under the stack, front to back left to right like the plates; the thumb slides. */
+.re-stk-control {
+  position: relative; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 22px; padding: 2px;
+  border-radius: 999px; background: rgb(255 255 255 / 0.035); box-shadow: inset 0 0 0 1px var(--re-line);
+}
+.re-stk-thumb {
+  position: absolute; top: 2px; bottom: 2px; left: 2px; width: calc((100% - 4px) / 3); border-radius: 999px;
+  background: rgb(255 255 255 / 0.1); box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.08);
+  transform: translateX(calc(var(--i) * 100%)); transition: transform 220ms var(--re-ease);
+}
+.re-stk-control button {
+  position: relative; appearance: none; border: 0; background: none; cursor: pointer; min-height: 44px; padding: 0 18px;
+  border-radius: 999px; color: var(--re-fg-2); font: 400 var(--re-t1)/1 var(--re-sans); white-space: nowrap;
+  transition: color 150ms ease, transform 160ms var(--re-ease);
+}
+.re-stk-control button[aria-pressed="true"] { color: var(--re-fg); }
+/* The press is felt before the stack moves. */
+.re-stk-control button:active { transform: scale(0.97); }
+.re-stk-control button:focus-visible { outline: 2px solid var(--re-accent); outline-offset: -2px; }
+@media (hover: hover) and (pointer: fine) { .re-stk-control button[aria-pressed="false"]:hover { color: var(--re-fg); } }
+/* A key press switches at once: keyboard actions do not animate. */
+.re-intro[data-instant] :is(.re-stk-plate, .re-stk-thumb, .re-stk-name, .re-stk-control button), .re-intro[data-instant] .re-stk-plate::after { transition: none; }
+/* Server rules: the privacy card, cut by the crop variables (wide cut here, the card alone below 1100 px). */
+.re-intro-rules { position: absolute; left: var(--sl); top: var(--st); width: var(--sw); height: auto; max-width: none; }
+/* Data: the schema as type on the page's own ground; org_id carries the accent, the column that keeps companies apart. */
+.re-intro-tables {
+  position: absolute; inset: 0; display: grid; align-content: center; justify-content: center; gap: 16px; padding: 6% 7%;
+  background: #12161d; color: var(--re-fg-2); font-size: 18px; line-height: 1.45;
+}
+.re-intro-tables > p { color: var(--re-dim); font-size: 14px; }
+.re-intro-tables dl { display: grid; }
+/* Rows ruled like a table viewer's. */
+.re-intro-tables dl > div { display: grid; grid-template-columns: 8.5em minmax(0, 1fr); gap: 16px; padding: 7px 0; border-top: 1px solid rgb(255 255 255 / 0.07); }
+.re-intro-tables dl > div:last-child { border-bottom: 1px solid rgb(255 255 255 / 0.07); }
+.re-intro-tables dt { color: var(--re-fg); }
+.re-intro-tables b { font-weight: 400; color: var(--re-accent); }
+.re-intro-art figcaption { margin-top: 22px; text-align: right; font-size: var(--re-t1); line-height: 1.5; color: var(--re-dim); }
+
+.re-evidence { position: relative; max-width: 1440px; margin: 0 auto; padding: 0 var(--re-gutter) var(--re-pad); }
+.re-evidence ul { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin-top: 18px; }
+.re-evidence li { padding-inline: 28px; }
+.re-evidence li:first-child { padding-left: 0; border-left: 0; }
+.re-evidence li:last-child { padding-right: 0; }
+.re-evidence a { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; color: var(--re-fg); font-size: var(--re-t2); line-height: 1.3; text-decoration: none; }
+.re-evidence li p { color: var(--re-fg-2); font-size: var(--re-t1); line-height: 1.5; }
+@media (hover: hover) and (pointer: fine) { .re-evidence a:hover { color: var(--re-accent); } }
+
+.re-engineering, .re-workflow, .re-about { max-width: 1440px; margin: 0 auto; padding: var(--re-pad) var(--re-gutter); }
+.re-engineering-head { max-width: 760px; }
+.re-engineering-head > p { margin-top: 18px; max-width: 58ch; color: var(--re-fg-2); }
+.re-engineering-rows { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; margin-top: 44px; }
+.re-engineering-rows article { min-width: 0; }
+.re-engineering-rows h3 { font: 500 var(--re-t2)/1.3 var(--re-sans); }
+.re-engineering-decision { margin-top: 14px !important; font: 400 var(--re-t3)/1.25 var(--re-sans); letter-spacing: 0; max-width: 28ch; }
+.re-engineering-rows p:not(.re-engineering-decision) { max-width: 58ch; margin-top: 16px; color: var(--re-fg-2); }
+.re-engineering-meta { font-size: var(--re-t1); color: var(--re-dim) !important; }
+/* One fact per line: the kind, then the stack (checker T30: no A · B · C · D chains). */
+.re-engineering-meta > span { display: block; }
+.re-engineering-rows a { margin-top: 14px; }
+.re-backend-media { margin: 0 0 24px; }
+.re-backend-media figcaption { margin-top: 12px; font-size: 13px; line-height: 1.5; color: var(--re-dim); }
+.re-backend-shot { display: block; width: 100%; aspect-ratio: 16 / 10; object-fit: cover; border-radius: 8px; }
+/* One shared set of rows keeps the two headings and actions aligned when only one image needs a caption. */
+@media (min-width: 1101px) {
+  .re-engineering-rows { row-gap: 16px; }
+  .re-engineering-rows article { display: grid; grid-template-rows: subgrid; grid-row: span 6; }
+  .re-engineering-rows article > :is(.re-backend-media, p, a) { margin: 0; }
+}
+.re-workflow { display: grid; grid-template-columns: 0.9fr 1.4fr; gap: 64px; }
+.re-workflow-body > p:first-child { font-size: var(--re-t2); line-height: 1.45; max-width: 42ch; }
+.re-workflow ol { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; margin-top: 32px; }
+.re-workflow li { font-size: 16px; line-height: 1.5; }
+.re-workflow-note, .re-workflow-products { margin-top: 24px !important; color: var(--re-fg-2); max-width: 60ch; }
+.re-workflow-body > a { margin-top: 16px; }
+.re-about { display: grid; grid-template-columns: 0.9fr 1.4fr; gap: 64px; }
+.re-about p { max-width: 60ch; color: var(--re-fg-2); }
+.re-about p + p { margin-top: 18px; }
+.re-about .re-text-link { margin-top: 10px; }
+.re-about .re-text-link + p { margin-top: 18px; }
+.re-disclosure { width: min(1296px, calc(100% - 2 * var(--re-gutter))); margin: 24px auto; }
+.re-disclosure > summary { display: grid; grid-template-columns: minmax(0, 1fr) auto 20px; align-items: center; gap: 8px 24px; padding: 24px 0; cursor: pointer; font-size: var(--re-t2); line-height: 1.4; list-style: none; }
+.re-disclosure > summary::-webkit-details-marker { display: none; }
+.re-disclosure > summary:focus-visible { outline: 2px solid var(--re-accent); outline-offset: 4px; }
+.re-disclosure > summary span { font-size: var(--re-t1); color: var(--re-dim); align-self: center; }
+.re-disclosure-caret { color: var(--re-accent); transition: transform 160ms var(--re-ease); }
+.re-disclosure[open] .re-disclosure-caret { transform: rotate(180deg); }
+.re-root[data-input="key"] :is(.re-disclosure-caret, .re-eng-caret) { transition: none; }
+.re-disclosure > .re-lab, .re-disclosure > .re-all, .re-disclosure > .re-map { padding-inline: 0; }
+.re-disclosure-loading { padding: 40px 0; color: var(--re-fg-2); }
+.re-root .re-contact .re-card { background: transparent; padding: 0; width: auto; }
+.re-root .re-contact { min-height: auto; padding-block: var(--re-pad) calc(2 * var(--re-pad)); }
+.re-engineering, .re-workflow, .re-about, .re-evidence { background: rgb(5 5 8 / 0.92); }
+:where(#re-backend, #re-workflow, #re-about, #re-explore, #re-results) { scroll-margin-top: 16px; }
+html.re-html { scroll-padding-top: 80px; scrollbar-color: #59616b #080a0d; }
+
+@media (max-width: 1100px) {
+  .re-evidence li { padding-inline: 18px; }
+}
+@media (max-width: 1100px) {
+  .re-root .re-bar { min-height: calc(68px + env(safe-area-inset-top, 0px)); }
+  .re-nav { gap: 8px; }
+  .re-nav a { padding-inline: 6px; }
+  .re-nav .re-nav-about { display: none; }
+  .re-intro { display: grid; min-height: auto; max-width: none; padding-top: calc(96px + env(safe-area-inset-top, 0px)); grid-template-columns: minmax(0, 1fr); grid-template-areas: 'copy' 'art' 'product'; gap: 20px; }
+  .re-intro-copy { grid-area: copy; }
+  .re-intro-copy h1 span { display: inline; }
+  .re-intro-copy h1 { max-width: none; line-height: 1.1; text-wrap: pretty; }
+  .re-intro-role { margin-top: 20px !important; }
+  .re-intro-bio { max-width: 40ch; }
+  .re-intro-art { grid-area: art; position: relative; right: auto; bottom: auto; width: 100%; }
+  /* Flat and tighter on narrow screens; the corner names need the 22 px peek of the wide stack, so the control alone names the layers. */
+  .re-stk { --sx: 10px; --sy: 10px; --tilt: perspective(1600px) rotateY(0deg) rotateX(0deg); margin-top: 22px; aspect-ratio: 1.55; }
+  .re-stk-name { display: none; }
+  .re-intro-ui { inset: auto; width: 157%; height: auto; max-width: none; top: -5%; left: -23%; }
+  .re-intro-rules { left: var(--nsl); top: var(--nst); width: var(--nsw); }
+  .re-stk-control, .re-intro-art figcaption { grid-column: 1 / -1; }
+  .re-intro-art figcaption { margin-top: 12px; text-align: left; }
+  .re-intro-product { grid-area: product; position: relative; left: auto; bottom: auto; width: auto; padding-bottom: 16px; }
+  .re-intro-detail { min-height: 4.5em; max-width: 38ch; margin-top: 10px !important; }
+  .re-evidence ul { grid-template-columns: 1fr 1fr; gap: 28px 20px; }
+  .re-evidence li { border: 0; padding: 0; }
+  .re-root .re-shade { background: linear-gradient(180deg, rgb(5 5 8 / 0.88), rgb(5 5 8 / 0.55) 50%, rgb(5 5 8 / 0.3)); }
+  .re-root[data-ready] .re-canvas { opacity: 0.42; }
+  .re-engineering-rows, .re-workflow, .re-about { grid-template-columns: 1fr; gap: 32px; }
+  .re-engineering-rows { margin-top: 32px; }
+  .re-workflow ol { grid-template-columns: 1fr 1fr; gap: 24px; }
+  .re-disclosure > summary { font-size: var(--re-t2); }
+  .re-disclosure > summary { grid-template-columns: minmax(0, 1fr) 20px; }
+  .re-disclosure > summary span { grid-column: 1 / -1; grid-row: 2; }
+  .re-disclosure-caret { grid-column: 2; grid-row: 1; }
+}
+@media (min-width: 761px) and (max-width: 1100px) {
+  .re-intro { grid-template-columns: 0.7fr 1.3fr; grid-template-areas: 'copy copy' 'product art'; gap: 28px; }
+  .re-intro-copy h1 { max-width: 18em; }
+  .re-intro-art { align-self: start; }
+  .re-stk { --sx: 14px; --sy: 14px; aspect-ratio: 1.6; }
+  .re-intro-tables { font-size: 15px; }
+  .re-intro-tables dl > div { padding: 5px 0; }
+  .re-intro-ui { width: 100%; height: auto; left: 0; top: 0; }
+}
+@media (max-width: 760px) {
+  .re-stk-status { display: block; grid-column: 1 / -1; color: var(--re-fg-2); font-size: 16px; line-height: 1.45; }
+  /* Room for the back plates, which peek 17 px above the stack. */
+  .re-stk-status + .re-stk { margin-top: 28px; }
+  /* The longest layer sets the shared height, even while hidden behind another plate. Text can wrap without clipping
+     or shifting the controls on selection. Screens keep their original crop, centred inside the taller plate. */
+  .re-stk { display: grid; aspect-ratio: auto; min-height: calc((100vw - 2 * var(--re-gutter)) / 1.55); }
+  .re-stk-plate { position: relative; inset: auto; grid-area: 1 / 1; min-width: 0; }
+  .re-stk-visual { inset: auto 0; top: 50%; translate: 0 -50%; aspect-ratio: 1.55; }
+  .re-intro-tables { position: relative; min-height: 100%; gap: 8px; padding: 16px; font-size: 13px; }
+  .re-intro-credit { display: none; }
+  .re-stk-control button { padding: 0 8px; }
+  .re-intro-tables > p { font-size: 13px; }
+  .re-intro-tables dl > div { grid-template-columns: 7.5em minmax(0, 1fr); gap: 10px; padding: 3px 0; }
+}
+@media (max-width: 360px) {
+  .re-nav { gap: 0; }
+  .re-mark { font-size: 16px; }
+  .re-evidence ul { grid-template-columns: 1fr; gap: 22px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .re-root .re-canvas { transition: none; }
+  .re-disclosure-caret, .re-eng-caret { transition: none; }
+  /* Every state stays, the travel goes: plates and thumb jump to their places, fades stay short, nothing blurs or lifts. */
+  .re-stk-plate, .re-stk-plate::after, .re-stk-thumb { transition: opacity 120ms ease; }
+  .re-stk-plate[data-d^="-"] { filter: none; transition: opacity 120ms ease, visibility 0s 120ms; }
+  .re-stk-plate { --hy: 0px !important; }
+}
+
+/* The headline's empty box must not intercept the product's layer controls. */
+.re-intro-copy { pointer-events: none; }
+.re-intro-copy a { pointer-events: auto; }
+.re-intro-copy :is(h1, p) { pointer-events: auto; width: fit-content; max-width: 100%; }
+.re-root .re-casepage { padding-top: calc(88px + env(safe-area-inset-top, 0px)); }
+@media (max-width: 767px) { .re-root .re-casepage { padding-top: calc(84px + env(safe-area-inset-top, 0px)); } }
+.re-decision-story { margin-block: 32px; }
+.re-decision-story dl { display: grid; gap: 22px; margin-top: 24px; }
+.re-decision-story dt { color: var(--re-accent); font-size: 13px; margin-bottom: 6px; }
+.re-decision-story dd { max-width: 65ch; color: var(--re-fg-2); line-height: 1.65; }
+
+/* One left edge for every text section, the intro's (at 1440 the 72 px gutter). The index, the ledger, the notes and the
+   contact each centred on a width of their own (1180, 1240, 620), so the page had five left edges; the bands stay
+   full-bleed. The chapters keep their own stage geometry. */
+.re-root :is(.re-all, .re-ledger, .re-field-notes, .re-contact) {
+  max-width: none; margin-inline: 0; padding-inline: max(var(--re-gutter), calc((100% - 1440px) / 2 + var(--re-gutter)));
+}
+.re-root .re-contact { justify-content: flex-start; }

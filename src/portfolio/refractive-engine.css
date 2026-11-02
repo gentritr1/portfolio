@@ -1,0 +1,1107 @@
+/* The Refractive Engine: a dark optical bench. Frontend Lens is monochrome with one emerald accent; AI Tensor Field is cyan, with violet kept to the scene.
+   One face (Archivo). Surfaces are fills one tone step above the page; nothing is outlined, and the only rules are the hairlines of the chamber's index.
+   Type scale: five steps, one role each, and nothing else on the home page outside product screens (DESIGN.md § Typography).
+   Every step is at least 1.25× the one below; letter-spacing stays at 0. At 1100 px and below the top two compress: the
+   project heading joins the small heading and the h1 stays the largest text. */
+.re-root {
+  --re-t1: 16px; /* body, meta, captions, links: the floor */
+  --re-t2: 20px; /* lead: the role line, the evidence links, small titles */
+  --re-t3: 28px; /* small heading: a product's name, a decision */
+  --re-t4: 40px; /* section and project heading */
+  --re-t5: 56px; /* the h1 */
+  /* Half the space between two sections: each section pads its top and bottom by it, so every pair is 2× apart. */
+  --re-pad: 48px;
+  --re-bg: #050508;
+  --re-fg: #ededf0;
+  --re-fg-2: #c4c5cd;
+  --re-dim: #9c9da7;
+  --re-glass: rgb(14 14 19 / 0.8);
+  --re-glass-strong: rgb(12 12 17 / 0.92);
+  --re-fill: rgb(255 255 255 / 0.05);
+  /* Three white steps for every fill and line on the page (was twelve opacities): fill, line, strong line. */
+  --re-line: rgb(255 255 255 / 0.1);
+  --re-line-2: rgb(255 255 255 / 0.2);
+  --re-fill-2: rgb(255 255 255 / 0.09);
+  --re-fill-3: rgb(255 255 255 / 0.14);
+  --re-accent: #3ee6a4;
+  --re-accent-soft: rgb(62 230 164 / 0.14);
+  --re-accent-mid: rgb(62 230 164 / 0.5);
+  --re-ink: #03130c;
+  --re-ease: cubic-bezier(0.23, 1, 0.32, 1);
+  --re-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+  --re-sans: Archivo, ui-sans-serif, system-ui, sans-serif;
+  --re-gutter: max(clamp(16px, 5vw, 72px), env(safe-area-inset-left, 0px), env(safe-area-inset-right, 0px));
+  position: relative;
+  min-height: 100dvh;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  background: var(--re-bg);
+  color: var(--re-fg);
+  font: 400 16px/1.6 var(--re-sans);
+  overflow-x: clip;
+  -webkit-font-smoothing: antialiased;
+  caret-color: var(--re-accent);
+}
+@media (max-width: 1100px) { .re-root { --re-t4: 28px; --re-t5: 36px; --re-pad: 32px; } }
+.re-root[data-mode="tensor"] {
+  --re-fg: #eceef8;
+  --re-fg-2: #c3c7dc;
+  --re-dim: #9a9fb8;
+  --re-glass: rgb(13 14 26 / 0.8);
+  --re-glass-strong: rgb(11 12 22 / 0.92);
+  --re-fill: rgb(196 206 255 / 0.06);
+  --re-fill-2: rgb(196 206 255 / 0.1);
+  --re-fill-3: rgb(196 206 255 / 0.15);
+  --re-accent: #5be7ff;
+  --re-accent-soft: rgb(91 231 255 / 0.14);
+  --re-accent-mid: rgb(91 231 255 / 0.5);
+  --re-ink: #021318;
+}
+/* Native scrolling, and anchor links jump at once: the site's smooth scroll-behavior would carry the eye down the whole page. */
+html.re-html { scroll-behavior: auto; scroll-padding-top: calc(5rem + env(safe-area-inset-top, 0px)); background: #050508; color-scheme: dark; }
+.re-root *, .re-root *::before, .re-root *::after { box-sizing: border-box; }
+.re-root ::selection { background: var(--re-accent-soft); color: #fff; }
+.re-root :where(h1, h2, h3, p, ul, ol, dl, dd, figure, table) { margin: 0; }
+.re-root :where(ul, ol) { list-style: none; padding: 0; }
+/* Live and measured numbers: the text face with tabular figures, so a changing value does not jitter. */
+.re-num { font-variant-numeric: tabular-nums; }
+.re-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.re-root :focus-visible { outline: 2px solid var(--re-accent); outline-offset: 3px; border-radius: 8px; }
+
+/* ---------- Field ---------- */
+.re-canvas { position: fixed; top: 0; left: 0; right: 0; height: 100lvh; z-index: 0; opacity: 0; transition: opacity 800ms var(--re-ease); }
+.re-root[data-ready] .re-canvas { opacity: 1; }
+.re-canvas canvas { display: block; width: 100% !important; height: 100% !important; }
+.re-shade { position: fixed; inset: 0; z-index: 1; pointer-events: none; background: radial-gradient(130% 95% at 55% 40%, transparent 50%, rgb(3 3 5 / 0.7) 100%); } /* taste-skill-ignore: a neutral vignette scrim over the WebGL field, not a decorative fill */
+.re-nogl { position: absolute; inset: 88px var(--re-gutter) auto; z-index: 3; font-size: 13px; color: var(--re-fg-2); }
+
+/* ---------- Controls ---------- */
+.re-solid { pointer-events: auto; }
+.re-btn {
+  all: unset; box-sizing: border-box; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 44px; padding: 0 18px;
+  border-radius: 999px; font: 500 16px/1 var(--re-sans); color: var(--re-fg); background: var(--re-fill-2);
+  transition: transform 160ms var(--re-ease), background-color 160ms ease, color 160ms ease;
+}
+.re-btn:active { transform: scale(0.97); }
+.re-btn-solid { background: var(--re-fg); color: #0a0a0d; }
+.re-btn-quiet { min-height: 44px; padding: 0 16px; font-size: 13px; color: var(--re-fg-2); }
+@media (hover: hover) and (pointer: fine) {
+  .re-btn:hover { background: var(--re-accent-soft); color: var(--re-fg); }
+  .re-btn-solid:hover { background: #fff; color: #0a0a0d; }
+}
+
+/* ---------- Top bar ---------- */
+.re-bar {
+  position: fixed; top: 16px; left: 50%; z-index: 6; transform: translateX(-50%); display: flex; align-items: center; gap: 12px;
+  width: min(1180px, calc(100% - 32px)); min-height: 52px; padding: 4px 8px 4px 20px; border-radius: 12px;
+  /* A plain masthead: the name and three links on an opaque ground, no glass (portfolio-page T26/T04). */
+  background: rgb(10 11 15 / 0.97);
+}
+.re-nav { display: flex; gap: 4px; }
+.re-nav a {
+  display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px; border-radius: 8px; font: 500 16px/1 var(--re-sans);
+  color: var(--re-fg-2); text-decoration: none; transition: color 150ms ease, background-color 150ms ease;
+}
+@media (hover: hover) and (pointer: fine) { .re-nav a:hover { color: var(--re-fg); background: var(--re-fill); } }
+.re-nav a:focus-visible { outline: 2px solid var(--re-accent); outline-offset: 2px; }
+@media (max-width: 420px) { .re-bar { padding-left: 14px; } .re-nav a { padding: 0 9px; } }
+.re-mark { flex: 1; display: inline-flex; align-items: center; min-height: 44px; font: 500 16px/1 var(--re-sans); color: var(--re-fg); text-decoration: none; white-space: nowrap; }
+.re-live dt { font-size: 13px; line-height: 1.3; color: var(--re-dim); }
+.re-spark { display: grid; gap: 6px; }
+.re-spark canvas { display: block; width: 100%; height: 44px; padding: 6px 0; border-radius: 8px; background: var(--re-fill); color: var(--re-accent); }
+.re-spark p { font-size: 13px; line-height: 1.4; color: var(--re-dim); }
+.re-spark-lg canvas { height: 72px; }
+.re-tag { display: inline-block; justify-self: start; padding: 8px 12px; border-radius: 10px; background: var(--re-fill); font-size: 13px; line-height: 1.45; color: var(--re-fg-2); }
+.re-coords { width: 100%; border-collapse: collapse; font-size: 13px; color: var(--re-fg-2); }
+.re-coords caption { text-align: left; padding-bottom: 6px; font-size: 13px; color: var(--re-dim); }
+.re-coords th, .re-coords td { padding: 4px 0; text-align: right; font-weight: 400; }
+.re-coords tbody tr:nth-child(odd) { background: var(--re-fill); }
+.re-coords tbody th { padding-left: 8px; }
+.re-coords tbody td:last-child { padding-right: 8px; }
+.re-coords thead th { color: var(--re-dim); }
+.re-coords tbody th { text-align: left; color: var(--re-accent); }
+.re-coords-grid dt { font-size: 13px; color: var(--re-dim); }
+.re-coords-grid dd { margin-top: 4px; }
+
+/* ---------- Sections ---------- */
+.re-root main { position: relative; z-index: 2; pointer-events: none; }
+/* The page passes the pointer through to the field, and a region opts back in with .re-solid. Links and controls always
+   take it: one left outside such a region could only be reached by keyboard (the hero action, the area tiles and the
+   index were, 2026-10-29: a real click landed on the canvas). The area map takes it too, to light the cloud pointed at. */
+.re-root main :is(a, button, summary, [role="tab"], input, select, textarea, label), .re-root main .re-map { pointer-events: auto; }
+.re-h2 { font: 300 var(--re-t4)/1.08 var(--re-sans); letter-spacing: 0; text-wrap: balance; }
+.re-lede { margin-top: 14px; max-width: 46ch; color: var(--re-fg-2); text-wrap: pretty; }
+.re-card {
+  width: min(480px, 100%); padding: 28px; border-radius: 16px; background: rgb(14 15 20 / 0.94);
+}
+
+.re-modes { min-height: 120svh; display: flex; align-items: center; padding: 96px var(--re-gutter); max-width: 1440px; margin: 0 auto; }
+.re-options { display: grid; gap: 8px; margin: 22px 0 18px; }
+.re-option {
+  all: unset; box-sizing: border-box; cursor: pointer; display: grid; gap: 4px; padding: 14px 16px; border-radius: 12px; background: var(--re-fill);
+  transition: transform 160ms var(--re-ease), background-color 160ms ease;
+}
+.re-option strong { font-weight: 500; font-size: 16px; }
+.re-option span { font-size: 16px; line-height: 1.45; color: var(--re-fg-2); }
+.re-option[aria-pressed="true"] { background: var(--re-accent-soft); }
+.re-option[aria-pressed="true"] strong { color: var(--re-accent); }
+.re-option:active { transform: scale(0.97); }
+@media (hover: hover) and (pointer: fine) { .re-option[aria-pressed="false"]:hover { background: var(--re-fill-2); } }
+.re-modes .re-tag { margin-bottom: 16px; }
+
+/* ---------- Production work: five chapters, each a composition of real screens on a lit table ----------
+   From the selected-work sequence (2026-10-28). Wide screens place everything on the study's 1440 × 900 frame and scale
+   it with the page (sizes in cqw, with floors for reading); phones stack the stage, then the words. */
+.re-prod { position: relative; isolation: isolate; padding: 0 0 var(--re-pad); }
+/* The chapters' own heading, visible: it is where Work in the masthead lands, and it keeps the outline h1 → h2 → h3. */
+.re-prod-h { max-width: 1440px; margin: 0 auto; padding: var(--re-pad) var(--re-gutter) 8px; }
+/* The first chapter's frame opens 110 frame-px above its screen; pulled up by 72 of them, the heading sits with its work. */
+.re-prod-h + .re-sw { margin-top: max(-5%, -80px); } /* 72 / 1440 of the frame; the frame stops at 1600 */
+.re-sw { --u: calc(100cqw / 1440); position: relative; max-width: 1600px; margin: 0 auto; aspect-ratio: 1440 / 900; container-type: inline-size; }
+.re-sw-stage { position: absolute; inset: 0; }
+/* No box of their own except on landscape tablets (below), where they are the chapter's two columns. */
+.re-sw-media, .re-sw-words { display: contents; }
+/* main passes the pointer through to the field; only the words, the screens and the reader take it back, so the cursor lens works in the margins. */
+.re-sw-at, .re-sw-slab, .re-sw-reader, .re-sw-sheet { pointer-events: auto; }
+.re-sw-floor {
+  position: absolute; left: 0; right: 0; top: var(--ft); height: var(--fh); pointer-events: none;
+  clip-path: polygon(1.7% 15%, 98.3% 0, 100% 95%, 0 100%);
+  background: var(--fl), linear-gradient(rgb(29 32 38 / 0.18), rgb(32 36 42 / 0.46) 55%, rgb(9 11 16 / 0.05));
+}
+.re-sw-slabs { position: absolute; inset: 0; transform-origin: 50% 85%; }
+/* Contact shadow under the main screen: a sharp 2 px core at rest; while the screen is still above the table, a 16 px
+   penumbra (the penumbra law, 2 + 0.5 × gap). Static blurs, crossfaded by opacity from the settle. */
+.re-sw-contact { position: absolute; height: 22px; pointer-events: none; }
+.re-sw-contact > span { position: absolute; inset: 0; border-radius: 50%; }
+.re-sw-contact-soft { background: rgb(0 0 0 / 0.55); filter: blur(16px); opacity: 0; }
+.re-sw-contact > .re-sw-contact-sharp { inset: 6px 3%; background: rgb(0 0 0 / 0.7); filter: blur(2px); }
+/* A slab: polished bevel, thicker on the lower and right edges, a short contact shadow and a faint reflection. */
+.re-sw-slab {
+  position: absolute; left: var(--x); top: var(--y); width: var(--w); z-index: var(--z, 2); margin: 0; transform: var(--t, none);
+  padding: 5px 6px 13px 5px; border-radius: 10px;
+  background: linear-gradient(135deg, #e0e4eb 0, #7d8591 1px, #303741 3px, #101319 5px, #090c11 70%, #242b35 97%, #606a79 99%, #181d25);
+  box-shadow: 5px 12px 0 -5px #11151c, 3px 15px 8px -6px #000, 8px 29px 36px -21px #000;
+}
+.re-sw-slab::before { content: ""; position: absolute; left: 6px; top: 2px; right: 8px; height: 1px; border-radius: 2px; background: linear-gradient(90deg, #f3f6faaf, #bec9db30 43%, transparent 85%); }
+.re-sw-slab::after { content: ""; position: absolute; left: 3px; top: 5px; width: 1px; height: 75%; background: linear-gradient(#d5dded6b, #afbdcd10, transparent); }
+.re-sw-screen { position: relative; overflow: hidden; border-radius: 5px; background: #101319; aspect-ratio: var(--ar); }
+.re-sw-screen img { position: absolute; left: var(--sl); top: var(--st); width: var(--sw); height: auto; max-width: none; user-select: none; }
+.re-sw-reflection {
+  position: absolute; left: 5px; right: 6px; top: calc(100% + 9px); height: calc(98 * var(--u)); overflow: hidden; z-index: -1; pointer-events: none;
+  opacity: 0.09; filter: blur(4px); mask-image: linear-gradient(#000a, transparent 95%);
+}
+.re-sw-reflection .re-sw-screen { transform: scaleY(-1); border-radius: 0; }
+.re-sw-states { padding: 6px 7px 15px 6px; box-shadow: 6px 18px 0 -7px #11151d, 6px 24px 16px -9px #000, 0 47px 44px -13px #000; }
+.re-sw-states-row { display: flex; overflow: hidden; border-radius: 5px; background: #fff; }
+.re-sw-states-row img { display: block; width: 20%; height: auto; }
+/* Cut on action: pressing "Read the case" lifts the main slab 6 px over 240 ms, so the movement is already under way when
+   the page changes (the press-to-first-frame gap is about 220 ms). Mouse only; touch and keyboard open without it. */
+.re-sw-lead { transition: translate 240ms var(--re-ease), filter 200ms var(--re-ease); }
+.re-sw[data-lift] .re-sw-lead { translate: 0 -6px; }
+@media (prefers-reduced-motion: reduce) { .re-sw[data-lift] .re-sw-lead { translate: none; } }
+/* Hover, on pointers that have it: Bayyinah's second screen comes forward to a readable size and the main one steps back. */
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  /* Real size: the companion grows to the size a visitor saw it (--real, measured), the main screen steps back. */
+  .re-sw-swap { transform-origin: 84% 96%; transition: transform 160ms var(--re-ease); }
+  .re-sw-swap:hover { transform: scale(var(--real, 1.12)); transition-duration: 200ms; }
+  .re-sw-stage:has(.re-sw-swap:hover) .re-sw-lead { filter: brightness(0.8); }
+}
+
+/* One slab, several real screens: the active one is sharp; a change crossfades with a 2 px blur (exit 160 ms, entry
+   220 ms) and the slab never moves. A keyboard change is instant. */
+.re-sw-screen[data-swap] img { opacity: 0; filter: blur(2px); transition: opacity 160ms var(--re-ease), filter 160ms var(--re-ease); }
+.re-sw-screen[data-swap] img[data-on] { opacity: 1; filter: none; transition-duration: 220ms; }
+.re-sw-screen[data-swap][data-instant] img { transition: none; }
+@media (prefers-reduced-motion: reduce) { .re-sw-screen[data-swap] img, .re-sw-screen[data-swap] img[data-on] { filter: none; transition: opacity 120ms ease; } }
+.re-sw-slab[data-swipe] { touch-action: pan-y pinch-zoom; }
+.re-sw-slab[data-swipe] .re-sw-screen img { -webkit-user-select: none; -webkit-touch-callout: none; }
+.re-sw-thumbs { display: grid; gap: 6px; }
+.re-sw-thumb-row { display: flex; gap: 8px; }
+.re-sw-screen-label { font-size: var(--re-t1); line-height: 1.5; color: var(--re-fg-2); }
+.re-sw-screen-label span { color: var(--re-dim); font-variant-numeric: tabular-nums; }
+.re-sw-thumbs button { all: unset; box-sizing: border-box; cursor: pointer; display: grid; grid-template-columns: minmax(0, 1fr); place-items: center; flex: 0 1 auto; min-width: 44px; min-height: 44px; opacity: 0.55; transition: opacity 150ms ease; }
+.re-sw-thumbs button[aria-pressed="true"] { opacity: 1; }
+.re-sw-thumbs[data-instant] button { transition: none; }
+.re-sw-thumbs button[aria-pressed="true"] .re-sw-thumb { box-shadow: 0 0 0 2px var(--re-accent); }
+@media (hover: hover) and (pointer: fine) { .re-sw-thumbs button[aria-pressed="false"]:hover { opacity: 0.8; } }
+.re-sw-thumbs button:focus-visible { outline: 2px solid var(--re-accent); outline-offset: 2px; border-radius: 6px; }
+.re-sw-thumb { position: relative; display: block; max-width: 100%; overflow: hidden; border-radius: 3px; aspect-ratio: var(--ar); box-shadow: 0 0 0 1px var(--re-line); }
+.re-sw-thumb img { position: absolute; left: var(--sl); top: var(--st); width: var(--sw); height: auto; max-width: none; }
+/* The companion opens at full size on click, tap or Enter; the button covers it so the whole screen is the target. */
+.re-sw-real { all: unset; position: absolute; inset: 0; cursor: zoom-in; border-radius: 10px; }
+.re-sw-real:focus-visible { outline: 2px solid var(--re-accent); outline-offset: 4px; }
+.re-sw-sheet {
+  width: min(96vw, calc(100vw - 2 * max(8px, env(safe-area-inset-left, 0px), env(safe-area-inset-right, 0px))), 1120px);
+  height: min(90dvh, calc(100dvh - 2 * max(12px, env(safe-area-inset-top, 0px), env(safe-area-inset-bottom, 0px))), 820px);
+  padding: 0; margin: auto; border: 1px solid var(--re-line); border-radius: 14px;
+  background: #0c0c11; color: var(--re-fg); overflow: hidden; overscroll-behavior: contain;
+}
+.re-sw-sheet[open] { display: flex; flex-direction: column; }
+.re-sw-sheet::backdrop { background: rgb(5 5 8 / 0.82); }
+.re-sw-sheet-view { flex: 1; min-height: 0; overflow: auto; overscroll-behavior: contain; touch-action: pan-x pan-y pinch-zoom; }
+.re-sw-sheet-view img { display: block; max-width: none; }
+.re-sw-sheet-view:focus-visible { outline: 2px solid var(--re-accent); outline-offset: -2px; }
+html:has(.re-sw-sheet[open]) { overflow: hidden; overscroll-behavior: none; }
+/* The bar names the screen; ‹ › sit beside Close. Phones drop the hint so the controls keep their 44 px. */
+.re-sw-sheet .re-ch-demo-bar { justify-content: flex-start; gap: 4px; }
+.re-sw-sheet .re-ch-demo-bar p { margin-right: auto; }
+.re-sw-sheet-name { margin-right: 10px; color: var(--re-fg); }
+.re-ch-demo-bar .re-sw-sheet-step { width: 44px; padding: 0; justify-content: center; }
+@media (max-width: 599px) { .re-sw-sheet-name + .re-sw-sheet-hint { display: none; } }
+
+/* Words, placed on the frame. */
+.re-sw-at { position: absolute; left: var(--x); top: var(--y); width: var(--w, auto); z-index: 5; }
+.re-sw-meta { display: flex; flex-wrap: wrap; gap: 6px 24px; font-size: var(--re-t1); line-height: 1.5; color: var(--re-fg-2); }
+.re-sw-meta span:first-child { color: var(--re-fg); }
+.re-sw-meta[data-stack] { flex-direction: column; gap: 4px; }
+.re-sw h3 {
+  margin-top: 0.3em; font: 300 var(--re-t4)/1.055 var(--re-sans);
+  letter-spacing: 0; color: var(--re-fg); text-wrap: balance;
+}
+.re-sw-line { max-width: 52ch; margin-top: 1em; font-size: var(--re-t1); line-height: 1.5; color: var(--re-fg-2); text-wrap: pretty; }
+.re-sw-cap { font-size: var(--re-t1); color: var(--re-fg-2); }
+/* Wide frame only: the caption stops short of the button states beside it. On phones it sits in the flow at full width. */
+@media (min-width: 1024px) { .re-sw-system .re-sw-cap { max-width: calc(262 * var(--u)); } }
+.re-sw-status { margin-top: 1.4em; font-size: var(--re-t1); color: var(--re-accent); }
+.re-sw-proof { display: block; margin-top: 1.4em; font-size: var(--re-t1); line-height: 1.5; color: var(--re-fg); text-decoration: none; }
+.re-sw-act > .re-sw-proof:first-child { margin-top: 0; }
+.re-sw-proof small { display: block; margin-top: 2px; font-size: var(--re-t1); color: var(--re-dim); }
+@media (hover: hover) and (pointer: fine) { a.re-sw-proof:hover { color: var(--re-accent); } }
+/* The field stays alive around the work; it quiets only behind the words. */
+.re-sw-at::before { content: ""; position: absolute; inset: -28px -36px; z-index: -1; pointer-events: none; background: radial-gradient(closest-side, rgb(5 5 8 / 0.96) 70%, rgb(5 5 8 / 0)); }
+.re-prod-case {
+  display: inline-flex; align-items: center; gap: 14px; min-height: 44px; margin-top: 0.6em;
+  font-size: var(--re-t1); color: var(--re-accent); text-decoration: none;
+}
+.re-prod-case svg { transition: translate 160ms var(--re-ease); }
+@media (hover: hover) and (pointer: fine) { .re-prod-case:hover { text-decoration: underline; text-underline-offset: 6px; } .re-prod-case:hover svg { translate: 3px 0; } }
+.re-sw-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 30px; margin-top: 0.8em; }
+.re-sw-actions .re-prod-case { margin-top: 0; }
+.re-sw-try {
+  all: unset; box-sizing: border-box; cursor: pointer; min-height: 44px; font-size: var(--re-t1); color: var(--re-fg);
+}
+@media (hover: hover) and (pointer: fine) { .re-sw-try:hover { text-decoration: underline; text-underline-offset: 6px; } }
+:is(.re-prod-case, .re-sw-try, .re-sw-proof):focus-visible { outline: 2px solid var(--re-accent); outline-offset: 4px; border-radius: 4px; }
+.re-sw-right { text-align: right; }
+.re-sw-right .re-sw-meta { justify-content: flex-end; }
+.re-sw-right h3 { margin-left: auto; }
+/* Layer whisper: the chamber's three layers, quiet beside the screen; they come up with the chapter on hover or focus. */
+.re-sw-layers {
+  display: grid; gap: calc(26 * var(--u)); margin: 0; padding: 0; list-style: none; font-size: var(--re-t1); line-height: 1.45;
+  color: var(--re-dim); opacity: 0.78; transition: opacity 150ms ease;
+}
+.re-sw-layers[data-row] { grid-template-columns: repeat(3, minmax(0, 1fr)); column-gap: calc(22 * var(--u)); }
+.re-sw-layers li { display: grid; gap: 2px; }
+.re-sw-layers li > span:first-child { color: var(--re-fg-2); }
+/* At rest 0.78 keeps the dimmest line at 4.9:1 on the ground; hover or focus brings the list to full. */
+.re-sw:focus-within .re-sw-layers { opacity: 1; }
+@media (hover: hover) and (pointer: fine) { .re-sw:hover .re-sw-layers { opacity: 1; } }
+/* Between 1024 and 1279 px the Design System row has no room above the states strip; phones list it in the flow. */
+@media (min-width: 1024px) and (max-width: 1279px) { .re-sw-system .re-sw-layers { display: none; } }
+/* The same below 1320 for Read to Feed and care: the frame shrinks with the page, the 16 px words do not, and the copy
+   above reaches the row (overlap.mjs measured it to 1280 px). Wider, and on phones, the row is back. */
+@media (min-width: 1024px) and (max-width: 1279px) { .re-sw-reading .re-sw-layers { display: none; } }
+@media (min-width: 1101px) and (max-width: 1319px) { .re-sw-care .re-sw-layers { display: none; } }
+/* Care: the four steps sit along the table's lit edge. */
+.re-sw-process { display: grid; grid-template-columns: repeat(4, 1fr); margin: 0; padding: 0; list-style: none; font-size: var(--re-t1); color: #d2d6de; }
+.re-sw-process::before {
+  content: ""; position: absolute; top: 0; left: -10px; right: 0; height: 1px;
+  background: linear-gradient(90deg, rgb(62 230 164 / 0.64), rgb(225 237 249 / 0.7) 30%, rgb(208 225 239 / 0.44) 75%, rgb(208 225 239 / 0.04));
+  box-shadow: 0 3px 10px rgb(214 237 255 / 0.19);
+}
+.re-sw-process li { position: relative; padding-top: 15px; }
+.re-sw-process li::before { content: ""; position: absolute; left: 0; top: -3px; width: 1px; height: 7px; background: #c4d3e0; }
+/* Try the reader: the same recreation the chamber opens, in a modal dialog. */
+.re-sw-reader {
+  width: min(92vw, calc(100vw - 2 * max(12px, env(safe-area-inset-left, 0px), env(safe-area-inset-right, 0px))), 880px);
+  height: min(88dvh, calc(100dvh - 2 * max(12px, env(safe-area-inset-top, 0px), env(safe-area-inset-bottom, 0px))), 760px);
+  padding: 0; border: 1px solid var(--re-line); border-radius: 14px;
+  background: #0c0c11; color: var(--re-fg); overflow: hidden; margin: auto; overscroll-behavior: contain;
+}
+html:has(.re-sw-reader[open]) { overflow: hidden; overscroll-behavior: none; }
+.re-sw-reader[open] { display: flex; flex-direction: column; }
+.re-sw-reader::backdrop { background: rgb(5 5 8 / 0.78); }
+
+@media (max-width: 1023px) {
+  /* Full width between the gutters, on the same left edge as "Selected work" (a centred 600 px column left both sides empty). */
+  .re-sw { max-width: none; aspect-ratio: auto; padding: 40px var(--re-gutter) 48px; }
+  .re-sw-stage { position: relative; inset: auto; aspect-ratio: 390 / var(--nh); }
+  .re-sw-floor { top: 62%; height: 38%; background: radial-gradient(55% 45% at 50% 30%, rgb(226 236 248 / 0.2), transparent), linear-gradient(rgb(29 32 38 / 0.18), rgb(32 36 42 / 0.4) 55%, rgb(9 11 16 / 0.05)); }
+  .re-sw-slab { left: var(--nx); top: var(--ny); width: var(--nw); transform: none; }
+  .re-sw-slab[data-wide-only] { display: none; }
+  .re-sw-screen { aspect-ratio: var(--nar); }
+  .re-sw-screen img { left: var(--nsl); top: var(--nst); width: var(--nsw); }
+  .re-sw-states-row { flex-wrap: wrap; }
+  .re-sw-states-row img { width: 33.333%; }
+  .re-sw-at { position: relative; inset: auto; width: auto; }
+  .re-sw-cap { margin-top: 10px; }
+  .re-sw-thumbs { margin-top: 10px; }
+  .re-sw-copy, .re-sw-process, .re-sw-act { margin-top: 20px; }
+  .re-sw h3 { max-width: 20ch; }
+  .re-prod-h + .re-sw { margin-top: 0; padding-top: 16px; }
+  .re-sw-right { text-align: left; }
+  .re-sw-right .re-sw-meta { justify-content: flex-start; }
+  .re-sw-right h3 { margin-left: 0; }
+  .re-sw-layers, .re-sw-layers[data-row] { grid-template-columns: 1fr; gap: 14px; margin-top: 28px; }
+  .re-sw-process { position: relative; left: 0; grid-template-columns: 1fr 1fr; row-gap: 12px; padding-top: 16px; }
+  .re-sw-process::before { left: 0; }
+  .re-sw-process li { padding-top: 0; }
+  .re-sw-process li::before { display: none; }
+}
+/* Landscape tablets and narrow windows: the phone stage is taller than it is wide, so at full width it would outgrow the
+   screen. It sits beside its words instead, as the wide frame does, and the chapter fills the width. */
+@media (min-width: 700px) and (max-width: 1023px) and (min-aspect-ratio: 4/5) {
+  .re-sw { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); column-gap: clamp(32px, 5vw, 56px); align-items: center; }
+  .re-sw-media, .re-sw-words { display: block; min-width: 0; }
+  .re-sw-words > .re-sw-copy:first-child { margin-top: 0; }
+}
+
+/* ---------- The focus chamber: an eight-row index beside one product in thick glass ---------- */
+.re-lab { position: relative; isolation: isolate; padding: 88px var(--re-gutter) 72px; max-width: 1440px; margin: 0 auto; }
+.re-lab-head .re-lede { margin-top: 8px; }
+.re-ch {
+  position: relative; display: grid; margin-top: 20px;
+  grid-template-columns: minmax(0, 26fr) minmax(0, 70fr); column-gap: 4%;
+  grid-template-areas: "index stage" "index bar" ". layers";
+}
+/* The field steps back about 90% under the index and the screen, and fades in again past their edges (behind the heading too). */
+.re-ch::before {
+  content: ""; position: absolute; inset: -12px -8px; z-index: -1; pointer-events: none; border-radius: 40px;
+  background: rgb(5 5 8 / 0.9); box-shadow: 0 0 72px 56px rgb(5 5 8 / 0.9); /* taste-skill-ignore: a neutral legibility scrim over the WebGL field behind the chamber */
+}
+
+.re-ch-index { grid-area: index; align-self: start; }
+.re-ch-index button {
+  all: unset; box-sizing: border-box; cursor: pointer; display: grid; grid-template-columns: minmax(0, 1fr) 20px; align-items: center; gap: 4px;
+  width: 100%; min-height: 56px; padding: 8px 0; color: var(--re-fg-2); transition: color 160ms ease;
+}
+.re-ch-n { font-size: 13px; color: var(--re-dim); transition: color 160ms ease; }
+.re-ch-name { font: 400 20px/1.3 var(--re-sans); letter-spacing: 0; text-wrap: pretty; }
+.re-ch-arrow { color: var(--re-accent); opacity: 0; transition: opacity 180ms var(--re-ease); }
+.re-ch-index button[aria-pressed="true"] { color: var(--re-accent); }
+.re-ch-index button[aria-pressed="true"] .re-ch-n { color: var(--re-accent); }
+.re-ch-index button[aria-pressed="true"] .re-ch-arrow { opacity: 1; }
+.re-ch-index button:focus-visible { outline-offset: -2px; }
+@media (hover: hover) and (pointer: fine) {
+  .re-ch-index button[aria-pressed="false"]:hover { color: var(--re-fg); }
+  .re-ch-index button[aria-pressed="false"]:hover .re-ch-arrow { opacity: 0.4; color: var(--re-fg-2); }
+}
+
+.re-ch-viewer { grid-area: stage; min-width: 0; }
+.re-ch-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 20px; min-height: 52px; border-bottom: 1px solid var(--re-line); margin-bottom: 14px; }
+.re-ch-inspect { display: flex; gap: 18px; }
+.re-ch-inspect button { all: unset; box-sizing: border-box; cursor: pointer; display: flex; align-items: center; gap: 7px; min-height: 44px; color: var(--re-fg-2); font-size: 13px; line-height: 1.3; transition: color 150ms ease; }
+.re-ch-inspect .re-num { color: var(--re-dim); font-size: 13px; }
+.re-ch-inspect button[aria-pressed="true"], .re-ch-inspect button[aria-pressed="true"] .re-num { color: var(--re-accent); }
+@media (hover: hover) and (pointer: fine) { .re-ch-inspect button:hover { color: var(--re-fg); } }
+.re-ch-stage { position: relative; height: clamp(370px, calc(100svh - 374px), 614px); container-type: size; }
+.re-ch-canvas { position: absolute; inset: 0; display: block; width: 100%; height: 100%; transition: opacity 240ms ease; }
+/* The same screen as a page image: shown until the glass is ready, and in place of it without WebGL. Two plates stand for the layers. */
+.re-ch-still { position: absolute; inset: 0; display: grid; place-items: center; margin: 0; transition: opacity 240ms ease; }
+.re-ch-still > * { grid-area: 1 / 1; }
+.re-ch-still img { display: block; width: min(94cqw, 95cqh * var(--a, 1.6)); height: auto; border-radius: 8px; background: var(--re-fill); }
+.re-ch-plate {
+  width: min(94cqw, 95cqh * var(--a, 1.6)); aspect-ratio: var(--a, 1.6); border-radius: 8px; background: var(--re-fill);
+  box-shadow: inset 0 0 0 1px var(--re-line-2); transition: transform 290ms var(--re-ease);
+}
+.re-ch-stage[data-expanded] .re-ch-plate:nth-child(1) { transform: translate(5%, -5%); }
+.re-ch-stage[data-expanded] .re-ch-plate:nth-child(2) { transform: translate(10%, -10%); }
+.re-ch-stage[data-expanded] .re-ch-still > * { width: min(80cqw, 74cqh * var(--a, 1.6)); }
+.re-ch-stage[data-ready] .re-ch-still { opacity: 0; }
+/* Until the shown product's own screen is on the glass (loading, or a decode that failed), its plain image stands in. */
+.re-ch-stage:not([data-ready]) .re-ch-canvas { opacity: 0; }
+.re-ch-stage:not([data-ready]) .re-ch-labels { opacity: 0; }
+/* Each layer's title rises from its plate's corner on a leader; deeper plates sit higher, so the titles stair-step instead of colliding. */
+.re-ch-labels { position: absolute; inset: 0; pointer-events: none; }
+.re-ch-label {
+  --lift: 10px;
+  position: absolute; left: 0; top: 0; translate: -1px calc(-100% - var(--lift)); visibility: hidden; opacity: 0; padding: 4px 8px;
+  white-space: nowrap; font-size: 13px; line-height: 1.3; color: var(--re-fg-2); border-radius: 6px; background: rgb(5 5 8 / 0.82);
+  transition: color 160ms ease;
+}
+.re-ch-label::after { content: ""; position: absolute; left: 0; top: 100%; width: 1px; height: var(--lift); background: var(--re-line-2); }
+.re-ch-label:nth-child(2) { --lift: 28px; }
+.re-ch-label:nth-child(3) { --lift: 44px; }
+.re-ch-label[data-active] { color: var(--re-accent); }
+.re-ch-label .re-num { color: var(--re-dim); margin-right: 4px; }
+.re-ch-label[data-active]::after { background: var(--re-accent-mid); }
+
+.re-ch-bar {
+  grid-area: bar; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: 8px 32px;
+  padding-top: 12px; border-top: 1px solid var(--re-line);
+}
+.re-ch-view { display: inline-flex; align-items: center; gap: 2px; color: var(--re-dim); font-size: 13px; }
+.re-ch-view button {
+  all: unset; box-sizing: border-box; cursor: pointer; position: relative; display: inline-flex; align-items: center; min-height: 44px; padding: 0 10px;
+  font: 500 16px/1 var(--re-sans); color: var(--re-dim); transition: color 160ms ease;
+}
+.re-ch-view button:first-child { padding-left: 0; }
+.re-ch-view button::after {
+  content: ""; position: absolute; left: 10px; right: 10px; bottom: 8px; height: 2px; border-radius: 2px; background: var(--re-accent);
+  transform: scaleX(0); transition: transform 200ms var(--re-ease);
+}
+.re-ch-view button:first-child::after { left: 0; }
+.re-ch-view button[aria-pressed="true"] { color: var(--re-fg); }
+.re-ch-view button[aria-pressed="true"]::after { transform: scaleX(1); }
+@media (hover: hover) and (pointer: fine) { .re-ch-view button[aria-pressed="false"]:hover { color: var(--re-fg-2); } }
+.re-ch-now { display: grid; gap: 4px; padding-top: 6px; }
+.re-ch-now h3 { font: 400 24px/1.15 var(--re-sans); letter-spacing: 0; }
+.re-ch-now p { max-width: 62ch; line-height: 1.5; color: var(--re-fg-2); text-wrap: pretty; }
+.re-ch-now .re-ch-note { font-size: 13px; color: var(--re-dim); }
+.re-ch-open {
+  display: inline-flex; align-items: center; gap: 12px; min-height: 44px; white-space: nowrap;
+  font: 500 16px/1 var(--re-sans); color: var(--re-fg); text-decoration: none; transition: color 160ms ease;
+}
+.re-ch-open svg { transition: translate 200ms var(--re-ease); }
+.re-ch-open:active svg { translate: 3px 0; }
+@media (hover: hover) and (pointer: fine) { .re-ch-open:hover { color: var(--re-accent); } .re-ch-open:hover svg { translate: 3px 0; } }
+.re-ch-actions { display: flex; align-items: center; gap: 28px; }
+.re-ch-try {
+  all: unset; box-sizing: border-box; cursor: pointer; display: inline-flex; align-items: center; gap: 10px; min-height: 44px; white-space: nowrap;
+  font: 500 16px/1 var(--re-sans); color: var(--re-fg-2); transition: color 160ms ease;
+}
+.re-ch-try svg { color: var(--re-accent); }
+.re-ch-try[aria-expanded="true"] { color: var(--re-accent); }
+@media (hover: hover) and (pointer: fine) { .re-ch-try:hover { color: var(--re-fg); } }
+
+/* Try it: an authored recreation of the product's reader opens beside the glass, which closes and steps into the left third.
+   The page is light, like the app's own reader; the scan card stays dark glass, part of the chamber. */
+.re-ch-demo {
+  position: absolute; top: 0; right: 0; bottom: 0; z-index: 3; display: flex; flex-direction: column;
+  width: min(66cqw, calc((100cqh - 80px) / 0.82));
+}
+.re-ch-demo:focus { outline: none; }
+.re-ch-demo:focus-visible { outline: 2px solid var(--re-accent); outline-offset: 4px; border-radius: 12px; }
+.re-ch-demo-bar { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 44px; padding: 0 4px 0 16px; }
+.re-ch-demo-bar p { font-size: 13px; line-height: 1.3; color: var(--re-dim); }
+.re-ch-demo-bar button {
+  all: unset; box-sizing: border-box; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 12px;
+  border-radius: 999px; font: 500 16px/1 var(--re-sans); color: var(--re-fg-2); transition: color 160ms ease, background-color 160ms ease;
+}
+@media (hover: hover) and (pointer: fine) { .re-ch-demo-bar button:hover { color: var(--re-fg); background: var(--re-fill-2); } }
+.re-ch-demo-stage {
+  position: relative; flex: 1; min-height: 0; container-type: size; color-scheme: light;
+  --world-bg: #f5f1e8; --surface: #fbf9f4; --ink: #1d1c1a; --muted: #6b675f; --line: #ddd6c8; --line-strong: #23232b;
+  --accent-soft: color-mix(in oklab, var(--re-accent) 18%, #f5f1e8);
+  --accent: color-mix(in oklab, var(--re-accent) 55%, #0b2a20); --accent-ink: var(--accent); --on-accent: #fff;
+}
+.re-ch-demo-stage section[aria-label="Scan a book"] {
+  color-scheme: dark; --surface: rgb(12 12 17 / 0.9); --ink: var(--re-fg); --muted: var(--re-dim); --line: var(--re-line);
+  --line-strong: var(--re-line-2); --accent: var(--re-accent); --accent-soft: var(--re-accent-soft); --accent-ink: var(--re-accent); --on-accent: var(--re-ink);
+}
+/* Without WebGL (or while the screen loads) the plain image takes the same left third. */
+.re-ch-stage[data-trying] .re-ch-still { inset: 0 auto 0 0; width: 34%; }
+.re-ch-stage[data-trying] :is(.re-ch-still img, .re-ch-plate) { width: min(28cqw, 70cqh * var(--a, 1.6)); }
+/* Without WebGL the demo stands beside a closed stack, as it does with the glass. */
+.re-ch-stage[data-trying] .re-ch-plate { transform: none; }
+/* Scrolled into view, the demo frame stops below the fixed bar. */
+/* The phone card for a chosen layer; wider screens draw the same words on the plate itself. */
+.re-ch-demo-loading { padding: 28px; color: var(--re-fg-2); }
+.re-ch-card {
+  position: absolute; inset: 10px; z-index: 1; display: none; align-content: start; gap: 2px; padding: 18px 18px 20px; overflow: auto;
+  border-radius: 6px; background: #0c0e13; box-shadow: inset 0 1px 0 var(--re-line-2);
+  scrollbar-width: thin; scrollbar-color: var(--re-dim) transparent;
+}
+.re-ch-stage:not([data-ready]) .re-ch-card { display: grid; }
+.re-ch-card :is(.re-layer-stack, .re-ch-scope, .re-ch-proof span) { font-size: 16px; }
+.re-ch-card-n { font-size: 13px; line-height: 1; color: var(--re-dim); }
+.re-ch-card-title { margin-top: 6px; font: 400 24px/1.15 var(--re-sans); letter-spacing: 0; color: var(--re-fg); }
+.re-ch-card .re-layer-stack { margin: 6px 0 4px; color: var(--re-dim); }
+/* The phone form of a chosen layer's surface: concepts as one grouped list, the proof or note set apart at the foot. */
+.re-ch-card .re-ch-concepts { display: grid; margin-top: 10px; }
+.re-ch-card .re-ch-concepts li { padding: 8px 0; box-shadow: inset 0 1px 0 var(--re-line); }
+.re-ch-card .re-ch-concepts li:not(:last-child)::after { content: none; }
+.re-ch-card .re-ch-proof, .re-ch-card .re-ch-scope { margin-top: 10px; padding-top: 10px; box-shadow: inset 0 1px 0 var(--re-line); }
+/* On phones the card is the chosen layer's words in view; its rail entry keeps the title and description only. */
+@media (max-width: 599px) {
+  .re-ch-card { display: grid; position: relative; inset: auto; margin: 10px; overflow: visible; }
+  .re-ch-stage:has(> .re-ch-card) { container-type: inline-size; height: auto; min-height: min(calc(100vw - 2 * var(--re-gutter)), 40svh); }
+}
+
+.re-ch-layers { grid-area: layers; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px; margin-top: 32px; }
+/* The layers read as a caption rail: three columns under a hairline that takes the accent when its plate is lit. */
+.re-ch-layers > li { position: relative; padding-top: 10px; border-radius: 2px; box-shadow: inset 0 1px 0 var(--re-line); transition: box-shadow 160ms ease; }
+.re-ch-layers > li[data-active] { box-shadow: inset 0 2px 0 var(--re-accent); }
+.re-ch-layers button { all: unset; cursor: pointer; display: flex; gap: 10px; align-items: center; min-height: 44px; font: 500 16px/1.3 var(--re-sans); color: var(--re-fg); }
+.re-ch-layers button .re-num { font-size: 13px; color: var(--re-dim); }
+.re-ch-layers button::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }
+.re-ch-layers > li[data-active] button { color: var(--re-accent); }
+.re-ch-layers > li:has(button:focus-visible) { outline: 2px solid var(--re-accent); outline-offset: 6px; }
+.re-ch-layers button:focus-visible { outline: none; }
+/* A layer's concepts and its proof, the same words its plate carries. */
+.re-ch-concepts { display: flex; flex-wrap: wrap; column-gap: 16px; margin-top: 10px; font-size: 16px; line-height: 1.5; color: var(--re-fg); }
+.re-ch-proof { display: grid; gap: 2px; margin-top: 14px; }
+.re-ch-proof span { font-size: 13px; line-height: 1.4; color: var(--re-dim); }
+.re-ch-proof span:first-child { color: var(--re-accent); }
+.re-ch-proof b { font: 400 24px/1.15 var(--re-sans); color: var(--re-fg); }
+.re-ch-scope { margin-top: 12px; font-size: 13px; line-height: 1.45; color: var(--re-dim); }
+.re-ch-layers > li > p:nth-of-type(2) { max-width: 62ch; font-size: 16px; line-height: 1.5; color: var(--re-fg-2); text-wrap: pretty; }
+@media (hover: hover) and (pointer: fine) { .re-ch-layers > li:not([data-active]):hover button { color: var(--re-accent); } }
+
+/* Below 900 px: the screen first, then its controls, the index and the layers, in one column. */
+@media (max-width: 899px) {
+  .re-lab { padding-top: 96px; }
+  .re-ch { grid-template-columns: minmax(0, 1fr); grid-template-areas: "index" "stage" "bar" "layers"; margin-top: 20px; }
+  .re-ch::before { inset: -8px -4px; }
+  .re-ch-stage { height: auto; aspect-ratio: 4 / 3; max-height: 72svh; }
+  .re-ch-bar { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "now open"; align-items: center; margin-top: 12px; }
+  .re-ch-now { grid-area: now; padding-top: 0; }
+  .re-ch-actions { grid-area: open; }
+  .re-ch-index { display: grid; grid-template-columns: 1fr 1fr; column-gap: 24px; margin-top: 24px; border-top: 1px solid var(--re-line); }
+  .re-ch-index li + li { border-top: 0; }
+  .re-ch-index li { border-bottom: 1px solid var(--re-line); }
+  .re-ch-index button { min-height: 52px; }
+  .re-ch-name { font-size: 16px; }
+  .re-ch-layers { grid-template-columns: minmax(0, 1fr); gap: 24px; margin-top: 28px; }
+}
+/* Single column: the preview scrolls with the page (a pinned one covered the text under it); picking a product brings it
+   back into view, under the global 80 px scroll padding. */
+/* Phones: a square stage holds a landscape stack or a tall phone screen without resizing between them, and the index
+   folds into two columns. */
+@media (max-width: 599px) {
+  .re-ch-toolbar { display: grid; gap: 8px 0; margin-bottom: 8px; padding-bottom: 4px; }
+  .re-ch-inspect { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+  .re-ch-inspect button { align-items: flex-start; padding: 6px 0; gap: 5px; }
+  .re-ch-inspect .re-num { padding-top: 2px; }
+  .re-ch-stage { aspect-ratio: auto; height: min(calc(100vw - 2 * var(--re-gutter)), 40svh); }
+  .re-ch-bar { grid-template-columns: minmax(0, 1fr); grid-template-areas: "now" "open"; }
+  .re-ch-index { column-gap: 16px; margin-top: 16px; }
+  .re-ch-index button { grid-template-columns: minmax(0, 1fr); min-height: 52px; }
+  .re-ch-arrow { display: none; }
+  .re-ch-now h3 { font-size: 20px; }
+  /* The demo takes the whole stage, which grows to most of the screen so the page holds real paragraphs. */
+  .re-ch-stage[data-trying] { aspect-ratio: auto; height: min(calc(100svh - 96px), 620px); max-height: none; }
+  .re-ch-stage[data-trying] .re-ch-canvas { opacity: 0; }
+  .re-ch-demo { inset: 0; width: auto; background: var(--re-bg); }
+  .re-ch-demo .re-ch-demo-bar { padding-left: 0; }
+}
+@media (max-width: 399px) {
+  .re-ch-bar { grid-template-columns: minmax(0, 1fr); grid-template-areas: "now" "open"; }
+  .re-ch-actions { justify-self: start; flex-wrap: wrap; column-gap: 24px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .re-ch-plate, .re-ch-arrow, .re-ch-view button::after { transition: none; }
+}
+
+.re-sim { min-height: 130svh; display: flex; align-items: center; padding: 96px var(--re-gutter); max-width: 1440px; margin: 0 auto; }
+.re-sim .re-card { display: grid; gap: 18px; }
+.re-sim .re-lede { margin-top: -4px; }
+.re-ctl { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 10px 12px; font-size: 16px; color: var(--re-fg); }
+.re-ctl output { font-size: 16px; color: var(--re-accent); }
+.re-ctl input[type="range"] { grid-column: 1 / -1; }
+.re-ctl-row > span { color: var(--re-fg); }
+.re-root input[type="range"] {
+  -webkit-appearance: none; appearance: none; width: 100%; height: 28px; margin: 0; background: transparent; cursor: pointer;
+}
+.re-root input[type="range"]::-webkit-slider-runnable-track { height: 4px; border-radius: 999px; background: linear-gradient(to right, var(--re-accent) calc(var(--p) * 100%), var(--re-fill-3) 0); } /* taste-skill-ignore: a hard-stop two-colour fill that draws the slider's value on its track; no blend */
+.re-root input[type="range"]::-moz-range-track { height: 4px; border-radius: 999px; background: linear-gradient(to right, var(--re-accent) calc(var(--p) * 100%), var(--re-fill-3) 0); } /* taste-skill-ignore: same hard-stop value fill, Firefox */
+.re-root input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; margin-top: -7px; border-radius: 50%; background: var(--re-fg); border: 0; }
+.re-root input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: var(--re-fg); border: 0; }
+.re-toggle {
+  all: unset; box-sizing: border-box; cursor: pointer; position: relative; width: 44px; height: 26px; border-radius: 999px; background: var(--re-fill-3);
+  transition: background-color 200ms ease;
+}
+.re-toggle i { position: absolute; top: 4px; left: 4px; width: 18px; height: 18px; border-radius: 50%; background: var(--re-dim); transition: transform 200ms var(--re-ease); }
+.re-toggle[aria-checked="true"] { background: var(--re-accent-mid); }
+.re-toggle[aria-checked="true"] i { transform: translateX(18px); background: var(--re-fg); }
+.re-toggle:active i { scale: 0.92; }
+.re-seg { display: inline-flex; padding: 3px; border-radius: 999px; background: var(--re-fill); }
+.re-seg button {
+  all: unset; position: relative; isolation: isolate; cursor: pointer; min-width: 44px; min-height: 32px; display: inline-grid; place-items: center; border-radius: 999px;
+  font-size: 13px; color: var(--re-fg-2); transition: transform 160ms var(--re-ease);
+}
+.re-seg button::before { content: ""; position: absolute; inset: 0; z-index: -1; border-radius: inherit; background: var(--re-fg); opacity: 0; transition: opacity 200ms var(--re-ease); }
+.re-seg button[aria-pressed="true"] { color: #0a0a0d; }
+.re-seg button[aria-pressed="true"]::before { opacity: 1; }
+.re-seg button:active { transform: scale(0.97); }
+.re-live { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 4px; padding: 14px 16px; border-radius: 12px; background: var(--re-fill); }
+.re-live dd { margin-top: 2px; font-size: 20px; line-height: 1.2; color: var(--re-fg); }
+.re-sim .re-btn-quiet { justify-self: start; }
+
+.re-ledger { padding: var(--re-pad) var(--re-gutter); max-width: 1240px; margin: 0 auto; }
+.re-rows { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 460px), 1fr)); gap: 14px; margin-top: 32px; }
+.re-row { display: grid; align-content: start; gap: 14px; padding: 22px; border-radius: 14px; background: var(--re-glass-strong); }
+.re-row h3 { font: 500 20px/1.3 var(--re-sans); }
+.re-pair { display: grid; gap: 8px; }
+.re-pair-label { font-size: 16px; color: var(--re-fg-2); }
+.re-pair-bars { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+/* The value sits above the track, so both tracks of a pair are the same width and their bars compare to scale. */
+.re-meter { display: grid; grid-template-columns: 1fr auto; gap: 8px 10px; align-items: baseline; }
+.re-meter-track { grid-column: 1 / -1; }
+.re-meter-kind { font-size: var(--re-t1); line-height: 1.2; color: var(--re-dim); }
+.re-meter-track { position: relative; height: 8px; border-radius: 999px; background: var(--re-fill-2); overflow: hidden; }
+.re-meter-fill { position: absolute; inset: 0 auto 0 0; width: max(2px, calc(var(--w) * 100%)); border-radius: inherit; background: var(--re-fg-2); }
+.re-meter[data-kind="after"] .re-meter-fill { background: var(--re-accent); }
+/* A measured range: the span between low and high, drawn as a lighter part of the same bar. */
+.re-meter-range { position: absolute; top: 0; bottom: 0; left: calc(var(--l) * 100%); width: calc(var(--w) * 100%); background: rgb(196 197 205 / 0.45); }
+.re-meter[data-kind="after"] .re-meter-range { background: var(--re-accent-mid); }
+.re-meter-zero { position: absolute; top: 0; bottom: 0; left: 0; width: 3px; background: var(--re-accent); }
+.re-meter b { font-size: 16px; font-weight: 400; color: var(--re-fg); white-space: nowrap; }
+.re-meter[data-kind="after"] b { color: var(--re-accent); }
+.re-row-note { font-size: 16px; color: var(--re-fg-2); text-wrap: pretty; }
+.re-src { font-size: var(--re-t1); line-height: 1.5; color: var(--re-dim); overflow-wrap: anywhere; }
+
+.re-contact { position: relative; z-index: 1; display: flex; justify-content: center; padding: clamp(72px, 12vh, 128px) var(--re-gutter); background: rgb(5 5 8 / 0.95); }
+/* One ground for the whole footer, no box inside it: the email button is the only filled shape. */
+.re-contact .re-card { width: min(620px, 100%); display: grid; gap: 22px; justify-items: start; padding: 0; background: none; }
+.re-links { display: flex; flex-wrap: wrap; gap: 10px; }
+.re-foot { font-size: var(--re-t1); color: var(--re-dim); }
+
+/* Layer descriptions, kept for the case page's readouts. */
+.re-layer-stack { margin: 4px 0 8px; font-size: 13px; color: var(--re-accent); }
+.re-readouts-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 12px; padding-top: 2px; }
+.re-readouts-list li { display: grid; gap: 2px; }
+.re-readouts-list b { display: inline-flex; align-items: center; gap: 6px; font-size: 16px; font-weight: 400; color: var(--re-fg); }
+.re-readouts-list span { font-size: 13px; line-height: 1.4; color: var(--re-dim); }
+
+/* ---------- Phones ---------- */
+@media (max-width: 767px) {
+  .re-bar { padding-left: 14px; gap: 6px; }
+  .re-card { padding: 22px; }
+  .re-hero { padding-bottom: 14vh; }
+  .re-hero::before { width: 100%; height: 60%; }
+  .re-modes, .re-sim { align-items: flex-end; padding-bottom: 48px; }
+  .re-live { grid-template-columns: 1fr 1fr; }
+
+  .re-pair-bars { grid-template-columns: 1fr; gap: 10px; }
+}
+@media (max-width: 560px) {
+  .re-bar { justify-content: space-between; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+}
+
+/* ---------- Case page: read over the same field, dimmed to its quietest stage ---------- */
+.re-root[data-case] .re-shade { background: radial-gradient(120% 90% at 70% 30%, rgb(3 3 5 / 0.25) 0%, rgb(3 3 5 / 0.78) 100%); } /* taste-skill-ignore: a neutral scrim that dims the WebGL field under the case text */
+.re-root[data-case][data-ready] .re-canvas { opacity: 0.18; }
+.re-casepage { position: relative; z-index: 2; max-width: 1240px; margin: 0 auto; padding: 88px var(--re-gutter) 120px; }
+.re-case-top { margin-bottom: clamp(16px, 2.5vh, 28px); }
+
+/* ---- Landing: the screen the chapter showed, then the question and its answer ---- */
+.re-cs-landing { display: grid; grid-template-columns: minmax(0, 1fr); gap: clamp(24px, 3.5vh, 40px); }
+.re-cs-media, .re-cs-words { min-width: 0; }
+.re-cs-media { order: -1; }
+.re-casepage .re-cs-hero { position: relative; left: auto; top: auto; width: min(100%, var(--re-land-w, calc(56svh * var(--a)))); margin: 0; transform: none; z-index: auto; }
+.re-cs-hero .re-sw-screen img { pointer-events: none; }
+.re-cs-cap { margin-top: 14px; font-size: 13px; color: var(--re-fg-2); }
+.re-cs-words { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; max-width: 900px; }
+.re-cs-summary { display: grid; gap: 14px; }
+.re-cs-name { font-size: 16px; color: var(--re-fg-2); } /* the product's name and kind, under the headline */
+.re-cs-q { margin-top: 6px; max-width: 24ch; font: 300 clamp(32px, 4vw, 56px)/1.08 var(--re-sans); letter-spacing: 0; color: var(--re-fg); text-wrap: balance; }
+.re-cs-q:focus { outline: none; }
+.re-cs-result { max-width: 60ch; font: 300 20px/1.45 var(--re-sans); color: var(--re-fg-2); text-wrap: pretty; }
+.re-cs-readouts { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr)); gap: 16px 28px; max-width: 760px; margin-top: 18px; padding: 0; list-style: none; }
+.re-cs-readouts li { display: grid; gap: 4px; }
+.re-cs-readouts b { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 8px; font: 500 24px/1.2 var(--re-sans); color: var(--re-fg); overflow-wrap: anywhere; }
+.re-cs-readouts span { font-size: 13px; line-height: 1.4; color: var(--re-fg-2); }
+/* A phone screen stands beside the headline from tablet width up, so it does not sit small on the left of an empty row. */
+@media (min-width: 700px) {
+  .re-cs-landing[data-shape="phone"] { grid-template-columns: minmax(0, 1fr) auto; align-items: center; column-gap: clamp(48px, 6vw, 96px); }
+  .re-cs-landing[data-shape="phone"] .re-cs-media { order: 2; }
+  .re-cs-landing[data-shape="phone"] .re-cs-hero { width: min(340px, calc(70svh * var(--a))); }
+}
+/* Tablets and narrow windows take the desktop's crop (the phone crop is cut for a 390 px screen) and, for a wide screen,
+   the column's full width. Specific enough to beat the phone rules below. */
+@media (min-width: 600px) and (max-width: 1023px) {
+  .re-casepage .re-cs-landing[data-shape="wide"] .re-cs-hero { width: min(100%, calc(56svh * var(--a))); }
+  .re-cs-landing[data-shape="wide"] .re-cs-hero .re-sw-screen { aspect-ratio: var(--ar); }
+  .re-cs-landing[data-shape="wide"] .re-cs-hero .re-sw-screen img { left: var(--sl); top: var(--st); width: var(--sw); }
+}
+/* Phone apps keep their whole screen. On phones the title and result establish the case before its image; supporting
+   numbers follow it. Wider layouts retain the screen beside the text. */
+@media (max-width: 1023px) {
+  .re-cs-landing[data-shape="phone"] .re-cs-hero .re-sw-screen { aspect-ratio: var(--ar); }
+  .re-cs-landing[data-shape="phone"] .re-cs-hero .re-sw-screen img { left: var(--sl); top: var(--st); width: var(--sw); }
+}
+@media (max-width: 699px) {
+  .re-cs-words { display: contents; }
+  .re-cs-summary { order: -1; }
+  .re-cs-media { order: 0; }
+  .re-cs-readouts { order: 1; margin-top: 0; }
+  .re-cs-result { font-size: 18px; }
+  .re-casepage .re-cs-landing[data-shape="phone"] .re-cs-hero { width: min(100%, calc(60svh * var(--a))); margin-inline: auto; }
+}
+
+/* ---- The case, in one column on the field ---- */
+.re-cs-body { display: grid; grid-template-columns: minmax(0, 1fr); gap: clamp(56px, 9vh, 96px); margin-top: clamp(56px, 9vh, 96px); }
+.re-case-context { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 18px 28px; padding: 18px 20px; border-radius: 12px; background: var(--re-fill); }
+.re-case-context dt { font-size: 13px; color: var(--re-accent); }
+.re-case-context dd { margin: 4px 0 0; font-size: 16px; line-height: 1.5; color: var(--re-fg); }
+.re-case-list { display: grid; gap: 10px; }
+.re-case-list li { position: relative; padding-left: 18px; }
+.re-case-list li::before { content: ""; position: absolute; left: 0; top: 0.62em; width: 6px; height: 6px; border-radius: 50%; background: var(--re-accent); }
+.re-cs-h2 { margin-bottom: 20px; font: 300 clamp(28px, 3vw, 40px)/1.15 var(--re-sans); letter-spacing: 0; color: var(--re-fg); }
+.re-cs-list { display: grid; gap: 16px; margin: 0; padding: 0; list-style: none; }
+.re-cs-list li, .re-cs-text { max-width: 34em; font: 300 20px/1.5 var(--re-sans); color: var(--re-fg); text-wrap: pretty; }
+.re-cs-list li { position: relative; padding-left: 22px; }
+.re-cs-list li::before { content: ""; position: absolute; left: 2px; top: 0.66em; width: 5px; height: 5px; border-radius: 50%; background: var(--re-accent); }
+/* The decision in order: what was in the way, what was chosen (with the option turned down set apart), what changes next
+   time. One column, numbered like the chamber's layers, so it reads top to bottom on any screen. */
+.re-cs-road { display: grid; gap: clamp(36px, 6vh, 56px); margin: 0; padding: 0; list-style: none; max-width: 820px; }
+.re-cs-road > li { display: grid; }
+.re-cs-road .re-cs-h2 { margin-bottom: 14px; }
+.re-cs-not { color: var(--re-fg-2); text-decoration: underline dashed rgb(156 157 167 / 0.7); text-decoration-thickness: 1px; text-underline-offset: 0.3em; }
+/* The three layers side by side, every word readable; the one under the pointer lights. */
+.re-cs-layers { display: grid; gap: 14px; margin: 0; padding: 0; list-style: none; }
+@media (min-width: 760px) { .re-cs-layers { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.re-cs-layers li { display: grid; align-content: start; gap: 6px; padding: 22px 22px 24px; border-radius: 14px; background: #1f272b; transition: background-color 150ms ease; }
+.re-cs-layers li > span { font-size: 13px; color: var(--re-dim); }
+.re-cs-layers h3 { font: 400 20px/1.3 var(--re-sans); color: var(--re-fg); transition: color 150ms ease; }
+.re-cs-stack { font-size: 13px; color: var(--re-dim); }
+.re-cs-layers p:last-child { margin-top: 6px; font-size: 16px; line-height: 1.5; color: var(--re-fg-2); }
+@media (hover: hover) and (pointer: fine) { .re-cs-layers li:hover { background: #262e33; } .re-cs-layers li:hover h3 { color: var(--re-accent); } }
+.re-eng { padding-top: 6px; }
+.re-eng summary {
+  cursor: pointer; list-style: none; display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 48px; padding: 0 16px; border-radius: 12px;
+  background: var(--re-fill); font: 500 16px/1 var(--re-sans); color: var(--re-fg);
+}
+.re-eng summary::-webkit-details-marker { display: none; }
+.re-eng-caret { color: var(--re-accent); transition: transform 200ms var(--re-ease); }
+.re-eng[open] .re-eng-caret { transform: rotate(180deg); }
+.re-eng-body { display: grid; gap: 24px; padding-top: 18px; }
+.re-eng-body h3 { margin-bottom: 10px; font: 500 16px/1.3 var(--re-sans); color: var(--re-accent); }
+.re-eng-body .re-case-list li { font-size: 16px; overflow-wrap: anywhere; }
+.re-record { display: grid; gap: 14px; }
+.re-record li { display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 12px; }
+.re-record li > span { font-size: 13px; color: var(--re-accent); padding-top: 2px; }
+.re-record strong { font-weight: 500; font-size: 16px; }
+/* The record's lines are literal command output, so they keep a code face inside their <pre>. */
+.re-record pre { margin: 6px 0 0; padding: 10px 12px; border-radius: 10px; font: 13px/1.6 ui-monospace, Menlo, monospace; color: var(--re-fg-2); white-space: pre-wrap; overflow-wrap: anywhere; background: rgb(0 0 0 / 0.3); }
+.re-casepage .re-links { list-style: none; }
+
+/* ---- Screens: one guided stage. A large glass slab and the screens by name; picking one crossfades the slab. ---- */
+.re-cs-screens { margin-top: clamp(64px, 10vh, 112px); }
+.re-cs-gallery { display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; }
+@media (min-width: 1024px) {
+  .re-cs-gallery { grid-template-columns: minmax(0, 1fr) 260px; column-gap: 40px; align-items: start; }
+  .re-cs-gallery[data-shape="phone"] { grid-template-columns: minmax(0, 360px) minmax(0, 1fr); }
+}
+.re-casepage .re-cs-stage { position: relative; left: auto; top: auto; width: 100%; margin: 0; transform: none; z-index: auto; }
+.re-cs-stage-screen { aspect-ratio: var(--ga); background: #0e1116; }
+.re-cs-stage-screen img { inset: 0; left: 0; top: 0; width: 100%; height: 100%; object-fit: contain; }
+.re-cs-gallery[data-shape="phone"] .re-cs-stage-screen { max-height: 72svh; }
+.re-cs-stage figcaption { margin-top: 14px; font-size: 16px; color: var(--re-fg-2); }
+.re-cs-stage-list { display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; }
+.re-cs-stage-list button {
+  all: unset; box-sizing: border-box; cursor: pointer; display: grid; grid-template-columns: 56px minmax(0, 1fr); align-items: center; gap: 12px;
+  width: 100%; min-height: 48px; padding: 6px 10px; border-radius: 10px; color: var(--re-fg-2); transition: background-color 150ms ease, color 150ms ease;
+}
+.re-cs-stage-list button img { width: 56px; height: 36px; object-fit: cover; object-position: top; border-radius: 4px; filter: brightness(0.55); transition: filter 150ms ease; }
+/* Dimmed, not faded: a faded white screen lets the dot field through and reads as grain. */
+.re-cs-gallery[data-shape="phone"] .re-cs-stage-list button img { height: 56px; width: 28px; justify-self: center; }
+.re-cs-stage-list button span { font-size: 16px; line-height: 1.35; }
+.re-cs-stage-list button[aria-selected="true"] { color: var(--re-fg); background: var(--re-fill); }
+.re-cs-stage-list button[aria-selected="true"] img { filter: none; }
+@media (hover: hover) and (pointer: fine) { .re-cs-stage-list button[aria-selected="false"]:hover { color: var(--re-fg); } }
+.re-cs-stage-list button:focus-visible { outline: 2px solid var(--re-accent); outline-offset: 2px; }
+/* Desktop: names only. At 56 px the thumbnails read as grey noise; the shown name carries the page's own mark, the
+   markers' mint point, never a side stripe (impeccable craft floor). Phones keep their larger thumbnails. */
+@media (min-width: 1024px) {
+  .re-cs-stage-list button { position: relative; grid-template-columns: 1fr; min-height: 44px; padding-left: 22px; }
+  .re-cs-stage-list button img { display: none; }
+  .re-cs-stage-list button[aria-selected="true"]::before {
+    content: ""; position: absolute; left: 9px; top: 50%; width: 5px; height: 5px; translate: 0 -50%; border-radius: 50%; background: var(--re-accent);
+  }
+}
+/* Phones: the names become one swipeable row, the next one peeking in (NN/g: swipe works, the next item shows). The row
+   sits above the stage like tabs: what is under the stage changes height with the screen (a board's callout and words),
+   so a row below it would move away from the finger that just tapped it. */
+@media (max-width: 1023px) {
+  .re-cs-stage-list { order: -1; display: flex; gap: 8px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: var(--re-gutter); overscroll-behavior-x: contain; margin: 0 calc(-1 * var(--re-gutter)); padding: 2px var(--re-gutter) 8px; scrollbar-width: none; }
+  .re-cs-stage-list li { flex: 0 0 auto; scroll-snap-align: start; }
+  .re-cs-stage-list button { grid-template-columns: 1fr; justify-items: start; width: 132px; gap: 8px; padding: 8px; }
+  .re-cs-stage-list button img { width: 116px; height: 72px; }
+  .re-cs-gallery[data-shape="phone"] .re-cs-stage-list button img { width: 60px; height: 120px; }
+  .re-cs-stage-list button span { font-size: 13px; }
+}
+/* The markers' layer is the picture's own box inside the stage (object-fit: contain may letterbox a tall screen), and the
+   stage lets the decision's label reach past the picture's edge. */
+.re-cs-stage-screen { overflow: visible; }
+.re-cs-mark-layer { position: absolute; inset: 0; margin: auto; height: 100%; width: auto; max-width: 100%; aspect-ratio: var(--ga); pointer-events: none; }
+.re-cs-mark-layer .re-cs-mark { pointer-events: auto; }
+/* Decision markers: a quiet mint point on the place in the screen where a decision lives. Hover, focus or a click shows
+   the decision beside it (in the flow on phones) and lights its line in "The decision that worked"; the line's
+   "Show on screen" does the reverse. The point draws 10 px but answers a 44 px target. */
+.re-cs-mark {
+  all: unset; position: absolute; z-index: 3; width: 44px; height: 44px; translate: -50% -50%; cursor: pointer; border-radius: 50%;
+  animation: re-mark-in 160ms var(--re-ease) 200ms both;
+}
+.re-cs-mark::before { content: ""; position: absolute; left: 50%; top: 50%; width: 10px; height: 10px; translate: -50% -50%; border-radius: 50%; border: 2px solid var(--re-accent); box-sizing: border-box; opacity: 0.7; transition: opacity 150ms ease, scale 150ms var(--re-ease); }
+.re-cs-mark::after { content: ""; position: absolute; left: 50%; top: 50%; width: 4px; height: 4px; translate: -50% -50%; border-radius: 50%; background: var(--re-accent); }
+.re-cs-mark[data-open]::before, .re-cs-mark:focus-visible::before { opacity: 1; scale: 1.4; }
+.re-cs-mark:focus-visible { outline: 2px solid var(--re-accent); outline-offset: -8px; }
+@keyframes re-mark-in { from { opacity: 0; } }
+.re-cs-mark-label {
+  position: absolute; top: 50%; left: calc(100% - 6px); width: max-content; max-width: min(320px, 40vw); padding: 10px 12px; border-radius: 10px;
+  font: 400 16px/1.45 var(--re-sans); color: var(--re-fg); background: rgb(12 14 19 / 0.94); box-shadow: 0 0 0 1px rgb(62 230 164 / 0.35), 0 12px 30px rgb(0 0 0 / 0.5);
+  translate: 0 -50%; opacity: 0; scale: 0.96; transform-origin: left center; pointer-events: none; transition: opacity 100ms ease, scale 100ms ease;
+}
+.re-cs-mark[data-side="left"] .re-cs-mark-label { left: auto; right: calc(100% - 6px); transform-origin: right center; }
+.re-cs-mark[data-up] .re-cs-mark-label { top: auto; bottom: calc(100% + 10px); translate: 0 0; transform-origin: left bottom; }
+.re-cs-mark[data-up][data-side="left"] .re-cs-mark-label { transform-origin: right bottom; }
+.re-cs-mark[data-open] .re-cs-mark-label { opacity: 1; scale: 1; transition: opacity 150ms var(--re-ease), scale 150ms var(--re-ease); }
+.re-cs-mark-text { margin: 0; padding: 12px 14px; border-radius: 10px; font-size: 16px; line-height: 1.5; color: var(--re-fg); background: var(--re-fill); }
+/* The line opens with the marker's own ring and core, so it reads as that marker's sentence. */
+.re-cs-mark-text::before {
+  content: ""; display: inline-block; width: 10px; height: 10px; margin-right: 10px; vertical-align: 1px; box-sizing: border-box; border-radius: 50%;
+  border: 2px solid var(--re-accent); background: radial-gradient(circle, var(--re-accent) 0 2px, transparent 2.5px);
+}
+@media (min-width: 1024px) { .re-cs-mark-text { display: none; } }
+@media (max-width: 1023px) { .re-cs-mark-label { display: none; } }
+/* The paired line in the decision list. */
+.re-cs-list li[data-lit] { color: var(--re-fg); }
+.re-cs-list li[data-lit]::before { scale: 1.6; box-shadow: 0 0 0 4px rgb(62 230 164 / 0.18); }
+.re-cs-list li::before { transition: scale 150ms var(--re-ease), box-shadow 150ms ease; }
+.re-cs-show {
+  all: unset; box-sizing: border-box; cursor: pointer; display: inline-flex; align-items: center; min-height: 44px; margin-left: 10px; padding: 0 2px;
+  font-size: 16px; color: var(--re-accent); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 4px;
+}
+.re-cs-show:focus-visible { outline: 2px solid var(--re-accent); outline-offset: 2px; border-radius: 4px; }
+/* A narrow (phone-shaped) stage keeps the label inside the picture. */
+.re-cs-gallery[data-shape="phone"] .re-cs-mark-label { max-width: 220px; }
+@media (prefers-reduced-motion: reduce) {
+  .re-cs-mark, .re-cs-mark::before, .re-cs-list li::before { animation: none; transition: none; scale: 1; }
+  .re-cs-mark .re-cs-mark-label, .re-cs-mark[data-open] .re-cs-mark-label { transition: none; scale: 1; }
+}
+
+/* Boards: a screen with its claim. The marked area is outlined on the screen, a dashed lead drops to the callout (the
+   same file, enlarged), and the board's words read under the stage. Phones put the callout under the screen at full
+   width. Geometry comes from boardVars in CasePage.tsx. */
+.re-cs-board { animation: re-mark-in 160ms var(--re-ease) 200ms both; }
+.re-cs-board > * { position: absolute; }
+.re-cs-board-area { left: var(--bx); top: var(--by); width: var(--bw); height: var(--bh); border-radius: 4px; box-shadow: 0 0 0 1.5px var(--re-accent), 0 0 0 6px rgb(62 230 164 / 0.14); }
+.re-cs-board-lead { left: var(--cx); top: calc(var(--by) + var(--bh)); height: 18px; border-left: 1.5px dashed rgb(62 230 164 / 0.75); }
+/* The callout is a button: it opens the full-size view centred on its area. */
+.re-cs-board-zoom {
+  all: unset; position: absolute; z-index: 3; pointer-events: auto; cursor: zoom-in; box-sizing: border-box;
+  left: var(--cl); top: calc(var(--by) + var(--bh) + 18px); width: var(--cw); display: grid; gap: 6px; padding: 6px; border-radius: 10px;
+  background: rgb(12 14 19 / 0.94); box-shadow: 0 0 0 1px rgb(62 230 164 / 0.35); transition: box-shadow 150ms ease;
+}
+@media (hover: hover) and (pointer: fine) { .re-cs-board-zoom:hover { box-shadow: 0 0 0 1px rgb(62 230 164 / 0.7); } }
+.re-cs-board-zoom:focus-visible { outline: 2px solid var(--re-accent); outline-offset: 3px; }
+.re-cs-board-zoom-tag { display: flex; align-items: center; gap: 8px; padding: 0 4px; font: 500 13px/16px var(--re-sans); color: var(--re-accent); }
+.re-cs-board-zoom-tag::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+.re-cs-board-crop { display: block; aspect-ratio: var(--ca); border-radius: 5px; background: #fff no-repeat var(--zx) var(--zy) / var(--zs) auto; }
+/* The words start under the callout: its reach below the screen, plus its frame (34 px) and lead (18 px), less the slab's
+   own bottom edge and the grid's row gap. */
+.re-cs-board-text { margin-top: calc(var(--drop) + 49px); animation: re-mark-in 160ms var(--re-ease) both; }
+.re-cs-board-title { margin: 0 0 12px; font: 300 24px/1.15 var(--re-sans); letter-spacing: 0; color: var(--re-fg); text-wrap: balance; }
+.re-cs-board-line { margin: 0; max-width: 46ch; font-size: 16px; line-height: 1.55; color: var(--re-fg-2); }
+.re-cs-board-on h4 { margin: 0 0 10px; font-size: 16px; font-weight: 500; color: var(--re-fg); }
+.re-cs-board-on ol { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.re-cs-board-on li { font-size: 16px; line-height: 1.45; color: var(--re-fg-2); }
+@media (min-width: 1024px) {
+  .re-cs-gallery > .re-cs-stage, .re-cs-board-text, .re-cs-mark-text { grid-column: 1; }
+  .re-cs-stage-list { grid-column: 2; grid-row: 1 / span 3; }
+  .re-cs-board-text { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); column-gap: 40px; align-items: start; }
+  .re-cs-board-text > :not(.re-cs-board-on) { grid-column: 1; }
+  .re-cs-board-on { grid-column: 2; grid-row: 1 / span 3; padding-top: 2px; }
+}
+@media (max-width: 1023px) {
+  .re-cs-board-lead { display: none; }
+  .re-cs-board-zoom { left: 0; top: calc(100% + 24px); width: 100%; }
+  .re-cs-board-text { margin-top: calc(var(--drop-n) + 46px); }
+  .re-cs-board-on { margin-top: 20px; }
+}
+/* Phones: every other screen gets one part of itself under the stage, outlined on the screen, at 0.75 of real size or
+   more (CROPS in CasePage.tsx). A tap opens the full-size view on it. Desktop shows the screen alone. */
+.re-cs-crop-zoom {
+  all: unset; box-sizing: border-box; display: block; cursor: zoom-in; padding: 6px; border-radius: 10px; background: rgb(12 14 19 / 0.94);
+  box-shadow: 0 0 0 1px rgb(62 230 164 / 0.35); animation: re-mark-in 160ms var(--re-ease) 200ms both;
+  /* At most 1.25 of the area's real size, centred under the stage: as wide as the column, a 210 px area showed at 2.8×
+     on a 671 px window, from a capture with too few pixels for it (2026-11-01). */
+  width: min(100%, calc(var(--rw) * 1.25 + 12px)); margin-inline: auto;
+}
+/* Below 1024 px the selected tab right above the stage already names the screen; the caption stays for screen readers
+   (it announces the change) but no longer repeats the name under the picture. */
+@media (max-width: 1023px) {
+  .re-cs-stage figcaption { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; margin: 0; }
+}
+.re-cs-crop-zoom:focus-visible { outline: 2px solid var(--re-accent); outline-offset: 3px; }
+@media (min-width: 1024px) { .re-cs-crop, .re-cs-crop-zoom { display: none; } }
+@media (prefers-reduced-motion: reduce) { .re-cs-board, .re-cs-board-text, .re-cs-crop-zoom { animation: none; } }
+/* A screen shown from the keyboard (arrows, Home/End, Show on screen) arrives whole: its marks and the tab with it. */
+.re-cs-gallery[data-instant] :is(.re-cs-mark, .re-cs-board, .re-cs-board-text, .re-cs-crop-zoom) { animation: none; }
+.re-cs-gallery[data-instant] :is(.re-cs-stage-list button, .re-cs-stage-list button img) { transition: none; }
+.re-cs-gallery[data-instant] .re-cs-mark::before, .re-cs-gallery[data-instant] .re-cs-mark .re-cs-mark-label { transition: none; }
+
+/* ---- Next case: its own screen, waiting; Previous stays a quiet link ---- */
+.re-cs-next { display: grid; gap: 14px; margin-top: clamp(72px, 12vh, 128px); }
+.re-cs-next-main {
+  display: grid; gap: 28px; align-items: center; padding: clamp(20px, 3vw, 36px); border-radius: 18px; background: var(--re-fill); color: inherit; text-decoration: none;
+  transition: background-color 160ms ease, transform 160ms var(--re-ease);
+}
+.re-cs-next-main:active { transform: scale(0.985); }
+.re-cs-next-words { display: grid; gap: 8px; }
+.re-cs-next-label { font-size: 13px; color: var(--re-accent); }
+.re-cs-next-main strong { font: 300 clamp(28px, 3vw, 40px)/1.1 var(--re-sans); letter-spacing: 0; }
+.re-cs-next-q { max-width: 34ch; font-size: 20px; line-height: 1.45; color: var(--re-fg-2); text-wrap: pretty; }
+.re-cs-next-main .re-cs-hero { width: 100%; }
+.re-cs-next-main .re-cs-hero[data-shape="phone"] { width: min(100%, 240px); justify-self: center; }
+@media (min-width: 1024px) { .re-cs-next-main { grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); } }
+.re-cs-prev { display: inline-flex; align-items: center; gap: 8px; justify-self: start; min-height: 44px; font-size: 16px; color: var(--re-fg-2); text-decoration: none; }
+@media (hover: hover) and (pointer: fine) { .re-cs-next-main:hover { background: var(--re-fill-2); } .re-cs-prev:hover { color: var(--re-fg); } }
+:is(.re-cs-next-main, .re-cs-prev):focus-visible { outline: 2px solid var(--re-accent); outline-offset: 4px; }
+@media (max-width: 767px) { .re-casepage { padding-top: 84px; } }
+
+/* The title and result are readable in the incoming snapshot. Only the later body fades in after the screen lands;
+   keyboard navigation remains immediate. */
+@media (prefers-reduced-motion: no-preference) {
+  .re-casepage :is(.re-cs-body, .re-cs-screens, .re-cs-next) { animation: re-arrive 200ms var(--re-ease) both; }
+  .re-root[data-input="key"] .re-casepage :is(.re-cs-body, .re-cs-screens, .re-cs-next) { animation: none; }
+}
+@keyframes re-arrive { from { opacity: 0; } }
+
+html.re-html::view-transition-old(root), html.re-html::view-transition-new(root) { animation-duration: 180ms; animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1); }
+/* Read the case: the chapter's whole slab, frame and screen together, moves and grows onto the same slab at the top of the
+   case (both carry the name), 360 ms on the storyboard's ease-in-out. Essential text arrives in the shorter root fade. */
+html.re-html::view-transition-group(re-case-hero) { z-index: 2; animation-duration: 360ms; animation-timing-function: cubic-bezier(0.77, 0, 0.175, 1); }
+html.re-html::view-transition-old(re-case-hero), html.re-html::view-transition-new(re-case-hero) { animation-duration: 360ms; }
+@media (prefers-reduced-motion: reduce) {
+  html.re-html::view-transition-old(root), html.re-html::view-transition-new(root),
+  html.re-html::view-transition-group(re-case-hero), html.re-html::view-transition-old(re-case-hero), html.re-html::view-transition-new(re-case-hero) { animation: none; }
+}
+.re-case-note { margin: -4px 0 14px; font-size: 13px; color: var(--re-dim); }
+#re-lab-h:focus:not(:focus-visible) { outline: none; }
+/* Ledes that sit straight on the field (not in a card) take the full ink, so the dot grid behind them cannot thin them out. */
+:is(.re-lab-head, .re-ledger-head) > .re-lede { color: var(--re-fg); }
+
+/* ---------- Touch: 44 px hit areas without changing how the bar looks, press feedback on press, no grey flash ---------- */
+.re-root { -webkit-tap-highlight-color: transparent; }
+.re-root :is(button, a, summary, [role="button"]) { touch-action: manipulation; }
+/* Only controls opt out of selection/callouts; case text, email addresses and ordinary links stay copyable. */
+.re-root :is(button, summary, [role="button"]) {
+  user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
+}
+.re-root button img { -webkit-user-drag: none; }
+.re-root :is(button, summary):active { opacity: 0.75; }
+:is(.re-nav a, .re-mark, .re-text-link, .re-evidence a, .re-all-name a):active { color: var(--re-accent); }
+/* The overlay button must inherit the gesture surface's axes, including pinch zoom. */
+.re-root [data-swipe] .re-sw-real { touch-action: pan-y pinch-zoom; }
+:is(.re-ch-index, .re-ch-layers, .re-ch-view, .re-ch-inspect) button:active { color: var(--re-fg); }
+@media (pointer: coarse) {
+  .re-toggle { position: relative; }
+  .re-toggle::after { content: ""; position: absolute; inset: -9px 0; }
+  .re-seg button { min-height: 44px; }
+  .re-root input[type="range"] { height: 44px; }
+  .re-root :is(input, select, textarea) { font-size: 16px; }
+}
+/* Phones: the layer whisper is read, not hovered, so it is full size and full ink. */
+@media (max-width: 1023px) {
+  .re-sw-layers { opacity: 1; }
+  .re-casepage .re-cs-hero { width: min(100%, calc(40svh * var(--na, var(--a)))); }
+}
+
+/* ---------- ?tune: the debug view that draws what is otherwise invisible (not part of the page) ---------- */
+.re-tune {
+  position: fixed; left: max(16px, env(safe-area-inset-left, 0px)); bottom: calc(16px + env(safe-area-inset-bottom, 0px)); z-index: 30; display: grid; gap: 6px; max-width: min(560px, calc(100vw - 2 * var(--re-gutter))); padding: 12px 14px;
+  border-radius: 14px; background: rgb(12 12 17 / 0.94); box-shadow: 0 0 0 1px var(--re-line); font-size: 13px; color: var(--re-fg-2);
+}
+.re-tune-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.re-tune-row > span:first-child { width: 72px; color: var(--re-fg); }
+.re-tune button { all: unset; cursor: pointer; padding: 6px 10px; border-radius: 999px; background: var(--re-fill); color: var(--re-fg-2); }
+.re-tune button[aria-pressed="true"] { background: var(--re-accent); color: var(--re-ink); }
+.re-tune-log { margin: 0; color: var(--re-accent); }
+:root[data-tune-debug] .re-root [data-tap="ok"] { outline: 1px solid rgb(62 230 164 / 0.8); outline-offset: 0; }
+:root[data-tune-debug] .re-root [data-tap="small"] { outline: 2px solid #ff5a5a; outline-offset: 0; }
+:root[data-tune-debug] .re-sw::before {
+  content: "settle p " attr(data-p); position: absolute; top: 4px; right: 4px; z-index: 9; padding: 2px 6px; border-radius: 6px;
+  font: 12px/1.4 var(--re-sans); color: var(--re-ink); background: var(--re-accent);
+}
+:root[data-tune-debug] .re-root::after {
+  content: "rest line: main screen's top at 60%"; position: fixed; left: 0; right: 0; top: 60vh; z-index: 29; pointer-events: none;
+  border-top: 1px dashed rgb(62 230 164 / 0.7); font: 12px/1.6 var(--re-sans); color: var(--re-accent); padding-left: 8px;
+}
+
+/* ---------- Own products: the owner's two products side by side, each with its case. ---------- */
+.re-own {
+  position: relative; z-index: 1; margin-top: clamp(80px, 12vh, 140px); padding: clamp(56px, 8vh, 96px) max(var(--re-gutter), calc((100% - 1180px) / 2));
+  background: rgb(5 5 8 / 0.95);
+}
+.re-own-list { display: grid; gap: 64px; margin: 40px 0 0; padding: 0; list-style: none; }
+@media (min-width: 1024px) { .re-own-list { grid-template-columns: 1fr 1fr; column-gap: 48px; } }
+@media (max-width: 1023px) { .re-own-item { max-width: 600px; } }
+.re-own .re-sw-slab { position: relative; left: auto; top: auto; width: 100%; transform: none; }
+.re-own-name { margin-top: 32px; font: 500 24px/1.25 var(--re-sans); color: var(--re-fg); }
+.re-own-meta { margin-top: 8px; font-size: 13px; color: var(--re-dim); }
+.re-own-line { max-width: 34em; margin-top: 12px; font-size: 16px; line-height: 1.5; color: var(--re-fg-2); }
+
+/* ---------- All projects: every project by area, then capabilities and skills (CONTENT.md §7b, §1, §8). ---------- */
+.re-all {
+  position: relative; z-index: 1; padding: var(--re-pad) max(var(--re-gutter), calc((100% - 1180px) / 2));
+  /* A ground of its own, as the chapters have their table: the field's dots must not run through rows of text. */
+  background: rgb(5 5 8 / 0.95);
+}
+.re-all-head { margin-bottom: 36px; }
+.re-all-group { display: grid; gap: 4px; padding: 28px 0; }
+@media (min-width: 1024px) { .re-all-group { grid-template-columns: 240px minmax(0, 1fr); column-gap: 40px; } }
+.re-all-area { display: flex; align-items: baseline; gap: 10px; font: 500 16px/1.3 var(--re-sans); color: var(--re-fg); }
+.re-all-area span { font-weight: 400; color: var(--re-dim); }
+.re-all-rows { display: grid; margin: 0; padding: 0; list-style: none; }
+.re-all-rows li { display: grid; gap: 2px 18px; padding: 10px 0; }
+@media (min-width: 760px) {
+  .re-all-rows li { grid-template-columns: minmax(0, 15em) minmax(0, 1fr); align-items: baseline; }
+  .re-all-meta { grid-column: 1; grid-row: 2; }
+  .re-all-line { grid-column: 2; grid-row: 1 / span 2; }
+}
+.re-all-name { font-size: 16px; color: var(--re-fg); }
+/* The name is the link: → to its case, ↗ to its public page. The line keeps its height; a pseudo-element makes the target 44 px. */
+.re-all-name a {
+  position: relative; display: inline-flex; align-items: center; gap: 6px; color: var(--re-fg);
+  text-decoration: underline; text-decoration-color: var(--re-accent); text-decoration-thickness: 1px; text-underline-offset: 5px;
+}
+.re-all-name a::before { content: ""; position: absolute; inset: -10px -4px; }
+.re-all-name a svg { color: var(--re-accent); }
+@media (hover: hover) and (pointer: fine) { .re-all-name a:hover { color: var(--re-accent); } }
+.re-all-name a:focus-visible { outline: 2px solid var(--re-accent); outline-offset: 2px; border-radius: 4px; }
+.re-all-meta { color: var(--re-dim); }
+.re-all-line { font-size: 16px; line-height: 1.5; color: var(--re-fg-2); }
+.re-all-cols { display: grid; gap: 32px; padding-top: 40px; }
+@media (min-width: 1024px) { .re-all-cols { grid-template-columns: 1fr 1fr; column-gap: 40px; } }
+.re-all-dl { display: grid; gap: 10px; margin: 14px 0 0; }
+.re-all-dl div { display: grid; gap: 2px; }
+@media (min-width: 760px) { .re-all-dl div { grid-template-columns: 11em minmax(0, 1fr); gap: 16px; } }
+.re-all-dl dt { font-size: 16px; color: var(--re-fg); }
+.re-all-dl dd { margin: 0; font-size: 16px; line-height: 1.5; color: var(--re-fg-2); }
+
+/* ---------- The field's own notes, folded away: the page's ground, not its subject. ---------- */
+.re-field-notes { max-width: 1180px; margin: 40px auto 0; padding: 0 var(--re-gutter); }
+.re-field-notes > summary {
+  display: inline-flex; align-items: center; min-height: 44px; padding: 0 4px; cursor: pointer; font-size: 16px; color: var(--re-fg-2); list-style: none;
+}
+.re-field-notes > summary::-webkit-details-marker { display: none; }
+.re-field-notes > summary::before { content: "+"; margin-right: 10px; color: var(--re-accent); }
+.re-field-notes[open] > summary::before { content: "–"; }
+.re-field-notes > summary:focus-visible { outline: 2px solid var(--re-accent); outline-offset: 2px; border-radius: 6px; }
+/* Inside the folded notes the panels are not boxes of their own, so their controls are the only boxes (no card in a card). */
+.re-field-notes .re-card { width: auto; padding: 0; background: none; }
+/* The fixed masthead covers the top 68 px (16 px + 52 px). The document keeps that clear for page keys, Space and
+   anchors alike (Chrome honours scroll-padding when paging; motion study 2026-10-29: PageDown lost 28 px before), and
+   jump targets add a 16 px gap so a heading never sits on the masthead's edge. */
+html.re-html { scroll-padding-top: 68px; }
+:where(#re-work, #re-lab, #re-all, #re-contact, #re-map, [id^="work-"]) { scroll-margin-top: 16px; }
+
+/* ---------- The field as a map of the six areas (AreaMap.tsx). The band is see-through: the clouds are the picture. ---------- */
+.re-map { position: relative; z-index: 1; min-height: 100svh; padding: 96px var(--re-gutter) 64px; max-width: 1440px; margin: 0 auto; }
+.re-map-head { position: relative; z-index: 1; max-width: 32em; }
+.re-map-labels { margin: 28px 0 0; padding: 0; list-style: none; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 16px; }
+.re-map-labels a {
+  display: grid; gap: 2px; min-height: 44px; padding: 8px 10px; border-radius: 8px; color: var(--re-fg); text-decoration: none;
+  background: rgb(5 5 8 / 0.72); transition: color 150ms ease;
+}
+.re-map-name { font-size: 16px; font-weight: 500; }
+.re-map-meta { font-size: 13px; color: var(--re-fg-2); }
+.re-map-labels li[data-hot] a { color: var(--re-accent); }
+.re-map-labels a:focus-visible { outline: 2px solid var(--re-accent); outline-offset: 2px; }
+/* On a large screen each label stands beside its cloud. The labels are out of the flow from the start (hidden until the
+   clouds have positions) and follow them with transform, so neither the switch nor the following is a layout shift. */
+@media (min-width: 1024px) {
+  .re-map { overflow: clip; } /* a label never leaves its band */
+  .re-map-labels { position: absolute; inset: 0; margin: 0; display: block; pointer-events: none; }
+  .re-map:not([data-live]) .re-map-labels { visibility: hidden; }
+  .re-map-labels li { position: absolute; left: 0; top: 0; transform: translate(calc(var(--x, -999px) + 18px), calc(var(--y, -999px) - 50%)); pointer-events: auto; }
+  .re-map-labels a { background: none; padding: 6px 8px; }
+}
+@media (prefers-reduced-motion: reduce) { .re-map-labels a { transition: none; } }
+/* The product's name and role now follow the chapter headline (no eyebrow above it), with a step of space between. */
+.re-sw h3 + .re-sw-meta { margin-top: 14px; }
