@@ -1,0 +1,71 @@
+16:50  up 19 days,  7:50, 3 users, load averages: 3.95 4.59 4.98
+tap 1500 ms after load (load at 1618 ms) run 1: pressed 16 ms, rules in front 2177 ms, screen showing 2177 ms, empty frames none, error caption none, loading caption 1200ms
+    100 ms  front Interface, ink 22.6 %, caption "Real product screens, invented data."
+    300 ms  front Interface, ink 22.6 %, caption "Real product screens, invented data."
+    600 ms  front Interface, ink 22.6 %, caption "Real product screens, invented data."
+   1200 ms  front Interface, ink 77.4 %, caption "Loading the server rules screen…"
+tap 1500 ms after load (load at 1606 ms) run 2: pressed 18 ms, rules in front 2131 ms, screen showing 2131 ms, empty frames none, error caption none, loading caption 1200ms
+    100 ms  front Interface, ink 22.6 %, caption "Real product screens, invented data."
+    300 ms  front Interface, ink 22.6 %, caption "Real product screens, invented data."
+    600 ms  front Interface, ink 22.6 %, caption "Real product screens, invented data."
+   1200 ms  front Interface, ink 77.4 %, caption "Loading the server rules screen…"
+tap 4000 ms after load (load at 1609 ms) run 1: pressed 15 ms, rules in front 31 ms, screen showing 31 ms, empty frames none, error caption none, loading caption none
+    100 ms  front Server rules, ink 90.2 %, caption "Real product screens, invented data."
+    300 ms  front Server rules, ink 90.2 %, caption "Real product screens, invented data."
+    600 ms  front Server rules, ink 92.5 %, caption "Real product screens, invented data."
+   1200 ms  front Server rules, ink 92.5 %, caption "Real product screens, invented data."
+tap 4000 ms after load (load at 1607 ms) run 2: pressed 15 ms, rules in front 30 ms, screen showing 30 ms, empty frames none, error caption none, loading caption none
+    100 ms  front Server rules, ink 90.2 %, caption "Real product screens, invented data."
+    300 ms  front Server rules, ink 90.0 %, caption "Real product screens, invented data."
+    600 ms  front Server rules, ink 92.5 %, caption "Real product screens, invented data."
+   1200 ms  front Server rules, ink 92.5 %, caption "Real product screens, invented data."
+tap 8000 ms after load (load at 1607 ms) run 1: pressed 15 ms, rules in front 32 ms, screen showing 32 ms, empty frames none, error caption none, loading caption none
+    100 ms  front Server rules, ink 90.2 %, caption "Real product screens, invented data."
+    300 ms  front Server rules, ink 90.2 %, caption "Real product screens, invented data."
+    600 ms  front Server rules, ink 92.5 %, caption "Real product screens, invented data."
+   1200 ms  front Server rules, ink 92.5 %, caption "Real product screens, invented data."
+tap 8000 ms after load (load at 1605 ms) run 2: pressed 19 ms, rules in front 32 ms, screen showing 32 ms, empty frames none, error caption none, loading caption none
+    100 ms  front Server rules, ink 90.2 %, caption "Real product screens, invented data."
+    300 ms  front Server rules, ink 90.0 %, caption "Real product screens, invented data."
+    600 ms  front Server rules, ink 92.5 %, caption "Real product screens, invented data."
+   1200 ms  front Server rules, ink 92.5 %, caption "Real product screens, invented data."
+aborted, run 1: pressed 16 ms, rules in front never, screen showing never, empty frames none, error caption 100ms 300ms 600ms 1200ms, loading caption none, message "Couldn't load the server rules screen. Try again"
+    100 ms  front Interface, ink 45.5 %, caption "Couldn't load the server rules screen. Try again"
+    300 ms  front Interface, ink 45.5 %, caption "Couldn't load the server rules screen. Try again"
+    600 ms  front Interface, ink 45.5 %, caption "Couldn't load the server rules screen. Try again"
+   1200 ms  front Interface, ink 77.4 %, caption "Couldn't load the server rules screen. Try again"
+  unblocked, retried with a second tap on the switch: pressed 9 ms, rules in front 1343 ms, screen showing 1343 ms, empty frames none, error caption none, loading caption none
+    100 ms  front Interface, ink 77.4 %, caption "Real product screens, invented data."
+    300 ms  front Interface, ink 77.4 %, caption "Real product screens, invented data."
+    600 ms  front Interface, ink 77.4 %, caption "Real product screens, invented data."
+   1200 ms  front Server rules, ink 100.0 %, caption "Real product screens, invented data."
+   2400 ms  front Server rules, ink 92.5 %, caption "Real product screens, invented data."
+aborted, run 2: pressed 15 ms, rules in front never, screen showing never, empty frames none, error caption 100ms 300ms 600ms 1200ms, loading caption none, message "Couldn't load the server rules screen. Try again"
+    100 ms  front Interface, ink 48.4 %, caption "Couldn't load the server rules screen. Try again"
+    300 ms  front Interface, ink 48.4 %, caption "Couldn't load the server rules screen. Try again"
+    600 ms  front Interface, ink 48.4 %, caption "Couldn't load the server rules screen. Try again"
+   1200 ms  front Interface, ink 77.4 %, caption "Couldn't load the server rules screen. Try again"
+  unblocked, retried with Try again: pressed 4 ms, rules in front 1318 ms, screen showing 1318 ms, empty frames none, error caption none, loading caption none
+    100 ms  front Interface, ink 77.4 %, caption "Real product screens, invented data."
+    300 ms  front Interface, ink 77.4 %, caption "Real product screens, invented data."
+    600 ms  front Interface, ink 77.4 %, caption "Real product screens, invented data."
+   1200 ms  front Server rules, ink 100.0 %, caption "Real product screens, invented data."
+   2400 ms  front Server rules, ink 92.5 %, caption "Real product screens, invented data."
+delayed 10 s: pressed 16 ms, rules in front 9531 ms, screen showing 9531 ms, empty frames none, error caption none, loading caption 1200ms 2400ms 3200ms 4500ms 7000ms
+    100 ms  front Interface, ink 48.4 %, caption "Real product screens, invented data."
+    300 ms  front Interface, ink 48.4 %, caption "Real product screens, invented data."
+    600 ms  front Interface, ink 48.4 %, caption "Real product screens, invented data."
+   1200 ms  front Interface, ink 77.4 %, caption "Loading the server rules screen…"
+   2400 ms  front Interface, ink 77.4 %, caption "Loading the server rules screen…"
+   3200 ms  front Interface, ink 77.4 %, caption "Loading the server rules screen…"
+   4500 ms  front Interface, ink 77.4 %, caption "Loading the server rules screen…"
+   7000 ms  front Interface, ink 77.4 %, caption "Loading the server rules screen…"
+  10000 ms  front Server rules, ink 92.5 %, caption "Real product screens, invented data."
+  12000 ms  front Server rules, ink 92.5 %, caption "Real product screens, invented data."
+delayed 10 s, Data tapped 1.5 s into the wait: pressed 15 ms, rules in front never, screen showing never, empty frames none, error caption none, loading caption none
+    100 ms  front Data, ink 100.0 %, caption "Real product screens, invented data."
+    600 ms  front Data, ink 99.6 %, caption "Real product screens, invented data."
+   4000 ms  front Data, ink 99.6 %, caption "Real product screens, invented data."
+  10000 ms  front Data, ink 99.6 %, caption "Real product screens, invented data."
+PASS
+exit 0
