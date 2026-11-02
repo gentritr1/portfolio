@@ -1,0 +1,23 @@
+16:31  up 19 days,  7:30, 3 users, load averages: 4.24 5.20 5.80
+tap 1500 ms after load (load at 1631 ms) run 1: pressed 19 ms, rules in front 19 ms, screen showing 2730 ms, empty frames 100ms 300ms 600ms  FAIL
+    100 ms  front Server rules, ink 0.0 %, caption "Real product screens, invented data."  EMPTY
+    300 ms  front Server rules, ink 0.0 %, caption "Real product screens, invented data."  EMPTY
+    600 ms  front Server rules, ink 0.0 %, caption "Real product screens, invented data."  EMPTY
+   1200 ms  front Server rules, ink 23.0 %, caption "Real product screens, invented data."
+tap 1500 ms after load (load at 1609 ms) run 2: pressed 18 ms, rules in front 18 ms, screen showing 2731 ms, empty frames 100ms 300ms 600ms  FAIL
+    100 ms  front Server rules, ink 0.0 %, caption "Real product screens, invented data."  EMPTY
+    300 ms  front Server rules, ink 0.0 %, caption "Real product screens, invented data."  EMPTY
+    600 ms  front Server rules, ink 0.0 %, caption "Real product screens, invented data."  EMPTY
+   1200 ms  front Server rules, ink 23.0 %, caption "Real product screens, invented data."
+tap 4000 ms after load (load at 1608 ms) run 1: pressed 17 ms, rules in front 17 ms, screen showing 881 ms, empty frames 100ms 300ms 600ms  FAIL
+    100 ms  front Server rules, ink 0.0 %, caption "Real product screens, invented data."  EMPTY
+    300 ms  front Server rules, ink 0.0 %, caption "Real product screens, invented data."  EMPTY
+    600 ms  front Server rules, ink 0.0 %, caption "Real product screens, invented data."  EMPTY
+   1200 ms  front Server rules, ink 92.5 %, caption "Real product screens, invented data."
+tap 4000 ms after load (load at 1607 ms) run 2: pressed 19 ms, rules in front 19 ms, screen showing 881 ms, empty frames 100ms 300ms 600ms  FAIL
+    100 ms  front Server rules, ink 0.0 %, caption "Real product screens, invented data."  EMPTY
+    300 ms  front Server rules, ink 0.0 %, caption "Real product screens, invented data."  EMPTY
+    600 ms  front Server rules, ink 0.0 %, caption "Real product screens, invented data."  EMPTY
+   1200 ms  front Server rules, ink 92.5 %, caption "Real product screens, invented data."
+FAIL
+exit 1

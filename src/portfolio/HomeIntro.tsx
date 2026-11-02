@@ -41,28 +41,37 @@ export function HomeIntro({ onOpen, active }: { active: boolean; onOpen(slug: st
   const art = useRef<HTMLElement>(null)
   const near = useNearViewport(art, '100%')
   const rules = useRef<HTMLImageElement>(null)
+  const control = useRef<HTMLDivElement>(null)
+  // broken: the screen's request failed; a reader's next pick of the layer mounts a fresh image (a new request).
+  const [broken, setBroken] = useState(false)
+  const [failed, setFailed] = useState(false)
   // The description animates only once a reader has changed the layer, never on the first paint.
   const [moved, setMoved] = useState(false)
   const choose = (i: number, keyboard: boolean) => {
     setMoved(true)
     setInstant(keyboard)
+    setFailed(false)
     setLayer(i)
     if (i !== 1) setShown(i)
+    else if (broken) setBroken(false)
   }
-  // Server rules comes to the front only once its screen is decoded; until then the current plate stays.
+  // Server rules comes to the front only once its screen is decoded; until then the current plate stays. If the screen
+  // fails, or is still not decoded after 3 s, the selection goes back to the plate in front and the caption says so.
+  const fail = () => { setLayer(shown); setFailed(true) }
   useEffect(() => {
-    if (layer !== 1 || !rules.current) return
+    if (layer !== 1 || broken || !rules.current) return
     let live = true
-    rules.current.decode().catch(() => {}).then(() => { if (live) setShown(1) })
-    return () => { live = false }
-  }, [layer])
+    const late = setTimeout(() => { if (live) { setLayer(shown); setFailed(true) } }, 3000)
+    rules.current.decode().then(() => { if (live) { clearTimeout(late); setShown(1) } }, () => {})
+    return () => { live = false; clearTimeout(late) }
+  }, [layer, broken, shown])
   return (
     <>
       <header id="re-top" className="re-intro re-own-item" data-stage={STAGE.hero} data-instant={instant || undefined} data-moved={moved || undefined}>
         <div className="re-intro-copy re-solid">
           <h1 tabIndex={-1}><span>I build web and mobile products,</span>{' '}<span>from interface to backend.</span></h1>
-          <p className="re-intro-role">Frontend · Backend · Mobile</p>
-          <p className="re-intro-bio">5+ years shipping web and mobile products.<br />Based in Kosovo, working remotely.</p>
+          <p className="re-intro-role">Software engineer: frontend, backend and mobile</p>
+          <p className="re-intro-bio">5+ years shipping web and mobile products.<br />Mostly for healthcare teams, learning platforms and consumer apps.<br />Based in Kosovo, working remotely.</p>
           <div className="re-intro-links">
             <a className="re-text-link" href="#re-results">Results <ArrowRightIcon {...ARROW} /></a>
             <a className="re-text-link" href="#re-about">How I work <ArrowRightIcon {...ARROW} /></a>
@@ -97,9 +106,9 @@ export function HomeIntro({ onOpen, active }: { active: boolean; onOpen(slug: st
                       loading={active ? 'eager' : 'lazy'} fetchPriority={active ? 'high' : 'auto'} decoding="async" />
                   </div>
                 )}
-                {i === 1 && (near || layer === 1) && (
+                {i === 1 && (near || layer === 1) && !broken && (
                   <div className="re-stk-visual">
-                    <img ref={rules} className="re-intro-rules" src={RULES.src} width={RULES.w} height={RULES.h} alt={RULES.alt} style={rulesCrop} fetchPriority="low" decoding="async" />
+                    <img ref={rules} className="re-intro-rules" src={RULES.src} width={RULES.w} height={RULES.h} alt={RULES.alt} style={rulesCrop} fetchPriority="low" decoding="async" onError={() => { setBroken(true); if (layer === 1) fail() }} />
                   </div>
                 )}
                 {i === 2 && (
@@ -117,13 +126,20 @@ export function HomeIntro({ onOpen, active }: { active: boolean; onOpen(slug: st
               </div>
             ))}
           </div>
-          <div className="re-stk-control" role="group" aria-label="Explore Offday's layers" style={{ '--i': layer } as CSSProperties}>
+          <div ref={control} className="re-stk-control" role="group" aria-label="Explore Offday's layers" style={{ '--i': layer } as CSSProperties}>
             <span className="re-stk-thumb" aria-hidden="true" />
             {LAYERS.map((item, i) => (
               <button key={item.name} type="button" data-l={i} aria-pressed={layer === i} onClick={(e) => choose(i, e.detail === 0)}>{item.name}</button>
             ))}
           </div>
-          <figcaption>Real product screens, invented data.</figcaption>
+          {/* Beside the switch, where a reader is looking: a failed screen is named there, with a way to try again. */}
+          <figcaption>{failed
+            ? <span role="alert">Couldn't load the server rules screen. <button type="button" className="re-stk-retry" onClick={(e) => {
+                // The message goes as the retry starts; focus moves to the layer's own button rather than to the page.
+                control.current?.querySelector<HTMLButtonElement>('[data-l="1"]')?.focus()
+                choose(1, e.detail === 0)
+              }}>Try again</button></span>
+            : 'Real product screens, invented data.'}</figcaption>
         </figure>
       </header>
 

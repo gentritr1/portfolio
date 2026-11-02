@@ -19,9 +19,10 @@ Project facts below come from git history; contact and education details were co
 **CV (owner, 2026-11-02):** Use the general positioning "Software Engineer | Web, Mobile & Backend". Keep the frontend/mobile background and backend work since 2026 explicit. Remove the degree from the CV as well as the portfolio. Prioritize care-platform responsibilities, mentoring, maintained products and inspectable backend projects. The CV source and downloadable PDF must agree.
 
 **Name:** Gentrit Rashiti
-**Role line (approved design, 2026-10-30):** Frontend · Backend · Mobile
+**Role line (owner request 2026-11-02, awaiting approval from captures):** Software engineer: frontend, backend and mobile. Replaces "Frontend · Backend · Mobile" (2026-10-30).
 **One-liner (approved design, 2026-10-30):** I build web and mobile products, from interface to backend.
 **Secondary (approved design, 2026-10-30):** 5+ years shipping web and mobile products. Based in Kosovo, working remotely.
+**Audience line (owner request 2026-11-02, awaiting approval from captures):** Mostly for healthcare teams, learning platforms and consumer apps. Sits between the two secondary lines; backed by the care platform, Bayyinah TV and Read to Feed, Viva Fresh and the store apps.
 **CTAs:** "See the work" (scroll), "Download CV" (link to `/Gentrit-Rashiti-CV.pdf`; the editable source is `cv/Gentrit-Rashiti-CV.html`).
 
 ## 1. Capabilities (strip, short)

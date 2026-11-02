@@ -42,6 +42,8 @@
 .re-intro-copy h1 span { display: block; }
 .re-intro-role { margin-top: 22px !important; font-size: var(--re-t2); line-height: 1.35; }
 .re-intro-bio { margin-top: 14px !important; color: var(--re-fg-2); font-size: 16px; line-height: 1.5; }
+/* Wide: the stack covers the right 64 % beside these lines, so they wrap 32 px short of it. */
+@media (min-width: 1101px) { .re-intro-copy :is(.re-intro-role, .re-intro-bio) { max-width: calc(36% - 32px); } }
 .re-intro-links { display: flex; flex-wrap: wrap; gap: 0 24px; margin-top: 10px; }
 .re-intro-links a { color: var(--re-accent); }
 .re-intro-product { position: absolute; z-index: 2; bottom: 16px; left: var(--re-gutter); width: 27%; }
@@ -159,6 +161,13 @@
 .re-intro-tables dt { color: var(--re-fg); }
 .re-intro-tables b { font-weight: 400; color: var(--re-accent); }
 .re-intro-art figcaption { margin-top: 22px; text-align: right; font-size: var(--re-t1); line-height: 1.5; color: var(--re-dim); }
+/* A screen that failed to load is named in the caption, with its retry: a 44 px target that reads as a text link. */
+.re-intro-art figcaption [role="alert"] { color: var(--re-fg-2); }
+.re-stk-retry {
+  all: unset; display: inline-flex; align-items: center; min-height: 44px; vertical-align: middle; cursor: pointer;
+  color: var(--re-accent); text-decoration: underline; text-underline-offset: 4px;
+}
+.re-stk-retry:focus-visible { outline: 2px solid var(--re-accent); outline-offset: 2px; border-radius: 4px; }
 
 .re-evidence { position: relative; max-width: 1440px; margin: 0 auto; padding: 0 var(--re-gutter) var(--re-pad); }
 .re-evidence ul { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin-top: 18px; }
