@@ -1,12 +1,13 @@
+17:48  up 19 days,  8:48, 2 users, load averages: 4.11 5.63 7.72
 ## JS per route (gzip -9 of each built file, KB)
-current: before load 140.0 KB (5 files), by idle 281.7 KB (7 files): rolldown-runtime, index, react-vendor, home, Draft, scene, three.module
-switch: before load 116.5 KB (5 files), by idle 116.5 KB (5 files): rolldown-runtime, index, react-vendor, home, SwitchHome
+current: before load 110.2 KB (4 files), by idle 281.7 KB (7 files): rolldown-runtime, index, react-vendor, home, Draft, scene, three.module
+switch: before load 93.7 KB (3 files), by idle 116.5 KB (5 files): rolldown-runtime, index, react-vendor, SwitchHome, home
 
 ## LCP and CLS at 4x CPU, cache off, 5 reps each, interleaved
-current 390: LCP median 460 ms [400–492], n=5; CLS at idle median 0.000 [0.000–0.000]; CLS after scroll median 0.000 [max 0.000]; LCP element IMG.re-intro-ui offday-desktop-calendar.webp
-switch 390: LCP median 416 ms [364–424], n=5; CLS at idle median 0.000 [0.000–0.000]; CLS after scroll median 0.000 [max 0.000]; LCP element IMG.re-intro-ui offday-desktop-calendar.webp
-current 1440: LCP median 440 ms [424–648], n=5; CLS at idle median 0.000 [0.000–0.000]; CLS after scroll median 0.000 [max 0.000]; LCP element IMG.re-intro-ui offday-desktop-calendar.webp
-switch 1440: LCP median 404 ms [352–468], n=5; CLS at idle median 0.000 [0.000–0.000]; CLS after scroll median 0.000 [max 0.000]; LCP element IMG.re-intro-ui offday-desktop-calendar.webp
+current 390: LCP median 372 ms [352–380], n=5; CLS at idle median 0.000 [0.000–0.000]; CLS after scroll median 0.000 [max 0.000]; LCP element IMG.re-intro-ui offday-desktop-calendar.webp
+switch 390: LCP median 328 ms [264–372], n=5; CLS at idle median 0.000 [0.000–0.000]; CLS after scroll median 0.000 [max 0.000]; LCP element IMG.re-intro-ui offday-desktop-calendar.webp
+current 1440: LCP median 348 ms [332–356], n=5; CLS at idle median 0.000 [0.000–0.000]; CLS after scroll median 0.000 [max 0.000]; LCP element IMG.re-intro-ui offday-desktop-calendar.webp
+switch 1440: LCP median 272 ms [272–308], n=5; CLS at idle median 0.000 [0.000–0.000]; CLS after scroll median 0.000 [max 0.000]; LCP element IMG.re-intro-ui offday-desktop-calendar.webp
 
 ## Targets under 44 px at 390 x 844
 current: 23 of 66 under 44 px:
@@ -64,4 +65,4 @@ switch 390: 51 stops; without a visible ring or off screen: 0; then focus leaves
 current 1440: 64 stops; without a visible ring or off screen: 0; then focus leaves the page (the end of the tab order); focus lost to <body> mid-page: 0; Enter on Server rules brings its plate to the front: yes
 switch 1440: 52 stops; without a visible ring or off screen: 0; then focus leaves the page (the end of the tab order); focus lost to <body> mid-page: 0; Enter on Server rules brings its plate to the front: yes
 exit 0
-17:32  up 19 days,  8:31, 2 users, load averages: 19.74 15.29 11.38
+17:49  up 19 days,  8:49, 2 users, load averages: 10.60 7.59 8.27
