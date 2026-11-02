@@ -3,6 +3,8 @@ import { Link, Navigate, Route, Routes, useLocation } from 'react-router'
 import { ScrollToTop } from './components/ScrollToTop'
 import { firstView, isHomePath } from './lib/firstView'
 const Home = lazy(() => import("./portfolio/Draft"))
+// PROTOTYPE (proto/switch-home, never merged): the layer-switch home at /switch, beside the current home at /.
+const SwitchHome = lazy(() => import("./portfolio/SwitchHome"))
 const MOVED: Record<string, string> = { '/workflow': '/', '/civiclee': '/', '/design-system': '/design-system-react' }
 
 export default function App() {
@@ -12,6 +14,10 @@ export default function App() {
     : pathname.startsWith('/work/') ? pathname.slice('/work'.length) : null
   const moved = MOVED[pathname.replace(/\/$/, '')] ?? legacy
   if (moved) return <Navigate to={{ pathname: moved, search, hash }} replace />
+  if (pathname.replace(/\/$/, '') === '/switch') {
+    const Proto = firstView.switch ?? SwitchHome
+    return <Suspense fallback={<div style={{ minHeight: '100svh', background: '#050508' }} />}><Proto /></Suspense>
+  }
   if (!isHomePath(pathname)) return (
     <main style={{ minHeight: '100svh', background: '#050508', color: '#ededf0', padding: 'clamp(24px, 8vw, 100px)', fontFamily: 'Archivo, sans-serif' }}>
       <title>Page not found - Gentrit Rashiti</title>

@@ -1,0 +1,68 @@
+17:48  up 19 days,  8:48, 2 users, load averages: 4.11 5.63 7.72
+## JS per route (gzip -9 of each built file, KB)
+current: before load 110.2 KB (4 files), by idle 281.7 KB (7 files): rolldown-runtime, index, react-vendor, home, Draft, scene, three.module
+switch: before load 93.7 KB (3 files), by idle 116.5 KB (5 files): rolldown-runtime, index, react-vendor, SwitchHome, home
+
+## LCP and CLS at 4x CPU, cache off, 5 reps each, interleaved
+current 390: LCP median 372 ms [352–380], n=5; CLS at idle median 0.000 [0.000–0.000]; CLS after scroll median 0.000 [max 0.000]; LCP element IMG.re-intro-ui offday-desktop-calendar.webp
+switch 390: LCP median 328 ms [264–372], n=5; CLS at idle median 0.000 [0.000–0.000]; CLS after scroll median 0.000 [max 0.000]; LCP element IMG.re-intro-ui offday-desktop-calendar.webp
+current 1440: LCP median 348 ms [332–356], n=5; CLS at idle median 0.000 [0.000–0.000]; CLS after scroll median 0.000 [max 0.000]; LCP element IMG.re-intro-ui offday-desktop-calendar.webp
+switch 1440: LCP median 272 ms [272–308], n=5; CLS at idle median 0.000 [0.000–0.000]; CLS after scroll median 0.000 [max 0.000]; LCP element IMG.re-intro-ui offday-desktop-calendar.webp
+
+## Targets under 44 px at 390 x 844
+current: 23 of 66 under 44 px:
+  a "CV" 34×44
+  a "Care-management platform" 222×26
+  a "Design System v2" 154×26
+  a "Bayyinah TV" 116×26
+  a "Bayyinah institute website" 210×26
+  a "Read to Feed" 121×26
+  a "Viva Fresh" 101×26
+  a "Dukagjini Bookstore" 169×26
+  a "CivicLee" 87×26
+  a "Incentiv" 82×26
+  a "LeakScan" 97×26
+  a "OFFBEAT" 99×26
+  a "FORM" 74×26
+  a "Snaxx Tech" 109×26
+  a "Offday" 73×26
+  a "Geo Guesser World 3D" 189×26
+  a "Arrows" 76×26
+  a "FJALË" 74×26
+  a "Tondo" 71×26
+  a "Za!" 49×26
+  a "Morse Trainer" 123×26
+  a "Futurisma" 98×26
+  a "Open-source forks" 157×26
+switch: 23 of 52 under 44 px:
+  a "CV" 34×44
+  a "Care-management platform" 222×26
+  a "Design System v2" 154×26
+  a "Bayyinah TV" 116×26
+  a "Bayyinah institute website" 210×26
+  a "Read to Feed" 121×26
+  a "Viva Fresh" 101×26
+  a "Dukagjini Bookstore" 169×26
+  a "CivicLee" 87×26
+  a "Incentiv" 82×26
+  a "LeakScan" 97×26
+  a "OFFBEAT" 99×26
+  a "FORM" 74×26
+  a "Snaxx Tech" 109×26
+  a "Offday" 73×26
+  a "Geo Guesser World 3D" 189×26
+  a "Arrows" 76×26
+  a "FJALË" 74×26
+  a "Tondo" 71×26
+  a "Za!" 49×26
+  a "Morse Trainer" 123×26
+  a "Futurisma" 98×26
+  a "Open-source forks" 157×26
+
+## Tab-only pass
+current 390: 63 stops; without a visible ring or off screen: 0; then focus leaves the page (the end of the tab order); focus lost to <body> mid-page: 0; Enter on Server rules brings its plate to the front: yes
+switch 390: 51 stops; without a visible ring or off screen: 0; then focus leaves the page (the end of the tab order); focus lost to <body> mid-page: 0; Enter on Server rules brings its plate to the front: yes
+current 1440: 64 stops; without a visible ring or off screen: 0; then focus leaves the page (the end of the tab order); focus lost to <body> mid-page: 0; Enter on Server rules brings its plate to the front: yes
+switch 1440: 52 stops; without a visible ring or off screen: 0; then focus leaves the page (the end of the tab order); focus lost to <body> mid-page: 0; Enter on Server rules brings its plate to the front: yes
+exit 0
+17:49  up 19 days,  8:49, 2 users, load averages: 10.60 7.59 8.27

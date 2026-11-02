@@ -1,0 +1,2 @@
+current: front plate 831 × 412 px visible = 26.4% of the first screen
+switch: front plate 829 × 410 px visible = 26.2% of the first screen
