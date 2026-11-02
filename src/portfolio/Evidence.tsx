@@ -1,5 +1,5 @@
-import { ArrowUpRightIcon } from '@phosphor-icons/react'
-import { BASE, plain } from "./data"
+import { ArrowRightIcon, ArrowUpRightIcon } from '@phosphor-icons/react'
+import { ARROW, BASE, plain } from "./data"
 
 type OpenCase = (slug: string, trigger: HTMLAnchorElement, keyboard: boolean) => void
 
@@ -18,7 +18,7 @@ export function Evidence({ onOpen }: { onOpen: OpenCase }) {
             <p className="re-engineering-decision">The server checks every move.</p>
             <p>Players choose a move. A Node.js server checks it against the game rules and sends the updated state to each player over WebSockets. Tondo stores saved crews in PostgreSQL.</p>
             <p className="re-engineering-meta">Own products · Node · WebSocket · PostgreSQL</p>
-            <a className="re-text-link" href="https://github.com/gentritr1/tondo" target="_blank" rel="noreferrer">Explore the code <ArrowUpRightIcon aria-hidden="true" size={17} /><span className="re-sr"> (opens in a new tab)</span></a>
+            <a className="re-text-link" href="https://github.com/gentritr1/tondo" target="_blank" rel="noreferrer">Explore the code <ArrowUpRightIcon {...ARROW} /><span className="re-sr"> (opens in a new tab)</span></a>
           </article>
           <article>
             <figure className="re-backend-media">
@@ -33,7 +33,7 @@ export function Evidence({ onOpen }: { onOpen: OpenCase }) {
               if (!plain(e)) return
               e.preventDefault()
               onOpen('leakscan', e.currentTarget, e.detail === 0)
-            }}>Read the case <ArrowUpRightIcon aria-hidden="true" size={17} /></a>
+            }}>Read the case <ArrowRightIcon {...ARROW} /></a>
           </article>
         </div>
       </section>
@@ -48,7 +48,7 @@ export function Evidence({ onOpen }: { onOpen: OpenCase }) {
             if (!plain(e)) return
             e.preventDefault()
             onOpen('care-platform', e.currentTarget, e.detail === 0)
-          }}>See the rewrite <ArrowUpRightIcon aria-hidden="true" size={17} /></a>
+          }}>See the rewrite <ArrowRightIcon {...ARROW} /></a>
           <p className="re-workflow-products">Other projects put AI in the product itself: document chat, image generation and Offday’s workspace assistant.</p>
         </div>
       </section>
@@ -65,7 +65,7 @@ export function Evidence({ onOpen }: { onOpen: OpenCase }) {
             if (!plain(e)) return
             e.preventDefault()
             onOpen('care-platform', e.currentTarget, e.detail === 0)
-          }}>See the care-platform work <ArrowUpRightIcon aria-hidden="true" size={17} /></a>
+          }}>See the care-platform work <ArrowRightIcon {...ARROW} /></a>
           <p className="re-engineering-meta">Based in Kosovo · Working remotely</p>
         </div>
       </section>

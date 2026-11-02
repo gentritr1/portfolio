@@ -1,6 +1,6 @@
 import { useState, type CSSProperties } from 'react'
-import { ArrowUpRightIcon } from '@phosphor-icons/react'
-import { BASE, plain } from "./data"
+import { ArrowRightIcon } from '@phosphor-icons/react'
+import { ARROW, BASE, plain } from "./data"
 import { STAGE } from "./sceneSupport"
 import { cropVars, type Shot } from "./screens"
 
@@ -52,8 +52,8 @@ export function HomeIntro({ onOpen, active }: { active: boolean; onOpen(slug: st
           <p className="re-intro-role">Frontend · Backend · Mobile</p>
           <p className="re-intro-bio">5+ years shipping web and mobile products.<br />Based in Kosovo, working remotely.</p>
           <div className="re-intro-links">
-            <a className="re-text-link" href="#re-results">Results <ArrowUpRightIcon aria-hidden="true" size={17} /></a>
-            <a className="re-text-link" href="#re-about">How I work <ArrowUpRightIcon aria-hidden="true" size={17} /></a>
+            <a className="re-text-link" href="#re-results">Results <ArrowRightIcon {...ARROW} /></a>
+            <a className="re-text-link" href="#re-about">How I work <ArrowRightIcon {...ARROW} /></a>
           </div>
         </div>
 
@@ -66,7 +66,7 @@ export function HomeIntro({ onOpen, active }: { active: boolean; onOpen(slug: st
             if (!plain(e)) return
             e.preventDefault()
             onOpen('offday', e.currentTarget, e.detail === 0)
-          }}>Read the case <ArrowUpRightIcon aria-hidden="true" size={17} /></a>
+          }}>Read the Offday case <ArrowRightIcon {...ARROW} /></a>
         </div>
 
         <figure className="re-intro-art" data-work="offday">
@@ -118,10 +118,10 @@ export function HomeIntro({ onOpen, active }: { active: boolean; onOpen(slug: st
 
       <nav className="re-evidence re-solid" aria-label="Across the stack">
         <ul>
-          <li><a href="#work-care">Care platform <ArrowUpRightIcon aria-hidden="true" size={17} /></a><p>Web + backend · care workflows, permissions</p></li>
-          <li><a href="#work-bayyinah">Bayyinah TV <ArrowUpRightIcon aria-hidden="true" size={17} /></a><p>Frontend · streaming, English + Arabic</p></li>
-          <li><a href="#re-backend">Tondo + LeakScan <ArrowUpRightIcon aria-hidden="true" size={17} /></a><p>Backend · realtime servers, scan jobs</p></li>
-          <li><a href="#work-reading">Read to Feed <ArrowUpRightIcon aria-hidden="true" size={17} /></a><p>Mobile · about 14 store releases</p></li>
+          <li><a href="#work-care">Care platform <ArrowRightIcon {...ARROW} /></a><p>Web + backend · care workflows, permissions</p></li>
+          <li><a href="#work-bayyinah">Bayyinah TV <ArrowRightIcon {...ARROW} /></a><p>Frontend · streaming, English + Arabic</p></li>
+          <li><a href="#re-backend">Tondo + LeakScan <ArrowRightIcon {...ARROW} /></a><p>Backend · realtime servers, scan jobs</p></li>
+          <li><a href="#work-reading">Read to Feed <ArrowRightIcon {...ARROW} /></a><p>Mobile · about 14 store releases</p></li>
         </ul>
       </nav>
     </>

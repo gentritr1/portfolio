@@ -1,7 +1,7 @@
 import { useNearViewport } from './useNearViewport'
 import { lazy, Suspense, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { ArrowRightIcon, XIcon } from '@phosphor-icons/react'
-import { plain, BASE, systems } from "./data"
+import { ARROW, plain, BASE, systems } from "./data"
 import { FullSize, type FullSizeHandle } from "./FullSize"
 import { tune } from "./tune"
 import { useScreenSwipe } from "./useScreenSwipe"
@@ -119,9 +119,9 @@ function floor(top: number, bottom: number, lights: [number, number, number, num
  * where everything is placed on the frame, or on phones, where everything flows in one column; on landscape tablets they
  * are the two columns that put the stage beside its words.
  */
-function Chapter({ id, nh, table, hs, slabs, media, children }: { id: string; nh: number; table: Vars; hs: number; slabs: ReactNode; media?: ReactNode; children: ReactNode }) {
+function Chapter({ id, nh, table, slabs, media, children }: { id: string; nh: number; table: Vars; slabs: ReactNode; media?: ReactNode; children: ReactNode }) {
   return (
-    <article id={`work-${id}`} className={`re-sw re-sw-${id}`} style={{ '--nh': nh, '--hs': hs } as Vars}>
+    <article id={`work-${id}`} className={`re-sw re-sw-${id}`} style={{ '--nh': nh } as Vars}>
       <div className="re-sw-media">
         <div className="re-sw-stage">
           <div className="re-sw-floor" style={table} aria-hidden="true" />
@@ -311,10 +311,10 @@ export function Production({ onOpen, reduced, onFocus }: { onOpen(slug: string, 
     if (e.pointerType === 'mouse' && e.button === 0) e.currentTarget.closest('.re-sw')?.setAttribute('data-lift', '')
   }
   const release = (e: React.PointerEvent<HTMLAnchorElement>) => e.currentTarget.closest('.re-sw')?.removeAttribute('data-lift')
-  const caseLink = (slug: string) => (
+  const caseLink = (slug: string, name: string) => (
     <a className="re-prod-case" href={`${BASE}/${slug}`} onPointerDown={press(slug)} onPointerLeave={release} onPointerCancel={release} onClick={(e) => { if (!plain(e)) return; e.preventDefault(); onOpen(slug, e.currentTarget, e.detail === 0) }}>
-      Read the case
-      <ArrowRightIcon size={20} weight="light" aria-hidden="true" />
+      Read the {name} case
+      <ArrowRightIcon {...ARROW} />
     </a>
   )
 
@@ -323,7 +323,7 @@ export function Production({ onOpen, reduced, onFocus }: { onOpen(slug: string, 
       <h2 id="re-prod-h" className="re-h2 re-prod-h">Selected work</h2>
 
       <Chapter
-        id="bayyinah" nh={440} hs={50}
+        id="bayyinah" nh={440}
         table={floor(654, 820, [[570, 731, 515, 51], [1160, 724, 210, 45]])}
         slabs={<>
           {/* The hero only: the row under it shows the site's own audience figures, which are not the sourced Play count beside it. */}
@@ -340,12 +340,12 @@ export function Production({ onOpen, reduced, onFocus }: { onOpen(slug: string, 
         <Layers slug="bayyinah-tv" place={at(1110, 175, 290)} />
         <div className="re-sw-at re-sw-act" style={at(1040, 787, 310)}>
           <Reach href="https://play.google.com/store/apps/details?id=com.zombiesoup.bayyinah" />
-          {caseLink('bayyinah-tv')}
+          {caseLink('bayyinah-tv', 'Bayyinah TV')}
         </div>
       </Chapter>
 
       <Chapter
-        id="reading" nh={445} hs={46}
+        id="reading" nh={445}
         table={floor(702, 865, [[1047, 805, 195, 46], [705, 809, 195, 46]])}
         slabs={<>
           <Slab shot={shots.reader} swap={reader} crop={[82, 462, 616, 1227]} phoneCrop={[82, 462, 616, 566]} place={[867, 70, 370]} phone={[58, 20, 312]} nh={445} />
@@ -362,7 +362,7 @@ export function Production({ onOpen, reduced, onFocus }: { onOpen(slug: string, 
           <p className="re-sw-line">EPUB and PDF reader, barcode scanning, quizzes, badges and streaks, in three languages.</p>
           <p className="re-sw-proof" data-numbers>About 14 store releases<small>React Native 0.63 → 0.81</small></p>
           <div className="re-sw-actions">
-            {caseLink('read-to-feed')}
+            {caseLink('read-to-feed', 'Read to Feed')}
             <button type="button" className="re-sw-try" onClick={() => { setReading(true); dialog.current?.showModal() }}>Try the reader</button>
           </div>
         </div>
@@ -370,7 +370,7 @@ export function Production({ onOpen, reduced, onFocus }: { onOpen(slug: string, 
       </Chapter>
 
       <Chapter
-        id="care" nh={345} hs={42}
+        id="care" nh={345}
         table={floor(639, 802, [[880, 711, 515, 48]])}
         slabs={<Slab shot={shots.calendar} place={[412, 96, 970]} phoneCrop={[440, 380, 1100, 960]} phone={[16, 10, 358]} nh={345} transform="rotate(-2deg)" />}
         media={<p className="re-sw-at re-sw-cap" style={at(430, 744)}>Real product screens, invented data.</p>}
@@ -387,11 +387,11 @@ export function Production({ onOpen, reduced, onFocus }: { onOpen(slug: string, 
           <li>A person approves</li>
         </ol>
         <Layers slug="care-platform" place={at(64, 440, 300)} />
-        <div className="re-sw-at re-sw-act" style={at(64, 842)}>{caseLink('care-platform')}</div>
+        <div className="re-sw-at re-sw-act" style={at(64, 842)}>{caseLink('care-platform', 'care-management platform')}</div>
       </Chapter>
 
       <Chapter
-        id="system" nh={400} hs={44}
+        id="system" nh={400}
         table={floor(561, 760, [[428, 653, 363, 45], [1098, 462, 255, 36], [812, 731, 480, 42]])}
         slabs={<>
           <Slab shot={shots.matrix} crop={[1280, 145, 1780, 1430]} place={[64, 68, 720]} phone={[16, 10, 300]} nh={400} />
@@ -404,7 +404,6 @@ export function Production({ onOpen, reduced, onFocus }: { onOpen(slug: string, 
             </div>
           </figure>
         </>}
-        media={<p className="re-sw-at re-sw-cap" style={at(64, 669)}>Real product screens, invented data.</p>}
       >
         <div className="re-sw-at re-sw-copy" style={at(64, 749, 760)}>
           <h3>One shared library, checked before release.</h3>
@@ -413,12 +412,12 @@ export function Production({ onOpen, reduced, onFocus }: { onOpen(slug: string, 
         <Layers slug="design-system-react" place={at(852, 466, 516)} row />
         <div className="re-sw-at re-sw-act" style={at(962, 786, 350)}>
           <p className="re-sw-proof" data-numbers>41 components, 22 releases in 60 days.</p>
-          {caseLink('design-system-react')}
+          {caseLink('design-system-react', 'Design System v2')}
         </div>
       </Chapter>
 
       <Chapter
-        id="viva" nh={400} hs={52}
+        id="viva" nh={400}
         table={floor(626, 819, [[384, 714, 182, 53], [650, 721, 170, 48]])}
         slabs={<>
           <Slab shot={shots.cart} kind="companion" crop={[88, 298, 604, 1308]} place={[503, 154, 256]} phone={[192, 34, 165]} nh={400} transform="perspective(1700px) rotateY(5deg)" z={2} />
@@ -429,7 +428,7 @@ export function Production({ onOpen, reduced, onFocus }: { onOpen(slug: string, 
           <h3>Shipped grocery shopping on iOS and Android.</h3>
           <Meta name="Viva Fresh" role="Mobile · 2023" />
           <Reach href="https://play.google.com/store/apps/details?id=com.zs.vivafresh" />
-          {caseLink('viva-fresh')}
+          {caseLink('viva-fresh', 'Viva Fresh')}
         </div>
         <Layers slug="viva-fresh" place={at(64, 170, 175)} />
       </Chapter>

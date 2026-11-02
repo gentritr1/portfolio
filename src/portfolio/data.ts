@@ -3,6 +3,8 @@ export const BASE = ''
 export const HOME = '/'
 /** A plain left click: modified clicks keep the browser's own behaviour (new tab, new window). */
 export const plain = (e: { metaKey: boolean; ctrlKey: boolean; shiftKey: boolean; altKey: boolean; button: number }) => !(e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0)
+/** Every link arrow on the home page: → for a page of this site, ↗ for another site, at this one size and weight. */
+export const ARROW = { size: 20, weight: 'light', 'aria-hidden': true } as const
 
 /**
  * Content for The Refractive Engine. Projects come from Event Horizon's data (itself built from the site's
