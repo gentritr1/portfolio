@@ -1,8 +1,4 @@
-import { useState } from 'react'
-import { Container } from '../Container'
-import { StudioImage } from './StudioHero'
-import { studioShots } from './studioShots'
-
+// The layers each case shows under "The system behind the screen".
 interface Layer { title: string; stack: string; description: string }
 export const systems: Record<string, { title: string; layers: Layer[] }> = {
   'care-platform': { title: 'One platform.\nSeparate organizations.', layers: [
@@ -45,36 +41,4 @@ export const systems: Record<string, { title: string; layers: Layer[] }> = {
     { title: 'The art', stack: 'Blender · Python · Higgsfield', description: 'Scenery and craft from Blender build scripts and painted atlases; reference pictures and sound from Higgsfield.' },
     { title: 'The crew', stack: 'Claude · Codex · Validators', description: 'A planning Claude writes briefs, a building Claude and Codex build, and every phase is checked by re-running its tests.' },
   ] },
-}
-
-export function TechnicalDiagram({ slug }: { slug: string }) {
-  const [active, setActive] = useState(0)
-  const system = systems[slug]
-  const composition = studioShots[slug]
-  if (!system || !composition) return null
-  return (
-    <section id="technical-story" aria-labelledby="technical-title" className="technical-story">
-      <Container>
-        <div className="technical-heading"><h2 id="technical-title">{system.title.split('\n').map((line, index) => <span key={line}>{index > 0 && <br />}{line}</span>)}</h2><p>The system behind the screen</p></div>
-        <div className="technical-layout">
-          <div className="technical-diagram" aria-hidden data-selected={active} data-device={composition.device}>
-            <div className="technical-assembly">
-              {[2, 1, 0].map(index => <div key={index} className="technical-layer" data-layer={index} data-active={active === index}>
-                {index === 0 ? <div className="technical-screen"><StudioImage shot={composition.shots[0]} /></div> : <span className="technical-layer-stack">{system.layers[index].stack}</span>}
-                <span className="technical-layer-number">0{index + 1}</span>
-              </div>)}
-            </div>
-          </div>
-          <ol className="technical-notes">
-            {system.layers.map((layer, index) => <li key={layer.title}>
-              <button type="button" aria-pressed={active === index} onClick={() => setActive(index)} className="technical-note">
-                <span className="technical-note-number">0{index + 1}</span>
-                <span><span className="technical-note-title">{layer.title}</span><span className="technical-note-stack">{layer.stack}</span><span className="technical-note-body">{layer.description}</span></span>
-              </button>
-            </li>)}
-          </ol>
-        </div>
-      </Container>
-    </section>
-  )
 }

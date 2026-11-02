@@ -216,7 +216,7 @@ html.re-html { scroll-behavior: auto; scroll-padding-top: calc(5rem + env(safe-a
 .re-sw-slab[data-swipe] .re-sw-screen img { -webkit-user-select: none; -webkit-touch-callout: none; }
 .re-sw-thumbs { display: grid; gap: 6px; }
 .re-sw-thumb-row { display: flex; gap: 8px; }
-.re-sw-screen-label { font-size: 13px; line-height: 1.5; color: var(--re-fg-2); }
+.re-sw-screen-label { font-size: var(--re-t1); line-height: 1.5; color: var(--re-fg-2); }
 .re-sw-screen-label span { color: var(--re-dim); font-variant-numeric: tabular-nums; }
 .re-sw-thumbs button { all: unset; box-sizing: border-box; cursor: pointer; display: grid; grid-template-columns: minmax(0, 1fr); place-items: center; flex: 0 1 auto; min-width: 44px; min-height: 44px; opacity: 0.55; transition: opacity 150ms ease; }
 .re-sw-thumbs button[aria-pressed="true"] { opacity: 1; }

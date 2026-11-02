@@ -4,12 +4,22 @@
  */
 import { featuredProjects, type Readout } from "../content/projects"
 import { caseNarratives } from "../content/caseNarratives"
-import { systems as layersBySlug } from "../components/case/TechnicalDiagram"
-import { studioShots } from "../components/case/studioShots"
+import { systems as layersBySlug } from "./caseSystems"
 import { boards } from "./deliveryData"
 
 export { stations, steps, own, breadth, learned, ringProof, twinSteps, twinBase } from "./deliveryData"
 export { links } from "../content/links"
+
+const tints: Record<string, string> = {
+  'care-platform': '#3c807e',
+  'bayyinah-tv': '#a84430',
+  'read-to-feed': '#347b85',
+  'viva-fresh': '#aa353b',
+  'dukagjini-bookstore': '#2c5288',
+  'design-system-react': '#2454e8',
+  'incentiv': '#ad6036',
+  'futurisma': '#3a4f8f',
+}
 
 export interface Picture {
   src: string
@@ -70,7 +80,7 @@ export const systems: System[] = featuredProjects.map((p) => {
     readouts: p.featured?.readouts ?? [],
     texture: `/eh/${p.slug}.webp`,
     aspect: aspects[p.slug] ?? 1.6,
-    tint: studioShots[p.slug]?.colour ?? '#5fe3ff',
+    tint: tints[p.slug] ?? '#5fe3ff',
     story: narrative?.story && { product: plain(narrative.story.product), built: plain(narrative.story.built), result: plain(narrative.story.result) },
     facts: (narrative?.facts ?? []).map((f) => ({ label: f.label, value: plain(f.value) })),
     layers: layersBySlug[p.slug]?.layers ?? [],

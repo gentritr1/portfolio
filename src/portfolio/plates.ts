@@ -1,6 +1,6 @@
 /**
  * What each layer of a product shows when the chamber opens: two or three concepts and, only where one is documented, a proof.
- * Layer titles and technologies come from `System.layers` (src/components/case/TechnicalDiagram.tsx); this file adds no
+ * Layer titles and technologies come from `System.layers` (src/portfolio/caseSystems.ts); this file adds no
  * new facts. Every concept is a phrase from that layer's own description, and every proof is a readout from
  * src/content/projects.ts, framed as the kind of evidence it is. A product without a number stays complete without one.
  *
