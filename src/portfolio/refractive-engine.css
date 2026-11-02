@@ -297,10 +297,10 @@ html:has(.re-sw-sheet[open]) { overflow: hidden; overscroll-behavior: none; }
 @media (hover: hover) and (pointer: fine) { .re-sw:hover .re-sw-layers { opacity: 1; } }
 /* Between 1024 and 1279 px the Design System row has no room above the states strip; phones list it in the flow. */
 @media (min-width: 1024px) and (max-width: 1279px) { .re-sw-system .re-sw-layers { display: none; } }
-/* The same below 1320 for Read to Feed and care: the frame shrinks with the page, the 16 px words do not, and the copy
-   above reaches the row (overlap.mjs measured it to 1280 px). Wider, and on phones, the row is back. */
+/* The same for Read to Feed and care: the frame shrinks with the page, the 16 px words do not, and the copy above
+   reaches the row (overlap.mjs measured Read to Feed to 1280 px, care to 1337). Wider, and on phones, the row is back. */
 @media (min-width: 1024px) and (max-width: 1279px) { .re-sw-reading .re-sw-layers { display: none; } }
-@media (min-width: 1101px) and (max-width: 1319px) { .re-sw-care .re-sw-layers { display: none; } }
+@media (min-width: 1101px) and (max-width: 1339px) { .re-sw-care .re-sw-layers { display: none; } }
 /* Care: the four steps sit along the table's lit edge. */
 .re-sw-process { display: grid; grid-template-columns: repeat(4, 1fr); margin: 0; padding: 0; list-style: none; font-size: var(--re-t1); color: #d2d6de; }
 .re-sw-process::before {
@@ -310,6 +310,13 @@ html:has(.re-sw-sheet[open]) { overflow: hidden; overscroll-behavior: none; }
 }
 .re-sw-process li { position: relative; padding-top: 15px; }
 .re-sw-process li::before { content: ""; position: absolute; left: 0; top: -3px; width: 1px; height: 7px; background: #c4d3e0; }
+/* The case link under the steps keeps the 1440 frame's 52 px below the row (row at 790) at every width: scaled with the
+   frame, it closed to 1 px at 1024 and its shade blacked out the first labels (occlusion.mjs). The 54 px link then runs
+   past the frame's bottom (790 + 52 + 54 frame-px against 900), so the chapter makes that much room below it. */
+@media (min-width: 1024px) {
+  .re-sw-care .re-sw-act { top: max(var(--y), calc(790 * var(--u) + 52px)); }
+  .re-sw-care { margin-bottom: max(0px, calc(106px - 110 / 1440 * 100%)); }
+}
 /* Try the reader: the same recreation the chamber opens, in a modal dialog. */
 .re-sw-reader {
   width: min(92vw, calc(100vw - 2 * max(12px, env(safe-area-inset-left, 0px), env(safe-area-inset-right, 0px))), 880px);

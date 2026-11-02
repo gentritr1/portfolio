@@ -1,8 +1,9 @@
-import { useState, type CSSProperties } from 'react'
+import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { ArrowRightIcon } from '@phosphor-icons/react'
 import { ARROW, BASE, plain } from "./data"
 import { STAGE } from "./sceneSupport"
 import { cropVars, type Shot } from "./screens"
+import { useNearViewport } from "./useNearViewport"
 
 const LAYERS = [
   { name: 'Interface', text: 'Team requests, approvals and a shared calendar.' },
@@ -32,18 +33,29 @@ const TABLES: [table: string, tenant: boolean, columns: string][] = [
 
 /** The work is readable before the field loads. Each layer button brings that layer of Offday to the front of the stack. */
 export function HomeIntro({ onOpen, active }: { active: boolean; onOpen(slug: string, trigger: HTMLAnchorElement, keyboard: boolean): void }) {
+  // layer is the reader's pick (the buttons answer it at once); shown is the plate in front, which waits for its screen.
   const [layer, setLayer] = useState(0)
+  const [shown, setShown] = useState(0)
   const [instant, setInstant] = useState(false)
-  // Fetch the secondary screen only when a reader reaches for its controls.
-  const [armed, setArmed] = useState(false)
+  // Fetch the secondary screen once the stack is within a viewport, so a tap on a phone rarely waits for it.
+  const art = useRef<HTMLElement>(null)
+  const near = useNearViewport(art, '100%')
+  const rules = useRef<HTMLImageElement>(null)
   // The description animates only once a reader has changed the layer, never on the first paint.
   const [moved, setMoved] = useState(false)
   const choose = (i: number, keyboard: boolean) => {
-    setArmed(true)
     setMoved(true)
     setInstant(keyboard)
     setLayer(i)
+    if (i !== 1) setShown(i)
   }
+  // Server rules comes to the front only once its screen is decoded; until then the current plate stays.
+  useEffect(() => {
+    if (layer !== 1 || !rules.current) return
+    let live = true
+    rules.current.decode().catch(() => {}).then(() => { if (live) setShown(1) })
+    return () => { live = false }
+  }, [layer])
   return (
     <>
       <header id="re-top" className="re-intro re-own-item" data-stage={STAGE.hero} data-instant={instant || undefined} data-moved={moved || undefined}>
@@ -60,7 +72,7 @@ export function HomeIntro({ onOpen, active }: { active: boolean; onOpen(slug: st
         <div className="re-intro-product re-solid">
           <h2>Offday</h2>
           {/* The live region stays; the line inside it is replaced, so it is announced and can arrive with the plate. */}
-          <p className="re-intro-detail" aria-live="polite"><span key={layer}>{LAYERS[layer].text}</span></p>
+          <p className="re-intro-detail" aria-live="polite"><span key={shown}>{LAYERS[shown].text}</span></p>
           <p className="re-intro-credit">Own product, a working MVP built with one other developer</p>
           <a className="re-text-link" href={`${BASE}/offday`} onClick={(e) => {
             if (!plain(e)) return
@@ -69,15 +81,15 @@ export function HomeIntro({ onOpen, active }: { active: boolean; onOpen(slug: st
           }}>Read the Offday case <ArrowRightIcon {...ARROW} /></a>
         </div>
 
-        <figure className="re-intro-art" data-work="offday">
+        <figure ref={art} className="re-intro-art" data-work="offday">
           {/* Phones only: the product's name and status inside the first screen; its description and case link follow the stack. */}
           <p className="re-stk-status">Offday, a working MVP built with one other developer.</p>
           {/* Offday's layers as a stack of plates, Interface in front. data-d is each plate's depth from the chosen one. */}
           <div className="re-stk re-sw-lead">
             {LAYERS.map((item, i) => (
               // A plate behind the chosen one also takes a click on its visible edge; the buttons below are the keyboard way.
-              <div key={item.name} className="re-stk-plate" data-l={i} data-d={i - layer} aria-hidden={i !== layer || undefined}
-                onClick={i > layer ? () => choose(i, false) : undefined}>
+              <div key={item.name} className="re-stk-plate" data-l={i} data-d={i - shown} aria-hidden={i !== shown || undefined}
+                onClick={i > shown ? () => choose(i, false) : undefined}>
                 {i === 0 && (
                   <div className="re-stk-visual">
                     <img className="re-intro-ui" src="/showcase/offday/offday-desktop-calendar.webp" width={2880} height={1800}
@@ -85,9 +97,9 @@ export function HomeIntro({ onOpen, active }: { active: boolean; onOpen(slug: st
                       loading={active ? 'eager' : 'lazy'} fetchPriority={active ? 'high' : 'auto'} decoding="async" />
                   </div>
                 )}
-                {i === 1 && (armed || layer === 1) && (
+                {i === 1 && (near || layer === 1) && (
                   <div className="re-stk-visual">
-                    <img className="re-intro-rules" src={RULES.src} width={RULES.w} height={RULES.h} alt={RULES.alt} style={rulesCrop} loading="lazy" decoding="async" />
+                    <img ref={rules} className="re-intro-rules" src={RULES.src} width={RULES.w} height={RULES.h} alt={RULES.alt} style={rulesCrop} fetchPriority="low" decoding="async" />
                   </div>
                 )}
                 {i === 2 && (
@@ -105,8 +117,7 @@ export function HomeIntro({ onOpen, active }: { active: boolean; onOpen(slug: st
               </div>
             ))}
           </div>
-          <div className="re-stk-control" role="group" aria-label="Explore Offday's layers" style={{ '--i': layer } as CSSProperties}
-            onPointerEnter={() => setArmed(true)} onFocus={() => setArmed(true)}>
+          <div className="re-stk-control" role="group" aria-label="Explore Offday's layers" style={{ '--i': layer } as CSSProperties}>
             <span className="re-stk-thumb" aria-hidden="true" />
             {LAYERS.map((item, i) => (
               <button key={item.name} type="button" data-l={i} aria-pressed={layer === i} onClick={(e) => choose(i, e.detail === 0)}>{item.name}</button>
