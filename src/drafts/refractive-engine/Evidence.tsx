@@ -1,5 +1,5 @@
-import { ArrowUpRightIcon } from '@phosphor-icons/react'
-import { BASE, plain } from './data'
+import { ArrowRightIcon, ArrowUpRightIcon } from '@phosphor-icons/react'
+import { ARROW, BASE, plain } from './data'
 
 type OpenCase = (slug: string, trigger: HTMLAnchorElement, keyboard: boolean) => void
 
@@ -15,8 +15,8 @@ export function Evidence({ onOpen }: { onOpen: OpenCase }) {
             <h3>Tondo &amp; Za!</h3>
             <p className="re-engineering-decision">The server decides every move.</p>
             <p>Players send their intended move. A Node server checks the rules and sends each player the new state over WebSockets. Tondo keeps saved crews in PostgreSQL.</p>
-            <p className="re-engineering-meta">Own products · Node · WebSocket · PostgreSQL</p>
-            <a className="re-text-link" href="https://github.com/gentritr1/tondo" target="_blank" rel="noreferrer">Explore the code <ArrowUpRightIcon aria-hidden="true" size={17} /><span className="re-sr"> (opens in a new tab)</span></a>
+            <p className="re-engineering-meta"><span>Own products</span><span>Node, WebSocket, PostgreSQL</span></p>
+            <a className="re-text-link" href="https://github.com/gentritr1/tondo" target="_blank" rel="noreferrer">Explore the code <ArrowUpRightIcon {...ARROW} /><span className="re-sr"> (opens in a new tab)</span></a>
           </article>
           <article>
             <img className="re-backend-shot" src="/showcase/leakscan/leakscan-desktop-report.webp" width={2880} height={1800} alt="LeakScan's report for an invented app, showing findings and fixes. Invented data." loading="lazy" decoding="async" />
@@ -24,12 +24,12 @@ export function Evidence({ onOpen }: { onOpen: OpenCase }) {
             <h3>LeakScan</h3>
             <p className="re-engineering-decision">Verify ownership. Run the checks. Explain the findings.</p>
             <p>Domain verification, payments, scan jobs and rescans form one flow. Stored credentials are encrypted, can be deleted by the app’s owner, and expire after 14 days.</p>
-            <p className="re-engineering-meta">Built alone · Pre-launch · Next.js · Postgres</p>
+            <p className="re-engineering-meta"><span>Built alone · Pre-launch</span><span>Next.js, Postgres</span></p>
             <a className="re-text-link" href={`${BASE}/leakscan`} onClick={(e) => {
               if (!plain(e)) return
               e.preventDefault()
               onOpen('leakscan', e.currentTarget, e.detail === 0)
-            }}>Read the case <ArrowUpRightIcon aria-hidden="true" size={17} /></a>
+            }}>Read the LeakScan case <ArrowRightIcon {...ARROW} /></a>
           </article>
         </div>
       </section>
@@ -44,7 +44,7 @@ export function Evidence({ onOpen }: { onOpen: OpenCase }) {
             if (!plain(e)) return
             e.preventDefault()
             onOpen('care-platform', e.currentTarget, e.detail === 0)
-          }}>See the rewrite <ArrowUpRightIcon aria-hidden="true" size={17} /></a>
+          }}>See the rewrite <ArrowRightIcon {...ARROW} /></a>
           <p className="re-workflow-products">AI inside products, too: document chat, image generation and Offday’s workspace assistant.</p>
         </div>
       </section>
@@ -60,8 +60,7 @@ export function Evidence({ onOpen }: { onOpen: OpenCase }) {
             if (!plain(e)) return
             e.preventDefault()
             onOpen('futurisma', e.currentTarget, e.detail === 0)
-          }}>Read the Futurisma case <ArrowUpRightIcon aria-hidden="true" size={17} /></a>
-          <p className="re-engineering-meta">Based in Kosovo · Working remotely · Bachelor’s degree, UBT</p>
+          }}>Read the Futurisma case <ArrowRightIcon {...ARROW} /></a>
         </div>
       </section>
     </>

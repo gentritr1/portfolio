@@ -1,6 +1,6 @@
 import { ArrowRightIcon, ArrowUpRightIcon } from '@phosphor-icons/react'
 import { channelOrder, channels } from '../../content/channels'
-import { plain, BASE } from './data'
+import { ARROW, plain, BASE } from './data'
 import { cases, period, work } from './products'
 
 const CASES = new Set(cases.map((s) => s.slug))
@@ -49,20 +49,21 @@ export function AllWork({ onOpen }: { onOpen(slug: string): void }) {
             <ul className="re-all-rows">
               {work.filter((p) => p.channel === key).map((p) => {
                 const link = p.links[0]
+                // The name is the link: to the case, or to the project's first public page.
+                const name = CASES.has(p.slug) ? (
+                  <a href={`${BASE}/${p.slug}`} aria-label={`Read the ${p.name} case`} onClick={(e) => { if (!plain(e)) return; e.preventDefault(); onOpen(p.slug) }}>
+                    {p.name}<ArrowRightIcon {...ARROW} />
+                  </a>
+                ) : link ? (
+                  <a href={link.href} target="_blank" rel="noreferrer" aria-label={`${p.name}, ${link.label} (opens in a new tab)`}>
+                    {p.name}<ArrowUpRightIcon {...ARROW} />
+                  </a>
+                ) : p.name
                 return (
                   <li key={p.slug}>
-                    <p className="re-all-name">{p.name}</p>
+                    <p className="re-all-name">{name}</p>
                     <p className="re-all-meta re-num">{[p.years, p.role].filter(Boolean).join(' · ')}</p>
                     <p className="re-all-line">{p.line}</p>
-                    {CASES.has(p.slug) ? (
-                      <a className="re-all-go" href={`${BASE}/${p.slug}`} onClick={(e) => { if (!plain(e)) return; e.preventDefault(); onOpen(p.slug) }}>
-                        Read the case<ArrowRightIcon size={14} weight="regular" aria-hidden="true" />
-                      </a>
-                    ) : link ? (
-                      <a className="re-all-go" href={link.href} target="_blank" rel="noreferrer">
-                        {link.label}<ArrowUpRightIcon size={14} weight="regular" aria-hidden="true" /><span className="re-sr"> (opens in a new tab)</span>
-                      </a>
-                    ) : null}
                   </li>
                 )
               })}

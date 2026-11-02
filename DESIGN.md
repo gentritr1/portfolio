@@ -192,6 +192,28 @@ The authored recreations retain their scoped `data-world` palettes, and legacy c
 
 ## Typography
 
+### Home page (the Refractive Engine)
+
+One face, Archivo, in five sizes. They are defined once as custom properties on `.re-root` (`src/drafts/refractive-engine/refractive-engine.css`) and nothing else is used outside product screens (anything inside a `<figure>`). Each step is at least 1.25× the one below.
+
+| Token | Above 1100 px | 1100 px and below | Role |
+|---|---|---|---|
+| `--re-t1` | 16 px | 16 px | Body, meta lines, captions, sources, links. The floor: no text outside a product screen is smaller. |
+| `--re-t2` | 20 px | 20 px | Lead: the role line, the evidence links, small titles (Tondo & Za!, a ledger row). |
+| `--re-t3` | 28 px | 28 px | Small heading: a product's name in the intro, an engineering decision. |
+| `--re-t4` | 40 px | 28 px | Section headings and the five selected-work headlines, all one size. |
+| `--re-t5` | 56 px | 36 px | The h1, the largest text at every width (phones stay in the 32–40 px range). |
+
+- **Tracking:** letter-spacing is 0 everywhere on the home page; no negative tracking.
+- **Where a larger size crowds a line, cut words**, never drop below `--re-t1`.
+- **Section rhythm:** each section pads its top and bottom by `--re-pad` (48 px, 32 px at 1100 px and below), so every pair of sections is 96 px (64 px) apart, on the 4-pt scale.
+- **Regression check:** `design/quality/refractive/census.mjs <url> --assert` reads computed styles at 1440, 1024 and 390 and fails on a sixth size, a close step, negative tracking, text under 16 px, more than one selected-work headline size, an off-scale section padding or repeated link labels.
+- **Known exceptions, inside figures:** the plate names on the Offday stack (13 px, they must fit the 22 px peek) and the drawn schema on its Data plate count as product screen.
+
+### Case pages and the earlier system
+
+The case pages still use `src/styles/globals.css` and the roles in the frontmatter above, including their negative tracking tokens; they have not been moved to this scale yet.
+
 **Display and body:** Archivo variable, served locally from `/fonts/Archivo.woff2`. **Metadata:** Martian Mono variable, served locally from `/fonts/MartianMono.woff2`. Both use `font-display: swap`. Archivo replaces the former third body face; there is no remote font request.
 
 The type system is a compact sans-led index with larger, more open product headings. Archivo's width axis is purposeful: project names in the index use a condensed width (82%), while the intro uses normal width. Existing generic case headings may inherit the wider heading width. Martian Mono is used for small numbers, dates, technologies and control hints, not long text.
