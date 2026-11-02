@@ -98,7 +98,7 @@ function Layered({ name, layers, hero, caption, ar, nar, width }: {
   return (
     <div className="sh-layered" data-instant={instant || undefined} style={{ '--ar': ar, '--nar': nar, ...(width ? { '--stack-w': `${width}px` } : {}) } as CSSProperties}>
       {ledger}
-      <figure ref={art} className={hero ? 're-intro-art sh-art' : 'sh-art'}>
+      <figure ref={art} className={hero ? 're-intro-art sh-art' : 'sh-art'} data-work={hero ? 'offday' : undefined}>
         <div className="re-stk">
           {built.map((i) => {
             const p = plate(i), d = depth(i)
@@ -126,7 +126,7 @@ function Layered({ name, layers, hero, caption, ar, nar, width }: {
               choose(i, e.detail === 0)
             }}>Try again</button></span>
           : loading ? <span role="status">Loading the {NAMES[layer].toLowerCase()} screen…</span>
-          : caption}</figcaption>
+          : isImg(plate(shown)) ? caption : null}</figcaption>
       </figure>
     </div>
   )
@@ -154,7 +154,7 @@ const OFFDAY: [Layer, Layer, Layer] = [
   },
 ]
 
-const NOT_MINE = { absent: 'Not my layer' }
+const NOT_MINE = { absent: 'Not in this role' }
 
 type Project = {
   id: string; name: string; headline: string; meta: string; role: string; proof: ReactNode; extra?: ReactNode
@@ -172,12 +172,12 @@ const reach = (href: string) => (
 const PROJECTS: Project[] = [
   {
     id: 'care', name: 'Care-management platform', headline: 'Rebuilding a care platform, one tested screen at a time.',
-    meta: 'Web + backend · A team effort · 2023–26',
-    role: 'Frontend on the Vue app since 2023, then the move to React and the rules and merge gates it runs inside; the Laravel API since 2026.',
+    meta: 'A team effort · 2023–26',
+    role: 'Web and mobile; since 2026 also the server',
     proof: <p className="sh-proof">One billing report: 16 queries → 2<small>It no longer times out. One report, not the whole API.</small></p>,
     extra: <ol className="sh-process" aria-label="How each screen moves over"><li>Test the existing screen</li><li>AI agents build</li><li>Run the checks</li><li>A person approves</li></ol>,
     layers: [
-      { line: 'The Vue app since 2023; now moving to React one route at a time, with parity tests.', plate: { ...shots.calendar, phoneCrop: [440, 380, 1100, 960] } },
+      { line: 'The Vue app since 2023; the team now moves it to React one route at a time, with parity tests.', plate: { ...shots.calendar, phoneCrop: [440, 380, 1100, 960] } },
       {
         line: 'The Laravel API since 2026: tenant boundaries, enrollment drafts, a lab catalog.',
         plate: <TextPlate title="The Laravel API · since 2026" rows={[
@@ -187,7 +187,7 @@ const PROJECTS: Project[] = [
           ['Report', '16 queries → 2; it no longer times out.'],
         ]} foot="Tests on Pest, against MySQL and Redis." />,
       },
-      NOT_MINE,
+      { absent: 'Not in this role; the report fix was in the API' },
     ],
     ar: 1.6, nar: 1.146, caption: 'React rewrite in progress. Real product screens, invented data.',
     link: { slug: 'care-platform', label: 'Read the care-management platform case' },
@@ -196,7 +196,7 @@ const PROJECTS: Project[] = [
     id: 'bayyinah', name: 'Bayyinah TV', headline: 'Rebuilt a live learning platform.', meta: 'Frontend · 2023–2026',
     role: 'Frontend, on the core team of the rebuild.',
     proof: reach('https://play.google.com/store/apps/details?id=com.zombiesoup.bayyinah'),
-    layers: [{ line: 'The Nuxt 3 rebuild: 34 routes, 270+ components, English and Arabic with a full right-to-left layout.', plate: { ...shots.landing, crop: [0, 0, 2880, 1420], phoneCrop: [40, 400, 1400, 1000] } }, NOT_MINE, NOT_MINE],
+    layers: [{ line: 'Live and on-demand video, subscriptions and English/Arabic support across web and mobile, for an existing audience.', plate: { ...shots.landing, crop: [0, 0, 2880, 1420], phoneCrop: [40, 400, 1400, 1000] } }, NOT_MINE, NOT_MINE],
     ar: 2880 / 1420, nar: 1.4, link: { slug: 'bayyinah-tv', label: 'Read the Bayyinah TV case' },
   },
   {
@@ -210,7 +210,7 @@ const PROJECTS: Project[] = [
     id: 'system', name: 'Design System v2', headline: 'One shared library, checked before release.', meta: 'A team effort · 2026',
     role: 'Frontend developer on the team that builds it.',
     proof: <p className="sh-proof">41 components, 22 releases in 60 days.<small>An app that imports only Button: 186,949 → 6,386 bytes of JavaScript.</small></p>,
-    layers: [{ line: 'Tokens and components: 868 design values generate CSS, TypeScript and Figma.', plate: { ...shots.matrix, crop: [1280, 145, 1780, 1430] } }, { absent: 'None: a component library' }, { absent: 'None: a component library' }],
+    layers: [{ line: "The team's shared library: 868 design values generate CSS, TypeScript and Figma.", plate: { ...shots.matrix, crop: [1280, 145, 1780, 1430] } }, { absent: 'None: a component library' }, { absent: 'None: a component library' }],
     ar: 1780 / 1430, nar: 1780 / 1430, width: 560, link: { slug: 'design-system-react', label: 'Read the Design System v2 case' },
   },
   {
@@ -221,7 +221,7 @@ const PROJECTS: Project[] = [
     ar: 604 / 880, nar: 604 / 880, width: 300, link: { slug: 'viva-fresh', label: 'Read the Viva Fresh case' },
   },
   {
-    id: 'tondo', name: 'Tondo & Za!', headline: 'The server checks every move.', meta: 'Own products · 2026',
+    id: 'tondo', name: 'Tondo', headline: 'The server checks every move.', meta: "Own product · 2026 · Reuses Za!'s multiplayer server",
     role: 'Owner.',
     proof: <p className="sh-proof">Live, server-authoritative<small>Bots fill empty seats; saved crews outlive a room.</small></p>,
     layers: [
@@ -342,7 +342,7 @@ export default function SwitchHome() {
         <section id="re-work" className="sh-work" aria-labelledby="sh-work-h">
           <div className="sh-work-head">
             <h2 id="sh-work-h" className="re-h2">Selected work, layer by layer</h2>
-            <p className="re-lede">Each project shows only the layers I built. The others are named, not claimed.</p>
+            <p className="re-lede">Each project shows only the layers its role covered. The others are named, not claimed.</p>
           </div>
           {PROJECTS.map((p) => (
             <article key={p.id} id={`work-${p.id}`} className="sh-row" aria-labelledby={`sh-${p.id}-h`}>
