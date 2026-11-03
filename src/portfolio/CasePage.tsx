@@ -11,6 +11,7 @@ import { FullSize, type FullSizeHandle } from "./FullSize"
 import { BASE, INVENTED } from "./data"
 import { cases } from "./products"
 import { useScreenSwipe } from "./useScreenSwipe"
+import { pixelReveal } from "./pixelReveal"
 
 type Vars = CSSProperties & Record<`--${string}`, string | number>
 
@@ -214,7 +215,7 @@ function Gallery({ items, slug, at, instant, setAt, mark, decisions }: {
       >
         <div className="re-sw-screen re-cs-stage-screen" id="re-cs-panel" role="tabpanel" aria-labelledby={`re-cs-tab-${at}`} data-swap data-instant={instant || undefined}>
           {items.map((it, i) => (i === at || armed) && (
-            <img key={it.src} src={it.src} width={it.width} height={it.height} alt={i === at ? it.alt : ''} aria-hidden={i !== at || undefined}
+            <img key={it.src} ref={armed ? undefined : pixelReveal} src={it.src} width={it.width} height={it.height} alt={i === at ? it.alt : ''} aria-hidden={i !== at || undefined}
               data-on={i === at || undefined} draggable={false} loading="lazy" decoding="async" />
           ))}
           {m && (
@@ -281,6 +282,90 @@ function Gallery({ items, slug, at, instant, setAt, mark, decisions }: {
       </ol>
       <FullSize ref={full} src={g.src} w={g.width} h={g.height} alt={g.alt} label={g.caption || undefined} step={(d) => pick(at + d, true)}
         refocus={() => row.current?.querySelector<HTMLElement>('[aria-selected="true"]')?.focus()} />
+    </div>
+  )
+}
+
+/**
+ * Phone screens without their store art: the app's own area of each store frame (780 × 1689, in its pixels), in the
+ * order the app is used, with one line each, taken from the frame's own description.
+ */
+const APP: Record<string, { crop: Rect; line: string }> = {
+  '/mobile/reading-1.webp': { crop: [100, 540, 580, 1060], line: 'Reading progress for each book' },
+  '/mobile/reading-3.webp': { crop: [100, 440, 580, 1060], line: 'The chapter reader, with a Keep Reading sheet' },
+  '/mobile/reading-2.webp': { crop: [100, 600, 580, 1060], line: 'Eggs collected and quiz badges' },
+  '/mobile/reading-4.webp': { crop: [100, 629, 580, 1060], line: 'Each egg earned helps a child in need' },
+  '/mobile/grocery-1.webp': { crop: [100, 380, 580, 1060], line: 'Product categories and the latest products' },
+  '/mobile/grocery-2.webp': { crop: [100, 380, 580, 1060], line: 'One category, with the cart total' },
+  '/mobile/grocery-3.webp': { crop: [100, 380, 580, 1060], line: 'Quantities, discount and checkout' },
+  '/mobile/bookstore-1.webp': { crop: [108, 714, 564, 975], line: 'Book search, top categories and books on sale' },
+  '/mobile/bookstore-2.webp': { crop: [108, 714, 564, 975], line: 'Ratings, prices and favourites' },
+  '/mobile/bookstore-3.webp': { crop: [108, 714, 564, 975], line: 'Favourite lists and book categories' },
+}
+const order = Object.keys(APP)
+/** The frames' captions name the device too ("Home, iPhone"); the loop is all one phone. */
+const name = (p: Picture) => p.caption.replace(/, iPhone$/, '')
+
+/**
+ * A phone app's screens as one loop, all in view at once: side by side on a desktop, a swipeable row with the next one
+ * peeking in on phones. Each screen opens at full size; a screen that carries a decision shows its marker.
+ */
+function Loop({ items, slug, at, setAt, mark, decisions }: {
+  items: Picture[]; slug: string; at: number; setAt(i: number, instant: boolean): void; mark: Mark; decisions: string[]
+}) {
+  const full = useRef<FullSizeHandle>(null)
+  const row = useRef<HTMLOListElement>(null)
+  const shots = [...items].sort((a, b) => order.indexOf(a.src) - order.indexOf(b.src))
+  // `at` indexes `items`; the loop shows them in the app's order.
+  const g = items[at] ?? items[0]
+  const here = shots.indexOf(g)
+  // "Show on screen" picks a screen: on phones bring it into the row's view, sideways only.
+  useEffect(() => {
+    const r = row.current, b = r?.children[here] as HTMLElement | undefined
+    if (!r || !b || r.scrollWidth <= r.clientWidth) return
+    r.scrollTo({ left: b.offsetLeft - r.offsetLeft - parseFloat(getComputedStyle(r).scrollPaddingLeft || '0'), behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' })
+  }, [here])
+  const step = (d: number) => setAt(items.indexOf(shots[(here + d + shots.length) % shots.length]), true)
+  return (
+    <div className="re-cs-loop-wrap">
+      <ol ref={row} className="re-cs-loop" style={{ '--n': shots.length } as Vars}>
+        {shots.map((it) => {
+          const { crop, line } = APP[it.src]
+          const m = MARKERS[it.src]?.slug === slug ? MARKERS[it.src] : undefined
+          const open = !!m && (mark.lit === m.decision || mark.pinned === m.decision)
+          const shot = { src: it.src, alt: it.alt, w: it.width, h: it.height }
+          return (
+            <li key={it.src}>
+              <figure className="re-cs-loop-card">
+                <div className="re-cs-loop-shot">
+                  <div className="re-sw-screen" style={{ ...cropVars(shot, crop), ...cropVars(shot, crop, 'n') } as Vars}>
+                    <img ref={pixelReveal} src={it.src} width={it.width} height={it.height} alt={it.alt} draggable={false} loading="lazy" decoding="async" />
+                  </div>
+                  <button type="button" className="re-sw-real" aria-label={`${name(it)}, at full size`} onClick={() => { setAt(items.indexOf(it), false); full.current?.open() }} />
+                  {m && (
+                    <button
+                      type="button" className="re-cs-mark" aria-expanded={open} aria-controls="re-cs-mark-text"
+                      aria-label="The decision on this screen" data-open={open || undefined} data-side={(m.x - crop[0]) / crop[2] > 0.6 ? 'left' : 'right'} data-up={m.up || undefined}
+                      style={{ left: `${((m.x - crop[0]) / crop[2]) * 100}%`, top: `${((m.y - crop[1]) / crop[3]) * 100}%` }}
+                      onPointerEnter={(e) => { if (e.pointerType === 'mouse') mark.setLit(m.decision) }} onPointerLeave={() => mark.setLit(null)}
+                      onFocus={() => mark.setLit(m.decision)} onBlur={() => mark.setLit(null)}
+                      onClick={() => mark.pin(mark.pinned === m.decision ? null : m.decision)}
+                    >
+                      <span className="re-cs-mark-label" aria-hidden="true">{decisions[m.decision]}</span>
+                    </button>
+                  )}
+                </div>
+                <figcaption><span className="re-cs-loop-name">{name(it)}</span>{line}</figcaption>
+              </figure>
+            </li>
+          )
+        })}
+      </ol>
+      {shots.map((it) => {
+        const m = MARKERS[it.src]?.slug === slug ? MARKERS[it.src] : undefined
+        return m && <p key={it.src} id="re-cs-mark-text" className="re-cs-mark-text" hidden={!(mark.lit === m.decision || mark.pinned === m.decision)}>{decisions[m.decision]}</p>
+      })}
+      <FullSize ref={full} src={g.src} w={g.width} h={g.height} alt={g.alt} label={g.caption || undefined} step={step} />
     </div>
   )
 }
@@ -489,7 +574,9 @@ export function CasePage({ slug, rest = true, onBack }: { slug: string; rest?: b
           <section ref={stage} className="re-cs-screens" aria-labelledby="re-screens-h">
             <h2 id="re-screens-h" className="re-cs-h2">Screens</h2>
             {s.gallery.some((g) => g.alt.includes('Invented data')) && <p className="re-case-note re-num">Real product screens, invented data.</p>}
-            <Gallery items={s.gallery} slug={slug} at={Math.min(shown, s.gallery.length - 1)} instant={instant} setAt={setShown} mark={mark} decisions={c?.decision ?? []} />
+            {s.gallery.every((g) => APP[g.src])
+              ? <Loop items={s.gallery} slug={slug} at={Math.min(shown, s.gallery.length - 1)} setAt={setShown} mark={mark} decisions={c?.decision ?? []} />
+              : <Gallery items={s.gallery} slug={slug} at={Math.min(shown, s.gallery.length - 1)} instant={instant} setAt={setShown} mark={mark} decisions={c?.decision ?? []} />}
           </section>
         )}
 
