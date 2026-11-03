@@ -42,132 +42,8 @@
 .re-intro-copy h1 span { display: block; }
 .re-intro-role { margin-top: 22px !important; font-size: var(--re-t2); line-height: 1.35; }
 .re-intro-bio { margin-top: 14px !important; color: var(--re-fg-2); font-size: 16px; line-height: 1.5; }
-/* Wide: the stack covers the right 64 % beside these lines, so they wrap 32 px short of it. */
-@media (min-width: 1101px) { .re-intro-copy :is(.re-intro-role, .re-intro-bio) { max-width: calc(36% - 32px); } }
 .re-intro-links { display: flex; flex-wrap: wrap; gap: 0 24px; margin-top: 10px; }
 .re-intro-links a { color: var(--re-accent); }
-.re-intro-product { position: absolute; z-index: 2; bottom: 16px; left: var(--re-gutter); width: 27%; }
-.re-intro-product h2 { margin-top: 10px; font: 400 var(--re-t4)/1.12 var(--re-sans); letter-spacing: 0; }
-.re-intro-detail { margin-top: 14px !important; min-height: 4.5em; max-width: 27ch; font-size: 16px; line-height: 1.5; color: var(--re-fg-2); }
-.re-intro-credit { color: var(--re-dim); font-size: 16px; line-height: 1.5; }
-.re-intro-product > a { margin-top: 10px; }
-.re-intro-art {
-  position: absolute; right: var(--re-gutter); bottom: 20px; width: calc((100% - 2 * var(--re-gutter)) * 0.64); min-width: 0; z-index: 1;
-  display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; column-gap: 24px;
-}
-
-/* Offday's three layers as a stack of real plates, Interface in front and Data at the back. Choosing a layer moves the
-   whole stack along its diagonal, a dolly through the layers: the chosen plate comes forward from where it sat, the plates
-   behind it stay in view and dimmed, the ones in front fly past the viewer and go. Transitions, so a second click retargets
-   mid-move. */
-.re-stk {
-  --sx: 22px; --sy: 22px; --tilt: perspective(1600px) rotateY(-4deg) rotateX(2deg);
-  /* The move's curve: critically damped, the chapters' settle shape (owner's pick over a 1.5% overshoot spring,
-     2026-10-31). It leaves at full speed, so the plate answers the click on the first frame (an ease-in-out waits), and
-     lands at zero velocity. Sampled into linear(); 94% of the way at 60% of the time. Browsers without linear() get the
-     strong ease-out. */
-  --move-curve: cubic-bezier(0.23, 1, 0.32, 1); --move-time: 480ms;
-  grid-column: 1 / -1; position: relative; margin-top: 52px; aspect-ratio: 2.05;
-}
-@supports (transition-timing-function: linear(0, 1)) {
-  .re-stk { --move-curve: linear(0, 0.0293, 0.099, 0.1886, 0.2853, 0.3807, 0.4704, 0.5519, 0.624, 0.6869, 0.7408, 0.7865, 0.825, 0.8572, 0.8838, 0.9058, 0.9238, 0.9385, 0.9505, 0.9603, 0.9682, 0.9745, 0.9797, 0.9838, 0.9871, 0.9897, 0.9918, 0.9935, 1); }
-}
-.re-stk-plate {
-  --tx: 0px; --ty: 0px; --ts: 1; --hy: 0px;
-  position: absolute; inset: 0; z-index: 3; overflow: hidden; border-radius: 9px; background: #f7f5f5;
-  box-shadow: 18px 26px 54px -24px rgb(0 0 0 / 0.8), 0 0 0 1px rgb(255 255 255 / 0.07);
-  transform: var(--tilt) translate(var(--tx), var(--ty)) scale(var(--ts));
-  /* The hover lift is a property of its own, so a preview answers in 150 ms while a move takes 480 ms. */
-  translate: 0 var(--hy);
-  /* An arriving plate clears its blur and comes to full ink fast (ease-out), while the move itself takes the curve. */
-  transition: transform var(--move-time) var(--move-curve), translate 150ms var(--re-ease), opacity 220ms var(--re-ease), filter 220ms var(--re-ease);
-  /* Three compositor layers from the start, so the first frame of a move is not spent promoting them. */
-  will-change: transform, opacity;
-}
-/* Behind the chosen plate: dimmed, so its edge reads as depth and the front stays the subject. */
-.re-stk-plate::after { content: ""; position: absolute; inset: 0; z-index: 1; background: #050508; opacity: 0; pointer-events: none; transition: opacity 300ms var(--re-ease); }
-.re-stk-plate[data-d="1"] { --tx: var(--sx); --ty: calc(-1 * var(--sy)); --ts: 0.985; z-index: 2; }
-.re-stk-plate[data-d="2"] { --tx: calc(2 * var(--sx)); --ty: calc(-2 * var(--sy)); --ts: 0.97; z-index: 1; }
-.re-stk-plate[data-d="1"]::after { opacity: 0.5; }
-.re-stk-plate[data-d="2"]::after { opacity: 0.66; }
-/* In front of the chosen plate: flying past the viewer, out of focus, gone in 160 ms (an exit is quicker than an entrance),
-   so a screen never dissolves in place over the next one. Hidden once gone, so it costs nothing at rest. */
-.re-stk-plate[data-d="-1"] { --tx: calc(-1.6 * var(--sx)); --ty: calc(1.8 * var(--sy)); --ts: 1.06; z-index: 4; }
-.re-stk-plate[data-d="-2"] { --tx: calc(-3.2 * var(--sx)); --ty: calc(3.6 * var(--sy)); --ts: 1.12; z-index: 5; }
-.re-stk-plate[data-d^="-"] {
-  opacity: 0; filter: blur(6px); visibility: hidden; pointer-events: none;
-  transition: transform var(--move-time) var(--move-curve), translate 150ms var(--re-ease), opacity 160ms var(--re-ease), filter 160ms var(--re-ease), visibility 0s 160ms;
-}
-/* A plate behind takes a click on its edge; a pointer over it, or over its button, lifts it as a preview. */
-@media (hover: hover) and (pointer: fine) {
-  .re-stk-plate:is([data-d="1"], [data-d="2"]) { cursor: pointer; }
-  .re-stk-plate:is([data-d="1"], [data-d="2"]):hover,
-  .re-intro-art:has(.re-stk-control button[data-l="1"]:hover) .re-stk-plate[data-l="1"]:is([data-d="1"], [data-d="2"]),
-  .re-intro-art:has(.re-stk-control button[data-l="2"]:hover) .re-stk-plate[data-l="2"]:is([data-d="1"], [data-d="2"]) { --hy: -8px; }
-  .re-stk-plate:is([data-d="1"], [data-d="2"]):hover::after,
-  .re-intro-art:has(.re-stk-control button[data-l="1"]:hover) .re-stk-plate[data-l="1"]:is([data-d="1"], [data-d="2"])::after,
-  .re-intro-art:has(.re-stk-control button[data-l="2"]:hover) .re-stk-plate[data-l="2"]:is([data-d="1"], [data-d="2"])::after { opacity: 0.3; }
-}
-/* The description changes with its plate, once a reader has moved the stack: a short fade that never blanks the line, so
-   rapid clicks restart nothing a reader can see jump. */
-.re-intro-detail > span { display: block; }
-.re-intro[data-moved]:not([data-instant]) .re-intro-detail > span { animation: re-detail-in 160ms var(--re-ease) both; }
-@keyframes re-detail-in { from { opacity: 0.35; } }
-/* A plate behind the chosen one names itself on the corner that peeks out; elsewhere the name would cover a screen. */
-.re-stk-name {
-  position: absolute; top: 0; right: 0; z-index: 2; padding: 2px 10px 3px; border-bottom-left-radius: 7px;
-  background: #11151b; color: var(--re-fg-2); font-size: 13px; line-height: 17px; white-space: nowrap;
-  transition: opacity 200ms ease;
-}
-.re-stk-plate:not([data-d="1"], [data-d="2"]) .re-stk-name { opacity: 0; }
-.re-intro-ui { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: top; }
-.re-stk-visual { position: absolute; inset: 0; overflow: hidden; }
-.re-stk-status { display: none; }
-
-/* The layer control: one segmented row under the stack, front to back left to right like the plates; the thumb slides. */
-.re-stk-control {
-  position: relative; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 22px; padding: 2px;
-  border-radius: 999px; background: rgb(255 255 255 / 0.035); box-shadow: inset 0 0 0 1px var(--re-line);
-}
-.re-stk-thumb {
-  position: absolute; top: 2px; bottom: 2px; left: 2px; width: calc((100% - 4px) / 3); border-radius: 999px;
-  background: rgb(255 255 255 / 0.1); box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.08);
-  transform: translateX(calc(var(--i) * 100%)); transition: transform 220ms var(--re-ease);
-}
-.re-stk-control button {
-  position: relative; appearance: none; border: 0; background: none; cursor: pointer; min-height: 44px; padding: 0 18px;
-  border-radius: 999px; color: var(--re-fg-2); font: 400 var(--re-t1)/1 var(--re-sans); white-space: nowrap;
-  transition: color 150ms ease, transform 160ms var(--re-ease);
-}
-.re-stk-control button[aria-pressed="true"] { color: var(--re-fg); }
-/* The press is felt before the stack moves. */
-.re-stk-control button:active { transform: scale(0.97); }
-.re-stk-control button:focus-visible { outline: 2px solid var(--re-accent); outline-offset: -2px; }
-@media (hover: hover) and (pointer: fine) { .re-stk-control button[aria-pressed="false"]:hover { color: var(--re-fg); } }
-/* A key press switches at once: keyboard actions do not animate. */
-.re-intro[data-instant] :is(.re-stk-plate, .re-stk-thumb, .re-stk-name, .re-stk-control button), .re-intro[data-instant] .re-stk-plate::after { transition: none; }
-/* Server rules: the privacy card, cut by the crop variables (wide cut here, the card alone below 1100 px). */
-.re-intro-rules { position: absolute; left: var(--sl); top: var(--st); width: var(--sw); height: auto; max-width: none; }
-/* Data: the schema as type on the page's own ground; org_id carries the accent, the column that keeps companies apart. */
-.re-intro-tables {
-  position: absolute; inset: 0; display: grid; align-content: center; justify-content: center; gap: 16px; padding: 6% 7%;
-  background: #12161d; color: var(--re-fg-2); font-size: 18px; line-height: 1.45;
-}
-.re-intro-tables > p { color: var(--re-dim); font-size: 14px; }
-.re-intro-tables dl { display: grid; }
-/* Rows ruled like a table viewer's. */
-.re-intro-tables dl > div { display: grid; grid-template-columns: 8.5em minmax(0, 1fr); gap: 16px; padding: 7px 0; border-top: 1px solid rgb(255 255 255 / 0.07); }
-.re-intro-tables dl > div:last-child { border-bottom: 1px solid rgb(255 255 255 / 0.07); }
-.re-intro-tables dt { color: var(--re-fg); }
-.re-intro-tables b { font-weight: 400; color: var(--re-accent); }
-.re-intro-art figcaption { margin-top: 22px; text-align: right; font-size: var(--re-t1); line-height: 1.5; color: var(--re-dim); }
-/* A screen still loading, or one that failed (with its retry: a 44 px target that reads as a text link), is named in the caption. */
-.re-intro-art figcaption :is([role="alert"], [role="status"]) { color: var(--re-fg-2); }
-.re-stk-retry {
-  all: unset; display: inline-flex; align-items: center; min-height: 44px; vertical-align: middle; cursor: pointer;
-  color: var(--re-accent); text-decoration: underline; text-underline-offset: 4px;
-}
-.re-stk-retry:focus-visible { outline: 2px solid var(--re-accent); outline-offset: 2px; border-radius: 4px; }
 
 .re-evidence { position: relative; max-width: 1440px; margin: 0 auto; padding: 0 var(--re-gutter) var(--re-pad); }
 .re-evidence ul { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin-top: 18px; }
@@ -236,20 +112,9 @@ html.re-html { scroll-padding-top: 80px; scrollbar-color: #59616b #080a0d; }
   .re-nav .re-nav-about { display: none; }
   .re-intro { display: grid; min-height: auto; max-width: none; padding-top: calc(96px + env(safe-area-inset-top, 0px)); grid-template-columns: minmax(0, 1fr); grid-template-areas: 'copy' 'art' 'product'; gap: 20px; }
   .re-intro-copy { grid-area: copy; }
-  .re-intro-copy h1 span { display: inline; }
   .re-intro-copy h1 { max-width: none; line-height: 1.1; text-wrap: pretty; }
   .re-intro-role { margin-top: 20px !important; }
   .re-intro-bio { max-width: 40ch; }
-  .re-intro-art { grid-area: art; position: relative; right: auto; bottom: auto; width: 100%; }
-  /* Flat and tighter on narrow screens; the corner names need the 22 px peek of the wide stack, so the control alone names the layers. */
-  .re-stk { --sx: 10px; --sy: 10px; --tilt: perspective(1600px) rotateY(0deg) rotateX(0deg); margin-top: 22px; aspect-ratio: 1.55; }
-  .re-stk-name { display: none; }
-  .re-intro-ui { inset: auto; width: 157%; height: auto; max-width: none; top: -5%; left: -23%; }
-  .re-intro-rules { left: var(--nsl); top: var(--nst); width: var(--nsw); }
-  .re-stk-control, .re-intro-art figcaption { grid-column: 1 / -1; }
-  .re-intro-art figcaption { margin-top: 12px; text-align: left; }
-  .re-intro-product { grid-area: product; position: relative; left: auto; bottom: auto; width: auto; padding-bottom: 16px; }
-  .re-intro-detail { min-height: 4.5em; max-width: 38ch; margin-top: 10px !important; }
   .re-evidence ul { grid-template-columns: 1fr 1fr; gap: 28px 20px; }
   .re-evidence li { border: 0; padding: 0; }
   .re-root .re-shade { background: linear-gradient(180deg, rgb(5 5 8 / 0.88), rgb(5 5 8 / 0.55) 50%, rgb(5 5 8 / 0.3)); }
@@ -263,28 +128,8 @@ html.re-html { scroll-padding-top: 80px; scrollbar-color: #59616b #080a0d; }
   .re-disclosure-caret { grid-column: 2; grid-row: 1; }
 }
 @media (min-width: 761px) and (max-width: 1100px) {
-  .re-intro { grid-template-columns: 0.7fr 1.3fr; grid-template-areas: 'copy copy' 'product art'; gap: 28px; }
+  .re-intro { grid-template-columns: minmax(0, 1fr); grid-template-areas: 'copy' 'art'; gap: 28px; }
   .re-intro-copy h1 { max-width: 18em; }
-  .re-intro-art { align-self: start; }
-  .re-stk { --sx: 14px; --sy: 14px; aspect-ratio: 1.6; }
-  .re-intro-tables { font-size: 15px; }
-  .re-intro-tables dl > div { padding: 5px 0; }
-  .re-intro-ui { width: 100%; height: auto; left: 0; top: 0; }
-}
-@media (max-width: 760px) {
-  .re-stk-status { display: block; grid-column: 1 / -1; color: var(--re-fg-2); font-size: 16px; line-height: 1.45; }
-  /* Room for the back plates, which peek 17 px above the stack. */
-  .re-stk-status + .re-stk { margin-top: 28px; }
-  /* The longest layer sets the shared height, even while hidden behind another plate. Text can wrap without clipping
-     or shifting the controls on selection. Screens keep their original crop, centred inside the taller plate. */
-  .re-stk { display: grid; aspect-ratio: auto; min-height: calc((100vw - 2 * var(--re-gutter)) / 1.55); }
-  .re-stk-plate { position: relative; inset: auto; grid-area: 1 / 1; min-width: 0; }
-  .re-stk-visual { inset: auto 0; top: 50%; translate: 0 -50%; aspect-ratio: 1.55; }
-  .re-intro-tables { position: relative; min-height: 100%; gap: 8px; padding: 16px; font-size: 13px; }
-  .re-intro-credit { display: none; }
-  .re-stk-control button { padding: 0 8px; }
-  .re-intro-tables > p { font-size: 13px; }
-  .re-intro-tables dl > div { grid-template-columns: 7.5em minmax(0, 1fr); gap: 10px; padding: 3px 0; }
 }
 @media (max-width: 360px) {
   .re-nav { gap: 0; }
@@ -294,10 +139,6 @@ html.re-html { scroll-padding-top: 80px; scrollbar-color: #59616b #080a0d; }
 @media (prefers-reduced-motion: reduce) {
   .re-root .re-canvas { transition: none; }
   .re-disclosure-caret, .re-eng-caret { transition: none; }
-  /* Every state stays, the travel goes: plates and thumb jump to their places, fades stay short, nothing blurs or lifts. */
-  .re-stk-plate, .re-stk-plate::after, .re-stk-thumb { transition: opacity 120ms ease; }
-  .re-stk-plate[data-d^="-"] { filter: none; transition: opacity 120ms ease, visibility 0s 120ms; }
-  .re-stk-plate { --hy: 0px !important; }
 }
 
 /* The headline's empty box must not intercept the product's layer controls. */
@@ -318,3 +159,65 @@ html.re-html { scroll-padding-top: 80px; scrollbar-color: #59616b #080a0d; }
   max-width: none; margin-inline: 0; padding-inline: max(var(--re-gutter), calc((100% - 1440px) / 2 + var(--re-gutter)));
 }
 .re-root .re-contact { justify-content: flex-start; }
+
+/* ---------- The hero's focus pull (owner chose it over the exploded stack, 2026-11-03) ---------- */
+/* Side by side from 1024 px at 0.9 : 1.1: measured at 1024 × 768, 1180 × 800 and 1280 × 800, the headline, role, screen and
+   one-line tabs all end above the fold (fixed 560 px words left the screen 446 px at 1180 and cramped the tabs). Below
+   1024 the screen would drop under 420 px and the tabs wrap, so tablets stack. */
+@media (min-width: 1024px) {
+  .re-intro { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); grid-template-areas: "copy art"; align-items: center; column-gap: 40px; }
+  .re-intro .re-fh { grid-area: art; }
+}
+/* Four lines in 560 px: pretty keeps "Web and mobile" together, balance keeps "release." from standing alone. */
+.re-intro-copy h1 { text-wrap: pretty; }
+.re-intro-copy h1 span + span { color: var(--re-fg-2); text-wrap: balance; }
+@media (max-width: 1023px) { .re-intro .re-fh { margin-top: 12px; } }
+.re-fh-note { color: var(--re-dim); font-size: 16px; line-height: 1.5; }
+.re-fh { display: grid; gap: 20px; }
+.re-fh-screen { position: relative; display: block; aspect-ratio: 16 / 10; overflow: hidden; border-radius: 14px; background: #0b0b10; box-shadow: 0 40px 120px rgb(0 0 0 / 0.6), 0 0 0 1px rgb(255 255 255 / 0.08); }
+.re-fh-screen img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.re-fh-screen[data-portrait] img { object-fit: contain; object-position: 50% 50% !important; }
+/* The dotted copy: the page's own 9 px dot grid, cut from the screen. */
+.re-fh-dots { filter: grayscale(1) contrast(1.5) brightness(0.85); mask: radial-gradient(#000 1.6px, transparent 2.2px) 0 0 / 9px 9px; animation: re-fh-in 180ms cubic-bezier(0.23, 1, 0.32, 1) both; }
+@keyframes re-fh-in { from { opacity: 0; } }
+/* The pull: the sharp copy uncovers left to right behind the seam, then rests. */
+.re-fh-sharp { animation: re-fh-pull 1100ms cubic-bezier(0.22, 1, 0.36, 1) 350ms both; }
+.re-fh-seam { position: absolute; inset: 0; pointer-events: none; animation: re-fh-seam 1100ms cubic-bezier(0.22, 1, 0.36, 1) 350ms both; }
+.re-fh-seam::after { content: ''; position: absolute; top: 0; bottom: 0; right: 0; width: 2px; background: var(--re-accent); box-shadow: 0 0 24px 4px var(--re-accent-mid); }
+@keyframes re-fh-pull { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+@keyframes re-fh-seam { 0% { transform: translateX(-100%); opacity: 1; } 85% { opacity: 1; } 100% { transform: translateX(0); opacity: 0; } }
+.re-fh[data-reduced] .re-fh-sharp, .re-fh[data-reduced] .re-fh-seam { animation: none; }
+.re-fh[data-reduced] .re-fh-seam { display: none; }
+.re-fh-screen[data-how='pick'] .re-fh-sharp, .re-fh-screen[data-how='pick'] .re-fh-seam { animation-duration: 700ms; animation-delay: 0ms; }
+.re-fh-screen[data-settled] .re-fh-sharp { animation: none; clip-path: none; }
+/* Reduced motion keeps a 160 ms fade and no movement; a key press swaps at once. */
+.re-fh[data-reduced] .re-fh-sharp { animation: re-fh-in 160ms ease-out both; }
+.re-fh[data-reduced] .re-fh-dots, .re-fh-screen[data-how='key'] .re-fh-dots { animation: none; }
+.re-fh-screen[data-settled] .re-fh-seam { display: none; }
+.re-fh-open { position: absolute; left: 12px; bottom: 12px; max-width: calc(100% - 24px); display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; white-space: nowrap; border-radius: 999px; background: rgb(5 5 8 / 0.86); color: var(--re-fg); font-size: 16px; opacity: 0; translate: 0 6px; transition: opacity 150ms ease-out, translate 150ms ease-out; }
+.re-fh-screen:focus-visible { outline: 2px solid var(--re-accent); outline-offset: 4px; }
+.re-fh-screen:focus-visible .re-fh-open { opacity: 1; translate: 0 0; }
+@media (hover: hover) and (pointer: fine) { .re-fh-screen:hover .re-fh-open { opacity: 1; translate: 0 0; } }
+/* The shown product's name and years sit under its screen at every width, one line; the tabs carry only the area, so
+   no tab ever wraps a long product name into a narrow column (owner, 2026-11-03: "cramped" at 1280). */
+.re-fh-name { margin: -8px 0 0; font-size: 16px; line-height: 1.4; color: var(--re-fg); }
+.re-fh-name span { color: var(--re-fg-2); }
+.re-fh-strip li button > span + span { display: none; }
+@media (max-width: 760px) {
+  .re-fh-open { display: none; }
+}
+.re-fh-strip { display: flex; align-items: stretch; gap: 12px; }
+.re-fh-strip ol { flex: 1; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 0; padding: 0; list-style: none; }
+.re-fh-strip li button { transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1); position: relative; width: 100%; min-height: 44px; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 12px 0 4px; border: 0; border-top: 2px solid rgb(255 255 255 / 0.14); background: none; color: var(--re-fg-2); font: 400 16px/1.3 var(--re-sans); text-align: left; cursor: pointer; }
+.re-fh-strip li button > span:first-child { color: var(--re-fg); }
+.re-fh-strip li button[aria-pressed='true'] { border-top-color: var(--re-accent); color: var(--re-fg); }
+.re-fh-strip li button:focus-visible { outline: 2px solid var(--re-accent); outline-offset: 4px; border-radius: 4px; }
+.re-fh-timer { position: absolute; top: -2px; left: 0; height: 2px; width: 100%; background: var(--re-fg); transform-origin: left; animation: re-fh-timer 4200ms linear both; }
+@keyframes re-fh-timer { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+.re-fh-strip li button:active, .re-fh-pause:active { transform: scale(0.97); }
+.re-fh-pause { transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1); flex: none; width: 44px; height: 44px; align-self: center; display: grid; place-items: center; border: 1px solid rgb(255 255 255 / 0.18); border-radius: 999px; background: none; color: var(--re-fg); cursor: pointer; }
+.re-fh-pause:focus-visible { outline: 2px solid var(--re-accent); outline-offset: 2px; }
+@media (max-width: 760px) {
+  .re-fh-strip ol { grid-template-columns: 1fr 1fr; gap: 4px 12px; }
+  /* On a phone the areas are one 44 px row each, and the screen names its product itself: no hover to reveal it. */
+}

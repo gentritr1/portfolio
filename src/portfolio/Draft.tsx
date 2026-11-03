@@ -376,6 +376,7 @@ export default function Draft() {
     })
   }, [caseSlug])
 
+  const pulse = useCallback((x: number, y: number) => sceneRef.current?.ripple(x, y), [])
   const focusField = useCallback((x: number, y: number, r: number, w: number) => sceneRef.current?.setFocus(x, y, r, w), [])
   // The browser bar takes the page's own ground, not the site's sky colour for the time of day.
   useEffect(() => {
@@ -463,7 +464,7 @@ export default function Draft() {
       {caseSlug && <CasePage slug={caseSlug} rest={caseRest} onBack={() => toHome()} />}
 
       {(hasVisitedHome || !caseSlug) && <main hidden={caseSlug !== undefined}>
-        <HomeIntro onOpen={toCase} active={caseSlug === undefined} />
+        <HomeIntro onOpen={toCase} reduced={reduced} onPulse={pulse} />
 
         <Production onOpen={toCase} reduced={reduced} onFocus={focusField} />
 

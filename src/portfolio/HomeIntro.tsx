@@ -1,162 +1,58 @@
-import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { ArrowRightIcon } from '@phosphor-icons/react'
-import { ARROW, BASE, plain } from "./data"
+import { channels, type ChannelKey } from '../content/channels'
+import { ARROW } from "./data"
+import { cases } from "./products"
 import { STAGE } from "./sceneSupport"
-import { cropVars, type Shot } from "./screens"
-import { useNearViewport } from "./useNearViewport"
-
-const LAYERS = [
-  { name: 'Interface', text: 'Team requests, approvals and a shared calendar.' },
-  { name: 'Server rules', text: 'Roles and organization membership are checked on the server.' },
-  { name: 'Data', text: 'SQLite stores workspaces, requests and balances.' },
-]
+import { FocusHero, type FocusItem } from "./FocusHero"
 
 /**
- * Server rules: Offday's own privacy section (capture manifest: design/selected-work-concepts/offday-shots), cut to the
- * request card in its Teammate view. Wide frames take a 2.05 cut, narrower ones a 1.55 cut around the card alone.
+ * The four screens the hero pulls into focus, one at a time (owner chose the focus pull over the exploded Offday stack,
+ * 2026-11-03). Three areas from the audience line, then Offday, the own product the stack used to show.
  */
-const RULES: Shot = {
-  src: '/showcase/offday/offday-landing-security.webp', w: 2880, h: 1800,
-  alt: "Offday's privacy section: Sofia's vacation request as a teammate sees it, with the dates and her private note locked. Invented data.",
-}
-// The wide cut starts at x 1280: the section's paragraph ends at 1264 and would show as a sliver at the left edge.
-const rulesCrop = { ...cropVars(RULES, [1280, 226, 1558, 760]), ...cropVars(RULES, [1451, 239, 1130, 729], 'n') } as CSSProperties
-
-/** Data: Offday's tables as its schema declares them (Offday dacf3ab, lib/store.ts), a few columns each. */
-const TABLES: [table: string, tenant: boolean, columns: string][] = [
-  ['organizations', false, 'id · name · allowance'],
-  ['employees', true, 'department · allowance'],
-  ['users', true, 'role: manager or employee'],
-  ['requests', true, 'start · end · status · note'],
-  ['shifts', true, 'employee_id · date'],
+const SCREENS: { slug: string; key?: ChannelKey; area?: string; years?: string; img: FocusItem['img']; pos?: string }[] = [
+  { slug: 'care-platform', key: 'healthcare', img: ['/eh/care-platform.webp', 1280, 800] },
+  { slug: 'bayyinah-tv', key: 'streaming', img: ['/eh/bayyinah-tv.webp', 1280, 800] },
+  // The store image opens on a banner; 42% down is the app itself (logo, My Books, the reading cards).
+  { slug: 'read-to-feed', key: 'reading', img: ['/mobile/reading-1.webp', 780, 1689], pos: '50% 42%' },
+  { slug: 'offday', area: 'Own product', years: '2026', img: ['/showcase/offday/offday-desktop-calendar.webp', 2880, 1800] },
 ]
-
-/** The work is readable before the field loads. Each layer button brings that layer of Offday to the front of the stack. */
-export function HomeIntro({ onOpen, active }: { active: boolean; onOpen(slug: string, trigger: HTMLAnchorElement, keyboard: boolean): void }) {
-  // layer is the reader's pick (the buttons answer it at once); shown is the plate in front, which waits for its screen.
-  const [layer, setLayer] = useState(0)
-  const [shown, setShown] = useState(0)
-  const [instant, setInstant] = useState(false)
-  // Fetch the secondary screen once the stack is within a viewport, so a tap on a phone rarely waits for it.
-  const art = useRef<HTMLElement>(null)
-  const near = useNearViewport(art, '100%')
-  const rules = useRef<HTMLImageElement>(null)
-  const control = useRef<HTMLDivElement>(null)
-  // broken: the screen's request failed; a reader's next pick of the layer mounts a fresh image (a new request).
-  const [broken, setBroken] = useState(false)
-  const [failed, setFailed] = useState(false)
-  // slow: the screen is still on its way a second after the pick, so the caption says it is loading.
-  const [slow, setSlow] = useState(false)
-  // The description animates only once a reader has changed the layer, never on the first paint.
-  const [moved, setMoved] = useState(false)
-  const choose = (i: number, keyboard: boolean) => {
-    setMoved(true)
-    setInstant(keyboard)
-    setFailed(false)
-    setSlow(false)
-    setLayer(i)
-    if (i !== 1) setShown(i)
-    else if (broken) setBroken(false)
+const ITEMS: FocusItem[] = SCREENS.map((s) => {
+  const name = cases.find((c) => c.slug === s.slug)?.name ?? s.slug
+  return {
+    slug: s.slug, name, img: s.img, pos: s.pos, alt: `${name}, a real screen`,
+    area: s.area ?? (s.key ? channels[s.key].label : ''),
+    years: s.years ?? (s.key ? channels[s.key].period : null),
   }
-  // Server rules comes to the front the moment its screen is decoded; until then the current plate stays, however long
-  // the download takes. Only a failed request goes back to the plate in front, and the caption says so. Picking another
-  // layer meanwhile cancels the wait.
-  const fail = () => { setLayer(shown); setFailed(true) }
-  useEffect(() => {
-    if (layer !== 1 || shown === 1 || broken || !rules.current) return
-    let live = true
-    const late = setTimeout(() => { if (live) setSlow(true) }, 1000)
-    rules.current.decode().then(() => { if (live) setShown(1) }, () => { if (live) { setLayer(shown); setFailed(true) } })
-    return () => { live = false; clearTimeout(late) }
-  }, [layer, broken, shown])
-  const loading = slow && layer === 1 && shown !== 1
+})
+
+/** The claim and who it is for on the left, the focus pull on the right. The words are readable before the field loads. */
+export function HomeIntro({ onOpen, reduced, onPulse }: {
+  reduced: boolean; onPulse?(x: number, y: number): void
+  onOpen(slug: string, trigger: HTMLAnchorElement, keyboard: boolean): void
+}) {
   return (
     <>
-      <header id="re-top" className="re-intro re-own-item" data-stage={STAGE.hero} data-instant={instant || undefined} data-moved={moved || undefined}>
-        <div className="re-intro-copy re-solid">
-          <h1 tabIndex={-1}><span>I build web and mobile products,</span>{' '}<span>from interface to backend.</span></h1>
-          <p className="re-intro-role">Software engineer: frontend, backend and mobile</p>
-          <p className="re-intro-bio">5+ years shipping web and mobile products.<br />Mostly for healthcare teams, learning platforms and consumer apps.<br />Based in Kosovo, working remotely.</p>
-          <div className="re-intro-links">
-            <a className="re-text-link" href="#re-results">Results <ArrowRightIcon {...ARROW} /></a>
-            <a className="re-text-link" href="#re-about">How I work <ArrowRightIcon {...ARROW} /></a>
-          </div>
+    <header id="re-top" className="re-intro" data-stage={STAGE.hero}>
+      <div className="re-intro-copy re-solid">
+        <h1 tabIndex={-1}><span>Web and mobile products.</span>{' '}<span>From the first screen to release.</span></h1>
+        <p className="re-intro-role">Software engineer: frontend, backend and mobile</p>
+        <p className="re-intro-bio">5+ years shipping web and mobile products.<br />Mostly for healthcare teams, learning platforms and consumer apps.<br />Based in Kosovo, working remotely.</p>
+        <div className="re-intro-links">
+          <a className="re-text-link" href="#re-results">Results <ArrowRightIcon {...ARROW} /></a>
+          <a className="re-text-link" href="#re-about">How I work <ArrowRightIcon {...ARROW} /></a>
         </div>
+      </div>
+      <FocusHero items={ITEMS} reduced={reduced} onPulse={onPulse} onOpen={(slug, a) => onOpen(slug, a, false)} note="Real product screens, invented data." />
+    </header>
 
-        <div className="re-intro-product re-solid">
-          <h2>Offday</h2>
-          {/* The live region stays; the line inside it is replaced, so it is announced and can arrive with the plate. */}
-          <p className="re-intro-detail" aria-live="polite"><span key={shown}>{LAYERS[shown].text}</span></p>
-          <p className="re-intro-credit">Own product, a working MVP built with one other developer</p>
-          <a className="re-text-link" href={`${BASE}/offday`} onClick={(e) => {
-            if (!plain(e)) return
-            e.preventDefault()
-            onOpen('offday', e.currentTarget, e.detail === 0)
-          }}>Read the Offday case <ArrowRightIcon {...ARROW} /></a>
-        </div>
-
-        <figure ref={art} className="re-intro-art" data-work="offday">
-          {/* Phones only: the product's name and status inside the first screen; its description and case link follow the stack. */}
-          <p className="re-stk-status">Offday, a working MVP built with one other developer.</p>
-          {/* Offday's layers as a stack of plates, Interface in front. data-d is each plate's depth from the chosen one. */}
-          <div className="re-stk re-sw-lead">
-            {LAYERS.map((item, i) => (
-              // A plate behind the chosen one also takes a click on its visible edge; the buttons below are the keyboard way.
-              <div key={item.name} className="re-stk-plate" data-l={i} data-d={i - shown} aria-hidden={i !== shown || undefined}
-                onClick={i > shown ? () => choose(i, false) : undefined}>
-                {i === 0 && (
-                  <div className="re-stk-visual">
-                    <img className="re-intro-ui" src="/showcase/offday/offday-desktop-calendar.webp" width={2880} height={1800}
-                      alt="Offday's October team calendar, leave bars and manager approval queue. Invented data."
-                      loading={active ? 'eager' : 'lazy'} fetchPriority={active ? 'high' : 'auto'} decoding="async" />
-                  </div>
-                )}
-                {i === 1 && (near || layer === 1) && !broken && (
-                  <div className="re-stk-visual">
-                    <img ref={rules} className="re-intro-rules" src={RULES.src} width={RULES.w} height={RULES.h} alt={RULES.alt} style={rulesCrop} fetchPriority="low" decoding="async" onError={() => { setBroken(true); if (layer === 1) fail() }} />
-                  </div>
-                )}
-                {i === 2 && (
-                  <div className="re-intro-tables">
-                    <p>Offday's tables · SQLite</p>
-                    <dl>
-                      {TABLES.map(([table, tenant, columns]) => (
-                        <div key={table}><dt>{table}</dt><dd>{tenant && <b>org_id</b>}{tenant && ' · '}{columns}</dd></div>
-                      ))}
-                    </dl>
-                    <p>From lib/store.ts. Company records carry an org_id.</p>
-                  </div>
-                )}
-                <span className="re-stk-name">{item.name}</span>
-              </div>
-            ))}
-          </div>
-          <div ref={control} className="re-stk-control" role="group" aria-label="Explore Offday's layers" style={{ '--i': layer } as CSSProperties}>
-            <span className="re-stk-thumb" aria-hidden="true" />
-            {LAYERS.map((item, i) => (
-              <button key={item.name} type="button" data-l={i} aria-pressed={layer === i} onClick={(e) => choose(i, e.detail === 0)}>{item.name}</button>
-            ))}
-          </div>
-          {/* Beside the switch, where a reader is looking: a failed screen is named there, with a way to try again. */}
-          <figcaption>{failed
-            ? <span role="alert">Couldn't load the server rules screen. <button type="button" className="re-stk-retry" onClick={(e) => {
-                // The message goes as the retry starts; focus moves to the layer's own button rather than to the page.
-                control.current?.querySelector<HTMLButtonElement>('[data-l="1"]')?.focus()
-                choose(1, e.detail === 0)
-              }}>Try again</button></span>
-            : loading ? <span role="status">Loading the server rules screen…</span>
-            : 'Real product screens, invented data.'}</figcaption>
-        </figure>
-      </header>
-
-      <nav className="re-evidence re-solid" aria-label="Across the stack">
-        <ul>
-          <li><a href="#work-care">Care platform <ArrowRightIcon {...ARROW} /></a><p>Web + backend · care workflows, permissions</p></li>
-          <li><a href="#work-bayyinah">Bayyinah TV <ArrowRightIcon {...ARROW} /></a><p>Frontend · streaming, English + Arabic</p></li>
-          <li><a href="#re-backend">Tondo + LeakScan <ArrowRightIcon {...ARROW} /></a><p>Backend · realtime servers, scan jobs</p></li>
-          <li><a href="#work-reading">Read to Feed <ArrowRightIcon {...ARROW} /></a><p>Mobile · about 14 store releases</p></li>
-        </ul>
-      </nav>
+    <nav className="re-evidence re-solid" aria-label="Across the stack">
+      <ul>
+        <li><a href="#work-care">Care platform <ArrowRightIcon {...ARROW} /></a><p>Web + backend · care workflows, permissions</p></li>
+        <li><a href="#work-bayyinah">Bayyinah TV <ArrowRightIcon {...ARROW} /></a><p>Frontend · streaming, English + Arabic</p></li>
+        <li><a href="#re-backend">Tondo + LeakScan <ArrowRightIcon {...ARROW} /></a><p>Backend · realtime servers, scan jobs</p></li>
+        <li><a href="#work-reading">Read to Feed <ArrowRightIcon {...ARROW} /></a><p>Mobile · about 14 store releases</p></li>
+      </ul>
+    </nav>
     </>
   )
 }

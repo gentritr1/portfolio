@@ -1,0 +1,211 @@
+[
+ {
+  "name": "desktop",
+  "w": 1440,
+  "h": 900,
+  "steps": [
+   {
+    "scrollTo": "#re-top"
+   },
+   {
+    "wait": 1800
+   },
+   {
+    "eval": "(() => { if (!(!!document.querySelector('.re-fh-screen[data-settled]') && getComputedStyle(document.querySelector('.re-fh-sharp')).clipPath === 'none')) throw new Error(\"first screen not settled sharp\" + ' ' + JSON.stringify({ clip: getComputedStyle(document.querySelector('.re-fh-sharp')).clipPath, settled: !!document.querySelector('.re-fh-screen[data-settled]') })); return { clip: getComputedStyle(document.querySelector('.re-fh-sharp')).clipPath, settled: !!document.querySelector('.re-fh-screen[data-settled]') } })()"
+   },
+   {
+    "shot": "desktop-rest"
+   },
+   {
+    "wait": 3000
+   },
+   {
+    "eval": "(() => { if (!([...document.querySelectorAll('.re-fh-strip li button')].findIndex(b => b.getAttribute('aria-pressed') === 'true') >= 1)) throw new Error(\"did not turn to the next area\" + ' ' + JSON.stringify({ at: [...document.querySelectorAll('.re-fh-strip li button')].findIndex(b => b.getAttribute('aria-pressed') === 'true') })); return { at: [...document.querySelectorAll('.re-fh-strip li button')].findIndex(b => b.getAttribute('aria-pressed') === 'true') } })()"
+   },
+   {
+    "tap": ".re-fh-strip li:nth-child(3) button"
+   },
+   {
+    "wait": 50
+   },
+   {
+    "eval": "(() => { const a = [...document.getAnimations()].filter(a => /^re-fh-(pull|seam)$/.test(a.animationName)); const t = a.map(x => x.effect.getTiming()); if (!(a.length === 2 && t.every(x => x.duration === 700 && x.delay === 0))) throw new Error('click sweep is not 700 ms with no delay ' + JSON.stringify(t)); return t.map(x => [x.duration, x.delay]) })()"
+   },
+   {
+    "eval": "(() => { if (!([...document.querySelectorAll('.re-fh-strip li button')].findIndex(b => b.getAttribute('aria-pressed') === 'true') === 2 && document.querySelector('.re-fh-pause').getAttribute('aria-label') === 'Play the screens' && [...document.getAnimations()].filter(a => /^re-fh-(pull|seam)$/.test(a.animationName)).length === 2 && !!!document.querySelector('.re-fh-screen[data-settled]'))) throw new Error(\"pick did not start a sweep and stop the turn\" + ' ' + JSON.stringify({ at: [...document.querySelectorAll('.re-fh-strip li button')].findIndex(b => b.getAttribute('aria-pressed') === 'true'), anims: [...document.getAnimations()].filter(a => /^re-fh-(pull|seam)$/.test(a.animationName)).length, settled: !!document.querySelector('.re-fh-screen[data-settled]') })); return { at: [...document.querySelectorAll('.re-fh-strip li button')].findIndex(b => b.getAttribute('aria-pressed') === 'true'), anims: [...document.getAnimations()].filter(a => /^re-fh-(pull|seam)$/.test(a.animationName)).length, settled: !!document.querySelector('.re-fh-screen[data-settled]') } })()"
+   },
+   {
+    "wait": 1800
+   },
+   {
+    "eval": "(() => { if (!(!!document.querySelector('.re-fh-screen[data-settled]') && getComputedStyle(document.querySelector('.re-fh-sharp')).clipPath === 'none' && [...document.querySelectorAll('.re-fh-strip li button')].findIndex(b => b.getAttribute('aria-pressed') === 'true') === 2)) throw new Error(\"picked screen not settled\" + ' ' + JSON.stringify({ at: [...document.querySelectorAll('.re-fh-strip li button')].findIndex(b => b.getAttribute('aria-pressed') === 'true'), clip: getComputedStyle(document.querySelector('.re-fh-sharp')).clipPath })); return { at: [...document.querySelectorAll('.re-fh-strip li button')].findIndex(b => b.getAttribute('aria-pressed') === 'true'), clip: getComputedStyle(document.querySelector('.re-fh-sharp')).clipPath } })()"
+   },
+   {
+    "shot": "desktop-picked"
+   },
+   {
+    "eval": "(() => { const t = document.querySelector('.re-intro').innerText; const r = { lab: !!document.querySelector('#re-lab, .re-lab, #re-map, .re-stk'), evidence: document.querySelectorAll('.re-evidence li').length, facts: /Software engineer: frontend, backend and mobile/.test(t) && /From the first screen to release/.test(t) && /Kosovo/.test(t), note: !!document.querySelector('.re-fh-note') }; if (r.lab || r.evidence !== 4 || !r.facts || !r.note) throw new Error('hero broken ' + JSON.stringify(r)); return r })()"
+   },
+   {
+    "eval": "(document.querySelector('.re-fh-strip li:nth-child(4) button').focus(), true)"
+   },
+   {
+    "key": "Enter"
+   },
+   {
+    "wait": 50
+   },
+   {
+    "eval": "(() => { const a = [...document.getAnimations()].filter(a => /^re-fh-(pull|seam)$/.test(a.animationName)).filter(x => x.playState === 'running'); const ok = [...document.querySelectorAll('.re-fh-strip li button')].findIndex(b => b.getAttribute('aria-pressed') === 'true') === 3 && a.length === 0 && !!document.querySelector('.re-fh-screen[data-settled][data-how=key]') && getComputedStyle(document.querySelector('.re-fh-sharp')).clipPath === 'none'; if (!ok) throw new Error('keyboard pick animated ' + JSON.stringify({ at: [...document.querySelectorAll('.re-fh-strip li button')].findIndex(b => b.getAttribute('aria-pressed') === 'true'), running: a.length })); return { at: [...document.querySelectorAll('.re-fh-strip li button')].findIndex(b => b.getAttribute('aria-pressed') === 'true'), running: a.length } })()"
+   }
+  ]
+ },
+ {
+  "name": "reduced",
+  "w": 1440,
+  "h": 900,
+  "reduced": true,
+  "steps": [
+   {
+    "scrollTo": "#re-top"
+   },
+   {
+    "wait": 300
+   },
+   {
+    "eval": "(() => { if (!(!document.querySelector('.re-fh-pause') && [...document.getAnimations()].filter(a => /^re-fh-(pull|seam)$/.test(a.animationName)).length === 0 && getComputedStyle(document.querySelector('.re-fh-sharp')).clipPath === 'none')) throw new Error(\"reduced motion still sweeps\" + ' ' + JSON.stringify({ anims: [...document.getAnimations()].filter(a => /^re-fh-(pull|seam)$/.test(a.animationName)).length, clip: getComputedStyle(document.querySelector('.re-fh-sharp')).clipPath })); return { anims: [...document.getAnimations()].filter(a => /^re-fh-(pull|seam)$/.test(a.animationName)).length, clip: getComputedStyle(document.querySelector('.re-fh-sharp')).clipPath } })()"
+   },
+   {
+    "wait": 4800
+   },
+   {
+    "eval": "(() => { if (!([...document.querySelectorAll('.re-fh-strip li button')].findIndex(b => b.getAttribute('aria-pressed') === 'true') === 0)) throw new Error(\"reduced motion still turns\" + ' ' + JSON.stringify({ at: [...document.querySelectorAll('.re-fh-strip li button')].findIndex(b => b.getAttribute('aria-pressed') === 'true') })); return { at: [...document.querySelectorAll('.re-fh-strip li button')].findIndex(b => b.getAttribute('aria-pressed') === 'true') } })()"
+   }
+  ]
+ },
+ {
+  "name": "nogl",
+  "w": 1440,
+  "h": 900,
+  "nogl": true,
+  "steps": [
+   {
+    "scrollTo": "#re-top"
+   },
+   {
+    "wait": 1800
+   },
+   {
+    "eval": "(() => { if (!(!!document.querySelector('.re-fh-screen[data-settled]') && getComputedStyle(document.querySelector('.re-fh-sharp')).clipPath === 'none')) throw new Error(\"no-WebGL hero not sharp\" + ' ' + JSON.stringify({ clip: getComputedStyle(document.querySelector('.re-fh-sharp')).clipPath })); return { clip: getComputedStyle(document.querySelector('.re-fh-sharp')).clipPath } })()"
+   },
+   {
+    "shot": "nogl-rest"
+   }
+  ]
+ },
+ {
+  "name": "phone",
+  "w": 375,
+  "h": 812,
+  "mobile": true,
+  "steps": [
+   {
+    "scrollTo": "#re-top"
+   },
+   {
+    "wait": 1800
+   },
+   {
+    "eval": "(() => { if (!(document.documentElement.scrollWidth === 375 && [...document.querySelectorAll('.re-fh-strip li button'), document.querySelector('.re-fh-pause')].every(b => b.getBoundingClientRect().height >= 44 && b.getBoundingClientRect().width >= 44))) throw new Error(\"phone overflow or small target\" + ' ' + JSON.stringify({ sw: document.documentElement.scrollWidth, strip: Math.round(document.querySelector('.re-fh-strip').getBoundingClientRect().bottom) })); return { sw: document.documentElement.scrollWidth, strip: Math.round(document.querySelector('.re-fh-strip').getBoundingClientRect().bottom) } })()"
+   },
+   {
+    "shot": "phone-rest"
+   }
+  ]
+ },
+ {
+  "name": "keyboard",
+  "w": 1440,
+  "h": 900,
+  "steps": [
+   {
+    "scrollTo": "#re-top"
+   },
+   {
+    "eval": "(document.activeElement.blur(), true)"
+   },
+   {
+    "key": "Tab"
+   },
+   {
+    "eval": "(() => { const a = document.activeElement; const r = a.getBoundingClientRect(); return [a.className || a.tagName, (a.innerText || a.getAttribute('aria-label') || '').split('\\n')[0].slice(0, 24), r.width > 0 && r.height > 0] })()"
+   },
+   {
+    "key": "Tab"
+   },
+   {
+    "eval": "(() => { const a = document.activeElement; const r = a.getBoundingClientRect(); return [a.className || a.tagName, (a.innerText || a.getAttribute('aria-label') || '').split('\\n')[0].slice(0, 24), r.width > 0 && r.height > 0] })()"
+   },
+   {
+    "key": "Tab"
+   },
+   {
+    "eval": "(() => { const a = document.activeElement; const r = a.getBoundingClientRect(); return [a.className || a.tagName, (a.innerText || a.getAttribute('aria-label') || '').split('\\n')[0].slice(0, 24), r.width > 0 && r.height > 0] })()"
+   },
+   {
+    "key": "Tab"
+   },
+   {
+    "eval": "(() => { const a = document.activeElement; const r = a.getBoundingClientRect(); return [a.className || a.tagName, (a.innerText || a.getAttribute('aria-label') || '').split('\\n')[0].slice(0, 24), r.width > 0 && r.height > 0] })()"
+   },
+   {
+    "key": "Tab"
+   },
+   {
+    "eval": "(() => { const a = document.activeElement; const r = a.getBoundingClientRect(); return [a.className || a.tagName, (a.innerText || a.getAttribute('aria-label') || '').split('\\n')[0].slice(0, 24), r.width > 0 && r.height > 0] })()"
+   },
+   {
+    "key": "Tab"
+   },
+   {
+    "eval": "(() => { const a = document.activeElement; const r = a.getBoundingClientRect(); return [a.className || a.tagName, (a.innerText || a.getAttribute('aria-label') || '').split('\\n')[0].slice(0, 24), r.width > 0 && r.height > 0] })()"
+   },
+   {
+    "key": "Tab"
+   },
+   {
+    "eval": "(() => { const a = document.activeElement; const r = a.getBoundingClientRect(); return [a.className || a.tagName, (a.innerText || a.getAttribute('aria-label') || '').split('\\n')[0].slice(0, 24), r.width > 0 && r.height > 0] })()"
+   },
+   {
+    "key": "Tab"
+   },
+   {
+    "eval": "(() => { const a = document.activeElement; const r = a.getBoundingClientRect(); return [a.className || a.tagName, (a.innerText || a.getAttribute('aria-label') || '').split('\\n')[0].slice(0, 24), r.width > 0 && r.height > 0] })()"
+   },
+   {
+    "key": "Tab"
+   },
+   {
+    "eval": "(() => { const a = document.activeElement; const r = a.getBoundingClientRect(); return [a.className || a.tagName, (a.innerText || a.getAttribute('aria-label') || '').split('\\n')[0].slice(0, 24), r.width > 0 && r.height > 0] })()"
+   },
+   {
+    "key": "Tab"
+   },
+   {
+    "eval": "(() => { const a = document.activeElement; const r = a.getBoundingClientRect(); return [a.className || a.tagName, (a.innerText || a.getAttribute('aria-label') || '').split('\\n')[0].slice(0, 24), r.width > 0 && r.height > 0] })()"
+   },
+   {
+    "key": "Tab"
+   },
+   {
+    "eval": "(() => { const a = document.activeElement; const r = a.getBoundingClientRect(); return [a.className || a.tagName, (a.innerText || a.getAttribute('aria-label') || '').split('\\n')[0].slice(0, 24), r.width > 0 && r.height > 0] })()"
+   },
+   {
+    "key": "Tab"
+   },
+   {
+    "eval": "(() => { const a = document.activeElement; const r = a.getBoundingClientRect(); return [a.className || a.tagName, (a.innerText || a.getAttribute('aria-label') || '').split('\\n')[0].slice(0, 24), r.width > 0 && r.height > 0] })()"
+   }
+  ]
+ }
+]
