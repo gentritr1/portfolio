@@ -33,8 +33,9 @@ export function HomeIntro({ onOpen, reduced, onPulse }: {
   return (
     <>
     <header id="re-top" className="re-intro" data-stage={STAGE.hero}>
+      {/* The headline runs across the whole hero, one sentence per line; the role, lines and screen share the row below. */}
+      <h1 className="re-intro-title re-solid" tabIndex={-1}><span>Web and mobile products.</span>{' '}<span>From the first screen to release.</span></h1>
       <div className="re-intro-copy re-solid">
-        <h1 tabIndex={-1}><span>Web and mobile products.</span>{' '}<span>From the first screen to release.</span></h1>
         <p className="re-intro-role">Software engineer: frontend, backend and mobile</p>
         <p className="re-intro-bio">5+ years shipping web and mobile products.<br />Mostly for healthcare teams, learning platforms and consumer apps.<br />Based in Kosovo, working remotely.</p>
         <div className="re-intro-links">

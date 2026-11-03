@@ -19,7 +19,7 @@
 .re-root[data-input="key"] .re-canvas { transition: none; }
 .re-root[data-ready] .re-canvas { opacity: 0.62; }
 .re-root .re-shade {
-  background: linear-gradient(90deg, rgb(5 5 8 / 0.92), rgb(5 5 8 / 0.6) 38%, transparent 78%);
+  background: linear-gradient(90deg, rgb(5 5 8 / 0.92), rgb(5 5 8 / 0.6) 38%, transparent 78%); /* taste-skill-ignore: neutral legibility scrim over the WebGL field */
 }
 .re-text-link {
   display: inline-flex; align-items: center; gap: 10px; min-height: 44px; width: fit-content;
@@ -35,11 +35,12 @@
   width: 100%; max-width: 1440px; margin: 0 auto; padding: calc(128px + env(safe-area-inset-top, 0px)) var(--re-gutter) 24px;
 }
 .re-intro-copy { grid-area: copy; position: relative; z-index: 2; }
-.re-intro-copy h1 {
+.re-intro-title {
+  grid-area: title; position: relative; z-index: 2;
   max-width: none; color: #f4f4f6; font: 400 var(--re-t5)/1.06 var(--re-sans);
   letter-spacing: 0;
 }
-.re-intro-copy h1 span { display: block; }
+.re-intro-title span { display: block; }
 .re-intro-role { margin-top: 22px !important; font-size: var(--re-t2); line-height: 1.35; }
 .re-intro-bio { margin-top: 14px !important; color: var(--re-fg-2); font-size: 16px; line-height: 1.5; }
 .re-intro-links { display: flex; flex-wrap: wrap; gap: 0 24px; margin-top: 10px; }
@@ -110,14 +111,14 @@ html.re-html { scroll-padding-top: 80px; scrollbar-color: #59616b #080a0d; }
   .re-nav { gap: 8px; }
   .re-nav a { padding-inline: 6px; }
   .re-nav .re-nav-about { display: none; }
-  .re-intro { display: grid; min-height: auto; max-width: none; padding-top: calc(96px + env(safe-area-inset-top, 0px)); grid-template-columns: minmax(0, 1fr); grid-template-areas: 'copy' 'art' 'product'; gap: 20px; }
+  .re-intro { display: grid; min-height: auto; max-width: none; padding-top: calc(96px + env(safe-area-inset-top, 0px)); grid-template-columns: minmax(0, 1fr); grid-template-areas: 'title' 'copy' 'art'; gap: 20px; }
   .re-intro-copy { grid-area: copy; }
-  .re-intro-copy h1 { max-width: none; line-height: 1.1; text-wrap: pretty; }
+  .re-intro-title { max-width: none; line-height: 1.1; text-wrap: pretty; }
   .re-intro-role { margin-top: 20px !important; }
   .re-intro-bio { max-width: 40ch; }
   .re-evidence ul { grid-template-columns: 1fr 1fr; gap: 28px 20px; }
   .re-evidence li { border: 0; padding: 0; }
-  .re-root .re-shade { background: linear-gradient(180deg, rgb(5 5 8 / 0.88), rgb(5 5 8 / 0.55) 50%, rgb(5 5 8 / 0.3)); }
+  .re-root .re-shade { background: linear-gradient(180deg, rgb(5 5 8 / 0.88), rgb(5 5 8 / 0.55) 50%, rgb(5 5 8 / 0.3)); } /* taste-skill-ignore: neutral legibility scrim over the WebGL field */
   .re-root[data-ready] .re-canvas { opacity: 0.42; }
   .re-engineering-rows, .re-workflow, .re-about { grid-template-columns: 1fr; gap: 32px; }
   .re-engineering-rows { margin-top: 32px; }
@@ -128,8 +129,8 @@ html.re-html { scroll-padding-top: 80px; scrollbar-color: #59616b #080a0d; }
   .re-disclosure-caret { grid-column: 2; grid-row: 1; }
 }
 @media (min-width: 761px) and (max-width: 1100px) {
-  .re-intro { grid-template-columns: minmax(0, 1fr); grid-template-areas: 'copy' 'art'; gap: 28px; }
-  .re-intro-copy h1 { max-width: 18em; }
+  .re-intro { grid-template-columns: minmax(0, 1fr); grid-template-areas: 'title' 'copy' 'art'; gap: 28px; }
+  .re-intro-title { max-width: 18em; }
 }
 @media (max-width: 360px) {
   .re-nav { gap: 0; }
@@ -144,7 +145,7 @@ html.re-html { scroll-padding-top: 80px; scrollbar-color: #59616b #080a0d; }
 /* The headline's empty box must not intercept the product's layer controls. */
 .re-intro-copy { pointer-events: none; }
 .re-intro-copy a { pointer-events: auto; }
-.re-intro-copy :is(h1, p) { pointer-events: auto; width: fit-content; max-width: 100%; }
+.re-intro-copy :is(h1, p), .re-intro-title { pointer-events: auto; width: fit-content; max-width: 100%; }
 .re-root .re-casepage { padding-top: calc(88px + env(safe-area-inset-top, 0px)); }
 @media (max-width: 767px) { .re-root .re-casepage { padding-top: calc(84px + env(safe-area-inset-top, 0px)); } }
 .re-decision-story { margin-block: 32px; }
@@ -165,25 +166,34 @@ html.re-html { scroll-padding-top: 80px; scrollbar-color: #59616b #080a0d; }
    one-line tabs all end above the fold (fixed 560 px words left the screen 446 px at 1180 and cramped the tabs). Below
    1024 the screen would drop under 420 px and the tabs wrap, so tablets stack. */
 @media (min-width: 1024px) {
-  .re-intro { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); grid-template-areas: "copy art"; align-items: center; column-gap: 40px; }
+  .re-intro { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); grid-template-areas: "title title" "copy art"; align-items: center; column-gap: 40px; row-gap: 32px; padding-top: calc(96px + env(safe-area-inset-top, 0px)); }
   .re-intro .re-fh { grid-area: art; }
+  /* The role and lines start level with the screen, right under the headline, not centred against it. */
+  .re-intro-copy { align-self: start; }
+  /* Beside a screen this large the lines step up one place on main's scale (role 20 → 28, lines 16 → 20), so the left
+     side reads as the claim's second voice, not a caption (owner, 2026-11-03: "too small"). */
+  .re-intro-role { font-size: var(--re-t3); line-height: 1.25; }
+  .re-intro-bio { font-size: var(--re-t2); line-height: 1.5; }
 }
 /* Four lines in 560 px: pretty keeps "Web and mobile" together, balance keeps "release." from standing alone. */
-.re-intro-copy h1 { text-wrap: pretty; }
-.re-intro-copy h1 span + span { color: var(--re-fg-2); text-wrap: balance; }
+/* The headline spans the hero, one sentence per line: two lines at main's own size from 768 px up (measured to 1920).
+   Phones keep main's 36 px step and wrap each sentence once: a fluid size that kept two lines fell off the 1.24 type
+   scale the census holds (30 px beside 28), and two lines would need a 25 px headline. */
+.re-intro-title { text-wrap: pretty; }
+.re-intro-title span + span { color: var(--re-fg-2); text-wrap: balance; }
 @media (max-width: 1023px) { .re-intro .re-fh { margin-top: 12px; } }
 .re-fh-note { color: var(--re-dim); font-size: 16px; line-height: 1.5; }
 .re-fh { display: grid; gap: 20px; }
-.re-fh-screen { position: relative; display: block; aspect-ratio: 16 / 10; overflow: hidden; border-radius: 14px; background: #0b0b10; box-shadow: 0 40px 120px rgb(0 0 0 / 0.6), 0 0 0 1px rgb(255 255 255 / 0.08); }
+.re-fh-screen { position: relative; display: block; aspect-ratio: 16 / 10; overflow: hidden; border-radius: 14px; background: #0b0b10; box-shadow: 0 0 0 1px rgb(255 255 255 / 0.08); } /* taste-skill-ignore: the product screen's own edge (data-ui), no resting shadow */
 .re-fh-screen img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .re-fh-screen[data-portrait] img { object-fit: contain; object-position: 50% 50% !important; }
 /* The dotted copy: the page's own 9 px dot grid, cut from the screen. */
-.re-fh-dots { filter: grayscale(1) contrast(1.5) brightness(0.85); mask: radial-gradient(#000 1.6px, transparent 2.2px) 0 0 / 9px 9px; animation: re-fh-in 180ms cubic-bezier(0.23, 1, 0.32, 1) both; }
+.re-fh-dots { filter: grayscale(1) contrast(1.5) brightness(0.85); mask: radial-gradient(#000 1.6px, transparent 2.2px) 0 0 / 9px 9px; animation: re-fh-in 180ms cubic-bezier(0.23, 1, 0.32, 1) both; } /* taste-skill-ignore: a mask, not a fill: the page's own 9 px dot field */
 @keyframes re-fh-in { from { opacity: 0; } }
 /* The pull: the sharp copy uncovers left to right behind the seam, then rests. */
 .re-fh-sharp { animation: re-fh-pull 1100ms cubic-bezier(0.22, 1, 0.36, 1) 350ms both; }
 .re-fh-seam { position: absolute; inset: 0; pointer-events: none; animation: re-fh-seam 1100ms cubic-bezier(0.22, 1, 0.36, 1) 350ms both; }
-.re-fh-seam::after { content: ''; position: absolute; top: 0; bottom: 0; right: 0; width: 2px; background: var(--re-accent); box-shadow: 0 0 24px 4px var(--re-accent-mid); }
+.re-fh-seam::after { content: ''; position: absolute; top: 0; bottom: 0; right: 0; width: 2px; background: var(--re-accent); box-shadow: 0 0 24px 4px var(--re-accent-mid); } /* taste-skill-ignore: lit only while the wipe moves, never at rest */
 @keyframes re-fh-pull { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
 @keyframes re-fh-seam { 0% { transform: translateX(-100%); opacity: 1; } 85% { opacity: 1; } 100% { transform: translateX(0); opacity: 0; } }
 .re-fh[data-reduced] .re-fh-sharp, .re-fh[data-reduced] .re-fh-seam { animation: none; }
@@ -202,7 +212,7 @@ html.re-html { scroll-padding-top: 80px; scrollbar-color: #59616b #080a0d; }
    no tab ever wraps a long product name into a narrow column (owner, 2026-11-03: "cramped" at 1280). */
 .re-fh-name { margin: -8px 0 0; font-size: 16px; line-height: 1.4; color: var(--re-fg); }
 .re-fh-name span { color: var(--re-fg-2); }
-.re-fh-strip li button > span + span { display: none; }
+.re-fh-strip li button > span + span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 @media (max-width: 760px) {
   .re-fh-open { display: none; }
 }
@@ -215,7 +225,8 @@ html.re-html { scroll-padding-top: 80px; scrollbar-color: #59616b #080a0d; }
 .re-fh-timer { position: absolute; top: -2px; left: 0; height: 2px; width: 100%; background: var(--re-fg); transform-origin: left; animation: re-fh-timer 4200ms linear both; }
 @keyframes re-fh-timer { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 .re-fh-strip li button:active, .re-fh-pause:active { transform: scale(0.97); }
-.re-fh-pause { transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1); flex: none; width: 44px; height: 44px; align-self: center; display: grid; place-items: center; border: 1px solid rgb(255 255 255 / 0.18); border-radius: 999px; background: none; color: var(--re-fg); cursor: pointer; }
+.re-fh-pause { transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1); flex: none; width: 44px; height: 44px; align-self: center; display: grid; place-items: center; border: 0; border-radius: 999px; background: rgb(255 255 255 / 0.07); color: var(--re-fg); cursor: pointer; }
+@media (hover: hover) and (pointer: fine) { .re-fh-pause:hover { background: rgb(255 255 255 / 0.12); } }
 .re-fh-pause:focus-visible { outline: 2px solid var(--re-accent); outline-offset: 2px; }
 @media (max-width: 760px) {
   .re-fh-strip ol { grid-template-columns: 1fr 1fr; gap: 4px 12px; }

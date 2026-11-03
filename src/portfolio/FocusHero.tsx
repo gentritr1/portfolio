@@ -54,6 +54,7 @@ export function FocusHero({ items, reduced, onOpen, onPulse, note }: {
         ref={fig}
         key={it.slug}
         className="re-fh-screen"
+        data-ui=""
         data-portrait={portrait || undefined}
         data-settled={settled === at || how === 'key' || undefined}
         data-how={how}
