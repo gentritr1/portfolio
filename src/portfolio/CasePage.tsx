@@ -310,11 +310,13 @@ const name = (p: Picture) => p.caption.replace(/, iPhone$/, '')
  * A phone app's screens as one loop, all in view at once: side by side on a desktop, a swipeable row with the next one
  * peeking in on phones. Each screen opens at full size; a screen that carries a decision shows its marker.
  */
-function Loop({ items, slug, at, setAt, mark, decisions }: {
-  items: Picture[]; slug: string; at: number; setAt(i: number, instant: boolean): void; mark: Mark; decisions: string[]
+function Loop({ items, slug, at, instant, setAt, mark, decisions }: {
+  items: Picture[]; slug: string; at: number; instant: boolean; setAt(i: number, instant: boolean): void; mark: Mark; decisions: string[]
 }) {
   const full = useRef<FullSizeHandle>(null)
   const row = useRef<HTMLOListElement>(null)
+  // Phones: which screen leads the row, for the dots under it.
+  const [lead, setLead] = useState(0)
   const shots = [...items].sort((a, b) => order.indexOf(a.src) - order.indexOf(b.src))
   // `at` indexes `items`; the loop shows them in the app's order.
   const g = items[at] ?? items[0]
@@ -323,12 +325,14 @@ function Loop({ items, slug, at, setAt, mark, decisions }: {
   useEffect(() => {
     const r = row.current, b = r?.children[here] as HTMLElement | undefined
     if (!r || !b || r.scrollWidth <= r.clientWidth) return
-    r.scrollTo({ left: b.offsetLeft - r.offsetLeft - parseFloat(getComputedStyle(r).scrollPaddingLeft || '0'), behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' })
-  }, [here])
+    r.scrollTo({ left: b.offsetLeft - r.offsetLeft - parseFloat(getComputedStyle(r).scrollPaddingLeft || '0'), behavior: instant || matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' })
+  }, [here, instant])
   const step = (d: number) => setAt(items.indexOf(shots[(here + d + shots.length) % shots.length]), true)
   return (
     <div className="re-cs-loop-wrap">
-      <ol ref={row} className="re-cs-loop" style={{ '--n': shots.length } as Vars}>
+      <ol ref={row} className="re-cs-loop" style={{ '--n': shots.length } as Vars}
+        onScroll={(e) => { const r = e.currentTarget, w = (r.children[1] as HTMLElement | undefined)?.offsetLeft ?? 0, f = (r.children[0] as HTMLElement).offsetLeft
+          setLead(r.scrollLeft + r.clientWidth >= r.scrollWidth - 2 ? shots.length - 1 : Math.round(r.scrollLeft / Math.max(1, w - f))) }}>
         {shots.map((it) => {
           const { crop, line } = APP[it.src]
           const m = MARKERS[it.src]?.slug === slug ? MARKERS[it.src] : undefined
@@ -361,6 +365,7 @@ function Loop({ items, slug, at, setAt, mark, decisions }: {
           )
         })}
       </ol>
+      <p className="re-cs-loop-dots" aria-hidden="true">{shots.map((it, i) => <i key={it.src} data-on={i === lead || undefined} />)}</p>
       {shots.map((it) => {
         const m = MARKERS[it.src]?.slug === slug ? MARKERS[it.src] : undefined
         return m && <p key={it.src} id="re-cs-mark-text" className="re-cs-mark-text" hidden={!(mark.lit === m.decision || mark.pinned === m.decision)}>{decisions[m.decision]}</p>
@@ -575,7 +580,7 @@ export function CasePage({ slug, rest = true, onBack }: { slug: string; rest?: b
             <h2 id="re-screens-h" className="re-cs-h2">Screens</h2>
             {s.gallery.some((g) => g.alt.includes('Invented data')) && <p className="re-case-note re-num">Real product screens, invented data.</p>}
             {s.gallery.every((g) => APP[g.src])
-              ? <Loop items={s.gallery} slug={slug} at={Math.min(shown, s.gallery.length - 1)} setAt={setShown} mark={mark} decisions={c?.decision ?? []} />
+              ? <Loop items={s.gallery} slug={slug} at={Math.min(shown, s.gallery.length - 1)} instant={instant} setAt={setShown} mark={mark} decisions={c?.decision ?? []} />
               : <Gallery items={s.gallery} slug={slug} at={Math.min(shown, s.gallery.length - 1)} instant={instant} setAt={setShown} mark={mark} decisions={c?.decision ?? []} />}
           </section>
         )}

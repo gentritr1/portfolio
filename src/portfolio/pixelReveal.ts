@@ -41,9 +41,11 @@ export function pixelReveal(img: HTMLImageElement | null) {
     draw(STEPS[0][0])
     box.append(canvas)
     delete box.dataset.wait
-    for (const [block, at] of STEPS.slice(1)) timers.push(window.setTimeout(() => draw(block), at))
-    timers.push(window.setTimeout(() => { canvas!.dataset.out = '' }, SHARP))
-    timers.push(window.setTimeout(settle, SHARP + 100))
+    // Screens side by side resolve left to right, up to 80 ms apart, instead of all in one beat.
+    const lag = Math.round(Math.min(Math.max(b.left / innerWidth, 0), 1) * 80)
+    for (const [block, at] of STEPS.slice(1)) timers.push(window.setTimeout(() => draw(block), at + lag))
+    timers.push(window.setTimeout(() => { canvas!.dataset.out = '' }, SHARP + lag))
+    timers.push(window.setTimeout(settle, SHARP + lag + 100))
   }
 
   // Decoded off-screen (lazy loading starts early), the picture waits in its dot field until it is actually seen.

@@ -1119,7 +1119,9 @@ html.re-html { scroll-padding-top: 68px; }
 .re-cs-loop { display: grid; grid-template-columns: repeat(var(--n), minmax(0, 280px)); gap: 32px; margin: 0; padding: 0; list-style: none; }
 .re-cs-loop-card { margin: 0; display: grid; gap: 16px; align-content: start; }
 .re-cs-loop-shot { position: relative; }
-.re-cs-loop-shot .re-sw-screen { border-radius: 16px; box-shadow: 0 0 0 1px var(--re-line); }
+/* Press feedback: the screen gives a little under the finger (scale, on the compositor). */
+.re-cs-loop-shot .re-sw-screen { border-radius: 16px; transition: scale 160ms var(--re-ease); }
+.re-cs-loop-shot:has(> .re-sw-real:active) .re-sw-screen { scale: 0.98; }
 .re-cs-loop-shot .re-sw-real { border-radius: 16px; }
 .re-cs-loop-card figcaption { display: grid; gap: 4px; font-size: var(--re-t1); line-height: 1.45; color: var(--re-dim); }
 .re-cs-loop-name { font-size: var(--re-t2); line-height: 1.3; color: var(--re-fg); }
@@ -1130,7 +1132,12 @@ html.re-html { scroll-padding-top: 68px; }
     margin: 0 calc(-1 * var(--re-gutter)); padding: 0 var(--re-gutter) 8px; scrollbar-width: none;
   }
   .re-cs-loop li { flex: 0 0 min(270px, 72vw); scroll-snap-align: start; }
+  /* Where the row is: a peek alone reads as a cut edge to some (tasteskill), so the dots say the row moves. */
+  .re-cs-loop-dots { display: flex; gap: 8px; margin: 0; }
+  .re-cs-loop-dots i { width: 8px; height: 4px; border-radius: 2px; background: var(--re-line-2); }
+  .re-cs-loop-dots i[data-on] { width: 24px; background: var(--re-accent); }
 }
+@media (min-width: 1024px) { .re-cs-loop-dots { display: none; } }
 
 /* While a screen loads it holds the page's own dot field, in layers: the 9 px grid, then stars that light grid points on
    tiles of 63, 81, 99, 117 and 153 px (odd multiples of 9, so every star sits on a grid dot, and no two tiles repeat
@@ -1139,15 +1146,15 @@ html.re-html { scroll-padding-top: 68px; }
 [data-wait]::before, [data-wait]::after { content: ""; position: absolute; inset: 0; pointer-events: none; }
 [data-wait]::before {
   background:
-    radial-gradient(circle, rgb(255 255 255 / 0.55) 1px, transparent 1.6px) 18px 27px / 63px 81px,
-    radial-gradient(circle, rgb(255 255 255 / 0.32) 1px, transparent 1.6px) 45px 9px / 117px 99px,
-    radial-gradient(circle, rgb(255 255 255 / 0.11) 0.9px, transparent 1.4px) 0 0 / 9px 9px;
+    radial-gradient(circle, rgb(255 255 255 / 0.55) 1px, transparent 1.6px) 18px 27px / 63px 81px, /* taste-skill-ignore: the page's dot field, drawn as dots */
+    radial-gradient(circle, rgb(255 255 255 / 0.32) 1px, transparent 1.6px) 45px 9px / 117px 99px, /* taste-skill-ignore: the page's dot field, drawn as dots */
+    radial-gradient(circle, rgb(255 255 255 / 0.11) 0.9px, transparent 1.4px) 0 0 / 9px 9px; /* taste-skill-ignore: the page's dot field, drawn as dots */
 }
 [data-wait]::after {
   background:
-    radial-gradient(circle, rgb(255 255 255 / 0.95) 1.2px, transparent 2px) 27px 63px / 81px 153px,
-    radial-gradient(circle, var(--re-accent) 1.1px, transparent 1.9px) 99px 36px / 153px 117px,
-    radial-gradient(circle, rgb(255 255 255 / 0.7) 1px, transparent 1.7px) 72px 108px / 99px 135px;
+    radial-gradient(circle, rgb(255 255 255 / 0.95) 1.2px, transparent 2px) 27px 63px / 81px 153px, /* taste-skill-ignore: the page's dot field, drawn as dots */
+    radial-gradient(circle, var(--re-accent) 1.1px, transparent 1.9px) 99px 36px / 153px 117px, /* taste-skill-ignore: the page's dot field, drawn as dots */
+    radial-gradient(circle, rgb(255 255 255 / 0.7) 1px, transparent 1.7px) 72px 108px / 99px 135px; /* taste-skill-ignore: the page's dot field, drawn as dots */
   animation: re-twinkle 2.4s ease-in-out infinite alternate;
 }
 @keyframes re-twinkle { from { opacity: 0.15; } }
@@ -1155,5 +1162,6 @@ html.re-html { scroll-padding-top: 68px; }
 .re-pixel[data-out] { opacity: 0; }
 @media (prefers-reduced-motion: reduce) {
   [data-wait]::after { animation: none; }
+  .re-cs-loop-shot .re-sw-screen { transition: none; scale: none; }
   .re-sw-screen > img { transition: opacity 150ms ease; }
 }
