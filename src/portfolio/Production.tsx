@@ -5,6 +5,7 @@ import { ARROW, plain, BASE, systems } from "./data"
 import { FullSize, type FullSizeHandle } from "./FullSize"
 import { tune } from "./tune"
 import { useScreenSwipe } from "./useScreenSwipe"
+import { pixelReveal } from "./pixelReveal"
 import { cropVars, LEADS, pct, shots, type Crop, type Shot } from "./screens"
 
 /**
@@ -30,7 +31,7 @@ const at = (x: number, y: number, w?: number): Vars => ({ '--x': pct(x / 14.4), 
 function Screen({ shot, eager }: { shot: Shot; eager?: boolean }) {
   return (
     <div className="re-sw-screen">
-      <img src={shot.src} width={shot.w} height={shot.h} alt={shot.alt} draggable={false} loading={eager ? 'eager' : 'lazy'} decoding="async" />
+      <img ref={eager ? undefined : pixelReveal} src={shot.src} width={shot.w} height={shot.h} alt={shot.alt} draggable={false} loading={eager ? 'eager' : 'lazy'} decoding="async" />
     </div>
   )
 }

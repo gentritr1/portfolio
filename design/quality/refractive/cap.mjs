@@ -1,5 +1,5 @@
 // Captures the refractive engine (the site's home) through CDP. Usage: node cap.mjs <outDir> <plan.json>
-// plan: [{ name, w, h, mobile?, reduced?, nogl?, tensor?, steps: [ {click: selector} | {tap: selector} | {key: "Tab"} | {wait: ms} | {eval: js} | {shot: name} ] }]
+// plan: [{ name, w, h, mobile?, reduced?, nogl?, tensor?, steps: [ {slow: ms} | {click: selector} | {tap: selector} | {key: "Tab"} | {wait: ms} | {eval: js} | {shot: name} ] }]
 import { spawn } from 'node:child_process'
 import { writeFileSync, mkdirSync, readFileSync } from 'node:fs'
 import { setTimeout as sleep } from 'node:timers/promises'
@@ -51,6 +51,8 @@ for (const run of plan) {
     source: `localStorage.setItem('re:mode', ${JSON.stringify(run.tensor ? 'tensor' : 'lens')});` +
       (run.init ?? '') + (run.nogl ? `const g = HTMLCanvasElement.prototype.getContext; HTMLCanvasElement.prototype.getContext = function (t, ...a) { return /webgl/.test(t) ? null : g.call(this, t, ...a) };` : ''),
   })
+  await send('Network.enable')
+  await send('Network.emulateNetworkConditions', { offline: false, latency: 0, downloadThroughput: -1, uploadThroughput: -1 })
   await send('Page.navigate', { url: base })
   await waitFor(`!!document.querySelector('.re-root[data-ready], .re-cs-landing')`)
   await evaluate(`(() => { const l = document.querySelector('.re-lab'); if (l) window.scrollTo({ top: l.getBoundingClientRect().top + scrollY, behavior: 'instant' }) })()`)
@@ -77,6 +79,8 @@ for (const run of plan) {
     }
     if (s.scrollTo) await evaluate(`(() => { const el = document.querySelector(${JSON.stringify(s.scrollTo)}); window.scrollTo({ top: el.getBoundingClientRect().top + scrollY + ${s.offset ?? 0}, behavior: 'instant' }) })()`)
     if (s.media) await send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: s.media }] })
+    // `slow`: added latency in ms per request on a 1.6 Mbit/s line, so a picture's loading state can be seen.
+    if (s.slow) await send('Network.emulateNetworkConditions', { offline: false, latency: s.slow, downloadThroughput: 200 * 1024, uploadThroughput: -1 })
     if (s.scrollBy) await evaluate(`window.scrollBy({ top: ${s.scrollBy}, behavior: 'instant' })`)
     if (s.resize) await send('Emulation.setDeviceMetricsOverride', { width: s.resize[0], height: s.resize[1], deviceScaleFactor: s.resize[2] ?? 2, mobile: s.resize[0] < 600 })
     if (s.wheel) {
