@@ -407,8 +407,9 @@ export default function Draft() {
       const t = document.startViewTransition(async () => {
         const landing = go(true)
         landing?.style.setProperty('view-transition-name', 're-case-hero')
-        // The new snapshot waits for the screen to decode, so it never lands as an empty slab.
-        await landing?.querySelector('img')?.decode().catch(() => {})
+        // The new snapshot waits for the screen to decode, so it never lands as an empty slab, but never more than 150 ms:
+        // a cold 2880 px screen took up to 1083 ms, a frozen page (measured 2026-11-04). Past that it lands and fills in.
+        await Promise.race([landing?.querySelector('img')?.decode().catch(() => {}), new Promise((r) => setTimeout(r, 150))])
       })
       t.finished.finally(() => {
         document.querySelector<HTMLElement>('.re-cs-hero[data-hero]')?.style.removeProperty('view-transition-name')
