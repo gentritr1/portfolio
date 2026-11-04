@@ -98,7 +98,7 @@ html.re-html { scroll-behavior: auto; scroll-padding-top: calc(5rem + env(safe-a
 }
 .re-nav { display: flex; gap: 4px; }
 .re-nav a {
-  display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px; border-radius: 8px; font: 500 16px/1 var(--re-sans);
+  display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; padding: 0 12px; border-radius: 8px; font: 500 16px/1 var(--re-sans);
   color: var(--re-fg-2); text-decoration: none; transition: color 150ms ease, background-color 150ms ease;
 }
 @media (hover: hover) and (pointer: fine) { .re-nav a:hover { color: var(--re-fg); background: var(--re-fill); } }
@@ -776,56 +776,8 @@ html:has(.re-sw-reader[open]) { overflow: hidden; overscroll-behavior: none; }
 .re-record pre { margin: 6px 0 0; padding: 10px 12px; border-radius: 10px; font: 13px/1.6 ui-monospace, Menlo, monospace; color: var(--re-fg-2); white-space: pre-wrap; overflow-wrap: anywhere; background: rgb(0 0 0 / 0.3); }
 .re-casepage .re-links { list-style: none; }
 
-/* ---- Screens: one guided stage. A large glass slab and the screens by name; picking one crossfades the slab. ---- */
+/* ---- Screens: one loop (see .re-cs-loop) ---- */
 .re-cs-screens { margin-top: clamp(64px, 10vh, 112px); }
-.re-cs-gallery { display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; }
-@media (min-width: 1024px) {
-  .re-cs-gallery { grid-template-columns: minmax(0, 1fr) 260px; column-gap: 40px; align-items: start; }
-  .re-cs-gallery[data-shape="phone"] { grid-template-columns: minmax(0, 360px) minmax(0, 1fr); }
-}
-.re-casepage .re-cs-stage { position: relative; left: auto; top: auto; width: 100%; margin: 0; transform: none; z-index: auto; }
-.re-cs-stage-screen { aspect-ratio: var(--ga); background: #0e1116; }
-.re-cs-stage-screen img { inset: 0; left: 0; top: 0; width: 100%; height: 100%; object-fit: contain; }
-.re-cs-gallery[data-shape="phone"] .re-cs-stage-screen { max-height: 72svh; }
-.re-cs-stage figcaption { margin-top: 14px; font-size: 16px; color: var(--re-fg-2); }
-.re-cs-stage-list { display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; }
-.re-cs-stage-list button {
-  all: unset; box-sizing: border-box; cursor: pointer; display: grid; grid-template-columns: 56px minmax(0, 1fr); align-items: center; gap: 12px;
-  width: 100%; min-height: 48px; padding: 6px 10px; border-radius: 10px; color: var(--re-fg-2); transition: background-color 150ms ease, color 150ms ease;
-}
-.re-cs-stage-list button img { width: 56px; height: 36px; object-fit: cover; object-position: top; border-radius: 4px; filter: brightness(0.55); transition: filter 150ms ease; }
-/* Dimmed, not faded: a faded white screen lets the dot field through and reads as grain. */
-.re-cs-gallery[data-shape="phone"] .re-cs-stage-list button img { height: 56px; width: 28px; justify-self: center; }
-.re-cs-stage-list button span { font-size: 16px; line-height: 1.35; }
-.re-cs-stage-list button[aria-selected="true"] { color: var(--re-fg); background: var(--re-fill); }
-.re-cs-stage-list button[aria-selected="true"] img { filter: none; }
-@media (hover: hover) and (pointer: fine) { .re-cs-stage-list button[aria-selected="false"]:hover { color: var(--re-fg); } }
-.re-cs-stage-list button:focus-visible { outline: 2px solid var(--re-accent); outline-offset: 2px; }
-/* Desktop: names only. At 56 px the thumbnails read as grey noise; the shown name carries the page's own mark, the
-   markers' mint point, never a side stripe (impeccable craft floor). Phones keep their larger thumbnails. */
-@media (min-width: 1024px) {
-  .re-cs-stage-list button { position: relative; grid-template-columns: 1fr; min-height: 44px; padding-left: 22px; }
-  .re-cs-stage-list button img { display: none; }
-  .re-cs-stage-list button[aria-selected="true"]::before {
-    content: ""; position: absolute; left: 9px; top: 50%; width: 5px; height: 5px; translate: 0 -50%; border-radius: 50%; background: var(--re-accent);
-  }
-}
-/* Phones: the names become one swipeable row, the next one peeking in (NN/g: swipe works, the next item shows). The row
-   sits above the stage like tabs: what is under the stage changes height with the screen (a board's callout and words),
-   so a row below it would move away from the finger that just tapped it. */
-@media (max-width: 1023px) {
-  .re-cs-stage-list { order: -1; display: flex; gap: 8px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: var(--re-gutter); overscroll-behavior-x: contain; margin: 0 calc(-1 * var(--re-gutter)); padding: 2px var(--re-gutter) 8px; scrollbar-width: none; }
-  .re-cs-stage-list li { flex: 0 0 auto; scroll-snap-align: start; }
-  .re-cs-stage-list button { grid-template-columns: 1fr; justify-items: start; width: 132px; gap: 8px; padding: 8px; }
-  .re-cs-stage-list button img { width: 116px; height: 72px; }
-  .re-cs-gallery[data-shape="phone"] .re-cs-stage-list button img { width: 60px; height: 120px; }
-  .re-cs-stage-list button span { font-size: 13px; }
-}
-/* The markers' layer is the picture's own box inside the stage (object-fit: contain may letterbox a tall screen), and the
-   stage lets the decision's label reach past the picture's edge. */
-.re-cs-stage-screen { overflow: visible; }
-.re-cs-mark-layer { position: absolute; inset: 0; margin: auto; height: 100%; width: auto; max-width: 100%; aspect-ratio: var(--ga); pointer-events: none; }
-.re-cs-mark-layer .re-cs-mark { pointer-events: auto; }
 /* Decision markers: a quiet mint point on the place in the screen where a decision lives. Hover, focus or a click shows
    the decision beside it (in the flow on phones) and lights its line in "The decision that worked"; the line's
    "Show on screen" does the reverse. The point draws 10 px but answers a 44 px target. */
@@ -864,73 +816,10 @@ html:has(.re-sw-reader[open]) { overflow: hidden; overscroll-behavior: none; }
   font-size: 16px; color: var(--re-accent); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 4px;
 }
 .re-cs-show:focus-visible { outline: 2px solid var(--re-accent); outline-offset: 2px; border-radius: 4px; }
-/* A narrow (phone-shaped) stage keeps the label inside the picture. */
-.re-cs-gallery[data-shape="phone"] .re-cs-mark-label { max-width: 220px; }
 @media (prefers-reduced-motion: reduce) {
   .re-cs-mark, .re-cs-mark::before, .re-cs-list li::before { animation: none; transition: none; scale: 1; }
   .re-cs-mark .re-cs-mark-label, .re-cs-mark[data-open] .re-cs-mark-label { transition: none; scale: 1; }
 }
-
-/* Boards: a screen with its claim. The marked area is outlined on the screen, a dashed lead drops to the callout (the
-   same file, enlarged), and the board's words read under the stage. Phones put the callout under the screen at full
-   width. Geometry comes from boardVars in CasePage.tsx. */
-.re-cs-board { animation: re-mark-in 160ms var(--re-ease) 200ms both; }
-.re-cs-board > * { position: absolute; }
-.re-cs-board-area { left: var(--bx); top: var(--by); width: var(--bw); height: var(--bh); border-radius: 4px; box-shadow: 0 0 0 1.5px var(--re-accent), 0 0 0 6px rgb(62 230 164 / 0.14); }
-.re-cs-board-lead { left: var(--cx); top: calc(var(--by) + var(--bh)); height: 18px; border-left: 1.5px dashed rgb(62 230 164 / 0.75); }
-/* The callout is a button: it opens the full-size view centred on its area. */
-.re-cs-board-zoom {
-  all: unset; position: absolute; z-index: 3; pointer-events: auto; cursor: zoom-in; box-sizing: border-box;
-  left: var(--cl); top: calc(var(--by) + var(--bh) + 18px); width: var(--cw); display: grid; gap: 6px; padding: 6px; border-radius: 10px;
-  background: rgb(12 14 19 / 0.94); box-shadow: 0 0 0 1px rgb(62 230 164 / 0.35); transition: box-shadow 150ms ease;
-}
-@media (hover: hover) and (pointer: fine) { .re-cs-board-zoom:hover { box-shadow: 0 0 0 1px rgb(62 230 164 / 0.7); } }
-.re-cs-board-zoom:focus-visible { outline: 2px solid var(--re-accent); outline-offset: 3px; }
-.re-cs-board-zoom-tag { display: flex; align-items: center; gap: 8px; padding: 0 4px; font: 500 13px/16px var(--re-sans); color: var(--re-accent); }
-.re-cs-board-zoom-tag::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
-.re-cs-board-crop { display: block; aspect-ratio: var(--ca); border-radius: 5px; background: #fff no-repeat var(--zx) var(--zy) / var(--zs) auto; }
-/* The words start under the callout: its reach below the screen, plus its frame (34 px) and lead (18 px), less the slab's
-   own bottom edge and the grid's row gap. */
-.re-cs-board-text { margin-top: calc(var(--drop) + 49px); animation: re-mark-in 160ms var(--re-ease) both; }
-.re-cs-board-title { margin: 0 0 12px; font: 300 24px/1.15 var(--re-sans); letter-spacing: 0; color: var(--re-fg); text-wrap: balance; }
-.re-cs-board-line { margin: 0; max-width: 46ch; font-size: 16px; line-height: 1.55; color: var(--re-fg-2); }
-.re-cs-board-on h4 { margin: 0 0 10px; font-size: 16px; font-weight: 500; color: var(--re-fg); }
-.re-cs-board-on ol { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
-.re-cs-board-on li { font-size: 16px; line-height: 1.45; color: var(--re-fg-2); }
-@media (min-width: 1024px) {
-  .re-cs-gallery > .re-cs-stage, .re-cs-board-text, .re-cs-mark-text { grid-column: 1; }
-  .re-cs-stage-list { grid-column: 2; grid-row: 1 / span 3; }
-  .re-cs-board-text { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); column-gap: 40px; align-items: start; }
-  .re-cs-board-text > :not(.re-cs-board-on) { grid-column: 1; }
-  .re-cs-board-on { grid-column: 2; grid-row: 1 / span 3; padding-top: 2px; }
-}
-@media (max-width: 1023px) {
-  .re-cs-board-lead { display: none; }
-  .re-cs-board-zoom { left: 0; top: calc(100% + 24px); width: 100%; }
-  .re-cs-board-text { margin-top: calc(var(--drop-n) + 46px); }
-  .re-cs-board-on { margin-top: 20px; }
-}
-/* Phones: every other screen gets one part of itself under the stage, outlined on the screen, at 0.75 of real size or
-   more (CROPS in CasePage.tsx). A tap opens the full-size view on it. Desktop shows the screen alone. */
-.re-cs-crop-zoom {
-  all: unset; box-sizing: border-box; display: block; cursor: zoom-in; padding: 6px; border-radius: 10px; background: rgb(12 14 19 / 0.94);
-  box-shadow: 0 0 0 1px rgb(62 230 164 / 0.35); animation: re-mark-in 160ms var(--re-ease) 200ms both;
-  /* At most 1.25 of the area's real size, centred under the stage: as wide as the column, a 210 px area showed at 2.8×
-     on a 671 px window, from a capture with too few pixels for it (2026-11-01). */
-  width: min(100%, calc(var(--rw) * 1.25 + 12px)); margin-inline: auto;
-}
-/* Below 1024 px the selected tab right above the stage already names the screen; the caption stays for screen readers
-   (it announces the change) but no longer repeats the name under the picture. */
-@media (max-width: 1023px) {
-  .re-cs-stage figcaption { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; margin: 0; }
-}
-.re-cs-crop-zoom:focus-visible { outline: 2px solid var(--re-accent); outline-offset: 3px; }
-@media (min-width: 1024px) { .re-cs-crop, .re-cs-crop-zoom { display: none; } }
-@media (prefers-reduced-motion: reduce) { .re-cs-board, .re-cs-board-text, .re-cs-crop-zoom { animation: none; } }
-/* A screen shown from the keyboard (arrows, Home/End, Show on screen) arrives whole: its marks and the tab with it. */
-.re-cs-gallery[data-instant] :is(.re-cs-mark, .re-cs-board, .re-cs-board-text, .re-cs-crop-zoom) { animation: none; }
-.re-cs-gallery[data-instant] :is(.re-cs-stage-list button, .re-cs-stage-list button img) { transition: none; }
-.re-cs-gallery[data-instant] .re-cs-mark::before, .re-cs-gallery[data-instant] .re-cs-mark .re-cs-mark-label { transition: none; }
 
 /* ---- Next case: its own screen, waiting; Previous stays a quiet link ---- */
 .re-cs-next { display: grid; gap: 14px; margin-top: clamp(72px, 12vh, 128px); }
@@ -1113,31 +1002,60 @@ html.re-html { scroll-padding-top: 68px; }
 /* The product's name and role now follow the chapter headline (no eyebrow above it), with a step of space between. */
 .re-sw h3 + .re-sw-meta { margin-top: 14px; }
 
-/* A phone app's screens as one loop: every screen in view, side by side on a desktop; on phones and tablets a row that
-   swipes, the next screen peeking in (NN/g: the peek says there is more). Names 20 px, lines 16 px. */
-.re-cs-loop-wrap { display: grid; gap: 18px; }
+/* A case's screens as one loop. Phone apps: every screen in view, side by side on a desktop. Wide screens at every width,
+   and phone apps below 1024 px: a row that swipes, the next screen peeking in (NN/g: the peek says there is more), with
+   dots that follow it and, for wide screens, ‹ › to step. Every screen in a wide row shares one height (`--rowh`, from
+   the loop's own width); a case with both kinds (Bayyinah) shows its phone screens as a loop of their own. Names 20 px, lines 16 px. */
+.re-cs-loop-wrap + .re-cs-loop-wrap { margin-top: 64px; }
+.re-cs-loop-wrap { display: grid; gap: 18px; container-type: inline-size; --rowh: min(600px, calc(82cqi / 1.6)); }
 .re-cs-loop { display: grid; grid-template-columns: repeat(var(--n), minmax(0, 280px)); gap: 32px; margin: 0; padding: 0; list-style: none; }
 .re-cs-loop-card { margin: 0; display: grid; gap: 16px; align-content: start; }
 .re-cs-loop-shot { position: relative; }
 /* Press feedback: the screen gives a little under the finger (scale, on the compositor). */
 .re-cs-loop-shot .re-sw-screen { border-radius: 16px; transition: scale 160ms var(--re-ease); }
+.re-cs-loop-wrap[data-shape="wide"] .re-cs-loop-shot .re-sw-screen, .re-cs-loop-wrap[data-shape="wide"] .re-cs-loop-shot .re-sw-real { border-radius: 10px; }
 .re-cs-loop-shot:has(> .re-sw-real:active) .re-sw-screen { scale: 0.98; }
+/* Touch: the press waits 80 ms, as a cell in a native scrolling list does, so a swipe that starts on a screen does not
+   flicker it smaller; a long press opens nothing (the screen is a control: a tap opens it at full size). */
+@media (pointer: coarse) { .re-cs-loop-shot:has(> .re-sw-real:active) .re-sw-screen { transition-delay: 80ms; } }
+.re-cs-loop img { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
 .re-cs-loop-shot .re-sw-real { border-radius: 16px; }
-.re-cs-loop-card figcaption { display: grid; gap: 4px; font-size: var(--re-t1); line-height: 1.45; color: var(--re-dim); }
+.re-cs-loop-card figcaption { display: grid; gap: 4px; max-width: 60ch; font-size: var(--re-t1); line-height: 1.45; color: var(--re-dim); }
 .re-cs-loop-name { font-size: var(--re-t2); line-height: 1.3; color: var(--re-fg); }
 .re-cs-loop .re-cs-mark-label { max-width: 220px; }
+/* The wide row runs to the window's edges, so the peek is the next screen, not a cut at the text column; its first screen
+   still starts on the column's left edge (`--bleed`, from the loop's width in container units). The root clips sideways,
+   so a scrollbar's width never scrolls the page. */
+.re-cs-loop-wrap[data-shape="wide"] .re-cs-loop {
+  --bleed: max(var(--re-gutter), calc(50vw - 50cqi));
+  display: flex; gap: 24px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: var(--bleed); overscroll-behavior-x: contain;
+  margin: 0 calc(-1 * var(--bleed)); padding: 0 var(--bleed) 8px; scrollbar-width: none;
+}
+.re-cs-loop-wrap[data-shape="wide"] .re-cs-loop li { flex: 0 0 auto; width: calc(var(--rowh) * var(--a)); scroll-snap-align: start; }
+.re-cs-loop-wrap[data-shape="wide"] .re-cs-loop li:only-child { width: 100%; }
+/* Where the row is: a peek alone reads as a cut edge to some (tasteskill), so the dots say the row moves. */
+.re-cs-loop-bar { display: flex; align-items: center; gap: 8px; }
+.re-cs-loop-dots { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 auto 0 0; }
+.re-cs-loop-dots i { width: 8px; height: 4px; border-radius: 2px; background: var(--re-line-2); }
+.re-cs-loop-dots i[data-on] { width: 24px; background: var(--re-accent); }
+.re-cs-loop-step {
+  all: unset; box-sizing: border-box; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; cursor: pointer;
+  color: var(--re-fg); background: var(--re-fill); transition: background-color 150ms ease, scale 160ms var(--re-ease), opacity 150ms ease;
+}
+.re-cs-loop-step:active:not(:disabled) { scale: 0.96; }
+.re-cs-loop-step:disabled { opacity: 0.35; cursor: default; }
+.re-cs-loop-step:focus-visible { outline: 2px solid var(--re-accent); outline-offset: 2px; }
+@media (hover: hover) and (pointer: fine) { .re-cs-loop-step:hover:not(:disabled) { background: var(--re-fill-2); } }
+@media (max-width: 599px) { .re-cs-loop-wrap { --rowh: calc(88cqi / 1.6); } }
 @media (max-width: 1023px) {
   .re-cs-loop {
     display: flex; gap: 16px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: var(--re-gutter); overscroll-behavior-x: contain;
     margin: 0 calc(-1 * var(--re-gutter)); padding: 0 var(--re-gutter) 8px; scrollbar-width: none;
   }
   .re-cs-loop li { flex: 0 0 min(270px, 72vw); scroll-snap-align: start; }
-  /* Where the row is: a peek alone reads as a cut edge to some (tasteskill), so the dots say the row moves. */
-  .re-cs-loop-dots { display: flex; gap: 8px; margin: 0; }
-  .re-cs-loop-dots i { width: 8px; height: 4px; border-radius: 2px; background: var(--re-line-2); }
-  .re-cs-loop-dots i[data-on] { width: 24px; background: var(--re-accent); }
 }
-@media (min-width: 1024px) { .re-cs-loop-dots { display: none; } }
+@media (min-width: 1024px) { .re-cs-loop-wrap[data-shape="phone"] .re-cs-loop-bar { display: none; } }
+@media (prefers-reduced-motion: reduce) { .re-cs-loop-step { transition: none; scale: none; } }
 
 /* While a screen loads it holds the page's own dot field, in layers: the 9 px grid, then stars that light grid points on
    tiles of 63, 81, 99, 117 and 153 px (odd multiples of 9, so every star sits on a grid dot, and no two tiles repeat
@@ -1158,7 +1076,7 @@ html.re-html { scroll-padding-top: 68px; }
   animation: re-twinkle 2.4s ease-in-out infinite alternate;
 }
 @keyframes re-twinkle { from { opacity: 0.15; } }
-.re-pixel { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; image-rendering: pixelated; transition: opacity 80ms ease-out; }
+.re-pixel { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; image-rendering: pixelated; transition: opacity 120ms var(--re-ease); }
 .re-pixel[data-out] { opacity: 0; }
 @media (prefers-reduced-motion: reduce) {
   [data-wait]::after { animation: none; }

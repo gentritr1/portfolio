@@ -1,16 +1,14 @@
-import { useNearViewport } from './useNearViewport'
 import { DecisionStories } from "./DecisionStories"
 import { decisionStories } from "./decisionStoryData"
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { Link } from 'react-router'
-import { ArrowLeftIcon, ArrowRightIcon, ArrowUpRightIcon, CaretDownIcon } from '@phosphor-icons/react'
+import { ArrowLeftIcon, ArrowRightIcon, ArrowUpRightIcon, CaretDownIcon, CaretLeftIcon, CaretRightIcon } from '@phosphor-icons/react'
 import { caseDetails } from "./caseDetails"
 import { STAGE } from "./sceneSupport"
-import { cropVars, LEADS } from "./screens"
+import { cropVars, LEADS, srcSetOf } from "./screens"
 import { FullSize, type FullSizeHandle } from "./FullSize"
 import { BASE, INVENTED } from "./data"
 import { cases } from "./products"
-import { useScreenSwipe } from "./useScreenSwipe"
 import { pixelReveal } from "./pixelReveal"
 
 type Vars = CSSProperties & Record<`--${string}`, string | number>
@@ -51,89 +49,15 @@ const MARKERS: Record<string, { x: number; y: number; w: number; h: number; slug
 }
 
 /**
- * The care platform's boards, live: the words of public/showcase/care-dashboard/boards/board-03 and board-04 (the Loop's
- * case boards, word for word) and their callout areas from boards.json `detail`, in the screen's 1440 × 900 CSS pixels.
- * The callout is the same file enlarged, so its pixels are real. Board 02 (vitals-graph.webp) has a title and no words, so
- * it shows as a plain screen.
+ * The care platform's boards: the titles of public/showcase/care-dashboard/boards/board-03 and board-04 (the Loop's case
+ * boards, word for word), which say what the claims and calendar screens are for. They are those screens' lines.
  */
-const BOARDS: Record<string, { title: string; lead: string; items: string[]; zoom: string; detail: [x: number, y: number, w: number, h: number] }> = {
-  '/showcase/care-dashboard/claims.webp': {
-    title: 'Claims that need another look stand out.',
-    lead: "Each month's claims are counted by status. A claim that changed after approval gets a mark, so the team checks it again before billing.",
-    items: ['Counts by status', 'Filters by month and program', 'Marks for updated claims', 'Retry when a transfer fails'],
-    zoom: 'Needs attention · Retry', detail: [958, 700, 414, 116],
-  },
-  '/showcase/care-dashboard/appointments-week.webp': {
-    title: 'A care team’s week on one calendar.',
-    lead: 'Visits, calls and tasks for every patient. Filters narrow the week to one person, one type or one priority.',
-    items: ['Week, day and list views', 'Six filters', 'Visits and calls in two colours', 'A line for the current time'],
-    zoom: 'Now · Tuesday', detail: [604, 538, 352, 168],
-  },
+const BOARDS: Record<string, { title: string }> = {
+  '/showcase/care-dashboard/claims.webp': { title: 'Claims that need another look stand out.' },
+  '/showcase/care-dashboard/appointments-week.webp': { title: 'A care team’s week on one calendar.' },
 }
-/** The callout shows its area at this many times the stage's scale. */
-const ZOOM = 1.75
 
 type Rect = [x: number, y: number, w: number, h: number]
-
-/**
- * One part of every other screen, for phones, where a whole screen draws at about a quarter of real size: the stage
- * outlines it and the same file shows it under the stage at 0.75 of real size or more. Rectangles are in each screen's
- * CSS pixels (`size`), chosen by Codex and checked by design/selected-work-concepts/phone-crops/verify.mjs (no text or
- * control cut by an edge, 0 changed pixels). `file` is the full-size board a small gallery copy stands for. Board
- * screens keep their board callout; Bayyinah's first store image has none, its heading already reads large.
- */
-const CROPS: Record<string, { d: Rect; size: [w: number, h: number]; file?: string }> = {
-  '/showcase/care-dashboard/overview.webp': { d: [870, 305, 210, 175], size: [1440, 900] },
-  // Vitals and labs: the area its board calls out (boards.json `detail`), the 7-day glucose chart.
-  '/showcase/care-dashboard/vitals-graph.webp': { d: [822, 262, 570, 236], size: [1440, 900] },
-  '/showcase/bayyinah/web-01.webp': { d: [36, 230, 453, 180], size: [1440, 900] },
-  '/showcase/bayyinah/web-02.webp': { d: [704, 559, 300, 274], size: [1440, 900] },
-  '/showcase/bayyinah/web-03.webp': { d: [444, 359, 246, 177], size: [1440, 900] },
-  '/showcase/bayyinah/web-04.webp': { d: [105, 570, 302, 275], size: [1440, 900] },
-  '/showcase/bayyinah/web-05.webp': { d: [352, 545, 320, 290], size: [1440, 900] },
-  '/showcase/bayyinah/web-06.webp': { d: [1055, 110, 250, 200], size: [1440, 900] },
-  '/showcase/bayyinah/store-02.webp': { d: [208, 275, 172, 56], size: [389, 845] },
-  '/mobile/reading-1.webp': { d: [64, 361, 261, 97], size: [390, 844.5] },
-  '/mobile/reading-2.webp': { d: [66, 374, 265, 119], size: [390, 844.5] },
-  '/mobile/reading-3.webp': { d: [52, 290, 286, 105], size: [390, 844.5] },
-  '/mobile/reading-4.webp': { d: [70, 640, 250, 118], size: [390, 844.5] },
-  '/mobile/grocery-1.webp': { d: [50, 413, 292, 212], size: [390, 844.5] },
-  '/mobile/grocery-2.webp': { d: [51, 564, 140, 96], size: [390, 844.5] },
-  '/mobile/grocery-3.webp': { d: [56, 699, 281, 27], size: [390, 844.5] },
-  '/showcase/incentiv/web-03.webp': { d: [220, 496, 453, 45], size: [1440, 900] },
-  '/mobile/bookstore-1.webp': { d: [74, 539, 242, 76], size: [390, 844.5] },
-  '/mobile/bookstore-2.webp': { d: [59, 494, 274, 121], size: [390, 844.5] },
-  '/mobile/bookstore-3.webp': { d: [58, 545, 275, 156], size: [390, 844.5] },
-  '/showcase/design-system/boards/board-02-1080.webp': { d: [1175, 485, 320, 190], size: [1600, 1000], file: '/showcase/design-system/boards/board-02.webp' },
-  '/showcase/design-system/boards/board-03-1080.webp': { d: [1010, 715, 310, 120], size: [1600, 1000], file: '/showcase/design-system/boards/board-03.webp' },
-  '/showcase/design-system/boards/board-04-1080.webp': { d: [740, 390, 400, 230], size: [1600, 1000], file: '/showcase/design-system/boards/board-04.webp' },
-  '/showcase/design-system/boards/board-05-1080.webp': { d: [925, 340, 280, 240], size: [1600, 1000], file: '/showcase/design-system/boards/board-05.webp' },
-  '/showcase/design-system/boards/board-06-1080.webp': { d: [600, 560, 400, 250], size: [1600, 1000], file: '/showcase/design-system/boards/board-06.webp' },
-  '/showcase/design-system/boards/board-07-1080.webp': { d: [1255, 427, 255, 210], size: [1600, 1000], file: '/showcase/design-system/boards/board-07.webp' },
-  '/personal/shots/futurisma-frostline-1.webp': { d: [1124, 770, 274, 94], size: [1440, 900] },
-  '/personal/shots/futurisma-frostline-2.webp': { d: [1124, 770, 277, 94], size: [1440, 900] },
-  '/personal/shots/futurisma-frostline-3.webp': { d: [1124, 770, 274, 94], size: [1440, 900] },
-  '/personal/shots/futurisma-garage.webp': { d: [1095, 293, 310, 287], size: [1440, 900] },
-}
-
-/**
- * A board's geometry as CSS variables, in % of the screen's width (`--b*` and `--c*`) or height (`--by`, `--bh`): the
- * marked area, the callout under it (centred on the area, kept on the screen), and `--drop`, how far the callout reaches
- * below the screen, so the board's words start under it. `-n` is the phone layout, where the callout sits under the
- * screen at full width.
- */
-function boardVars([x, y, w, h]: Rect, [W, H]: [number, number] = [1440, 900]) {
-  const cw = (w / W) * ZOOM * 100
-  const cx = ((x + w / 2) / W) * 100
-  return {
-    '--bx': `${(x / W) * 100}%`, '--by': `${(y / H) * 100}%`, '--bw': `${(w / W) * 100}%`, '--bh': `${(h / H) * 100}%`,
-    '--cx': `${cx}%`, '--cw': `${cw}%`, '--cl': `${Math.min(Math.max(cx - cw / 2, 0), 102 - cw)}%`, '--ca': `${w} / ${h}`,
-    '--zx': `${(x / (W - w)) * 100}%`, '--zy': `${(y / (H - h)) * 100}%`, '--zs': `${(W / w) * 100}%`,
-    '--drop': `${Math.max(((y + h) / W) * 100 + (cw * h) / w - (H / W) * 100, 0)}%`, '--drop-n': `${(100 * h) / w}%`,
-    // The area's width at the screen's real size (its CSS pixels): the phone zoom box stops at 1.25 of it.
-    '--rw': `${w}px`,
-  } as Vars
-}
 
 /** The decision a stage or a list item is pointing at: lit while hovered or focused, pinned by a click or tap. */
 type Mark = { lit: number | null; pinned: number | null; setLit(d: number | null): void; pin(d: number | null): void }
@@ -161,132 +85,6 @@ const CASE_H1: Record<string, string> = {
 type Picture = { src: string; alt: string; caption: string; width: number; height: number }
 
 /**
- * The case's screens as one guided stage: a single large glass slab and, beside it, the screens by name. Picking a name
- * crossfades the slab (2 px blur, exit 160 ms, entry 220 ms; instant from the keyboard), so each screen is shown big
- * enough to read and they read in order. A click or tap opens the screen at full size; a screen that carries a decision
- * shows its marker; on phones the names become a swipeable row and the slab takes a sideways swipe.
- */
-function Gallery({ items, slug, at, instant, setAt, mark, decisions }: {
-  items: Picture[]; slug: string; at: number; instant: boolean; setAt(i: number, instant: boolean): void; mark: Mark; decisions: string[]
-}) {
-  const [armed, setArmed] = useState(false)
-  const full = useRef<FullSizeHandle>(null)
-  const row = useRef<HTMLOListElement>(null)
-  const near = useNearViewport(row)
-  // On phones the names are a sideways row: keep the shown screen's name in it, after a tap on a half-hidden name or a
-  // swipe on the slab (at once after a key). Sideways only, so the page itself never moves.
-  useEffect(() => {
-    const r = row.current, b = r?.children[at] as HTMLElement | undefined
-    if (!r || !b || r.scrollWidth <= r.clientWidth) return
-    const rr = r.getBoundingClientRect(), br = b.getBoundingClientRect()
-    if (br.left < rr.left || br.right > rr.right) {
-      r.scrollTo({ left: r.scrollLeft + br.left - rr.left - (rr.width - br.width) / 2, behavior: instant || matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' })
-    }
-  }, [at, instant])
-  const g = items[at]
-  const m = MARKERS[g.src]?.slug === slug ? MARKERS[g.src] : undefined
-  const open = !!m && (mark.lit === m.decision || mark.pinned === m.decision)
-  const b = BOARDS[g.src]
-  const bv = b && boardVars(b.detail)
-  const c = b ? undefined : CROPS[g.src]
-  const cv = c && boardVars(c.d, c.size)
-  const phone = items[0].height > items[0].width
-  const wrap = (i: number) => ((i % items.length) + items.length) % items.length
-  // A new screen drops a pinned decision: the list must not light a line whose marker is no longer shown.
-  const pick = (i: number, inst: boolean) => { setArmed(true); mark.pin(null); setAt(wrap(i), inst) }
-  const swipe = useScreenSwipe((direction) => pick(at + direction, false), () => setArmed(true))
-  // The names are tabs (WAI-ARIA): one tab stop, arrows and Home/End move between them and show the screen at once.
-  const keys = (e: React.KeyboardEvent) => {
-    const d = ({ ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 } as Record<string, number>)[e.key]
-    const i = e.key === 'Home' ? 0 : e.key === 'End' ? items.length - 1 : d === undefined ? null : wrap(at + d)
-    if (i === null) return
-    e.preventDefault()
-    pick(i, true)
-    row.current?.querySelectorAll('button')[i]?.focus()
-  }
-  // The callout's area, in the capture's own pixels (its detail is in the screen's 1440-wide CSS pixels).
-  const focusOf = ([x, y, w, h]: Rect, W = 1440): [number, number] => [(x + w / 2) * (g.width / W), (y + h / 2) * (g.width / W)]
-
-  return (
-    <div className="re-cs-gallery" data-shape={phone ? 'phone' : 'wide'} data-instant={instant || undefined}>
-      <figure
-        className="re-sw-slab re-cs-stage" style={{ '--ga': `${items[0].width} / ${items[0].height}` } as Vars} data-swipe=""
-        {...swipe}
-      >
-        <div className="re-sw-screen re-cs-stage-screen" id="re-cs-panel" role="tabpanel" aria-labelledby={`re-cs-tab-${at}`} data-swap data-instant={instant || undefined}>
-          {items.map((it, i) => (i === at || armed) && (
-            <img key={it.src} ref={armed ? undefined : pixelReveal} src={it.src} width={it.width} height={it.height} alt={i === at ? it.alt : ''} aria-hidden={i !== at || undefined}
-              data-on={i === at || undefined} draggable={false} loading="lazy" decoding="async" />
-          ))}
-          {m && (
-            <div className="re-cs-mark-layer">
-              <button
-                key={g.src} type="button" className="re-cs-mark" aria-expanded={open} aria-controls="re-cs-mark-text"
-                aria-label="The decision on this screen" data-open={open || undefined}
-                data-side={m.x / m.w > 0.6 ? 'left' : 'right'} data-up={m.up || undefined}
-                style={{ left: `${(m.x / m.w) * 100}%`, top: `${(m.y / m.h) * 100}%` }}
-                onPointerEnter={(e) => { if (e.pointerType === 'mouse') mark.setLit(m.decision) }} onPointerLeave={() => mark.setLit(null)}
-                onFocus={() => mark.setLit(m.decision)} onBlur={() => mark.setLit(null)}
-                onClick={() => mark.pin(mark.pinned === m.decision ? null : m.decision)}
-              >
-                <span className="re-cs-mark-label" aria-hidden="true">{decisions[m.decision]}</span>
-              </button>
-            </div>
-          )}
-          {b && (
-            <div key={g.src} className="re-cs-mark-layer re-cs-board" style={bv}>
-              <span className="re-cs-board-area" aria-hidden="true" />
-              <span className="re-cs-board-lead" aria-hidden="true" />
-              <button type="button" className="re-cs-board-zoom" aria-label={`${b.zoom}, at full size`} onClick={() => full.current?.open(focusOf(b.detail))}>
-                <span className="re-cs-board-zoom-tag" aria-hidden="true">{b.zoom}</span>
-                <span className="re-cs-board-crop" aria-hidden="true" style={{ backgroundImage: `url("${g.src}")` }} />
-              </button>
-            </div>
-          )}
-          {c && (
-            <div key={g.src} className="re-cs-mark-layer re-cs-board re-cs-crop" style={{ ...cv, aspectRatio: `${c.size[0]} / ${c.size[1]}` }} aria-hidden="true">
-              <span className="re-cs-board-area" />
-            </div>
-          )}
-        </div>
-        <button type="button" className="re-sw-real" aria-label={`${g.alt}, at full size`} onClick={() => full.current?.open()} />
-        <figcaption aria-live="polite" className={b ? 're-sr' : undefined}>{b ? b.title : g.caption || g.alt}</figcaption>
-      </figure>
-      {c && (
-        <button key={g.src} type="button" className="re-cs-crop-zoom" style={cv} aria-label={`${g.caption || g.alt}, the outlined part at full size`}
-          onClick={() => full.current?.open(focusOf(c.d, c.size[0]))}>
-          <span className="re-cs-board-crop" style={{ backgroundImage: `url("${c.file ?? g.src}")` }} />
-        </button>
-      )}
-      {m && <p id="re-cs-mark-text" className="re-cs-mark-text" hidden={!open}>{decisions[m.decision]}</p>}
-      {b && (
-        <div key={g.src} className="re-cs-board-text" style={bv}>
-          <h3 className="re-cs-board-title">{b.title}</h3>
-          <p className="re-cs-board-line">{b.lead}</p>
-          <div className="re-cs-board-on">
-            <h4>On this screen</h4>
-            <ol>{b.items.map((t) => <li key={t}>{t}</li>)}</ol>
-          </div>
-        </div>
-      )}
-      <ol ref={row} className="re-cs-stage-list" role="tablist" aria-label="Screens" onKeyDown={keys} onPointerEnter={() => setArmed(true)} onFocus={() => setArmed(true)}>
-        {items.map((it, i) => (
-          <li key={it.src} role="presentation">
-            <button type="button" role="tab" id={`re-cs-tab-${i}`} aria-selected={i === at} aria-controls="re-cs-panel" tabIndex={i === at ? 0 : -1}
-              onClick={(e) => pick(i, e.detail === 0)}>
-              <img src={near || armed ? it.src : undefined} width={it.width} height={it.height} alt="" loading="lazy" decoding="async" />
-              <span>{it.caption || it.alt}</span>
-            </button>
-          </li>
-        ))}
-      </ol>
-      <FullSize ref={full} src={g.src} w={g.width} h={g.height} alt={g.alt} label={g.caption || undefined} step={(d) => pick(at + d, true)}
-        refocus={() => row.current?.querySelector<HTMLElement>('[aria-selected="true"]')?.focus()} />
-    </div>
-  )
-}
-
-/**
  * Phone screens without their store art: the app's own area of each store frame (780 × 1689, in its pixels), in the
  * order the app is used, with one line each, taken from the frame's own description.
  */
@@ -307,50 +105,102 @@ const order = Object.keys(APP)
 const name = (p: Picture) => p.caption.replace(/, iPhone$/, '')
 
 /**
- * A phone app's screens as one loop, all in view at once: side by side on a desktop, a swipeable row with the next one
- * peeking in on phones. Each screen opens at full size; a screen that carries a decision shows its marker.
+ * A screen's one line: the phone apps' own line, a care board's title, or the first clause of the picture's description
+ * (after its "Product screen:" label, without "Invented data."), cut at a comma near 90 characters. LINES rewrites the
+ * ones that read badly that way, from the same description.
+ */
+const LINES: Record<string, string> = {
+  '/showcase/care-dashboard/vitals-graph.webp': "One patient's glucose graph, with a 7-day trend",
+  '/showcase/bayyinah/web-01.webp': 'The hero, with the app on a laptop, a monitor and phones',
+  '/showcase/bayyinah/web-06.webp': 'Choose Your Plan, with a monthly and annual switch',
+  '/showcase/bayyinah/store-01.webp': 'The App Store frame for the home screen',
+  '/showcase/bayyinah/store-02.webp': 'The surah list and the video player',
+  '/showcase/design-system/boards/board-03-1080.webp': "Four variants by seven tones, each label's contrast measured",
+  '/showcase/design-system/boards/board-04-1080.webp': 'A complete care-team screen made only from library parts',
+  '/showcase/design-system/boards/board-07-1080.webp': 'Six steps from edit to release, and 96.6% less JavaScript',
+  '/personal/shots/futurisma-frostline-2.webp': 'Under a clock tower and the FROSTLINE / MIDNIGHT RUN arch',
+  '/showcase/offday/offday-landing-hero.webp': 'The headline, the pitch and the top of the product demo',
+  '/showcase/offday/offday-landing-rest.webp': 'Best dates, who needs a break, heads-ups and bridge days',
+  '/showcase/offday/offday-landing-features.webp': 'The shared calendar, balances, roles, overlaps and private notes',
+  '/showcase/offday/offday-landing-security.webp': 'One request as four people see it, above six safeguards',
+  '/showcase/leakscan/leakscan-desktop-hero-scan.webp': 'The address field and the app model with the scan passing through it',
+  '/showcase/leakscan/leakscan-desktop-checks.webp': 'Seven checks, each tagged Free check or Full Scan',
+  '/showcase/leakscan/leakscan-desktop-fix.webp': 'A finding beside the fix prompt written for it',
+  '/showcase/leakscan/leakscan-desktop-how.webp': 'Seven steps from proving the app is yours to the report',
+}
+const lineOf = (p: Picture) => {
+  const own = APP[p.src]?.line ?? BOARDS[p.src]?.title ?? LINES[p.src]
+  if (own) return own
+  let t = p.alt.replace(/\s*Invented data\.?$/, '')
+  const label = t.indexOf(': ')
+  if (label > 0 && label < 60) t = t.slice(label + 2)
+  t = t.split(/(?<=[a-z0-9)])\. /)[0].replace(/\.$/, '')
+  const cut = t.lastIndexOf(', ', 90)
+  if (t.length > 90 && cut > 0) t = t.slice(0, cut)
+  return t[0].toUpperCase() + t.slice(1)
+}
+
+/**
+ * A case's screens as one loop. Phone apps show all their screens at once on a desktop; wide screens (and phones on a
+ * phone) are a sideways row, the next screen peeking in, with dots that follow it and, for wide screens, ‹ › to step.
+ * Each screen opens at full size; a screen that carries a decision shows its marker.
  */
 function Loop({ items, slug, at, instant, setAt, mark, decisions }: {
   items: Picture[]; slug: string; at: number; instant: boolean; setAt(i: number, instant: boolean): void; mark: Mark; decisions: string[]
 }) {
   const full = useRef<FullSizeHandle>(null)
   const row = useRef<HTMLOListElement>(null)
-  // Phones: which screen leads the row, for the dots under it.
+  const wide = items[0].width > items[0].height
+  // Which screen leads the row (for the dots), and whether the row can step either way (for ‹ ›).
   const [lead, setLead] = useState(0)
-  const shots = [...items].sort((a, b) => order.indexOf(a.src) - order.indexOf(b.src))
-  // `at` indexes `items`; the loop shows them in the app's order.
+  const [ends, setEnds] = useState({ start: true, end: false })
+  const shots = wide ? items : [...items].sort((a, b) => order.indexOf(a.src) - order.indexOf(b.src))
+  // `at` indexes `items`; a phone loop shows them in the app's order.
   const g = items[at] ?? items[0]
   const here = shots.indexOf(g)
-  // "Show on screen" picks a screen: on phones bring it into the row's view, sideways only.
+  const motion = (inst: boolean) => (inst || matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth')
+  const kids = () => [...(row.current?.children ?? [])] as HTMLElement[]
+  const go = (i: number, inst: boolean) => {
+    const r = row.current, k = kids()
+    if (r && k[i]) r.scrollTo({ left: k[i].offsetLeft - k[0].offsetLeft, behavior: motion(inst) })
+  }
+  // "Show on screen" picks a screen: bring it into the row's view, sideways only.
   useEffect(() => {
-    const r = row.current, b = r?.children[here] as HTMLElement | undefined
-    if (!r || !b || r.scrollWidth <= r.clientWidth) return
-    r.scrollTo({ left: b.offsetLeft - r.offsetLeft - parseFloat(getComputedStyle(r).scrollPaddingLeft || '0'), behavior: instant || matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' })
-  }, [here, instant])
+    const r = row.current
+    if (r && r.scrollWidth > r.clientWidth) go(here, instant)
+  }, [here, instant]) // eslint-disable-line react-hooks/exhaustive-deps
+  const scrolled = () => {
+    const r = row.current, k = kids()
+    if (!r || !k.length) return
+    const end = r.scrollLeft + r.clientWidth >= r.scrollWidth - 2
+    setLead(end ? k.length - 1 : k.reduce((b, c, i) => (Math.abs(c.offsetLeft - k[0].offsetLeft - r.scrollLeft) < Math.abs(k[b].offsetLeft - k[0].offsetLeft - r.scrollLeft) ? i : b), 0))
+    setEnds({ start: r.scrollLeft < 2, end })
+  }
   const step = (d: number) => setAt(items.indexOf(shots[(here + d + shots.length) % shots.length]), true)
   return (
-    <div className="re-cs-loop-wrap">
-      <ol ref={row} className="re-cs-loop" style={{ '--n': shots.length } as Vars}
-        onScroll={(e) => { const r = e.currentTarget, w = (r.children[1] as HTMLElement | undefined)?.offsetLeft ?? 0, f = (r.children[0] as HTMLElement).offsetLeft
-          setLead(r.scrollLeft + r.clientWidth >= r.scrollWidth - 2 ? shots.length - 1 : Math.round(r.scrollLeft / Math.max(1, w - f))) }}>
+    <div className="re-cs-loop-wrap" data-shape={wide ? 'wide' : 'phone'}>
+      <ol ref={row} className="re-cs-loop" style={{ '--n': shots.length } as Vars} onScroll={scrolled}>
         {shots.map((it) => {
-          const { crop, line } = APP[it.src]
+          const crop: Rect = APP[it.src]?.crop ?? [0, 0, it.width, it.height]
           const m = MARKERS[it.src]?.slug === slug ? MARKERS[it.src] : undefined
           const open = !!m && (mark.lit === m.decision || mark.pinned === m.decision)
           const shot = { src: it.src, alt: it.alt, w: it.width, h: it.height }
+          // A marker's point is in its own file's pixels, which may be twice the picture's.
+          const [mx, my] = m ? [((m.x * it.width) / m.w - crop[0]) / crop[2], ((m.y * it.width) / m.w - crop[1]) / crop[3]] : [0, 0]
           return (
-            <li key={it.src}>
+            <li key={it.src} style={{ '--a': crop[2] / crop[3] } as Vars}>
               <figure className="re-cs-loop-card">
                 <div className="re-cs-loop-shot">
                   <div className="re-sw-screen" style={{ ...cropVars(shot, crop), ...cropVars(shot, crop, 'n') } as Vars}>
-                    <img ref={pixelReveal} src={it.src} width={it.width} height={it.height} alt={it.alt} draggable={false} loading="lazy" decoding="async" />
+                    <img ref={pixelReveal} src={it.src} srcSet={srcSetOf(it.src)} sizes={wide ? '(max-width: 599px) 88vw, (max-width: 1023px) 82vw, 900px' : undefined}
+                      width={it.width} height={it.height} alt={it.alt} draggable={false} loading="lazy" decoding="async" />
                   </div>
                   <button type="button" className="re-sw-real" aria-label={`${name(it)}, at full size`} onClick={() => { setAt(items.indexOf(it), false); full.current?.open() }} />
                   {m && (
                     <button
                       type="button" className="re-cs-mark" aria-expanded={open} aria-controls="re-cs-mark-text"
-                      aria-label="The decision on this screen" data-open={open || undefined} data-side={(m.x - crop[0]) / crop[2] > 0.6 ? 'left' : 'right'} data-up={m.up || undefined}
-                      style={{ left: `${((m.x - crop[0]) / crop[2]) * 100}%`, top: `${((m.y - crop[1]) / crop[3]) * 100}%` }}
+                      aria-label="The decision on this screen" data-open={open || undefined} data-side={mx > 0.6 ? 'left' : 'right'} data-up={m.up || undefined}
+                      style={{ left: `${mx * 100}%`, top: `${my * 100}%` }}
                       onPointerEnter={(e) => { if (e.pointerType === 'mouse') mark.setLit(m.decision) }} onPointerLeave={() => mark.setLit(null)}
                       onFocus={() => mark.setLit(m.decision)} onBlur={() => mark.setLit(null)}
                       onClick={() => mark.pin(mark.pinned === m.decision ? null : m.decision)}
@@ -359,13 +209,27 @@ function Loop({ items, slug, at, instant, setAt, mark, decisions }: {
                     </button>
                   )}
                 </div>
-                <figcaption><span className="re-cs-loop-name">{name(it)}</span>{line}</figcaption>
+                <figcaption><span className="re-cs-loop-name">{name(it)}</span>{lineOf(it)}</figcaption>
               </figure>
             </li>
           )
         })}
       </ol>
-      <p className="re-cs-loop-dots" aria-hidden="true">{shots.map((it, i) => <i key={it.src} data-on={i === lead || undefined} />)}</p>
+      {shots.length > 1 && (
+        <div className="re-cs-loop-bar">
+          <p className="re-cs-loop-dots" aria-hidden="true">{shots.map((it, i) => <i key={it.src} data-on={i === lead || undefined} />)}</p>
+          {wide && (
+            <>
+              <button type="button" className="re-cs-loop-step" aria-label="Previous screens" disabled={ends.start} onClick={(e) => go(Math.max(lead - 1, 0), e.detail === 0)}>
+                <CaretLeftIcon size={18} weight="regular" aria-hidden="true" />
+              </button>
+              <button type="button" className="re-cs-loop-step" aria-label="Next screens" disabled={ends.end} onClick={(e) => go(Math.min(lead + 1, shots.length - 1), e.detail === 0)}>
+                <CaretRightIcon size={18} weight="regular" aria-hidden="true" />
+              </button>
+            </>
+          )}
+        </div>
+      )}
       {shots.map((it) => {
         const m = MARKERS[it.src]?.slug === slug ? MARKERS[it.src] : undefined
         return m && <p key={it.src} id="re-cs-mark-text" className="re-cs-mark-text" hidden={!(mark.lit === m.decision || mark.pinned === m.decision)}>{decisions[m.decision]}</p>
@@ -579,9 +443,11 @@ export function CasePage({ slug, rest = true, onBack }: { slug: string; rest?: b
           <section ref={stage} className="re-cs-screens" aria-labelledby="re-screens-h">
             <h2 id="re-screens-h" className="re-cs-h2">Screens</h2>
             {s.gallery.some((g) => g.alt.includes('Invented data')) && <p className="re-case-note re-num">Real product screens, invented data.</p>}
-            {s.gallery.every((g) => APP[g.src])
-              ? <Loop items={s.gallery} slug={slug} at={Math.min(shown, s.gallery.length - 1)} instant={instant} setAt={setShown} mark={mark} decisions={c?.decision ?? []} />
-              : <Gallery items={s.gallery} slug={slug} at={Math.min(shown, s.gallery.length - 1)} instant={instant} setAt={setShown} mark={mark} decisions={c?.decision ?? []} />}
+            {/* Web screens and phone screens each get their own loop (Bayyinah has both): one row shares one height. */}
+            {[s.gallery.filter((g) => g.width > g.height), s.gallery.filter((g) => g.width <= g.height)].filter((part) => part.length > 0).map((part) => (
+              <Loop key={part[0].src} items={part} slug={slug} at={Math.max(part.indexOf(s.gallery[shown]), 0)} instant={instant}
+                setAt={(i, inst) => setShown(s.gallery.indexOf(part[i]), inst)} mark={mark} decisions={c?.decision ?? []} />
+            ))}
           </section>
         )}
 

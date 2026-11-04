@@ -39,3 +39,73 @@ export const LEADS: Record<string, { shot: Shot; crop?: Crop; phoneCrop?: Crop }
   offday: { shot: { src: '/showcase/offday/offday-desktop-calendar.webp', w: 2880, h: 1800, alt: 'Offday team calendar for October 2026 with leave bars and the approvals queue' }, crop: [0, 0, 2880, 1520], phoneCrop: [534, 40, 1300, 1300] },
   leakscan: { shot: { src: '/showcase/leakscan/leakscan-desktop-report.webp', w: 2880, h: 1800, alt: 'LeakScan Full Scan report: health score 48 and the three critical fixes to start with' }, crop: [0, 0, 2880, 1520], phoneCrop: [640, 340, 1420, 1180] },
 }
+
+/**
+ * Captures 2000 px wide or more that have a smaller copy beside them (`name-1080.webp`): [that copy's width, the full
+ * width]. Phones load the copy (srcset), so a 2880 px screen is not decoded for a 340 px card. Every capture the site
+ * shows has one (made with Pillow, Lanczos, WebP q82); `srcSetOf` returns undefined for anything else.
+ */
+export const SMALL: Record<string, [small: number, full: number]> = {
+  '/personal/shots/fjale-desktop.webp': [1080, 2880],
+  '/personal/shots/form-cast-desktop.webp': [1080, 2880],
+  '/personal/shots/form-chrome-desktop.webp': [1080, 2880],
+  '/personal/shots/form-home-desktop.webp': [1080, 2880],
+  '/personal/shots/form-studio-desktop.webp': [1080, 2880],
+  '/personal/shots/futurisma-frostline-1.webp': [1080, 2880],
+  '/personal/shots/futurisma-frostline-2.webp': [1080, 2880],
+  '/personal/shots/futurisma-frostline-3.webp': [1080, 2880],
+  '/personal/shots/futurisma-garage.webp': [1080, 2880],
+  '/personal/shots/morse-desktop.webp': [1080, 2880],
+  '/personal/shots/offbeat-design-desktop.webp': [1080, 2880],
+  '/personal/shots/offbeat-finish-desktop.webp': [1080, 2880],
+  '/personal/shots/offbeat-home-desktop.webp': [1080, 2880],
+  '/personal/shots/offbeat-record-desktop.webp': [1080, 2880],
+  '/personal/shots/offbeat-studio-desktop.webp': [1080, 2880],
+  '/personal/shots/offday-dark-calendar-desktop.webp': [1080, 2880],
+  '/personal/shots/offday-light-approvals-desktop.webp': [1080, 2880],
+  '/personal/shots/offday-light-assistant-desktop.webp': [1080, 2880],
+  '/personal/shots/offday-light-best-dates-desktop.webp': [1080, 2880],
+  '/personal/shots/offday-light-calendar-desktop.webp': [1080, 2880],
+  '/personal/shots/offday-light-drag-select-desktop.webp': [1080, 2880],
+  '/personal/shots/offday-light-holidays-desktop.webp': [1080, 2880],
+  '/personal/shots/offday-light-landing-desktop.webp': [1080, 2880],
+  '/personal/shots/offday-light-shifts-desktop.webp': [1080, 2880],
+  '/personal/shots/snaxx-desktop.webp': [1080, 2880],
+  '/personal/shots/tondo-desktop.webp': [1080, 2880],
+  '/personal/shots/za-desktop.webp': [1080, 2880],
+  '/showcase/bayyinah/org-01.webp': [1080, 2880],
+  '/showcase/bayyinah/org-02.webp': [1080, 2880],
+  '/showcase/bayyinah/org-03.webp': [1080, 2880],
+  '/showcase/bayyinah/org-04.webp': [1080, 2880],
+  '/showcase/bayyinah/org-05.webp': [1080, 2880],
+  '/showcase/bayyinah/web-01.webp': [1080, 2880],
+  '/showcase/bayyinah/web-02.webp': [1080, 2880],
+  '/showcase/bayyinah/web-03.webp': [1080, 2880],
+  '/showcase/bayyinah/web-04.webp': [1080, 2880],
+  '/showcase/bayyinah/web-05.webp': [1080, 2880],
+  '/showcase/bayyinah/web-06.webp': [1080, 2880],
+  '/showcase/care-dashboard/appointments-week.webp': [1080, 2880],
+  '/showcase/care-dashboard/claims.webp': [1080, 2880],
+  '/showcase/care-dashboard/overview.webp': [1080, 2880],
+  '/showcase/care-dashboard/rpm-overview-cgm.webp': [1080, 2880],
+  '/showcase/care-dashboard/vitals-graph.webp': [1080, 2880],
+  '/showcase/care/old-new/old-appointments.webp': [1080, 2880],
+  '/showcase/care/old-new/old-compliance.webp': [1080, 2880],
+  '/showcase/design-system/boards/board-04.webp': [1080, 3200],
+  '/showcase/design-system/boards/xv/board-03.webp': [1080, 3200],
+  '/showcase/incentiv/web-03.webp': [1080, 2880],
+  '/showcase/leakscan/leakscan-desktop-checks.webp': [1080, 2880],
+  '/showcase/leakscan/leakscan-desktop-fix.webp': [1080, 2880],
+  '/showcase/leakscan/leakscan-desktop-hero-scan.webp': [1080, 2880],
+  '/showcase/leakscan/leakscan-desktop-how.webp': [1080, 2880],
+  '/showcase/leakscan/leakscan-desktop-report.webp': [1080, 2880],
+  '/showcase/offday/offday-desktop-calendar.webp': [1080, 2880],
+  '/showcase/offday/offday-landing-features.webp': [1080, 2880],
+  '/showcase/offday/offday-landing-hero.webp': [1080, 2880],
+  '/showcase/offday/offday-landing-rest.webp': [1080, 2880],
+  '/showcase/offday/offday-landing-security.webp': [1080, 2880],
+}
+export const srcSetOf = (src: string) => {
+  const s = SMALL[src]
+  return s && `${src.replace(/\.webp$/, '-1080.webp')} ${s[0]}w, ${src} ${s[1]}w`
+}
