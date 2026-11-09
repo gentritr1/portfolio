@@ -1,89 +1,87 @@
 <!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Gentrit Rashiti - Software Engineer</title>
-<!-- Canonical CV copy. build_pdf.py reads these content blocks to generate the downloadable PDF. -->
+<html lang="en"><head><meta charset="utf-8"><title>Gentrit Rashiti CV</title><!-- Canonical CV. cv/build_pdf.sh prints this page to public/Gentrit-Rashiti-CV.pdf with headless Chrome. -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Outfit:wght@400;500;600&display=block" rel="stylesheet">
 <style>
-  :root { color-scheme: light; --ink: #152c36; --body: #293d47; --muted: #52646e; --accent: #116c70; --rule: #d6e1e3; }
-  @page { size: A4; margin: 0; }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  html { background: #e9edef; }
-  body { font-family: Arial, Helvetica, sans-serif; color: var(--body); font-size: 9.5pt; line-height: 1.38; }
-  .page { width: 210mm; min-height: 297mm; margin: 24px auto; padding: 12mm 15mm; background: white; }
-  header { padding-bottom: 3mm; border-bottom: 1px solid var(--rule); }
-  h1 { color: var(--ink); font-size: 24pt; line-height: 1.1; }
-  .role { color: var(--accent); font-size: 11pt; margin-top: 1.5mm; }
-  .contact { color: var(--muted); font-size: 8.7pt; margin-top: 2mm; }
-  .contact + .contact { margin-top: 0.8mm; }
-  a { color: var(--accent); text-decoration: none; }
-  h2 { color: var(--accent); font-size: 11pt; margin: 3.5mm 0 1.4mm; }
-  h3 { color: var(--ink); font-size: 9.6pt; margin: 1.5mm 0 1mm; }
-  p + p { margin-top: 1.4mm; }
-  .job-meta { color: var(--muted); font-size: 8.8pt; }
-  ul { padding-left: 3.8mm; }
-  li { padding-left: 0.4mm; }
-  li + li { margin-top: 1.4mm; }
-  li::marker { color: var(--accent); }
-  strong { color: var(--ink); }
-  .skills p { margin-top: 0.9mm; }
-  .languages { color: var(--muted); margin-top: 2.5mm; font-size: 8.8pt; }
-  @media print { html { background: white; } .page { margin: 0; } }
-  @media screen and (max-width: 820px) { .page { width: auto; margin: 0; padding: 24px; } }
-</style>
-</head>
+@page { size: A4; margin: 0 }
+* { box-sizing: border-box; margin: 0; padding: 0 }
+:root { --ink: #121a24; --soft: #4b5765; --line: #e6e9ee; --chip: #f1f3f6; --chip-ink: #56616e }
+body { font: 9.3pt/1.5 Inter, sans-serif; color: var(--ink); width: 210mm; padding: 16mm 20mm 10mm; font-feature-settings: "tnum" 0 }
+a { color: inherit; text-decoration: none }
+h1, h2, h3, .date, .role { font-family: Outfit, sans-serif }
+header { text-align: center; padding-bottom: 7mm; border-bottom: 1px solid var(--line) }
+h1 { font-size: 27pt; font-weight: 600; letter-spacing: -.02em; line-height: 1.05 }
+.role { font-size: 12.5pt; color: var(--soft); margin-top: 2mm }
+.contact { font-size: 8.8pt; color: var(--soft); margin-top: 5mm }
+.contact span + span::before { content: ""; display: inline-block; width: 1px; height: 2.8mm; background: #b9c0c9; margin: 0 2.8mm; vertical-align: -.4mm }
+section { display: grid; grid-template-columns: 42mm 1fr; padding: 5.6mm 0; border-bottom: 1px solid var(--line) }
+section:last-child { border: 0; padding-bottom: 0 }
+h2 { font-size: 12.5pt; font-weight: 600; letter-spacing: -.01em; line-height: 1.3 }
+.item + .item { margin-top: 5.6mm }
+.head { display: flex; justify-content: space-between; align-items: baseline; gap: 4mm }
+h3 { font-size: 11.5pt; font-weight: 600; letter-spacing: -.01em; line-height: 1.3 }
+h3 em { font-style: normal; font-weight: 400; color: var(--soft) }
+.date { font-size: 9.6pt; white-space: nowrap; font-variant-numeric: tabular-nums; color: var(--ink) }
+.tags { display: flex; flex-wrap: wrap; gap: 1.5mm; margin: 2.4mm 0 3mm }
+.tags span { background: var(--chip); color: var(--chip-ink); font-size: 8.2pt; line-height: 1.55; padding: .2mm 1.8mm; border-radius: .9mm }
+ul { list-style: none }
+li { position: relative; padding-left: 5mm; color: #26303b }
+li + li { margin-top: 1.4mm }
+li::before { content: ""; position: absolute; left: 0; top: 1.75mm; width: 1.6mm; height: 1.6mm; background: #cfd6de; border-radius: .3mm }
+p.text { color: #26303b; max-width: 118mm }
+.skills { display: grid; grid-template-columns: 36mm 1fr; row-gap: 2.6mm; align-items: start }
+.skills h3 { font-size: 10.6pt; font-weight: 500; padding-top: .2mm }
+.skills .tags { margin: 0 }
+</style></head>
 <body>
-<main class="page">
-  <header>
-    <h1>Gentrit Rashiti</h1>
-    <p class="role">Software Engineer | Web, Mobile &amp; Backend</p>
-    <p class="contact">Kosovo (CET/CEST) | Open to full-time roles | <a href="mailto:gentrit.rashiti2@gmail.com">gentrit.rashiti2@gmail.com</a></p>
-    <p class="contact"><a href="https://github.com/gentritr1">github.com/gentritr1</a> | <a href="https://www.gentrit.tech">gentrit.tech</a> | <a href="https://www.linkedin.com/in/gentrit-rashiti-885662199">LinkedIn</a></p>
-  </header>
+<header>
+  <h1>Gentrit Rashiti</h1>
+  <p class="role">Software Engineer</p>
+  <p class="contact"><span><a href="mailto:gentrit.rashiti2@gmail.com">gentrit.rashiti2@gmail.com</a></span><span>Kosovo (CET)</span><span><a href="https://www.gentrit.tech">gentrit.tech</a></span><span><a href="https://github.com/gentritr1">github.com/gentritr1</a></span><span><a href="https://www.linkedin.com/in/gentrit-rashiti-885662199">LinkedIn</a></span></p>
+</header>
 
-  <h2>Profile</h2>
-  <p>Software engineer with 5+ years shipping web and mobile products. Experience spans healthcare workflows, subscriptions, store releases and framework upgrades, with Laravel API and database work since 2026. Onboards developers to a tested frontend rewrite and uses AI coding agents within team rules, checks and human review.</p>
+<section><h2>Profile</h2>
+  <p class="text">Software engineer with 5+ years building web and mobile products, from planning to production.</p>
+</section>
 
-  <h2>Experience</h2>
-  <h3>Vianova | Frontend &amp; Mobile; Full Stack since 2026</h3>
-  <p class="job-meta">May 2021 - Present | Care-management platform since 2023</p>
-  <ul>
-    <li><strong>Laravel APIs and reporting:</strong> tenant data isolation, role checks, timezone fixes, enrollment drafts and a lab catalog. One billing report went from 16 queries to 2 and no longer times out.</li>
-    <li><strong>Care workflows:</strong> device vitals, care plans, labs, billing claims and calls in a platform supporting four languages.</li>
-    <li><strong>Vue-to-React rewrite, in progress:</strong> with a colleague, proposed React with TanStack over a Nuxt 3 upgrade for its ecosystem, developer onboarding and built-in data caching; the team agreed. Both apps are checked against the same scenarios, old bugs are recorded and changes reviewed before approval. Wrote migration rules and checks used by developers and AI agents.</li>
-    <li><strong>Developer onboarding:</strong> led discussions of existing behavior, bugs and slice-by-slice delivery; guided agent use, model selection and orchestration within the shared rewrite process.</li>
-    <li><strong>Design System v2, a team effort:</strong> research and agent guides for a React library with 41 components, automated accessibility checks and 22 releases in 60 days.</li>
-  </ul>
+<section><h2>Education</h2>
+  <div class="head"><h3>UBT <em>— Bachelor's degree</em></h3><span class="date">2017 - 2020</span></div>
+</section>
 
-  <h2>Selected web &amp; mobile delivery</h2>
-  <ul>
-    <li><strong>Bayyinah TV, 2023-2026:</strong> led the decision to rebuild the Nuxt 2 app on Nuxt 3 with a cleaner structure; live streams, chat, subscriptions and English/Arabic support. One web app serves the browser and both store apps.</li>
-    <li><strong>Read to Feed, 2022-2025:</strong> about 14 store releases and three major React Native upgrades. Maintained PDF/EPUB library forks, including a native WebView change for Android font rendering.</li>
-  </ul>
-
-  <h2>Freelance contracts</h2>
-  <ul>
-    <li><strong>Incentiv, 2024:</strong> built most of the Next.js portal frontend, from passkey sign-in and onboarding to the dashboard. Teammates built the wallet and blockchain integration.</li>
-    <li><strong>AvahiTech, 2024:</strong> React dashboard with AI headshot generation and document chat; backend features in Python/FastAPI.</li>
-  </ul>
-
-  <h2>Independent products</h2>
-  <ul>
-    <li><strong><a href="https://github.com/gentritr1/tondo">Tondo</a>:</strong> Node.js multiplayer game, deployed on Render. The server validates moves and sends state over WebSockets; PostgreSQL stores saved crews. Public source code.</li>
-    <li><strong>Offday:</strong> co-built a Next.js/SQLite time-off app with server-side roles and organization boundaries. About 200 Playwright tests. Working MVP.</li>
-    <li><strong>LeakScan:</strong> built alone, pre-launch. Security scans with domain-ownership checks, reports and rescans; encrypted credentials with expiry and owner deletion. Next.js, Postgres/PGlite, Drizzle.</li>
-  </ul>
-
-  <h2>Technical skills</h2>
-  <div class="skills">
-    <p><strong>Frontend &amp; mobile:</strong> TypeScript, React, Next.js, Vue/Nuxt, React Native, Tailwind CSS, Bootstrap, iOS/Android releases</p>
-    <p><strong>State &amp; server data:</strong> Redux / Redux Toolkit, Zustand, Pinia, Vuex, TanStack Query</p>
-    <p><strong>Backend &amp; data:</strong> Node.js, PHP/Laravel, MySQL, PostgreSQL, Redis, REST APIs, WebSockets</p>
-    <p><strong>Quality:</strong> Zod, Playwright, Vitest, Pest, Storybook, axe, CI checks, AI-assisted development and review</p>
-    <p><strong>Integrations:</strong> Stripe, Firebase, Twilio, Pusher, AWS IVS, Cloudinary (images). Hosting on Render and Cloudflare Pages; AWS file uploads and troubleshooting; exposure to EC2 deployments.</p>
+<section><h2>Experience</h2><div>
+  <div class="item">
+    <div class="head"><h3>Vianova <em>— Software Engineer</em></h3><span class="date">May 2021 - Present</span></div>
+    <div class="tags"><span>React</span><span>Vue.js</span><span>Nuxt.js</span><span>React Native</span><span>Laravel</span><span>TypeScript</span></div>
+    <ul>
+      <li>Built features end to end for a healthcare care-management platform.</li>
+      <li>Developed Laravel APIs and improved report performance.</li>
+      <li>Helped lead the move from Vue to React and onboarded developers.</li>
+      <li>Contributed to a shared design system used across projects.</li>
+      <li>Built and maintained web and mobile apps released on the App Store and Google Play.</li>
+    </ul>
   </div>
-  <p class="languages"><strong>Languages:</strong> Albanian (native), English</p>
-</main>
-</body>
-</html>
+  <div class="item">
+    <div class="head"><h3>Freelance <em>— Frontend Engineer</em></h3><span class="date">2024</span></div>
+    <div class="tags"><span>Next.js</span><span>React</span><span>TypeScript</span><span>FastAPI</span></div>
+    <ul>
+      <li>Built web portals and dashboards for clients, from sign-in to the main product screens.</li>
+      <li>Worked with clients and teams to define requirements and deliver on time.</li>
+    </ul>
+  </div>
+  <div class="item">
+    <div class="head"><h3>Personal projects</h3></div>
+    <div class="tags"><span>Node.js</span><span>Next.js</span><span>PostgreSQL</span><span>Playwright</span></div>
+    <ul>
+      <li>Built and shipped full-stack apps, including a real-time multiplayer game.</li>
+    </ul>
+  </div>
+</div></section>
+
+<section><h2>Skills &amp; Tools</h2><div class="skills">
+  <h3>Languages</h3><div class="tags"><span>TypeScript</span><span>JavaScript</span><span>PHP</span><span>SQL</span><span>HTML/CSS</span></div>
+  <h3>Frontend &amp; mobile</h3><div class="tags"><span>React</span><span>Next.js</span><span>Vue.js</span><span>Nuxt.js</span><span>React Native</span><span>Tailwind CSS</span><span>Redux Toolkit</span><span>TanStack Query</span></div>
+  <h3>Backend &amp; data</h3><div class="tags"><span>Node.js</span><span>Laravel</span><span>MySQL</span><span>PostgreSQL</span><span>REST APIs</span></div>
+  <h3>Testing &amp; AI</h3><div class="tags"><span>Playwright</span><span>Vitest</span><span>Storybook</span><span>Claude Code</span></div>
+  <h3>Tools</h3><div class="tags"><span>Git</span><span>Firebase</span><span>Stripe</span><span>AWS</span><span>Cloudflare</span><span>Figma</span></div>
+  <h3>Spoken</h3><div class="tags"><span>Albanian (native)</span><span>English</span></div>
+</div></section>
+</body></html>
