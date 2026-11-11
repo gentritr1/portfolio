@@ -1,5 +1,39 @@
 [
  {
+  "name": "load",
+  "w": 1440,
+  "h": 900,
+  "init": "window.__fh = { t0: performance.now(), ready: 0, settled: 0, end: 0, readyFirst: null, anims: new Set(), story: null, pull: null };\nnew MutationObserver(() => { const s = document.querySelector('.re-fh-screen'); if (!s) return; const f = window.__fh;\n  if (f.readyFirst === null) f.readyFirst = s.hasAttribute('data-ready') ? 'ready' : s.hasAttribute('data-settled') ? 'settled' : null;\n  if (!f.ready && s.hasAttribute('data-ready')) { f.ready = performance.now(); const im = s.querySelector('.re-fh-sharp'); f.story = im.closest('[data-motion=story]') ? true : false; const a = im.getAnimations()[0]; f.pull = a ? [a.effect.getTiming().duration, a.effect.getTiming().delay] : null }\n  if (!f.settled && s.hasAttribute('data-settled')) f.settled = performance.now() }).observe(document, { subtree: true, childList: true, attributes: true, attributeFilter: ['data-ready', 'data-settled'] });\nwindow.__lt = []; try { new PerformanceObserver((l) => { for (const e of l.getEntries()) window.__lt.push([Math.round(e.startTime), Math.round(e.duration)]) }).observe({ type: 'longtask', buffered: true }) } catch {}\ndocument.addEventListener('animationend', (e) => { if (e.animationName === 're-fh-pull' && !window.__fh.end) window.__fh.end = performance.now() }, true);\ndocument.addEventListener('animationstart', (e) => { if (e.target.closest && e.target.closest('.re-intro')) window.__fh.anims.add(e.target.className + ':' + e.animationName) }, true);\n",
+  "steps": [
+   {
+    "scrollTo": "#re-top"
+   },
+   {
+    "eval": "(async () => { const v = await ({ ready: Math.round(window.__fh.ready - window.__fh.t0), settleAfterDecode: Math.round(window.__fh.settled - window.__fh.ready), sharpAfterDecode: Math.round(Math.min(window.__fh.settled, window.__fh.end || Infinity) - window.__fh.ready), first: window.__fh.readyFirst, story: window.__fh.story, pull: window.__fh.pull, anims: [...window.__fh.anims], longDuringPull: window.__lt.filter(([s, d]) => s + d > window.__fh.ready && s < window.__fh.settled) }); if (!(v.ready > 0 && v.first === 'ready' && v.story && v.pull && v.pull[0] <= 800 && v.pull[1] === 0 && v.sharpAfterDecode > 0 && v.sharpAfterDecode <= 800 && v.anims.length <= 1)) throw new Error(\"pull not story, delayed, slow, or the hero moves more than one thing at load\" + ' ' + JSON.stringify(v)); return v })()"
+   },
+   {
+    "eval": "(async () => { const v = await ({ settled: !!document.querySelector('.re-fh-screen[data-settled]'), clip: getComputedStyle(document.querySelector('.re-fh-sharp')).clipPath }); if (!(v.settled && v.clip === 'none')) throw new Error(\"first screen not settled sharp\" + ' ' + JSON.stringify(v)); return v })()"
+   }
+  ]
+ },
+ {
+  "name": "paused",
+  "w": 1440,
+  "h": 900,
+  "init": "document.addEventListener('DOMContentLoaded', () => { const s = document.createElement('style'); s.textContent = '* { animation-play-state: paused !important }'; document.head.append(s) });",
+  "steps": [
+   {
+    "scrollTo": "#re-top"
+   },
+   {
+    "wait": 300
+   },
+   {
+    "eval": "(async () => { const v = await ({ settled: !!document.querySelector('.re-fh-screen[data-settled]'), clip: getComputedStyle(document.querySelector('.re-fh-sharp')).clipPath }); if (!(v.settled && v.clip === 'none')) throw new Error(\"screen depends on the animation finishing\" + ' ' + JSON.stringify(v)); return v })()"
+   }
+  ]
+ },
+ {
   "name": "desktop",
   "w": 1440,
   "h": 900,
@@ -8,19 +42,16 @@
     "scrollTo": "#re-top"
    },
    {
-    "wait": 1800
-   },
-   {
-    "eval": "(() => { if (!(!!document.querySelector('.re-fh-screen[data-settled]') && getComputedStyle(document.querySelector('.re-fh-sharp')).clipPath === 'none')) throw new Error(\"first screen not settled sharp\" + ' ' + JSON.stringify({ clip: getComputedStyle(document.querySelector('.re-fh-sharp')).clipPath, settled: !!document.querySelector('.re-fh-screen[data-settled]') })); return { clip: getComputedStyle(document.querySelector('.re-fh-sharp')).clipPath, settled: !!document.querySelector('.re-fh-screen[data-settled]') } })()"
+    "eval": "(async () => { const v = await (() => { const R = (s) => document.querySelector(s).getBoundingClientRect(); const sc = R('.re-fh-screen');\n  const copy = document.querySelector('.re-intro-copy'); const cb = Math.max(...[...copy.querySelectorAll('*')].map((e) => e.getBoundingClientRect()).filter((b) => b.width > 2 && b.height > 2).map((b) => b.bottom));\n  const fh = Math.max(...['.re-fh-screen', '.re-fh-name', '.re-fh-note', '.re-fh-strip'].map((s) => R(s).bottom));\n  const rows = new Set(['.re-fh-name', '.re-fh-note', '.re-fh-strip'].map((s) => Math.round(R(s).top / 12))).size;\n  const share = Math.max(0, Math.min(sc.bottom, innerHeight) - sc.top) * sc.width / innerWidth / innerHeight;\n  const im = document.querySelector('.re-fh-sharp'); const narrow = im.currentSrc.includes('-narrow'); const cs = narrow ? im.dataset.cropNarrow : im.dataset.cropWide; /* no crop data: a whole 1440-wide capture at 1280 px */ const c = cs ? cs.split(' ').map(Number) : [0, 0, 1440 * im.naturalWidth / 1280, 900 * im.naturalWidth / 1280];\n  const b = im.getBoundingClientRect(); const fit = getComputedStyle(im).objectFit;\n  const k = fit === 'cover' ? Math.max(b.width / c[2], b.height / c[3]) : Math.min(b.width / c[2], b.height / c[3], fit === 'scale-down' ? 1 : 9);\n  const kk = cs ? 2 / k : im.naturalWidth / (b.width); return { slug: document.querySelector('.re-fh-screen').pathname.split('/').pop(), w: innerWidth, h: innerHeight, screen: [Math.round(sc.left), Math.round(sc.top), Math.round(sc.width), Math.round(sc.height)], share: +share.toFixed(3), fhBottom: Math.round(fh), copyBottom: Math.round(cb), rows, scale: +k.toFixed(2), density: +kk.toFixed(2), filled: c[2] * k >= sc.width - 1 && c[3] * k >= sc.height - 1, evidenceInCopy: !!copy.querySelector('.re-evidence'), overflow: document.documentElement.scrollWidth - innerWidth } })(); if (!(v.share >= 0.28 && v.screen[2] >= 770 && Math.abs(v.copyBottom - v.fhBottom) <= 16 && v.fhBottom <= v.h && v.rows === 2 && v.evidenceInCopy && v.scale >= 0.6 && v.density >= 2 && v.overflow === 0)) throw new Error(\"1440 layout\" + ' ' + JSON.stringify(v)); return v })()"
    },
    {
     "shot": "desktop-rest"
    },
    {
-    "wait": 3000
+    "wait": 3400
    },
    {
-    "eval": "(() => { if (!([...document.querySelectorAll('.re-fh-strip li button')].findIndex(b => b.getAttribute('aria-pressed') === 'true') >= 1)) throw new Error(\"did not turn to the next area\" + ' ' + JSON.stringify({ at: [...document.querySelectorAll('.re-fh-strip li button')].findIndex(b => b.getAttribute('aria-pressed') === 'true') })); return { at: [...document.querySelectorAll('.re-fh-strip li button')].findIndex(b => b.getAttribute('aria-pressed') === 'true') } })()"
+    "eval": "(async () => { const v = await ({ at: [...document.querySelectorAll('.re-fh-strip li button')].findIndex(b => b.getAttribute('aria-pressed') === 'true') }); if (!(v.at >= 1)) throw new Error(\"did not turn to the next area\" + ' ' + JSON.stringify(v)); return v })()"
    },
    {
     "tap": ".re-fh-strip li:nth-child(3) button"
@@ -29,16 +60,28 @@
     "wait": 50
    },
    {
-    "eval": "(() => { const a = [...document.getAnimations()].filter(a => /^re-fh-(pull|seam)$/.test(a.animationName)); const t = a.map(x => x.effect.getTiming()); if (!(a.length === 2 && t.every(x => x.duration === 700 && x.delay === 0))) throw new Error('click sweep is not 700 ms with no delay ' + JSON.stringify(t)); return t.map(x => [x.duration, x.delay]) })()"
+    "eval": "(async () => { const v = await [...document.getAnimations()].filter(a => a.animationName === 're-fh-pull').map(a => a.effect.getTiming()); if (!(v.length === 1 && v.every(x => x.duration <= 700 && x.delay === 0))) throw new Error(\"click sweep is not one pull under 700 ms with no delay\" + ' ' + JSON.stringify(v)); return v })()"
    },
    {
-    "eval": "(() => { if (!([...document.querySelectorAll('.re-fh-strip li button')].findIndex(b => b.getAttribute('aria-pressed') === 'true') === 2 && document.querySelector('.re-fh-pause').getAttribute('aria-label') === 'Play the screens' && [...document.getAnimations()].filter(a => /^re-fh-(pull|seam)$/.test(a.animationName)).length === 2 && !!!document.querySelector('.re-fh-screen[data-settled]'))) throw new Error(\"pick did not start a sweep and stop the turn\" + ' ' + JSON.stringify({ at: [...document.querySelectorAll('.re-fh-strip li button')].findIndex(b => b.getAttribute('aria-pressed') === 'true'), anims: [...document.getAnimations()].filter(a => /^re-fh-(pull|seam)$/.test(a.animationName)).length, settled: !!document.querySelector('.re-fh-screen[data-settled]') })); return { at: [...document.querySelectorAll('.re-fh-strip li button')].findIndex(b => b.getAttribute('aria-pressed') === 'true'), anims: [...document.getAnimations()].filter(a => /^re-fh-(pull|seam)$/.test(a.animationName)).length, settled: !!document.querySelector('.re-fh-screen[data-settled]') } })()"
+    "eval": "(async () => { const v = await ({ at: [...document.querySelectorAll('.re-fh-strip li button')].findIndex(b => b.getAttribute('aria-pressed') === 'true'), label: document.querySelector('.re-fh-pause').getAttribute('aria-label'), anims: [...document.getAnimations()].filter(a => a.animationName === 're-fh-pull').length, settled: !!document.querySelector('.re-fh-screen[data-settled]') }); if (!(v.at === 2 && v.label === 'Play the screens' && v.anims === 1 && !v.settled)) throw new Error(\"pick did not start a sweep and stop the turn\" + ' ' + JSON.stringify(v)); return v })()"
    },
    {
-    "wait": 1800
+    "tap": ".re-fh-strip li:nth-child(4) button"
    },
    {
-    "eval": "(() => { if (!(!!document.querySelector('.re-fh-screen[data-settled]') && getComputedStyle(document.querySelector('.re-fh-sharp')).clipPath === 'none' && [...document.querySelectorAll('.re-fh-strip li button')].findIndex(b => b.getAttribute('aria-pressed') === 'true') === 2)) throw new Error(\"picked screen not settled\" + ' ' + JSON.stringify({ at: [...document.querySelectorAll('.re-fh-strip li button')].findIndex(b => b.getAttribute('aria-pressed') === 'true'), clip: getComputedStyle(document.querySelector('.re-fh-sharp')).clipPath })); return { at: [...document.querySelectorAll('.re-fh-strip li button')].findIndex(b => b.getAttribute('aria-pressed') === 'true'), clip: getComputedStyle(document.querySelector('.re-fh-sharp')).clipPath } })()"
+    "wait": 30
+   },
+   {
+    "eval": "(async () => { const v = await ({ at: [...document.querySelectorAll('.re-fh-strip li button')].findIndex(b => b.getAttribute('aria-pressed') === 'true'), screens: document.querySelectorAll('.re-fh-screen').length, href: document.querySelector('.re-fh-screen').href.endsWith('/offday'), anims: [...document.getAnimations()].filter(a => a.animationName === 're-fh-pull').length, t: [...document.getAnimations()].filter(a => a.animationName === 're-fh-pull')[0] ? [...document.getAnimations()].filter(a => a.animationName === 're-fh-pull')[0].currentTime : 0 }); if (!(v.at === 3 && v.screens === 1 && v.href && v.anims <= 1 && v.t < 200)) throw new Error(\"a second pick did not interrupt the first\" + ' ' + JSON.stringify(v)); return v })()"
+   },
+   {
+    "wait": 700
+   },
+   {
+    "eval": "(async () => { const v = await ({ at: [...document.querySelectorAll('.re-fh-strip li button')].findIndex(b => b.getAttribute('aria-pressed') === 'true'), settled: !!document.querySelector('.re-fh-screen[data-settled]'), clip: getComputedStyle(document.querySelector('.re-fh-sharp')).clipPath }); if (!(v.settled && v.clip === 'none' && v.at === 3)) throw new Error(\"picked screen not settled\" + ' ' + JSON.stringify(v)); return v })()"
+   },
+   {
+    "eval": "(async () => { const v = await (() => { const R = (s) => document.querySelector(s).getBoundingClientRect(); const sc = R('.re-fh-screen');\n  const copy = document.querySelector('.re-intro-copy'); const cb = Math.max(...[...copy.querySelectorAll('*')].map((e) => e.getBoundingClientRect()).filter((b) => b.width > 2 && b.height > 2).map((b) => b.bottom));\n  const fh = Math.max(...['.re-fh-screen', '.re-fh-name', '.re-fh-note', '.re-fh-strip'].map((s) => R(s).bottom));\n  const rows = new Set(['.re-fh-name', '.re-fh-note', '.re-fh-strip'].map((s) => Math.round(R(s).top / 12))).size;\n  const share = Math.max(0, Math.min(sc.bottom, innerHeight) - sc.top) * sc.width / innerWidth / innerHeight;\n  const im = document.querySelector('.re-fh-sharp'); const narrow = im.currentSrc.includes('-narrow'); const cs = narrow ? im.dataset.cropNarrow : im.dataset.cropWide; /* no crop data: a whole 1440-wide capture at 1280 px */ const c = cs ? cs.split(' ').map(Number) : [0, 0, 1440 * im.naturalWidth / 1280, 900 * im.naturalWidth / 1280];\n  const b = im.getBoundingClientRect(); const fit = getComputedStyle(im).objectFit;\n  const k = fit === 'cover' ? Math.max(b.width / c[2], b.height / c[3]) : Math.min(b.width / c[2], b.height / c[3], fit === 'scale-down' ? 1 : 9);\n  const kk = cs ? 2 / k : im.naturalWidth / (b.width); return { slug: document.querySelector('.re-fh-screen').pathname.split('/').pop(), w: innerWidth, h: innerHeight, screen: [Math.round(sc.left), Math.round(sc.top), Math.round(sc.width), Math.round(sc.height)], share: +share.toFixed(3), fhBottom: Math.round(fh), copyBottom: Math.round(cb), rows, scale: +k.toFixed(2), density: +kk.toFixed(2), filled: c[2] * k >= sc.width - 1 && c[3] * k >= sc.height - 1, evidenceInCopy: !!copy.querySelector('.re-evidence'), overflow: document.documentElement.scrollWidth - innerWidth } })(); if (!(v.scale >= 0.6 && v.density >= 2)) throw new Error(\"1440 scale on Offday\" + ' ' + JSON.stringify(v)); return v })()"
    },
    {
     "shot": "desktop-picked"
@@ -47,16 +90,167 @@
     "eval": "(() => { const t = document.querySelector('.re-intro').innerText; const r = { lab: !!document.querySelector('#re-lab, .re-lab, #re-map, .re-stk'), evidence: document.querySelectorAll('.re-evidence li').length, facts: /Software engineer: frontend, backend and mobile/.test(t) && /From the first screen to release/.test(t) && /Kosovo/.test(t), note: !!document.querySelector('.re-fh-note') }; if (r.lab || r.evidence !== 4 || !r.facts || !r.note) throw new Error('hero broken ' + JSON.stringify(r)); return r })()"
    },
    {
-    "eval": "(document.querySelector('.re-fh-strip li:nth-child(4) button').focus(), true)"
+    "eval": "(document.querySelector('.re-fh-strip li:nth-child(1) button').focus(), true)"
    },
    {
     "key": "Enter"
    },
    {
+    "wait": 40
+   },
+   {
+    "eval": "(async () => { const v = await ({ at: [...document.querySelectorAll('.re-fh-strip li button')].findIndex(b => b.getAttribute('aria-pressed') === 'true'), running: document.getAnimations().filter(a => document.querySelector('.re-fh').contains(a.effect.target)).length, settled: !!document.querySelector('.re-fh-screen[data-settled][data-how=key]'), clip: getComputedStyle(document.querySelector('.re-fh-sharp')).clipPath }); if (!(v.at === 0 && v.running === 0 && v.settled && v.clip === 'none')) throw new Error(\"keyboard pick animated\" + ' ' + JSON.stringify(v)); return v })()"
+   },
+   {
+    "eval": "(document.querySelector('.re-fh-strip li:nth-child(3) button').focus(), true)"
+   },
+   {
+    "key": "Enter"
+   },
+   {
+    "wait": 400
+   },
+   {
+    "eval": "(async () => { const v = await (async () => { const fig = document.querySelector('.re-fh-screen'); const im = fig.querySelector('.re-fh-sharp'); await im.decode().catch(() => {});\n  const f = fig.getBoundingClientRect(), b = im.getBoundingClientRect(), st = getComputedStyle(im); const nw = im.naturalWidth, nh = im.naturalHeight;\n  const k = st.objectFit === 'cover' ? Math.max(b.width / nw, b.height / nh) : Math.min(b.width / nw, b.height / nh); const cw = nw * k, ch = nh * k;\n  const [px, py] = st.objectPosition.split(' ').map((v) => parseFloat(v) / 100); const ox = b.left + (b.width - cw) * px, oy = b.top + (b.height - ch) * py;\n  const L = Math.max(ox, f.left), T = Math.max(oy, f.top), Rr = Math.min(ox + cw, f.right), B = Math.min(oy + ch, f.bottom);\n  const cv = document.createElement('canvas'); cv.width = nw; cv.height = nh; const g = cv.getContext('2d'); g.drawImage(im, 0, 0);\n  const bg = getComputedStyle(fig).backgroundColor.match(/[\\d.]+/g).map(Number);\n  const at = (X, Y) => X >= L && X < Rr && Y >= T && Y < B ? [...g.getImageData(Math.min(nw - 1, Math.floor((X - ox) / k)), Math.min(nh - 1, Math.floor((Y - oy) / k)), 1, 1).data] : bg;\n  const d = (c, r) => Math.round(Math.hypot(c[0] - r[0], c[1] - r[1], c[2] - r[2]));\n  return { bands: [[f.left + 2, f.top + f.height / 2], [f.right - 3, f.top + f.height / 2]].map(([X, Y]) => d(at(X, Y), [11, 11, 16])),\n    corners: [[L + 2, T + 2], [Rr - 3, T + 2], [L + 2, B - 3], [Rr - 3, B - 3]].map(([X, Y]) => d(at(X, Y), [80, 175, 220])),\n    flush: [Math.round(T - f.top), Math.round(f.bottom - B)], fill: +((Rr - L) / f.width).toFixed(2), alt: im.alt } })(); if (!((innerWidth <= 520 || v.fill >= 0.98) && v.bands.every((x) => x <= 12) && v.corners.every((x) => x > 40) && v.flush.every((x) => x <= 1))) throw new Error(\"1440: Read to Feed figure: surround not ground, banner or bezel in the image, or not flush top and bottom\" + ' ' + JSON.stringify(v)); return v })()"
+   },
+   {
+    "eval": "(async () => { const v = await (() => { const R = (s) => document.querySelector(s).getBoundingClientRect(); const sc = R('.re-fh-screen');\n  const copy = document.querySelector('.re-intro-copy'); const cb = Math.max(...[...copy.querySelectorAll('*')].map((e) => e.getBoundingClientRect()).filter((b) => b.width > 2 && b.height > 2).map((b) => b.bottom));\n  const fh = Math.max(...['.re-fh-screen', '.re-fh-name', '.re-fh-note', '.re-fh-strip'].map((s) => R(s).bottom));\n  const rows = new Set(['.re-fh-name', '.re-fh-note', '.re-fh-strip'].map((s) => Math.round(R(s).top / 12))).size;\n  const share = Math.max(0, Math.min(sc.bottom, innerHeight) - sc.top) * sc.width / innerWidth / innerHeight;\n  const im = document.querySelector('.re-fh-sharp'); const narrow = im.currentSrc.includes('-narrow'); const cs = narrow ? im.dataset.cropNarrow : im.dataset.cropWide; /* no crop data: a whole 1440-wide capture at 1280 px */ const c = cs ? cs.split(' ').map(Number) : [0, 0, 1440 * im.naturalWidth / 1280, 900 * im.naturalWidth / 1280];\n  const b = im.getBoundingClientRect(); const fit = getComputedStyle(im).objectFit;\n  const k = fit === 'cover' ? Math.max(b.width / c[2], b.height / c[3]) : Math.min(b.width / c[2], b.height / c[3], fit === 'scale-down' ? 1 : 9);\n  const kk = cs ? 2 / k : im.naturalWidth / (b.width); return { slug: document.querySelector('.re-fh-screen').pathname.split('/').pop(), w: innerWidth, h: innerHeight, screen: [Math.round(sc.left), Math.round(sc.top), Math.round(sc.width), Math.round(sc.height)], share: +share.toFixed(3), fhBottom: Math.round(fh), copyBottom: Math.round(cb), rows, scale: +k.toFixed(2), density: +kk.toFixed(2), filled: c[2] * k >= sc.width - 1 && c[3] * k >= sc.height - 1, evidenceInCopy: !!copy.querySelector('.re-evidence'), overflow: document.documentElement.scrollWidth - innerWidth } })(); if (!(v.scale >= 0.6 && v.density >= 1.9)) throw new Error(\"1440: Read to Feed scale or density\" + ' ' + JSON.stringify(v)); return v })()"
+   }
+  ]
+ },
+ {
+  "name": "sizes",
+  "w": 1280,
+  "h": 800,
+  "steps": [
+   {
+    "scrollTo": "#re-top"
+   },
+   {
+    "eval": "(async () => { const v = await (() => { const R = (s) => document.querySelector(s).getBoundingClientRect(); const sc = R('.re-fh-screen');\n  const copy = document.querySelector('.re-intro-copy'); const cb = Math.max(...[...copy.querySelectorAll('*')].map((e) => e.getBoundingClientRect()).filter((b) => b.width > 2 && b.height > 2).map((b) => b.bottom));\n  const fh = Math.max(...['.re-fh-screen', '.re-fh-name', '.re-fh-note', '.re-fh-strip'].map((s) => R(s).bottom));\n  const rows = new Set(['.re-fh-name', '.re-fh-note', '.re-fh-strip'].map((s) => Math.round(R(s).top / 12))).size;\n  const share = Math.max(0, Math.min(sc.bottom, innerHeight) - sc.top) * sc.width / innerWidth / innerHeight;\n  const im = document.querySelector('.re-fh-sharp'); const narrow = im.currentSrc.includes('-narrow'); const cs = narrow ? im.dataset.cropNarrow : im.dataset.cropWide; /* no crop data: a whole 1440-wide capture at 1280 px */ const c = cs ? cs.split(' ').map(Number) : [0, 0, 1440 * im.naturalWidth / 1280, 900 * im.naturalWidth / 1280];\n  const b = im.getBoundingClientRect(); const fit = getComputedStyle(im).objectFit;\n  const k = fit === 'cover' ? Math.max(b.width / c[2], b.height / c[3]) : Math.min(b.width / c[2], b.height / c[3], fit === 'scale-down' ? 1 : 9);\n  const kk = cs ? 2 / k : im.naturalWidth / (b.width); return { slug: document.querySelector('.re-fh-screen').pathname.split('/').pop(), w: innerWidth, h: innerHeight, screen: [Math.round(sc.left), Math.round(sc.top), Math.round(sc.width), Math.round(sc.height)], share: +share.toFixed(3), fhBottom: Math.round(fh), copyBottom: Math.round(cb), rows, scale: +k.toFixed(2), density: +kk.toFixed(2), filled: c[2] * k >= sc.width - 1 && c[3] * k >= sc.height - 1, evidenceInCopy: !!copy.querySelector('.re-evidence'), overflow: document.documentElement.scrollWidth - innerWidth } })(); if (!(v.share >= 0.28 && Math.abs(v.copyBottom - v.fhBottom) <= 16 && v.fhBottom <= v.h && v.rows === 2 && v.overflow === 0)) throw new Error(\"1280 layout\" + ' ' + JSON.stringify(v)); return v })()"
+   },
+   {
+    "shot": "1280-rest"
+   },
+   {
+    "resize": [
+     1920,
+     1080
+    ]
+   },
+   {
+    "wait": 400
+   },
+   {
+    "eval": "(async () => { const v = await (() => { const R = (s) => document.querySelector(s).getBoundingClientRect(); const sc = R('.re-fh-screen');\n  const copy = document.querySelector('.re-intro-copy'); const cb = Math.max(...[...copy.querySelectorAll('*')].map((e) => e.getBoundingClientRect()).filter((b) => b.width > 2 && b.height > 2).map((b) => b.bottom));\n  const fh = Math.max(...['.re-fh-screen', '.re-fh-name', '.re-fh-note', '.re-fh-strip'].map((s) => R(s).bottom));\n  const rows = new Set(['.re-fh-name', '.re-fh-note', '.re-fh-strip'].map((s) => Math.round(R(s).top / 12))).size;\n  const share = Math.max(0, Math.min(sc.bottom, innerHeight) - sc.top) * sc.width / innerWidth / innerHeight;\n  const im = document.querySelector('.re-fh-sharp'); const narrow = im.currentSrc.includes('-narrow'); const cs = narrow ? im.dataset.cropNarrow : im.dataset.cropWide; /* no crop data: a whole 1440-wide capture at 1280 px */ const c = cs ? cs.split(' ').map(Number) : [0, 0, 1440 * im.naturalWidth / 1280, 900 * im.naturalWidth / 1280];\n  const b = im.getBoundingClientRect(); const fit = getComputedStyle(im).objectFit;\n  const k = fit === 'cover' ? Math.max(b.width / c[2], b.height / c[3]) : Math.min(b.width / c[2], b.height / c[3], fit === 'scale-down' ? 1 : 9);\n  const kk = cs ? 2 / k : im.naturalWidth / (b.width); return { slug: document.querySelector('.re-fh-screen').pathname.split('/').pop(), w: innerWidth, h: innerHeight, screen: [Math.round(sc.left), Math.round(sc.top), Math.round(sc.width), Math.round(sc.height)], share: +share.toFixed(3), fhBottom: Math.round(fh), copyBottom: Math.round(cb), rows, scale: +k.toFixed(2), density: +kk.toFixed(2), filled: c[2] * k >= sc.width - 1 && c[3] * k >= sc.height - 1, evidenceInCopy: !!copy.querySelector('.re-evidence'), overflow: document.documentElement.scrollWidth - innerWidth } })(); if (!(Math.abs(v.copyBottom - v.fhBottom) <= 16 && v.fhBottom <= v.h && v.rows === 2 && v.overflow === 0)) throw new Error(\"1920 layout\" + ' ' + JSON.stringify(v)); return v })()"
+   },
+   {
+    "resize": [
+     1024,
+     768
+    ]
+   },
+   {
+    "wait": 400
+   },
+   {
+    "eval": "(async () => { const v = await (() => { const R = (s) => document.querySelector(s).getBoundingClientRect(); const sc = R('.re-fh-screen');\n  const copy = document.querySelector('.re-intro-copy'); const cb = Math.max(...[...copy.querySelectorAll('*')].map((e) => e.getBoundingClientRect()).filter((b) => b.width > 2 && b.height > 2).map((b) => b.bottom));\n  const fh = Math.max(...['.re-fh-screen', '.re-fh-name', '.re-fh-note', '.re-fh-strip'].map((s) => R(s).bottom));\n  const rows = new Set(['.re-fh-name', '.re-fh-note', '.re-fh-strip'].map((s) => Math.round(R(s).top / 12))).size;\n  const share = Math.max(0, Math.min(sc.bottom, innerHeight) - sc.top) * sc.width / innerWidth / innerHeight;\n  const im = document.querySelector('.re-fh-sharp'); const narrow = im.currentSrc.includes('-narrow'); const cs = narrow ? im.dataset.cropNarrow : im.dataset.cropWide; /* no crop data: a whole 1440-wide capture at 1280 px */ const c = cs ? cs.split(' ').map(Number) : [0, 0, 1440 * im.naturalWidth / 1280, 900 * im.naturalWidth / 1280];\n  const b = im.getBoundingClientRect(); const fit = getComputedStyle(im).objectFit;\n  const k = fit === 'cover' ? Math.max(b.width / c[2], b.height / c[3]) : Math.min(b.width / c[2], b.height / c[3], fit === 'scale-down' ? 1 : 9);\n  const kk = cs ? 2 / k : im.naturalWidth / (b.width); return { slug: document.querySelector('.re-fh-screen').pathname.split('/').pop(), w: innerWidth, h: innerHeight, screen: [Math.round(sc.left), Math.round(sc.top), Math.round(sc.width), Math.round(sc.height)], share: +share.toFixed(3), fhBottom: Math.round(fh), copyBottom: Math.round(cb), rows, scale: +k.toFixed(2), density: +kk.toFixed(2), filled: c[2] * k >= sc.width - 1 && c[3] * k >= sc.height - 1, evidenceInCopy: !!copy.querySelector('.re-evidence'), overflow: document.documentElement.scrollWidth - innerWidth } })(); if (!(v.fhBottom <= v.h && v.rows === 2 && v.overflow === 0)) throw new Error(\"1024 tabs below the fold\" + ' ' + JSON.stringify(v)); return v })()"
+   },
+   {
+    "resize": [
+     1180,
+     800
+    ]
+   },
+   {
+    "wait": 400
+   },
+   {
+    "eval": "(async () => { const v = await (() => { const R = (s) => document.querySelector(s).getBoundingClientRect(); const sc = R('.re-fh-screen');\n  const copy = document.querySelector('.re-intro-copy'); const cb = Math.max(...[...copy.querySelectorAll('*')].map((e) => e.getBoundingClientRect()).filter((b) => b.width > 2 && b.height > 2).map((b) => b.bottom));\n  const fh = Math.max(...['.re-fh-screen', '.re-fh-name', '.re-fh-note', '.re-fh-strip'].map((s) => R(s).bottom));\n  const rows = new Set(['.re-fh-name', '.re-fh-note', '.re-fh-strip'].map((s) => Math.round(R(s).top / 12))).size;\n  const share = Math.max(0, Math.min(sc.bottom, innerHeight) - sc.top) * sc.width / innerWidth / innerHeight;\n  const im = document.querySelector('.re-fh-sharp'); const narrow = im.currentSrc.includes('-narrow'); const cs = narrow ? im.dataset.cropNarrow : im.dataset.cropWide; /* no crop data: a whole 1440-wide capture at 1280 px */ const c = cs ? cs.split(' ').map(Number) : [0, 0, 1440 * im.naturalWidth / 1280, 900 * im.naturalWidth / 1280];\n  const b = im.getBoundingClientRect(); const fit = getComputedStyle(im).objectFit;\n  const k = fit === 'cover' ? Math.max(b.width / c[2], b.height / c[3]) : Math.min(b.width / c[2], b.height / c[3], fit === 'scale-down' ? 1 : 9);\n  const kk = cs ? 2 / k : im.naturalWidth / (b.width); return { slug: document.querySelector('.re-fh-screen').pathname.split('/').pop(), w: innerWidth, h: innerHeight, screen: [Math.round(sc.left), Math.round(sc.top), Math.round(sc.width), Math.round(sc.height)], share: +share.toFixed(3), fhBottom: Math.round(fh), copyBottom: Math.round(cb), rows, scale: +k.toFixed(2), density: +kk.toFixed(2), filled: c[2] * k >= sc.width - 1 && c[3] * k >= sc.height - 1, evidenceInCopy: !!copy.querySelector('.re-evidence'), overflow: document.documentElement.scrollWidth - innerWidth } })(); if (!(v.fhBottom <= v.h && v.rows === 2 && v.overflow === 0)) throw new Error(\"1180 tabs below the fold\" + ' ' + JSON.stringify(v)); return v })()"
+   },
+   {
+    "resize": [
+     1366,
+     768
+    ]
+   },
+   {
+    "wait": 400
+   },
+   {
+    "eval": "(async () => { const v = await (() => { const R = (s) => document.querySelector(s).getBoundingClientRect(); const sc = R('.re-fh-screen');\n  const copy = document.querySelector('.re-intro-copy'); const cb = Math.max(...[...copy.querySelectorAll('*')].map((e) => e.getBoundingClientRect()).filter((b) => b.width > 2 && b.height > 2).map((b) => b.bottom));\n  const fh = Math.max(...['.re-fh-screen', '.re-fh-name', '.re-fh-note', '.re-fh-strip'].map((s) => R(s).bottom));\n  const rows = new Set(['.re-fh-name', '.re-fh-note', '.re-fh-strip'].map((s) => Math.round(R(s).top / 12))).size;\n  const share = Math.max(0, Math.min(sc.bottom, innerHeight) - sc.top) * sc.width / innerWidth / innerHeight;\n  const im = document.querySelector('.re-fh-sharp'); const narrow = im.currentSrc.includes('-narrow'); const cs = narrow ? im.dataset.cropNarrow : im.dataset.cropWide; /* no crop data: a whole 1440-wide capture at 1280 px */ const c = cs ? cs.split(' ').map(Number) : [0, 0, 1440 * im.naturalWidth / 1280, 900 * im.naturalWidth / 1280];\n  const b = im.getBoundingClientRect(); const fit = getComputedStyle(im).objectFit;\n  const k = fit === 'cover' ? Math.max(b.width / c[2], b.height / c[3]) : Math.min(b.width / c[2], b.height / c[3], fit === 'scale-down' ? 1 : 9);\n  const kk = cs ? 2 / k : im.naturalWidth / (b.width); return { slug: document.querySelector('.re-fh-screen').pathname.split('/').pop(), w: innerWidth, h: innerHeight, screen: [Math.round(sc.left), Math.round(sc.top), Math.round(sc.width), Math.round(sc.height)], share: +share.toFixed(3), fhBottom: Math.round(fh), copyBottom: Math.round(cb), rows, scale: +k.toFixed(2), density: +kk.toFixed(2), filled: c[2] * k >= sc.width - 1 && c[3] * k >= sc.height - 1, evidenceInCopy: !!copy.querySelector('.re-evidence'), overflow: document.documentElement.scrollWidth - innerWidth } })(); if (!(v.fhBottom <= v.h && v.rows === 2 && v.overflow === 0)) throw new Error(\"1366 tabs below the fold\" + ' ' + JSON.stringify(v)); return v })()"
+   }
+  ]
+ },
+ {
+  "name": "rest",
+  "w": 1440,
+  "h": 900,
+  "init": "history.replaceState(null, '', '?pull=rest');window.__fh = { t0: performance.now(), ready: 0, settled: 0, end: 0, readyFirst: null, anims: new Set(), story: null, pull: null };\nnew MutationObserver(() => { const s = document.querySelector('.re-fh-screen'); if (!s) return; const f = window.__fh;\n  if (f.readyFirst === null) f.readyFirst = s.hasAttribute('data-ready') ? 'ready' : s.hasAttribute('data-settled') ? 'settled' : null;\n  if (!f.ready && s.hasAttribute('data-ready')) { f.ready = performance.now(); const im = s.querySelector('.re-fh-sharp'); f.story = im.closest('[data-motion=story]') ? true : false; const a = im.getAnimations()[0]; f.pull = a ? [a.effect.getTiming().duration, a.effect.getTiming().delay] : null }\n  if (!f.settled && s.hasAttribute('data-settled')) f.settled = performance.now() }).observe(document, { subtree: true, childList: true, attributes: true, attributeFilter: ['data-ready', 'data-settled'] });\nwindow.__lt = []; try { new PerformanceObserver((l) => { for (const e of l.getEntries()) window.__lt.push([Math.round(e.startTime), Math.round(e.duration)]) }).observe({ type: 'longtask', buffered: true }) } catch {}\ndocument.addEventListener('animationend', (e) => { if (e.animationName === 're-fh-pull' && !window.__fh.end) window.__fh.end = performance.now() }, true);\ndocument.addEventListener('animationstart', (e) => { if (e.target.closest && e.target.closest('.re-intro')) window.__fh.anims.add(e.target.className + ':' + e.animationName) }, true);\n",
+  "steps": [
+   {
+    "scrollTo": "#re-top"
+   },
+   {
+    "eval": "(async () => { const v = await ({ ready: Math.round(window.__fh.ready - window.__fh.t0), settleAfterDecode: Math.round(window.__fh.settled - window.__fh.ready), sharpAfterDecode: Math.round(Math.min(window.__fh.settled, window.__fh.end || Infinity) - window.__fh.ready), first: window.__fh.readyFirst, story: window.__fh.story, pull: window.__fh.pull, anims: [...window.__fh.anims], longDuringPull: window.__lt.filter(([s, d]) => s + d > window.__fh.ready && s < window.__fh.settled) }); if (!(v.first === 'settled' && window.__fh.ready === 0 && v.anims.length === 0)) throw new Error(\"?pull=rest did not start sharp\" + ' ' + JSON.stringify(v)); return v })()"
+   },
+   {
+    "shot": "rest-first"
+   },
+   {
+    "tap": ".re-fh-strip li:nth-child(2) button"
+   },
+   {
     "wait": 50
    },
    {
-    "eval": "(() => { const a = [...document.getAnimations()].filter(a => /^re-fh-(pull|seam)$/.test(a.animationName)).filter(x => x.playState === 'running'); const ok = [...document.querySelectorAll('.re-fh-strip li button')].findIndex(b => b.getAttribute('aria-pressed') === 'true') === 3 && a.length === 0 && !!document.querySelector('.re-fh-screen[data-settled][data-how=key]') && getComputedStyle(document.querySelector('.re-fh-sharp')).clipPath === 'none'; if (!ok) throw new Error('keyboard pick animated ' + JSON.stringify({ at: [...document.querySelectorAll('.re-fh-strip li button')].findIndex(b => b.getAttribute('aria-pressed') === 'true'), running: a.length })); return { at: [...document.querySelectorAll('.re-fh-strip li button')].findIndex(b => b.getAttribute('aria-pressed') === 'true'), running: a.length } })()"
+    "eval": "(async () => { const v = await [...document.getAnimations()].filter(a => a.animationName === 're-fh-pull').length; if (!(v === 1)) throw new Error(\"?pull=rest: a pick did not pull\" + ' ' + JSON.stringify(v)); return v })()"
+   }
+  ]
+ },
+ {
+  "name": "seam",
+  "w": 1440,
+  "h": 900,
+  "init": "history.replaceState(null, '', '?seam=1');",
+  "steps": [
+   {
+    "scrollTo": "#re-top"
+   },
+   {
+    "eval": "(async () => { const v = await ({ settled: !!document.querySelector('.re-fh-screen[data-settled]'), shown: [...document.querySelectorAll('.re-fh-seam')].filter((e) => getComputedStyle(e).display !== 'none').length }); if (!(v.settled && v.shown === 0)) throw new Error(\"?seam=1 seam left at rest\" + ' ' + JSON.stringify(v)); return v })()"
+   },
+   {
+    "tap": ".re-fh-strip li:nth-child(2) button"
+   },
+   {
+    "wait": 60
+   },
+   {
+    "eval": "(async () => { const v = await [...document.getAnimations()].filter((a) => a.animationName === 're-fh-seam').map((a) => a.effect.getTiming().duration); if (!(v.length === 1 && v[0] <= 450)) throw new Error(\"?seam=1 seam does not ride the pick\" + ' ' + JSON.stringify(v)); return v })()"
+   },
+   {
+    "wait": 120
+   },
+   {
+    "shot": "seam-mid"
+   }
+  ]
+ },
+ {
+  "name": "split",
+  "w": 1440,
+  "h": 900,
+  "init": "history.replaceState(null, '', '?hero=split');",
+  "steps": [
+   {
+    "scrollTo": "#re-top"
+   },
+   {
+    "eval": "(async () => { const v = await (() => { const R = (s) => document.querySelector(s).getBoundingClientRect(); return { inCopy: !!document.querySelector('.re-intro-copy .re-evidence'), row: !!document.querySelector('header.re-intro + .re-evidence'), links: Math.round(R('.re-intro-links').bottom), screen: Math.round(R('.re-fh-screen').bottom) } })(); if (!(!v.inCopy && v.row && Math.abs(v.links - v.screen) <= 4)) throw new Error(\"?hero=split layout\" + ' ' + JSON.stringify(v)); return v })()"
+   },
+   {
+    "shot": "split-rest"
    }
   ]
  },
@@ -73,13 +267,22 @@
     "wait": 300
    },
    {
-    "eval": "(() => { if (!(!document.querySelector('.re-fh-pause') && [...document.getAnimations()].filter(a => /^re-fh-(pull|seam)$/.test(a.animationName)).length === 0 && getComputedStyle(document.querySelector('.re-fh-sharp')).clipPath === 'none')) throw new Error(\"reduced motion still sweeps\" + ' ' + JSON.stringify({ anims: [...document.getAnimations()].filter(a => /^re-fh-(pull|seam)$/.test(a.animationName)).length, clip: getComputedStyle(document.querySelector('.re-fh-sharp')).clipPath })); return { anims: [...document.getAnimations()].filter(a => /^re-fh-(pull|seam)$/.test(a.animationName)).length, clip: getComputedStyle(document.querySelector('.re-fh-sharp')).clipPath } })()"
+    "eval": "(async () => { const v = await ({ pause: !!document.querySelector('.re-fh-pause'), anims: [...document.getAnimations()].filter(a => a.animationName === 're-fh-pull').length, clip: getComputedStyle(document.querySelector('.re-fh-sharp')).clipPath }); if (!(!v.pause && v.anims === 0 && v.clip === 'none')) throw new Error(\"reduced motion still sweeps\" + ' ' + JSON.stringify(v)); return v })()"
+   },
+   {
+    "tap": ".re-fh-strip li:nth-child(2) button"
+   },
+   {
+    "wait": 30
+   },
+   {
+    "eval": "(async () => { const v = await ({ anims: [...document.getAnimations()].filter(a => a.animationName === 're-fh-pull').length, clip: getComputedStyle(document.querySelector('.re-fh-sharp')).clipPath }); if (!(v.anims === 0 && v.clip === 'none')) throw new Error(\"reduced motion: a pick sweeps\" + ' ' + JSON.stringify(v)); return v })()"
    },
    {
     "wait": 4800
    },
    {
-    "eval": "(() => { if (!([...document.querySelectorAll('.re-fh-strip li button')].findIndex(b => b.getAttribute('aria-pressed') === 'true') === 0)) throw new Error(\"reduced motion still turns\" + ' ' + JSON.stringify({ at: [...document.querySelectorAll('.re-fh-strip li button')].findIndex(b => b.getAttribute('aria-pressed') === 'true') })); return { at: [...document.querySelectorAll('.re-fh-strip li button')].findIndex(b => b.getAttribute('aria-pressed') === 'true') } })()"
+    "eval": "(async () => { const v = await ({ at: [...document.querySelectorAll('.re-fh-strip li button')].findIndex(b => b.getAttribute('aria-pressed') === 'true') }); if (!(v.at === 1)) throw new Error(\"reduced motion still turns\" + ' ' + JSON.stringify(v)); return v })()"
    }
   ]
  },
@@ -93,10 +296,10 @@
     "scrollTo": "#re-top"
    },
    {
-    "wait": 1800
+    "wait": 600
    },
    {
-    "eval": "(() => { if (!(!!document.querySelector('.re-fh-screen[data-settled]') && getComputedStyle(document.querySelector('.re-fh-sharp')).clipPath === 'none')) throw new Error(\"no-WebGL hero not sharp\" + ' ' + JSON.stringify({ clip: getComputedStyle(document.querySelector('.re-fh-sharp')).clipPath })); return { clip: getComputedStyle(document.querySelector('.re-fh-sharp')).clipPath } })()"
+    "eval": "(async () => { const v = await ({ settled: !!document.querySelector('.re-fh-screen[data-settled]'), clip: getComputedStyle(document.querySelector('.re-fh-sharp')).clipPath }); if (!(v.settled && v.clip === 'none')) throw new Error(\"no-WebGL hero not sharp\" + ' ' + JSON.stringify(v)); return v })()"
    },
    {
     "shot": "nogl-rest"
@@ -105,21 +308,61 @@
  },
  {
   "name": "phone",
-  "w": 375,
-  "h": 812,
+  "w": 390,
+  "h": 844,
   "mobile": true,
   "steps": [
    {
     "scrollTo": "#re-top"
    },
    {
-    "wait": 1800
+    "wait": 900
    },
    {
-    "eval": "(() => { if (!(document.documentElement.scrollWidth === 375 && [...document.querySelectorAll('.re-fh-strip li button'), document.querySelector('.re-fh-pause')].every(b => b.getBoundingClientRect().height >= 44 && b.getBoundingClientRect().width >= 44))) throw new Error(\"phone overflow or small target\" + ' ' + JSON.stringify({ sw: document.documentElement.scrollWidth, strip: Math.round(document.querySelector('.re-fh-strip').getBoundingClientRect().bottom) })); return { sw: document.documentElement.scrollWidth, strip: Math.round(document.querySelector('.re-fh-strip').getBoundingClientRect().bottom) } })()"
+    "eval": "(async () => { const v = await (() => { const R = (s) => document.querySelector(s).getBoundingClientRect(); const sc = R('.re-fh-screen');\n  const copy = document.querySelector('.re-intro-copy'); const cb = Math.max(...[...copy.querySelectorAll('*')].map((e) => e.getBoundingClientRect()).filter((b) => b.width > 2 && b.height > 2).map((b) => b.bottom));\n  const fh = Math.max(...['.re-fh-screen', '.re-fh-name', '.re-fh-note', '.re-fh-strip'].map((s) => R(s).bottom));\n  const rows = new Set(['.re-fh-name', '.re-fh-note', '.re-fh-strip'].map((s) => Math.round(R(s).top / 12))).size;\n  const share = Math.max(0, Math.min(sc.bottom, innerHeight) - sc.top) * sc.width / innerWidth / innerHeight;\n  const im = document.querySelector('.re-fh-sharp'); const narrow = im.currentSrc.includes('-narrow'); const cs = narrow ? im.dataset.cropNarrow : im.dataset.cropWide; /* no crop data: a whole 1440-wide capture at 1280 px */ const c = cs ? cs.split(' ').map(Number) : [0, 0, 1440 * im.naturalWidth / 1280, 900 * im.naturalWidth / 1280];\n  const b = im.getBoundingClientRect(); const fit = getComputedStyle(im).objectFit;\n  const k = fit === 'cover' ? Math.max(b.width / c[2], b.height / c[3]) : Math.min(b.width / c[2], b.height / c[3], fit === 'scale-down' ? 1 : 9);\n  const kk = cs ? 2 / k : im.naturalWidth / (b.width); return { slug: document.querySelector('.re-fh-screen').pathname.split('/').pop(), w: innerWidth, h: innerHeight, screen: [Math.round(sc.left), Math.round(sc.top), Math.round(sc.width), Math.round(sc.height)], share: +share.toFixed(3), fhBottom: Math.round(fh), copyBottom: Math.round(cb), rows, scale: +k.toFixed(2), density: +kk.toFixed(2), filled: c[2] * k >= sc.width - 1 && c[3] * k >= sc.height - 1, evidenceInCopy: !!copy.querySelector('.re-evidence'), overflow: document.documentElement.scrollWidth - innerWidth } })(); if (!(v.share >= 0.25 && v.screen[1] <= 400 && v.scale >= 0.8 && v.density >= (v.slug === 'care-platform' ? 1.8 : 2) && (v.slug !== 'care-platform' || v.filled) && v.overflow === 0)) throw new Error(\"390 layout\" + ' ' + JSON.stringify(v)); return v })()"
+   },
+   {
+    "eval": "(async () => { const v = await (() => { const R = (e) => (typeof e === 'string' ? document.querySelector(e) : e).getBoundingClientRect();\n          const order = ['h1', '.re-fh-screen', '.re-fh-name', '.re-fh-strip', '.re-intro-role', '.re-intro-bio', '.re-intro-links', '.re-evidence'].map((s) => Math.round(R(s).top));\n          const small = [...document.querySelectorAll('.re-intro a, .re-intro button, .re-evidence a')].filter((e) => { const b = R(e); return b.width > 0 && (b.width < 44 || b.height < 44) }).map((e) => e.textContent.trim().slice(0, 20));\n          const p = R('.re-fh-pause'); const pauseOnTrack = [...document.querySelectorAll('.re-fh-strip li button')].some((t) => Math.abs(R(t).top - p.top) < 2);\n          const arrows = [...document.querySelectorAll('.re-evidence a')].map((a) => { const s = R(a.querySelector('svg')); const rs = []; const tw = document.createTreeWalker(a, NodeFilter.SHOW_TEXT); while (tw.nextNode()) { if (!tw.currentNode.textContent.trim()) continue; const q = document.createRange(); q.selectNodeContents(tw.currentNode); rs.push(...[...q.getClientRects()].filter((x) => x.width > 1)) } const last = rs.sort((p, q) => p.bottom - q.bottom || p.right - q.right).at(-1); return s.top < last.bottom && s.bottom > last.top && s.left - last.right >= 0 && s.left - last.right < 16 });\n          return { order, small, pauseOnTrack, arrows } })(); if (!(v.order.every((y, i, a) => i === 0 || y > a[i - 1]) && v.small.length === 0 && v.pauseOnTrack && v.arrows.every(Boolean))) throw new Error(\"phone order, targets, pause track or arrows\" + ' ' + JSON.stringify(v)); return v })()"
    },
    {
     "shot": "phone-rest"
+   },
+   {
+    "eval": "(async () => { const v = await (() => { const R = (e) => e.getBoundingClientRect(); const bs = [...document.querySelectorAll('.re-fh-strip li button')]; const cols = new Set(bs.map((b) => Math.round(R(b).left))).size;\n  return bs.map((b, i) => { const r = R(b); const own = Math.round(R(b.querySelector('span')).top - (r.top + 2)); const up = i >= cols ? bs[i - cols].querySelector('span') : document.querySelector('.re-fh-meta'); return [own, Math.round(r.top - R(up).bottom)] }) })(); if (!(v.every(([own, up]) => own * 2 <= up))) throw new Error(\"390: a tab's top line reads as the mark of the label above it\" + ' ' + JSON.stringify(v)); return v })()"
+   },
+   {
+    "eval": "(document.querySelector('.re-fh-strip li:nth-child(3) button').focus(), true)"
+   },
+   {
+    "key": "Enter"
+   },
+   {
+    "wait": 400
+   },
+   {
+    "eval": "(async () => { const v = await (async () => { const fig = document.querySelector('.re-fh-screen'); const im = fig.querySelector('.re-fh-sharp'); await im.decode().catch(() => {});\n  const f = fig.getBoundingClientRect(), b = im.getBoundingClientRect(), st = getComputedStyle(im); const nw = im.naturalWidth, nh = im.naturalHeight;\n  const k = st.objectFit === 'cover' ? Math.max(b.width / nw, b.height / nh) : Math.min(b.width / nw, b.height / nh); const cw = nw * k, ch = nh * k;\n  const [px, py] = st.objectPosition.split(' ').map((v) => parseFloat(v) / 100); const ox = b.left + (b.width - cw) * px, oy = b.top + (b.height - ch) * py;\n  const L = Math.max(ox, f.left), T = Math.max(oy, f.top), Rr = Math.min(ox + cw, f.right), B = Math.min(oy + ch, f.bottom);\n  const cv = document.createElement('canvas'); cv.width = nw; cv.height = nh; const g = cv.getContext('2d'); g.drawImage(im, 0, 0);\n  const bg = getComputedStyle(fig).backgroundColor.match(/[\\d.]+/g).map(Number);\n  const at = (X, Y) => X >= L && X < Rr && Y >= T && Y < B ? [...g.getImageData(Math.min(nw - 1, Math.floor((X - ox) / k)), Math.min(nh - 1, Math.floor((Y - oy) / k)), 1, 1).data] : bg;\n  const d = (c, r) => Math.round(Math.hypot(c[0] - r[0], c[1] - r[1], c[2] - r[2]));\n  return { bands: [[f.left + 2, f.top + f.height / 2], [f.right - 3, f.top + f.height / 2]].map(([X, Y]) => d(at(X, Y), [11, 11, 16])),\n    corners: [[L + 2, T + 2], [Rr - 3, T + 2], [L + 2, B - 3], [Rr - 3, B - 3]].map(([X, Y]) => d(at(X, Y), [80, 175, 220])),\n    flush: [Math.round(T - f.top), Math.round(f.bottom - B)], fill: +((Rr - L) / f.width).toFixed(2), alt: im.alt } })(); if (!((innerWidth <= 520 || v.fill >= 0.98) && v.bands.every((x) => x <= 12) && v.corners.every((x) => x > 40) && v.flush.every((x) => x <= 1))) throw new Error(\"390: Read to Feed figure: surround not ground, banner or bezel in the image, or not flush top and bottom\" + ' ' + JSON.stringify(v)); return v })()"
+   },
+   {
+    "eval": "(async () => { const v = await (() => { const R = (s) => document.querySelector(s).getBoundingClientRect(); const sc = R('.re-fh-screen');\n  const copy = document.querySelector('.re-intro-copy'); const cb = Math.max(...[...copy.querySelectorAll('*')].map((e) => e.getBoundingClientRect()).filter((b) => b.width > 2 && b.height > 2).map((b) => b.bottom));\n  const fh = Math.max(...['.re-fh-screen', '.re-fh-name', '.re-fh-note', '.re-fh-strip'].map((s) => R(s).bottom));\n  const rows = new Set(['.re-fh-name', '.re-fh-note', '.re-fh-strip'].map((s) => Math.round(R(s).top / 12))).size;\n  const share = Math.max(0, Math.min(sc.bottom, innerHeight) - sc.top) * sc.width / innerWidth / innerHeight;\n  const im = document.querySelector('.re-fh-sharp'); const narrow = im.currentSrc.includes('-narrow'); const cs = narrow ? im.dataset.cropNarrow : im.dataset.cropWide; /* no crop data: a whole 1440-wide capture at 1280 px */ const c = cs ? cs.split(' ').map(Number) : [0, 0, 1440 * im.naturalWidth / 1280, 900 * im.naturalWidth / 1280];\n  const b = im.getBoundingClientRect(); const fit = getComputedStyle(im).objectFit;\n  const k = fit === 'cover' ? Math.max(b.width / c[2], b.height / c[3]) : Math.min(b.width / c[2], b.height / c[3], fit === 'scale-down' ? 1 : 9);\n  const kk = cs ? 2 / k : im.naturalWidth / (b.width); return { slug: document.querySelector('.re-fh-screen').pathname.split('/').pop(), w: innerWidth, h: innerHeight, screen: [Math.round(sc.left), Math.round(sc.top), Math.round(sc.width), Math.round(sc.height)], share: +share.toFixed(3), fhBottom: Math.round(fh), copyBottom: Math.round(cb), rows, scale: +k.toFixed(2), density: +kk.toFixed(2), filled: c[2] * k >= sc.width - 1 && c[3] * k >= sc.height - 1, evidenceInCopy: !!copy.querySelector('.re-evidence'), overflow: document.documentElement.scrollWidth - innerWidth } })(); if (!(v.scale >= 0.8 && v.density >= 1.9)) throw new Error(\"390: Read to Feed scale or density\" + ' ' + JSON.stringify(v)); return v })()"
+   },
+   {
+    "resize": [
+     320,
+     700,
+     3
+    ]
+   },
+   {
+    "wait": 400
+   },
+   {
+    "eval": "(async () => { const v = await (() => { const R = (s) => document.querySelector(s).getBoundingClientRect(); const sc = R('.re-fh-screen');\n  const copy = document.querySelector('.re-intro-copy'); const cb = Math.max(...[...copy.querySelectorAll('*')].map((e) => e.getBoundingClientRect()).filter((b) => b.width > 2 && b.height > 2).map((b) => b.bottom));\n  const fh = Math.max(...['.re-fh-screen', '.re-fh-name', '.re-fh-note', '.re-fh-strip'].map((s) => R(s).bottom));\n  const rows = new Set(['.re-fh-name', '.re-fh-note', '.re-fh-strip'].map((s) => Math.round(R(s).top / 12))).size;\n  const share = Math.max(0, Math.min(sc.bottom, innerHeight) - sc.top) * sc.width / innerWidth / innerHeight;\n  const im = document.querySelector('.re-fh-sharp'); const narrow = im.currentSrc.includes('-narrow'); const cs = narrow ? im.dataset.cropNarrow : im.dataset.cropWide; /* no crop data: a whole 1440-wide capture at 1280 px */ const c = cs ? cs.split(' ').map(Number) : [0, 0, 1440 * im.naturalWidth / 1280, 900 * im.naturalWidth / 1280];\n  const b = im.getBoundingClientRect(); const fit = getComputedStyle(im).objectFit;\n  const k = fit === 'cover' ? Math.max(b.width / c[2], b.height / c[3]) : Math.min(b.width / c[2], b.height / c[3], fit === 'scale-down' ? 1 : 9);\n  const kk = cs ? 2 / k : im.naturalWidth / (b.width); return { slug: document.querySelector('.re-fh-screen').pathname.split('/').pop(), w: innerWidth, h: innerHeight, screen: [Math.round(sc.left), Math.round(sc.top), Math.round(sc.width), Math.round(sc.height)], share: +share.toFixed(3), fhBottom: Math.round(fh), copyBottom: Math.round(cb), rows, scale: +k.toFixed(2), density: +kk.toFixed(2), filled: c[2] * k >= sc.width - 1 && c[3] * k >= sc.height - 1, evidenceInCopy: !!copy.querySelector('.re-evidence'), overflow: document.documentElement.scrollWidth - innerWidth } })(); if (!(v.overflow === 0)) throw new Error(\"320 overflow\" + ' ' + JSON.stringify(v)); return v })()"
+   },
+   {
+    "eval": "(async () => { const v = await (() => { const R = (e) => e.getBoundingClientRect(); const bs = [...document.querySelectorAll('.re-fh-strip li button')]; const cols = new Set(bs.map((b) => Math.round(R(b).left))).size;\n  return bs.map((b, i) => { const r = R(b); const own = Math.round(R(b.querySelector('span')).top - (r.top + 2)); const up = i >= cols ? bs[i - cols].querySelector('span') : document.querySelector('.re-fh-meta'); return [own, Math.round(r.top - R(up).bottom)] }) })(); if (!(v.every(([own, up]) => own * 2 <= up))) throw new Error(\"320: a tab's top line reads as the mark of the label above it\" + ' ' + JSON.stringify(v)); return v })()"
+   },
+   {
+    "eval": "(async () => { const v = await (async () => { const fig = document.querySelector('.re-fh-screen'); const im = fig.querySelector('.re-fh-sharp'); await im.decode().catch(() => {});\n  const f = fig.getBoundingClientRect(), b = im.getBoundingClientRect(), st = getComputedStyle(im); const nw = im.naturalWidth, nh = im.naturalHeight;\n  const k = st.objectFit === 'cover' ? Math.max(b.width / nw, b.height / nh) : Math.min(b.width / nw, b.height / nh); const cw = nw * k, ch = nh * k;\n  const [px, py] = st.objectPosition.split(' ').map((v) => parseFloat(v) / 100); const ox = b.left + (b.width - cw) * px, oy = b.top + (b.height - ch) * py;\n  const L = Math.max(ox, f.left), T = Math.max(oy, f.top), Rr = Math.min(ox + cw, f.right), B = Math.min(oy + ch, f.bottom);\n  const cv = document.createElement('canvas'); cv.width = nw; cv.height = nh; const g = cv.getContext('2d'); g.drawImage(im, 0, 0);\n  const bg = getComputedStyle(fig).backgroundColor.match(/[\\d.]+/g).map(Number);\n  const at = (X, Y) => X >= L && X < Rr && Y >= T && Y < B ? [...g.getImageData(Math.min(nw - 1, Math.floor((X - ox) / k)), Math.min(nh - 1, Math.floor((Y - oy) / k)), 1, 1).data] : bg;\n  const d = (c, r) => Math.round(Math.hypot(c[0] - r[0], c[1] - r[1], c[2] - r[2]));\n  return { bands: [[f.left + 2, f.top + f.height / 2], [f.right - 3, f.top + f.height / 2]].map(([X, Y]) => d(at(X, Y), [11, 11, 16])),\n    corners: [[L + 2, T + 2], [Rr - 3, T + 2], [L + 2, B - 3], [Rr - 3, B - 3]].map(([X, Y]) => d(at(X, Y), [80, 175, 220])),\n    flush: [Math.round(T - f.top), Math.round(f.bottom - B)], fill: +((Rr - L) / f.width).toFixed(2), alt: im.alt } })(); if (!((innerWidth <= 520 || v.fill >= 0.98) && v.bands.every((x) => x <= 12) && v.corners.every((x) => x > 40) && v.flush.every((x) => x <= 1))) throw new Error(\"320: Read to Feed figure: surround not ground, banner or bezel in the image, or not flush top and bottom\" + ' ' + JSON.stringify(v)); return v })()"
    }
   ]
  },
@@ -133,6 +376,18 @@
    },
    {
     "eval": "(document.activeElement.blur(), true)"
+   },
+   {
+    "key": "Tab"
+   },
+   {
+    "eval": "(() => { const a = document.activeElement; const r = a.getBoundingClientRect(); return [a.className || a.tagName, (a.innerText || a.getAttribute('aria-label') || '').split('\\n')[0].slice(0, 24), r.width > 0 && r.height > 0] })()"
+   },
+   {
+    "key": "Tab"
+   },
+   {
+    "eval": "(() => { const a = document.activeElement; const r = a.getBoundingClientRect(); return [a.className || a.tagName, (a.innerText || a.getAttribute('aria-label') || '').split('\\n')[0].slice(0, 24), r.width > 0 && r.height > 0] })()"
    },
    {
     "key": "Tab"

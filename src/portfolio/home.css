@@ -21,13 +21,37 @@
 .re-root .re-shade {
   background: linear-gradient(90deg, rgb(5 5 8 / 0.92), rgb(5 5 8 / 0.6) 38%, transparent 78%); /* taste-skill-ignore: neutral legibility scrim over the WebGL field */
 }
+/* One vocabulary for the page (2026-11-11): two text links and one button, each defined here once.
+   Primary (.re-text-link): accent words and an arrow, for going to a case or a page; the underline comes in on hover.
+   Secondary (.re-link-secondary): foreground words on an accent underline; the words take the accent on hover.
+   Button (.re-action): foreground words, no underline and no fill; they take the accent on hover and press to 0.97.
+   Accent marks only what can be pressed, and two data values (the hero's current tab, the ledger's "after"). */
 .re-text-link {
   display: inline-flex; align-items: center; gap: 10px; min-height: 44px; width: fit-content;
-  color: var(--re-fg); font-size: 16px; line-height: 1.4;
-  text-decoration: underline; text-decoration-color: var(--re-accent); text-underline-offset: 9px;
-  text-decoration-thickness: 1px; transition: color 150ms ease;
+  color: var(--re-accent); font-size: 16px; line-height: 1.4;
+  text-decoration: underline 1px transparent; text-underline-offset: 6px; transition: text-decoration-color 150ms ease;
 }
-@media (hover: hover) and (pointer: fine) { .re-text-link:hover { color: var(--re-accent); } }
+.re-link-secondary {
+  color: var(--re-fg); text-decoration: underline 1px var(--re-accent); text-underline-offset: 6px; transition: color 150ms ease;
+}
+.re-link-secondary svg { color: var(--re-accent); }
+.re-action {
+  appearance: none; display: inline-flex; align-items: center; gap: 10px; min-height: 44px; width: fit-content; margin: 0; padding: 0;
+  border: 0; background: none; font: inherit; color: var(--re-fg); text-decoration: none; cursor: pointer;
+  transition: color 150ms ease, transform 160ms var(--re-ease);
+}
+.re-action:active { transform: scale(0.97); }
+/* Every button carries an icon that says what it does; the icon is the accent mark. */
+.re-action svg { flex: none; color: var(--re-accent); }
+@media (hover: hover) and (pointer: fine) {
+  .re-text-link:hover { text-decoration-color: currentColor; }
+  .re-link-secondary:hover, .re-action:hover { color: var(--re-accent); }
+}
+/* One focus ring on the page: 2 px accent, 4 px clear of the control. */
+:is(#re-work, #re-backend, #re-workflow, #re-about, #re-results, #re-all, #re-contact) :is(a, button, summary):focus-visible,
+:is(#re-explore, .re-field-notes) > summary:focus-visible, .re-text-link:focus-visible, .re-link-secondary:focus-visible {
+  outline: 2px solid var(--re-accent); outline-offset: 4px; border-radius: 4px;
+}
 
 /* The screen, copy and project caption share one composition. Nothing waits for WebGL to become readable. */
 .re-intro {
@@ -51,9 +75,8 @@
 .re-evidence li { padding-inline: 28px; }
 .re-evidence li:first-child { padding-left: 0; border-left: 0; }
 .re-evidence li:last-child { padding-right: 0; }
-.re-evidence a { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; color: var(--re-fg); font-size: var(--re-t2); line-height: 1.3; text-decoration: none; }
+.re-evidence a { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; font-size: var(--re-t2); line-height: 1.3; }
 .re-evidence li p { color: var(--re-fg-2); font-size: var(--re-t1); line-height: 1.5; }
-@media (hover: hover) and (pointer: fine) { .re-evidence a:hover { color: var(--re-accent); } }
 
 .re-engineering, .re-workflow, .re-about { max-width: 1440px; margin: 0 auto; padding: var(--re-pad) var(--re-gutter); }
 .re-engineering-head { max-width: 760px; }
@@ -79,6 +102,7 @@
 .re-workflow { display: grid; grid-template-columns: 0.9fr 1.4fr; gap: 64px; }
 .re-workflow-body > p:first-child { font-size: var(--re-t2); line-height: 1.45; max-width: 42ch; }
 .re-workflow ol { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; margin-top: 32px; }
+.re-workflow li { min-width: 0; text-wrap: balance; }
 .re-workflow li { font-size: 16px; line-height: 1.5; }
 .re-workflow-note, .re-workflow-products { margin-top: 24px !important; color: var(--re-fg-2); max-width: 60ch; }
 .re-workflow-body > a { margin-top: 16px; }
@@ -87,10 +111,10 @@
 .re-about p + p { margin-top: 18px; }
 .re-about .re-text-link { margin-top: 10px; }
 .re-about .re-text-link + p { margin-top: 18px; }
-.re-disclosure { width: min(1296px, calc(100% - 2 * var(--re-gutter))); margin: 24px auto; }
-.re-disclosure > summary { display: grid; grid-template-columns: minmax(0, 1fr) auto 20px; align-items: center; gap: 8px 24px; padding: 24px 0; cursor: pointer; font-size: var(--re-t2); line-height: 1.4; list-style: none; }
+/* The disclosure is a section like the others (the page's pad above and below); its summary is the page's one button. */
+.re-disclosure { width: min(1296px, calc(100% - 2 * var(--re-gutter))); margin: 0 auto; padding-block: var(--re-pad); }
+.re-disclosure > summary { display: grid; grid-template-columns: auto auto 20px; align-items: center; gap: 8px 24px; max-width: 100%; font-size: var(--re-t2); line-height: 1.4; list-style: none; }
 .re-disclosure > summary::-webkit-details-marker { display: none; }
-.re-disclosure > summary:focus-visible { outline: 2px solid var(--re-accent); outline-offset: 4px; }
 .re-disclosure > summary span { font-size: var(--re-t1); color: var(--re-dim); align-self: center; }
 .re-disclosure-caret { color: var(--re-accent); transition: transform 160ms var(--re-ease); }
 .re-disclosure[open] .re-disclosure-caret { transform: rotate(180deg); }
@@ -98,6 +122,14 @@
 .re-disclosure > .re-lab, .re-disclosure > .re-all, .re-disclosure > .re-map { padding-inline: 0; }
 .re-disclosure-loading { padding: 40px 0; color: var(--re-fg-2); }
 .re-root .re-contact .re-card { background: transparent; padding: 0; width: auto; }
+/* Contact ends the page in the page's own words: the address at the section headline's size as the one primary link,
+   then GitHub, LinkedIn and the CV as secondary links on one line. No pills. */
+/* A block of inline text (the card is a grid), so the arrow follows the address's last line; each line is 44 px or more. */
+.re-root .re-contact-email { display: block; font: 300 var(--re-t4)/max(1.15em, 44px) var(--re-sans); }
+.re-contact-tail { white-space: nowrap; }
+.re-contact-email svg { display: inline; width: 0.7em; height: 0.7em; margin-left: 0.3em; vertical-align: -0.04em; }
+.re-contact-more { display: flex; flex-wrap: wrap; gap: 0 32px; }
+.re-contact-more a { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; }
 .re-root .re-contact { min-height: auto; padding-block: var(--re-pad) calc(2 * var(--re-pad)); }
 .re-engineering, .re-workflow, .re-about, .re-evidence { background: rgb(5 5 8 / 0.92); }
 :where(#re-backend, #re-workflow, #re-about, #re-explore, #re-results) { scroll-margin-top: 16px; }
@@ -111,7 +143,7 @@ html.re-html { scroll-padding-top: 80px; scrollbar-color: #59616b #080a0d; }
   .re-nav { gap: 8px; }
   .re-nav a { padding-inline: 6px; }
   .re-nav .re-nav-about { display: none; }
-  .re-intro { display: grid; min-height: auto; max-width: none; padding-top: calc(96px + env(safe-area-inset-top, 0px)); grid-template-columns: minmax(0, 1fr); grid-template-areas: 'title' 'copy' 'art'; gap: 20px; }
+  .re-intro { min-height: auto; max-width: none; padding-top: calc(96px + env(safe-area-inset-top, 0px)); }
   .re-intro-copy { grid-area: copy; }
   .re-intro-title { max-width: none; line-height: 1.1; text-wrap: pretty; }
   .re-intro-role { margin-top: 20px !important; }
@@ -122,14 +154,13 @@ html.re-html { scroll-padding-top: 80px; scrollbar-color: #59616b #080a0d; }
   .re-root[data-ready] .re-canvas { opacity: 0.42; }
   .re-engineering-rows, .re-workflow, .re-about { grid-template-columns: 1fr; gap: 32px; }
   .re-engineering-rows { margin-top: 32px; }
-  .re-workflow ol { grid-template-columns: 1fr 1fr; gap: 24px; }
+  .re-workflow ol { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 24px; }
   .re-disclosure > summary { font-size: var(--re-t2); }
-  .re-disclosure > summary { grid-template-columns: minmax(0, 1fr) 20px; }
+  .re-disclosure > summary { grid-template-columns: auto 20px; }
   .re-disclosure > summary span { grid-column: 1 / -1; grid-row: 2; }
   .re-disclosure-caret { grid-column: 2; grid-row: 1; }
 }
 @media (min-width: 761px) and (max-width: 1100px) {
-  .re-intro { grid-template-columns: minmax(0, 1fr); grid-template-areas: 'title' 'copy' 'art'; gap: 28px; }
   .re-intro-title { max-width: 18em; }
 }
 @media (max-width: 360px) {
@@ -162,18 +193,38 @@ html.re-html { scroll-padding-top: 80px; scrollbar-color: #59616b #080a0d; }
 .re-root .re-contact { justify-content: flex-start; }
 
 /* ---------- The hero's focus pull (owner chose it over the exploded stack, 2026-11-03) ---------- */
-/* Side by side from 1024 px at 0.9 : 1.1: measured at 1024 × 768, 1180 × 800 and 1280 × 800, the headline, role, screen and
-   one-line tabs all end above the fold (fixed 560 px words left the screen 446 px at 1180 and cramped the tabs). Below
-   1024 the screen would drop under 420 px and the tabs wrap, so tablets stack. */
+/* One grid for the whole hero. FocusHero renders as `display: contents`, so its screen, caption row and tab row are cells of
+   this grid. Below 1024 px: headline, screen, caption, tabs, then who and the proof, so a phone sees the work by y = 400. */
+.re-intro { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-areas: "title" "screen" "meta" "strip" "copy"; row-gap: 0; align-items: start; }
+.re-fh { display: contents; }
+.re-fh-screen { grid-area: screen; }
+.re-fh-meta { grid-area: meta; }
+.re-fh-strip { grid-area: strip; }
+.re-intro-title { margin-bottom: 24px; }
+.re-intro-copy { display: flex; flex-direction: column; gap: 24px; margin-top: 32px; }
+/* Side by side from 1024 px at 1 : 1.6, so the screen is 770 px wide at 1440 (28% of the first screen). The left column spans
+   the screen, caption and tab rows: who and the lines at the top, the proof index on the tabs' bottom edge, no empty ground. */
 @media (min-width: 1024px) {
-  .re-intro { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); grid-template-areas: "title title" "copy art"; align-items: center; column-gap: 40px; row-gap: 32px; padding-top: calc(96px + env(safe-area-inset-top, 0px)); }
-  .re-intro .re-fh { grid-area: art; }
-  /* The role and lines start level with the screen, right under the headline, not centred against it. */
-  .re-intro-copy { align-self: start; }
+  .re-intro { grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr); grid-template-areas: "title title" "copy screen" "copy meta" "copy strip" "copy ."; grid-template-rows: auto auto auto auto 1fr; column-gap: 40px; padding-top: calc(96px + env(safe-area-inset-top, 0px)); }
+  .re-intro-title { margin-bottom: 32px; }
+}
+/* 1024–1100 (36 px headline): a slightly wider screen so the longest name and the note still share one line. */
+@media (min-width: 1024px) and (max-width: 1100px) {
+  .re-intro { grid-template-columns: minmax(0, 1fr) minmax(0, 1.65fr); column-gap: 32px; }
+}
+@media (min-width: 1024px) {
+  /* A taller left column runs into the last (1fr) row instead of stretching the screen's rows, so the tabs never drop. */
+  .re-intro-copy { align-self: stretch; justify-content: space-between; gap: 24px; margin-top: 0; }
   /* Beside a screen this large the lines step up one place on main's scale (role 20 → 28, lines 16 → 20), so the left
      side reads as the claim's second voice, not a caption (owner, 2026-11-03: "too small"). */
   .re-intro-role { font-size: var(--re-t3); line-height: 1.25; }
   .re-intro-bio { font-size: var(--re-t2); line-height: 1.5; }
+  /* Short windows (1366 × 768): the screen gives up height, not width, so its scale holds and the tabs stay above the fold. */
+  .re-fh-screen { max-height: max(280px, calc(100svh - 360px)); }
+  /* ?hero=split: the proof stays a full-width row under the hero; the lines sit at the top and the links on the screen's bottom edge. */
+  .re-intro[data-layout='split'] { grid-template-areas: "title title" "copy screen" ". meta" ". strip"; }
+  .re-intro[data-layout='split'] .re-intro-who { flex: 1; display: flex; flex-direction: column; }
+  .re-intro[data-layout='split'] .re-intro-links { margin-top: auto; }
 }
 /* Four lines in 560 px: pretty keeps "Web and mobile" together, balance keeps "release." from standing alone. */
 /* The headline spans the hero, one sentence per line: two lines at main's own size from 768 px up (measured to 1920).
@@ -181,54 +232,84 @@ html.re-html { scroll-padding-top: 80px; scrollbar-color: #59616b #080a0d; }
    scale the census holds (30 px beside 28), and two lines would need a 25 px headline. */
 .re-intro-title { text-wrap: pretty; }
 .re-intro-title span + span { color: var(--re-fg-2); text-wrap: balance; }
-@media (max-width: 1023px) { .re-intro .re-fh { margin-top: 12px; } }
-.re-fh-note { color: var(--re-dim); font-size: 16px; line-height: 1.5; }
-.re-fh { display: grid; gap: 20px; }
+
+/* The proof index in the left column: 2 × 2, links on the lead size, one line of what each covers. */
+.re-evidence[data-in='copy'] { max-width: none; margin: 0; padding: 0; background: none; }
+.re-evidence[data-in='copy'] ul { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 24px; margin-top: 0; }
+.re-evidence[data-in='copy'] li { padding: 0; }
+@media (max-width: 360px) { .re-evidence[data-in='copy'] ul { grid-template-columns: 1fr; } }
+/* Text, not flex items, so a wrapped label keeps its arrow on the last word's line; 9 px above and below keep the 44 px target. */
+.re-evidence a { display: block; width: fit-content; padding-block: 9px; }
+.re-evidence a svg { display: inline-block; vertical-align: -3px; }
+.re-nowrap { white-space: nowrap; }
+
+/* The screen: a 16:10 window on a wide crop, 4:3 on a narrow one (phones), top-anchored so a shorter window keeps the header. */
 .re-fh-screen { position: relative; display: block; aspect-ratio: 16 / 10; overflow: hidden; border-radius: 14px; background: #0b0b10; box-shadow: 0 0 0 1px rgb(255 255 255 / 0.08); } /* taste-skill-ignore: the product screen's own edge (data-ui), no resting shadow */
-.re-fh-screen img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-.re-fh-screen[data-portrait] img { object-fit: contain; object-position: 50% 50% !important; }
-/* The dotted copy: the page's own 9 px dot grid, cut from the screen. */
-.re-fh-dots { filter: grayscale(1) contrast(1.5) brightness(0.85); mask: radial-gradient(#000 1.6px, transparent 2.2px) 0 0 / 9px 9px; animation: re-fh-in 180ms cubic-bezier(0.23, 1, 0.32, 1) both; } /* taste-skill-ignore: a mask, not a fill: the page's own 9 px dot field */
-@keyframes re-fh-in { from { opacity: 0; } }
-/* The pull: the sharp copy uncovers left to right behind the seam, then rests. */
-.re-fh-sharp { animation: re-fh-pull 1100ms cubic-bezier(0.22, 1, 0.36, 1) 350ms both; }
-.re-fh-seam { position: absolute; inset: 0; pointer-events: none; animation: re-fh-seam 1100ms cubic-bezier(0.22, 1, 0.36, 1) 350ms both; }
-.re-fh-seam::after { content: ''; position: absolute; top: 0; bottom: 0; right: 0; width: 2px; background: var(--re-accent); box-shadow: 0 0 24px 4px var(--re-accent-mid); } /* taste-skill-ignore: lit only while the wipe moves, never at rest */
+.re-fh-screen img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 0; }
+@media (max-width: 520px) {
+  .re-fh-screen { aspect-ratio: 4 / 3; }
+  /* A narrow crop slimmer than 4:3: whole and centred, never larger than its own CSS size (2x pixels), on the figure's dark ground. */
+  .re-fh-screen[data-contain] img { object-fit: contain; object-position: 50% 50%; margin: auto; max-width: var(--nw); max-height: var(--nh); }
+}
+/* The dotted copy: the page's own 9 px dot grid, cut from the screen. It does not move. */
+.re-fh-dots { filter: grayscale(1) contrast(1.5) brightness(0.85); mask: radial-gradient(#000 1.6px, transparent 2.2px) 0 0 / 9px 9px; } /* taste-skill-ignore: a mask, not a fill: the page's own 9 px dot field */
+/* The pull, the one story beat: the sharp copy uncovers left to right once the image has decoded, no delay, 600 ms ease-out
+   (a pointer pick 450 ms). A timer sets data-settled whether or not it ran; a key press and reduced motion settle at once. */
+.re-fh-screen:not([data-settled]) .re-fh-sharp { clip-path: inset(0 100% 0 0); }
+.re-fh-screen[data-ready]:not([data-settled]) .re-fh-sharp { animation: re-fh-pull 600ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+.re-fh-screen[data-ready][data-how='pick']:not([data-settled]) .re-fh-sharp { animation-duration: 450ms; }
 @keyframes re-fh-pull { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
-@keyframes re-fh-seam { 0% { transform: translateX(-100%); opacity: 1; } 85% { opacity: 1; } 100% { transform: translateX(0); opacity: 0; } }
-.re-fh[data-reduced] .re-fh-sharp, .re-fh[data-reduced] .re-fh-seam { animation: none; }
-.re-fh[data-reduced] .re-fh-seam { display: none; }
-.re-fh-screen[data-how='pick'] .re-fh-sharp, .re-fh-screen[data-how='pick'] .re-fh-seam { animation-duration: 700ms; animation-delay: 0ms; }
-.re-fh-screen[data-settled] .re-fh-sharp { animation: none; clip-path: none; }
-/* Reduced motion keeps a 160 ms fade and no movement; a key press swaps at once. */
-.re-fh[data-reduced] .re-fh-sharp { animation: re-fh-in 160ms ease-out both; }
-.re-fh[data-reduced] .re-fh-dots, .re-fh-screen[data-how='key'] .re-fh-dots { animation: none; }
-.re-fh-screen[data-settled] .re-fh-seam { display: none; }
 .re-fh-open { position: absolute; left: 12px; bottom: 12px; max-width: calc(100% - 24px); display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; white-space: nowrap; border-radius: 999px; background: rgb(5 5 8 / 0.86); color: var(--re-fg); font-size: 16px; opacity: 0; translate: 0 6px; transition: opacity 150ms ease-out, translate 150ms ease-out; }
 .re-fh-screen:focus-visible { outline: 2px solid var(--re-accent); outline-offset: 4px; }
 .re-fh-screen:focus-visible .re-fh-open { opacity: 1; translate: 0 0; }
 @media (hover: hover) and (pointer: fine) { .re-fh-screen:hover .re-fh-open { opacity: 1; translate: 0 0; } }
-/* The shown product's name and years sit under its screen at every width, one line; the tabs carry only the area, so
-   no tab ever wraps a long product name into a narrow column (owner, 2026-11-03: "cramped" at 1280). */
-.re-fh-name { margin: -8px 0 0; font-size: 16px; line-height: 1.4; color: var(--re-fg); }
+@media (max-width: 760px) { .re-fh-open { display: none; } }
+
+/* One row under the screen: the product's name and years, and the note that holds for every screen (wraps on phones). */
+.re-fh-meta { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 0 16px; margin-top: 12px; }
+.re-fh-name, .re-fh-note { margin: 0; font-size: 16px; line-height: 1.5; }
+.re-fh-name { color: var(--re-fg); }
 .re-fh-name span { color: var(--re-fg-2); }
+.re-fh-note { color: var(--re-dim); }
+/* The tabs carry only the area; the product's name is read out for screen readers and shown in the row above. */
 .re-fh-strip li button > span + span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
-@media (max-width: 760px) {
-  .re-fh-open { display: none; }
-}
-.re-fh-strip { display: flex; align-items: stretch; gap: 12px; }
+/* One row of four tabs and the pause button on the tabs' own top line; on phones a 2 × 2 grid with the pause on row one. */
+.re-fh-strip { display: flex; align-items: flex-start; gap: 12px; margin-top: 8px; }
 .re-fh-strip ol { flex: 1; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 0; padding: 0; list-style: none; }
 .re-fh-strip li button { transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1); position: relative; width: 100%; min-height: 44px; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 12px 0 4px; border: 0; border-top: 2px solid rgb(255 255 255 / 0.14); background: none; color: var(--re-fg-2); font: 400 16px/1.3 var(--re-sans); text-align: left; cursor: pointer; }
+/* Hover brightens a tab's top line (its words are already the foreground) through a layer over it, so a key press that
+   moves the accent line never animates it; the current tab drops the layer at once. */
+.re-fh-strip li button::after { content: ''; position: absolute; top: -2px; left: 0; right: 0; height: 2px; background: rgb(255 255 255 / 0.4); opacity: 0; transition: opacity 150ms ease; pointer-events: none; }
+/* A keyboard pick never animates: not the tab it presses, nor the hover line on the tab it leaves under a resting mouse. */
+.re-fh-strip li button[aria-pressed='true']::after, .re-fh:has(.re-fh-screen[data-how='key']) .re-fh-strip li button::after { transition: none; }
+@media (hover: hover) and (pointer: fine) { .re-fh-strip li button:not([aria-pressed='true']):hover::after { opacity: 1; } }
 .re-fh-strip li button > span:first-child { color: var(--re-fg); }
 .re-fh-strip li button[aria-pressed='true'] { border-top-color: var(--re-accent); color: var(--re-fg); }
 .re-fh-strip li button:focus-visible { outline: 2px solid var(--re-accent); outline-offset: 4px; border-radius: 4px; }
-.re-fh-timer { position: absolute; top: -2px; left: 0; height: 2px; width: 100%; background: var(--re-fg); transform-origin: left; animation: re-fh-timer 4200ms linear both; }
-@keyframes re-fh-timer { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 .re-fh-strip li button:active, .re-fh-pause:active { transform: scale(0.97); }
-.re-fh-pause { transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1); flex: none; width: 44px; height: 44px; align-self: center; display: grid; place-items: center; border: 0; border-radius: 999px; background: rgb(255 255 255 / 0.07); color: var(--re-fg); cursor: pointer; }
+.re-fh-pause { transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1); flex: none; width: 44px; height: 44px; display: grid; place-items: center; border: 0; border-radius: 999px; background: rgb(255 255 255 / 0.07); color: var(--re-fg); cursor: pointer; }
 @media (hover: hover) and (pointer: fine) { .re-fh-pause:hover { background: rgb(255 255 255 / 0.12); } }
-.re-fh-pause:focus-visible { outline: 2px solid var(--re-accent); outline-offset: 2px; }
+.re-fh-pause:focus-visible { outline: 2px solid var(--re-accent); outline-offset: 4px; border-radius: 999px; }
 @media (max-width: 760px) {
-  .re-fh-strip ol { grid-template-columns: 1fr 1fr; gap: 4px 12px; }
-  /* On a phone the areas are one 44 px row each, and the screen names its product itself: no hover to reveal it. */
+  /* 2 × 2: each top line sits 8 px over its own label and at least 16 px under the label above it, so the mark of a
+     second-row tab never reads as an underline of the first row. */
+  .re-fh-strip { margin-top: 20px; }
+  .re-fh-strip ol { grid-template-columns: 1fr 1fr; gap: 12px; }
+  .re-fh-strip li button { padding-top: 8px; }
 }
+/* ?seam=1 only: the leading edge of the pull, a 2 px accent line, no glow; it moves with the clip and fades as it lands. */
+.re-fh-seam { position: absolute; inset: 0; pointer-events: none; transform: translateX(-100%); opacity: 0; }
+.re-fh-seam::after { content: ''; position: absolute; top: 0; bottom: 0; right: 0; width: 2px; background: var(--re-accent); }
+.re-fh-screen[data-ready]:not([data-settled]) .re-fh-seam { animation: re-fh-seam 600ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+.re-fh-screen[data-ready][data-how='pick']:not([data-settled]) .re-fh-seam { animation-duration: 450ms; }
+.re-fh-screen[data-settled] .re-fh-seam { display: none; }
+@keyframes re-fh-seam { 0% { transform: translateX(-100%); opacity: 1; } 85% { opacity: 1; } 100% { transform: translateX(0); opacity: 0; } }
+
+/* ?debug=1 only: tap targets against 44 px, and the crop, scale and sweep read-out. */
+.re-fh-debug { position: fixed; left: 8px; bottom: 8px; z-index: 60; margin: 0; padding: 8px 10px; background: #000; color: #9f9; font: 12px/1.4 ui-monospace, monospace; white-space: pre; pointer-events: none; }
+[data-tap='ok'] { outline: 1px dashed #3c3 !important; }
+[data-tap='bad'] { outline: 2px solid #f33 !important; }
+
+/* ---------- ?cut=1 (the owner's content-cut variant, off by default). Evidence.tsx is another stream's file, so the two
+   About removals are display: none here: not painted, not in the text, not in the accessibility tree. ---------- */
+main[data-cut] .re-about :is(.re-text-link, .re-engineering-meta) { display: none; }

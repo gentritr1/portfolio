@@ -5,7 +5,7 @@ import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPa
 import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js'
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js'
 
-import { STAGE } from "./sceneSupport"
+import { dlog, lastInput, STAGE } from "./sceneSupport"
 export { STAGE, hasWebGL } from "./sceneSupport"
 
 export interface Stats {
@@ -302,12 +302,34 @@ const gauss = () => {
   return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v)
 }
 
-export function createScene(
+/**
+ * Start-up comes in slices, each its own task, so no frame waits on it: built in one task it cost a 110-133 ms frame on a
+ * 4x-throttled phone (measured 2026-11-11). The slices run in the same order as before and draw the same field.
+ */
+// After a frame, not just after a task: two slices in one frame interval still add up to one long frame. A hidden tab
+// pauses here, and the field is not on screen until it is ready.
+const yieldTask = () => new Promise<void>((r) => requestAnimationFrame(() => setTimeout(r, 0)))
+/** Particles written per slice (about 10 ms on a 4x-throttled phone). */
+const CHUNK = 6_000
+
+export async function createScene(
   host: HTMLElement,
   options: { count: number; reduced: boolean; mode: 0 | 1; onReady(): void; weights?: number[] },
-): RefractiveScene {
+): Promise<RefractiveScene> {
   const { count, reduced, onReady } = options
   performance.mark('re:scene-start')
+  const t0 = performance.now()
+  // The module itself was evaluated in this task: the renderer starts in the next one. Creating the WebGL context is the
+  // one step that cannot be split (about 30-40 ms at 4x CPU), so it waits until the visitor has been still for 300 ms.
+  await yieldTask()
+  while (performance.now() - lastInput < 300) await new Promise((r) => setTimeout(r, 300 - (performance.now() - lastInput)))
+  // Each slice ends here: under ?debug=1 it logs how long it held the main thread.
+  let sliceT = t0
+  const slice = async (what: string) => {
+    dlog('scene slice', `${what} ${Math.round(performance.now() - sliceT)}ms`)
+    await yieldTask()
+    sliceT = performance.now()
+  }
   let pixelRatio = Math.min(devicePixelRatio || 1, innerWidth < 768 ? 1 : 1.5)
   // Phone dots are a little larger, or the grid disappears at arm's length.
   const dot = innerWidth < 768 ? 2.2 : 1.7
@@ -317,6 +339,7 @@ export function createScene(
   // The composer renders several passes a frame; count every one of them for the readout.
   renderer.info.autoReset = false
   host.appendChild(renderer.domElement)
+  await slice('renderer')
   const scene = new THREE.Scene()
   // A colour-managed background: a raw dark clear colour is encoded to sRGB twice through OutputPass and reads grey.
   scene.background = new THREE.Color(0x050508)
@@ -338,11 +361,13 @@ export function createScene(
   const slot = new Uint32Array(count)
   for (let i = 0; i < count; i++) slot[i] = i
   for (let i = count - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); const s = slot[i]; slot[i] = slot[j]; slot[j] = s }
+  await slice('shuffle')
   // With weights (the number of projects in each area), a cloud's share of particles and its spread follow that count.
   const sigma = options.weights ? options.weights.map((w) => 0.75 + 0.32 * Math.sqrt(w)) : SIGMA
   const weights = options.weights ?? SIGMA.map((s) => s * s)
   const wsum = weights.reduce((a, b) => a + b, 0)
   for (let i = 0; i < count; i++) {
+    if (i && i % CHUNK === 0) await slice('particles')
     const o = slot[i]
     const seed = Math.min(Math.random(), 0.9999)
     if (i < lattice) {
@@ -422,6 +447,7 @@ export function createScene(
   const aberration = new ShaderPass(aberrationShader)
   composer.addPass(aberration)
   composer.addPass(new OutputPass())
+  await slice('materials and passes')
 
   // ---------- Camera path: one pose per stage, rebuilt on resize ----------
   let path: { pos: THREE.CatmullRomCurve3; look: THREE.CatmullRomCurve3 } | null = null
@@ -615,13 +641,33 @@ export function createScene(
   }
   // ---------- Warm-up while the canvas is still invisible ----------
   let ready = false
+  /**
+   * Compile every program the frame uses without stalling: walk one composer frame with the draws taken out, and hand
+   * each draw's object to compileAsync with the render target that draw would use (a program built for the screen is
+   * not the one a render target needs, so compiling the scene alone left all twelve to compile in the first frame).
+   */
+  async function compileFrame() {
+    const draw = renderer.render
+    const draws: { obj: THREE.Object3D; cam: THREE.Camera; target: THREE.WebGLRenderTarget | null; material: unknown }[] = []
+    renderer.render = (obj, cam) => { draws.push({ obj, cam, target: renderer.getRenderTarget(), material: (obj as THREE.Mesh).material }) }
+    try { composer.render() } finally { renderer.render = draw }
+    await slice('targets allocated, draws listed')
+    // One program per task: requesting all twelve at once held the main thread 50 ms at 4x CPU.
+    const pending: Promise<unknown>[] = []
+    const was = renderer.getRenderTarget()
+    for (const d of draws) {
+      if (disposed) return
+      if (d.material) (d.obj as THREE.Mesh).material = d.material as THREE.Material
+      renderer.setRenderTarget(d.target)
+      pending.push(renderer.compileAsync(d.obj, d.cam))
+      renderer.setRenderTarget(was)
+      await slice('compile request')
+    }
+    await Promise.all(pending)
+  }
   async function warm() {
-    // Compile every program first (the link lines included), then render one frame so the post passes compile too.
+    // Compile every program first (the link lines included), then render the frames while hidden, one per task.
     lines.visible = true
-    try {
-      await renderer.compileAsync(scene, camera)
-    } catch { /* compile on first render instead */ }
-    if (disposed) return
     camera.position.copy(camPos)
     camera.lookAt(lookCur)
     // Run the lens and its colour ring once while hidden too: the first lens frame otherwise cost 83 ms on first hover.
@@ -629,17 +675,38 @@ export function createScene(
     uniforms.uPointer.value.set(uniforms.uViewport.value.x / 2, uniforms.uViewport.value.y / 2)
     aberration.uniforms.uPointer.value.copy(uniforms.uPointer.value)
     aberration.uniforms.uAmt.value = 1
+    try {
+      await compileFrame()
+    } catch { /* compile on first render instead */ }
+    if (disposed) return
+    dlog('scene compiled', `${Math.round(performance.now() - t0)}ms after start`)
+    sliceT = performance.now()
+    // The first frames upload the particles and allocate the targets: built up one pass per task, then the lens frame.
+    const passes = [bloom, aberration]
+    const want = passes.map((p) => p.enabled)
+    passes.forEach((p) => { p.enabled = false })
     composer.render()
+    await slice('first hidden frame, scene only')
+    for (let i = 0; i < passes.length; i++) {
+      if (disposed) return
+      passes[i].enabled = want[i]
+      composer.render()
+      await slice('hidden frame, one more pass')
+    }
+    if (disposed) return
     uniforms.uLens.value = 0
     aberration.uniforms.uAmt.value = 0
     composer.render()
+    await slice('hidden frame without the lens')
     await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)))
     if (disposed) return
     ready = true
     performance.mark('eh:ready')
+    dlog('scene ready', `${Math.round(performance.now() - t0)}ms after start`)
     onReady()
     last = performance.now()
     frame()
+    requestAnimationFrame(() => dlog('first field frame'))
   }
   void warm()
   function onVis() {

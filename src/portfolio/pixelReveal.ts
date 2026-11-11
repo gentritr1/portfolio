@@ -11,8 +11,12 @@
  * ms per screen on a throttled phone and stalled the scroll (measured 2026-11-04). Where that path is missing the picture
  * simply appears.
  */
+import { dlog } from './sceneSupport'
+
 const STEPS: [block: number, at: number][] = [[28, 0], [10, 90]]
 const SHARP = 180 // the picture shows under the blocks, which fade out by 300 ms (see .re-pixel)
+/** Once seen, a screen never waits longer than this for its blocks (a slow refetch, a busy decoder): it just appears. */
+const LATEST = 1000
 
 export function pixelReveal(img: HTMLImageElement | null) {
   const box = img?.parentElement
@@ -21,10 +25,20 @@ export function pixelReveal(img: HTMLImageElement | null) {
   const timers: number[] = []
   let canvas: HTMLCanvasElement | undefined
   let io: IntersectionObserver | undefined
-  let gone = false
-  const settle = () => { delete box.dataset.wait; canvas?.remove() }
+  let gone = false, seenAt = 0, done = false
+  const name = (img.currentSrc || img.src).split('/').pop()
+  const settle = () => {
+    delete box.dataset.wait
+    canvas?.remove()
+    if (seenAt && !done) dlog('reveal settle', `${name} ${Math.round(performance.now() - seenAt)}ms`)
+    done = true
+  }
 
   const play = async () => {
+    seenAt = performance.now()
+    dlog('reveal start', name)
+    // Visible content settles on a timer, never only on the animation finishing.
+    timers.push(window.setTimeout(settle, LATEST))
     const b = box.getBoundingClientRect(), r = img.getBoundingClientRect()
     if (matchMedia('(prefers-reduced-motion: reduce)').matches || !b.width || !r.width || typeof createImageBitmap !== 'function') return settle()
     // The part of the file the box shows, in the file's own pixels.
@@ -38,7 +52,7 @@ export function pixelReveal(img: HTMLImageElement | null) {
         resizeWidth: Math.max(1, Math.ceil(b.width / block)), resizeHeight: Math.max(1, Math.ceil(b.height / block)), resizeQuality: 'medium',
       })))
     } catch { return settle() }
-    if (gone) return steps.forEach((s) => s.close())
+    if (gone || done) return steps.forEach((s) => s.close())
     canvas = document.createElement('canvas')
     canvas.className = 're-pixel'
     canvas.width = Math.round(b.width)
@@ -60,19 +74,66 @@ export function pixelReveal(img: HTMLImageElement | null) {
   // Decoded off-screen (lazy loading starts early), the picture waits in its dot field until it is actually seen.
   const loaded = () => img.decode().catch(() => {}).then(() => {
     if (!img.isConnected || gone) return
+    if (far) { done = true; return }
     io = new IntersectionObserver(([e]) => { if (e.isIntersecting) { io?.disconnect(); play() } }, { threshold: 0.12 })
-    // A slab's reflection is clipped to a strip that never reaches the threshold: it watches its slab, so both resolve together.
-    io.observe(box.closest('.re-sw-slab') ?? box)
+    // A slab's reflection is clipped to a strip that never reaches the threshold: it watches its slab, so both resolve
+    // together. A screen in a sideways row watches its row: the screen peeking in at the edge (under the threshold) and
+    // the one past it resolve with the row, so a sideways scroll finds them sharp, not still waiting.
+    io.observe(box.closest('.re-sw-slab, .re-cs-loop') ?? box)
   })
   const failed = () => settle()
   img.addEventListener('load', loaded, { once: true })
   img.addEventListener('error', failed, { once: true })
+  // A sideways row: the screens it shows and the one just past its edge load once the row nears the view, so a swipe
+  // always finds a sharp screen; each swipe moves the edge and fetches the next. A screen farther out is an ordinary lazy
+  // picture (no dot field, no reveal) until the edge reaches it: nobody sees it without swiping, so nobody downloads it.
+  const row = box.closest('.re-cs-loop')
+  let near: IntersectionObserver | undefined, stopRow = () => {}
+  let far = false, inReach = false, nearView = false
+  if (row && img.loading === 'lazy') {
+    const index = [...row.children].indexOf(box.closest('li') as Element)
+    const fetchIt = () => { if (inReach && nearView) img.loading = 'eager' }
+    stopRow = watchRow(row, (reach) => {
+      if (index <= reach) { inReach = true; fetchIt() }
+      else if (!inReach && !far && !done) { far = true; delete box.dataset.wait }
+    })
+    near = new IntersectionObserver(([e]) => { if (e.isIntersecting) { near?.disconnect(); nearView = true; fetchIt() } }, { rootMargin: '200px 0px' })
+    near.observe(row)
+  }
   return () => {
     gone = true
+    near?.disconnect()
+    stopRow()
     img.removeEventListener('load', loaded)
     img.removeEventListener('error', failed)
     io?.disconnect()
     timers.forEach(clearTimeout)
     settle()
   }
+}
+
+/**
+ * One observer per sideways row, rooted on the row itself: which of its screens show (any part, sideways scroll
+ * included). Each screen hears the reach, the index one past the last screen showing, whenever that changes.
+ */
+type Row = { seen: Set<Element>; subs: Set<(reach: number) => void>; io?: IntersectionObserver; reach: number }
+const rows = new WeakMap<Element, Row>()
+function watchRow(row: Element, sub: (reach: number) => void) {
+  let r = rows.get(row)
+  if (!r) {
+    const state: Row = { seen: new Set(), subs: new Set(), reach: -1 }
+    state.io = new IntersectionObserver((entries) => {
+      for (const e of entries) if (e.isIntersecting) state.seen.add(e.target); else state.seen.delete(e.target)
+      const kids = [...row.children]
+      state.reach = Math.max(-1, ...[...state.seen].map((li) => kids.indexOf(li))) + 1
+      state.subs.forEach((f) => f(state.reach))
+    }, { root: row })
+    for (const li of row.children) state.io.observe(li)
+    r = state
+    rows.set(row, r)
+  }
+  const s = r
+  s.subs.add(sub)
+  if (s.reach >= 0) sub(s.reach)
+  return () => { s.subs.delete(sub); if (!s.subs.size) { s.io?.disconnect(); rows.delete(row) } }
 }
