@@ -76,7 +76,7 @@ export function HomeIntro({ onOpen, reduced, onPulse }: {
       <div className="re-intro-copy re-solid">
         <div className="re-intro-who">
           <p className="re-intro-role">Software engineer: frontend, backend and mobile</p>
-          <p className="re-intro-bio">5+ years shipping web and mobile products.<br />Mostly for healthcare teams, learning platforms and consumer apps.<br />Based in Kosovo, working remotely.</p>
+          <p className="re-intro-bio">5+ years shipping web and mobile products.<br />Mostly for healthcare teams, learning platforms and consumer apps.<br />Based in Kosovo, open to hybrid or remote work.</p>
           <div className="re-intro-links">
             <a className="re-text-link" href="#re-results">Results <ArrowRightIcon {...ARROW} /></a>
             <a className="re-text-link" href="#re-about">How I work <ArrowRightIcon {...ARROW} /></a>

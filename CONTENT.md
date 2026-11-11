@@ -21,7 +21,7 @@ Project facts below come from git history; contact and education details were co
 **Name:** Gentrit Rashiti
 **Role line (owner request 2026-11-02, awaiting approval from captures):** Software engineer: frontend, backend and mobile. Replaces "Frontend · Backend · Mobile" (2026-10-30).
 **One-liner (approved design, 2026-10-30):** I build web and mobile products, from interface to backend.
-**Secondary (approved design, 2026-10-30):** 5+ years shipping web and mobile products. Based in Kosovo, working remotely.
+**Secondary (approved design, 2026-10-30):** 5+ years shipping web and mobile products. Based in Kosovo, open to hybrid or remote work. (Owner, 2026-11-12: "working remotely" gave the wrong message; say hybrid or remote.)
 **Audience line (owner request 2026-11-02, awaiting approval from captures):** Mostly for healthcare teams, learning platforms and consumer apps. Sits between the two secondary lines; backed by the care platform, Bayyinah TV and Read to Feed, Viva Fresh and the store apps.
 **CTAs:** "See the work" (scroll), "Download CV" (link to `/Gentrit-Rashiti-CV.pdf`; the editable source is `cv/Gentrit-Rashiti-CV.html`).
 
