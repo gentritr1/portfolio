@@ -1,0 +1,7 @@
+{
+ "care-platform": { "src": "/showcase/care-dashboard/appointments-week.webp", "wide": [236, 40, 1196, 748], "narrow": [471, 539, 320, 240] },
+ "bayyinah-tv": { "src": "/showcase/bayyinah/web-02.webp", "wide": [70, 230, 1040, 650], "narrow": [100, 520, 420, 315] },
+ "read-to-feed": { "src": "/mobile/reading-1.webp", "narrow": [42, 265, 306, 264],
+   "wide": { "size": [1046, 654], "gap": 32, "parts": [["/mobile/reading-3.webp", [42, 295, 306, 538]], ["/mobile/reading-1.webp", [42, 260, 306, 538]], ["/mobile/reading-2.webp", [42, 306, 306, 538]]] } },
+ "offday": { "src": "/showcase/offday/offday-desktop-calendar.webp", "wide": [0, 0, 1120, 700], "narrow": [388, 384, 364, 273] }
+}

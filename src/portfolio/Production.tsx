@@ -1,10 +1,11 @@
 import { useNearViewport } from './useNearViewport'
 import { lazy, Suspense, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
-import { ArrowRightIcon, XIcon } from '@phosphor-icons/react'
+import { ArrowRightIcon, ArrowsOutSimpleIcon, XIcon } from '@phosphor-icons/react'
 import { ARROW, plain, BASE, systems } from "./data"
 import { FullSize, type FullSizeHandle } from "./FullSize"
 import { tune } from "./tune"
 import { useScreenSwipe } from "./useScreenSwipe"
+import { CUT } from "./cut"
 import { pixelReveal } from "./pixelReveal"
 import { cropVars, LEADS, pct, shots, type Crop, type Shot } from "./screens"
 
@@ -28,16 +29,23 @@ type Vars = CSSProperties & Record<`--${string}`, string | number>
 /** A text block placed on the 1440 × 900 frame (wide screens only; phones keep it in the flow). */
 const at = (x: number, y: number, w?: number): Vars => ({ '--x': pct(x / 14.4), '--y': pct(y / 9), ...(w ? { '--w': pct(w / 14.4) } : {}) })
 
-function Screen({ shot, eager }: { shot: Shot; eager?: boolean }) {
+function Screen({ shot, eager, vars }: { shot: Shot; eager?: boolean; vars?: Vars }) {
   return (
     <div className="re-sw-screen">
-      <img ref={eager ? undefined : pixelReveal} src={shot.src} width={shot.w} height={shot.h} alt={shot.alt} draggable={false} loading={eager ? 'eager' : 'lazy'} decoding="async" />
+      <img ref={eager ? undefined : pixelReveal} src={shot.src} width={shot.w} height={shot.h} alt={shot.alt} style={vars} draggable={false} loading={eager ? 'eager' : 'lazy'} decoding="async" />
     </div>
   )
 }
 
-/** Several real screens of one product, shown one at a time in the same slab. They share its crop, so the slab never moves. */
-type LabeledShot = Shot & { label: string }
+/**
+ * Several real screens of one product, shown one at a time in the same slab. The slab's crop sets its shape, so the slab
+ * never moves or resizes; a screen whose content sits elsewhere in its file (the store listing images each place the phone
+ * differently) carries its own crop of the same aspect ratio, used by the slab and by its thumbnail.
+ */
+type LabeledShot = Shot & { label: string; crop?: Crop; phoneCrop?: Crop }
+/** Where a screen's image sits in the slab: its own crop if it has one, else the slab's (wide, then phone). */
+const shotVars = (shot: Shot & { crop?: Crop; phoneCrop?: Crop }, crop?: Crop, phoneCrop?: Crop): Vars =>
+  ({ ...cropVars(shot, shot.crop ?? crop), ...cropVars(shot, shot.phoneCrop ?? phoneCrop ?? crop, 'n') }) as Vars
 type Swap = { shots: LabeledShot[]; index: number; armed: boolean; instant: boolean; set(i: number, instant: boolean): void; arm(): void }
 
 function useSwap(shots: LabeledShot[]): Swap {
@@ -52,11 +60,11 @@ function useSwap(shots: LabeledShot[]): Swap {
 }
 
 /** The active screen is sharp; the others wait underneath and only load once the reader reaches for the controls. */
-function SwapScreen({ swap }: { swap: Swap }) {
+function SwapScreen({ swap, crop, phoneCrop }: { swap: Swap; crop?: Crop; phoneCrop?: Crop }) {
   return (
     <div className="re-sw-screen" data-swap data-instant={swap.instant || undefined}>
       {swap.shots.map((shot, i) => (i === swap.index || swap.armed) && (
-        <img key={shot.src} src={shot.src} width={shot.w} height={shot.h} alt={i === swap.index ? shot.alt : ''} aria-hidden={i !== swap.index || undefined}
+        <img key={shot.src} src={shot.src} width={shot.w} height={shot.h} style={shotVars(shot, crop, phoneCrop)} alt={i === swap.index ? shot.alt : ''} aria-hidden={i !== swap.index || undefined}
           data-on={i === swap.index || undefined} draggable={false} loading="lazy" decoding="async" />
       ))}
     </div>
@@ -64,23 +72,35 @@ function SwapScreen({ swap }: { swap: Swap }) {
 }
 
 /**
- * The swap's controls: one 44 px target per screen, the active one at full ink. A tap or click crossfades the screen; the
- * keyboard (Enter or Space, detail 0) swaps at once. On phones the row sits in the flow under the stage, and the slab
- * itself also takes a sideways swipe.
+ * The swap's controls: one target per screen, at least 72 px wide (56 on a phone) and 44 px tall, each on an edge that
+ * holds 3:1 against the ground; the current one carries a 2 px accent edge and aria-current. A tap or click crossfades
+ * the screen; the keyboard (Enter, Space, or the arrow keys between screens) swaps at once. The screen's name and its
+ * counter sit on one line right under the row, with the chapter's note (if any) under them: one caption place per chapter.
+ * On phones the row sits in the flow under the stage, and the slab itself also takes a sideways swipe.
  */
-function Thumbs({ swap, crop, place, label, thumbW }: { swap: Swap; crop: Crop; place: Vars; label: string; thumbW: number }) {
+function Thumbs({ swap, crop, place, label, note, wide, phone }: { swap: Swap; crop: Crop; place: Vars; label: string; note?: string; wide?: boolean; phone?: boolean }) {
   const row = useRef<HTMLDivElement>(null)
   const near = useNearViewport(row)
+  const step = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    const n = swap.shots.length
+    const to = { ArrowRight: swap.index + 1, ArrowDown: swap.index + 1, ArrowLeft: swap.index - 1, ArrowUp: swap.index - 1, Home: 0, End: n - 1 }[e.key]
+    if (to === undefined) return
+    e.preventDefault()
+    const i = ((to % n) + n) % n
+    swap.set(i, true)
+    row.current?.querySelectorAll('button')[i]?.focus()
+  }
   return (
-    <div ref={row} className="re-sw-at re-sw-thumbs" style={place} role="group" aria-label={label} data-instant={swap.instant || undefined} onPointerEnter={swap.arm} onFocus={swap.arm}>
+    <div ref={row} className="re-sw-at re-sw-thumbs" style={place} data-wide={wide || undefined} role="group" aria-label={label} data-instant={swap.instant || undefined} onPointerEnter={swap.arm} onFocus={swap.arm} onKeyDown={step}>
       <div className="re-sw-thumb-row">{swap.shots.map((shot, i) => (
-        <button key={shot.src} type="button" aria-pressed={i === swap.index} aria-label={shot.alt} onClick={(e) => swap.set(i, e.detail === 0)}>
-          <span className="re-sw-thumb" style={{ ...cropVars(shot, crop), width: thumbW } as Vars}>
+        <button key={shot.src} type="button" aria-current={i === swap.index || undefined} aria-label={shot.alt} onClick={(e) => swap.set(i, e.detail === 0)}>
+          <span className="re-sw-thumb" style={cropVars(shot, (phone ? shot.phoneCrop : shot.crop) ?? crop) as Vars}>
             <img src={near || swap.armed ? shot.src : undefined} width={shot.w} height={shot.h} alt="" loading="lazy" decoding="async" />
           </span>
         </button>
       ))}</div>
       <p className="re-sw-screen-label" aria-live="polite" aria-atomic="true">{swap.shots[swap.index].label} <span>· {swap.index + 1} of {swap.shots.length}</span></p>
+      {note && <p className="re-sw-screen-note">{note}</p>}
     </div>
   )
 }
@@ -100,8 +120,8 @@ function Slab({ shot, crop, phoneCrop, place, phone, nh, transform, z, kind = 'l
   const shown = swap ? swap.shots[swap.index] : shot
   return (
     <figure className={`re-sw-slab re-sw-${kind}`} style={style} data-wide-only={phone ? undefined : ''} data-swipe={swap ? '' : undefined} {...(swap ? swipe : {})}>
-      {swap ? <SwapScreen swap={swap} /> : <Screen shot={shot} eager={eager} />}
-      <div className="re-sw-reflection" aria-hidden="true"><Screen shot={{ ...shown, alt: '' }} /></div>
+      {swap ? <SwapScreen swap={swap} crop={crop} phoneCrop={phoneCrop} /> : <Screen shot={shot} eager={eager} />}
+      <div className="re-sw-reflection" aria-hidden="true"><Screen shot={{ ...shown, alt: '' }} vars={swap ? shotVars(shown, crop, phoneCrop) : undefined} /></div>
       {onReal && <button type="button" className="re-sw-real" aria-label={`${shot.alt}, at full size`} onClick={onReal} />}
     </figure>
   )
@@ -158,7 +178,7 @@ function Layers({ slug, place, row }: { slug: string; place: Vars; row?: boolean
 
 function Reach({ href }: { href: string }) {
   return (
-    <a className="re-sw-proof" href={href} target="_blank" rel="noreferrer" data-numbers>
+    <a className="re-sw-proof re-link-secondary" href={href} target="_blank" rel="noreferrer" data-numbers>
       100K+ Google Play downloads
       <small>Product reach · October 2026<span className="re-sr"> (opens in a new tab)</span></small>
     </a>
@@ -167,19 +187,110 @@ function Reach({ href }: { href: string }) {
 
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v))
 
+/** `?debug=1`: tap targets in the sections below the hero outlined at 44 px, and each gap between chapters drawn with its value. */
+const DEBUG = new URLSearchParams(location.search).get('debug') === '1'
+
+/**
+ * The chapter's painted extent, relative to its own top: words, the slabs and their table, the thumbnails. A slab is
+ * measured at rest, from its layout box and its own resting transform, so the scroll settle never moves the result.
+ */
+function extent(ch: HTMLElement) {
+  const base = ch.getBoundingClientRect().top
+  let top = Infinity, bottom = -Infinity
+  const add = (t: number, b: number) => { top = Math.min(top, t - base); bottom = Math.max(bottom, b - base) }
+  const stage = ch.querySelector<HTMLElement>('.re-sw-stage')!.getBoundingClientRect().top
+  for (const el of ch.querySelectorAll<HTMLElement>('.re-sw-slab')) {
+    if (!el.checkVisibility()) continue
+    const m = new DOMMatrix(getComputedStyle(el).transform === 'none' ? undefined : getComputedStyle(el).transform)
+    const w = el.offsetWidth, h = el.offsetHeight, y0 = stage + el.offsetTop
+    const ys = [[0, 0], [w, 0], [0, h], [w, h]].map(([x, y]) => { const p = m.transformPoint(new DOMPoint(x - w / 2, y - h / 2)); return p.y / (p.w || 1) + h / 2 })
+    add(y0 + Math.min(...ys), y0 + Math.max(...ys))
+  }
+  for (const el of ch.querySelectorAll<HTMLElement>('.re-sw-floor, .re-sw-thumb, .re-sw-words *, .re-sw-media > .re-sw-at *')) {
+    if (el.closest('.re-sw-thumb') && !el.matches('.re-sw-thumb')) continue
+    const own = el.matches('.re-sw-floor, .re-sw-thumb, svg') || [...el.childNodes].some((n) => n.nodeType === 3 && n.textContent!.trim())
+    if (!own || el.closest('.re-sr') || !el.checkVisibility()) continue
+    const r = el.getBoundingClientRect()
+    if (r.height >= 1) add(r.top, r.bottom)
+  }
+  return { top, bottom, height: ch.offsetHeight }
+}
+
+/**
+ * One rhythm down the page: from one chapter's last painted box to the next one's first is the page's section gap,
+ * 2 × --re-pad (96 px wide, 64 px at 1100 px and below), the same space the sections leave between them. The chapters'
+ * frames place their words in fixed pixels on a scaled stage, so the space is measured and set as each chapter's margin.
+ */
+function useRhythm(root: React.RefObject<HTMLElement | null>) {
+  useEffect(() => {
+    const host = root.current
+    if (!host) return
+    let marks: HTMLElement[] = []
+    const run = () => {
+      const chs = [...host.querySelectorAll<HTMLElement>('.re-sw')]
+      const gap = 2 * parseFloat(getComputedStyle(host).getPropertyValue('--re-pad'))
+      const ex = chs.map(extent)
+      chs.forEach((c, i) => {
+        if (i > 0) c.style.marginTop = `${(gap - (ex[i - 1].height - ex[i - 1].bottom) - ex[i].top).toFixed(1)}px`
+        // The last one ends at its painted bottom, so the section's own padding is the space to the next section.
+        c.style.marginBottom = i < chs.length - 1 ? '0px' : `${(ex[i].bottom - ex[i].height).toFixed(1)}px`
+      })
+      if (!DEBUG) return
+      marks.forEach((m) => m.remove())
+      const hostTop = host.getBoundingClientRect().top
+      marks = chs.slice(1).map((c, i) => {
+        const a = chs[i].getBoundingClientRect().top + ex[i].bottom, b = c.getBoundingClientRect().top + ex[i + 1].top
+        const m = document.createElement('div')
+        m.className = 're-debug-gap'
+        m.style.top = `${a - hostTop}px`
+        m.style.height = `${b - a}px`
+        m.textContent = `${Math.round(b - a)} px`
+        host.append(m)
+        return m
+      })
+    }
+    run()
+    document.fonts.ready.then(run)
+    const ro = new ResizeObserver(run)
+    ro.observe(host)
+    return () => { ro.disconnect(); marks.forEach((m) => m.remove()) }
+  }, [root])
+}
+
+/** Debug only: every link and button below the hero outlined, green at 44 px or more in both directions, red under. */
+function useTapDebug() {
+  useEffect(() => {
+    if (!DEBUG) return
+    document.documentElement.setAttribute('data-page-debug', '')
+    const mark = () => document.querySelectorAll<HTMLElement>('#re-work, #re-backend, #re-workflow, #re-about, #re-explore, #re-results, #re-all, .re-field-notes, #re-contact').forEach((s) =>
+      s.querySelectorAll<HTMLElement>('a, button, summary').forEach((el) => {
+        const r = el.getBoundingClientRect(), b = getComputedStyle(el, '::before')
+        // A link's hit area may reach past its words through an absolutely placed ::before (the index's names do).
+        const grow = b.position === 'absolute' ? -parseFloat(b.top) - parseFloat(b.bottom) : 0
+        el.dataset.tap = r.width >= 44 && r.height + Math.max(0, grow) >= 44 ? 'ok' : 'small'
+      }))
+    mark()
+    addEventListener('resize', mark)
+    return () => removeEventListener('resize', mark)
+  }, [])
+}
+
 /** The screens each swapping slab steps through, in the order a visitor meets them (NN/g: five or fewer per carousel). */
 const BAYYINAH: LabeledShot[] = [
   { ...shots.landing, label: 'Landing page' },
-  { src: '/showcase/bayyinah/web-03.webp', w: 2880, h: 1800, label: 'Arabic library', alt: 'Bayyinah TV library, Arabic tab: beginner courses and the flagship Arabic program' },
-  { src: '/showcase/bayyinah/web-04.webp', w: 2880, h: 1800, label: 'Stories library', alt: 'Bayyinah TV library, Stories tab: filters by prophet and a row of story courses' },
-  { src: '/showcase/bayyinah/web-05.webp', w: 2880, h: 1800, label: 'Series and episodes', alt: 'Bayyinah TV series page: episode list in a side column, series summary and video cards' },
-  { src: '/showcase/bayyinah/web-06.webp', w: 2880, h: 1800, label: 'Plans and pricing', alt: 'Bayyinah TV pricing: Choose Your Plan with a monthly and annual switch and the Premium plan' },
+  // Own crops keep each screen's headline, controls and subject whole (the shared one cut through them); same aspect ratios.
+  { src: '/showcase/bayyinah/web-03.webp', w: 2880, h: 1800, crop: [61, 0, 2758, 1360], phoneCrop: [300, 171, 2280, 1629], label: 'Arabic library', alt: 'Bayyinah TV library, Arabic tab: beginner courses and the flagship Arabic program' },
+  { src: '/showcase/bayyinah/web-04.webp', w: 2880, h: 1800, crop: [50, 430, 2779, 1370], phoneCrop: [160, 870, 1260, 900], label: 'Stories library', alt: 'Bayyinah TV library, Stories tab: filters by prophet and a row of story courses' },
+  { src: '/showcase/bayyinah/web-05.webp', w: 2880, h: 1800, crop: [10, 270, 2860, 1410], phoneCrop: [690, 379, 1990, 1421], label: 'Series and episodes', alt: 'Bayyinah TV series page: episode list in a side column, series summary and video cards' },
+  { src: '/showcase/bayyinah/web-06.webp', w: 2880, h: 1800, phoneCrop: [1000, 220, 1840, 1314], label: 'Plans and pricing', alt: 'Bayyinah TV pricing: Choose Your Plan with a monthly and annual switch and the Premium plan' },
 ]
-// The achievements screen has its own slab and a different crop, so the reader's slab steps through the other three.
+// The achievements screen has its own slab and a different crop, so the reader's slab steps through the other three. The
+// slab's crop is cut for reading-3; the other two store images place their phone lower and narrower, so they carry crops
+// of their own that keep the store banner, the mascot and the device frame's corners out (2026-11-11).
 const READER: LabeledShot[] = [
   { ...shots.reader, label: 'Reader' },
-  { src: '/mobile/reading-1.webp', w: 780, h: 1689, label: 'My Books', alt: 'Read to Feed My Books: reading progress for The Tale of Peter Rabbit and Anne of Green Gables' },
-  { src: '/mobile/reading-4.webp', w: 780, h: 1689, label: 'New badge', alt: 'Read to Feed New Badge pop-up for 50,000 eggs' },
+  { src: '/mobile/reading-1.webp', w: 780, h: 1689, crop: [97, 520, 587, 1169], phoneCrop: [97, 540, 587, 539], label: 'My Books', alt: 'Read to Feed My Books: reading progress for The Tale of Peter Rabbit and Anne of Green Gables' },
+  { src: '/mobile/reading-4.webp', w: 780, h: 1689, crop: [146, 639, 527, 1050], phoneCrop: [110, 995, 560, 515], label: 'New badge', alt: 'Read to Feed New Badge pop-up for 50,000 eggs' },
 ]
 
 /**
@@ -302,6 +413,8 @@ export function Production({ onOpen, reduced, onFocus }: { onOpen(slug: string, 
   const bayyinah = useSwap(BAYYINAH)
   const reader = useSwap(READER)
   useRealSize(root)
+  useRhythm(root)
+  useTapDebug()
   // Real size on request: the course row at the size a visitor saw it (the 2880 px capture at 2×), opened on the live course.
   const openReal = () => full.current?.open([1248 + 960 / 2, 1148 + 620 / 2])
 
@@ -313,7 +426,7 @@ export function Production({ onOpen, reduced, onFocus }: { onOpen(slug: string, 
   }
   const release = (e: React.PointerEvent<HTMLAnchorElement>) => e.currentTarget.closest('.re-sw')?.removeAttribute('data-lift')
   const caseLink = (slug: string, name: string) => (
-    <a className="re-prod-case" href={`${BASE}/${slug}`} onPointerDown={press(slug)} onPointerLeave={release} onPointerCancel={release} onClick={(e) => { if (!plain(e)) return; e.preventDefault(); onOpen(slug, e.currentTarget, e.detail === 0) }}>
+    <a className="re-text-link re-prod-case" href={`${BASE}/${slug}`} onPointerDown={press(slug)} onPointerLeave={release} onPointerCancel={release} onClick={(e) => { if (!plain(e)) return; e.preventDefault(); onOpen(slug, e.currentTarget, e.detail === 0) }}>
       Read the {name} case
       <ArrowRightIcon {...ARROW} />
     </a>
@@ -331,7 +444,7 @@ export function Production({ onOpen, reduced, onFocus }: { onOpen(slug: string, 
           <Slab shot={shots.landing} swap={bayyinah} crop={[0, 0, 2880, 1420]} phoneCrop={[40, 400, 1400, 1000]} place={[70, 110, 1008]} phone={[16, 11, 358]} nh={440} transform="rotate(-0.55deg)" />
           <Slab shot={shots.courses} kind="swap" onReal={openReal} crop={[1248, 1148, 960, 620]} place={[984, 461, 370]} phone={[20, 188, 350]} nh={440} transform="rotate(2deg)" z={4} />
         </>}
-        media={<Thumbs swap={bayyinah} crop={[0, 0, 2880, 1420]} place={at(64, 636)} label="Bayyinah TV screens" thumbW={64} />}
+        media={<Thumbs swap={bayyinah} crop={[0, 0, 2880, 1420]} place={at(64, 636)} label="Bayyinah TV screens" wide />}
       >
         <div className="re-sw-at re-sw-copy" style={at(48, 742, 865)}>
           <h3>Rebuilt a live learning platform.</h3>
@@ -352,10 +465,7 @@ export function Production({ onOpen, reduced, onFocus }: { onOpen(slug: string, 
           <Slab shot={shots.reader} swap={reader} crop={[82, 462, 616, 1227]} phoneCrop={[82, 462, 616, 566]} place={[867, 70, 370]} phone={[58, 20, 312]} nh={445} />
           <Slab shot={shots.achievements} kind="companion" crop={[82, 620, 616, 1069]} phoneCrop={[82, 620, 616, 405]} place={[520, 166, 370]} phone={[20, 222, 312]} nh={445} z={4} />
         </>}
-        media={<>
-          <Thumbs swap={reader} crop={[82, 462, 616, 1227]} place={at(862, 818)} label="Read to Feed screens" thumbW={29} />
-          <p className="re-sw-at re-sw-cap" style={at(520, 838)}>Store listing images.</p>
-        </>}
+        media={<Thumbs swap={reader} crop={[82, 462, 616, 566]} phone place={at(862, 832)} label="Read to Feed screens" note="Store listing images." />}
       >
         <div className="re-sw-at re-sw-copy" style={at(64, 196, 420)}>
           <h3>Kept a children's reading app shipping for four years.</h3>
@@ -364,7 +474,7 @@ export function Production({ onOpen, reduced, onFocus }: { onOpen(slug: string, 
           <p className="re-sw-proof" data-numbers>About 14 store releases<small>React Native 0.63 → 0.81</small></p>
           <div className="re-sw-actions">
             {caseLink('read-to-feed', 'Read to Feed')}
-            <button type="button" className="re-sw-try" onClick={() => { setReading(true); dialog.current?.showModal() }}>Try the reader</button>
+            <button type="button" className="re-action" onClick={() => { setReading(true); dialog.current?.showModal() }}>Try the reader<ArrowsOutSimpleIcon {...ARROW} /></button>
           </div>
         </div>
         <Layers slug="read-to-feed" place={at(64, 690, 420)} row />
@@ -381,12 +491,13 @@ export function Production({ onOpen, reduced, onFocus }: { onOpen(slug: string, 
           <Meta name="Care-management platform" role="Web + backend · A team effort" stack />
           <p className="re-sw-status">React rewrite in progress</p>
         </div>
-        <ol className="re-sw-at re-sw-process" style={at(65, 790, 1310)} aria-label="How each screen moves over">
+        {/* ?cut=1 drops the steps here; "Checked before it changes" keeps them. */}
+        {!CUT && <ol className="re-sw-at re-sw-process" style={at(65, 790, 1310)} aria-label="How each screen moves over">
           <li>Test the existing screen</li>
           <li>AI agents build</li>
           <li>Run the checks</li>
           <li>A person approves</li>
-        </ol>
+        </ol>}
         <Layers slug="care-platform" place={at(64, 440, 300)} />
         <div className="re-sw-at re-sw-act" style={at(64, 842)}>{caseLink('care-platform', 'care-management platform')}</div>
       </Chapter>

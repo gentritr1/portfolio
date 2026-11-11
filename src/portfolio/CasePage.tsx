@@ -254,8 +254,13 @@ function Road({ text }: { text: string }) {
  * question and its answer, the context, the problem beside the decision, the three layers, the details, the screens, and
  * the next case. The writing is the same sourced brief the Exploded View pages use.
  */
-/** `rest` false renders the first screen only (the top bar and the landing), for the frame a view transition swaps in. */
-export function CasePage({ slug, rest = true, onBack }: { slug: string; rest?: boolean; onBack(): void }) {
+/**
+ * `rest` false (or 0) renders the first screen only (the top bar and the landing), for the frame a case opens on. After
+ * that the body (1), the screens (2) and the next case (3) mount a frame apart: mounted together they were one 52-78 ms
+ * frame at 4x CPU (measured 2026-11-11), each alone stays inside a frame. `true` is everything at once (a direct visit).
+ */
+export function CasePage({ slug, rest = true, onBack }: { slug: string; rest?: boolean | number; onBack(): void }) {
+  const part = rest === true ? 3 : rest === false ? 0 : rest
   const at = cases.findIndex((s) => s.slug === slug)
   const s = cases[at]
   const c = caseDetails[slug]
@@ -273,8 +278,12 @@ export function CasePage({ slug, rest = true, onBack }: { slug: string; rest?: b
   const setPinned = (d: number | null) => setView((o) => ({ ...(o.slug === slug ? o : v), pinned: d }))
   const mark: Mark = { lit, pinned, setLit, pin: setPinned }
 
+  // Focus waits for the frame that lays the case out: focusing inside the open's commit made the browser lay out the whole
+  // new page right there (22-24 ms at 4x CPU, measured 2026-11-11); a task after that frame finds the layout done.
   useEffect(() => {
-    heading.current?.focus({ preventScroll: true })
+    let timer = 0
+    const frame = requestAnimationFrame(() => { timer = window.setTimeout(() => heading.current?.focus({ preventScroll: true })) })
+    return () => { cancelAnimationFrame(frame); clearTimeout(timer) }
   }, [slug])
 
   // From the decision list to the screen: show the screen that carries this decision, mark it, and bring the stage into view.
@@ -291,7 +300,7 @@ export function CasePage({ slug, rest = true, onBack }: { slug: string; rest?: b
   const problem = c?.didntWork ? { title: c.didntWork.label, items: [c.didntWork.text] } : c && { title: 'Constraints', items: c.constraints }
 
   return (
-    <article className="re-casepage" data-stage={STAGE.ledger} data-landing-only={!rest || undefined} aria-labelledby="re-case-h" key={slug}>
+    <article className="re-casepage" data-stage={STAGE.ledger} data-landing-only={part === 0 || undefined} aria-labelledby="re-case-h" key={slug}>
       <nav className="re-case-top">
         <button type="button" className="re-btn re-btn-quiet re-solid" onClick={onBack}>
           <ArrowLeftIcon size={14} weight="bold" aria-hidden="true" />
@@ -328,7 +337,7 @@ export function CasePage({ slug, rest = true, onBack }: { slug: string; rest?: b
         </div>
       </header>
 
-      {rest && <>
+      {part >= 1 && (
         <div className="re-cs-body re-solid">
           {c && (
             <dl className="re-case-context">
@@ -438,8 +447,9 @@ export function CasePage({ slug, rest = true, onBack }: { slug: string; rest?: b
             </ul>
           )}
         </div>
+      )}
 
-        {s.gallery.length > 0 && (
+        {part >= 2 && s.gallery.length > 0 && (
           <section ref={stage} className="re-cs-screens" aria-labelledby="re-screens-h">
             <h2 id="re-screens-h" className="re-cs-h2">Screens</h2>
             {s.gallery.some((g) => g.alt.includes('Invented data')) && <p className="re-case-note re-num">Real product screens, invented data.</p>}
@@ -451,7 +461,7 @@ export function CasePage({ slug, rest = true, onBack }: { slug: string; rest?: b
           </section>
         )}
 
-        <nav className="re-cs-next" aria-label="More cases">
+        {part >= 3 && <nav className="re-cs-next" aria-label="More cases">
           <Link className="re-cs-next-main re-solid" to={`${BASE}/${next.slug}`}>
             <span className="re-cs-next-words">
               <span className="re-cs-next-label">Next</span>
@@ -464,8 +474,7 @@ export function CasePage({ slug, rest = true, onBack }: { slug: string; rest?: b
             <ArrowLeftIcon size={14} weight="regular" aria-hidden="true" />
             <span>Previous: {prev.name}</span>
           </Link>
-        </nav>
-      </>}
+        </nav>}
     </article>
   )
 }

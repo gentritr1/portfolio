@@ -1,9 +1,12 @@
-import { ArrowRightIcon, ArrowUpRightIcon } from '@phosphor-icons/react'
+import { ArrowRightIcon, ArrowUpRightIcon, CaretDownIcon } from '@phosphor-icons/react'
 import { channelOrder, channels } from "../content/channels"
 import { ARROW, plain, BASE } from "./data"
 import { cases, period, work } from "./products"
+import { CUT } from "./cut"
 
 const CASES = new Set(cases.map((s) => s.slug))
+/** Unlinked rows that stay in view under ?cut=1, folded or not. */
+const KEEP = new Set(['Care-management API', 'Sadaqah app for Islamic Relief USA'])
 
 /** Capabilities from CONTENT.md §1, described in plain language. */
 const CAPABILITIES: [string, string][] = [
@@ -49,15 +52,20 @@ export function AllWork({ onOpen }: { onOpen(slug: string): void }) {
               {period(key) && <span className="re-num">{period(key)}</span>}
             </h3>
             <ul className="re-all-rows">
-              {work.filter((p) => p.channel === key).map((p) => {
+              {(() => {
+                const rows = work.filter((p) => p.channel === key)
+                // ?cut=1: a group's unlinked rows fold into one disclosure at its end, when there are two or more of them.
+                const folded = CUT ? rows.filter((p) => !CASES.has(p.slug) && !p.links[0] && !KEEP.has(p.name)) : []
+                const fold = folded.length >= 2 ? new Set(folded) : new Set<typeof rows[number]>()
+                const row = (p: typeof rows[number]) => {
                 const link = p.links[0]
                 // The name is the link: to the case, or to the project's first public page.
                 const name = CASES.has(p.slug) ? (
-                  <a href={`${BASE}/${p.slug}`} aria-label={`Read the ${p.name} case`} onClick={(e) => { if (!plain(e)) return; e.preventDefault(); onOpen(p.slug) }}>
+                  <a className="re-link-secondary" href={`${BASE}/${p.slug}`} aria-label={`Read the ${p.name} case`} onClick={(e) => { if (!plain(e)) return; e.preventDefault(); onOpen(p.slug) }}>
                     {p.name}<ArrowRightIcon {...ARROW} />
                   </a>
                 ) : link ? (
-                  <a href={link.href} target="_blank" rel="noreferrer" aria-label={`${p.name}, ${link.label} (opens in a new tab)`}>
+                  <a className="re-link-secondary" href={link.href} target="_blank" rel="noreferrer" aria-label={`${p.name}, ${link.label} (opens in a new tab)`}>
                     {p.name}<ArrowUpRightIcon {...ARROW} />
                   </a>
                 ) : p.name
@@ -68,18 +76,30 @@ export function AllWork({ onOpen }: { onOpen(slug: string): void }) {
                     <p className="re-all-line">{p.line}</p>
                   </li>
                 )
-              })}
+                }
+                return <>
+                  {rows.filter((p) => !fold.has(p)).map(row)}
+                  {fold.size > 0 && (
+                    <li className="re-all-more">
+                      <details>
+                        <summary className="re-action">{fold.size} more<CaretDownIcon {...ARROW} /></summary>
+                        <ul className="re-all-rows">{[...fold].map(row)}</ul>
+                      </details>
+                    </li>
+                  )}
+                </>
+              })()}
             </ul>
           </div>
         )
       })}
-      <div className="re-all-cols">
-        <div>
+      <div className="re-all-cols" data-one={CUT || undefined}>
+        {!CUT && <div>
           <h3 className="re-all-area">Capabilities</h3>
           <dl className="re-all-dl">
             {CAPABILITIES.map(([k, v]) => <div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}
           </dl>
-        </div>
+        </div>}
         <div>
           <h3 className="re-all-area">Skills</h3>
           <dl className="re-all-dl">

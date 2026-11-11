@@ -1,5 +1,6 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import { flushSync } from 'react-dom'
 import { BrowserRouter, HashRouter } from 'react-router'
 import './styles/globals.css'
 import App from './App.tsx'
@@ -21,14 +22,17 @@ if (hashRouting) {
   }, true)
 }
 
-const render = () =>
-  createRoot(document.getElementById('root')!).render(
+preloadFirstView()
+const root = createRoot(document.getElementById('root')!)
+// Rendered synchronously as the entry runs, so the first frame after it carries the page. The paint is not held for the
+// script: holding it (blocking="render") left a slow connection on a blank screen 1.4 s longer for no earlier content.
+flushSync(() =>
+  root.render(
     <StrictMode>
       {/* Synchronous updates let flushSync commit a route inside a view transition. */}
       <Router useTransitions={false}>
         <App />
       </Router>
     </StrictMode>,
-  )
-
-preloadFirstView().then(render, render)
+  ),
+)

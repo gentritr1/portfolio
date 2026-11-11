@@ -26,8 +26,9 @@ export function FullSize({ src, w, h, alt, label, step, refocus, ref }: {
       if (v) v.scrollTo(focus ? { left: focus[0] * k - v.clientWidth / 2, top: focus[1] * k - v.clientHeight / 2 } : { left: 0, top: 0 })
     },
   }), [k])
-  // A stepped-to screen starts from its top-left corner.
-  useEffect(() => { view.current?.scrollTo({ left: 0, top: 0 }) }, [src])
+  // A stepped-to screen starts from its top-left corner. Only while open: a closed view is scrolled by `open`, and scrolling
+  // it on mount laid out the whole new case page inside a case open (14 ms at 4x CPU, measured 2026-11-11).
+  useEffect(() => { if (dialog.current?.open) view.current?.scrollTo({ left: 0, top: 0 }) }, [src])
   return (
     <dialog
       ref={dialog} className="re-sw-sheet" aria-label={`${alt}, at full size`}

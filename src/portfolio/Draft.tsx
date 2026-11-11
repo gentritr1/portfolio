@@ -1,10 +1,10 @@
-import { lazy, Suspense, startTransition, useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react'
+import { lazy, memo, Suspense, startTransition, useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react'
 import { useNavigate, useParams } from 'react-router'
 import { flushSync } from 'react-dom'
-import { ArrowCounterClockwiseIcon, ArrowUpRightIcon, CaretDownIcon } from '@phosphor-icons/react'
+import { ArrowCounterClockwiseIcon, ArrowRightIcon, ArrowUpRightIcon, CaretDownIcon, MinusIcon, PlusIcon } from '@phosphor-icons/react'
 import type { RefractiveScene, Stats } from "./scene"
-import { hasWebGL, STAGE } from "./sceneSupport"
-import { BASE, HOME, ledger, links, plain, type Value } from "./data"
+import { dlog, hasWebGL, STAGE } from "./sceneSupport"
+import { ARROW, BASE, HOME, ledger, links, plain, type Value } from "./data"
 import { AllWork } from "./AllWork"
 import { AREAS, AreaMap } from "./AreaMap"
 import { CasePage } from "./CasePage"
@@ -12,11 +12,18 @@ import { HomeIntro } from "./HomeIntro"
 import { Evidence } from "./Evidence"
 import { cases } from "./products"
 import { Production } from "./Production"
+import { CUT } from "./cut"
 import { TunePanel } from "./TunePanel"
 import "./refractive-engine.css"
 import "./home.css"
 
 const Lab = lazy(() => import("./Lab").then((m) => ({ default: m.Lab })))
+// The home's sections re-rendered on every case open (the page hides them, but Draft re-renders): memoized, with stable
+// callbacks, they stay out of the open's commit.
+const HomeIntroM = memo(HomeIntro)
+const ProductionM = memo(Production)
+const EvidenceM = memo(Evidence)
+const AllWorkM = memo(AllWork)
 
 type Mode = 'lens' | 'tensor'
 const MODE_KEY = 're:mode'
@@ -117,7 +124,14 @@ export default function Draft() {
   const [notesOpen, setNotesOpen] = useState(false)
   const [exploreOpen, setExploreOpen] = useState(false)
   // Opening a case from a chapter renders its first screen inside the view transition and the rest once the flight ends.
-  const [caseRest, setCaseRest] = useState(true)
+  const [caseRest, setCaseRest] = useState(3)
+  // After a case opens on its landing, the rest mounts a part per frame (see CasePage): each step waits for the last to paint.
+  useEffect(() => {
+    if (caseRest === 0 || caseRest === 3) return
+    let timer = 0
+    const frame = requestAnimationFrame(() => { timer = window.setTimeout(() => startTransition(() => setCaseRest((r) => Math.min(3, r + 1)))) })
+    return () => { cancelAnimationFrame(frame); clearTimeout(timer) }
+  }, [caseRest])
   const [drawn, setDrawn] = useState(count)
   const [bloomOn, setBloomOn] = useState(true)
   const [caOn, setCaOn] = useState(true)
@@ -130,6 +144,7 @@ export default function Draft() {
   // A direct case visit should not mount and fetch an unseen homepage. Preserve it after an actual home visit.
   const [hasVisitedHome, setHasVisitedHome] = useState(caseSlug === undefined)
   const navigate = useNavigate()
+  useEffect(() => { if (caseRest === 3 && caseSlug) dlog('case-open end', caseSlug) }, [caseRest, caseSlug])
   const onCase = useRef(false)
   useLayoutEffect(() => { onCase.current = caseSlug !== undefined }, [caseSlug])
   const homeScroll = useRef<number | null>(null)
@@ -158,12 +173,16 @@ export default function Draft() {
     let cancelled = false
     let cleanup = () => {}
     const mount = async () => {
-      if (!hasWebGL()) { if (!cancelled) setNoGl(true); return }
+      // The probe builds and drops a whole context (about 30 ms at 4x CPU): its own task, so it never stacks with the
+      // mount's work into one long frame, and a browser without WebGL still never downloads three.
+      await new Promise((r) => setTimeout(r))
+      if (cancelled) return
+      if (!hasWebGL()) { setNoGl(true); return }
       const { createScene } = await import("./scene")
       if (cancelled) return
       let scene: RefractiveScene
       try {
-        scene = createScene(host, {
+        scene = await createScene(host, {
           count,
           reduced,
           mode: modeRef.current === 'tensor' ? 1 : 0,
@@ -171,9 +190,11 @@ export default function Draft() {
           weights: AREAS.map((a) => a.n),
         })
       } catch {
-        queueMicrotask(() => setNoGl(true))
+        if (!cancelled) setNoGl(true)
         return
       }
+      // Built in slices, so the page may have left while it was being built.
+      if (cancelled) { scene.dispose(); return }
       sceneRef.current = scene
       setActiveScene(scene)
       queueMicrotask(() => setSceneKey((k) => k + 1))
@@ -348,7 +369,9 @@ export default function Draft() {
 
   // Into a case: start at its top. Back out (the button, the mark or the browser): land where the reader left the lab.
   useLayoutEffect(() => {
-    const jump = (y: number) => window.scrollTo({ top: y, behavior: 'instant' })
+    // Both axes: Chrome scrolls to (0, 0) without first laying the page out, so opening a case no longer forces a layout
+    // in the click (32-40 ms at 4x CPU, measured 2026-11-11); the frame lays it out once, as it would anyway.
+    const jump = (y: number) => window.scrollTo({ top: y, left: 0, behavior: 'instant' })
     const from = lastCase.current
     lastCase.current = caseSlug
     if (caseSlug) {
@@ -386,6 +409,7 @@ export default function Draft() {
     return () => { if (m && was) m.content = was }
   }, [])
   const toCase = (slug: string, trigger?: HTMLAnchorElement, keyboard = false) => {
+    dlog('case-open start', slug)
     if (!caseSlug) setHasVisitedHome(true)
     homeScroll.current = scrollY
     productionTrigger.current = trigger ?? null
@@ -394,7 +418,7 @@ export default function Draft() {
     // own slab, so the next case keeps its default size.
     const width = hero?.getBoundingClientRect().width
     const go = (lite = false) => {
-      flushSync(() => { setCaseRest(!lite); navigate(`${BASE}/${slug}`) })
+      flushSync(() => { setCaseRest(lite ? 0 : 3); navigate(`${BASE}/${slug}`) })
       const landing = document.querySelector<HTMLElement>('.re-cs-hero[data-hero]')
       if (landing && width) landing.style.setProperty('--re-land-w', `${width}px`)
       return landing
@@ -413,10 +437,19 @@ export default function Draft() {
       })
       t.finished.finally(() => {
         document.querySelector<HTMLElement>('.re-cs-hero[data-hero]')?.style.removeProperty('view-transition-name')
-        startTransition(() => setCaseRest(true))
+        startTransition(() => setCaseRest(1))
       })
-    } else go()
+    } else {
+      // Without a flight the landing still commits alone in the click, and the body follows after that frame is painted:
+      // committing the whole case in one task cost one 121 ms frame at 4x CPU (64 ms of it layout), measured 2026-11-11.
+      go(true)
+      requestAnimationFrame(() => setTimeout(() => startTransition(() => setCaseRest(1))))
+    }
   }
+  const toCaseRef = useRef(toCase)
+  useLayoutEffect(() => { toCaseRef.current = toCase })
+  const openCase = useCallback((slug: string, trigger?: HTMLAnchorElement, keyboard?: boolean) => toCaseRef.current(slug, trigger, keyboard), [])
+  const openFromIndex = useCallback((slug: string) => toCaseRef.current(slug), [])
   const toHome = (top = false) => {
     setHasVisitedHome(true)
     if (top) homeScroll.current = 0
@@ -464,16 +497,16 @@ export default function Draft() {
       {new URLSearchParams(location.search).has('tune') && <TunePanel scene={sceneRef} />}
       {caseSlug && <CasePage slug={caseSlug} rest={caseRest} onBack={() => toHome()} />}
 
-      {(hasVisitedHome || !caseSlug) && <main hidden={caseSlug !== undefined}>
-        <HomeIntro onOpen={toCase} reduced={reduced} onPulse={pulse} />
+      {(hasVisitedHome || !caseSlug) && <main hidden={caseSlug !== undefined} data-cut={CUT || undefined}>
+        <HomeIntroM onOpen={openCase} reduced={reduced} onPulse={pulse} />
 
-        <Production onOpen={toCase} reduced={reduced} onFocus={focusField} />
+        <ProductionM onOpen={openCase} reduced={reduced} onFocus={focusField} />
 
-        <Evidence onOpen={toCase} />
+        <EvidenceM onOpen={openCase} />
 
         <details id="re-explore" className="re-disclosure re-solid" onToggle={(e) => setExploreOpen(e.currentTarget.open)}>
-          <summary>Explore the product layers <span>Eight products, from interface to infrastructure</span><CaretDownIcon className="re-disclosure-caret" size={20} aria-hidden="true" /></summary>
-          {exploreOpen && <Suspense fallback={<p className="re-disclosure-loading" role="status">Opening the product layers…</p>}><Lab mode={mode} reduced={reduced} noGl={noGl} onOpen={toCase} /></Suspense>}
+          <summary className="re-action">Explore the product layers <span>Eight products, from interface to infrastructure</span><CaretDownIcon className="re-disclosure-caret" size={20} aria-hidden="true" /></summary>
+          {exploreOpen && <Suspense fallback={<p className="re-disclosure-loading" role="status">Opening the product layers…</p>}><Lab mode={mode} reduced={reduced} noGl={noGl} onOpen={openCase} /></Suspense>}
           {exploreOpen && !noGl && <AreaMap scene={activeScene} userMode={mode === 'tensor' ? 1 : 0} stage={STAGE.modes} />}
         </details>
 
@@ -503,11 +536,11 @@ export default function Draft() {
           </ol>
         </section>
 
-        <AllWork onOpen={(slug) => toCase(slug)} />
+        <AllWorkM onOpen={openFromIndex} />
 
         {/* The field explains itself here, folded away: it is the page's ground, not its subject. */}
         <details className="re-field-notes" onToggle={(e) => { const open = e.currentTarget.open; notesOpenRef.current = open; setNotesOpen(open); if (open) setStageQ(currentStage.current) }}>
-          <summary>The field behind this page</summary>
+          <summary className="re-action"><PlusIcon {...ARROW} className="re-notes-closed" /><MinusIcon {...ARROW} className="re-notes-open" />The field behind this page</summary>
           {notesOpen && (<>
           <section className="re-modes" data-stage={STAGE.modes} aria-labelledby="re-modes-h">
             <div className="re-card re-solid">
@@ -576,11 +609,12 @@ export default function Draft() {
           <div className="re-card re-solid">
             <h2 className="re-h2">Contact</h2>
             <p className="re-lede">Based in Kosovo, working remotely.</p>
-            <div className="re-links">
-              <a className="re-btn re-btn-solid" href={`mailto:${links.email}`}>{links.email}</a>
-              <a className="re-btn" href={links.github} target="_blank" rel="noreferrer">GitHub<ArrowUpRightIcon size={14} weight="bold" aria-hidden="true" /><span className="re-sr"> (opens in a new tab)</span></a>
-              <a className="re-btn" href={links.linkedin} target="_blank" rel="noreferrer">LinkedIn<ArrowUpRightIcon size={14} weight="bold" aria-hidden="true" /><span className="re-sr"> (opens in a new tab)</span></a>
-              <a className="re-btn" href={links.cv}>CV (PDF)</a>
+            {/* The address is the ending's one large link; on a phone it breaks only before "@", and the arrow follows the last line. */}
+            <a className="re-text-link re-contact-email" href={`mailto:${links.email}`}>{links.email.split('@')[0]}<wbr /><span className="re-contact-tail">@{links.email.split('@')[1]}<ArrowRightIcon {...ARROW} /></span></a>
+            <div className="re-contact-more">
+              <a className="re-link-secondary" href={links.github} target="_blank" rel="noreferrer">GitHub<ArrowUpRightIcon {...ARROW} /><span className="re-sr"> (opens in a new tab)</span></a>
+              <a className="re-link-secondary" href={links.linkedin} target="_blank" rel="noreferrer">LinkedIn<ArrowUpRightIcon {...ARROW} /><span className="re-sr"> (opens in a new tab)</span></a>
+              <a className="re-link-secondary" href={links.cv}>CV (PDF)</a>
             </div>
             <p className="re-foot">Gentrit Rashiti</p>
           </div>
