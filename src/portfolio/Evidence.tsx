@@ -66,7 +66,7 @@ export function Evidence({ onOpen }: { onOpen: OpenCase }) {
             e.preventDefault()
             onOpen('care-platform', e.currentTarget, e.detail === 0)
           }}>See the care-platform work <ArrowRightIcon {...ARROW} /></a>
-          <p className="re-engineering-meta">Based in Kosovo · Working remotely</p>
+          <p className="re-engineering-meta">Based in Kosovo · Open to hybrid or remote work</p>
         </div>
       </section>
     </>

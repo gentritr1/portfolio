@@ -608,7 +608,7 @@ export default function Draft() {
         <footer id="re-contact" className="re-contact" data-stage={STAGE.contact}>
           <div className="re-card re-solid">
             <h2 className="re-h2">Contact</h2>
-            <p className="re-lede">Based in Kosovo, working remotely.</p>
+            <p className="re-lede">Based in Kosovo, open to hybrid or remote work.</p>
             {/* The address is the ending's one large link; on a phone it breaks only before "@", and the arrow follows the last line. */}
             <a className="re-text-link re-contact-email" href={`mailto:${links.email}`}>{links.email.split('@')[0]}<wbr /><span className="re-contact-tail">@{links.email.split('@')[1]}<ArrowRightIcon {...ARROW} /></span></a>
             <div className="re-contact-more">
