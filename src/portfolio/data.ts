@@ -9,7 +9,8 @@ export const ARROW = { size: 20, weight: 'light', 'aria-hidden': true } as const
 /**
  * Content for The Refractive Engine. Projects come from Event Horizon's data (itself built from the site's
  * content files); every ledger number is copied from the source named on its row (repo locations:
- * projects.ts / caseNarratives.ts, the-loop/data.ts board-07 and own[] snaxx, the event-horizon frame harness).
+ * projects.ts / caseNarratives.ts, the-loop/data.ts board-07 and own[] snaxx, the event-horizon frame harness;
+ * the fonts row: this page's font requests in Chrome on a production build, originals in scripts/fonts/originals).
  */
 export { systems, links } from "./portfolioData"
 
@@ -50,6 +51,23 @@ export const ledger: LedgerRow[] = [
     bars: [{ label: 'JavaScript for an app that imports only Button', before: { low: 186949, text: '186,949 bytes' }, after: { low: 6386, text: '6,386 bytes' }, scale: 186949 }],
     note: '96.6% less, from per-component builds.',
     source: 'Design System v2, measured in its release pipeline',
+  },
+  {
+    id: 'studio',
+    name: 'Snaxx Tech studio site',
+    bars: [
+      { label: 'Images', before: { low: 972, text: '972 KB' }, after: { low: 337, text: '337 KB' }, scale: 972 },
+      { label: 'Deploy size', before: { low: 28, text: '28 MB' }, after: { low: 9.5, text: '9.5 MB' }, scale: 28 },
+    ],
+    note: 'Both about a third of what they were.',
+    source: 'The Snaxx Tech site, from its project record',
+  },
+  {
+    id: 'fonts',
+    name: 'The fonts on this site',
+    bars: [{ label: 'Font bytes each page downloads', before: { low: 103328, text: '103,328 bytes' }, after: { low: 47284, text: '47,284 bytes' }, scale: 103328 }],
+    note: '54.2% less, from fonts cut to the characters this site uses. The text renders the same, checked pixel by pixel.',
+    source: 'This site’s production build, measured in Chrome',
   },
 ]
 
