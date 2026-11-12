@@ -1,7 +1,9 @@
 @import "tailwindcss";
 
-@font-face { font-family: "Archivo"; src: url('/fonts/Archivo.woff2') format('woff2'); font-weight: 100 900; font-stretch: 62% 125%; font-display: swap; }
-@font-face { font-family: "Martian Mono"; src: url('/fonts/MartianMono.woff2') format('woff2'); font-weight: 100 800; font-stretch: 75% 112.5%; font-display: swap; }
+@font-face { font-family: "Archivo"; src: url('/fonts/Archivo.woff2') format('woff2'); font-weight: 100 900; font-stretch: 62% 125%; font-display: swap; unicode-range: U+20-7E, U+A0, U+A7, U+B0, U+B7, U+CB, U+D7, U+EB, U+F7, U+2010-2011, U+2013-2014, U+2018-2019, U+201C-201D, U+2026, U+2192, U+2212; /* subset-fonts: core */ }
+@font-face { /* subset-fonts: extended */ font-family: "Archivo"; src: url('/fonts/Archivo-ext.woff2') format('woff2'); font-weight: 100 900; font-stretch: 62% 125%; font-display: swap; unicode-range: U+A1-A6, U+A8-AF, U+B1-B6, U+B8-CA, U+CC-D6, U+D8-EA, U+EC-F6, U+F8-17E; }
+@font-face { font-family: "Martian Mono"; src: url('/fonts/MartianMono.woff2') format('woff2'); font-weight: 100 800; font-stretch: 75% 112.5%; font-display: swap; unicode-range: U+20-7E, U+A0, U+A7, U+B0, U+B7, U+CB, U+D7, U+EB, U+F7, U+2010-2011, U+2013-2014, U+2018-2019, U+201C-201D, U+2026, U+2192, U+2212; /* subset-fonts: core */ }
+@font-face { /* subset-fonts: extended */ font-family: "Martian Mono"; src: url('/fonts/MartianMono-ext.woff2') format('woff2'); font-weight: 100 800; font-stretch: 75% 112.5%; font-display: swap; unicode-range: U+A1-A6, U+A8-AF, U+B1-B6, U+B8-CA, U+CC-D6, U+D8-EA, U+EC-F6, U+F8-107, U+10A-113, U+116-11B, U+11E-123, U+126-12B, U+12E-133, U+136-148, U+14A-14D, U+150-15B, U+15E-17E; }
 
 /*
  * Theme: dark is the default. The html element with data-theme="light" selects daylight.
